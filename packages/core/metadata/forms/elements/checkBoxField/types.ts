@@ -7,7 +7,7 @@ import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/e
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export interface CheckBoxField extends FormField {
+export interface CheckBoxField extends Omit<FormField, "elementType"> {
   elementType: "CheckBoxField"
   backColor?: Color
   borderColor?: Color

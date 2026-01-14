@@ -27,7 +27,7 @@ export type ToTypedEnterpriseType<T extends BaseElement | undefined> = T extends
 export type ImportFromXMLFn = <To extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: ToXMLType<To>
-) => ImportExportReturn<ToXMLType<To>, To>
+) => To
 
 export type ImportTypedFromEnterpriseFn = <To extends BaseElement | undefined>(
   context: ConfigurationContext,

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { FormElementType } from "../../metadataFactory/types"
-import { BaseElement } from "../elements/baseElement/types"
+import { NamedElement } from "../elements/baseElement/types"
 import {
   clearIsOneLineElementCheckRegistry,
   isOneLineElement,
@@ -13,19 +13,19 @@ describe("isOneLineElementCheckFactory", () => {
   })
 
   it("should register and use check function for element type", () => {
-    const element: BaseElement = {
+    const element: NamedElement = {
       elementType: FormElementType.InputField,
       name: "InputField",
     }
 
-    const checkFunction = (_element: BaseElement) => true
+    const checkFunction = (_element: NamedElement) => true
     registerIsOneLineElementCheck(FormElementType.InputField, checkFunction)
 
     expect(isOneLineElement(element)).toBe(true)
   })
 
   it("should clear registry correctly", () => {
-    const element: BaseElement = {
+    const element: NamedElement = {
       elementType: FormElementType.InputField,
       name: "InputField",
     }
@@ -39,12 +39,12 @@ describe("isOneLineElementCheckFactory", () => {
   })
 
   it("should work with multiple element types", () => {
-    const inputField: BaseElement = {
+    const inputField: NamedElement = {
       elementType: FormElementType.InputField,
       name: "InputField",
     }
 
-    const group: BaseElement = {
+    const group: NamedElement = {
       elementType: FormElementType.UsualGroup,
       name: "UsualGroup",
     }

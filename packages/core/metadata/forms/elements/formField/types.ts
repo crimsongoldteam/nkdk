@@ -9,14 +9,15 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementPropsEnterprise, BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface FormField extends BaseElement {
+export interface FormField extends NamedElement {
+  elementType: "FormField"
   autoCellHeight?: boolean
   cellHyperlink?: boolean
   contextMenu?: ContextMenu

@@ -5,9 +5,9 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
-import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
+import { FormDecoration } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importFormDecorationFromXML<To extends FormDecoration | undefined>(
   context: ConfigurationContext,

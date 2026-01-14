@@ -36,18 +36,27 @@ import {
   CommandBarTypedEnterprise,
   CommandBarXML,
 } from "../forms/elements/commandBar/types"
+import { ContextMenu, ContextMenuXML } from "../forms/elements/contextMenu/types"
 import {
   DendrogramField,
   DendrogramFieldPartialEnterprise,
   DendrogramFieldTypedEnterprise,
   DendrogramFieldXML,
 } from "../forms/elements/dendrogramField/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../forms/elements/extendedTooltip/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldPartialEnterprise,
   FormattedDocumentFieldTypedEnterprise,
   FormattedDocumentFieldXML,
 } from "../forms/elements/formattedDocumentField/types"
+import {
+  FormDecoration,
+  FormDecorationPartialEnterprise,
+  FormDecorationTypedEnterprise,
+  FormDecorationXML,
+} from "../forms/elements/formDecoration/types"
+import { FormField, FormFieldXML } from "../forms/elements/formField/types"
 import {
   GanttChartField,
   GanttChartFieldPartialEnterprise,
@@ -365,4 +374,26 @@ export type TypeRules<T extends BaseElement> = T extends Button
                                                                 PartialEnterprise: TrackBarFieldPartialEnterprise
                                                                 TypedEnterprise: TrackBarFieldTypedEnterprise
                                                               }
-                                                            : never
+                                                            : T extends FormDecoration
+                                                              ? {
+                                                                  XML: FormDecorationXML
+                                                                  Element: FormDecoration
+                                                                  PartialEnterprise: FormDecorationPartialEnterprise
+                                                                  TypedEnterprise: FormDecorationTypedEnterprise
+                                                                }
+                                                              : T extends FormField
+                                                                ? {
+                                                                    XML: FormFieldXML
+                                                                    Element: FormField
+                                                                  }
+                                                                : T extends ContextMenu
+                                                                  ? {
+                                                                      XML: ContextMenuXML
+                                                                    }
+                                                                  : T extends ExtendedTooltip
+                                                                    ? {
+                                                                        XML: ExtendedTooltipXML
+                                                                        Element: ExtendedTooltip
+                                                                        PartialEnterprise: ExtendedTooltipEnterprise
+                                                                      }
+                                                                    : never

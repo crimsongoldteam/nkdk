@@ -3,7 +3,7 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
+import { ExtendedTooltip } from "~/metadata/forms/elements/extendedTooltip/types"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importExtendedTooltipFromXML<To extends ExtendedTooltip | undefined>(
@@ -12,7 +12,9 @@ export function importExtendedTooltipFromXML<To extends ExtendedTooltip | undefi
 ): To {
   if (xml === undefined) return undefined as To
 
-  const result: ExtendedTooltip = {}
+  const result: ExtendedTooltip = {
+    elementType: "ExtendedTooltip",
+  }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
 

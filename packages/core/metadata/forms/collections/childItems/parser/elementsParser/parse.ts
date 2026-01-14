@@ -1,13 +1,13 @@
 import type { CstNode, IToken } from "chevrotain"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { ChildItems } from "~/metadata/forms/collections/childItems/types"
-import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { ChildItem, ChildItems } from "~/metadata/forms/collections/childItems/types"
+import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
+import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
-import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 
-export const parseElement = (context: ConfigurationContext, element: TreeNode): BaseElement => {
+export const parseElement = (context: ConfigurationContext, element: TreeNode): ChildItem => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, context)
@@ -30,7 +30,7 @@ export const parseOneLineGroupElements = (
   return cst
 }
 
-const addChildItemsToResult = (context: ConfigurationContext, cst: BaseElement, element: TreeNode): void => {
+const addChildItemsToResult = (context: ConfigurationContext, cst: NamedElement, element: TreeNode): void => {
   if (!("childItems" in cst)) return
 
   if (element.type === ParseElementType.CommandBar) return

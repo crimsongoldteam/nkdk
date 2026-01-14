@@ -5,7 +5,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "../../../metadataFactory/types"
 import { ChildItem } from "../../collections/childItems/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
-import { BaseElement } from "../baseElement/types"
+import { NamedElement } from "../baseElement/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
 import { Table } from "./types"
@@ -44,7 +44,7 @@ const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
 
 export const exportTableToStructure: FormatElementFunction = (
   _context: ConfigurationContext,
-  element: BaseElement
+  element: NamedElement
 ): IFormatElementResult => {
   const tableElement = element as Table
   const result: IFormatElementResult = {
@@ -59,7 +59,7 @@ export const exportTableToStructure: FormatElementFunction = (
   // Обрабатываем горизонтальные группы
   const hasHorizontalGroup = tableElement.childItems.some((item: ChildItem) => {
     if (!("elementType" in item)) return false
-    const baseItem = item as unknown as BaseElement
+    const baseItem = item as unknown as NamedElement
     return (
       baseItem.elementType === FormElementType.ColumnGroup &&
       "group" in baseItem &&
@@ -71,7 +71,7 @@ export const exportTableToStructure: FormatElementFunction = (
     // Обрабатываем каждую группу или колонку
     for (const item of tableElement.childItems) {
       if (!("elementType" in item)) continue
-      const baseItem = item as unknown as BaseElement
+      const baseItem = item as unknown as NamedElement
       if (baseItem.elementType === FormElementType.ColumnGroup) {
         const columnGroup = baseItem as unknown as ColumnGroup
         if (columnGroup.group === "Horizontal") {
@@ -79,9 +79,9 @@ export const exportTableToStructure: FormatElementFunction = (
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
               .filter((child: ChildItem) => "elementType" in child)
-              .map((child: ChildItem) => child as unknown as BaseElement)
-              .filter((child: BaseElement) => child.elementType === FormElementType.InputField)
-              .map((child: BaseElement) => child as unknown as InputField)
+              .map((child: ChildItem) => child as unknown as NamedElement)
+              .filter((child: NamedElement) => child.elementType === FormElementType.InputField)
+              .map((child: NamedElement) => child as unknown as InputField)
             if (columns.length > 0) {
               const row = formatTableRow(columns)
               const rowWithExtraBar = `${V_BAR}${row.substring(1)}` // Добавляем дополнительный | в начале
@@ -112,9 +112,9 @@ export const exportTableToStructure: FormatElementFunction = (
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
               .filter((child: ChildItem) => "elementType" in child)
-              .map((child: ChildItem) => child as unknown as BaseElement)
-              .filter((child: BaseElement) => child.elementType === FormElementType.InputField)
-              .map((child: BaseElement) => child as unknown as InputField)
+              .map((child: ChildItem) => child as unknown as NamedElement)
+              .filter((child: NamedElement) => child.elementType === FormElementType.InputField)
+              .map((child: NamedElement) => child as unknown as InputField)
             // Форматируем каждую колонку в отдельную строку
             for (const column of columns) {
               result.strings.push(formatTableRow([column]))
@@ -130,7 +130,7 @@ export const exportTableToStructure: FormatElementFunction = (
     // Нет горизонтальных групп - проверяем наличие вертикальных групп
     const hasVerticalGroup = tableElement.childItems.some((item: ChildItem) => {
       if (!("elementType" in item)) return false
-      const baseItem = item as unknown as BaseElement
+      const baseItem = item as unknown as NamedElement
       return (
         baseItem.elementType === FormElementType.ColumnGroup &&
         "group" in baseItem &&
@@ -142,16 +142,16 @@ export const exportTableToStructure: FormatElementFunction = (
       // Есть вертикальные группы - обрабатываем каждую группу
       for (const item of tableElement.childItems) {
         if (!("elementType" in item)) continue
-        const baseItem = item as unknown as BaseElement
+        const baseItem = item as unknown as NamedElement
         if (baseItem.elementType === FormElementType.ColumnGroup) {
           const columnGroup = baseItem as unknown as ColumnGroup
           // Вертикальная группа - каждая колонка в отдельной строке
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
               .filter((child: ChildItem) => "elementType" in child)
-              .map((child: ChildItem) => child as unknown as BaseElement)
-              .filter((child: BaseElement) => child.elementType === FormElementType.InputField)
-              .map((child: BaseElement) => child as unknown as InputField)
+              .map((child: ChildItem) => child as unknown as NamedElement)
+              .filter((child: NamedElement) => child.elementType === FormElementType.InputField)
+              .map((child: NamedElement) => child as unknown as InputField)
             // Форматируем каждую колонку в отдельную строку
             for (const column of columns) {
               result.strings.push(formatTableRow([column]))
@@ -166,9 +166,9 @@ export const exportTableToStructure: FormatElementFunction = (
       // Нет групп - просто форматируем все колонки в одну строку
       const columns = tableElement.childItems
         .filter((item: ChildItem) => "elementType" in item)
-        .map((item: ChildItem) => item as unknown as BaseElement)
-        .filter((item: BaseElement) => item.elementType === FormElementType.InputField)
-        .map((item: BaseElement) => item as unknown as InputField)
+        .map((item: ChildItem) => item as unknown as NamedElement)
+        .filter((item: NamedElement) => item.elementType === FormElementType.InputField)
+        .map((item: NamedElement) => item as unknown as InputField)
       if (columns.length > 0) {
         result.strings.push(formatTableRow(columns))
       }

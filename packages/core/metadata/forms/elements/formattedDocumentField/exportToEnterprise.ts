@@ -16,7 +16,6 @@ import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metad
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-
 export function exportFormattedDocumentFieldTypedToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
   data: From

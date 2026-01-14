@@ -4,12 +4,12 @@ import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLine
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "../../../metadataFactory/types"
-import { BaseElement } from "../baseElement/types"
+import { NamedElement } from "../baseElement/types"
 import { PictureDecoration } from "./types"
 
 export const exportPictureDecorationToStructure: FormatElementFunction = (
   _context: ConfigurationContext,
-  element: BaseElement
+  element: NamedElement
 ): IFormatElementResult => {
   const pictureDecoration = element as PictureDecoration
   const result: IFormatElementResult = {

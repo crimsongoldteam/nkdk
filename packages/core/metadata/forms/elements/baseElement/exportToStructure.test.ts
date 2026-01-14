@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportOtherElementToStructure } from "./exportToStructure"
-import { BaseElement } from "./types"
+import { NamedElement } from "./types"
 
 describe("formatOtherElement", () => {
   it("should format element", () => {
-    const element: BaseElement = {
+    const element: NamedElement = {
       elementType: FormElementType.InputField,
       name: "ИмяПоля",
     }

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { executeImportPartialFromEnterpriseOperation } from "~/metadata/metadataFactory/metadataFactory"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { ChildItem, ChildItems, ChildItemsPartialEnterprise } from "./types"
 
 export const importChildItemsPropertiesFromEnterprise = (
@@ -32,13 +32,9 @@ const importChildItemProperties = (
 
   const propertiesEnterprise = childItemsProperties[item.name]
 
-  const result = executeImportPartialFromEnterpriseOperation(
-    "ImportPartialFromEnterprise",
-    item.elementType,
-    context,
-    item,
-    propertiesEnterprise
-  )
+  const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
+  if (fn == undefined) throw new Error(`Import function not found for element type: ${item.elementType}`)
+  const result = fn(context, item, propertiesEnterprise)
 
   return result
 }

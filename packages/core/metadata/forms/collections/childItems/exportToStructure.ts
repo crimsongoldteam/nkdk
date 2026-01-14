@@ -3,7 +3,7 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
-import { BaseElement } from "../../elements/baseElement/types"
+import { NamedElement } from "../../elements/baseElement/types"
 import { ChildItems } from "./types"
 
 export const exportChildItemsToStructure = (context: ConfigurationContext, items: ChildItems): IFormatElementResult => {
@@ -18,7 +18,7 @@ export const exportChildItemsToStructure = (context: ConfigurationContext, items
     | typeof FormElementType.Table
   )[] = [FormElementType.Pages, FormElementType.UsualGroup, FormElementType.Table]
 
-  let prevItem: BaseElement | null = null
+  let prevItem: NamedElement | null = null
   for (const item of items) {
     if (
       prevItem &&

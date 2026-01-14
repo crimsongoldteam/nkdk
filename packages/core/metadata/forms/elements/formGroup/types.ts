@@ -3,11 +3,11 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementPropsEnterprise, BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export interface FormGroup extends BaseElement {
+export interface FormGroup extends NamedElement {
   elementType: "FormGroup"
   // childItems?: ChildItems
   enableContentChange?: boolean

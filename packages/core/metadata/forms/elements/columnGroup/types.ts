@@ -6,7 +6,7 @@ import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 
-export interface ColumnGroup extends FormGroup {
+export interface ColumnGroup extends Omit<FormGroup, "elementType"> {
   elementType: "ColumnGroup"
   fixingInTable?: SE.FixingInTable
   group?: SE.ColumnsGroup

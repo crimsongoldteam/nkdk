@@ -7,14 +7,14 @@ import { FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { addSimpleIndent } from "../../format/wrap/addIndents"
-import { BaseElement } from "../baseElement/types"
+import { NamedElement } from "../baseElement/types"
 import { Pages } from "./types"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
 export const exportPagesToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  element: BaseElement
+  element: NamedElement
 ): IFormatElementResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []

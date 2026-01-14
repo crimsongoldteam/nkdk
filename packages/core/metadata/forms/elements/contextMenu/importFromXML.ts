@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
+import { ContextMenu } from "~/metadata/forms/elements/contextMenu/types"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { importButtonGroupChildItemsFromXML } from "../../collections/buttonGroupChildItems/importFromXML"
 
@@ -10,6 +10,7 @@ export function importContextMenuFromXML<To extends ContextMenu | undefined>(
   if (xml === undefined) return undefined as To
 
   const result: ContextMenu = {
+    elementType: "ContextMenu",
     childItems: [],
   }
 

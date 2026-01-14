@@ -8,6 +8,7 @@ import {
 import { BaseElementXML } from "../baseElement/types"
 
 export interface ContextMenu {
+  elementType: "ContextMenu"
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
   childItems: ButtonGroupChildItems

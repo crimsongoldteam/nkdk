@@ -3,13 +3,13 @@ import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/aut
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
-import { BaseElement } from "../baseElement/types"
+import { NamedElement } from "../baseElement/types"
 import { getAutoCommandBarName, isHasContent } from "./helper"
 
 export const exportAutoCommandBarToXML = (
   context: ConfigurationContext,
   data: AutoCommandBar | undefined,
-  parentElement?: BaseElement
+  parentElement?: NamedElement
 ): AutoCommandBarXML => {
   const autoCommandBar = data ?? getDefaultAutoCommandBar()
 

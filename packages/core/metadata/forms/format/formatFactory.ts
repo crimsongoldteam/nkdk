@@ -2,27 +2,27 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { ChildItems } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
-import { BaseElement } from "../elements/baseElement/types"
+import { NamedElement } from "../elements/baseElement/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
 
 type FormatRegistry = {
   format: FormatElementFunction
-  check: CheckFormatFunction<BaseElement>
+  check: CheckFormatFunction<NamedElement>
 }[]
 
 const registry: FormatRegistry = []
 
-export const registerFormat = <T extends BaseElement>(
+export const registerFormat = <T extends NamedElement>(
   format: FormatElementFunction,
   check: CheckFormatFunction<T>
 ): void => {
   registry.push({
     format: format,
-    check: check as CheckFormatFunction<BaseElement>,
+    check: check as CheckFormatFunction<NamedElement>,
   })
 }
 
-export const formatElement = <T extends BaseElement>(
+export const formatElement = <T extends NamedElement>(
   context: ConfigurationContext,
   element: T
 ): IFormatElementResult => {
@@ -44,7 +44,7 @@ export const formatElements = (context: ConfigurationContext, items: ChildItems)
     FormElementType.UsualGroup,
   ]
 
-  let prevItem: BaseElement | null = null
+  let prevItem: NamedElement | null = null
   for (const item of items) {
     if (
       prevItem &&

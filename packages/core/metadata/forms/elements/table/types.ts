@@ -5,7 +5,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
-import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementPropsEnterprise, BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 
 import { EventsXML } from "~/metadata/forms/events/types"
@@ -24,7 +24,7 @@ import {
 } from "../searchStringAddition/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise, ViewStatusAdditionXML } from "../viewStatusAddition/types"
 
-export interface Table extends BaseElement {
+export interface Table extends NamedElement {
   elementType: "Table"
   autoAddIncomplete?: boolean
   autoCommandBar?: AutoCommandBar

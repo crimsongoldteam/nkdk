@@ -5,10 +5,8 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/importFromEnterprise"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -129,18 +127,15 @@ const importTableEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importTableFromEnterprise = <From extends TablePartialEnterprise | undefined, Name extends string>(
+export const importTableFromEnterprise = <From extends TablePartialEnterprise | undefined>(
   context: ConfigurationContext,
   data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, Table, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, Table, Name>
-
-  const baseElement = importBaseElementFromEnterprise(context, {} as From, name)
-  if (!baseElement) return undefined as ImportFromEnterpriseReturn<From, Table, Name>
+  name: string
+): Table | undefined => {
+  if (!data) return undefined
 
   const result: Table = {
-    ...baseElement,
+    name,
     elementType: FormElementType.Table,
     childItems: [],
   }
@@ -479,7 +474,7 @@ export const importTableFromEnterprise = <From extends TablePartialEnterprise | 
   const events = importTableEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result as ImportFromEnterpriseReturn<From, Table, Name>
+  return result
 }
 
 registerMetadata("ImportPartialFromEnterprise", "Table", importTableFromEnterprise)

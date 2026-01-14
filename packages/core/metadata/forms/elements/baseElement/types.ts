@@ -2,6 +2,9 @@ import { FormElementType } from "../../../metadataFactory/types"
 
 export interface BaseElement {
   elementType: FormElementType
+}
+
+export interface NamedElement extends BaseElement {
   name: string
 }
 

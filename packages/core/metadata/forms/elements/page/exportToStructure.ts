@@ -7,12 +7,12 @@ import { addSimpleIndent } from "~/metadata/forms/format/wrap/addIndents"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
-import { BaseElement } from "../baseElement/types"
+import { NamedElement } from "../baseElement/types"
 import { Page } from "./types"
 
 export const exportPageToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  element: BaseElement
+  element: NamedElement
 ): IFormatElementResult => {
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []

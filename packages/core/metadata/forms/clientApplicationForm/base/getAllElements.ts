@@ -1,9 +1,9 @@
-import { BaseElement } from "../../elements/baseElement/types"
+import { ChildItems } from "../../collections/childItems/types"
 import { ClientApplicationForm } from "./types"
 
-export const getAllElements = (form: ClientApplicationForm): BaseElement[] => {
-  const elements: BaseElement[] = []
-  const queue: BaseElement[] = []
+export const getAllElements = (form: ClientApplicationForm): ChildItems => {
+  const elements: ChildItems = []
+  const queue: ChildItems = []
 
   for (const childItem of form.childItems ?? []) {
     queue.push(childItem)

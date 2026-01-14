@@ -3,11 +3,11 @@ import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportElementPropsToXML } from "./exportToXML"
-import { BaseElement } from "./types"
+import { NamedElement } from "./types"
 
 describe("exportBaseElementToXML", () => {
   it("should export base element to XML", () => {
-    const mockElement: BaseElement = {
+    const mockElement: NamedElement = {
       name: "ИмяПоля",
       elementType: FormElementType.BaseElement,
     }

@@ -1,9 +1,9 @@
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const parentElement: BaseElement = {
+export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",
   elementType: FormElementType.BaseElement,
 }
