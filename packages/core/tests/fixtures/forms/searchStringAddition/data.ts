@@ -1,12 +1,9 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const parentElement: NamedElement = {
-  elementType: FormElementType.Form,
+export const parentElement = {
   name: "КакойТоЭлемент",
 }
 

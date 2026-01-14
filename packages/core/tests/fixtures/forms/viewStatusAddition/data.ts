@@ -1,9 +1,6 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const parentElement: NamedElement = {
-  elementType: FormElementType.Form,
+export const parentElement = {
   name: "КакойТоЭлемент",
 }
 
