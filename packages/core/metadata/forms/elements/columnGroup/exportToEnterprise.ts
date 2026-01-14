@@ -15,15 +15,21 @@ import {
 } from "~/metadata/forms/elements/columnGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
-export const exportColumnGroupTypedToEnterprise = (
+export const exportColumnGroupTypedToEnterprise = <From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
-  data: ColumnGroup | undefined
-): ColumnGroupTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ToTypedEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportColumnGroupPropsToEnterprise(context, data)
 
@@ -35,13 +41,15 @@ export const exportColumnGroupTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
-export const exportColumnGroupPartialToEnterprise = (
+export const exportColumnGroupPartialToEnterprise = <From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
-  data: ColumnGroup
-): ColumnGroupPartialEnterprise => {
+  data: From
+): ToPartialEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
+
   const props = exportColumnGroupPropsToEnterprise(context, data)
 
   const result: ColumnGroupPartialEnterprise = {
@@ -51,7 +59,7 @@ export const exportColumnGroupPartialToEnterprise = (
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportColumnGroupPropsToEnterprise = (
@@ -157,5 +165,13 @@ const exportColumnGroupPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "ColumnGroup", exportColumnGroupPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "ColumnGroup", exportColumnGroupTypedToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "ColumnGroup",
+  exportColumnGroupPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "ColumnGroup",
+  exportColumnGroupTypedToEnterprise as ExportTypedToEnterpriseFn
+)

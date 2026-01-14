@@ -12,7 +12,7 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportChartFieldToXML<From extends ChartField | undefined>(
@@ -142,17 +142,11 @@ export function exportChartFieldToXML<From extends ChartField | undefined>(
 
   if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
   if (data.width !== undefined) result.Width = data.width
 
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
-
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "ChartField", exportChartFieldToXML)
+registerMetadata("ExportToXML", "ChartField", exportChartFieldToXML as ExportToXMLFn)

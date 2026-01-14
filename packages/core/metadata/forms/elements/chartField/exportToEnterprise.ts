@@ -9,13 +9,12 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import {
   ChartField,
   ChartFieldPartialEnterprise,
   ChartFieldTypedEnterprise,
 } from "~/metadata/forms/elements/chartField/types"
-import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
+import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -191,11 +190,6 @@ const exportChartFieldPropsToEnterprise = (
   )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
-  }
-
   const warningOnEdit = exportI8nTextToEnterprise(context, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
@@ -213,9 +207,6 @@ const exportChartFieldPropsToEnterprise = (
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
-
-  const table = exportTableToEnterprise(context, data.table)
-  if (table !== undefined) result.Таблица = table
 
   const footerText = exportI8nTextToEnterprise(context, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
@@ -243,9 +234,6 @@ const exportChartFieldPropsToEnterprise = (
 
   const footerFont = exportFontToEnterprise(context, data.footerFont)
   if (footerFont !== undefined) result.ШрифтПодвала = footerFont
-
-  const events = exportEventsToEnterprise(context, data.events)
-  if (events !== undefined) result.События = events
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight

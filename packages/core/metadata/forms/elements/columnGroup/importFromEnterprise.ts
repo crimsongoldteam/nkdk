@@ -17,7 +17,6 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -180,8 +179,8 @@ const importColumnGroupPropsFromEnterprise = (
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
+  // const childItems = importTypedChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  // if (childItems !== undefined) result.childItems = childItems
 
   return result
 }

@@ -24,9 +24,6 @@ export function importFormGroupFromXML<To extends FormGroup | undefined>(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  // const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
-  // result.extendedTooltip = extendedTooltip
-
   if (xml.Height !== undefined) result.height = xml.Height
 
   if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup

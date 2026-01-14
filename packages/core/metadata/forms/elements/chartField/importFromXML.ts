@@ -12,7 +12,7 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importChartFieldFromXML<To extends ChartField | undefined>(
   context: ConfigurationContext,
@@ -23,7 +23,7 @@ export function importChartFieldFromXML<To extends ChartField | undefined>(
   const baseFields = importBaseElementFromXML(context, xml)
   const result: ChartField = {
     ...baseFields,
-    elementType: FormElementType.ChartField,
+    elementType: "ChartField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -152,4 +152,4 @@ export function importChartFieldFromXML<To extends ChartField | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "ChartField", importChartFieldFromXML)
+registerMetadata("ImportFromXML", "ChartField", importChartFieldFromXML as ImportFromXMLFn)
