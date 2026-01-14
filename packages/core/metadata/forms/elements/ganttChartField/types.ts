@@ -1,22 +1,22 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
+  TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { FormField } from "~/metadata/forms/elements/formField/types"
-import { TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import { BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
+import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface GanttChartField extends Omit<FormField, "elementType"> {
+export interface GanttChartField extends NamedElement {
   elementType: "GanttChartField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
@@ -32,6 +32,48 @@ export interface GanttChartField extends Omit<FormField, "elementType"> {
   verticalLines?: boolean
   verticalStretch?: boolean
   width?: number
+  autoCellHeight?: boolean
+  cellHyperlink?: boolean
+  contextMenu?: ContextMenu
+  dataPath?: string
+  defaultItem?: boolean
+  displayImportance?: SE.DisplayImportance
+  editMode?: SE.ColumnEditMode
+  enabled?: boolean
+  extendedTooltip?: ExtendedTooltip
+  fixingInTable?: SE.FixingInTable
+  footerBackColor?: Color
+  footerDataPath?: string
+  footerFont?: Font
+  footerHorizontalAlign?: SE.ItemHorizontalLocation
+  footerPicture?: Picture
+  footerText?: I8nText
+  footerTextColor?: Color
+  headerHorizontalAlign?: SE.ItemHorizontalLocation
+  headerPicture?: Picture
+  horizontalAlign?: SE.ItemHorizontalLocation
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  readOnly?: boolean
+  shortcut?: string
+  showInFooter?: boolean
+  showInHeader?: boolean
+  skipOnInput?: boolean
+  table?: Table
+  title?: I8nText
+  titleBackColor?: Color
+  titleFont?: Font
+  titleHeight?: number
+  titleLocation?: SE.FormItemTitleLocation
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormFieldType
+  typeRestriction?: TypeDescription
+  verticalAlign?: SE.ItemVerticalAlign
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  visible?: boolean
+  warningOnEdit?: I8nText
+  warningOnEditRepresentation?: SE.WarningOnEditRepresentation
   events?: {
     onChange?: string
     selection?: string

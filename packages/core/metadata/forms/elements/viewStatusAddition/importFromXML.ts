@@ -5,7 +5,6 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
@@ -81,5 +80,3 @@ export const importViewStatusAdditionFromXML = (
 
   return result
 }
-
-registerMetadata("ImportFromXML", "ViewStatusAddition", importViewStatusAdditionFromXML)

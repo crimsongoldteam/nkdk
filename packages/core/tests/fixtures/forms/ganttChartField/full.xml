@@ -9,7 +9,14 @@
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
+		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
+		<Event name="DetailProcessing">ПроцедураОбработкиРасшифровки</Event>
+		<Event name="OnActivateInterval">ПроцедураПриАктивизацииИнтервала</Event>
+		<Event name="OnActivateValue">ПроцедураПриАктивизацииЗначения</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="OnIntervalEditEnd">ПроцедураПриОкончанииРедактированияИнтервала</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеДиаграммыГантаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>

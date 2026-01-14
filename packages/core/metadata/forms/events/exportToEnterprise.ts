@@ -24,6 +24,12 @@ const eventNameMapping: Record<string, string> = {
   onCurrentPageChange: "ПриСменеСтраницы",
   selection: "Выбор",
   uRLClick: "НажатиеНаНавигационнойСсылке",
+  detailProcessing: "ОбработкаРасшифровки",
+  beforeExpand: "ПередРазворачиванием",
+  beforeCollapse: "ПередСворачиванием",
+  onActivateValue: "ПриАктивизацииЗначения",
+  onActivateInterval: "ПриАктивизацииИнтервала",
+  onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
 }
 
 export const exportEventsToEnterprise = (

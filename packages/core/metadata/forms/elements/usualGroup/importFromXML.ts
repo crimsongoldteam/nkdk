@@ -1,12 +1,13 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
+import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
-import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
 
 export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
   context: ConfigurationContext,
@@ -14,7 +15,7 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 ): To {
   if (xml === undefined) return undefined as To
 
-  const baseFields = importFormGroupFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, xml)
 
   const result: UsualGroup = {
     ...baseFields,
@@ -27,6 +28,44 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   // const associatedTable = importTableFromXML(context, xml.AssociatedTable)
   // if (associatedTable !== undefined) result.associatedTable = associatedTable
+
+  if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
+
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
+
+  if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
+
+  const title = importI8nTextFromXML(context, xml.Title)
+  if (title !== undefined) result.title = title
+
+  const titleFont = importFontFromXML(context, xml.TitleFont)
+  if (titleFont !== undefined) result.titleFont = titleFont
+
+  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
+
+  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
+
+  if (xml.Type !== undefined) result.type = xml.Type
+
+  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Visible !== undefined) result.visible = xml.Visible
+
+  if (xml.Width !== undefined) result.width = xml.Width
 
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
@@ -87,4 +126,4 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "UsualGroup", importUsualGroupFromXML)
+registerMetadata("ImportFromXML", "UsualGroup", importUsualGroupFromXML as any)

@@ -1,5 +1,6 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import {
   exportI8nTextOtherToEnterprise,
   exportI8nTextToEnterprise,
@@ -7,18 +8,24 @@ import {
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
+import { exportExtendedTooltipToEnterprise } from "~/metadata/forms/elements/extendedTooltip/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportPageTypedToEnterprise = (
+export function exportPageTypedToEnterprise<From extends Page | undefined>(
   context: ConfigurationContext,
-  data: Page | undefined
-): PageTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ToTypedEnterpriseType<From> {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportPagePropsToEnterprise(context, data)
 
@@ -30,10 +37,15 @@ export const exportPageTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
-export const exportPagePartialToEnterprise = (context: ConfigurationContext, data: Page): PagePartialEnterprise => {
+export function exportPagePartialToEnterprise<From extends Page | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ToPartialEnterpriseType<From> {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
+
   const props = exportPagePropsToEnterprise(context, data)
 
   const result: PagePartialEnterprise = {
@@ -43,15 +55,76 @@ export const exportPagePartialToEnterprise = (context: ConfigurationContext, dat
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 export const exportPagePropsToEnterprise = (context: ConfigurationContext, data: Page): PagePartialEnterprise => {
-  const baseFields = exportFormGroupPropsToEnterprise(context, data)
+  const result: PagePartialEnterprise = {}
 
-  const result: PagePartialEnterprise = {
-    ...baseFields,
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
   }
+
+  const enableContentChange = exportBooleanToEnterprise(context, data.enableContentChange)
+  if (enableContentChange !== undefined) result.РазрешитьИзменениеСостава = enableContentChange
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+
+  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,
@@ -114,11 +187,6 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   const showTitle = exportBooleanToEnterprise(context, data.showTitle)
   if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
-  }
-
   if (data.titleDataPath !== undefined) result.ПутьКДаннымЗаголовка = data.titleDataPath
 
   const scrollOnCompress = exportBooleanToEnterprise(context, data.scrollOnCompress)
@@ -140,5 +208,9 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "Page", exportPagePartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "Page", exportPageTypedToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "Page",
+  exportPagePartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata("ExportTypedToEnterprise", "Page", exportPageTypedToEnterprise as ExportTypedToEnterpriseFn)

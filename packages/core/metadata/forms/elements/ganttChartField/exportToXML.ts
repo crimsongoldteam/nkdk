@@ -12,7 +12,7 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportGanttChartFieldToXML<From extends GanttChartField | undefined>(
@@ -127,9 +127,6 @@ export function exportGanttChartFieldToXML<From extends GanttChartField | undefi
   if (data.warningOnEditRepresentation !== undefined)
     result.WarningOnEditRepresentation = data.warningOnEditRepresentation
 
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
-
   if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
 
   if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
@@ -156,7 +153,10 @@ export function exportGanttChartFieldToXML<From extends GanttChartField | undefi
 
   if (data.width !== undefined) result.Width = data.width
 
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "GanttChartField", exportGanttChartFieldToXML)
+registerMetadata("ExportToXML", "GanttChartField", exportGanttChartFieldToXML as ExportToXMLFn)

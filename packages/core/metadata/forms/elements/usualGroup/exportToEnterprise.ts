@@ -14,16 +14,22 @@ import {
 } from "~/metadata/forms/elements/usualGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { exportTableToEnterprise } from "../table/exportToEnterprise"
 
-export const exportUsualGroupTypedToEnterprise = (
+export const exportUsualGroupTypedToEnterprise = <From extends UsualGroup | undefined>(
   context: ConfigurationContext,
-  data: UsualGroup | undefined
-): UsualGroupTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ToTypedEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportUsualGroupPropsToEnterprise(context, data)
 
@@ -38,13 +44,15 @@ export const exportUsualGroupTypedToEnterprise = (
   const childItems = exportPartialChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
-  return sortObject(result)
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
-export const exportUsualGroupPartialToEnterprise = (
+export const exportUsualGroupPartialToEnterprise = <From extends UsualGroup | undefined>(
   context: ConfigurationContext,
-  data: UsualGroup
-): UsualGroupPartialEnterprise => {
+  data: From
+): ToPartialEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
+
   const props = exportUsualGroupPropsToEnterprise(context, data)
 
   const result: UsualGroupPartialEnterprise = {
@@ -54,7 +62,7 @@ export const exportUsualGroupPartialToEnterprise = (
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportUsualGroupPropsToEnterprise = (
@@ -250,5 +258,13 @@ const exportUsualGroupPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "UsualGroup", exportUsualGroupTypedToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "UsualGroup",
+  exportUsualGroupPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "UsualGroup",
+  exportUsualGroupTypedToEnterprise as ExportTypedToEnterpriseFn
+)

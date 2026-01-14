@@ -15,11 +15,11 @@ export function registerMetadata<T extends ItemOperationType>(
   registry.set(elementType, operationFunction)
 }
 
-export const getOperationRegistry = <T extends ItemOperationType>(operationType: T): OperationFunction<T> => {
-  const registry = operationRegistries.get(operationType)
-  if (!registry) throw new Error(`Unknown operation type: ${operationType}`)
-  return {} as OperationFunction<T>
-}
+// export const getOperationRegistry = <T extends ItemOperationType>(operationType: T): OperationFunction<T> => {
+//   const registry = operationRegistries.get(operationType)
+//   if (!registry) throw new Error(`Unknown operation type: ${operationType}`)
+//   return {} as OperationFunction<T>
+// }
 
 export const getOperationFunction = <T extends ItemOperationType>(
   operationType: T,

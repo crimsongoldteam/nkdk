@@ -57,10 +57,10 @@ export interface ViewStatusAdditionXML extends BaseElementXML {
   TitleTextColor?: ColorXML
   UserVisible?: UserVisibleXML
   Width?: number
-  ContextMenu?: ContextMenuXML
+  ContextMenu: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
