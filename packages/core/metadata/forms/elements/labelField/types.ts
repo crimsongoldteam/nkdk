@@ -3,23 +3,66 @@ import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/bo
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { FormField } from "~/metadata/forms/elements/formField/types"
 import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface LabelField extends Omit<FormField, "elementType"> {
+export interface LabelField {
   elementType: "LabelField"
+  name: string
+  autoCellHeight?: boolean
+  cellHyperlink?: boolean
+  contextMenu?: ContextMenu
+  dataPath?: string
+  defaultItem?: boolean
+  displayImportance?: SE.DisplayImportance
+  editMode?: SE.ColumnEditMode
+  enabled?: boolean
+  extendedTooltip?: ExtendedTooltip
+  fixingInTable?: SE.FixingInTable
+  footerBackColor?: Color
+  footerDataPath?: string
+  footerFont?: Font
+  footerHorizontalAlign?: SE.ItemHorizontalLocation
+  footerPicture?: Picture
+  footerText?: I8nText
+  footerTextColor?: Color
+  headerHorizontalAlign?: SE.ItemHorizontalLocation
+  headerPicture?: Picture
+  horizontalAlign?: SE.ItemHorizontalLocation
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  readOnly?: boolean
+  shortcut?: string
+  showInFooter?: boolean
+  showInHeader?: boolean
+  skipOnInput?: boolean
+  table?: Table
+  title?: I8nText
+  titleBackColor?: Color
+  titleFont?: Font
+  titleHeight?: number
+  titleLocation?: SE.FormItemTitleLocation
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormFieldType
+  typeRestriction?: TypeDescription
+  userVisible?: UserVisible
+  verticalAlign?: SE.ItemVerticalAlign
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  visible?: boolean
+  warningOnEdit?: I8nText
+  warningOnEditRepresentation?: SE.WarningOnEditRepresentation
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   backColor?: Color
@@ -35,7 +78,6 @@ export interface LabelField extends Omit<FormField, "elementType"> {
   maxWidth?: number
   passwordMode?: boolean
   textColor?: Color
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
   events?: {

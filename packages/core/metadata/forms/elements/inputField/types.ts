@@ -21,16 +21,16 @@ import {
   ChoiceParametersEnterprise,
   ChoiceParametersXML,
 } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
+import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TableXML } from "../table/types"
+import { Table, TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface InputField extends NamedElement {
+export interface InputField {
   elementType: "InputField"
+  name: string
   allowInputEmptyMultipleValues?: boolean
   allowMultipleValuesDuplicates?: boolean
   autoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput
@@ -171,7 +171,7 @@ export interface InputField extends NamedElement {
   }
 }
 
-export interface InputFieldXML extends FormFieldXML {
+export interface InputFieldXML extends BaseElementXML {
   AllowInputEmptyMultipleValues?: boolean
   AllowMultipleValuesDuplicates?: boolean
   AutoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput
@@ -295,7 +295,7 @@ export interface InputFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface InputFieldPartialEnterprise extends FormFieldEnterprise {
+export interface InputFieldPartialEnterprise {
   АвтоВыборНезаполненного?: StringboolEnterprise
   АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputEnterprise
   АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputEnterprise
@@ -407,7 +407,7 @@ export interface InputFieldPartialEnterprise extends FormFieldEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
-  // Таблица?: TablePartialEnterprise
+  Таблица?: TablePartialEnterprise
   ТекстПодвала?: I8nTextEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
