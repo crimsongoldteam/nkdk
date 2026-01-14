@@ -13,18 +13,17 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
-import { ImportExportReturn } from "../types"
 
-export function importInputFieldFromXML<From extends InputFieldXML | undefined>(
+export function importInputFieldFromXML<To extends InputField | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as To
 
   const { elementType: _, ...restFields } = baseFields
 
@@ -220,7 +219,7 @@ export function importInputFieldFromXML<From extends InputFieldXML | undefined>(
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "InputField", importInputFieldFromXML)

@@ -7,14 +7,13 @@ import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importFormDecorationFromXML<From extends FormDecorationXML | undefined>(
+export function importFormDecorationFromXML<To extends FormDecoration | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
 
   const result: FormDecoration = {
@@ -74,7 +73,7 @@ export function importFormDecorationFromXML<From extends FormDecorationXML | und
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "FormDecoration", importFormDecorationFromXML)

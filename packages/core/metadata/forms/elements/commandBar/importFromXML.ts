@@ -4,14 +4,13 @@ import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importCommandBarFromXML<From extends CommandBarXML | undefined>(
+export function importCommandBarFromXML<To extends CommandBar | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormGroupFromXML(context, xml)
 
@@ -33,7 +32,7 @@ export function importCommandBarFromXML<From extends CommandBarXML | undefined>(
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "CommandBar", importCommandBarFromXML)
