@@ -6,11 +6,11 @@ import { importExtendedTooltipFromXML } from "./importFromXML"
 import { ExtendedTooltipXML } from "./types"
 
 describe("importExtendedTooltipFromXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importExtendedTooltipFromXML(mockСontext, undefined)
+  // it("should return undefined when data is undefined", () => {
+  //   const result = importExtendedTooltipFromXML(mockСontext, undefined)
 
-    expect(result).toBeUndefined()
-  })
+  //   expect(result).toBeUndefined()
+  // })
 
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/full.xml")

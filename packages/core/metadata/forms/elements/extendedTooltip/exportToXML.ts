@@ -13,9 +13,7 @@ export const exportExtendedTooltipToXML = (
   data: ExtendedTooltip | undefined,
   parentElement: { name: string }
 ): ExtendedTooltipXML => {
-  const extendendTooltip = data ?? {
-    elementType: "ExtendedTooltip",
-  }
+  const extendendTooltip = data ?? {}
 
   const baseFields = exportElementPropsToXML(context, {
     name: getExtendedTooltipName(parentElement),
