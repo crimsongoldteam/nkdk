@@ -14,7 +14,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   context: ConfigurationContext,
   data: From
 ): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined
+  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
 
   const baseFields = exportFormDecorationToXML(context, data)
   if (!baseFields) return undefined

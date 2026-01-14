@@ -8,15 +8,15 @@ import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/e
 import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { ImportExportReturn } from "../types"
 
 export function exportButtonToXML<From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
 ): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined
+  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
 
   const baseFields = exportElementPropsToXML(context, data)
 

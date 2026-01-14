@@ -13,7 +13,7 @@ export function exportProgressBarFieldToXML<From extends ProgressBarField | unde
   context: ConfigurationContext,
   data: From
 ): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined
+  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined

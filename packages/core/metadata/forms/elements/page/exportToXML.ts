@@ -15,7 +15,7 @@ export function exportPageToXML<From extends Page | undefined>(
   context: ConfigurationContext,
   data: From
 ): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined
+  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
 
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
