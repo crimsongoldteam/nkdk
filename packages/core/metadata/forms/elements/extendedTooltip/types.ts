@@ -8,7 +8,6 @@ import { BaseElementXML } from "../baseElement/types"
 import { FormDecorationPropsEnterprise } from "../formDecoration/types"
 
 export interface ExtendedTooltip {
-  elementType: "ExtendedTooltip"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   displayImportance?: SE.DisplayImportance

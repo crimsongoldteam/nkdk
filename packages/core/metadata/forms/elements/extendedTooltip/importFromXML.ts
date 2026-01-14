@@ -3,18 +3,16 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExtendedTooltip } from "~/metadata/forms/elements/extendedTooltip/types"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
+import { isHasContent } from "./helper"
 
-export function importExtendedTooltipFromXML<To extends ExtendedTooltip | undefined>(
+export function importExtendedTooltipFromXML(
   context: ConfigurationContext,
-  xml: ToXMLType<To> | undefined
-): To {
-  if (xml === undefined) return undefined as To
+  xml: ExtendedTooltipXML
+): ExtendedTooltip | undefined {
+  if (xml === undefined) return undefined
 
-  const result: ExtendedTooltip = {
-    elementType: "ExtendedTooltip",
-  }
+  const result: ExtendedTooltip = {}
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
 
@@ -65,13 +63,7 @@ export function importExtendedTooltipFromXML<To extends ExtendedTooltip | undefi
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  if (isHasContent(result)) return result as To
+  if (isHasContent(result)) return result
 
-  return undefined as To
-}
-
-const isHasContent = (data: ExtendedTooltip | undefined): boolean => {
-  if (!data) return false
-
-  return Object.keys(data).length > 0
+  return undefined
 }

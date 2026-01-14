@@ -8,7 +8,7 @@ import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/e
 import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportButtonToXML<From extends Button | undefined>(
@@ -108,4 +108,4 @@ export function exportButtonToXML<From extends Button | undefined>(
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "Button", exportButtonToXML)
+registerMetadata("ExportToXML", "Button", exportButtonToXML as ExportToXMLFn)

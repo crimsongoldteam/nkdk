@@ -8,7 +8,7 @@ import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/
 import { Button } from "~/metadata/forms/elements/button/types"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importButtonFromXML<To extends Button | undefined>(
   context: ConfigurationContext,
@@ -108,4 +108,4 @@ export function importButtonFromXML<To extends Button | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "Button", importButtonFromXML)
+registerMetadata("ImportFromXML", "Button", importButtonFromXML as ImportFromXMLFn)

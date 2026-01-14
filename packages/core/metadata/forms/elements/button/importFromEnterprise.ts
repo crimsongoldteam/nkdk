@@ -10,7 +10,12 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Button, ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ImportTypedFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
@@ -215,5 +220,9 @@ const importButtonPropsFromEnterprise = (
   return result as Partial<Button> | undefined
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Button", importButtonPartialFromEnterprise)
-registerMetadata("ImportTypedFromEnterprise", "Button", importButtonTypedFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "Button",
+  importButtonPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
+registerMetadata("ImportTypedFromEnterprise", "Button", importButtonTypedFromEnterprise as ImportTypedFromEnterpriseFn)
