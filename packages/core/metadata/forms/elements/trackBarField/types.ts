@@ -1,11 +1,67 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionXML,
+} from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
+import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { Table, TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface TrackBarField extends FormField {
+export interface TrackBarField {
   elementType: "TrackBarField"
+  name: string
+  autoCellHeight?: boolean
+  cellHyperlink?: boolean
+  contextMenu?: ContextMenu
+  dataPath?: string
+  defaultItem?: boolean
+  displayImportance?: SE.DisplayImportance
+  editMode?: SE.ColumnEditMode
+  enabled?: boolean
+  extendedTooltip?: ExtendedTooltip
+  fixingInTable?: SE.FixingInTable
+  footerBackColor?: Color
+  footerDataPath?: string
+  footerFont?: Font
+  footerHorizontalAlign?: SE.ItemHorizontalLocation
+  footerPicture?: Picture
+  footerText?: I8nText
+  footerTextColor?: Color
+  headerHorizontalAlign?: SE.ItemHorizontalLocation
+  headerPicture?: Picture
+  horizontalAlign?: SE.ItemHorizontalLocation
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  readOnly?: boolean
+  shortcut?: string
+  showInFooter?: boolean
+  showInHeader?: boolean
+  skipOnInput?: boolean
+  table?: Table
+  title?: I8nText
+  titleBackColor?: Color
+  titleFont?: Font
+  titleHeight?: number
+  titleLocation?: SE.FormItemTitleLocation
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormFieldType
+  typeRestriction?: TypeDescription
+  userVisible?: UserVisible
+  verticalAlign?: SE.ItemVerticalAlign
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  visible?: boolean
+  warningOnEdit?: I8nText
+  warningOnEditRepresentation?: SE.WarningOnEditRepresentation
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   height?: number

@@ -167,6 +167,48 @@ export interface PeriodFieldPartialEnterprise {
     ПриИзменении?: string
     Выбор?: string
   }
+  АвтоВысотаЯчейки?: StringboolEnterprise
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
+  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormFieldTypeEnterprise
+  Видимость?: StringboolEnterprise
+  ВысотаЗаголовка?: number
+  ГиперссылкаЯчейки?: StringboolEnterprise
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  КартинкаПодвала?: PictureEnterprise
+  КартинкаШапки?: PictureEnterprise
+  КонтекстноеМеню?: ContextMenuEnterprise
+  ОграничениеТипа?: TypeDescriptionEnterprise
+  ОтображатьВПодвале?: StringboolEnterprise
+  ОтображатьВШапке?: StringboolEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
+  ПредупреждениеПриРедактировании?: I8nTextEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  ПутьКДаннымПодвала?: string
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  СочетаниеКлавиш?: string
+  Таблица?: TablePartialEnterprise
+  ТекстПодвала?: I8nTextEnterprise
+  ТолькоПросмотр?: StringboolEnterprise
+  ФиксацияВТаблице?: SE.FixingInTableEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  ЦветТекстаПодвала?: ColorEnterprise
+  ЦветФонаЗаголовка?: ColorEnterprise
+  ЦветФонаПодвала?: ColorEnterprise
+  ШрифтЗаголовка?: FontEnterprise
+  ШрифтПодвала?: FontEnterprise
 }
 
 export interface PeriodFieldTypedEnterprise extends PeriodFieldPartialEnterprise {
