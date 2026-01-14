@@ -14,7 +14,6 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -22,8 +21,8 @@ export function importGanttChartFieldTypedFromEnterprise<To extends GanttChartFi
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
@@ -37,7 +36,7 @@ export function importGanttChartFieldTypedFromEnterprise<To extends GanttChartFi
     elementType,
   }
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importGanttChartFieldPartialFromEnterprise<To extends GanttChartField>(

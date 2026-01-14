@@ -7,17 +7,16 @@ import { CheckBoxField, CheckBoxFieldXML } from "~/metadata/forms/elements/check
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importCheckBoxFieldFromXML<From extends CheckBoxFieldXML | undefined>(
+export function importCheckBoxFieldFromXML<To extends CheckBoxField | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as To
 
   const result: CheckBoxField = {
     ...baseFields,
@@ -57,7 +56,7 @@ export function importCheckBoxFieldFromXML<From extends CheckBoxFieldXML | undef
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "CheckBoxField", importCheckBoxFieldFromXML)

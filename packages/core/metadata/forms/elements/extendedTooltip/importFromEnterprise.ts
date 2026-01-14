@@ -5,15 +5,14 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
-import { ImportExportReturn } from "~/metadata/forms/elements/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnterprise | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportExportReturn<T, ExtendedTooltip> => {
-  if (!data) return undefined as ImportExportReturn<T, ExtendedTooltip>
+): T extends undefined ? undefined : ExtendedTooltip => {
+  if (!data) return undefined as T extends undefined ? undefined : ExtendedTooltip
 
   const result: ExtendedTooltip = {}
 
@@ -109,5 +108,5 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportExportReturn<T, ExtendedTooltip>
+  return result as T extends undefined ? undefined : ExtendedTooltip
 }

@@ -11,15 +11,14 @@ import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
-import { ImportExportReturn } from "~/metadata/forms/elements/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const importSearchControlAdditionFromEnterprise = <From extends SearchControlAdditionEnterprise | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, SearchControlAddition> => {
-  if (!data) return undefined as ImportExportReturn<From, SearchControlAddition>
+): From extends undefined ? undefined : SearchControlAddition => {
+  if (!data) return undefined as From extends undefined ? undefined : SearchControlAddition
 
   const result: SearchControlAddition = {
     childItems: [],
@@ -110,5 +109,5 @@ export const importSearchControlAdditionFromEnterprise = <From extends SearchCon
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportExportReturn<From, SearchControlAddition>
+  return result as From extends undefined ? undefined : SearchControlAddition
 }

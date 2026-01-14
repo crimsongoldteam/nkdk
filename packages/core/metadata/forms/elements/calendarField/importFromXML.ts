@@ -7,17 +7,16 @@ import { CalendarField, CalendarFieldXML } from "~/metadata/forms/elements/calen
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importCalendarFieldFromXML<From extends CalendarFieldXML | undefined>(
+export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as To
 
   const result: CalendarField = {
     ...baseFields,
@@ -75,7 +74,7 @@ export function importCalendarFieldFromXML<From extends CalendarFieldXML | undef
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "CalendarField", importCalendarFieldFromXML)

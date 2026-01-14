@@ -21,14 +21,12 @@ import {
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importTableFromEnterprise } from "../table/importFromEnterprise"
-import { ImportExportReturn } from "../types"
-
 export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const props = importUsualGroupPropsFromEnterprise(context, data, name)
 
@@ -44,7 +42,7 @@ export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | unde
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importUsualGroupPartialFromEnterprise<To extends UsualGroup>(

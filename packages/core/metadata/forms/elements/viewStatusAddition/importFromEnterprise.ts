@@ -9,7 +9,6 @@ import {
   ViewStatusAddition,
   ViewStatusAdditionEnterprise,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { ImportExportReturn } from "~/metadata/forms/elements/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -18,8 +17,8 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAdditionEnterprise | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ViewStatusAddition> => {
-  if (!data) return undefined as ImportExportReturn<From, ViewStatusAddition>
+): From extends undefined ? undefined : ViewStatusAddition => {
+  if (!data) return undefined as From extends undefined ? undefined : ViewStatusAddition
 
   const result: ViewStatusAddition = {}
 
@@ -124,5 +123,5 @@ export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAd
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  return result as ImportExportReturn<From, ViewStatusAddition>
+  return result as From extends undefined ? undefined : ViewStatusAddition
 }

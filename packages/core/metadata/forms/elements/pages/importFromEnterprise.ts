@@ -13,7 +13,6 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -21,8 +20,8 @@ export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPagesPropsFromEnterprise(context, data, name)
@@ -40,7 +39,7 @@ export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importPagesPartialFromEnterprise<To extends Pages>(

@@ -14,14 +14,12 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
-
 export function importPlannerFieldTypedFromEnterprise<To extends PlannerField | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
@@ -35,7 +33,7 @@ export function importPlannerFieldTypedFromEnterprise<To extends PlannerField | 
     elementType,
   }
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importPlannerFieldPartialFromEnterprise<To extends PlannerField>(

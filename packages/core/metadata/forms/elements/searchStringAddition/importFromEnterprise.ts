@@ -8,7 +8,6 @@ import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
-import { ImportExportReturn } from "~/metadata/forms/elements/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -17,8 +16,8 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 export const importSearchStringAdditionFromEnterprise = <From extends SearchStringAdditionEnterprise | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, SearchStringAddition> => {
-  if (!data) return undefined as ImportExportReturn<From, SearchStringAddition>
+): From extends undefined ? undefined : SearchStringAddition => {
+  if (!data) return undefined as From extends undefined ? undefined : SearchStringAddition
 
   const result: SearchStringAddition = {}
 
@@ -99,5 +98,5 @@ export const importSearchStringAdditionFromEnterprise = <From extends SearchStri
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportExportReturn<From, SearchStringAddition>
+  return result as From extends undefined ? undefined : SearchStringAddition
 }

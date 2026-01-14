@@ -18,7 +18,6 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormDecorationPropsFromEnterprise } from "../formDecoration/importFromEnterprise"
@@ -45,8 +44,8 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const props = importLabelDecorationPropsFromEnterprise(context, data)
 
@@ -61,7 +60,7 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importLabelDecorationPartialFromEnterprise<To extends LabelDecoration>(
