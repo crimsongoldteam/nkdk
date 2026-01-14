@@ -158,6 +158,7 @@ export interface FormFieldEnterprise extends BaseElementPropsEnterprise {
   ЦветФонаПодвала?: ColorEnterprise
   ШрифтЗаголовка?: FontEnterprise
   ШрифтПодвала?: FontEnterprise
+
   События?: {
     ПриИзменении?: string
   }

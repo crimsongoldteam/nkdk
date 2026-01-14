@@ -15,7 +15,7 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportFormattedDocumentFieldToXML<From extends FormattedDocumentField | undefined>(
@@ -168,4 +168,4 @@ export function exportFormattedDocumentFieldToXML<From extends FormattedDocument
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "FormattedDocumentField", exportFormattedDocumentFieldToXML)
+registerMetadata("ExportToXML", "FormattedDocumentField", exportFormattedDocumentFieldToXML as ExportToXMLFn)
