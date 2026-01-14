@@ -1,51 +1,49 @@
 import { ConfigurationContext } from "../context/types"
-import { BaseElement } from "../forms/elements/baseElement/types"
+import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
 
-// #region type associations
+// // #region type associations
 
 export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
   : TypeRules<NonNullable<T>>["XML"]
 
-export type ToPartialEnterpriseType<T extends BaseElement | undefined> = T extends undefined
+export type ToPartialEnterpriseType<T> = T extends undefined
   ? undefined
   : "PartialEnterprise" extends keyof TypeRules<NonNullable<T>>
     ? TypeRules<NonNullable<T>>["PartialEnterprise"]
     : never
 
-export type ToTypedEnterpriseType<T extends BaseElement | undefined> = T extends undefined
+export type ToTypedEnterpriseType<T> = T extends undefined
   ? undefined
   : "TypedEnterprise" extends keyof TypeRules<NonNullable<T>>
     ? TypeRules<NonNullable<T>>["TypedEnterprise"]
     : never
 
-// #endregion
+// // #endregion
 
 // #region functions
 
-export type ImportFromXMLFn = <To extends BaseElement | undefined>(
+export type ImportFromXMLFn = (
   context: ConfigurationContext,
-  data: ToXMLType<To>
-) => To
+  data: BaseElementXML | undefined
+) => BaseElement | undefined
 
-export type ImportTypedFromEnterpriseFn = <To extends BaseElement | undefined>(
+//!!!
+export type ImportTypedFromEnterpriseFn = (
   context: ConfigurationContext,
-  data: ToTypedEnterpriseType<To>,
+  data: Object | undefined,
   name: string
-) => To
+) => Object | undefined
 
-export type ImportPartialFromEnterpriseFn = <To extends BaseElement>(
+export type ImportPartialFromEnterpriseFn = (
   context: ConfigurationContext,
-  source: To,
-  data: ToPartialEnterpriseType<To> | undefined
-) => To
+  source: Object,
+  data: Object | undefined
+) => Object | undefined
 
-export type ExportToXMLFn = <From extends BaseElement | undefined>(
-  context: ConfigurationContext,
-  data: From
-) => ToXMLType<From>
+export type ExportToXMLFn = (context: ConfigurationContext, data: BaseElement | undefined) => BaseElementXML | undefined
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,

@@ -1,4 +1,3 @@
-import { BaseElement } from "../forms/elements/baseElement/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise, ButtonXML } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -59,9 +58,9 @@ import {
 import { FormField, FormFieldXML } from "../forms/elements/formField/types"
 import {
   FormGroup,
-  FormGroupXML,
   FormGroupPartialEnterprise,
   FormGroupTypedEnterprise,
+  FormGroupXML,
 } from "../forms/elements/formGroup/types"
 import {
   GanttChartField,
@@ -176,7 +175,7 @@ import {
   UsualGroupXML,
 } from "../forms/elements/usualGroup/types"
 
-export type TypeRules<T extends BaseElement> = T extends Button
+export type TypeRules<T> = T extends Button
   ? {
       XML: ButtonXML
       Element: Button

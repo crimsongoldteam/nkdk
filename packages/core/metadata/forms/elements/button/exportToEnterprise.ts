@@ -1,25 +1,27 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import {
-  exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
-} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextOtherToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "./types"
 
-export function exportButtonTypedToEnterprise<From extends Button | undefined>(
+export const exportButtonTypedToEnterprise = <From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
-): ToTypedEnterpriseType<From> {
+): ToTypedEnterpriseType<From> => {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportButtonPropsToEnterprise(context, data)
@@ -29,16 +31,16 @@ export function exportButtonTypedToEnterprise<From extends Button | undefined>(
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return result as ToTypedEnterpriseType<From>
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
-export function exportButtonPartialToEnterprise<From extends Button | undefined>(
+export const exportButtonPartialToEnterprise = <From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
-): ToPartialEnterpriseType<From> {
+): ToPartialEnterpriseType<From> => {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
   const result = exportButtonPropsToEnterprise(context, data)
@@ -189,5 +191,5 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "Button", exportButtonPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "Button", exportButtonTypedToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Button", exportButtonPartialToEnterprise as ExportPartialToEnterpriseFn)
+registerMetadata("ExportTypedToEnterprise", "Button", exportButtonTypedToEnterprise as ExportTypedToEnterpriseFn)
