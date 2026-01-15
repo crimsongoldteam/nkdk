@@ -9,14 +9,15 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
+import { Table } from "../table/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
-export interface CheckBoxField extends Omit<FormField, "elementType"> {
+export interface CheckBoxField extends NamedElement {
   elementType: "CheckBoxField"
   backColor?: Color
   borderColor?: Color
@@ -77,7 +78,7 @@ export interface CheckBoxField extends Omit<FormField, "elementType"> {
   }
 }
 
-export interface CheckBoxFieldXML extends FormFieldXML {
+export interface CheckBoxFieldXML extends BaseElementXML {
   BackColor?: ColorXML
   BorderColor?: ColorXML
   CheckBoxType?: SE.CheckBoxType
@@ -116,7 +117,7 @@ export interface CheckBoxFieldXML extends FormFieldXML {
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
-  Table?: TableXML
+  AssociatedTableElementId?: MetadataValueXML
   Title?: I8nTextXML
   TitleBackColor?: ColorXML
   TitleFont?: FontXML
@@ -135,7 +136,7 @@ export interface CheckBoxFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface CheckBoxFieldPartialEnterprise extends FormFieldEnterprise {
+export interface CheckBoxFieldPartialEnterprise {
   ВидФлажка?: SE.CheckBoxTypeEnterprise
   ВысотаЗаголовкаЭлемента?: number
   ВысотаЭлемента?: number
@@ -181,7 +182,7 @@ export interface CheckBoxFieldPartialEnterprise extends FormFieldEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
-  Таблица?: TablePartialEnterprise
+  Таблица?: string
   ТекстПодвала?: I8nTextEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
@@ -191,6 +192,7 @@ export interface CheckBoxFieldPartialEnterprise extends FormFieldEnterprise {
   ЦветФонаПодвала?: ColorEnterprise
   ШрифтЗаголовка?: FontEnterprise
   ШрифтПодвала?: FontEnterprise
+
   События?: {
     ПриИзменении?: string
   }
@@ -199,6 +201,3 @@ export interface CheckBoxFieldPartialEnterprise extends FormFieldEnterprise {
 export interface CheckBoxFieldTypedEnterprise extends CheckBoxFieldPartialEnterprise {
   Тип: "ПолеФлажок"
 }
-
-// Для обратной совместимости
-export type CheckBoxFieldEnterprise = CheckBoxFieldPartialEnterprise

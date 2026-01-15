@@ -23,7 +23,8 @@ import {
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-export function importFormDecorationTypedFromEnterprise<To extends FormDecoration | undefined>(
+
+function importFormDecorationTypedFromEnterprise<To extends FormDecoration | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
@@ -45,7 +46,6 @@ export function importFormDecorationTypedFromEnterprise<To extends FormDecoratio
 
   return result as To
 }
-
 export function importFormDecorationPartialFromEnterprise<To extends FormDecoration>(
   context: ConfigurationContext,
   source: To,

@@ -50,19 +50,6 @@ import {
   FormattedDocumentFieldXML,
 } from "../forms/elements/formattedDocumentField/types"
 import {
-  FormDecoration,
-  FormDecorationPartialEnterprise,
-  FormDecorationTypedEnterprise,
-  FormDecorationXML,
-} from "../forms/elements/formDecoration/types"
-import { FormField, FormFieldXML } from "../forms/elements/formField/types"
-import {
-  FormGroup,
-  FormGroupPartialEnterprise,
-  FormGroupTypedEnterprise,
-  FormGroupXML,
-} from "../forms/elements/formGroup/types"
-import {
   GanttChartField,
   GanttChartFieldPartialEnterprise,
   GanttChartFieldTypedEnterprise,
@@ -392,33 +379,14 @@ export type TypeRules<T> = T extends Button
                                                                   PartialEnterprise: UsualGroupPartialEnterprise
                                                                   TypedEnterprise: UsualGroupTypedEnterprise
                                                                 }
-                                                              : T extends FormDecoration
+                                                              : T extends ContextMenu
                                                                 ? {
-                                                                    XML: FormDecorationXML
-                                                                    Element: FormDecoration
-                                                                    PartialEnterprise: FormDecorationPartialEnterprise
-                                                                    TypedEnterprise: FormDecorationTypedEnterprise
+                                                                    XML: ContextMenuXML
                                                                   }
-                                                                : T extends FormField
+                                                                : T extends ExtendedTooltip
                                                                   ? {
-                                                                      XML: FormFieldXML
-                                                                      Element: FormField
+                                                                      XML: ExtendedTooltipXML
+                                                                      Element: ExtendedTooltip
+                                                                      PartialEnterprise: ExtendedTooltipEnterprise
                                                                     }
-                                                                  : T extends FormGroup
-                                                                    ? {
-                                                                        XML: FormGroupXML
-                                                                        Element: FormGroup
-                                                                        PartialEnterprise: FormGroupPartialEnterprise
-                                                                        TypedEnterprise: FormGroupTypedEnterprise
-                                                                      }
-                                                                    : T extends ContextMenu
-                                                                      ? {
-                                                                          XML: ContextMenuXML
-                                                                        }
-                                                                      : T extends ExtendedTooltip
-                                                                        ? {
-                                                                            XML: ExtendedTooltipXML
-                                                                            Element: ExtendedTooltip
-                                                                            PartialEnterprise: ExtendedTooltipEnterprise
-                                                                          }
-                                                                        : never
+                                                                  : never

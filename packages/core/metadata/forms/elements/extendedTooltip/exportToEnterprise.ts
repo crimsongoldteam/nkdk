@@ -95,5 +95,5 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  return result
+  return Object.keys(result).length > 0 ? result : undefined
 }

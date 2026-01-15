@@ -3,11 +3,12 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import { Table } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface UsualGroup {
   elementType: "UsualGroup"
@@ -78,7 +79,7 @@ export interface UsualGroupXML extends BaseElementXML {
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  AssociatedTable?: TableXML
+  AssociatedAssociatedTableElementId?: MetadataValueXML
   BackColor?: ColorXML
   Behavior?: SE.UsualGroupBehavior
   ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
@@ -140,7 +141,7 @@ export interface UsualGroupPartialEnterprise {
   Группировка?: SE.ChildFormItemsGroupEnterprise
   ЗаголовокСвернутогоОтображения?: string
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
-  ИспользуемаяТаблица?: TablePartialEnterprise
+  ИспользуемаяТаблица?: string
   Объединенная?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
   ОтображатьОтступСлева?: StringboolEnterprise

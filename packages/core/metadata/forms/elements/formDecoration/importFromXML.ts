@@ -6,10 +6,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { FormDecoration } from "~/metadata/forms/elements/formDecoration/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importFormDecorationFromXML<To extends FormDecoration | undefined>(
+function importFormDecorationFromXML<To extends FormDecoration | undefined>(
   context: ConfigurationContext,
   xml: ToXMLType<To> | undefined
 ): To {
@@ -75,5 +74,3 @@ export function importFormDecorationFromXML<To extends FormDecoration | undefine
 
   return result as To
 }
-
-registerMetadata("ImportFromXML", "FormDecoration", importFormDecorationFromXML)

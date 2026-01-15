@@ -1,60 +1,16 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import {
-  exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
-} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import {
-  FormDecoration,
-  FormDecorationPartialEnterprise,
-  FormDecorationTypedEnterprise,
-} from "~/metadata/forms/elements/formDecoration/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormDecoration, FormDecorationPartialEnterprise } from "~/metadata/forms/elements/formDecoration/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportFormDecorationTypedToEnterprise = (
-  context: ConfigurationContext,
-  data: FormDecoration | undefined
-): FormDecorationTypedEnterprise | undefined => {
-  if (!data) return undefined
-
-  const props = exportFormDecorationPropsToEnterprise(context, data)
-
-  const result: FormDecorationTypedEnterprise = {
-    Тип: "ДекорацияФормы",
-    ...props,
-  }
-
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
-
-  return sortObject(result)
-}
-
-export const exportFormDecorationPartialToEnterprise = (
-  context: ConfigurationContext,
-  data: FormDecoration
-): FormDecorationPartialEnterprise => {
-  const props = exportFormDecorationPropsToEnterprise(context, data)
-
-  const result: FormDecorationPartialEnterprise = {
-    ...props,
-  }
-
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
-
-  return sortObject(result)
-}
-
-export const exportFormDecorationPropsToEnterprise = (
+const exportFormDecorationPropsToEnterprise = (
   context: ConfigurationContext,
   data: FormDecoration
 ): FormDecorationPartialEnterprise => {
@@ -144,6 +100,3 @@ export const exportFormDecorationPropsToEnterprise = (
 
   return result
 }
-
-registerMetadata("ExportPartialToEnterprise", "FormDecoration", exportFormDecorationPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "FormDecoration", exportFormDecorationTypedToEnterprise)

@@ -3,7 +3,6 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
@@ -60,8 +59,8 @@ export interface PagesXML extends BaseElementXML {
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  AssociatedTable?: TableXML
-  CurrentPagesState?: SE.FormPagesState
+  AssociatedTableElementId?: MetadataValueXML
+  CurrentPagesState?: SE.SE.FormPagesState
   CurrentRowUse?: SE.CurrentRowUse
   PagesRepresentation?: SE.FormPagesRepresentation
   Events?: EventsXML
@@ -90,7 +89,7 @@ export interface PagesPartialEnterprise {
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
-  ИспользуемаяТаблица?: TablePartialEnterprise
+  ИспользуемаяТаблица?: string
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
   ТекущееСостояниеСтраниц?: SE.FormPagesStateEnterprise
   События?: {
