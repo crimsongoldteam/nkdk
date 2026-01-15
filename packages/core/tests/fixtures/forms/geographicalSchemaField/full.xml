@@ -10,6 +10,10 @@
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="AfterWrite">ПроцедураПослеЗаписи</Event>
+		<Event name="BeforePrint">ПроцедураПередПечатью</Event>
+		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
+		<Event name="DetailProcessing">ПроцедураОбработкиРасшифровки</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеГеографическойСхемыРасширеннаяПодсказка" id="3"/>

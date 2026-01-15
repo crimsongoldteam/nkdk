@@ -14,7 +14,6 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
 
 export interface PlannerField {
   elementType: "PlannerField"
@@ -45,7 +44,7 @@ export interface PlannerField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
+  table?: string
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
@@ -56,7 +55,6 @@ export interface PlannerField {
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormFieldType
   typeRestriction?: TypeDescription
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
@@ -130,7 +128,7 @@ export interface PlannerFieldXML extends BaseElementXML {
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
-  Table?: TableXML
+  Table?: string
   Title?: I8nTextXML
   TitleBackColor?: ColorXML
   TitleFont?: FontXML
@@ -141,13 +139,11 @@ export interface PlannerFieldXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
-  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  Events?: EventsXML
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   DimensionItemHyperlink?: boolean
@@ -238,7 +234,7 @@ export interface PlannerFieldPartialEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
-  Таблица?: TablePartialEnterprise
+  Таблица?: string
   ТекстПодвала?: I8nTextEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise

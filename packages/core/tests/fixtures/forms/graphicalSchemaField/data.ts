@@ -77,6 +77,9 @@ export const fullGraphicalSchemaField: GraphicalSchemaField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  events: {
+    onChange: "ПроцедураПриИзменении",
+  },
 }
 
 export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPartialEnterprise = {
