@@ -206,8 +206,7 @@ const importFormattedDocumentFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  // const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
-  // if (table !== undefined) result.table = table
+  if (data.Таблица !== undefined) result.table = data.Таблица
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText

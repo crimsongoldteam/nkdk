@@ -16,7 +16,7 @@ import {
 describe("importPlannerFieldFromEnterprise", () => {
   describe("importPlannerFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPlannerFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПланера")
+      const result = importPlannerFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПланировщика")
 
       expect(result).toBeUndefined()
     })

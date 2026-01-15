@@ -36,6 +36,8 @@ const eventNameMapping: Record<string, string> = {
   dragEnd: "ОкончаниеПеретаскивания",
   drag: "Перетаскивание",
   dragCheck: "ПроверкаПеретаскивания",
+  onActivateDate: "ПриАктивизацииДаты",
+  onPeriodOutput: "ПриВыводеПериода",
   additionalDetailProcessing: "ОбработкаДополнительнойРасшифровки",
   onActivate: "ПриАктивизации",
   onChangeAreaContentEvent: "ПриИзмененииСодержимогоОбласти",
@@ -52,6 +54,8 @@ const eventNameMapping: Record<string, string> = {
   onEditEnd: "ПриОкончанииРедактирования",
   onCurrentRepresentationPeriodChange: "ПриСменеТекущегоПериодаОтображения",
   insideDragCheck: "ПроверкаПеретаскиванияВнутри",
+  documentComplete: "ДокументСформирован",
+  onClick: "ПриНажатии",
 }
 
 export const exportEventsToEnterprise = (

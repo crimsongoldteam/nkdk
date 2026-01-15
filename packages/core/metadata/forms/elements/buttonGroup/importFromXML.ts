@@ -19,12 +19,16 @@ export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   const childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
 
   const result: ButtonGroup = {
-    ...baseFields,
     elementType: "ButtonGroup",
+    ...baseFields,
     childItems: childItems,
   }
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
+
+  if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
+
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
   if (xml.Height !== undefined) result.height = xml.Height
 

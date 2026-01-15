@@ -16,7 +16,6 @@ import {
   CalendarFieldTypedEnterprise,
 } from "~/metadata/forms/elements/calendarField/types"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
@@ -43,8 +42,7 @@ export function importCalendarFieldTypedFromEnterprise<To extends CalendarField 
     name,
   }
 
-  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
-  if (table !== undefined) result.table = table
+  if (data.Таблица !== undefined) result.table = data.Таблица
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
@@ -63,8 +61,7 @@ export function importCalendarFieldPartialFromEnterprise<To extends CalendarFiel
     ...props,
   }
 
-  const table = importTableFromEnterprise(context, data?.Таблица, source.name + ".Таблица")
-  if (table !== undefined) result.table = table
+  if (data?.Таблица !== undefined) result.table = data.Таблица
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title

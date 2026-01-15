@@ -49,11 +49,12 @@ export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | un
   return result as To
 }
 
-export function importPeriodFieldPartialFromEnterprise<To extends PeriodField>(
+export function importPeriodFieldPartialFromEnterprise<To extends PeriodField | undefined>(
   context: ConfigurationContext,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
+  if (source === undefined) return undefined as To
   const props = importPeriodFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
@@ -226,6 +227,8 @@ const importPeriodFieldPropsFromEnterprise = (
   if (editMode !== undefined) result.editMode = editMode
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
+
+  if (data.Таблица !== undefined) result.table = data.Таблица
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText

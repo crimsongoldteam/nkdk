@@ -74,7 +74,9 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
   autoMaxHeight: true,
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "Blue" },
-  border: {},
+  border: {
+    ref: "Single",
+  },
   borderColor: { type: "WebColor", value: "Green" },
   font: { kind: "StyleItem", ref: "NormalTextFont" },
   format: { items: { ru: "Формат" } },
@@ -131,6 +133,7 @@ export const fullLabelFieldPartialEnterprise: LabelFieldPartialEnterprise = {
   ТекстПодвала: "Текст подвала",
   ТолькоПросмотр: "Ложь",
   ФиксацияВТаблице: "Нет",
+  ЦветРамки: "Зеленый",
   ЦветТекстаЗаголовка: "Черный",
   ЦветТекстаПодвала: "Черный",
   ЦветФонаЗаголовка: "Синий",

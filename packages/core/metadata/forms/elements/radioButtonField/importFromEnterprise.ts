@@ -222,6 +222,8 @@ const importRadioButtonFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
+  if (data.Таблица !== undefined) result.table = data.Таблица
+
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
 
