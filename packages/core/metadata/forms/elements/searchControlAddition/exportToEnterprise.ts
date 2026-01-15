@@ -11,7 +11,6 @@ import {
   SearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -102,5 +101,3 @@ export const exportSearchControlAdditionToEnterprise = (
 
   return sortObject(result)
 }
-
-registerMetadata("ExportPartialToEnterprise", "SearchControlAddition", exportSearchControlAdditionToEnterprise)

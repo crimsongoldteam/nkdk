@@ -21,12 +21,16 @@ export const exportSearchStringAdditionToXML = (
 
   const baseFields = exportElementPropsToXML(context, { name })
 
+  const contextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
+  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
   const result: SearchStringAdditionXML = {
     ...baseFields,
     AdditionSource: {
       Item: parentElement.name,
       Type: "SearchStringAddition",
     },
+    ContextMenu: contextMenu,
+    ExtendedTooltip: extendedTooltip,
   }
 
   const backColor = exportColorToXML(context, element.backColor)
@@ -45,13 +49,9 @@ export const exportSearchStringAdditionToXML = (
 
   if (element.width !== undefined) result.Width = element.width
 
-  result.ContextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
-
   if (element.displayImportance !== undefined) result._DisplayImportance = element.displayImportance
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
-
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
 
   if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
 

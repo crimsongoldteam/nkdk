@@ -4,6 +4,7 @@ export interface BaseElement {
 
 export interface NamedElement extends BaseElement {
   name: string
+  // events?: {}
 }
 
 export interface BaseElementXML {

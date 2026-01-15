@@ -14,7 +14,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
+import { TablePartialEnterprise, TableXML } from "../table/types"
 
 export interface SpreadSheetDocumentField {
   elementType: "SpreadSheetDocumentField"
@@ -45,7 +45,6 @@ export interface SpreadSheetDocumentField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font

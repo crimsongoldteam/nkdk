@@ -34,10 +34,10 @@ export interface SearchStringAdditionXML extends BaseElementXML {
     Item: string
     Type: "SearchStringAddition"
   }
-  ContextMenu?: ContextMenuXML
+  ContextMenu: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
