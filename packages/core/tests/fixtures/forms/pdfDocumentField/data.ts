@@ -4,8 +4,9 @@ import {
   PdfDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPdfDocumentField: Required<PdfDocumentField> = {
+export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
   elementType: "PdfDocumentField",
   name: "ПолеPDFДокумента",
   title: {

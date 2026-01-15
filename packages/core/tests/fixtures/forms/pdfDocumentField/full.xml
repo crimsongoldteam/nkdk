@@ -5,7 +5,9 @@
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BorderColor>web:Green</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<CurrentPageNumber>1</CurrentPageNumber>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
