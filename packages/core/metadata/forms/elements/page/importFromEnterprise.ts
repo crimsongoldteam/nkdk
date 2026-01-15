@@ -1,22 +1,25 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { Page, PageEnterprise, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
+import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ImportPartialFromEnterpriseFn } from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPageFromEnterprise = <From extends PagePartialEnterprise | undefined, Name extends string>(
+export function importPageTypedFromEnterprise<To extends Page | undefined>(
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): Page => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
+  data: ToTypedEnterpriseType<To>,
+  name: string
+): To {
+  if (data === undefined) return undefined as To
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPagePropsFromEnterprise(context, data)
@@ -24,7 +27,7 @@ export const importPageFromEnterprise = <From extends PagePartialEnterprise | un
   const result: Page = {
     ...baseProps,
     ...props,
-    elementType: FormElementType.Page,
+    elementType: "Page",
     name,
     childItems: [],
   }
@@ -32,16 +35,39 @@ export const importPageFromEnterprise = <From extends PagePartialEnterprise | un
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportFromEnterpriseReturn<From, Page, Name>
+  return result as To
 }
 
-const importPagePropsFromEnterprise = (
+export function importPagePartialFromEnterprise<To extends Page>(
   context: ConfigurationContext,
-  data: PageEnterprise
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  const props = importPagePropsFromEnterprise(context, data)
+  const result: To = {
+    ...source,
+    ...baseProps,
+    ...props,
+    elementType: "Page",
+    name: source.name,
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importPagePropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PageTypedEnterprise | PagePartialEnterprise | undefined
 ): Omit<Partial<Page>, "elementType" | "name"> => {
   const result: Omit<Partial<Page>, "elementType" | "name"> = {
     childItems: [],
   }
+
+  if (data === undefined) return result
 
   const backColor = importColorFromEnterprise(context, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
@@ -143,4 +169,4 @@ const importPagePropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Page", importPageFromEnterprise as ImportPartialFromEnterpriseFn)
+registerMetadata("ImportPartialFromEnterprise", "Page", importPagePropsFromEnterprise)

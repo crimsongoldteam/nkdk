@@ -1,25 +1,47 @@
 import { describe, expect, it } from "vitest"
-import { fullPage, fullPageEnterprise, minimalPage, minimalPageEnterprise } from "~/tests/fixtures/forms/page/data"
+import {
+  fullPage,
+  fullPagePartialEnterprise,
+  fullPageTypedEnterprise,
+  minimalPage,
+  minimalPagePartialEnterprise,
+  minimalPageTypedEnterprise,
+} from "~/tests/fixtures/forms/page/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importPageFromEnterprise } from "./importFromEnterprise"
+import { importPagePartialFromEnterprise, importPageTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importPageFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importPageFromEnterprise(mockСontext, undefined, fullPage.name)
+  describe("importPageTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importPageTypedFromEnterprise(mockСontext, undefined, "Страница")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importPageTypedFromEnterprise(mockСontext, fullPageTypedEnterprise, "Страница")
+
+      expect(result).toEqual(fullPage)
+    })
+
+    it("should import minimal", () => {
+      const result = importPageTypedFromEnterprise(mockСontext, minimalPageTypedEnterprise, "Страница")
+
+      expect(result).toEqual(minimalPage)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importPageFromEnterprise(mockСontext, fullPageEnterprise, fullPage.name)
+  describe("importPagePartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importPagePartialFromEnterprise(mockСontext, fullPage, fullPagePartialEnterprise)
 
-    expect(result).toEqual(fullPage)
-  })
+      expect(result).toEqual(fullPage)
+    })
 
-  it("should import minimal", () => {
-    const result = importPageFromEnterprise(mockСontext, minimalPageEnterprise, minimalPage.name)
+    it("should import minimal", () => {
+      const result = importPagePartialFromEnterprise(mockСontext, minimalPage, minimalPagePartialEnterprise)
 
-    expect(result).toEqual(minimalPage)
+      expect(result).toEqual(minimalPage)
+    })
   })
 })
-

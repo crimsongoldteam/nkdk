@@ -14,7 +14,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
+import { TablePartialEnterprise, TableXML } from "../table/types"
 
 export interface PdfDocumentField {
   elementType: "PdfDocumentField"
@@ -45,7 +45,7 @@ export interface PdfDocumentField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
+  // table?: Table
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
@@ -84,22 +84,6 @@ export interface PdfDocumentField {
 }
 
 export interface PdfDocumentFieldXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BorderColor?: ColorXML
-  CurrentPageNumber?: number
-  Height?: number
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  Orientation?: number
-  Output?: SE.UseOutput
-  Scale?: number
-  UsedFileName?: string
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  ViewStatusLocation?: SE.ViewStatusLocation
-  Width?: number
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
   ContextMenu: ContextMenuXML
@@ -230,8 +214,3 @@ export interface PdfDocumentFieldPartialEnterprise {
 export interface PdfDocumentFieldTypedEnterprise extends PdfDocumentFieldPartialEnterprise {
   Тип: "ПолеPDFДокумента"
 }
-
-// Для обратной совместимости
-export type PdfDocumentFieldEnterprise = PdfDocumentFieldPartialEnterprise
-
-export type PdfDocumentFieldTypes = PdfDocumentField | PdfDocumentFieldEnterprise | PdfDocumentFieldXML

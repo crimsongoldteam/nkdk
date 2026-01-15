@@ -78,5 +78,10 @@ export const minimalPage: Page = {
 
 export const minimalPagePartialEnterprise: PagePartialEnterprise = {}
 
+export const minimalPageTypedEnterprise: PageTypedEnterprise = {
+  ...minimalPagePartialEnterprise,
+  Тип: "Страница",
+}
+
 export const fullPageEnterprise: PageEnterprise = fullPageTypedEnterprise
 export const minimalPageEnterprise: PageEnterprise = minimalPagePartialEnterprise

@@ -12,7 +12,7 @@ import { PdfDocumentField } from "~/metadata/forms/elements/pdfDocumentField/typ
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | undefined>(
   context: ConfigurationContext,
@@ -24,7 +24,7 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
 
   const result: PdfDocumentField = {
     ...baseFields,
-    elementType: FormElementType.PdfDocumentField,
+    elementType: "PdfDocumentField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -168,4 +168,4 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
   return result as To
 }
 
-registerMetadata("ImportFromXML", "PdfDocumentField", importPdfDocumentFieldFromXML)
+registerMetadata("ImportFromXML", "PdfDocumentField", importPdfDocumentFieldFromXML as ImportFromXMLFn)
