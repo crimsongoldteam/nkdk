@@ -9,16 +9,15 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
+import { TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface TextDocumentField {
+export interface TextDocumentField extends NamedElement {
   elementType: "TextDocumentField"
-  name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean
   contextMenu?: ContextMenu
@@ -45,7 +44,6 @@ export interface TextDocumentField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
@@ -56,7 +54,6 @@ export interface TextDocumentField {
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormFieldType
   typeRestriction?: TypeDescription
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
@@ -123,13 +120,11 @@ export interface TextDocumentFieldXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
-  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  Events?: EventsXML
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BackColor?: ColorXML

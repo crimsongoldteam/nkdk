@@ -8,11 +8,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { TextDocumentField, TextDocumentFieldXML } from "~/metadata/forms/elements/textDocumentField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
+import { TextDocumentField } from "~/metadata/forms/elements/textDocumentField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importTextDocumentFieldFromXML<To extends TextDocumentField | undefined>(
   context: ConfigurationContext,
@@ -169,4 +169,4 @@ export function importTextDocumentFieldFromXML<To extends TextDocumentField | un
   return result as To
 }
 
-registerMetadata("ImportFromXML", "TextDocumentField", importTextDocumentFieldFromXML)
+registerMetadata("ImportFromXML", "TextDocumentField", importTextDocumentFieldFromXML as ImportFromXMLFn)
