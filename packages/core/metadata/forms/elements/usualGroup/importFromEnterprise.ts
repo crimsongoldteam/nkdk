@@ -20,7 +20,6 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importTableFromEnterprise } from "../table/importFromEnterprise"
 export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -213,8 +212,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const associatedTable = importTableFromEnterprise(context, data.ИспользуемаяТаблица, name + ".ИспользуемаяТаблица")
-  if (associatedTable !== undefined) result.associatedTable = associatedTable
+  if (data.Таблица !== undefined) result.table = data.Таблица
 
   const united = importBooleanFromEnterprise(context, data.Объединенная)
   if (united !== undefined) result.united = united

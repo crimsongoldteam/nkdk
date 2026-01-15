@@ -23,7 +23,6 @@ import {
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
-import { exportTableToEnterprise } from "../table/exportToEnterprise"
 
 export const exportUsualGroupTypedToEnterprise = <From extends UsualGroup | undefined>(
   context: ConfigurationContext,
@@ -200,8 +199,7 @@ const exportUsualGroupPropsToEnterprise = (
   const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
-  const associatedTable = exportTableToEnterprise(context, data.associatedTable)
-  if (associatedTable !== undefined) result.ИспользуемаяТаблица = associatedTable
+  if (data.table !== undefined) result.Таблица = data.table
 
   const united = exportBooleanToEnterprise(context, data.united)
   if (united !== undefined) result.Объединенная = united

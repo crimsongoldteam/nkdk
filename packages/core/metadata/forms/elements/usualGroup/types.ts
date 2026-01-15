@@ -30,7 +30,7 @@ export interface UsualGroup {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  associatedtable?: string
+  table?: string
   backColor?: Color
   behavior?: SE.UsualGroupBehavior
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
@@ -108,6 +108,7 @@ export interface UsualGroupXML extends BaseElementXML {
 }
 
 export interface UsualGroupPartialEnterprise {
+  Таблица?: string
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
   Видимость?: StringboolEnterprise
@@ -140,7 +141,6 @@ export interface UsualGroupPartialEnterprise {
   Группировка?: SE.ChildFormItemsGroupEnterprise
   ЗаголовокСвернутогоОтображения?: string
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
-  ИспользуемаяТаблица?: string
   Объединенная?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
   ОтображатьОтступСлева?: StringboolEnterprise

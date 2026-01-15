@@ -150,6 +150,8 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
   Ширина: 200,
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  ОграничениеТипа: "Строка",
+  Таблица: "Таблица",
 }
 
 // Удаляем Заголовок, так как exportFormFieldPropsToEnterprise не экспортирует его
