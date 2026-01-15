@@ -15,7 +15,7 @@ export const fullPdfDocumentField: Required<PdfDocumentField> = {
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Green" },
   currentPageNumber: 1,
-  contextMenu: { childItems: [] },
+  contextMenu: { autofill: false, childItems: [] },
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
   height: 200,
   horizontalStretch: true,
@@ -110,6 +110,9 @@ export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnter
   Доступность: "Истина",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
+  КонтекстноеМеню: {
+    Автозаполнение: "Ложь",
+  },
   ОграничениеТипа: "Строка",
   ОтображатьВПодвале: "Истина",
   ОтображатьВШапке: "Истина",
