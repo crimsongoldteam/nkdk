@@ -11,7 +11,7 @@ import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldXML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
-import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -86,8 +86,8 @@ export function exportSpreadSheetDocumentFieldToXML<From extends SpreadSheetDocu
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
+  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  if (table !== undefined) result.AssociatedTableElementId = table
 
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title

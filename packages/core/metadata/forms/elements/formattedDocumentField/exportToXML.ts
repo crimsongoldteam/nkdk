@@ -1,6 +1,7 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
@@ -11,7 +12,6 @@ import {
   FormattedDocumentField,
   FormattedDocumentFieldXML,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
-import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -86,8 +86,8 @@ export function exportFormattedDocumentFieldToXML<From extends FormattedDocument
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
+  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  if (table !== undefined) result.AssociatedTableElementId = table
 
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title

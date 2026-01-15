@@ -12,7 +12,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
-import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -103,8 +103,8 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
+  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  if (table !== undefined) result.AssociatedTableElementId = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip

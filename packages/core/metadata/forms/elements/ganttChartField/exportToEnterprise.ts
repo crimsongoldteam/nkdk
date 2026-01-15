@@ -27,7 +27,6 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { exportTableToEnterprise } from "../table/exportToEnterprise"
 
 export function exportGanttChartFieldTypedToEnterprise<From extends GanttChartField | undefined>(
   context: ConfigurationContext,
@@ -202,8 +201,7 @@ const exportGanttChartFieldPropsToEnterprise = (
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const table = exportTableToEnterprise(context, data.table)
-  if (table !== undefined) result.Таблица = table
+  if (data.table !== undefined) result.Таблица = data.table
 
   const footerText = exportI8nTextToEnterprise(context, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText

@@ -1,15 +1,20 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { TypeDescriptionEnterprise, TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionXML,
+} from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormattedDocumentField extends NamedElement {
   elementType: "FormattedDocumentField"
@@ -27,6 +32,49 @@ export interface FormattedDocumentField extends NamedElement {
   textColor?: Color
   verticalStretch?: boolean
   width?: number
+  autoCellHeight?: boolean
+  cellHyperlink?: boolean
+  contextMenu?: ContextMenu
+  dataPath?: string
+  defaultItem?: boolean
+  displayImportance?: SE.DisplayImportance
+  editMode?: SE.ColumnEditMode
+  enabled?: boolean
+  extendedTooltip?: ExtendedTooltip
+  fixingInTable?: SE.FixingInTable
+  footerBackColor?: Color
+  footerDataPath?: string
+  footerFont?: Font
+  footerHorizontalAlign?: SE.ItemHorizontalLocation
+  footerPicture?: Picture
+  footerText?: I8nText
+  footerTextColor?: Color
+  headerHorizontalAlign?: SE.ItemHorizontalLocation
+  headerPicture?: Picture
+  horizontalAlign?: SE.ItemHorizontalLocation
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  readOnly?: boolean
+  shortcut?: string
+  showInFooter?: boolean
+  showInHeader?: boolean
+  skipOnInput?: boolean
+  table?: string
+  title?: I8nText
+  titleBackColor?: Color
+  titleFont?: Font
+  titleHeight?: number
+  titleLocation?: SE.FormItemTitleLocation
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormFieldType
+  typeRestriction?: TypeDescription
+  userVisible?: UserVisible
+  verticalAlign?: SE.ItemVerticalAlign
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  visible?: boolean
+  warningOnEdit?: I8nText
+  warningOnEditRepresentation?: SE.WarningOnEditRepresentation
   events?: {
     onChange?: string
     beforeWrite?: string

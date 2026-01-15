@@ -2,13 +2,12 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { Table } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface UsualGroup {
   elementType: "UsualGroup"
@@ -31,7 +30,7 @@ export interface UsualGroup {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  associatedTable?: Table
+  associatedtable?: string
   backColor?: Color
   behavior?: SE.UsualGroupBehavior
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation

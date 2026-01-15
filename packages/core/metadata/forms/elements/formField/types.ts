@@ -2,6 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
@@ -11,11 +12,9 @@ import {
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElementPropsEnterprise, BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { Table } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface FormField extends NamedElement {
   elementType: "FormField"
@@ -45,7 +44,7 @@ export interface FormField extends NamedElement {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
+  table?: string
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
