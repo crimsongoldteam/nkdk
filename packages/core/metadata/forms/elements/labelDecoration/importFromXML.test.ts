@@ -1,31 +1,30 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
+import { fullLabelDecoration, minimalLabelDecoration } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { FormElementType } from "../../../metadataFactory/types"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importLabelDecorationFromXML } from "./importFromXML"
-import { LabelDecoration, LabelDecorationXML } from "./types"
-import xmlImport from "~/xml/import/importer"
+import { LabelDecorationXML } from "./types"
 
-it("should import name from XML", () => {
-  const mockXml = `<LabelDecoration name="Заголовок" id="1">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Заголовок формы</v8:content>
-						</v8:item>
-					</Title>
-				</LabelDecoration>`
+describe("importLabelDecorationFromXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = importLabelDecorationFromXML(mockСontext, undefined)
 
-  const expectedResult: LabelDecoration = {
-    name: "Заголовок",
-    elementType: FormElementType.LabelDecoration,
-    title: {
-      items: { ru: "Заголовок формы" },
-    },
-  }
+    expect(result).toBeUndefined()
+  })
 
-  const xml = xmlImport<{ LabelDecoration: LabelDecorationXML }>(mockXml)
+  it("should import all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ LabelDecoration: LabelDecorationXML }>("forms/labelDecoration/full.xml")
 
-  const input = importLabelDecorationFromXML(mockСontext, xml.LabelDecoration)
+    const result = importLabelDecorationFromXML(mockСontext, xmlData.LabelDecoration)
 
-  expect(input).toEqual(expectedResult)
+    expect(result).toEqual(fullLabelDecoration)
+  })
+
+  it("should import minimal", () => {
+    const xmlData = readAndParseXMLFile<{ LabelDecoration: LabelDecorationXML }>("forms/labelDecoration/minimal.xml")
+
+    const result = importLabelDecorationFromXML(mockСontext, xmlData.LabelDecoration)
+
+    expect(result).toEqual(minimalLabelDecoration)
+  })
 })

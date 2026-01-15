@@ -5,10 +5,8 @@ import {
 } from "~/metadata/forms/elements/labelDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormDecoration, fullFormDecorationPartialEnterprise } from "../formDecoration/data"
 
 export const fullLabelDecoration: LabelDecoration = {
-  ...fullFormDecoration,
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
   title: {
@@ -26,6 +24,32 @@ export const fullLabelDecoration: LabelDecoration = {
   hyperlink: true,
   titleHeight: 20,
   verticalAlign: "Top",
+  autoMaxHeight: true,
+  autoMaxWidth: true,
+  displayImportance: "High",
+  enabled: true,
+  font: { kind: "StyleItem", ref: "NormalTextFont" },
+  height: 200,
+  horizontalAlignInGroup: "Left",
+  horizontalStretch: true,
+  maxHeight: 500,
+  maxWidth: 400,
+  shortcut: "Ctrl+S",
+  skipOnInput: false,
+  textColor: { type: "WebColor", value: "Blue" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "Label",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  verticalStretch: true,
+  visible: true,
+  width: 300,
   events: {
     click: "ПроцедураНажатия",
     uRLProcessing: "ПроцедураОбработкиНавигационнойСсылки",
@@ -33,7 +57,27 @@ export const fullLabelDecoration: LabelDecoration = {
 }
 
 export const fullLabelDecorationPartialEnterprise: LabelDecorationPartialEnterprise = {
-  ...fullFormDecorationPartialEnterprise,
+  АвтоМаксимальнаяВысота: "Истина",
+  АвтоМаксимальнаяШирина: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "Надпись",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  МаксимальнаяВысота: 500,
+  МаксимальнаяШирина: 400,
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  ПропускатьПриВводе: "Ложь",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ЦветТекста: "Синий",
+  Ширина: 300,
+  Шрифт: "ОбычныйШрифтТекста",
   ВертикальноеВыравниваниеГруппы: "Верх",
   ВертикальноеПоложение: "Верх",
   ВысотаЗаголовка: 20,
