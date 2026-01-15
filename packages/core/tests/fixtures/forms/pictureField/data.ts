@@ -13,6 +13,9 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
     items: { ru: "Поле картинки" },
   },
   autoCellHeight: true,
+  border: {
+    ref: "Single",
+  },
   cellHyperlink: true,
   dataPath: "Объект.Реквизит",
   defaultItem: true,

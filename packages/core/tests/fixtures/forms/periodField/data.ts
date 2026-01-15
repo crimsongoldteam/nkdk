@@ -75,6 +75,9 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   },
   autoMaxHeight: true,
   autoMaxWidth: true,
+  border: {
+    ref: "Single",
+  },
   borderColor: { type: "WebColor", value: "Black" },
   font: { kind: "StyleItem", ref: "NormalTextFont" },
   height: 200,
@@ -134,6 +137,9 @@ export const fullPeriodFieldPartialEnterprise: PeriodFieldPartialEnterprise = {
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
+  Рамка: {
+    ТипРамки: "Одинарная",
+  },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },

@@ -14,6 +14,7 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 
 export function exportPictureFieldToXML<From extends PictureField | undefined>(
   context: ConfigurationContext,
@@ -99,7 +100,8 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  if (data.table !== undefined) result.AssociatedTableElementId = data.table
+  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  if (table !== undefined) result.AssociatedTableElementId = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
