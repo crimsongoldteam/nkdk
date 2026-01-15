@@ -1,6 +1,7 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
@@ -8,13 +9,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
-import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
+import { FormField } from "~/metadata/forms/elements/formField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importFormFieldFromXML<To extends FormField | undefined>(
+function importFormFieldFromXML<To extends FormField | undefined>(
   context: ConfigurationContext,
   xml: ToXMLType<To> | undefined
 ): To {
@@ -136,5 +135,3 @@ export function importFormFieldFromXML<To extends FormField | undefined>(
 
   return result as To
 }
-
-registerMetadata("ImportFromXML", "FormField", importFormFieldFromXML)

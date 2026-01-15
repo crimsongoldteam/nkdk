@@ -36,7 +36,8 @@ export function importRadioButtonFieldTypedFromEnterprise<To extends RadioButton
   const result: RadioButtonField = {
     ...baseFields,
     ...props,
-    elementType,
+    elementType: "RadioButtonField",
+    name: name,
   }
 
   return result as To

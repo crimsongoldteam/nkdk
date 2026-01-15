@@ -13,7 +13,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportFormFieldToEnterprise = (
+const exportFormFieldToEnterprise = (
   context: ConfigurationContext,
   data: FormField | undefined
 ): FormFieldEnterprise | undefined => {

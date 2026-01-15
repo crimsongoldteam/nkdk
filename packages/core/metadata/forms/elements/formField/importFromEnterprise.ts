@@ -8,25 +8,19 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
-import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "../types"
 
-export const importFormFieldFromEnterprise = <
-  From extends FormFieldEnterprise | undefined,
-  Name extends string | undefined,
->(
+export const importFormFieldFromEnterprise = <From extends FormFieldEnterprise | undefined, Name extends string | undefined>(
   context: ConfigurationContext,
   data: From,
   name: Name
-): ImportFromEnterpriseReturn<From, FormField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, FormField, Name>
-  if (!name) return undefined as ImportFromEnterpriseReturn<From, FormField, Name>
+): ToTypedEnterpriseType<From> => {
+  if (!data) return undefined as ToTypedEnterpriseType<From>
+  if (!name) return undefined as ToTypedEnterpriseType<From>
 
   const props = importFormFieldPropsFromEnterprise(context, data, name)
 
@@ -39,7 +33,7 @@ export const importFormFieldFromEnterprise = <
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportFromEnterpriseReturn<From, FormField, Name>
+  return result as ToTypedEnterpriseType<From>
 }
 
 export const importFormFieldPropsFromEnterprise = (
@@ -200,8 +194,8 @@ export const importFormFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
-  if (table !== undefined) result.table = table
+  // const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
+  // if (table !== undefined) result.table = table
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
@@ -239,5 +233,3 @@ export const importFormFieldPropsFromEnterprise = (
 
   return result
 }
-
-registerMetadata("ImportPartialFromEnterprise", "FormField", importFormFieldPropsFromEnterprise)

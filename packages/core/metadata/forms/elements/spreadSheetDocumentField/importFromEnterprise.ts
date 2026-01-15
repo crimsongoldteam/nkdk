@@ -48,11 +48,30 @@ export function importSpreadSheetDocumentFieldPartialFromEnterprise<To extends S
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importSpreadSheetDocumentFieldPropsFromEnterprise(context, data)
+  
+  // Merge events from Enterprise data with existing events from source
+  const mergedEvents = baseFields.events || props.events
+    ? { ...source.events, ...baseFields.events, ...props.events }
+    : source.events
+
+  // Preserve extendedTooltip from source if Enterprise data has empty object
+  const extendedTooltip = baseFields.extendedTooltip && Object.keys(baseFields.extendedTooltip).length > 0
+    ? baseFields.extendedTooltip
+    : source.extendedTooltip
+
+  // Preserve contextMenu and table from source if not in Enterprise data
+  const contextMenu = baseFields.contextMenu !== undefined ? baseFields.contextMenu : source.contextMenu
+  const table = props.table !== undefined ? props.table : source.table
+
   const result: To = {
     ...source,
     ...baseFields,
     ...props,
     elementType: source.elementType, // Сохраняем elementType из source
+    events: mergedEvents,
+    extendedTooltip,
+    contextMenu,
+    table,
   }
 
   return result
@@ -186,6 +205,8 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
   if (blackAndWhiteView !== undefined) result.blackAndWhiteView = blackAndWhiteView
 
   if (data.Ширина !== undefined) result.width = data.Ширина
+
+  if (data.Таблица !== undefined) result.table = data.Таблица
 
   const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
