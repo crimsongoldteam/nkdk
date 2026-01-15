@@ -9,11 +9,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { LabelField, LabelFieldXML } from "~/metadata/forms/elements/labelField/types"
+import { LabelField } from "~/metadata/forms/elements/labelField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importLabelFieldFromXML<To extends LabelField | undefined>(
   context: ConfigurationContext,
@@ -21,11 +21,9 @@ export function importLabelFieldFromXML<To extends LabelField | undefined>(
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
-
   const result: LabelField = {
     ...baseFields,
-    elementType: FormElementType.LabelField,
+    elementType: "LabelField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -178,4 +176,4 @@ export function importLabelFieldFromXML<To extends LabelField | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "LabelField", importLabelFieldFromXML)
+registerMetadata("ImportFromXML", "LabelField", importLabelFieldFromXML as ImportFromXMLFn)

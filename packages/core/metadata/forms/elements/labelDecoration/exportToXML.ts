@@ -21,25 +21,14 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   const baseFields = exportElementPropsToXML(context, data)
 
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
+
   const result: LabelDecorationXML = {
     ...baseFields,
+    ContextMenu: contextMenu,
+    ExtendedTooltip: extendedTooltip,
   }
-
-  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
-
-  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
-
-  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
-  if (contextMenu !== undefined) result.ContextMenu = contextMenu
-
-  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
-
-  if (data.enabled !== undefined) result.Enabled = data.enabled
-
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-
-  const font = exportFontToXML(context, data.font)
-  if (font !== undefined) result.Font = font
 
   if (data.height !== undefined) result.Height = data.height
 
@@ -97,6 +86,45 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.shortcut !== undefined) result.Shortcut = data.shortcut
+
+  if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
+
+  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
+
+  if (data.type !== undefined) result.Type = data.type
+
+  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.visible !== undefined) result.Visible = data.visible
+
+  if (data.width !== undefined) result.Width = data.width
 
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events

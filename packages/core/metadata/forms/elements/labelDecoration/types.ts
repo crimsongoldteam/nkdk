@@ -54,10 +54,10 @@ export interface LabelDecoration {
 export interface LabelDecorationXML extends BaseElementXML {
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
-  ContextMenu?: ContextMenuXML
+  ContextMenu: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
@@ -130,6 +130,3 @@ export interface LabelDecorationPartialEnterprise {
 export interface LabelDecorationTypedEnterprise extends LabelDecorationPartialEnterprise {
   Тип: "Надпись"
 }
-
-// Для обратной совместимости
-export type LabelDecorationEnterprise = LabelDecorationPartialEnterprise

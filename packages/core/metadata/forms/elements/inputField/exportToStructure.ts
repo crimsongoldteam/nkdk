@@ -3,9 +3,7 @@ import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lex
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
-import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
-import { isMultiline } from "./helpers"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { InputField } from "./types"
 
 const UNDERLINE = t.Underscore.LABEL as string
@@ -72,4 +70,4 @@ function getModificators(element: InputField): string {
 }
 
 registerMetadata("ExportToStructure", "InputField", exportInputFieldToStructure as ExportToStructureFn)
-registerIsOneLineElementCheck<InputField>(FormElementType.InputField, (element: InputField) => !isMultiline(element))
+// registerIsOneLineElementCheck<InputField>(FormElementType.InputField, (element: InputField) => !isMultiline(element))
