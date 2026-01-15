@@ -1,4 +1,3 @@
-import context from "antd/es/app/context"
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
 import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
@@ -16,7 +15,11 @@ import type { PictureDecoration } from "~/metadata/forms/elements/pictureDecorat
 import type { RadioButtonField } from "~/metadata/forms/elements/radioButtonField/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
-import { FormElementType, FormElementTypeEnterprise, importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  FormElementType,
+  FormElementTypeEnterprise,
+  importFormElementTypeFromEnterprise,
+} from "~/metadata/metadataFactory/types"
 import { NamedElement } from "../../../../elements/baseElement/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
@@ -575,9 +578,7 @@ export class Visitor extends BaseVisitor {
   // #region otherField
   otherField(ctx: CstChildrenDictionary, context: ConfigurationContext): NamedElement {
     const name = this.visit(ctx.properties as CstNode[], context)
-    const otherFieldType = joinTokens(
-      ctx.OtherFieldType as IToken[]
-    ) as FormElementTypeEnterprise
+    const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as FormElementTypeEnterprise
 
     const elementType = importFormElementTypeFromEnterprise(context, otherFieldType)
     return {

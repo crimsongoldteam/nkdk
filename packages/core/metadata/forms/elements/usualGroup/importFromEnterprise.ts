@@ -14,7 +14,7 @@ import {
 } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
-  importFormElementTypeFromEnterprise,
+  ImportPartialFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -30,11 +30,9 @@ export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | unde
 
   const props = importUsualGroupPropsFromEnterprise(context, data, name)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: UsualGroup = {
     ...props,
-    elementType,
+    elementType: "UsualGroup",
     name,
     childItems: props.childItems ?? [],
   }
@@ -294,4 +292,8 @@ const importUsualGroupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "UsualGroup", importUsualGroupPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "UsualGroup",
+  importUsualGroupPropsFromEnterprise as ImportPartialFromEnterpriseFn
+)
