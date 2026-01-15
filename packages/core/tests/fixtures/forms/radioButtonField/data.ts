@@ -4,8 +4,9 @@ import {
   RadioButtonFieldTypedEnterprise,
 } from "~/metadata/forms/elements/radioButtonField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullRadioButtonField: RadioButtonField = {
+export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   elementType: FormElementType.RadioButtonField,
   name: "ПолеПереключателя",
   title: {
@@ -66,6 +67,21 @@ export const fullRadioButtonField: RadioButtonField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
+  backColor: { type: "WebColor", value: "Blue" },
+  borderColor: { type: "WebColor", value: "Green" },
+  choiceList: [],
+  columnsCount: 2,
+  equalColumnsWidth: true,
+  font: { kind: "StyleItem", ref: "NormalTextFont" },
+  itemHeight: 20,
+  itemTitleHeight: 15,
+  itemWidth: 100,
+  radioButtonType: "RadioButton",
+  textColor: { type: "WebColor", value: "Yellow" },
   events: {
     onChange: "ПроцедураПриИзменении",
   },
@@ -110,6 +126,8 @@ export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnter
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

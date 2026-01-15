@@ -4,8 +4,9 @@ import {
   FormattedDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullFormattedDocumentField: FormattedDocumentField = {
+export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocumentField> = {
   elementType: FormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
   title: {
@@ -80,9 +81,15 @@ export const fullFormattedDocumentField: FormattedDocumentField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
     beforeWrite: "ПроцедураПередЗаписью",
+    beforePrint: "ПроцедураПередПечатью",
+    afterWrite: "ПроцедураПослеЗаписи",
   },
 }
 
@@ -139,6 +146,8 @@ export const fullFormattedDocumentFieldPartialEnterprise: FormattedDocumentField
   ЦветФона: "Белый",
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     ПередЗаписью: "ПроцедураПередЗаписью",

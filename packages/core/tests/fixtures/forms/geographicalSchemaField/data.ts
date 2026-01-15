@@ -4,8 +4,9 @@ import {
   GeographicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullGeographicalSchemaField: GeographicalSchemaField = {
+export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {
   elementType: FormElementType.GeographicalSchemaField,
   name: "ПолеГеографическойСхемы",
   title: {
@@ -76,6 +77,10 @@ export const fullGeographicalSchemaField: GeographicalSchemaField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
     detailProcessing: "ПроцедураОбработкиРасшифровки",
@@ -134,6 +139,8 @@ export const fullGeographicalSchemaFieldPartialEnterprise: GeographicalSchemaFie
   РастягиватьПоГоризонтали: "Истина",
   ЦветРамки: "Черный",
   Ширина: 300,
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     ОбработкаРасшифровки: "ПроцедураОбработкиРасшифровки",

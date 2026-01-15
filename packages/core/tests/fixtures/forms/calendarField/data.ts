@@ -4,8 +4,9 @@ import {
   CalendarFieldTypedEnterprise,
 } from "~/metadata/forms/elements/calendarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullCalendarField: CalendarField = {
+export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
   elementType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
   title: {
@@ -92,9 +93,19 @@ export const fullCalendarField: CalendarField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураВыбора",
+    dragStart: "ПроцедураНачалаПеретаскивания",
+    dragEnd: "ПроцедураЗавершенияПеретаскивания",
+    drag: "ПроцедураПеретаскивания",
+    onActivateDate: "ПроцедураАктивацииДаты",
+    onPeriodOutput: "ПроцедураВыводаПериода",
+    dragCheck: "ПроцедураПроверкиПеретаскивания",
   },
 }
 
@@ -162,6 +173,8 @@ export const fullCalendarFieldPartialEnterprise: CalendarFieldPartialEnterprise 
   Ширина: 300,
   ШиринаВМесяцах: 2,
   Шрифт: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",

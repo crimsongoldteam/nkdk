@@ -34,6 +34,8 @@ export const fullViewStatusAddition: ViewStatusAddition = {
   verticalAlignInGroup: "Top",
   visible: true,
   width: 300,
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
 }
 
 export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
@@ -59,6 +61,8 @@ export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
   РазрешитьИспользование: { Администратор: "Истина" },
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
 export const minimalViewStatusAddition: ViewStatusAddition = {}

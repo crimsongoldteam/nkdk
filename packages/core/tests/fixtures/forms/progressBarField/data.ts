@@ -4,8 +4,9 @@ import {
   ProgressBarFieldTypedEnterprise,
 } from "~/metadata/forms/elements/progressBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullProgressBarField: ProgressBarField = {
+export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
   elementType: FormElementType.ProgressBarField,
   name: "ПолеИндикатора",
   title: {
@@ -66,6 +67,24 @@ export const fullProgressBarField: ProgressBarField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
+  autoMaxHeight: true,
+  autoMaxWidth: true,
+  borderColor: { type: "WebColor", value: "Black" },
+  height: 200,
+  horizontalStretch: true,
+  maxHeight: 500,
+  maxValue: 100,
+  maxWidth: 400,
+  minValue: 0,
+  orientation: "Horizontal",
+  representation: "Smooth",
+  showPercent: true,
+  verticalStretch: true,
+  width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
   },
@@ -110,6 +129,8 @@ export const fullProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnter
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

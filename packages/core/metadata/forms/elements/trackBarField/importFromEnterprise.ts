@@ -5,8 +5,6 @@ import {
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormFieldPropsFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import {
   TrackBarField,
   TrackBarFieldPartialEnterprise,
@@ -69,9 +67,6 @@ const importTrackBarFieldPropsFromEnterprise = (
   name: string
 ): Omit<Partial<TrackBarField>, "elementType" | "name"> => {
   const result: Omit<Partial<TrackBarField>, "elementType" | "name"> = {}
-
-  const baseProps = importFormFieldPropsFromEnterprise(context, (data ?? {}) as FormFieldEnterprise, name)
-  Object.assign(result, baseProps)
 
   if (data === undefined) return result
 

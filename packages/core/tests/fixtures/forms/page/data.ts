@@ -1,4 +1,4 @@
-import { Page, PageEnterprise, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
+import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullPage: Page = {
@@ -103,5 +103,5 @@ export const minimalPageTypedEnterprise: PageTypedEnterprise = {
   Тип: "Страница",
 }
 
-export const fullPageEnterprise: PageEnterprise = fullPageTypedEnterprise
-export const minimalPageEnterprise: PageEnterprise = minimalPagePartialEnterprise
+export const fullPageEnterprise: PageTypedEnterprise = fullPageTypedEnterprise
+export const minimalPageEnterprise: PagePartialEnterprise = minimalPagePartialEnterprise

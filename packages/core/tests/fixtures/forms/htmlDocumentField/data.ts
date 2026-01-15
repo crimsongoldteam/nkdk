@@ -4,8 +4,9 @@ import {
   HTMLDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullHtmlDocumentField: HTMLDocumentField = {
+export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
   elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
   title: {
@@ -13,10 +14,13 @@ export const fullHtmlDocumentField: HTMLDocumentField = {
   },
   autoMaxHeight: true,
   autoMaxWidth: true,
+  borderColor: { type: "WebColor", value: "Black" },
   height: 200,
   horizontalStretch: true,
   maxHeight: 500,
   maxWidth: 400,
+  output: "Enable",
+  userAgentInformation: "Информация программы просмотра",
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: true }],
@@ -74,8 +78,17 @@ export const fullHtmlDocumentField: HTMLDocumentField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
+    documentComplete: "ПроцедураЗавершенияДокумента",
+    beforeWrite: "ПроцедураПередЗаписью",
+    beforePrint: "ПроцедураПередПечатью",
+    afterWrite: "ПроцедураПослеЗаписи",
+    onClick: "ПроцедураНажатия",
   },
 }
 
@@ -126,6 +139,8 @@ export const fullHtmlDocumentFieldPartialEnterprise: HTMLDocumentFieldPartialEnt
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

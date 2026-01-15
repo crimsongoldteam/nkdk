@@ -4,8 +4,9 @@ import {
   GanttChartFieldTypedEnterprise,
 } from "~/metadata/forms/elements/ganttChartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullGanttChartField: GanttChartField = {
+export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   elementType: FormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
   title: {
@@ -79,6 +80,10 @@ export const fullGanttChartField: GanttChartField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураВыбора",
@@ -143,6 +148,8 @@ export const fullGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterpr
   РежимВыделенияЗначений: "Одиночный",
   РежимВыделенияИнтервалов: "Одиночный",
   Ширина: 300,
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",

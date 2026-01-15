@@ -4,8 +4,9 @@ import {
   GraphicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullGraphicalSchemaField: GraphicalSchemaField = {
+export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
   elementType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
   title: {
@@ -77,8 +78,17 @@ export const fullGraphicalSchemaField: GraphicalSchemaField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
+    selection: "ПроцедураВыбора",
+    beforeWrite: "ПроцедураПередЗаписью",
+    beforePrint: "ПроцедураПередПечатью",
+    afterWrite: "ПроцедураПослеЗаписи",
+    onActivate: "ПроцедураАктивации",
   },
 }
 
@@ -132,6 +142,8 @@ export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPart
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

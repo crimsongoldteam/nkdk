@@ -30,6 +30,8 @@ export const fullSearchStringAddition: SearchStringAddition = {
   verticalAlignInGroup: "Top",
   visible: true,
   width: 300,
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
 }
 
 export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
@@ -48,6 +50,8 @@ export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise 
   ЦветФона: "Белый",
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
 export const minimalSearchStringAddition: SearchStringAddition = {}

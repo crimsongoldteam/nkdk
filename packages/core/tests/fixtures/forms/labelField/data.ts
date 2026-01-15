@@ -4,8 +4,9 @@ import {
   LabelFieldTypedEnterprise,
 } from "~/metadata/forms/elements/labelField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullLabelField: LabelField = {
+export const fullLabelField: RequiredFieldsElement<LabelField> = {
   elementType: "LabelField",
   name: "ПолеНадписи",
   title: {
@@ -66,6 +67,27 @@ export const fullLabelField: LabelField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
+  autoMaxHeight: true,
+  autoMaxWidth: true,
+  backColor: { type: "WebColor", value: "Blue" },
+  border: {},
+  borderColor: { type: "WebColor", value: "Green" },
+  font: { kind: "StyleItem", ref: "NormalTextFont" },
+  format: { items: { ru: "Формат" } },
+  height: 200,
+  horizontalStretch: true,
+  hyperlink: true,
+  markNegatives: true,
+  maxHeight: 500,
+  maxWidth: 400,
+  passwordMode: true,
+  textColor: { type: "WebColor", value: "Yellow" },
+  verticalStretch: true,
+  width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
     click: "ПроцедураНажатия",
@@ -112,6 +134,8 @@ export const fullLabelFieldPartialEnterprise: LabelFieldPartialEnterprise = {
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Нажатие: "ПроцедураНажатия",

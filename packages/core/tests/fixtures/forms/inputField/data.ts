@@ -5,8 +5,9 @@ import {
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullInputField: InputField = {
+export const fullInputField: RequiredFieldsElement<InputField> = {
   elementType: FormElementType.InputField,
   name: "ПолеВвода",
   autoCellHeight: true,
@@ -60,9 +61,10 @@ export const fullInputField: InputField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
-  events: {
-    onChange: "ПроцедураПриИзменении",
-  },
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   allowInputEmptyMultipleValues: true,
   allowMultipleValuesDuplicates: false,
   autoCapitalizationOnTextInput: "AllCharacters",
@@ -319,6 +321,8 @@ export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     АвтоПодбор: "ПроцедураАвтоПодбора",

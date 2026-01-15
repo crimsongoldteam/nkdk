@@ -4,8 +4,9 @@ import {
   TrackBarFieldTypedEnterprise,
 } from "~/metadata/forms/elements/trackBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullTrackBarField: TrackBarField = {
+export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   elementType: FormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
   autoCellHeight: true,
@@ -63,6 +64,10 @@ export const fullTrackBarField: TrackBarField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
   },
@@ -143,6 +148,8 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
   Шаг: 1,
   ШагРазметки: 5,
   Ширина: 200,
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
 // Удаляем Заголовок, так как exportFormFieldPropsToEnterprise не экспортирует его

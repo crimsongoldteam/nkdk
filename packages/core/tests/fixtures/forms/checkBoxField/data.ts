@@ -5,8 +5,9 @@ import {
 } from "~/metadata/forms/elements/checkBoxField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullCheckBoxField: CheckBoxField = {
+export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
   elementType: FormElementType.CheckBoxField,
   name: "Флажок",
   autoCellHeight: true,
@@ -64,6 +65,10 @@ export const fullCheckBoxField: CheckBoxField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
   },
@@ -122,6 +127,8 @@ export const fullCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise 
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

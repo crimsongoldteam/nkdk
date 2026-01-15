@@ -53,8 +53,8 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   verticalStretch: true,
   visible: true,
   width: 300,
-  contextMenu: { childItems: [] },
-  extendedTooltip: {},
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
   fileDragMode: "AsFile",
   pictureSize: "AutoSize",
   events: {
@@ -103,6 +103,8 @@ export const fullPictureDecorationPartialEnterprise: PictureDecorationPartialEnt
   ЦветРамки: "Черный",
   РазмерКартинки: "АвтоРазмер",
   СпособПеретаскиванияФайлов: "КакФайл",
+  КонтекстноеМеню: { Автозаполнение: "Ложь" },
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     Нажатие: "ПроцедураПриНажатии",
     НачалоПеретаскивания: "ПроцедураПриНачалеПеретаскивания",

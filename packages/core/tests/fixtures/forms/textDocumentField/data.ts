@@ -70,6 +70,7 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  table: "Таблица",
   autoMaxHeight: true,
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "Blue" },
