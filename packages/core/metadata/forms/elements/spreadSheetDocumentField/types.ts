@@ -2,6 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
@@ -65,6 +66,7 @@ export interface SpreadSheetDocumentField {
   blackAndWhiteView?: boolean
   borderColor?: Color
   drawingSelectionShowMode?: SE.DrawingSelectionShowMode
+  table?: string
   edit?: boolean
   enableDrag?: boolean
   enableStartDrag?: boolean

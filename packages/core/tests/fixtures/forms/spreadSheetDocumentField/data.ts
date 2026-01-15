@@ -19,8 +19,8 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
   displayImportance: "High",
   editMode: "EnterOnInput",
   enabled: true,
-  contextMenu: { childItems: [] },
-  extendedTooltip: {},
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
   footerDataPath: "Объект.РеквизитПодвала",
@@ -98,6 +98,7 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
   verticalStretch: true,
   viewScalingMode: "Auto",
   width: 300,
+  table: "Таблица",
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураПриВыборе",

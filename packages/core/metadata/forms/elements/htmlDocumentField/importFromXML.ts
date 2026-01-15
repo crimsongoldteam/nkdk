@@ -9,7 +9,7 @@ import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { HTMLDocumentField } from "~/metadata/forms/elements/htmlDocumentField/types"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
@@ -86,7 +86,7 @@ export function importHTMLDocumentFieldFromXML<To extends HTMLDocumentField | un
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importTableFromXML(context, xml.Table)
+  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
   const title = importI8nTextFromXML(context, xml.Title)

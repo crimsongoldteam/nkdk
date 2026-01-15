@@ -18,7 +18,6 @@ import {
   InputFieldPartialEnterprise,
   InputFieldTypedEnterprise,
 } from "~/metadata/forms/elements/inputField/types"
-import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -212,8 +211,7 @@ const exportInputFieldPropsToEnterprise = (
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const table = exportTableToEnterprise(context, data.table)
-  if (table !== undefined) result.Таблица = table
+  if (data.table !== undefined) result.Таблица = data.table
 
   const footerText = exportI8nTextToEnterprise(context, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
