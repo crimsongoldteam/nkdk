@@ -5,18 +5,17 @@ import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { Page, PageEnterprise, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportPartialFromEnterpriseFn } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPageFromEnterprise = <From extends PageEnterprise | undefined, Name extends string>(
+export const importPageFromEnterprise = <From extends PagePartialEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name
-): ImportFromEnterpriseReturn<From, Page, Name> => {
+): Page => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
@@ -144,4 +143,4 @@ const importPagePropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Page", importPageFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Page", importPageFromEnterprise as ImportPartialFromEnterpriseFn)

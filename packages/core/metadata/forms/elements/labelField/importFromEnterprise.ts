@@ -1,4 +1,3 @@
-import { name } from "assert"
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
@@ -23,7 +22,6 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { importTableFromEnterprise } from "../table/importFromEnterprise"
 
 export function importLabelFieldTypedFromEnterprise<To extends LabelField | undefined>(
   context: ConfigurationContext,
@@ -208,9 +206,6 @@ const importLabelFieldPropsFromEnterprise = (
   if (editMode !== undefined) result.editMode = editMode
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
-
-  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
-  if (table !== undefined) result.table = table
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
