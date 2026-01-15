@@ -259,6 +259,26 @@ const importChartFieldPropsFromEnterprise = (
   const footerFont = importFontFromEnterprise(context, data.ШрифтПодвала)
   if (footerFont !== undefined) result.footerFont = footerFont
 
+  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
+
+  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
+
+  if (data.Высота !== undefined) result.height = data.Высота
+
+  if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
+
+  if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
+
+  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
+
+  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
+
+  if (data.Ширина !== undefined) result.width = data.Ширина
+
   const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 

@@ -7,6 +7,7 @@ import {
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   CheckBoxField,
@@ -189,6 +190,20 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
+
+  const userVisibleAllow = importUserVisibleFromEnterprise(
+    context,
+    data.РазрешитьИспользование,
+    "РазрешитьИспользование"
+  )
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
+  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
+    result.userVisible = userVisibleAllow || userVisibleDeny
+  }
 
   if (data.ПутьКДанным !== undefined) result.dataPath = data.ПутьКДанным
 

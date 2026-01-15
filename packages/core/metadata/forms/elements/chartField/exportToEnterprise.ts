@@ -208,6 +208,8 @@ const exportChartFieldPropsToEnterprise = (
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
+  if (data.table !== undefined) result.Таблица = data.table
+
   const footerText = exportI8nTextToEnterprise(context, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
 
