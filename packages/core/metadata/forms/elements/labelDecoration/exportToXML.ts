@@ -21,20 +21,48 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
   const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
 
   const result: LabelDecorationXML = {
     ...baseFields,
     ContextMenu: contextMenu,
-    ExtendedTooltip: extendedTooltip,
+    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
   }
 
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const border = exportBorderToXML(context, data.border)
+  if (border !== undefined) result.Border = border
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
+
   if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
 
   if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.hyperlink !== undefined) result.Hyperlink = data.hyperlink
 
   if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
 
@@ -50,6 +78,8 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
+  if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
+
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
@@ -57,67 +87,11 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   if (data.type !== undefined) result.Type = data.type
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
-
-  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
-
-  if (data.visible !== undefined) result.Visible = data.visible
-
-  if (data.width !== undefined) result.Width = data.width
-
-  const backColor = exportColorToXML(context, data.backColor)
-  if (backColor !== undefined) result.BackColor = backColor
-
-  const border = exportBorderToXML(context, data.border)
-  if (border !== undefined) result.Border = border
-
-  const borderColor = exportColorToXML(context, data.borderColor)
-  if (borderColor !== undefined) result.BorderColor = borderColor
-
-  if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
-
-  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
-
-  if (data.hyperlink !== undefined) result.Hyperlink = data.hyperlink
-
-  if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
-
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
 
-  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
-
-  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
-
-  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
-
-  if (data.enabled !== undefined) result.Enabled = data.enabled
-
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-
-  const font = exportFontToXML(context, data.font)
-  if (font !== undefined) result.Font = font
-
-  if (data.height !== undefined) result.Height = data.height
-
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
-
-  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
-
-  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
-
-  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
-
-  if (data.shortcut !== undefined) result.Shortcut = data.shortcut
-
-  if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
-
-  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
-
-  if (data.type !== undefined) result.Type = data.type
-
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
@@ -125,9 +99,6 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   if (data.visible !== undefined) result.Visible = data.visible
 
   if (data.width !== undefined) result.Width = data.width
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }
