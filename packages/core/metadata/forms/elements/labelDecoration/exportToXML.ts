@@ -21,11 +21,9 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
-
   const result: LabelDecorationXML = {
     ...baseFields,
-    ContextMenu: contextMenu,
+    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
     ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
   }
 
