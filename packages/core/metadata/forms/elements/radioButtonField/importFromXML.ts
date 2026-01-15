@@ -9,11 +9,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { RadioButtonField, RadioButtonFieldXML } from "~/metadata/forms/elements/radioButtonField/types"
+import { RadioButtonField } from "~/metadata/forms/elements/radioButtonField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importRadioButtonFieldFromXML<To extends RadioButtonField | undefined>(
   context: ConfigurationContext,
@@ -21,7 +21,6 @@ export function importRadioButtonFieldFromXML<To extends RadioButtonField | unde
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
 
   const result: RadioButtonField = {
     ...baseFields,
@@ -165,4 +164,4 @@ export function importRadioButtonFieldFromXML<To extends RadioButtonField | unde
   return result as To
 }
 
-registerMetadata("ImportFromXML", "RadioButtonField", importRadioButtonFieldFromXML)
+registerMetadata("ImportFromXML", "RadioButtonField", importRadioButtonFieldFromXML as ImportFromXMLFn)

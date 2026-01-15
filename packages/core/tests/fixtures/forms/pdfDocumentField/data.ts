@@ -66,6 +66,7 @@ export const fullPdfDocumentField: Required<PdfDocumentField> = {
   showInFooter: true,
   showInHeader: true,
   skipOnInput: false,
+  table: "Таблица",
   titleBackColor: { type: "WebColor", value: "Blue" },
   titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
   titleHeight: 20,
@@ -77,7 +78,7 @@ export const fullPdfDocumentField: Required<PdfDocumentField> = {
   toolTipRepresentation: "None",
   type: "InputField",
   typeRestriction: {
-    type: "string",
+    type: ["string"],
   },
   verticalAlign: "Top",
   verticalAlignInGroup: "Top",
@@ -109,7 +110,6 @@ export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnter
   Доступность: "Истина",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
-
   ОтображатьВПодвале: "Истина",
   ОтображатьВШапке: "Истина",
   ОтображениеПодсказки: "Нет",
@@ -147,6 +147,7 @@ export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnter
   РастягиватьПоГоризонтали: "Истина",
   ЦветРамки: "Зеленый",
   Ширина: 300,
+  Таблица: "Таблица",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     НажатиеНаНавигационнойСсылке: "ПроцедураНажатияНаНавигационнойСсылке",
