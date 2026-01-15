@@ -3,10 +3,10 @@ import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
-import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/labelDecoration/types"
+import { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importLabelDecorationFromXML<To extends LabelDecoration | undefined>(
   context: ConfigurationContext,
@@ -18,7 +18,7 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
 
   const result: LabelDecoration = {
     ...baseFields,
-    elementType: FormElementType.LabelDecoration,
+    elementType: "LabelDecoration",
   }
 
   const backColor = importColorFromXML(context, xml.BackColor)
@@ -49,4 +49,4 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
   return result as To
 }
 
-registerMetadata("ImportFromXML", "LabelDecoration", importLabelDecorationFromXML)
+registerMetadata("ImportFromXML", "LabelDecoration", importLabelDecorationFromXML as ImportFromXMLFn)

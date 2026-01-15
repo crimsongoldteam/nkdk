@@ -14,7 +14,8 @@ import {
 } from "~/metadata/forms/elements/labelDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
-  importFormElementTypeFromEnterprise,
+  ImportPartialFromEnterpriseFn,
+  ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -49,11 +50,9 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
 
   const props = importLabelDecorationPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: LabelDecoration = {
     ...props,
-    elementType,
+    elementType: "LabelDecoration",
     name,
   }
 
@@ -146,4 +145,13 @@ const importLabelDecorationPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "LabelDecoration", importLabelDecorationPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "LabelDecoration",
+  importLabelDecorationPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "LabelDecoration",
+  importLabelDecorationTypedFromEnterprise as ImportTypedFromEnterpriseFn
+)

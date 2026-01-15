@@ -2,10 +2,12 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   LabelField,
   LabelFieldPartialEnterprise,
@@ -13,11 +15,7 @@ import {
 } from "~/metadata/forms/elements/labelField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 export function importLabelFieldTypedFromEnterprise<To extends LabelField | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -25,17 +23,15 @@ export function importLabelFieldTypedFromEnterprise<To extends LabelField | unde
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name)!
-
   const props = importLabelFieldPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: LabelField = {
-    ...baseFields,
     ...props,
-    elementType,
+    elementType: "LabelField",
+    name,
   }
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result as To
 }
@@ -45,15 +41,16 @@ export function importLabelFieldPartialFromEnterprise<To extends LabelField>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
-
   const props = importLabelFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
+    elementType: "LabelField",
+    name: source.name,
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

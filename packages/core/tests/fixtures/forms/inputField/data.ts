@@ -5,7 +5,7 @@ import {
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
+import { fullFormField } from "../formField/data"
 
 export const fullInputField: InputField = {
   ...fullFormField,
@@ -126,6 +126,60 @@ export const fullInputField: InputField = {
   verticalStretch: true,
   width: 200,
   wrap: true,
+  title: {
+    items: { ru: "Поле ввода" },
+  },
+  autoCellHeight: true,
+  cellHyperlink: true,
+  dataPath: "Объект.Реквизит",
+  defaultItem: true,
+  displayImportance: "High",
+  editMode: "EnterOnInput",
+  enabled: true,
+  fixingInTable: "None",
+  footerBackColor: { type: "WebColor", value: "White" },
+  footerDataPath: "Объект.РеквизитПодвала",
+  footerFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  footerHorizontalAlign: "Left",
+  footerPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  footerText: {
+    items: { ru: "Текст подвала" },
+  },
+  footerTextColor: { type: "WebColor", value: "Black" },
+  headerHorizontalAlign: "Left",
+  headerPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  horizontalAlign: "Left",
+  horizontalAlignInGroup: "Left",
+  readOnly: false,
+  shortcut: "Ctrl+S",
+  showInFooter: true,
+  showInHeader: true,
+  skipOnInput: false,
+  titleBackColor: { type: "WebColor", value: "Blue" },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleHeight: 20,
+  titleLocation: "Left",
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "InputField",
+  verticalAlign: "Top",
+  verticalAlignInGroup: "Top",
+  visible: true,
+  warningOnEdit: {
+    items: { ru: "Предупреждение" },
+  },
+  warningOnEditRepresentation: "DontShow",
   events: {
     onChange: "ПроцедураПриИзменении",
     autoComplete: "ПроцедураАвтоПодбора",
@@ -147,7 +201,6 @@ export const fullInputField: InputField = {
 }
 
 export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
-  ...fullFormFieldEnterprise,
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
   АвтоИсправлениеПриВводеТекста: "Использовать",
@@ -227,6 +280,44 @@ export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
   ШиринаВыпадающегоСписка: 300,
   Шрифт: "ОбычныйШрифтТекста",
   ШрифтМножественныхЗначений: "ОбычныйШрифтТекста",
+  АвтоВысотаЯчейки: "Истина",
+  АктивизироватьПоУмолчанию: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ВертикальноеПоложение: "Верх",
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ПолеВвода",
+  Видимость: "Истина",
+  ВысотаЗаголовка: 20,
+  ГиперссылкаЯчейки: "Истина",
+  ГоризонтальноеПоложение: "Лево",
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  ГоризонтальноеПоложениеВПодвале: "Лево",
+  ГоризонтальноеПоложениеВШапке: "Лево",
+  Доступность: "Истина",
+  КартинкаПодвала: "Печать",
+  КартинкаШапки: "Печать",
+  ОтображатьВПодвале: "Истина",
+  ОтображатьВШапке: "Истина",
+  ОтображениеПодсказки: "Нет",
+  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
+  Подсказка: "Подсказка",
+  ПоложениеЗаголовка: "Лево",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  ПредупреждениеПриРедактировании: "Предупреждение",
+  ПропускатьПриВводе: "Ложь",
+  ПутьКДанным: "Объект.Реквизит",
+  ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
+  РежимРедактирования: "ВходПриВводе",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТекстПодвала: "Текст подвала",
+  ТолькоПросмотр: "Ложь",
+  ФиксацияВТаблице: "Нет",
+  ЦветТекстаЗаголовка: "Черный",
+  ЦветТекстаПодвала: "Черный",
+  ЦветФонаЗаголовка: "Синий",
+  ЦветФонаПодвала: "Белый",
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ШрифтПодвала: "ОбычныйШрифтТекста",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     АвтоПодбор: "ПроцедураАвтоПодбора",
@@ -250,6 +341,7 @@ export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
 export const fullInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
   ...fullInputFieldPartialEnterprise,
   Тип: "ПолеВвода",
+  Заголовок: "Поле ввода",
 }
 
 export const minimalInputField: InputField = {

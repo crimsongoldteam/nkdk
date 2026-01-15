@@ -12,7 +12,7 @@ import { HTMLDocumentField } from "~/metadata/forms/elements/htmlDocumentField/t
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importHTMLDocumentFieldFromXML<To extends HTMLDocumentField | undefined>(
   context: ConfigurationContext,
@@ -20,11 +20,10 @@ export function importHTMLDocumentFieldFromXML<To extends HTMLDocumentField | un
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
 
   const result: HTMLDocumentField = {
     ...baseFields,
-    elementType: FormElementType.HTMLDocumentField,
+    elementType: "HTMLDocumentField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -160,4 +159,4 @@ export function importHTMLDocumentFieldFromXML<To extends HTMLDocumentField | un
   return result as To
 }
 
-registerMetadata("ImportFromXML", "HTMLDocumentField", importHTMLDocumentFieldFromXML)
+registerMetadata("ImportFromXML", "HTMLDocumentField", importHTMLDocumentFieldFromXML as ImportFromXMLFn)

@@ -9,24 +9,20 @@ import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/im
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import {
   ChartField,
   ChartFieldPartialEnterprise,
   ChartFieldTypedEnterprise,
 } from "~/metadata/forms/elements/chartField/types"
+import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  ImportTypedFromEnterpriseFn,
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+
 export function importChartFieldTypedFromEnterprise<To extends ChartField | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -39,15 +35,14 @@ export function importChartFieldTypedFromEnterprise<To extends ChartField | unde
 
   const props = importChartFieldSpecificPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
   const result: ChartField = {
     ...baseFields,
     ...props,
-    elementType,
+    elementType: "ChartField",
     name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -65,8 +60,11 @@ export function importChartFieldPartialFromEnterprise<To extends ChartField>(
     ...source,
     ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
+    elementType: "ChartField",
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

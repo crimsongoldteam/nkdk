@@ -9,15 +9,14 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { FormField } from "~/metadata/forms/elements/formField/types"
+import { BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import { TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface DendrogramField extends Omit<FormField, "elementType"> {
+export interface DendrogramField extends NamedElement {
   elementType: "DendrogramField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean

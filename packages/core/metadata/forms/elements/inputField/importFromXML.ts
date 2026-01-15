@@ -16,7 +16,7 @@ import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importInputFieldFromXML<To extends InputField | undefined>(
   context: ConfigurationContext,
@@ -27,7 +27,7 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
   const baseFields = importBaseElementFromXML(context, xml)
   const result: InputField = {
     ...baseFields,
-    elementType: FormElementType.InputField,
+    elementType: "InputField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -318,4 +318,4 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "InputField", importInputFieldFromXML)
+registerMetadata("ImportFromXML", "InputField", importInputFieldFromXML as ImportFromXMLFn)
