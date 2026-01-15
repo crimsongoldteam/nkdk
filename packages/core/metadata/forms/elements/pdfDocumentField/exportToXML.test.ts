@@ -30,4 +30,3 @@ describe("exportPdfDocumentFieldToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-

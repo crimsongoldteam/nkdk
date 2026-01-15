@@ -7,7 +7,9 @@
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="Click">ПроцедураНажатия</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="URLProcessing">ПроцедураОбработкиURL</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеНадписиРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>

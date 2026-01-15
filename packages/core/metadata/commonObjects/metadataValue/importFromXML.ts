@@ -58,12 +58,28 @@ export const importMetadataValueFromXML = (
   } as MetadataSimpleValue
 }
 
-export const importMetadataValueFromXMLAsPrimitive = (
+export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueType>(
   context: ConfigurationContext,
   data: MetadataValueXML | undefined,
-  type: MetadataValueType
-): string | boolean | number | undefined => {
-  return importMetadataValueFromXML(context, data, type)?.value as string | boolean | number | undefined
+  type: T
+): T extends "string"
+  ? string
+  : T extends "boolean"
+    ? boolean
+    : T extends "decimal"
+      ? number
+      : T extends "dateTime"
+        ? string
+        : never => {
+  return importMetadataValueFromXML(context, data, type)?.value as T extends "string"
+    ? string
+    : T extends "boolean"
+      ? boolean
+      : T extends "decimal"
+        ? number
+        : T extends "dateTime"
+          ? string
+          : never
 }
 
 const importSimpleValueFromXML = (

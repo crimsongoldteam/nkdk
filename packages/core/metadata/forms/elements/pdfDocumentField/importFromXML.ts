@@ -1,6 +1,7 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
@@ -86,7 +87,8 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  if (xml.Table !== undefined) result.table = xml.Table
+  if (xml.AssociatedTableElementId !== undefined)
+    result.table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
