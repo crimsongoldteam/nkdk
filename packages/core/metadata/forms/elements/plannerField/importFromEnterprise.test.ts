@@ -25,7 +25,7 @@ describe("importPlannerFieldFromEnterprise", () => {
       const result = importPlannerFieldTypedFromEnterprise(
         mockСontext,
         fullPlannerFieldTypedEnterprise,
-        "ПолеПланера"
+        "ПолеПланировщика"
       )
 
       expect(result).toEqual(fullPlannerField)
@@ -35,7 +35,7 @@ describe("importPlannerFieldFromEnterprise", () => {
       const result = importPlannerFieldTypedFromEnterprise(
         mockСontext,
         minimalPlannerFieldTypedEnterprise,
-        "ПолеПланера"
+        "ПолеПланировщика"
       )
 
       expect(result).toEqual(minimalPlannerField)

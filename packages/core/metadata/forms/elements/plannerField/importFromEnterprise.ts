@@ -42,11 +42,12 @@ export function importPlannerFieldTypedFromEnterprise<To extends PlannerField | 
   return result as To
 }
 
-export function importPlannerFieldPartialFromEnterprise<To extends PlannerField>(
+export function importPlannerFieldPartialFromEnterprise<To extends PlannerField | undefined>(
   context: ConfigurationContext,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
+  if (source === undefined) return undefined as To
   const props = importPlannerFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
