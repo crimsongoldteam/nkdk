@@ -8,11 +8,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { ProgressBarField, ProgressBarFieldXML } from "~/metadata/forms/elements/progressBarField/types"
+import { ProgressBarField } from "~/metadata/forms/elements/progressBarField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importProgressBarFieldFromXML<To extends ProgressBarField | undefined>(
   context: ConfigurationContext,
@@ -166,4 +166,4 @@ export function importProgressBarFieldFromXML<To extends ProgressBarField | unde
   return result as To
 }
 
-registerMetadata("ImportFromXML", "ProgressBarField", importProgressBarFieldFromXML)
+registerMetadata("ImportFromXML", "ProgressBarField", importProgressBarFieldFromXML as ImportFromXMLFn)

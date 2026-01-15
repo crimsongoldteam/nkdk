@@ -56,7 +56,6 @@ export interface ProgressBarField {
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormFieldType
   typeRestriction?: TypeDescription
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
@@ -120,13 +119,11 @@ export interface ProgressBarFieldXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
-  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  Events?: EventsXML
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BorderColor?: ColorXML
