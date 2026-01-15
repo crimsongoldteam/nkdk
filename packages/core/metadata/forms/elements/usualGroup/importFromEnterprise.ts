@@ -27,7 +27,7 @@ export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | unde
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importUsualGroupPropsFromEnterprise(context, data, name)
+  const props = importUsualGroupPropsFromEnterprise(context, data)
 
   const result: UsualGroup = {
     ...props,
@@ -47,7 +47,7 @@ export function importUsualGroupPartialFromEnterprise<To extends UsualGroup>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importUsualGroupPropsFromEnterprise(context, data, source.name)
+  const props = importUsualGroupPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
     ...props,
@@ -62,8 +62,7 @@ export function importUsualGroupPartialFromEnterprise<To extends UsualGroup>(
 
 const importUsualGroupPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: UsualGroupTypedEnterprise | UsualGroupPartialEnterprise | undefined,
-  name: string
+  data: UsualGroupTypedEnterprise | UsualGroupPartialEnterprise | undefined
 ): Omit<Partial<UsualGroup>, "elementType" | "name"> => {
   const result: Omit<Partial<UsualGroup>, "elementType" | "name"> = {
     childItems: [],

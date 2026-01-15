@@ -1,4 +1,6 @@
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import {
   importI8nTextCombinedFromEnterprise,
   importI8nTextFromEnterprise,
@@ -6,11 +8,11 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "~/metadata/forms/elements/extendedTooltip/importFromEnterprise"
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
-  importFormElementTypeFromEnterprise,
+  ImportPartialFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -25,15 +27,11 @@ export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPopupPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: Popup = {
-    ...baseProps,
     ...props,
-    elementType,
+    elementType: "Popup",
     name,
     childItems: props.childItems ?? [],
   }
@@ -49,11 +47,9 @@ export function importPopupPartialFromEnterprise<To extends Popup>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPopupPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseProps,
     ...props,
     childItems: props.childItems ?? [],
   }
@@ -74,6 +70,84 @@ const importPopupPropsFromEnterprise = (
 
   if (data === undefined) return result
 
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+    context,
+    data.ВертикальноеПоложениеВГруппе,
+    SE.ItemVerticalAlignFromEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
+
+  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
+    context,
+    data.Вид,
+    SE.FormGroupTypeFromEnterprise
+  )
+  if (type !== undefined) result.type = type
+
+  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  if (visible !== undefined) result.visible = visible
+
+  if (data.Высота !== undefined) result.height = data.Высота
+
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+    context,
+    data.ГоризонтальноеПоложениеВГруппе,
+    SE.ItemHorizontalLocationFromEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
+
+  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  if (enabled !== undefined) result.enabled = enabled
+
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+    context,
+    data.ОтображениеПодсказки,
+    SE.ToolTipRepresentationFromEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
+
+  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  const userVisibleAllow = importUserVisibleFromEnterprise(
+    context,
+    data.РазрешитьИспользование,
+    "РазрешитьИспользование"
+  )
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
+  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
+    result.userVisible = userVisibleAllow || userVisibleDeny
+  }
+
+  const enableContentChange = importBooleanFromEnterprise(context, data.РазрешитьИзменениеСостава)
+  if (enableContentChange !== undefined) result.enableContentChange = enableContentChange
+
+  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
+
+  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
+
+  if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
+
+  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  if (readOnly !== undefined) result.readOnly = readOnly
+
+  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
+
+  if (data.Ширина !== undefined) result.width = data.Ширина
+
+  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  if (titleFont !== undefined) result.titleFont = titleFont
+
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
   const picture = importPictureFromEnterprise(context, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
@@ -90,20 +164,6 @@ const importPopupPropsFromEnterprise = (
     SE.ButtonShapeRepresentationFromEnterprise
   )
   if (shapeRepresentation !== undefined) result.shapeRepresentation = shapeRepresentation
-
-  const userVisibleAllow = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    "РазрешитьИспользование"
-  )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
-  }
 
   const shape = importSystemEnumerationFromEnterprise<SE.ButtonShape>(
     context,
@@ -124,4 +184,8 @@ const importPopupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Popup", importPopupPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "Popup",
+  importPopupPropsFromEnterprise as ImportPartialFromEnterpriseFn
+)

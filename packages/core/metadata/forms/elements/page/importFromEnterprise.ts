@@ -7,7 +7,6 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
@@ -21,11 +20,9 @@ export function importPageTypedFromEnterprise<To extends Page | undefined>(
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPagePropsFromEnterprise(context, data)
 
   const result: Page = {
-    ...baseProps,
     ...props,
     elementType: "Page",
     name,
@@ -43,11 +40,9 @@ export function importPagePartialFromEnterprise<To extends Page>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPagePropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseProps,
     ...props,
     elementType: "Page",
     name: source.name,

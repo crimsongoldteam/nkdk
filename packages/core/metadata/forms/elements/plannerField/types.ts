@@ -2,6 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
@@ -102,6 +103,7 @@ export interface PlannerField {
 }
 
 export interface PlannerFieldXML extends BaseElementXML {
+  AssociatedTableElementId?: MetadataValueXML
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
   ContextMenu: ContextMenuXML
@@ -128,7 +130,6 @@ export interface PlannerFieldXML extends BaseElementXML {
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
-  Table?: string
   Title?: I8nTextXML
   TitleBackColor?: ColorXML
   TitleFont?: FontXML

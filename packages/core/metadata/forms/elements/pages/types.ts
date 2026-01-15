@@ -2,6 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -60,7 +61,7 @@ export interface PagesXML extends BaseElementXML {
   Visible?: boolean
   Width?: number
   AssociatedTableElementId?: MetadataValueXML
-  CurrentPagesState?: SE.SE.FormPagesState
+  CurrentPagesState?: SE.FormPagesState
   CurrentRowUse?: SE.CurrentRowUse
   PagesRepresentation?: SE.FormPagesRepresentation
   Events?: EventsXML

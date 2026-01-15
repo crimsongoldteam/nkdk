@@ -51,11 +51,7 @@ export function importTrackBarFieldPartialFromEnterprise<To extends TrackBarFiel
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importTrackBarFieldPropsFromEnterprise(
-    context,
-    data as ToPartialEnterpriseType<To> | undefined,
-    source.name
-  )
+  const props = importTrackBarFieldPropsFromEnterprise(context, data as ToPartialEnterpriseType<To> | undefined)
   const result: To = {
     ...source,
     ...props,
@@ -69,8 +65,7 @@ export function importTrackBarFieldPartialFromEnterprise<To extends TrackBarFiel
 
 const importTrackBarFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: TrackBarFieldTypedEnterprise | TrackBarFieldPartialEnterprise | undefined,
-  name: string
+  data: TrackBarFieldTypedEnterprise | TrackBarFieldPartialEnterprise | undefined
 ): Omit<Partial<TrackBarField>, "elementType" | "name"> => {
   const result: Omit<Partial<TrackBarField>, "elementType" | "name"> = {}
 

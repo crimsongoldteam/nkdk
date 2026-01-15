@@ -13,39 +13,37 @@ import {
   exportPopupTypedToEnterprise,
 } from "./exportToEnterprise"
 
-describe("exportPopupToEnterprise", () => {
-  describe("exportPopupPartialToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportPopupPartialToEnterprise(mockСontext, fullPopup)
+describe("exportPopupPartialToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportPopupPartialToEnterprise(mockСontext, fullPopup)
 
-      expect(result).toEqual(fullPopupPartialEnterprise)
-    })
-
-    it("should export minimal", () => {
-      const result = exportPopupPartialToEnterprise(mockСontext, minimalPopup)
-
-      expect(result).toEqual(minimalPopupPartialEnterprise)
-    })
+    expect(result).toEqual(fullPopupPartialEnterprise)
   })
 
-  describe("exportPopupTypedToEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = exportPopupTypedToEnterprise(mockСontext, undefined)
+  it("should export minimal", () => {
+    const result = exportPopupPartialToEnterprise(mockСontext, minimalPopup)
 
-      expect(result).toBeUndefined()
-    })
+    expect(result).toEqual(minimalPopupPartialEnterprise)
+  })
+})
 
-    it("should export all fields to Enterprise", () => {
-      const result = exportPopupTypedToEnterprise(mockСontext, fullPopup)
+describe("exportPopupTypedToEnterprise", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = exportPopupTypedToEnterprise(mockСontext, undefined)
 
-      expect(result).toEqual(fullPopupTypedEnterprise)
-    })
+    expect(result).toBeUndefined()
+  })
 
-    it("should export minimal", () => {
-      const result = exportPopupTypedToEnterprise(mockСontext, minimalPopup)
+  it("should export all fields to Enterprise", () => {
+    const result = exportPopupTypedToEnterprise(mockСontext, fullPopup)
 
-      expect(result).toEqual(minimalPopupTypedEnterprise)
-    })
+    expect(result).toEqual(fullPopupTypedEnterprise)
+  })
+
+  it("should export minimal", () => {
+    const result = exportPopupTypedToEnterprise(mockСontext, minimalPopup)
+
+    expect(result).toEqual(minimalPopupTypedEnterprise)
   })
 })
 

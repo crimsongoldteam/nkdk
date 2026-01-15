@@ -7,7 +7,20 @@
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="AdditionalDetailProcessing">ПроцедураПриОбработкеДополнительнойРасшифровки</Event>
+		<Event name="AfterWrite">ПроцедураПриЗавершенииЗаписи</Event>
+		<Event name="BeforePrint">ПроцедураПриПечатке</Event>
+		<Event name="BeforeWrite">ПроцедураПриЗаписи</Event>
+		<Event name="DetailProcessing">ПроцедураПриОбработкеРасшифровки</Event>
+		<Event name="Drag">ПроцедураПриПеретаскивании</Event>
+		<Event name="DragCheck">ПроцедураПриПроверкеПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураПриЗавершенииПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураПриПеретаскивании</Event>
+		<Event name="OnActivate">ПроцедураПриАктивизации</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="OnChangeAreaContentEvent">ПроцедураПриИзмененииСодержимогоОбласти</Event>
+		<Event name="Selection">ПроцедураПриВыборе</Event>
+		<Event name="URLProcessing">ПроцедураПриОбработкеНавигационнойСсылки</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеТабличногоДокументаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
@@ -38,6 +51,7 @@
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<AssociatedTableElementId>Таблица</AssociatedTableElementId>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -57,6 +71,9 @@
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
+	<TypeRestriction>
+		<v8:Type>v8:string</v8:Type>
+	</TypeRestriction>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>

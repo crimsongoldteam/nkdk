@@ -260,11 +260,8 @@ export const exportTableToEnterprise = (
   if (searchControlLocation !== undefined) result.ПоложениеУправленияПоиском = searchControlLocation
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible?.РазрешитьИспользование !== undefined) {
-    result.РазрешитьИспользование = userVisible.РазрешитьИспользование
-  }
-  if (userVisible?.ЗапретитьИспользование !== undefined) {
-    result.ЗапретитьИспользование = userVisible.ЗапретитьИспользование
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
   }
 
   const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)

@@ -1,6 +1,7 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
@@ -8,11 +9,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { PlannerField, PlannerFieldXML } from "~/metadata/forms/elements/plannerField/types"
-import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
+import { PlannerField } from "~/metadata/forms/elements/plannerField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   context: ConfigurationContext,
@@ -164,4 +164,4 @@ export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "PlannerField", importPlannerFieldFromXML)
+registerMetadata("ImportFromXML", "PlannerField", importPlannerFieldFromXML as ImportFromXMLFn)

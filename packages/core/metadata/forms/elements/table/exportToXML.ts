@@ -11,12 +11,12 @@ import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -214,4 +214,4 @@ export function exportTableToXML<From extends Table | undefined>(
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "Table", exportTableToXML)
+registerMetadata("ExportToXML", "Table", exportTableToXML as ExportToXMLFn)
