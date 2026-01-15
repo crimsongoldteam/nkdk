@@ -39,6 +39,19 @@ const eventNameMapping: Record<string, string> = {
   additionalDetailProcessing: "ОбработкаДополнительнойРасшифровки",
   onActivate: "ПриАктивизации",
   onChangeAreaContentEvent: "ПриИзмененииСодержимогоОбласти",
+  plannerActionClick: "НажатиеНаДействиеПланировщика",
+  wrappedTimeScaleHeaderClick: "НажатиеНаПеренесенномЗаголовкеШкалыВремени",
+  dimensionItemClick: "НажатиеНаЭлементеИзмерения",
+  timeScaleItemClick: "НажатиеНаЭлементеШкалыВремени",
+  beforeStartQuickEdit: "ПередНачаломБыстрогоРедактирования",
+  beforeStartEdit: "ПередНачаломРедактирования",
+  beforeExpandDimensionItem: "ПередРазворачиваниемЭлементаИзмерения",
+  beforeCollapseDimensionItem: "ПередСворачиваниемЭлементаИзмерения",
+  beforeCreate: "ПередСозданием",
+  beforeDelete: "ПередУдалением",
+  onEditEnd: "ПриОкончанииРедактирования",
+  onCurrentRepresentationPeriodChange: "ПриСменеТекущегоПериодаОтображения",
+  insideDragCheck: "ПроверкаПеретаскиванияВнутри",
 }
 
 export const exportEventsToEnterprise = (

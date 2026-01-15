@@ -7,7 +7,6 @@ import {
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   CheckBoxField,
