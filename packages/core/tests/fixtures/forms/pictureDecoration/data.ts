@@ -4,10 +4,9 @@ import {
   PictureDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormDecoration } from "../formDecoration/data"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPictureDecoration: PictureDecoration = {
-  ...fullFormDecoration,
+export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   elementType: FormElementType.PictureDecoration,
   name: "ДекорацияКартинки",
   title: {
@@ -28,12 +27,43 @@ export const fullPictureDecoration: PictureDecoration = {
   },
   scale: 100,
   zoomable: true,
-}
-
-export const fullPictureDecorationSource: PictureDecoration = {
-  elementType: FormElementType.PictureDecoration,
-  name: "ДекорацияКартинки",
-  title: { items: { ru: "Декорация картинки" } },
+  autoMaxHeight: true,
+  autoMaxWidth: true,
+  displayImportance: "High",
+  enabled: true,
+  font: { kind: "StyleItem", ref: "NormalTextFont" },
+  height: 200,
+  horizontalAlignInGroup: "Left",
+  horizontalStretch: true,
+  maxHeight: 500,
+  maxWidth: 400,
+  shortcut: "Ctrl+S",
+  skipOnInput: false,
+  textColor: { type: "WebColor", value: "Blue" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "Label",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  verticalStretch: true,
+  visible: true,
+  width: 300,
+  contextMenu: { childItems: [] },
+  extendedTooltip: {},
+  fileDragMode: "AsFile",
+  pictureSize: "AutoSize",
+  events: {
+    click: "ПроцедураПриНажатии",
+    dragStart: "ПроцедураПриНачалеПеретаскивания",
+    dragEnd: "ПроцедураПриОкончанииПеретаскивания",
+    drag: "ПроцедураПриПеретаскивании",
+    dragCheck: "ПроцедураПриПроверкеПеретаскивания",
+  },
 }
 
 export const fullPictureDecorationPartialEnterprise: PictureDecorationPartialEnterprise = {
@@ -71,6 +101,13 @@ export const fullPictureDecorationPartialEnterprise: PictureDecorationPartialEnt
   },
   ТекстНевыбраннойКартинки: "Нет картинки",
   ЦветРамки: "Черный",
+  События: {
+    Нажатие: "ПроцедураПриНажатии",
+    НачалоПеретаскивания: "ПроцедураПриНачалеПеретаскивания",
+    ОкончаниеПеретаскивания: "ПроцедураПриОкончанииПеретаскивания",
+    Перетаскивание: "ПроцедураПриПеретаскивании",
+    ПроверкаПеретаскивания: "ПроцедураПриПроверкеПеретаскивания",
+  },
 }
 
 export const fullPictureDecorationTypedEnterprise: PictureDecorationTypedEnterprise = {

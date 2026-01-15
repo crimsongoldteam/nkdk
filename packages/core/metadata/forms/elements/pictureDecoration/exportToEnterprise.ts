@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import {
   exportI8nTextOtherToEnterprise,
   exportI8nTextToEnterprise,
@@ -8,7 +9,6 @@ import {
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormDecorationPropsToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import {
   PictureDecoration,
   PictureDecorationPartialEnterprise,
@@ -17,14 +17,22 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportPictureDecorationTypedToEnterprise = (
+export const exportPictureDecorationTypedToEnterprise = <From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  data: PictureDecoration | undefined
-): PictureDecorationTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ToTypedEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportPictureDecorationPropsToEnterprise(context, data)
 
@@ -36,13 +44,15 @@ export const exportPictureDecorationTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
-export const exportPictureDecorationPartialToEnterprise = (
+export const exportPictureDecorationPartialToEnterprise = <From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  data: PictureDecoration
-): PictureDecorationPartialEnterprise => {
+  data: From
+): ToPartialEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
+
   const props = exportPictureDecorationPropsToEnterprise(context, data)
 
   const result: PictureDecorationPartialEnterprise = {
@@ -52,18 +62,91 @@ export const exportPictureDecorationPartialToEnterprise = (
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportPictureDecorationPropsToEnterprise = (
   context: ConfigurationContext,
   data: PictureDecoration
 ): PictureDecorationPartialEnterprise => {
-  const baseFields = exportFormDecorationPropsToEnterprise(context, data)
+  const result: PictureDecorationPartialEnterprise = {}
 
-  const result: PictureDecorationPartialEnterprise = {
-    ...baseFields,
-  }
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  const displayImportance = exportSystemEnumerationToEnterprise(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormDecorationTypeToEnterprise)
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
+  if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const textColor = exportColorToEnterprise(context, data.textColor)
+  if (textColor !== undefined) result.ЦветТекста = textColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
 
   const hyperlink = exportBooleanToEnterprise(context, data.hyperlink)
   if (hyperlink !== undefined) result.Гиперссылка = hyperlink
@@ -107,4 +190,14 @@ const exportPictureDecorationPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "PictureDecoration", exportPictureDecorationPartialToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "PictureDecoration",
+  exportPictureDecorationPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "PictureDecoration",
+  exportPictureDecorationTypedToEnterprise as ExportTypedToEnterpriseFn
+)

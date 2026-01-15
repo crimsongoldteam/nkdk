@@ -23,6 +23,8 @@ const eventNameMapping: Record<string, string> = {
   afterWrite: "ПослеЗаписи",
   onCurrentPageChange: "ПриСменеСтраницы",
   selection: "Выбор",
+  click: "Нажатие",
+  uRLProcessing: "ОбработкаНавигационнойСсылки",
   uRLClick: "НажатиеНаНавигационнойСсылке",
   detailProcessing: "ОбработкаРасшифровки",
   beforeExpand: "ПередРазворачиванием",
@@ -30,6 +32,10 @@ const eventNameMapping: Record<string, string> = {
   onActivateValue: "ПриАктивизацииЗначения",
   onActivateInterval: "ПриАктивизацииИнтервала",
   onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
+  dragStart: "НачалоПеретаскивания",
+  dragEnd: "ОкончаниеПеретаскивания",
+  drag: "Перетаскивание",
+  dragCheck: "ПроверкаПеретаскивания",
 }
 
 export const exportEventsToEnterprise = (

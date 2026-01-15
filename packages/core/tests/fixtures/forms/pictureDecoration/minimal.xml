@@ -1,0 +1,4 @@
+<PictureDecoration name="ДекорацияКартинки" id="1">
+	<ContextMenu name="ДекорацияКартинкиКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ДекорацияКартинкиРасширеннаяПодсказка" id="3"/>
+</PictureDecoration>

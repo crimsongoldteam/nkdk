@@ -132,6 +132,9 @@ export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPart
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+  События: {
+    ПриИзменении: "ПроцедураПриИзменении",
+  },
 }
 
 export const fullGraphicalSchemaFieldTypedEnterprise: GraphicalSchemaFieldTypedEnterprise = {
