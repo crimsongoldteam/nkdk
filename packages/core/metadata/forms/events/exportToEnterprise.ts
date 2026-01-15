@@ -36,6 +36,9 @@ const eventNameMapping: Record<string, string> = {
   dragEnd: "ОкончаниеПеретаскивания",
   drag: "Перетаскивание",
   dragCheck: "ПроверкаПеретаскивания",
+  additionalDetailProcessing: "ОбработкаДополнительнойРасшифровки",
+  onActivate: "ПриАктивизации",
+  onChangeAreaContentEvent: "ПриИзмененииСодержимогоОбласти",
 }
 
 export const exportEventsToEnterprise = (

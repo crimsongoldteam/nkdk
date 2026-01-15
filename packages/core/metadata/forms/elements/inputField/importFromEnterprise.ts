@@ -2,7 +2,10 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importChoiceListFromEnterprise } from "~/metadata/commonObjects/choiceList/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
@@ -17,14 +20,11 @@ import {
 } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importFormFieldFromEnterprise } from "../formField/importFromEnterprise"
+import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 export function importInputFieldTypedFromEnterprise<To extends InputField | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -32,17 +32,16 @@ export function importInputFieldTypedFromEnterprise<To extends InputField | unde
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name)!
-
   const props = importInputFieldPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: InputField = {
-    ...baseFields,
     ...props,
-    elementType,
+    elementType: "InputField",
+    name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result as To
 }
@@ -52,15 +51,16 @@ export function importInputFieldPartialFromEnterprise<To extends InputField>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
-
   const props = importInputFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
+    elementType: "InputField",
+    name: source.name,
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

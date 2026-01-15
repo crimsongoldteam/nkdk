@@ -2,13 +2,14 @@ import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/eleme
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",
   elementType: FormElementType.BaseElement,
 }
 
-export const fullAutoCommandBar: AutoCommandBar = {
+export const fullAutoCommandBar: RequiredFieldsElement<AutoCommandBar> = {
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
