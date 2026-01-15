@@ -2,6 +2,7 @@ import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromX
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
@@ -9,11 +10,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { PeriodField, PeriodFieldXML } from "~/metadata/forms/elements/periodField/types"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
+import { PeriodField } from "~/metadata/forms/elements/periodField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importPeriodFieldFromXML<To extends PeriodField | undefined>(
   context: ConfigurationContext,
@@ -88,7 +88,7 @@ export function importPeriodFieldFromXML<To extends PeriodField | undefined>(
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importTableFromXML(context, xml.Table)
+  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
   const title = importI8nTextFromXML(context, xml.Title)
@@ -163,4 +163,4 @@ export function importPeriodFieldFromXML<To extends PeriodField | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "PeriodField", importPeriodFieldFromXML)
+registerMetadata("ImportFromXML", "PeriodField", importPeriodFieldFromXML as ImportFromXMLFn)

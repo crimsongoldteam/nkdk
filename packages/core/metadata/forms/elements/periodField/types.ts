@@ -3,6 +3,7 @@ import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/bo
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
@@ -10,16 +11,14 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface PeriodField {
+export interface PeriodField extends NamedElement {
   elementType: "PeriodField"
-  name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean
   contextMenu?: ContextMenu
@@ -37,6 +36,7 @@ export interface PeriodField {
   footerPicture?: Picture
   footerText?: I8nText
   footerTextColor?: Color
+  font?: Font
   headerHorizontalAlign?: SE.ItemHorizontalLocation
   headerPicture?: Picture
   horizontalAlign?: SE.ItemHorizontalLocation
@@ -46,7 +46,7 @@ export interface PeriodField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
+  table?: string
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
@@ -80,18 +80,7 @@ export interface PeriodField {
 }
 
 export interface PeriodFieldXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  Border?: BorderXML
-  BorderColor?: ColorXML
-  Font?: FontXML
-  Height?: number
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  Width?: number
+  AssociatedTableElementId?: MetadataValueXML
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
   ContextMenu: ContextMenuXML
@@ -118,7 +107,6 @@ export interface PeriodFieldXML extends BaseElementXML {
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
-  Table?: TableXML
   Title?: I8nTextXML
   TitleBackColor?: ColorXML
   TitleFont?: FontXML
@@ -199,7 +187,7 @@ export interface PeriodFieldPartialEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
-  Таблица?: TablePartialEnterprise
+  Таблица?: string
   ТекстПодвала?: I8nTextEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
