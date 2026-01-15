@@ -5,15 +5,35 @@ import {
   UsualGroupTypedEnterprise,
 } from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup } from "../formGroup/data"
 
 export const fullUsualGroup: UsualGroup = {
-  ...fullFormGroup,
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
+  enableContentChange: true,
+  enabled: true,
+  height: 200,
+  horizontalAlignInGroup: "Left",
+  horizontalStretch: true,
+  readOnly: false,
+  shortcut: "Ctrl+S",
   title: {
     items: { ru: "Обычная группа" },
   },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "UsualGroup",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  verticalStretch: true,
+  visible: true,
+  width: 300,
   backColor: { type: "WebColor", value: "White" },
   behavior: "Auto",
   childItemsHorizontalAlign: "Left",

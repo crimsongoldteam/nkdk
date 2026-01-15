@@ -1,14 +1,34 @@
 import { Page, PageEnterprise, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup } from "../formGroup/data"
 
 export const fullPage: Page = {
-  ...fullFormGroup,
   elementType: FormElementType.Page,
   name: "Страница",
+  enableContentChange: true,
+  enabled: true,
+  height: 200,
+  horizontalAlignInGroup: "Left",
+  horizontalStretch: true,
+  readOnly: false,
+  shortcut: "Ctrl+S",
   title: {
     items: { ru: "Страница" },
   },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "UsualGroup",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  verticalStretch: true,
+  visible: true,
+  width: 300,
   backColor: { type: "WebColor", value: "White" },
   childItemsHorizontalAlign: "Left",
   childItemsVerticalAlign: "Top",

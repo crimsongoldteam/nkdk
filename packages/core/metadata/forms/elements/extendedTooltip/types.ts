@@ -5,7 +5,6 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElementXML } from "../baseElement/types"
-import { FormDecorationPropsEnterprise } from "../formDecoration/types"
 
 export interface ExtendedTooltip {
   autoMaxHeight?: boolean
@@ -57,7 +56,7 @@ export interface ExtendedTooltipXML extends BaseElementXML {
   Width?: number
 }
 
-export interface ExtendedTooltipEnterprise extends FormDecorationPropsEnterprise {
+export interface ExtendedTooltipEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise

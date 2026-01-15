@@ -1,18 +1,34 @@
-import {
-  Pages,
-  PagesPartialEnterprise,
-  PagesTypedEnterprise,
-} from "~/metadata/forms/elements/pages/types"
+import { Pages, PagesPartialEnterprise, PagesTypedEnterprise } from "~/metadata/forms/elements/pages/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup } from "../formGroup/data"
 
 export const fullPages: Pages = {
-  ...fullFormGroup,
   elementType: FormElementType.Pages,
   name: "Страницы",
+  enableContentChange: true,
+  enabled: true,
+  height: 200,
+  horizontalAlignInGroup: "Left",
+  horizontalStretch: true,
+  readOnly: false,
+  shortcut: "Ctrl+S",
   title: {
     items: { ru: "Страницы" },
   },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "UsualGroup",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  verticalStretch: true,
+  visible: true,
+  width: 300,
   currentPagesState: "Titles",
   currentRowUse: "DontUse",
   pagesRepresentation: "Auto",

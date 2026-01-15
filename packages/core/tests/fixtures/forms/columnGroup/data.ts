@@ -4,15 +4,35 @@ import {
   ColumnGroupTypedEnterprise,
 } from "~/metadata/forms/elements/columnGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup } from "../formGroup/data"
 
 export const fullColumnGroup: ColumnGroup = {
-  ...fullFormGroup,
   elementType: FormElementType.ColumnGroup,
   name: "ГруппаКолонок",
+  enableContentChange: true,
+  enabled: true,
+  height: 200,
+  horizontalAlignInGroup: "Left",
+  horizontalStretch: true,
+  readOnly: false,
+  shortcut: "Ctrl+S",
   title: {
     items: { ru: "Группа колонок" },
   },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "UsualGroup",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  verticalStretch: true,
+  visible: true,
+  width: 300,
   fixingInTable: "None",
   group: "Horizontal",
   headerDataPath: "Объект.Реквизит",
