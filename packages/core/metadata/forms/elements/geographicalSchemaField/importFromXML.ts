@@ -12,7 +12,7 @@ import { GeographicalSchemaField } from "~/metadata/forms/elements/geographicalS
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importGeographicalSchemaFieldFromXML<To extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
@@ -158,4 +158,4 @@ export function importGeographicalSchemaFieldFromXML<To extends GeographicalSche
   return result as To
 }
 
-registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML)
+registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML as ImportFromXMLFn)

@@ -12,7 +12,7 @@ import { GraphicalSchemaField } from "~/metadata/forms/elements/graphicalSchemaF
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importGraphicalSchemaFieldFromXML<To extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
@@ -20,8 +20,6 @@ export function importGraphicalSchemaFieldFromXML<To extends GraphicalSchemaFiel
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
-
   const result: GraphicalSchemaField = {
     ...baseFields,
     elementType: FormElementType.GraphicalSchemaField,
@@ -160,4 +158,4 @@ export function importGraphicalSchemaFieldFromXML<To extends GraphicalSchemaFiel
   return result as To
 }
 
-registerMetadata("ImportFromXML", "GraphicalSchemaField", importGraphicalSchemaFieldFromXML)
+registerMetadata("ImportFromXML", "GraphicalSchemaField", importGraphicalSchemaFieldFromXML as ImportFromXMLFn)

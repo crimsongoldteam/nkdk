@@ -18,7 +18,7 @@ export function importFormDecorationFromXML<To extends FormDecoration | undefine
 
   const result: FormDecoration = {
     ...baseFields,
-    elementType: FormElementType.FormDecoration,
+    elementType: "FormDecoration",
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight

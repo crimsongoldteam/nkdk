@@ -8,8 +8,8 @@ import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/ex
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function exportFormDecorationToXML<From extends FormDecoration | undefined>(
   context: ConfigurationContext,
@@ -80,4 +80,4 @@ export function exportFormDecorationToXML<From extends FormDecoration | undefine
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "FormDecoration", exportFormDecorationToXML)
+registerMetadata("ExportToXML", "FormDecoration", exportFormDecorationToXML as ExportToXMLFn)
