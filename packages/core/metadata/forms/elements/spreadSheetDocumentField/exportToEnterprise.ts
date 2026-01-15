@@ -27,7 +27,6 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { exportTableToEnterprise } from "../table/exportToEnterprise"
 
 export function exportSpreadSheetDocumentFieldTypedToEnterprise<From extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
@@ -201,9 +200,6 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
-
-  const table = exportTableToEnterprise(context, data.table)
-  if (table !== undefined) result.Таблица = table
 
   const footerText = exportI8nTextToEnterprise(context, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText

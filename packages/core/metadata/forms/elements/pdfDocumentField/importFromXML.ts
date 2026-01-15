@@ -9,7 +9,6 @@ import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { PdfDocumentField } from "~/metadata/forms/elements/pdfDocumentField/types"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
@@ -87,8 +86,7 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importTableFromXML(context, xml.Table)
-  if (table !== undefined) result.table = table
+  if (xml.Table !== undefined) result.table = xml.Table
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title

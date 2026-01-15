@@ -14,7 +14,6 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { TablePartialEnterprise, TableXML } from "../table/types"
 
 export interface PdfDocumentField {
   elementType: "PdfDocumentField"
@@ -45,7 +44,7 @@ export interface PdfDocumentField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  // table?: Table
+  table?: string
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
@@ -110,7 +109,7 @@ export interface PdfDocumentFieldXML extends BaseElementXML {
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
-  Table?: TableXML
+  Table?: string
   Title?: I8nTextXML
   TitleBackColor?: ColorXML
   TitleFont?: FontXML
@@ -199,7 +198,7 @@ export interface PdfDocumentFieldPartialEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
-  Таблица?: TablePartialEnterprise
+  Таблица?: string
   ТекстПодвала?: I8nTextEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise

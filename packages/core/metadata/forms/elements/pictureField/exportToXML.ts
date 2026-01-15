@@ -9,12 +9,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { PictureField, PictureFieldXML } from "~/metadata/forms/elements/pictureField/types"
-import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportPictureFieldToXML<From extends PictureField | undefined>(
   context: ConfigurationContext,
@@ -100,8 +99,7 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
+  if (data.table !== undefined) result.AssociatedTableElementId = data.table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip

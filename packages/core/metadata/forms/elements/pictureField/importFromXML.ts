@@ -9,11 +9,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { PictureField, PictureFieldXML } from "~/metadata/forms/elements/pictureField/types"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
+import { PictureField } from "~/metadata/forms/elements/pictureField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importPictureFieldFromXML<To extends PictureField | undefined>(
   context: ConfigurationContext,
@@ -21,7 +20,6 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
 
   const result: PictureField = {
     ...baseFields,
@@ -88,8 +86,7 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importTableFromXML(context, xml.Table)
-  if (table !== undefined) result.table = table
+  if (xml.AssociatedTableElementId !== undefined) result.table = xml.AssociatedTableElementId
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
@@ -151,9 +148,6 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.FileDragMode !== undefined) result.fileDragMode = xml.FileDragMode
 
-  const font = importFontFromXML(context, xml.Font)
-  if (font !== undefined) result.font = font
-
   if (xml.Height !== undefined) result.height = xml.Height
 
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
@@ -185,4 +179,4 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "PictureField", importPictureFieldFromXML)
+registerMetadata("ImportFromXML", "PictureField", importPictureFieldFromXML as ImportFromXMLFn)

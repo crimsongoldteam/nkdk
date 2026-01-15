@@ -1,8 +1,11 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   PdfDocumentField,
   PdfDocumentFieldPartialEnterprise,
@@ -10,11 +13,7 @@ import {
 } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -25,17 +24,16 @@ export function importPdfDocumentFieldTypedFromEnterprise<To extends PdfDocument
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name)!
-
   const props = importPdfDocumentFieldPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: PdfDocumentField = {
-    ...baseFields,
     ...props,
-    elementType,
+    elementType: "PdfDocumentField",
+    name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result as To
 }
@@ -45,15 +43,15 @@ export function importPdfDocumentFieldPartialFromEnterprise<To extends PdfDocume
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
-
   const props = importPdfDocumentFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
+    elementType: "PdfDocumentField",
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

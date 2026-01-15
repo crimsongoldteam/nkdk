@@ -15,7 +15,6 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Table, TablePartialEnterprise, TableXML } from "../table/types"
 
 export interface PictureField {
   elementType: "PictureField"
@@ -46,7 +45,7 @@ export interface PictureField {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: Table
+  table?: string
   title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
@@ -83,6 +82,7 @@ export interface PictureField {
   verticalStretch?: boolean
   width?: number
   zoomable?: boolean
+  font?: Font
   events?: {
     onChange?: string
     click?: string
@@ -94,6 +94,7 @@ export interface PictureField {
 }
 
 export interface PictureFieldXML extends BaseElementXML {
+  AssociatedTableElementId?: string
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
   ContextMenu: ContextMenuXML
@@ -120,7 +121,6 @@ export interface PictureFieldXML extends BaseElementXML {
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
-  Table?: TableXML
   Title?: I8nTextXML
   TitleBackColor?: ColorXML
   TitleFont?: FontXML
@@ -196,7 +196,7 @@ export interface PictureFieldPartialEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
-  Таблица?: TablePartialEnterprise
+  Таблица?: string
   ТекстПодвала?: I8nTextEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
@@ -240,6 +240,3 @@ export interface PictureFieldPartialEnterprise {
 export interface PictureFieldTypedEnterprise extends PictureFieldPartialEnterprise {
   Тип: "ПолеРисунка"
 }
-
-// Для обратной совместимости
-export type PictureFieldEnterprise = PictureFieldPartialEnterprise
