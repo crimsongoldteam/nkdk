@@ -4,8 +4,9 @@ import {
   ChartFieldTypedEnterprise,
 } from "~/metadata/forms/elements/chartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullChartField: ChartField = {
+export const fullChartField: RequiredFieldsElement<ChartField> = {
   elementType: FormElementType.ChartField,
   name: "ПолеДиаграммы",
   title: {
@@ -67,6 +68,10 @@ export const fullChartField: ChartField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  table: "Таблица",
+  typeRestriction: { type: ["string"] },
   autoMaxHeight: true,
   autoMaxWidth: true,
   height: 200,
@@ -78,6 +83,8 @@ export const fullChartField: ChartField = {
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураВыбора",
+    detailProcessing: "ПроцедураОбработкиРасшифровки",
+    onActivate: "ПроцедураПриАктивизации",
   },
 }
 
@@ -98,6 +105,10 @@ export const fullChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {
   Доступность: "Истина",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
+  КонтекстноеМеню: {
+    Автозаполнение: "Ложь",
+  },
+  ОграничениеТипа: "Строка",
   ОтображатьВПодвале: "Истина",
   ОтображатьВШапке: "Истина",
   ОтображениеПодсказки: "Нет",
@@ -109,8 +120,10 @@ export const fullChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {
   ПропускатьПриВводе: "Ложь",
   ПутьКДанным: "Объект.Реквизит",
   ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   РежимРедактирования: "ВходПриВводе",
   СочетаниеКлавиш: "Ctrl+S",
+  Таблица: "Таблица",
   ТекстПодвала: "Текст подвала",
   ТолькоПросмотр: "Ложь",
   ФиксацияВТаблице: "Нет",
@@ -131,6 +144,8 @@ export const fullChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
+    ОбработкаРасшифровки: "ПроцедураОбработкиРасшифровки",
+    ПриАктивизации: "ПроцедураПриАктивизации",
   },
 }
 

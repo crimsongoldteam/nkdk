@@ -15,10 +15,14 @@ import {
   ChartFieldTypedEnterprise,
 } from "~/metadata/forms/elements/chartField/types"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ImportTypedFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
@@ -29,15 +33,11 @@ export function importChartFieldTypedFromEnterprise<To extends ChartField | unde
   name: string
 ): To {
   if (data === undefined) return undefined as To
-  if (!name) return undefined as To
 
-  const baseFields = importChartFieldPropsFromEnterprise(context, data, name)!
-
-  const props = importChartFieldSpecificPropsFromEnterprise(context, data)
+  const baseFields = importChartFieldPropsFromEnterprise(context, data)!
 
   const result: ChartField = {
     ...baseFields,
-    ...props,
     elementType: "ChartField",
     name,
   }
@@ -53,13 +53,11 @@ export function importChartFieldPartialFromEnterprise<To extends ChartField>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importChartFieldPropsFromEnterprise(context, data, source.name)!
+  const baseFields = importChartFieldPropsFromEnterprise(context, data)
 
-  const props = importChartFieldSpecificPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
     ...baseFields,
-    ...props,
     elementType: "ChartField",
   }
 
@@ -71,8 +69,7 @@ export function importChartFieldPartialFromEnterprise<To extends ChartField>(
 
 const importChartFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: ChartFieldTypedEnterprise | ChartFieldPartialEnterprise | undefined,
-  name: string
+  data: ChartFieldTypedEnterprise | ChartFieldPartialEnterprise | undefined
 ): Omit<Partial<ChartField>, "elementType" | "name"> => {
   const result: Omit<Partial<ChartField>, "elementType" | "name"> = {}
 
@@ -229,8 +226,7 @@ const importChartFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
-  if (table !== undefined) result.table = table
+  if (data.Таблица !== undefined) result.table = data.Таблица
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
@@ -269,52 +265,13 @@ const importChartFieldPropsFromEnterprise = (
   return result
 }
 
-const importChartFieldSpecificPropsFromEnterprise = (
-  context: ConfigurationContext,
-  data: ChartFieldTypedEnterprise | ChartFieldPartialEnterprise | undefined
-): Omit<Partial<ChartField>, "elementType" | "name"> => {
-  const result: Omit<Partial<ChartField>, "elementType" | "name"> = {}
-
-  if (data === undefined) return result
-
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
-  if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
-
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
-  if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
-
-  if (data.Высота !== undefined) result.height = data.Высота
-
-  if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
-
-  if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
-
-  const userVisibleAllow = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    "РазрешитьИспользование"
-  )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
-  }
-
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
-  if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
-
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
-  if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
-
-  if (data.Ширина !== undefined) result.width = data.Ширина
-
-  const events = importEventsFromEnterprise(context, data.События)
-  if (events !== undefined) result.events = events
-
-  return result
-}
-
-registerMetadata("ImportPartialFromEnterprise", "ChartField", importChartFieldSpecificPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "ChartField",
+  importChartFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "ChartField",
+  importChartFieldTypedFromEnterprise as ImportTypedFromEnterpriseFn
+)

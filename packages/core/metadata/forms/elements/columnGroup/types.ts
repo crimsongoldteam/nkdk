@@ -1,16 +1,15 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
-import { BaseElementXML } from "../baseElement/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
-export interface ColumnGroup extends Omit<FormGroup, "elementType"> {
+export interface ColumnGroup extends NamedElement {
   elementType: "ColumnGroup"
   fixingInTable?: SE.FixingInTable
   group?: SE.ColumnsGroup
@@ -22,6 +21,23 @@ export interface ColumnGroup extends Omit<FormGroup, "elementType"> {
   showTitle?: boolean
   titleBackColor?: Color
   userVisible?: UserVisible
+  enableContentChange?: boolean
+  enabled?: boolean
+  height?: number
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  horizontalStretch?: boolean
+  readOnly?: boolean
+  shortcut?: string
+  title?: I8nText
+  titleFont?: Font
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormGroupType
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  verticalStretch?: boolean
+  visible?: boolean
+  width?: number
   childItems: ChildItems
 }
 

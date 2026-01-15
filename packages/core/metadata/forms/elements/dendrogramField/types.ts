@@ -14,6 +14,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface DendrogramField extends NamedElement {
   elementType: "DendrogramField"

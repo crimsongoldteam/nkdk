@@ -4,8 +4,9 @@ import {
   DendrogramFieldTypedEnterprise,
 } from "~/metadata/forms/elements/dendrogramField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullDendrogramField: DendrogramField = {
+export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   elementType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
   title: {
@@ -74,9 +75,13 @@ export const fullDendrogramField: DendrogramField = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураВыбора",
+    detailProcessing: "ПроцедураОбработкиРасшифровки",
   },
 }
 
@@ -97,6 +102,10 @@ export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterpr
   Доступность: "Истина",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
+  КонтекстноеМеню: {
+    Автозаполнение: "Ложь",
+  },
+  ОграничениеТипа: "Строка",
   ОтображатьВПодвале: "Истина",
   ОтображатьВШапке: "Истина",
   ОтображениеПодсказки: "Нет",
@@ -107,6 +116,7 @@ export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterpr
   ПропускатьПриВводе: "Ложь",
   ПутьКДанным: "Объект.Реквизит",
   ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   РежимРедактирования: "ВходПриВводе",
   СочетаниеКлавиш: "Ctrl+S",
   ТекстПодвала: "Текст подвала",
@@ -130,6 +140,7 @@ export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterpr
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
+    ОбработкаРасшифровки: "ПроцедураОбработкиРасшифровки",
   },
 }
 
