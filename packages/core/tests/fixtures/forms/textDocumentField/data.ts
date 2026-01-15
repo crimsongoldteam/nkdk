@@ -1,13 +1,13 @@
+import { type } from "os"
 import {
   TextDocumentField,
   TextDocumentFieldPartialEnterprise,
   TextDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/textDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullTextDocumentField: Required<TextDocumentField> & {
-  events: Required<NonNullable<TextDocumentField["events"]>>
-} = {
+export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
   elementType: FormElementType.TextDocumentField,
   name: "ПолеТекстовогоДокумента",
   title: {

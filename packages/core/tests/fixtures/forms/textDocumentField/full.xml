@@ -5,7 +5,9 @@
 	<BackColor>web:Blue</BackColor>
 	<BorderColor>web:Green</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеТекстовогоДокументаКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ПолеТекстовогоДокументаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
@@ -16,7 +18,14 @@
 		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеТекстовогоДокументаРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ПолеТекстовогоДокументаРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<FixingInTable>None</FixingInTable>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
@@ -73,7 +82,7 @@
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
 	<TypeRestriction>
-		<v8:Type>v8:string</v8:Type>
+		<v8:Type>xs:string</v8:Type>
 		<v8:StringQualifiers>
 			<v8:AllowedLength>Variable</v8:AllowedLength>
 			<v8:Length>0</v8:Length>
