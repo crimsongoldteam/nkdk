@@ -8,14 +8,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import {
-  SpreadSheetDocumentField,
-  SpreadSheetDocumentFieldXML,
-} from "~/metadata/forms/elements/spreadSheetDocumentField/types"
+import { SpreadSheetDocumentField } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importSpreadSheetDocumentFieldFromXML<To extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
@@ -23,8 +20,6 @@ export function importSpreadSheetDocumentFieldFromXML<To extends SpreadSheetDocu
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
-
   const result: SpreadSheetDocumentField = {
     ...baseFields,
     elementType: FormElementType.SpreadSheetDocumentField,
@@ -197,4 +192,4 @@ export function importSpreadSheetDocumentFieldFromXML<To extends SpreadSheetDocu
   return result as To
 }
 
-registerMetadata("ImportFromXML", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldFromXML)
+registerMetadata("ImportFromXML", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldFromXML as ImportFromXMLFn)

@@ -4,7 +4,7 @@ import {
   SpreadSheetDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
+import { fullFormField } from "../formField/data"
 
 export const fullSpreadSheetDocumentField: SpreadSheetDocumentField = {
   ...fullFormField,
@@ -13,16 +13,114 @@ export const fullSpreadSheetDocumentField: SpreadSheetDocumentField = {
   title: {
     items: { ru: "Поле табличного документа" },
   },
+  autoCellHeight: true,
+  cellHyperlink: true,
+  dataPath: "Объект.Реквизит",
+  defaultItem: true,
+  displayImportance: "High",
+  editMode: "EnterOnInput",
+  enabled: true,
+  fixingInTable: "None",
+  footerBackColor: { type: "WebColor", value: "White" },
+  footerDataPath: "Объект.РеквизитПодвала",
+  footerFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  footerHorizontalAlign: "Left",
+  footerPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  footerText: {
+    items: { ru: "Текст подвала" },
+  },
+  footerTextColor: { type: "WebColor", value: "Black" },
+  headerHorizontalAlign: "Left",
+  headerPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  horizontalAlign: "Left",
+  horizontalAlignInGroup: "Left",
+  readOnly: false,
+  shortcut: "Ctrl+S",
+  showInFooter: true,
+  showInHeader: true,
+  skipOnInput: false,
+  titleBackColor: { type: "WebColor", value: "Blue" },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleHeight: 20,
+  titleLocation: "Left",
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  type: "InputField",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlign: "Top",
+  verticalAlignInGroup: "Top",
+  visible: true,
+  warningOnEdit: {
+    items: { ru: "Предупреждение" },
+  },
+  warningOnEditRepresentation: "DontShow",
+  events: {
+    onChange: "ПроцедураПриИзменении",
+  },
 }
 
 export const fullSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise = {
-  ...fullFormFieldEnterprise,
-  Заголовок: "Поле табличного документа",
+  АвтоВысотаЯчейки: "Истина",
+  АктивизироватьПоУмолчанию: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ВертикальноеПоложение: "Верх",
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ПолеВвода",
+  Видимость: "Истина",
+  ВысотаЗаголовка: 20,
+  ГиперссылкаЯчейки: "Истина",
+  ГоризонтальноеПоложение: "Лево",
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  ГоризонтальноеПоложениеВПодвале: "Лево",
+  ГоризонтальноеПоложениеВШапке: "Лево",
+  Доступность: "Истина",
+  КартинкаПодвала: "Печать",
+  КартинкаШапки: "Печать",
+  ОтображатьВПодвале: "Истина",
+  ОтображатьВШапке: "Истина",
+  ОтображениеПодсказки: "Нет",
+  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
+  Подсказка: "Подсказка",
+  ПоложениеЗаголовка: "Лево",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  ПредупреждениеПриРедактировании: "Предупреждение",
+  ПропускатьПриВводе: "Ложь",
+  ПутьКДанным: "Объект.Реквизит",
+  ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
+  РежимРедактирования: "ВходПриВводе",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТекстПодвала: "Текст подвала",
+  ТолькоПросмотр: "Ложь",
+  ФиксацияВТаблице: "Нет",
+  ЦветТекстаЗаголовка: "Черный",
+  ЦветТекстаПодвала: "Черный",
+  ЦветФонаЗаголовка: "Синий",
+  ЦветФонаПодвала: "Белый",
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ШрифтПодвала: "ОбычныйШрифтТекста",
+  События: {
+    ПриИзменении: "ПроцедураПриИзменении",
+  },
 }
 
 export const fullSpreadSheetDocumentFieldTypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise = {
   ...fullSpreadSheetDocumentFieldPartialEnterprise,
   Тип: "ПолеТабличногоДокумента",
+  Заголовок: "Поле табличного документа",
 }
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {

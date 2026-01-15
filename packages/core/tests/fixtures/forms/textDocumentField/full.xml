@@ -16,9 +16,9 @@
 		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<ExtendedTooltip name="ПолеТекстовогоДокументаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
 	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
@@ -47,11 +47,11 @@
 	<MaxWidth>400</MaxWidth>
 	<Output>Auto</Output>
 	<ReadOnly>false</ReadOnly>
+	<SelectedText>Выделенный текст</SelectedText>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
-	<SelectedText>Выделенный текст</SelectedText>
 	<TextColor>web:Yellow</TextColor>
 	<Title>
 		<v8:item>
@@ -87,7 +87,6 @@
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
-	<Width>300</Width>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -95,4 +94,5 @@
 		</v8:item>
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<Width>300</Width>
 </TextDocumentField>
