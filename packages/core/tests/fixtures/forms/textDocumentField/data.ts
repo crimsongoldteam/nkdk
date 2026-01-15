@@ -20,7 +20,7 @@ export const fullTextDocumentField: Required<TextDocumentField> & {
   displayImportance: "High",
   editMode: "EnterOnInput",
   enabled: true,
-  contextMenu: { childItems: [] },
+  contextMenu: { autofill: false, childItems: [] },
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
@@ -59,7 +59,7 @@ export const fullTextDocumentField: Required<TextDocumentField> & {
   },
   toolTipRepresentation: "None",
   type: "InputField",
-  typeRestriction: { type: "string" },
+  typeRestriction: { type: ["string"] },
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: true }],
@@ -110,6 +110,9 @@ export const fullTextDocumentFieldPartialEnterprise: TextDocumentFieldPartialEnt
   Доступность: "Истина",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
+  КонтекстноеМеню: {
+    Автозаполнение: "Ложь",
+  },
   ОтображатьВПодвале: "Истина",
   ОтображатьВШапке: "Истина",
   ОтображениеПодсказки: "Нет",

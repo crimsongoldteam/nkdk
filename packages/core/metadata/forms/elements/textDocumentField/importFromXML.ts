@@ -8,7 +8,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { TextDocumentField } from "~/metadata/forms/elements/textDocumentField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -86,9 +85,6 @@ export function importTextDocumentFieldFromXML<To extends TextDocumentField | un
   if (xml.ShowInHeader !== undefined) result.showInHeader = xml.ShowInHeader
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
-
-  const table = importTableFromXML(context, xml.Table)
-  if (table !== undefined) result.table = table
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title

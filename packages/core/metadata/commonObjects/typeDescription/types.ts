@@ -461,7 +461,7 @@ export type PrimitiveTypeEnterprise = (typeof PrimitiveTypeToEnterprise)[keyof t
 export type TypeDescriptionType = string
 
 export interface TypeDescription {
-  type: TypeDescriptionType[] | TypeDescriptionType
+  type: TypeDescriptionType[]
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers

@@ -1,5 +1,9 @@
 <TextDocumentField name="ПолеТекстовогоДокумента" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BackColor>web:Blue</BackColor>
+	<BorderColor>web:Green</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеТекстовогоДокументаКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
@@ -7,8 +11,12 @@
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="AfterWrite">ПроцедураПослеЗаписи</Event>
+		<Event name="BeforePrint">ПроцедураПередПечатью</Event>
+		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<ExtendedTooltip name="ПолеТекстовогоДокументаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
@@ -31,13 +39,20 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<Output>Auto</Output>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<SelectedText>Выделенный текст</SelectedText>
+	<TextColor>web:Yellow</TextColor>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -57,13 +72,22 @@
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
+	<TypeRestriction>
+		<v8:Type>v8:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+			<v8:Length>0</v8:Length>
+		</v8:StringQualifiers>
+	</TypeRestriction>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
+	<Width>300</Width>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
