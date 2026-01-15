@@ -72,7 +72,6 @@ export const fullRadioButtonField: RadioButtonField = {
 }
 
 export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnterprise = {
-  Заголовок: "Поле переключателя",
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -119,6 +118,7 @@ export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnter
 export const fullRadioButtonFieldTypedEnterprise: RadioButtonFieldTypedEnterprise = {
   ...fullRadioButtonFieldPartialEnterprise,
   Тип: "ПолеПереключателя",
+  Заголовок: "Поле переключателя",
 }
 
 export const minimalRadioButtonField: RadioButtonField = {

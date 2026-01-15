@@ -14,7 +14,6 @@ import {
   CheckBoxFieldPartialEnterprise,
   CheckBoxFieldTypedEnterprise,
 } from "~/metadata/forms/elements/checkBoxField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
@@ -30,18 +29,15 @@ export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField 
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name)!
-
   const props = importCheckBoxFieldPropsFromEnterprise(context, data)
 
   const result: CheckBoxField = {
-    ...baseFields,
     ...props,
     elementType: "CheckBoxField",
     name: name,
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -52,14 +48,12 @@ export function importCheckBoxFieldPartialFromEnterprise<To extends CheckBoxFiel
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
-
   const props = importCheckBoxFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseFields,
     ...props,
     elementType: "CheckBoxField",
+    name: source.name,
   }
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
@@ -259,20 +253,6 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const equalItemsWidth = importBooleanFromEnterprise(context, data.ОдинаковаяШиринаЭлементов)
   if (equalItemsWidth !== undefined) result.equalItemsWidth = equalItemsWidth
-
-  const userVisibleAllow = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    "РазрешитьИспользование"
-  )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
-  }
 
   const threeState = importBooleanFromEnterprise(context, data.ТриСостояния)
   if (threeState !== undefined) result.threeState = threeState

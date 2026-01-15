@@ -1,8 +1,14 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
+import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   ProgressBarField,
   ProgressBarFieldPartialEnterprise,
@@ -10,13 +16,11 @@ import {
 } from "~/metadata/forms/elements/progressBarField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export function importProgressBarFieldTypedFromEnterprise<To extends ProgressBarField | undefined>(
   context: ConfigurationContext,
@@ -25,17 +29,16 @@ export function importProgressBarFieldTypedFromEnterprise<To extends ProgressBar
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name)!
-
   const props = importProgressBarFieldPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: ProgressBarField = {
-    ...baseFields,
     ...props,
-    elementType,
+    elementType: "ProgressBarField",
+    name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result as To
 }
@@ -45,15 +48,16 @@ export function importProgressBarFieldPartialFromEnterprise<To extends ProgressB
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
-
   const props = importProgressBarFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
+    elementType: "ProgressBarField",
+    name: source.name,
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

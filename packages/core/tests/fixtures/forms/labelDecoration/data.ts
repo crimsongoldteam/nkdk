@@ -5,8 +5,9 @@ import {
 } from "~/metadata/forms/elements/labelDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullLabelDecoration: LabelDecoration = {
+export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
   title: {
@@ -50,6 +51,8 @@ export const fullLabelDecoration: LabelDecoration = {
   verticalStretch: true,
   visible: true,
   width: 300,
+  contextMenu: { autofill: false, childItems: [] },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
   events: {
     click: "ПроцедураНажатия",
     uRLProcessing: "ПроцедураОбработкиНавигационнойСсылки",
