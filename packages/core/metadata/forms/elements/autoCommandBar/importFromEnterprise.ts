@@ -9,7 +9,7 @@ export const importAutoCommandBarFromEnterprise = (
   source: AutoCommandBar | undefined,
   data: AutoCommandBarEnterprise | undefined
 ): AutoCommandBar | undefined => {
-  if (!data && !source) throw new Error("AutoCommandBar data or source is required")
+  if (!data && !source) return undefined
 
   const sourceExt: AutoCommandBar = source ?? {
     childItems: [],
