@@ -249,7 +249,11 @@ export class Visitor extends BaseVisitor {
 
   autoCommandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): AutoCommandBar {
     const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as AutoCommandBar["childItems"]
-    const filteredChildItems = childItems.filter((item) => item.name !== "" || item.title !== undefined)
+    const filteredChildItems = childItems.filter((item) => {
+      if (item.name !== "") return true
+      if (item.title === undefined) return false
+      return Object.values(item.title.items).some((value) => value !== "")
+    })
     const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
 
     const result: AutoCommandBar = {
