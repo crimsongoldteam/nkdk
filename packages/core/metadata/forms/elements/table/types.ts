@@ -84,7 +84,7 @@ export interface Table {
   searchControlLocation?: SE.SearchControlLocation
   searchOnInput?: SE.SearchInTableOnInput
   searchStringLocation?: SE.SearchStringLocation
-  searchStringRepresentation?: SearchStringAddition
+  searchStringAddition?: SearchStringAddition
   selectionMode?: SE.TableSelectionMode
   shortcut?: string
   skipOnInput?: boolean
@@ -103,7 +103,7 @@ export interface Table {
   verticalScrollBar?: SE.ScrollBarUse
   verticalStretch?: boolean
   viewStatusLocation?: SE.ViewStatusLocation
-  viewStatusRepresentation?: ViewStatusAddition
+  viewStatusAddition?: ViewStatusAddition
   visible?: boolean
   width?: number
   events?: {
@@ -187,11 +187,11 @@ export interface TableXML extends BaseElementXML {
   RowPictureDataPath?: string
   RowSelectionMode?: SE.TableRowSelectionMode
   RowsPicture?: boolean
-  SearchControl: SearchControlAdditionXML
+  SearchControlAddition: SearchControlAdditionXML
   SearchControlLocation?: SE.SearchControlLocation
   SearchOnInput?: SE.SearchInTableOnInput
   SearchStringLocation?: SE.SearchStringLocation
-  SearchStringRepresentation: SearchStringAdditionXML
+  SearchStringAddition: SearchStringAdditionXML
   SelectionMode?: SE.TableSelectionMode
   Shortcut?: string
   SkipOnInput?: boolean
@@ -210,7 +210,7 @@ export interface TableXML extends BaseElementXML {
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean
   ViewStatusLocation?: SE.ViewStatusLocation
-  ViewStatusRepresentation: ViewStatusAdditionXML
+  ViewStatusAddition: ViewStatusAdditionXML
   Visible?: boolean
   Width?: number
   Events?: EventsXML

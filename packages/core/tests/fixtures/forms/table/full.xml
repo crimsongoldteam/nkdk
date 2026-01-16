@@ -91,7 +91,7 @@
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
 	<RowsPicture>true</RowsPicture>
-	<SearchControl name="ТаблицаУправленияПоиском" id="5" DisplayImportance="High">
+	<SearchControlAddition name="ТаблицаУправленияПоиском" id="5" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchControlAddition</Type>
@@ -119,11 +119,10 @@
 		</UserVisible>
 		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 		<Visible>true</Visible>
-	</SearchControl>
+	</SearchControlAddition>
 	<SearchControlLocation>Auto</SearchControlLocation>
 	<SearchOnInput>Auto</SearchOnInput>
-	<SearchStringLocation>Auto</SearchStringLocation>
-	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="8" DisplayImportance="High">
+	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="8" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchStringAddition</Type>
@@ -151,7 +150,8 @@
 		</UserVisible>
 		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 		<Visible>true</Visible>
-	</SearchStringRepresentation>
+	</SearchStringAddition>
+	<SearchStringLocation>Auto</SearchStringLocation>
 	<SelectionMode>SingleRow</SelectionMode>
 	<Shortcut>Ctrl+T</Shortcut>
 	<SkipOnInput>false</SkipOnInput>
@@ -182,8 +182,7 @@
 	<VerticalLines>true</VerticalLines>
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>
-	<ViewStatusLocation>Auto</ViewStatusLocation>
-	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="11" DisplayImportance="High">
+	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="11" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>ViewStatusRepresentation</Type>
@@ -211,7 +210,8 @@
 		</UserVisible>
 		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 		<Visible>true</Visible>
-	</ViewStatusRepresentation>
+	</ViewStatusAddition>
+	<ViewStatusLocation>Auto</ViewStatusLocation>
 	<Visible>true</Visible>
 	<Width>600</Width>
 </Table>

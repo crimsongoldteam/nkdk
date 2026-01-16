@@ -306,11 +306,11 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const viewStatusRepresentation = importViewStatusAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра)
-  if (viewStatusRepresentation !== undefined) result.viewStatusRepresentation = viewStatusRepresentation
+  const viewStatusAddition = importViewStatusAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра)
+  if (viewStatusAddition !== undefined) result.viewStatusAddition = viewStatusAddition
 
-  const searchStringRepresentation = importSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
-  if (searchStringRepresentation !== undefined) result.searchStringRepresentation = searchStringRepresentation
+  const searchStringAddition = importSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
+  if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
   const behaviorOnHorizontalCompression =
     importSystemEnumerationFromEnterprise<SE.TableBehaviorOnHorizontalCompression>(

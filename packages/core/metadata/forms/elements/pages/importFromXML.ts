@@ -3,20 +3,13 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPageFromXML } from "~/metadata/forms/elements/page/importFromXML"
-import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
+import { Pages } from "~/metadata/forms/elements/pages/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
-
-const importPagesChildItemsFromXML = (
-  context: ConfigurationContext,
-  xml: PagesXML["ChildItems"]
-): Pages["childItems"] | undefined => {
-  if (!xml || xml.length === 0) return undefined
-  return xml.map((pageXML) => importPageFromXML(context, pageXML))
-}
+import { Page } from "../page/types"
 
 export function importPagesFromXML<To extends Pages | undefined>(
   context: ConfigurationContext,
@@ -73,8 +66,8 @@ export function importPagesFromXML<To extends Pages | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  const childItems = importPagesChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  if (childItems !== undefined) result.childItems = childItems as Page[]
 
   if (xml.CurrentPagesState !== undefined) result.currentPagesState = xml.CurrentPagesState
 

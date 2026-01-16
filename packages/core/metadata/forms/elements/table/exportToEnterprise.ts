@@ -11,6 +11,7 @@ import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/context
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportPartialToEnterpriseFn } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportAutoCommandBarToEnterprise } from "../autoCommandBar/exportToEnterprise"
@@ -18,7 +19,6 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 import { exportSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
 import { exportSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
 import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/exportToEnterprise"
-import { ExportPartialToEnterpriseFn } from "~/metadata/metadataFactory/types"
 
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
@@ -195,11 +195,11 @@ export const exportTableToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const viewStatusRepresentation = exportViewStatusAdditionToEnterprise(context, data.viewStatusRepresentation)
-  if (viewStatusRepresentation !== undefined) result.ОтображениеСостоянияПросмотра = viewStatusRepresentation
+  const viewStatusAddition = exportViewStatusAdditionToEnterprise(context, data.viewStatusAddition)
+  if (viewStatusAddition !== undefined) result.ОтображениеСостоянияПросмотра = viewStatusAddition
 
-  const searchStringRepresentation = exportSearchStringAdditionToEnterprise(context, data.searchStringRepresentation)
-  if (searchStringRepresentation !== undefined) result.ОтображениеСтрокиПоиска = searchStringRepresentation
+  const searchStringAddition = exportSearchStringAdditionToEnterprise(context, data.searchStringAddition)
+  if (searchStringAddition !== undefined) result.ОтображениеСтрокиПоиска = searchStringAddition
 
   const behaviorOnHorizontalCompression = exportSystemEnumerationToEnterprise(
     context,

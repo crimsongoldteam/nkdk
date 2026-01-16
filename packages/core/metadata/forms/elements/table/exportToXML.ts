@@ -36,15 +36,15 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
 
-  const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
+  const searchStringAddition = exportSearchStringAdditionToXML(context, data.searchStringAddition, data)
 
-  const viewStatusRepresentation = exportViewStatusAdditionToXML(context, data.viewStatusRepresentation, data)
+  const viewStatusAddition = exportViewStatusAdditionToXML(context, data.viewStatusAddition, data)
 
   const result: TableXML = {
     AutoCommandBar: autoCommandBar,
-    SearchControl: searchControl,
-    SearchStringRepresentation: searchStringRepresentation,
-    ViewStatusRepresentation: viewStatusRepresentation,
+    SearchControlAddition: searchControl,
+    SearchStringAddition: searchStringAddition,
+    ViewStatusAddition: viewStatusAddition,
     ExtendedTooltip: extendedTooltip,
     ContextMenu: contextMenu,
     ...baseFields,

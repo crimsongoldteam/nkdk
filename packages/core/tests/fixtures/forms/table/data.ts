@@ -114,7 +114,7 @@ export const fullTable: Table = {
   searchControlLocation: "Auto",
   searchOnInput: "Auto",
   searchStringLocation: "Auto",
-  searchStringRepresentation: {
+  searchStringAddition: {
     displayImportance: "High",
     enabled: true,
     horizontalAlignInGroup: "Left",
@@ -157,7 +157,7 @@ export const fullTable: Table = {
   verticalScrollBar: "AutoUse",
   verticalStretch: true,
   viewStatusLocation: "Auto",
-  viewStatusRepresentation: {
+  viewStatusAddition: {
     displayImportance: "High",
     enabled: true,
     horizontalAlignInGroup: "Left",

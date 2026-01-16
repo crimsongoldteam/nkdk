@@ -8,7 +8,8 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Page, PageXML } from "../page/types"
+import { Page } from "../page/types"
+import { ChildItemsXML } from "../../collections/childItems/types"
 
 export interface Pages extends NamedElement {
   elementType: "Pages"
@@ -65,7 +66,7 @@ export interface PagesXML extends BaseElementXML {
   CurrentRowUse?: SE.CurrentRowUse
   PagesRepresentation?: SE.FormPagesRepresentation
   Events?: EventsXML
-  ChildItems?: PageXML[]
+  ChildItems?: ChildItemsXML
 }
 
 export interface PagesPartialEnterprise {

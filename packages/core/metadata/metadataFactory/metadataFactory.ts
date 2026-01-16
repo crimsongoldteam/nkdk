@@ -24,13 +24,13 @@ export function registerMetadata<T extends ItemOperationType>(
 export const getOperationFunction = <T extends ItemOperationType>(
   operationType: T,
   key: FormElementType
-): OperationFunction<T> => {
+): OperationFunction<T> | undefined => {
   const registry = operationRegistries.get(operationType)
   if (!registry) throw new Error(`Unknown operation type: ${operationType}`)
 
   const operationFunction = registry.get(key)
   if (!operationFunction) {
-    throw new Error(`Operation function not found for type: ${operationType}, key: ${key}`)
+    return undefined
   }
 
   return operationFunction

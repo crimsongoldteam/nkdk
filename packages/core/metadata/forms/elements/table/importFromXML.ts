@@ -145,7 +145,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.RowsPicture !== undefined) result.rowsPicture = xml.RowsPicture
 
-  const searchControl = importSearchControlAdditionFromXML(context, xml.SearchControl)
+  const searchControl = importSearchControlAdditionFromXML(context, xml.SearchControlAddition)
   if (searchControl !== undefined) result.searchControl = searchControl
 
   if (xml.SearchControlLocation !== undefined) result.searchControlLocation = xml.SearchControlLocation
@@ -154,8 +154,8 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.SearchStringLocation !== undefined) result.searchStringLocation = xml.SearchStringLocation
 
-  const searchStringRepresentation = importSearchStringAdditionFromXML(context, xml.SearchStringRepresentation)
-  if (searchStringRepresentation !== undefined) result.searchStringRepresentation = searchStringRepresentation
+  const searchStringAddition = importSearchStringAdditionFromXML(context, xml.SearchStringAddition)
+  if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
   if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode
 
@@ -199,8 +199,8 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.ViewStatusLocation !== undefined) result.viewStatusLocation = xml.ViewStatusLocation
 
-  const viewStatusRepresentation = importViewStatusAdditionFromXML(context, xml.ViewStatusRepresentation)
-  if (viewStatusRepresentation !== undefined) result.viewStatusRepresentation = viewStatusRepresentation
+  const viewStatusAddition = importViewStatusAdditionFromXML(context, xml.ViewStatusAddition)
+  if (viewStatusAddition !== undefined) result.viewStatusAddition = viewStatusAddition
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 

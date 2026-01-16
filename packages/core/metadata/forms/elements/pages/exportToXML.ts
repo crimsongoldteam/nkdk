@@ -3,24 +3,14 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPageToXML } from "~/metadata/forms/elements/page/exportToXML"
 import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-
-const exportPagesChildItemsToXML = (
-  context: ConfigurationContext,
-  data: Pages["childItems"]
-): PagesXML["ChildItems"] => {
-  if (!data || data.length === 0) return undefined
-  return data
-    .map((page) => exportPageToXML(context, page))
-    .filter((page): page is NonNullable<typeof page> => page !== undefined)
-}
 
 export function exportPagesToXML<From extends Pages | undefined>(
   context: ConfigurationContext,
@@ -37,12 +27,10 @@ export function exportPagesToXML<From extends Pages | undefined>(
     ExtendedTooltip: extendedTooltip,
   }
 
-  const childItems = exportPagesChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined && childItems.length > 0) result.ChildItems = childItems
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
 
-  // const associatedTable = exportTableToXML(context, data.associatedTable)
-  // if (associatedTable !== undefined) result.AssociatedTable = associatedTable
-
+  //
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
