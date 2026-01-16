@@ -11,6 +11,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importPictureDecorationFromXML<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
@@ -33,6 +34,9 @@ export function importPictureDecorationFromXML<To extends PictureDecoration | un
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 

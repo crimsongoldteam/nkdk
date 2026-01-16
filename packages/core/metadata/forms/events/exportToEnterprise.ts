@@ -56,6 +56,19 @@ const eventNameMapping: Record<string, string> = {
   insideDragCheck: "ПроверкаПеретаскиванияВнутри",
   documentComplete: "ДокументСформирован",
   onClick: "ПриНажатии",
+  valueChoice: "ВыборЗначения",
+  newWriteProcessing: "ОбработкаЗаписиНового",
+  refreshRequestProcessing: "ОбработкаЗапросаОбновления",
+  beforeAddRow: "ПередНачаломДобавления",
+  beforeRowChange: "ПередНачаломИзменения",
+  beforeEditEnd: "ПередОкончаниемРедактирования",
+  beforeDeleteRow: "ПередУдалением",
+  afterDeleteRow: "ПослеУдаления",
+  onActivateField: "ПриАктивизацииПоля",
+  onActivateRow: "ПриАктивизацииСтроки",
+  onActivateCell: "ПриАктивизацииЯчейки",
+  onStartEdit: "ПриНачалеРедактирования",
+  onCurrentParentChange: "ПриСменеТекущегоРодителя",
 }
 
 export const exportEventsToEnterprise = (

@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "../../../metadataFactory/types"
+import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { ChildItem } from "../../collections/childItems/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { NamedElement } from "../baseElement/types"
@@ -179,4 +179,4 @@ export const exportTableToStructure: FormatElementFunction = (
 }
 
 registerIsOneLineElementCheck(FormElementType.Table, () => false)
-registerMetadata("ExportToStructure", "Table", exportTableToStructure)
+registerMetadata("ExportToStructure", "Table", exportTableToStructure as ExportToStructureFn)

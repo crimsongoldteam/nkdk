@@ -46,6 +46,7 @@ export function exportTableToXML<From extends Table | undefined>(
     SearchStringRepresentation: searchStringRepresentation,
     ViewStatusRepresentation: viewStatusRepresentation,
     ExtendedTooltip: extendedTooltip,
+    ContextMenu: contextMenu,
     ...baseFields,
   }
 

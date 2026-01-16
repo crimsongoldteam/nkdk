@@ -87,8 +87,10 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
-  if (table !== undefined) result.table = table
+  if (xml.AssociatedTableElementId !== undefined) {
+    const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+    result.table = table ?? ""
+  }
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
@@ -163,7 +165,9 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
 
-  if (xml.NonselectedPictureText !== undefined) result.nonselectedPictureText = xml.NonselectedPictureText
+  if (xml.NonselectedPictureText !== undefined) {
+    result.nonselectedPictureText = xml.NonselectedPictureText ?? ""
+  }
 
   if (xml.PictureSize !== undefined) result.pictureSize = xml.PictureSize
 

@@ -150,7 +150,7 @@ export interface TableXML extends BaseElementXML {
   ChoiceMode?: boolean
   CommandBarLocation?: SE.FormItemCommandBarLabelLocation
   CommandSet?: CommandSetXML
-  ContextMenu?: ContextMenuXML
+  ContextMenu: ContextMenuXML
   CurrentRowUse?: SE.TableCurrentRowUse
   DataPath?: string
   DefaultItem?: boolean
@@ -158,7 +158,7 @@ export interface TableXML extends BaseElementXML {
   Enabled?: boolean
   EnableDrag?: boolean
   EnableStartDrag?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   FileDragMode?: SE.FileDragMode
   Font?: FontXML
   Footer?: boolean

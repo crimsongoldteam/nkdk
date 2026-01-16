@@ -8,15 +8,14 @@ import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromX
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { Table, TableXML } from "~/metadata/forms/elements/table/types"
+import { Table } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
 import { importSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
 import { importSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
 import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
@@ -213,4 +212,4 @@ export function importTableFromXML<To extends Table | undefined>(
   return result as To
 }
 
-registerMetadata("ImportFromXML", "Table", importTableFromXML)
+registerMetadata("ImportFromXML", "Table", importTableFromXML as ImportFromXMLFn)

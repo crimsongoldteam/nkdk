@@ -3,11 +3,28 @@
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<Border width="1"/>
 	<BorderColor>web:Black</BorderColor>
-	<ContextMenu name="ДекорацияКартинкиКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ДекорацияКартинкиКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<Enabled>true</Enabled>
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
-	<ExtendedTooltip name="ДекорацияКартинкиРасширеннаяПодсказка" id="3"/>
+	<Events>
+		<Event name="Click">ПроцедураПриНажатии</Event>
+		<Event name="DragStart">ПроцедураПриНачалеПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураПриОкончанииПеретаскивания</Event>
+		<Event name="Drag">ПроцедураПриПеретаскивании</Event>
+		<Event name="DragCheck">ПроцедураПриПроверкеПеретаскивания</Event>
+	</Events>
+	<ExtendedTooltip name="ДекорацияКартинкиРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<FileDragMode>AsFile</FileDragMode>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
@@ -20,6 +37,7 @@
 		<xr:Ref>StdPicture.Picture</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</Picture>
+	<PictureSize>AutoSize</PictureSize>
 	<Scale>100</Scale>
 	<Shortcut>Ctrl+S</Shortcut>
 	<SkipOnInput>false</SkipOnInput>

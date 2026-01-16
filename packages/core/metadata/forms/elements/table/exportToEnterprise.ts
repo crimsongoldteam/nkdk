@@ -18,6 +18,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 import { exportSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
 import { exportSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
 import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/exportToEnterprise"
+import { ExportPartialToEnterpriseFn } from "~/metadata/metadataFactory/types"
 
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
@@ -349,4 +350,4 @@ export const exportTableToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "Table", exportTableToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Table", exportTableToEnterprise as ExportPartialToEnterpriseFn)

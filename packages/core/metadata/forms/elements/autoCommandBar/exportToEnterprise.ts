@@ -1,3 +1,4 @@
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -10,6 +11,9 @@ export const exportAutoCommandBarToEnterprise = (
   if (!data) return undefined
 
   const result: AutoCommandBarEnterprise = {}
+
+  const autofill = exportBooleanToEnterprise(context, data.autofill)
+  if (autofill !== undefined) result.Автозаполнение = autofill
 
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,

@@ -18,11 +18,11 @@
 	<EnableStartDrag>false</EnableStartDrag>
 	<Enabled>true</Enabled>
 	<Events>
-		<Event name="Click"/>
-		<Event name="Drag"/>
-		<Event name="DragCheck"/>
-		<Event name="DragEnd"/>
-		<Event name="DragStart"/>
+		<Event name="Click">ПроцедураНажатие</Event>
+		<Event name="Drag">ПроцедураПеретаскивание</Event>
+		<Event name="DragCheck">ПроцедураПроверкаПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураОкончаниеПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураНачалоПеретаскивания</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="3">
@@ -63,7 +63,7 @@
 	<Hyperlink>false</Hyperlink>
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
-	<NonselectedPictureText/>
+	<NonselectedPictureText>Текст невыбранной картинки</NonselectedPictureText>
 	<PictureSize>AutoSize</PictureSize>
 	<ReadOnly>false</ReadOnly>
 	<Scale>1</Scale>
