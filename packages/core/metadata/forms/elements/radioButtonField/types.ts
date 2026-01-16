@@ -200,6 +200,3 @@ export interface RadioButtonFieldPartialEnterprise {
 export interface RadioButtonFieldTypedEnterprise extends RadioButtonFieldPartialEnterprise {
   Тип: "ПолеПереключателя"
 }
-
-// Для обратной совместимости
-export type RadioButtonFieldEnterprise = RadioButtonFieldPartialEnterprise

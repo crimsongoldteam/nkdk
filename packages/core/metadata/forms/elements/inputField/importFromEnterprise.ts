@@ -20,7 +20,11 @@ import {
 } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -559,4 +563,8 @@ const importInputFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "InputField", importInputFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "InputField",
+  importInputFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
