@@ -19,6 +19,16 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "packages/core/metadata/forms/collections/childItems/importPropertiesFromEnterprise.ts",
+			"bookmarks": [
+				{
+					"line": 32,
+					"column": 0,
+					"label": ""
+				}
+			]
 		}
 	]
 }

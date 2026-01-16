@@ -292,5 +292,5 @@ const importUsualGroupPropsFromEnterprise = (
 registerMetadata(
   "ImportPartialFromEnterprise",
   "UsualGroup",
-  importUsualGroupPropsFromEnterprise as ImportPartialFromEnterpriseFn
+  importUsualGroupPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )
