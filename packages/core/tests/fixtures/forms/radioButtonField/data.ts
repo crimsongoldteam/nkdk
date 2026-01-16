@@ -73,7 +73,14 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   typeRestriction: { type: ["string"] },
   backColor: { type: "WebColor", value: "Blue" },
   borderColor: { type: "WebColor", value: "Green" },
-  choiceList: [],
+
+  choiceList: [
+    {
+      type: "formChoiceListDesTimeValue",
+      presentation: { items: { ru: "Пункт 1" } },
+      value: { type: "string", value: "Пункт 1" },
+    },
+  ],
   columnsCount: 2,
   equalColumnsWidth: true,
   font: { kind: "StyleItem", ref: "NormalTextFont" },
@@ -135,12 +142,12 @@ export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnter
   Таблица: "Таблица",
   КоличествоКолонок: 2,
   ОдинаковаяШиринаКолонок: "Истина",
-  СписокВыбора: [],
   ЦветРамки: "Зеленый",
   ЦветТекста: "Желтый",
   ЦветФона: "Синий",
   ШиринаЭлемента: 100,
   Шрифт: "ОбычныйШрифтТекста",
+  СписокВыбора: ['"Пункт 1"(Пункт 1)'],
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

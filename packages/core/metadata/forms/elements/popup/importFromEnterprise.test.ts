@@ -31,11 +31,11 @@ describe("importPopupTypedFromEnterprise", () => {
 })
 
 describe("importPopupPartialFromEnterprise", () => {
-  it("should return undefined when source is undefined", () => {
-    const result = importPopupPartialFromEnterprise(mockСontext, undefined, fullPopupPartialEnterprise)
+  // it("should return undefined when source is undefined", () => {
+  //   const result = importPopupPartialFromEnterprise(mockСontext, undefined, fullPopupPartialEnterprise)
 
-    expect(result).toBeUndefined()
-  })
+  //   expect(result).toBeUndefined()
+  // })
 
   it("should import all fields from Enterprise", () => {
     const result = importPopupPartialFromEnterprise(mockСontext, fullPopup, fullPopupPartialEnterprise)

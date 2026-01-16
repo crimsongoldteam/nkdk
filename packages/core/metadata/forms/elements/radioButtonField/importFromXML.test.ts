@@ -28,4 +28,3 @@ describe("importRadioButtonFieldFromXML", () => {
     expect(result).toEqual(minimalRadioButtonField)
   })
 })
-

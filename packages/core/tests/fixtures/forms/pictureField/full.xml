@@ -1,4 +1,5 @@
 <PictureField name="ПолеКартинки" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string"/>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<AutoMaxWidth>false</AutoMaxWidth>
@@ -15,12 +16,12 @@
 	<EnableStartDrag>false</EnableStartDrag>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="Click"/>
+		<Event name="Drag"/>
+		<Event name="DragCheck"/>
+		<Event name="DragEnd"/>
+		<Event name="DragStart"/>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="Click"></Event>
-		<Event name="DragStart"></Event>
-		<Event name="DragEnd"></Event>
-		<Event name="Drag"></Event>
-		<Event name="DragCheck"></Event>
 	</Events>
 	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="3">
 		<Title>
@@ -60,7 +61,7 @@
 	<Hyperlink>false</Hyperlink>
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
-	<NonselectedPictureText></NonselectedPictureText>
+	<NonselectedPictureText/>
 	<PictureSize>AutoSize</PictureSize>
 	<ReadOnly>false</ReadOnly>
 	<Scale>1</Scale>
@@ -90,10 +91,11 @@
 	<Type>InputField</Type>
 	<TypeRestriction>
 		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+			<v8:Length>0</v8:Length>
+		</v8:StringQualifiers>
 	</TypeRestriction>
-	<AssociatedTableElementId xsi:type="v8:MetadataValue">
-		<v8:Value xsi:type="xs:string"></v8:Value>
-	</AssociatedTableElementId>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>

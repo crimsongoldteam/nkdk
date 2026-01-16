@@ -1,4 +1,5 @@
 <PlannerField name="ПолеПланировщика" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<AutoMaxWidth>false</AutoMaxWidth>
@@ -78,7 +79,6 @@
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
-	<Table>Таблица</Table>
 	<TimeScaleItemHyperlink>false</TimeScaleItemHyperlink>
 	<Title>
 		<v8:item>

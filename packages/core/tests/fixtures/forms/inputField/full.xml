@@ -1,6 +1,7 @@
 <InputField name="ПолеВвода" id="1" DisplayImportance="High">
 	<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
 	<AllowMultipleValuesDuplicates>false</AllowMultipleValuesDuplicates>
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
@@ -57,7 +58,9 @@
 	</ChoiceParameters>
 	<ChooseType>true</ChooseType>
 	<ClearButton>true</ClearButton>
-	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<CreateButton>true</CreateButton>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
@@ -92,7 +95,14 @@
 		<Event name="Tuning">ПроцедураРегулирования</Event>
 	</Events>
 	<ExtendedEdit>true</ExtendedEdit>
-	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<FixingInTable>None</FixingInTable>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
@@ -196,6 +206,13 @@
 		<xr:DataPath>Catalog.КакойТоСправочник.Attribute.КакойТоРеквизит</xr:DataPath>
 		<xr:LinkItem>1</xr:LinkItem>
 	</TypeLink>
+	<TypeRestriction>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+			<v8:Length>0</v8:Length>
+		</v8:StringQualifiers>
+	</TypeRestriction>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>

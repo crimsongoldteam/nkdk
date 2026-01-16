@@ -115,7 +115,6 @@ export interface ClientApplicationFormXML {
   ConversationsRepresentation?: SE.FormConversationsRepresentation
   Enabled?: boolean
   EnterKeyBehavior?: SE.EnterKeyBehaviorType
-  // FormName?: string
   FormWindowOpeningMode?: SE.FormWindowOpeningMode
   Group?: SE.ChildFormItemsGroup
   Height?: number

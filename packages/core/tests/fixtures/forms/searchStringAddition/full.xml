@@ -5,9 +5,18 @@
 	</AdditionSource>
 	<BackColor>web:White</BackColor>
 	<BorderColor>web:Black</BorderColor>
-	<ContextMenu name="КакойТоЭлементСтрокаПоискаКонтекстноеМеню" id="2"/>
+	<ContextMenu name="КакойТоЭлементСтрокаПоискаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КакойТоЭлементСтрокаПоискаРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="КакойТоЭлементСтрокаПоискаРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

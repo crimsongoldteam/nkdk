@@ -32,7 +32,7 @@ export function importTrackBarFieldTypedFromEnterprise<To extends TrackBarField 
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importTrackBarFieldPropsFromEnterprise(context, data, name)
+  const props = importTrackBarFieldPropsFromEnterprise(context, data)
 
   const result: TrackBarField = {
     ...props,

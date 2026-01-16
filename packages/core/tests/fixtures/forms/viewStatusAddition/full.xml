@@ -8,9 +8,18 @@
 	<Border ref="style:ControlBorder"/>
 	<BorderColor>web:Black</BorderColor>
 	<ButtonsBackColor>web:Gray</ButtonsBackColor>
-	<ContextMenu name="КакойТоЭлементСостояниеПросмотраКонтекстноеМеню" id="2"/>
+	<ContextMenu name="КакойТоЭлементСостояниеПросмотраКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КакойТоЭлементСостояниеПросмотраРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="КакойТоЭлементСостояниеПросмотраРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>

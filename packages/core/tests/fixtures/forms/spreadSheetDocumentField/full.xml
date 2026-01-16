@@ -62,14 +62,28 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalScrollBar>AutoUse</HorizontalScrollBar>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<Output>Auto</Output>
+	<PointerType>Regular</PointerType>
+	<Protection>false</Protection>
 	<ReadOnly>false</ReadOnly>
+	<SelectionShowMode>Always</SelectionShowMode>
 	<Shortcut>Ctrl+S</Shortcut>
+	<ShowCellNames>true</ShowCellNames>
+	<ShowGrid>true</ShowGrid>
+	<ShowGroups>true</ShowGroups>
+	<ShowHeaders>true</ShowHeaders>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
+	<ShowRowAndColumnNames>true</ShowRowAndColumnNames>
 	<SkipOnInput>false</SkipOnInput>
-	<AssociatedTableElementId>Таблица</AssociatedTableElementId>
+	<StatePresentation>Visible</StatePresentation>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -90,14 +104,22 @@
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
 	<TypeRestriction>
-		<v8:Type>v8:string</v8:Type>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+			<v8:Length>0</v8:Length>
+		</v8:StringQualifiers>
 	</TypeRestriction>
+	<UsedFileName>test.xlsx</UsedFileName>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalScrollBar>AutoUse</VerticalScrollBar>
+	<VerticalStretch>true</VerticalStretch>
+	<ViewScalingMode>Auto</ViewScalingMode>
 	<Visible>true</Visible>
 	<WarningOnEdit>
 		<v8:item>
@@ -106,4 +128,5 @@
 		</v8:item>
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<Width>300</Width>
 </SpreadSheetDocumentField>

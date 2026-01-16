@@ -6,13 +6,22 @@
 		<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
 	</Border>
 	<BorderColor>web:Green</BorderColor>
-	<ContextMenu name="ЗаголовокКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ЗаголовокКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<Enabled>true</Enabled>
 	<Events>
 		<Event name="Click">ПроцедураНажатия</Event>
 		<Event name="URLProcessing">ПроцедураОбработкиНавигационнойСсылки</Event>
 	</Events>
-	<ExtendedTooltip name="ЗаголовокРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ЗаголовокРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>

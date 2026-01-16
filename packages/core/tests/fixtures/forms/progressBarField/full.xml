@@ -1,7 +1,13 @@
 <ProgressBarField name="ПолеИндикатора" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
@@ -9,7 +15,14 @@
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеИндикатораРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ПолеИндикатораРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
@@ -31,12 +44,21 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxValue>100</MaxValue>
+	<MaxWidth>400</MaxWidth>
+	<MinValue>0</MinValue>
+	<Orientation>Horizontal</Orientation>
 	<ReadOnly>false</ReadOnly>
+	<Representation>Smooth</Representation>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
+	<ShowPercent>true</ShowPercent>
 	<SkipOnInput>false</SkipOnInput>
 	<Title>
 		<v8:item>
@@ -57,12 +79,20 @@
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
+	<TypeRestriction>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+			<v8:Length>0</v8:Length>
+		</v8:StringQualifiers>
+	</TypeRestriction>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>
 		<v8:item>
@@ -71,4 +101,5 @@
 		</v8:item>
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<Width>300</Width>
 </ProgressBarField>
