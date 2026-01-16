@@ -3,7 +3,9 @@
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
-	<Border ref="Single"/>
+	<Border>
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+	</Border>
 	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеПериодаКонтекстноеМеню" id="2">

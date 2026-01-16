@@ -76,7 +76,7 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   autoMaxHeight: true,
   autoMaxWidth: true,
   border: {
-    ref: "Single",
+    controlBorderType: "Single",
   },
   borderColor: { type: "WebColor", value: "Black" },
   font: { kind: "StyleItem", ref: "NormalTextFont" },

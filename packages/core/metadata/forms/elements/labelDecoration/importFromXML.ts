@@ -8,8 +8,9 @@ import { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importContextMenuFromXML } from "../contextMenu/importFromXML"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importLabelDecorationFromXML<To extends LabelDecoration | undefined>(
   context: ConfigurationContext,
@@ -30,6 +31,9 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
 
   const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
+
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 

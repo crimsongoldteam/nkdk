@@ -14,7 +14,7 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
   },
   autoCellHeight: true,
   border: {
-    ref: "Single",
+    controlBorderType: "Single",
   },
   cellHyperlink: true,
   dataPath: "Объект.Реквизит",
@@ -100,11 +100,11 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
   font: { kind: "StyleItem", ref: "NormalTextFont" },
   events: {
     onChange: "ПроцедураПриИзменении",
-    click: "",
-    dragStart: "",
-    dragEnd: "",
-    drag: "",
-    dragCheck: "",
+    click: "ПроцедураНажатие",
+    dragStart: "ПроцедураНачалоПеретаскивания",
+    dragEnd: "ПроцедураОкончаниеПеретаскивания",
+    drag: "ПроцедураПеретаскивание",
+    dragCheck: "ПроцедураПроверкаПеретаскивания",
   },
 }
 
@@ -162,6 +162,7 @@ export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = 
   РазмерКартинки: "АвтоРазмер",
   РазрешитьНачалоПеретаскивания: "Ложь",
   РазрешитьПеретаскивание: "Ложь",
+  Рамка: { ТипРамки: "Одинарная" },
   СпособПеретаскиванияФайлов: "КакФайл",
   Таблица: "",
   ТекстНевыбраннойКартинки: "",
@@ -173,11 +174,11 @@ export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = 
   Шрифт: "ОбычныйШрифтТекста",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
-    Нажатие: "",
-    НачалоПеретаскивания: "",
-    ОкончаниеПеретаскивания: "",
-    Перетаскивание: "",
-    ПроверкаПеретаскивания: "",
+    Нажатие: "ПроцедураНажатие",
+    НачалоПеретаскивания: "ПроцедураНачалоПеретаскивания",
+    ОкончаниеПеретаскивания: "ПроцедураОкончаниеПеретаскивания",
+    Перетаскивание: "ПроцедураПеретаскивание",
+    ПроверкаПеретаскивания: "ПроцедураПроверкаПеретаскивания",
   },
 }
 

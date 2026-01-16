@@ -17,11 +17,7 @@ import {
 } from "~/metadata/forms/elements/periodField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -35,11 +31,9 @@ export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | un
 
   const props = importPeriodFieldPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: PeriodField = {
     ...props,
-    elementType,
+    elementType: "PeriodField",
     name,
   }
 

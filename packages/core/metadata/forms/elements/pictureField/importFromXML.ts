@@ -163,8 +163,7 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
 
-  if (xml.NonselectedPictureText !== undefined || xml.NonselectedPictureText === "")
-    result.nonselectedPictureText = xml.NonselectedPictureText ?? ""
+  if (xml.NonselectedPictureText !== undefined) result.nonselectedPictureText = xml.NonselectedPictureText
 
   if (xml.PictureSize !== undefined) result.pictureSize = xml.PictureSize
 

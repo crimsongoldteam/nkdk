@@ -8,18 +8,13 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormDecorationPropsFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import {
   PictureDecoration,
   PictureDecorationPartialEnterprise,
   PictureDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -68,15 +63,11 @@ export function importPictureDecorationTypedFromEnterprise<To extends PictureDec
 ): To {
   if (data === undefined) return undefined as To
 
-  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
   const props = importPictureDecorationPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: PictureDecoration = {
-    ...baseProps,
     ...props,
-    elementType,
+    elementType: "PictureDecoration",
     name,
   }
 
@@ -91,11 +82,9 @@ export function importPictureDecorationPartialFromEnterprise<To extends PictureD
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
   const props = importPictureDecorationPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseProps,
     ...props,
   }
 

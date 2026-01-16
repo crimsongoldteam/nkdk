@@ -3,7 +3,9 @@
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<AutoMaxWidth>false</AutoMaxWidth>
-	<Border ref="Single"/>
+	<Border>
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+	</Border>
 	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеКартинкиКонтекстноеМеню" id="2">

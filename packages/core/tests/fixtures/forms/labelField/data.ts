@@ -75,7 +75,7 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "Blue" },
   border: {
-    ref: "Single",
+    controlBorderType: "Single",
   },
   borderColor: { type: "WebColor", value: "Green" },
   font: { kind: "StyleItem", ref: "NormalTextFont" },

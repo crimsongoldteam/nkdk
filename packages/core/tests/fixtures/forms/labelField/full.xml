@@ -4,7 +4,9 @@
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BackColor>web:Blue</BackColor>
-	<Border ref="Single"/>
+	<Border>
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+	</Border>
 	<BorderColor>web:Green</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеНадписиКонтекстноеМеню" id="2">
