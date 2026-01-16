@@ -11,10 +11,9 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { NamedElement } from "../baseElement/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -96,7 +95,7 @@ export interface CalendarField extends NamedElement {
   }
 }
 
-export interface CalendarFieldXML extends FormFieldXML {
+export interface CalendarFieldXML extends BaseElementXML {
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BeginOfRepresentationPeriod?: string
@@ -164,7 +163,7 @@ export interface CalendarFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface CalendarFieldPartialEnterprise extends FormFieldEnterprise {
+export interface CalendarFieldPartialEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number

@@ -14,6 +14,7 @@ describe("exportGanttChartFieldToXML", () => {
 
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/ganttChartField/full.xml")
+
     const xmlData = exportGanttChartFieldToXML(mockСontext, fullGanttChartField)
 
     const result = xmlExport({ GanttChartField: xmlData }, false)
@@ -30,4 +31,3 @@ describe("exportGanttChartFieldToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-
