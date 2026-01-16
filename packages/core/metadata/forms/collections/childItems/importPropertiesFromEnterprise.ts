@@ -34,7 +34,7 @@ const importChildItemProperties = (
 
   const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
   if (fn == undefined) throw new Error(`Import function not found for element type: ${item.elementType}`)
-  const result = fn(context, item, propertiesEnterprise)
+  const result = fn(context, item, propertiesEnterprise) as ChildItem
 
   return result
 }

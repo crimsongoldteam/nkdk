@@ -3,7 +3,7 @@ import { formatElementName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "../../../metadataFactory/types"
+import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { NamedElement } from "../baseElement/types"
 import { PictureDecoration } from "./types"
 
@@ -21,4 +21,4 @@ export const exportPictureDecorationToStructure: FormatElementFunction = (
 }
 
 registerIsOneLineElementCheck<PictureDecoration>(FormElementType.PictureDecoration, () => true)
-registerMetadata("ExportToStructure", "PictureDecoration", exportPictureDecorationToStructure)
+registerMetadata("ExportToStructure", "PictureDecoration", exportPictureDecorationToStructure as ExportToStructureFn)

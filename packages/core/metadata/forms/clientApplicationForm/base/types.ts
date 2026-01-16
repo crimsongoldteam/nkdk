@@ -4,8 +4,7 @@ import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/form
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
-import { AutoCommandBar } from "../../elements/autoCommandBar/types"
-import { CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
+import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
 import { EventsXML } from "../../events/types"
 
 export interface ClientApplicationFormEvents {
@@ -140,7 +139,7 @@ export interface ClientApplicationFormXML {
   WindowOptionsKey?: string
   CommandSet?: CommandSetXML
   UseForFoldersAndItems?: SE.FoldersAndItemsUse
-  AutoCommandBar: CommandBarXML
+  AutoCommandBar: AutoCommandBarXML
   Events?: EventsXML
   ChildItems?: ChildItemsXML
   Attributes?: {
@@ -167,7 +166,7 @@ export interface ClientApplicationFormEnterprise {
   ИспользуемыйСерверФормы?: SE.UsedServerEnterprise
   КлючНазначенияИспользования?: string
   КлючСохраненияПоложенияОкна?: string
-  КоманднаяПанель?: CommandBarEnterprise
+  КоманднаяПанель?: AutoCommandBarEnterprise
   Масштаб?: number
   МодальныйРежим?: StringboolEnterprise
   Модифицированность?: StringboolEnterprise

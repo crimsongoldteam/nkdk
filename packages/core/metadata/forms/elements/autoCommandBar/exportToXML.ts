@@ -14,9 +14,10 @@ export const exportAutoCommandBarToXML = (
   const autoCommandBar = data ?? getDefaultAutoCommandBar()
 
   const id = isHasContent(autoCommandBar) ? getElementId(context) : "-1"
+  const name = getAutoCommandBarName(parentElement)
 
   const result: AutoCommandBarXML = {
-    _name: getAutoCommandBarName(parentElement),
+    _name: name,
     _id: id,
   }
 
