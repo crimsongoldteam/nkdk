@@ -344,7 +344,7 @@ export const minimalTable: Table = {
 export const minimalTableEnterprise: TablePartialEnterprise = {}
 
 export const oneColumnTable: Table = {
-  name: "Таблица",
+  name: "Таблица1",
   elementType: FormElementType.Table,
   childItems: [
     {
@@ -356,15 +356,17 @@ export const oneColumnTable: Table = {
 }
 
 export const twoColumnTable: Table = {
-  name: "Таблица",
+  name: "Таблица1",
   elementType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
+      title: { items: { ru: "Колонка 1" } },
       elementType: FormElementType.InputField,
     } as InputField,
     {
       name: "Колонка2",
+      title: { items: { ru: "Колонка 2" } },
       elementType: FormElementType.InputField,
     } as InputField,
   ],
