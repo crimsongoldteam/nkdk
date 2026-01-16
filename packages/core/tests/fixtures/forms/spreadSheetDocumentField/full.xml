@@ -1,10 +1,21 @@
 <SpreadSheetDocumentField name="ПолеТабличногоДокумента" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BlackAndWhiteView>false</BlackAndWhiteView>
+	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеТабличногоДокументаКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ПолеТабличногоДокументаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
+	<DrawingSelectionShowMode>Auto</DrawingSelectionShowMode>
+	<Edit>true</Edit>
 	<EditMode>EnterOnInput</EditMode>
+	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
 	<Enabled>true</Enabled>
 	<Events>
 		<Event name="AdditionalDetailProcessing">ПроцедураПриОбработкеДополнительнойРасшифровки</Event>
@@ -22,7 +33,14 @@
 		<Event name="Selection">ПроцедураПриВыборе</Event>
 		<Event name="URLProcessing">ПроцедураПриОбработкеНавигационнойСсылки</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеТабличногоДокументаРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ПолеТабличногоДокументаРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>

@@ -1,17 +1,33 @@
 <HtmlDocumentField name="ПолеHTMLДокумента" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
+	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеHTMLДокументаКонтекстноеМеню" id="2"/>
+	<ContextMenu name="ПолеHTMLДокументаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
+		<Event name="AfterWrite">ПроцедураПослеЗаписи</Event>
+		<Event name="BeforePrint">ПроцедураПередПечатью</Event>
+		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
+		<Event name="DocumentComplete">ПроцедураЗавершенияДокумента</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="OnClick">ПроцедураНажатия</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеHTMLДокументаРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ПолеHTMLДокументаРасширеннаяПодсказка" id="3">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
@@ -39,6 +55,7 @@
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
+	<Output>Enable</Output>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
@@ -63,6 +80,14 @@
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
+	<TypeRestriction>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+			<v8:Length>0</v8:Length>
+		</v8:StringQualifiers>
+	</TypeRestriction>
+	<UserAgentInformation>Информация программы просмотра</UserAgentInformation>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>

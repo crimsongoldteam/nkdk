@@ -30,4 +30,3 @@ describe("exportGraphicalSchemaFieldToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-

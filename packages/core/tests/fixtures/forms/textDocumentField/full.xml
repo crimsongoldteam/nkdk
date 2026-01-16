@@ -1,4 +1,5 @@
 <TextDocumentField name="ПолеТекстовогоДокумента" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
