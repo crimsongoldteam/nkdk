@@ -1,5 +1,19 @@
+import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+
+export interface TableFixture {
+  name: string
+  table: Table
+  tableEnterprise: TablePartialEnterprise
+  xml: string
+}
+
+export interface TableExportToStructureFixture {
+  name: string
+  table: Table
+  expectedResult: string
+}
 
 export const fullTable: Table = {
   elementType: FormElementType.Table,
@@ -328,3 +342,43 @@ export const minimalTable: Table = {
 }
 
 export const minimalTableEnterprise: TablePartialEnterprise = {}
+
+export const oneColumnTable: Table = {
+  name: "Таблица",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      title: { items: { ru: "Колонка 1" } },
+      elementType: FormElementType.InputField,
+    } as InputField,
+  ],
+}
+
+export const twoColumnTable: Table = {
+  name: "Таблица",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      elementType: FormElementType.InputField,
+    } as InputField,
+    {
+      name: "Колонка2",
+      elementType: FormElementType.InputField,
+    } as InputField,
+  ],
+}
+
+export const tableExportToStructureFixtures: TableExportToStructureFixture[] = [
+  {
+    name: "should format one-column table",
+    table: oneColumnTable,
+    expectedResult: `| Колонка 1 {Колонка1} | {Таблица1}`,
+  },
+  {
+    name: "should format two-column table",
+    table: twoColumnTable,
+    expectedResult: `| Колонка 1 {Колонка1} | Колонка 2 {Колонка2} | {Таблица1}`,
+  },
+]
