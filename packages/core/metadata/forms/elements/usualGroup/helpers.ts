@@ -1,10 +1,12 @@
+import { ConfigurationContext } from "~/metadata/context/types"
 import { isOneLineElement } from "../../format/isOneLineElementCheckFactory"
 import { UsualGroup } from "./types"
 
-export const isOneLineGroup = (element: UsualGroup): boolean => {
+export const isOneLineGroup = (_context: ConfigurationContext, element: UsualGroup): boolean => {
   if (!isHorizontalGroup(element)) return false
 
-  if (element.showTitle) return false
+  // Only explicitly showing title (showTitle === true) prevents one-line format
+  if (element.showTitle === true) return false
 
   for (const item of element.childItems || []) {
     if (!isOneLineElement(item)) return false

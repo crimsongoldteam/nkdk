@@ -16,7 +16,7 @@ export const exportUsualGroupToStructure: FormatElementFunction = (
 ): IFormatElementResult => {
   const usualGroup = element as UsualGroup
   if (isVerticalGroup(usualGroup)) return formatVerticalGroup(context, usualGroup)
-  if (isOneLineGroup(usualGroup)) return formatOneLineGroup(context, usualGroup)
+  if (isOneLineGroup(context, usualGroup)) return formatOneLineGroup(context, usualGroup)
 
   return formatHorizontalGroup(context, usualGroup)
 }

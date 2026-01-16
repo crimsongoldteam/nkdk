@@ -51,7 +51,8 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
     }
   }
 
-  let resultLine = "%" + header + "% " + groupItems.join(separator)
+  const joinedItems = groupItems.map((item) => item.join("")).join(separator)
+  let resultLine = "%" + header + "% " + joinedItems
 
   result.strings.push(resultLine)
 
