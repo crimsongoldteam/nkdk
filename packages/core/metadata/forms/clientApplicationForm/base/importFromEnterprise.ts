@@ -144,13 +144,14 @@ export const importClientApplicationFormFromEnterprise = (
 
   if (data.КлючСохраненияПоложенияОкна !== undefined) result.windowOptionsKey = data.КлючСохраненияПоложенияОкна
 
-  const autoCommandBarProps = importAutoCommandBarFromEnterprise(context, data.КоманднаяПанель)
-  const autoCommandBar = mixElementProps(childItemsResult.autoCommandBar, autoCommandBarProps, {
-    autofill: true,
-    childItems: [],
-  })
-
-  if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
+  const autoCommandBar = importAutoCommandBarFromEnterprise(
+    context,
+    childItemsResult.autoCommandBar,
+    data.КоманднаяПанель
+  )
+  if (autoCommandBar !== undefined) {
+    result.autoCommandBar = autoCommandBar
+  }
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
 
@@ -257,14 +258,4 @@ const importClientApplicationFormEventsFromEnterprise = (
   }
 
   return Object.keys(result).length > 0 ? result : undefined
-}
-
-const mixElementProps = <T extends object>(
-  element: T | undefined,
-  enterpriseProps: Partial<T> | undefined,
-  defaults: T
-): T | undefined => {
-  if (!element && !enterpriseProps) return undefined
-
-  return { ...defaults, ...(enterpriseProps || {}), ...(element || {}) }
 }

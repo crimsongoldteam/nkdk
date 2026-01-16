@@ -6,9 +6,13 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
+import { Table } from "~/metadata/forms/elements/table/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ImportPartialFromEnterpriseFn } from "~/metadata/metadataFactory/types"
+import {
+  FormElementType,
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
@@ -127,16 +131,17 @@ const importTableEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importTableFromEnterprise = <From extends TablePartialEnterprise | undefined>(
+export function importTablePartialFromEnterprise<To extends Table>(
   context: ConfigurationContext,
-  data: From,
-  name: string
-): Table | undefined => {
-  if (!data) return undefined
+  source: To,
+  data: ToPartialEnterpriseType<To>
+): To {
+  const autoCommandBar = importAutoCommandBarFromEnterprise(context, source.autoCommandBar, data.КоманднаяПанель)
 
   const result: Table = {
-    name,
+    ...source,
     elementType: FormElementType.Table,
+    autoCommandBar: autoCommandBar,
     childItems: [],
   }
 
@@ -145,9 +150,6 @@ export const importTableFromEnterprise = <From extends TablePartialEnterprise | 
 
   const autoInsertNewRow = importBooleanFromEnterprise(context, data.АвтоВводНовойСтроки)
   if (autoInsertNewRow !== undefined) result.autoInsertNewRow = autoInsertNewRow
-
-  const autoCommandBar = importAutoCommandBarFromEnterprise(context, data.КоманднаяПанель)
-  if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -474,7 +476,11 @@ export const importTableFromEnterprise = <From extends TablePartialEnterprise | 
   const events = importTableEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as To
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Table", importTableFromEnterprise as ImportPartialFromEnterpriseFn)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "Table",
+  importTablePartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

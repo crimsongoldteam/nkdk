@@ -6,14 +6,21 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export const importAutoCommandBarFromEnterprise = (
   context: ConfigurationContext,
+  source: AutoCommandBar | undefined,
   data: AutoCommandBarEnterprise | undefined
 ): AutoCommandBar | undefined => {
-  if (!data) return undefined
+  if (!data && !source) throw new Error("AutoCommandBar data or source is required")
 
-  const result: AutoCommandBar = {
+  const sourceExt: AutoCommandBar = source ?? {
     childItems: [],
     autofill: true,
   }
+
+  const result: AutoCommandBar = {
+    ...sourceExt,
+  }
+
+  if (!data) return result
 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill

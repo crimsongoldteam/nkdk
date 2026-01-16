@@ -15,12 +15,23 @@ export interface TableExportToStructureFixture {
   expectedResult: string
 }
 
+export const sourceTable: Table = {
+  elementType: FormElementType.Table,
+  name: "Таблица",
+  autoCommandBar: {
+    autofill: false,
+    childItems: [],
+  },
+  childItems: [],
+}
+
 export const fullTable: Table = {
   elementType: FormElementType.Table,
   name: "Таблица",
   autoAddIncomplete: true,
   autoCommandBar: {
     autofill: false,
+    horizontalAlign: "Center",
     childItems: [],
   },
   autoInsertNewRow: true,
@@ -225,7 +236,7 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   КартинкаСтрок: "Истина",
   Команда: ["WriteAndClose", "Copy", "Delete"],
   КоманднаяПанель: {
-    Автозаполнение: "Ложь",
+    ГоризонтальноеПоложение: "Центр",
   },
   КонтекстноеМеню: {
     Автозаполнение: "Ложь",

@@ -8,6 +8,11 @@ export const parentElement: NamedElement = {
   elementType: FormElementType.BaseElement,
 }
 
+export const sourceAutoCommandBar: AutoCommandBar = {
+  autofill: true,
+  childItems: [],
+}
+
 export const fullAutoCommandBar: AutoCommandBar = {
   autofill: false,
   displayImportance: "High",

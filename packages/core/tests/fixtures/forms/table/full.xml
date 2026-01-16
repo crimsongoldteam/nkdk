@@ -2,6 +2,7 @@
 	<AutoAddIncomplete>true</AutoAddIncomplete>
 	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2">
 		<Autofill>false</Autofill>
+		<HorizontalAlign>Center</HorizontalAlign>
 	</AutoCommandBar>
 	<AutoInsertNewRow>true</AutoInsertNewRow>
 	<AutoMarkIncomplete>true</AutoMarkIncomplete>
