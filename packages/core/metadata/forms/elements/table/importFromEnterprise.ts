@@ -8,7 +8,7 @@ import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/impo
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportPartialFromEnterpriseFn } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
@@ -477,4 +477,4 @@ export const importTableFromEnterprise = <From extends TablePartialEnterprise | 
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Table", importTableFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Table", importTableFromEnterprise as ImportPartialFromEnterpriseFn)

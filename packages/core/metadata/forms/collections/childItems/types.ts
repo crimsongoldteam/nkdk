@@ -17,7 +17,6 @@ import {
   FormattedDocumentFieldPartialEnterprise,
   FormattedDocumentFieldXML,
 } from "../../elements/formattedDocumentField/types"
-import { FormDecorationPartialEnterprise } from "../../elements/formDecoration/types"
 import { FormGroupPartialEnterprise } from "../../elements/formGroup/types"
 
 import {
@@ -173,7 +172,6 @@ export type ChildItemPartialEnterprise =
   | ColumnGroupPartialEnterprise
   | CommandBarPartialEnterprise
   | DendrogramFieldPartialEnterprise
-  | FormDecorationPartialEnterprise
   | FormattedDocumentFieldPartialEnterprise
   | FormGroupPartialEnterprise
   | GanttChartFieldPartialEnterprise
