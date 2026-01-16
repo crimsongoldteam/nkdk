@@ -480,7 +480,7 @@ export class Visitor extends BaseVisitor {
 
   // #region verticalGroup
   verticalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    const title = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+    const title = joinTokens(ctx.GroupHeaderText as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[], context)
 
@@ -492,18 +492,16 @@ export class Visitor extends BaseVisitor {
     }
 
     if (title !== undefined) {
+      // Always create title if title token exists (even if empty string)
       result.title = this.createTitle(title, context.defaultLanguage)
     }
-
-    if (title === undefined || title === "") {
-      result.showTitle = false
-    }
+    // Don't set showTitle or title if title is undefined
 
     return result
   }
 
   horizontalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    const title = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+    const title = joinTokens(ctx.GroupHeaderText as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[], context)
 
@@ -515,18 +513,16 @@ export class Visitor extends BaseVisitor {
     }
 
     if (title !== undefined) {
+      // Always create title if title token exists (even if empty string)
       result.title = this.createTitle(title, context.defaultLanguage)
     }
-
-    if (title === undefined || title === "") {
-      result.showTitle = false
-    }
+    // Don't set showTitle or title if title is undefined
 
     return result
   }
 
   oneLineGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    const title = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+    const title = joinTokens(ctx.GroupHeaderText as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[], context)
 
@@ -538,10 +534,10 @@ export class Visitor extends BaseVisitor {
     }
 
     if (title !== undefined) {
+      // Always create title if title token exists (even if empty string)
       result.title = this.createTitle(title, context.defaultLanguage)
-    }
-
-    if (title === undefined || title === "") {
+    } else {
+      // For one-line groups, if no title token, set showTitle to false
       result.showTitle = false
     }
 
@@ -595,7 +591,7 @@ export class Visitor extends BaseVisitor {
   }
 
   createTitle(titleText: string | undefined, defaultLanguage: string): I8nText | undefined {
-    return titleText
+    return titleText !== undefined
       ? {
           items: {
             [defaultLanguage]: titleText,
