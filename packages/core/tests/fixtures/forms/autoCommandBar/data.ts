@@ -20,7 +20,7 @@ export const fullAutoCommandBar: AutoCommandBar = {
   ],
 }
 
-export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
+export const fullAutoExportCommandBarEnterprise: AutoCommandBarEnterprise = {
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
 }

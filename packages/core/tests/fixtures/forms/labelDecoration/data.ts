@@ -148,6 +148,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     name: "without title",
     element: {
       name: "ИмяПоля",
+      title: { items: { ru: "" } },
       elementType: FormElementType.LabelDecoration,
     },
     structured: {

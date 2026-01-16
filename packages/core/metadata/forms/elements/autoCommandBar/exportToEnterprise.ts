@@ -11,9 +11,6 @@ export const exportAutoCommandBarToEnterprise = (
 
   const result: AutoCommandBarEnterprise = {}
 
-  // const autofill = exportBooleanToEnterprise(context, data.autofill)
-  // if (autofill !== undefined) result.Автозаполнение = autofill
-
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     data.displayImportance,

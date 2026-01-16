@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   fullAutoCommandBar,
-  fullAutoCommandBarEnterprise,
+  fullAutoExportCommandBarEnterprise,
   minimalAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -17,7 +17,7 @@ describe("exportAutoCommandBarToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportAutoCommandBarToEnterprise(mockСontext, fullAutoCommandBar)
 
-    expect(result).toEqual(fullAutoCommandBarEnterprise)
+    expect(result).toEqual(fullAutoExportCommandBarEnterprise)
   })
 
   it("should export minimal", () => {
