@@ -10,11 +10,12 @@ export const exportLabelDecorationToStructure = (
   _context: ConfigurationContext,
   element: LabelDecoration
 ): IFormatElementResult => {
-  const hasTitle = element.title?.items.ru !== undefined
+  const titleText = element.title?.items.ru
+  const hasTitle = titleText !== undefined && titleText.trim() !== ""
 
   let resultString: string
   if (hasTitle) {
-    resultString = element.title!.items.ru + " " + formatElementName(element)
+    resultString = titleText! + " " + formatElementName(element)
   } else {
     resultString = formatElementName(element)
   }

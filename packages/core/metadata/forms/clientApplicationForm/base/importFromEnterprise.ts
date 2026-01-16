@@ -266,5 +266,5 @@ const mixElementProps = <T extends object>(
 ): T | undefined => {
   if (!element && !enterpriseProps) return undefined
 
-  return { ...defaults, ...enterpriseProps, ...element }
+  return { ...defaults, ...(enterpriseProps || {}), ...(element || {}) }
 }
