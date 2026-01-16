@@ -17,8 +17,6 @@ import {
   FormattedDocumentFieldPartialEnterprise,
   FormattedDocumentFieldXML,
 } from "../../elements/formattedDocumentField/types"
-import { FormGroupPartialEnterprise } from "../../elements/formGroup/types"
-
 import {
   GanttChartField,
   GanttChartFieldPartialEnterprise,
@@ -134,8 +132,6 @@ export type ChildItemXML =
   | CommandBarXML
   | DendrogramFieldXML
   | FormattedDocumentFieldXML
-  // | FormDecorationXML
-  // | FormFieldXML
   | GanttChartFieldXML
   | GeographicalSchemaFieldXML
   | GraphicalSchemaFieldXML
@@ -173,7 +169,6 @@ export type ChildItemPartialEnterprise =
   | CommandBarPartialEnterprise
   | DendrogramFieldPartialEnterprise
   | FormattedDocumentFieldPartialEnterprise
-  | FormGroupPartialEnterprise
   | GanttChartFieldPartialEnterprise
   | GeographicalSchemaFieldPartialEnterprise
   | GraphicalSchemaFieldPartialEnterprise
