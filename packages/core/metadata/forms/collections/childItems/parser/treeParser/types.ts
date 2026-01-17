@@ -4,6 +4,7 @@ export interface TreeNode {
   tokens: IToken[]
   type: ParseElementType
   childItems: TreeNode[]
+  autoCommandBar?: TreeNode
 }
 
 export interface BuilderTreeNode {

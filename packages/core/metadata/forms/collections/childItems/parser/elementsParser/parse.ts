@@ -3,6 +3,7 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import { ChildItem, ChildItems } from "~/metadata/forms/collections/childItems/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { Table } from "~/metadata/forms/elements/table/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
@@ -42,6 +43,9 @@ const addChildItemsToResult = (context: ConfigurationContext, cst: NamedElement,
   }
 
   cst.childItems = element.childItems.map((child) => parseElement(context, child)) || []
+  if (element.autoCommandBar) {
+    ;(cst as Table).autoCommandBar = parseAutoCommandBar(context, element.autoCommandBar)
+  }
 }
 
 export const parseAutoCommandBar = (context: ConfigurationContext, element: TreeNode): AutoCommandBar => {

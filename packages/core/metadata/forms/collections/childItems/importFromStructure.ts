@@ -31,18 +31,18 @@ interface PickAutoCommandBarResult {
 }
 
 const pickAutoCommandBarFromChildItems = (treeNodes: TreeNode[]): PickAutoCommandBarResult => {
-  const result: PickAutoCommandBarResult = {
-    childItems: [],
-  }
-
-  for (const childItem of treeNodes) {
-    if (childItem.type === ParseElementType.AutoCommandBar) {
-      result.autoCommandBar = childItem
-      continue
+  if (treeNodes.length > 0) {
+    const firstNode = treeNodes[0]
+    if (firstNode.type === ParseElementType.AutoCommandBar) {
+      return {
+        autoCommandBar: firstNode,
+        childItems: treeNodes.slice(1),
+      }
     }
-
-    result.childItems.push(childItem)
   }
 
-  return result
+  return {
+    autoCommandBar: undefined,
+    childItems: treeNodes,
+  }
 }

@@ -8,24 +8,19 @@ import { BuilderTreeNode, ElementWithChildItems, ParseElementType, TreeNode } fr
 export const parseTree = (context: ConfigurationContext, tokens: IToken[]): TreeNode[] => {
   const builderNodes = buildTree(tokens)
 
-  const flatten = builderNodes.flatMap((node) => processBuilderTree(context, node))
+  const flatten = processTreeNodes(context, builderNodes)
 
-  // form auto command bar
   if (flatten.length > 0 && flatten[0].type === ParseElementType.PotentialAutoCommandBar) {
     flatten[0].type = ParseElementType.AutoCommandBar
   }
 
-  const result = moveAutoCommandBarToTable(flatten)
+  const result = processTableAutoCommandBar(flatten)
 
   return result
 }
 
 const processTreeNodes = (context: ConfigurationContext, builderNodes: BuilderTreeNode[]): TreeNode[] => {
-  const flatten = builderNodes.flatMap((node) => processBuilderTree(context, node))
-
-  const result = moveAutoCommandBarToTable(flatten)
-
-  return result
+  return builderNodes.flatMap((node) => processBuilderTree(context, node))
 }
 
 const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode[] => {
@@ -79,7 +74,7 @@ const canBeChildItem = (parentNodeType: ParseElementType, _childNodeType: ParseE
   return ElementWithChildItems.includes(parentNodeType)
 }
 
-const moveAutoCommandBarToTable = (tree: TreeNode[]): TreeNode[] => {
+const processTableAutoCommandBar = (tree: TreeNode[]): TreeNode[] => {
   const result: TreeNode[] = []
   let i = 0
   while (i < tree.length) {
@@ -89,11 +84,11 @@ const moveAutoCommandBarToTable = (tree: TreeNode[]): TreeNode[] => {
 
     if (node.type === ParseElementType.PotentialAutoCommandBar) {
       if (nextNode?.type === ParseElementType.Table) {
-        nextNode.childItems.push({
+        nextNode.autoCommandBar = {
           tokens: node.tokens,
           type: ParseElementType.AutoCommandBar,
           childItems: [],
-        })
+        }
         continue
       }
 
@@ -106,7 +101,13 @@ const moveAutoCommandBarToTable = (tree: TreeNode[]): TreeNode[] => {
       continue
     }
 
-    result.push(node)
+    // Рекурсивно обрабатываем childItems
+    const processedNode: TreeNode = {
+      ...node,
+      childItems: processTableAutoCommandBar(node.childItems),
+    }
+
+    result.push(processedNode)
   }
 
   return result

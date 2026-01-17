@@ -146,13 +146,12 @@ text2`
         {
           content: "|Column1| {name}",
           type: "Table",
-          childItems: [
-            {
-              content: "<| Button1 >",
-              type: "AutoCommandBar",
-              childItems: [],
-            },
-          ],
+          childItems: [],
+          autoCommandBar: {
+            content: "<| Button1 >",
+            type: "AutoCommandBar",
+            childItems: [],
+          },
         },
       ])
     })
@@ -354,13 +353,25 @@ const tokensToString = (tokens: any[]): string => {
     .trim()
 }
 
+interface SimplifyTreeNodeResult {
+  content: string
+  type: ParseElementType
+  childItems: { content: string; type: ParseElementType }[]
+  autoCommandBar?: {
+    content: string
+    type: ParseElementType
+    childItems: { content: string; type: ParseElementType }[]
+  }
+}
 // Вспомогательная функция для преобразования TreeNode в читаемый формат для тестов
-const simplifyTreeNode = (
-  node: TreeNode
-): { content: string; type: ParseElementType; childItems: { content: string; type: ParseElementType }[] } => {
-  return {
+const simplifyTreeNode = (node: TreeNode): SimplifyTreeNodeResult => {
+  const result: SimplifyTreeNodeResult = {
     content: tokensToString(node.tokens),
     type: node.type,
     childItems: node.childItems.map(simplifyTreeNode),
   }
+  if (node.autoCommandBar) {
+    result.autoCommandBar = simplifyTreeNode(node.autoCommandBar)
+  }
+  return result
 }
