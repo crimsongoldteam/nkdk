@@ -383,6 +383,28 @@ export const twoColumnTable: Table = {
   ],
 }
 
+export const tableWithAutoCommandBar: Table = {
+  name: "Таблица1",
+  elementType: FormElementType.Table,
+  autoCommandBar: {
+    autofill: true,
+    childItems: [
+      {
+        name: "КнопкаТаблицы",
+        elementType: "Button",
+        title: { items: { ru: "Кнопка 1" } },
+      },
+    ],
+  },
+  childItems: [
+    {
+      name: "Колонка1",
+      elementType: "InputField",
+      title: { items: { ru: "Колонка таблицы 1" } },
+    },
+  ],
+}
+
 export const tableExportToStructureFixtures: TableExportToStructureFixture[] = [
   {
     name: "should format one-column table",
@@ -393,5 +415,11 @@ export const tableExportToStructureFixtures: TableExportToStructureFixture[] = [
     name: "should format two-column table",
     table: twoColumnTable,
     expectedResult: `| Колонка 1 {Колонка1} | Колонка 2 {Колонка2} | {Таблица1}`,
+  },
+  {
+    name: "should format table with auto command bar",
+    table: tableWithAutoCommandBar,
+    expectedResult: `<... | Кнопка 1 {КнопкаТаблицы}>
+| Колонка таблицы 1 {Колонка1} | {Таблица1}`,
   },
 ]

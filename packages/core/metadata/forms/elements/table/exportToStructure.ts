@@ -5,6 +5,7 @@ import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/fo
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
+import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"
 import { Table } from "./types"
 
@@ -12,10 +13,18 @@ const V_BAR = t.VBar.LABEL as string
 
 export const exportTableToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  element: NamedElement
+  element: NamedElement | undefined
 ): IFormatElementResult => {
   const table = element as Table
   const childItems = table.childItems ?? []
+
+  const result: IFormatElementResult = {
+    strings: [],
+    haveSimpleHorizontalGroup: false,
+  }
+
+  const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)
+  result.strings.push(...autoCommandBar.strings)
 
   const parts: string[] = []
 
@@ -29,10 +38,9 @@ export const exportTableToStructure: FormatElementFunction = (
 
   const resultString = V_BAR + " " + parts.join(" | ")
 
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  result.strings.push(resultString)
+
+  return result
 }
 
 registerIsOneLineElementCheck(FormElementType.Table, () => false)
