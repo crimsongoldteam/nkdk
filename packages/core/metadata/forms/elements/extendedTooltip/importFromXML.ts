@@ -5,6 +5,7 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
 import { isHasContent } from "./helper"
+import { importFormattedI8nTextFromXML } from "~/metadata/commonObjects/formattedI8nText/importFromXML"
 
 export function importExtendedTooltipFromXML(
   context: ConfigurationContext,
@@ -42,7 +43,7 @@ export function importExtendedTooltipFromXML(
   const textColor = importColorFromXML(context, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importFormattedI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
 
   const toolTip = importI8nTextFromXML(context, xml.ToolTip)

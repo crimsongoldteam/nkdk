@@ -16,7 +16,7 @@
 		<Event name="Selection">ПроцедураВыбора</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеДендрограммыРасширеннаяПодсказка" id="3">
-		<Title>
+		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
 				<v8:content>Расширенная подсказка</v8:content>
