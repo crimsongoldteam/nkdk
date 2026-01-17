@@ -3,6 +3,7 @@ import {
   ButtonGroupPartialEnterprise,
   ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullButtonGroup: ButtonGroup = {
@@ -114,3 +115,38 @@ export const minimalButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise =
 export const minimalButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
   Тип: "ГруппаКнопок",
 }
+
+export interface ButtonGroupStructureFixture {
+  name: string
+  element: ButtonGroup
+  structured: IFormatElementResult
+}
+
+export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = [
+  {
+    name: "with title",
+    element: {
+      name: "ГруппаКнопок",
+      elementType: FormElementType.ButtonGroup,
+      title: { items: { ru: "Группа кнопок" } },
+      childItems: [],
+    },
+    structured: {
+      strings: ["<Группа кнопок {ГруппаКнопок}>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without title",
+    element: {
+      name: "ГруппаКнопок",
+      elementType: FormElementType.ButtonGroup,
+      title: undefined,
+      childItems: [],
+    },
+    structured: {
+      strings: ["<{ГруппаКнопок}>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+]
