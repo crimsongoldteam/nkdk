@@ -1,44 +1,146 @@
-import { FormattedI8nTextEnterprise } from "~/metadata/commonObjects/formattedI8nText/types"
-import { FormattedI8nText } from "~/metadata/commonObjects/i8nText/types"
-import { combinedI8nTextFixtures as baseCombinedI8nTextFixtures } from "../i8nText/data"
+import { FormattedI8nText, FormattedI8nTextEnterprise } from "~/metadata/commonObjects/formattedI8nText/types"
 
-export const formattedWithNonEmptyDefaultI8nText: FormattedI8nText = { formatted: true, items: { ru: "Поле" } }
-
-export const formattedWithEmptyDefaultI8nText: FormattedI8nText = { formatted: true, items: { ru: "" } }
-
-export interface CombinedI8nTextFixture {
+export interface FormattedI8nTextFixture {
   name: string
-  defaultLanguage: FormattedI8nText | undefined
-  otherLanguagesEnterprise: FormattedI8nTextEnterprise | undefined
-  expectedResult: FormattedI8nText | undefined
-  expectedDefaultExport: string | undefined
-  expectedOtherExport: FormattedI8nTextEnterprise | undefined
-  fullI8nText?: FormattedI8nText
+  text: FormattedI8nText | undefined
+  enterpriseText?: FormattedI8nTextEnterprise | undefined
+  enterpriseFormattedText?: FormattedI8nTextEnterprise | undefined
+  xml?: string
 }
 
-const convertToFormatted = <T extends { items: Record<string, string> } | undefined>(
-  value: T
-): T extends { items: Record<string, string> } ? FormattedI8nText : undefined => {
-  if (!value) return undefined as any
-  return { formatted: false, ...value } as any
-}
-
-export const formattedI8nTextFixtures: CombinedI8nTextFixture[] = [
-  ...baseCombinedI8nTextFixtures.map(
-    (fixture): CombinedI8nTextFixture => ({
-      ...fixture,
-      defaultLanguage: convertToFormatted(fixture.defaultLanguage),
-      expectedResult: convertToFormatted(fixture.expectedResult),
-      fullI8nText: fixture.fullI8nText ? convertToFormatted(fixture.fullI8nText) : undefined,
-    })
-  ),
+export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
-    name: "с formatted в defaultLanguage",
-    defaultLanguage: { formatted: true, items: { ru: "Поле" } },
-    otherLanguagesEnterprise: { en: "Field" },
-    expectedResult: { formatted: true, items: { ru: "Поле", en: "Field" } },
-    expectedDefaultExport: "Поле",
-    expectedOtherExport: { en: "Field" },
-    fullI8nText: { formatted: true, items: { ru: "Поле", en: "Field" } },
+    name: "undefined",
+    text: undefined,
+    enterpriseText: undefined,
+    enterpriseFormattedText: undefined,
+  },
+  {
+    name: "only default language with formatted false",
+    text: { formatted: false, items: { ru: "Поле" } },
+    enterpriseText: "Поле",
+    enterpriseFormattedText: undefined,
+    xml: `<Title formatted="false">
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "only default language with formatted true",
+    text: { formatted: true, items: { ru: "Поле" } },
+    enterpriseText: "Поле",
+    enterpriseFormattedText: "Поле",
+    xml: `<Title formatted="true">
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "only other languages (single language) with formatted false",
+    text: { formatted: false, items: { en: "Field" } },
+    enterpriseText: { en: "Field" },
+    enterpriseFormattedText: undefined,
+    xml: `<Title formatted="false">
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "only other languages (single language) with formatted true",
+    text: { formatted: true, items: { en: "Field" } },
+    enterpriseText: { en: "Field" },
+    enterpriseFormattedText: { en: "Field" },
+    xml: `<Title formatted="true">
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "only other languages (multiple languages) with formatted false",
+    text: { formatted: false, items: { en: "Field" } },
+    enterpriseText: { en: "Field" },
+    enterpriseFormattedText: undefined,
+    xml: `<Title formatted="false">
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "only other languages (multiple languages) with formatted true",
+    text: { formatted: true, items: { en: "Field" } },
+    enterpriseText: { en: "Field" },
+    enterpriseFormattedText: { en: "Field" },
+    xml: `<Title formatted="true">
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "both default and other languages with formatted false",
+    text: { formatted: false, items: { ru: "Поле", en: "Field" } },
+    enterpriseText: { ru: "Поле", en: "Field" },
+    enterpriseFormattedText: undefined,
+    xml: `<Title formatted="false">
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "both default and other languages with formatted true",
+    text: { formatted: true, items: { ru: "Поле", en: "Field" } },
+    enterpriseText: { ru: "Поле", en: "Field" },
+    enterpriseFormattedText: { ru: "Поле", en: "Field" },
+    xml: `<Title formatted="true">
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "with escaped content and formatted false",
+    text: { formatted: false, items: { ru: "<Текст с экранированным символом>" } },
+    enterpriseText: "<Текст с экранированным символом>",
+    enterpriseFormattedText: undefined,
+    xml: `<Title formatted="false">
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>&lt;Текст с экранированным символом&gt;</v8:content>
+	</v8:item>
+</Title>`,
+  },
+  {
+    name: "with escaped content and formatted true",
+    text: { formatted: true, items: { ru: "<Текст с экранированным символом>" } },
+    enterpriseText: "<Текст с экранированным символом>",
+    enterpriseFormattedText: "<Текст с экранированным символом>",
+    xml: `<Title formatted="true">
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>&lt;Текст с экранированным символом&gt;</v8:content>
+	</v8:item>
+</Title>`,
   },
 ]

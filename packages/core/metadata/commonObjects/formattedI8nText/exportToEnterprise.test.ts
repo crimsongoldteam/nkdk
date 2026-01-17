@@ -1,79 +1,64 @@
 import { describe, expect, it } from "vitest"
-import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
+import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
 import { mockСontext } from "~/tests/mockContext"
 import {
   exportFormattedI8nTextDefaultToEnterprise,
+  exportFormattedI8nTextOtherToEnterprise,
   exportFormattedI8nTextToEnterprise,
-  exportI8nTextDefaultToEnterprise,
-  exportI8nTextOtherToEnterprise,
 } from "./exportToEnterprise"
-import { FormattedI8nText, I8nText } from "./types"
 
 describe("exportFormattedI8nTextToEnterprise", () => {
-  it("should format empty text as undefined", () => {
-    const result = exportFormattedI8nTextToEnterprise(mockСontext, undefined, "Заголовок", "ФорматированныйЗаголовок")
+  describe("exportFormattedI8nTextToEnterprise", () => {
+    formattedI8nTextFixtures.forEach((fixture) => {
+      it(`should export: ${fixture.name}`, () => {
+        const result = exportFormattedI8nTextToEnterprise(mockСontext, fixture.text, "Title", "FormattedTitle")
 
-    expect(result).toBeUndefined()
-  })
-
-  it("should format default language text", () => {
-    const mockI8nText: FormattedI8nText = { formatted: false, items: { ru: "Поле" } }
-    const expectedResult = "Поле"
-
-    const result = exportFormattedI8nTextToEnterprise(mockСontext, mockI8nText, "Заголовок", "ФорматированныйЗаголовок")
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should format non-default language text", () => {
-    const mockI8nText: FormattedI8nText = { formatted: false, items: { en: "Поле" } }
-    const expectedResult = { en: "Поле" }
-
-    const result = exportFormattedI8nTextToEnterprise(mockСontext, mockI8nText, "Заголовок", "ФорматированныйЗаголовок")
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should format multilanguage text", () => {
-    const mockI8nText: FormattedI8nText = { formatted: false, items: { ru: "Поле", en: "Field" } }
-    const expectedResult = { ru: "Поле", en: "Field" }
-
-    const result = exportFormattedI8nTextToEnterprise(mockСontext, mockI8nText, "Заголовок", "ФорматированныйЗаголовок")
-
-    expect(result).toEqual(expectedResult)
-  })
-})
-
-describe("exportFormattedI8nTextDefaultToEnterprise", () => {
-  i8nTextFixtures.forEach((fixture) => {
-    if (fixture.fullI8nText !== undefined) {
-      it(`should export default language: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextDefaultToEnterprise(mockСontext, fixture.fullFormattedI8nText)
-
-        expect(result).toEqual(fixture.expectedDefaultExport)
+        if (fixture.text?.formatted) {
+          expect(result).toEqual({ FormattedTitle: fixture.enterpriseFormattedText })
+        } else {
+          const expected = fixture.enterpriseText ? { Title: fixture.enterpriseText } : {}
+          expect(result).toEqual(expected)
+        }
       })
-    }
+    })
   })
 
-  it("should return undefined for undefined input", () => {
-    const result = exportFormattedI8nTextDefaultToEnterprise(mockСontext, undefined)
+  describe("exportFormattedI8nTextDefaultToEnterprise", () => {
+    formattedI8nTextFixtures.forEach((fixture) => {
+      it(`should export default: ${fixture.name}`, () => {
+        const result = exportFormattedI8nTextDefaultToEnterprise(mockСontext, fixture.text)
 
-    expect(result).toBeUndefined()
+        // This function calls exportI8nTextToEnterprise which returns the i8n text content
+        // regardless of formatted flag, so it should match enterpriseText
+        expect(result).toEqual(fixture.enterpriseText)
+      })
+    })
   })
 
-  it("should return undefined when default language is missing", () => {
-    const mockI8nText: I8nText = { items: { en: "Field" } }
-    const result = exportI8nTextDefaultToEnterprise(mockСontext, mockI8nText)
+  describe("exportFormattedI8nTextOtherToEnterprise", () => {
+    formattedI8nTextFixtures.forEach((fixture) => {
+      it(`should export other: ${fixture.name}`, () => {
+        const result = exportFormattedI8nTextOtherToEnterprise(mockСontext, fixture.text, "Title", "FormattedTitle")
 
-    expect(result).toBeUndefined()
-  })
-})
+        // Extract other languages (excluding default language 'ru')
+        if (!fixture.text) {
+          expect(result).toEqual({})
+          return
+        }
 
-describe("exportI8nTextDefaultToEnterprise", () => {
-  it.each(i8nTextFixtures)("should export  $name", (fixture) => {
-    const defaultExport = exportI8nTextDefaultToEnterprise(mockСontext, fixture.fullI8nText)
-    const otherExport = exportI8nTextOtherToEnterprise(mockСontext, fixture.fullI8nText)
-    expect(defaultExport).toEqual(fixture.expectedDefaultExport)
-    expect(otherExport).toEqual(fixture.expectedOtherExport)
+        const defaultLanguage = mockСontext.defaultLanguage
+        const otherItems = Object.fromEntries(
+          Object.entries(fixture.text.items).filter(([lang]) => lang !== defaultLanguage)
+        )
+
+        if (Object.keys(otherItems).length === 0) {
+          expect(result).toEqual({})
+        } else if (fixture.text.formatted) {
+          expect(result).toEqual({ FormattedTitle: { ...otherItems } })
+        } else {
+          expect(result).toEqual({ Title: { ...otherItems } })
+        }
+      })
+    })
   })
 })

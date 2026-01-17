@@ -60,14 +60,7 @@ export function importPdfDocumentFieldPartialFromEnterprise<To extends PdfDocume
   }
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
-  if (title !== undefined) {
-    if (title.formatted === undefined) {
-      const { formatted, ...titleWithoutFormatted } = title
-      result.title = titleWithoutFormatted
-    } else {
-      result.title = title
-    }
-  }
+  if (title !== undefined) result.title = title
 
   return result
 }
