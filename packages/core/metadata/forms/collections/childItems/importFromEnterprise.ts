@@ -1,19 +1,36 @@
-// export const importChildItemsFromEnterprise = (
-//   context: ConfigurationContext,
-//   data: ChildItemsPartialEnterprise | undefined
-// ): ChildItems | undefined => {
-//   if (!data) return undefined
+import { ConfigurationContext } from "~/metadata/context/types"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { ChildItem, ChildItems, ChildItemsPartialEnterprise } from "./types"
 
-//   const result: ChildItems = []
-//   for (const [elementType, itemData] of Object.entries(data)) {
-//     const elementType = importFormElementTypeFromEnterprise(context, itemData.Тип)
-//     const fn = getOperationFunction("ImportPartialFromEnterprise", elementType)
-//     if (!fn) throw new Error(`Import function not found for element type: ${elementType}`)
-//     const item = fn(context, itemData)
-//     if (item !== undefined) {
-//       result.push(item as ChildItem)
-//     }
-//   }
+export const importChildItemsFromEnterprise = (
+  context: ConfigurationContext,
+  childItems: ChildItems,
+  childItemsProperties?: ChildItemsPartialEnterprise
+): ChildItems => {
+  return childItems.map((item) => {
+    const processedItem = importChildItemProperties(context, item, childItemsProperties)
 
-//   return result.length > 0 ? result : undefined
-// }
+    // Рекурсивно обрабатываем дочерние элементы
+    if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
+      processedItem.childItems = importChildItemsFromEnterprise(context, processedItem.childItems, childItemsProperties)
+    }
+
+    return processedItem
+  })
+}
+
+const importChildItemProperties = (
+  context: ConfigurationContext,
+  item: ChildItem,
+  childItemsProperties?: ChildItemsPartialEnterprise
+): ChildItem => {
+  if (!childItemsProperties) return { ...item }
+
+  const propertiesEnterprise = childItemsProperties[item.name]
+
+  const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
+  if (fn == undefined) throw new Error(`Import function not found for element type: ${item.elementType}`)
+  const result = fn(context, item, propertiesEnterprise) as ChildItem
+
+  return result
+}

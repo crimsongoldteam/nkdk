@@ -41,6 +41,7 @@ export const minimalFormAttributes: FormAttributes = [
     valueType: {
       type: ["string"],
     },
+    title: { items: { ru: "" } },
   },
 ]
 //#endregion
@@ -68,6 +69,7 @@ export const multipleFormAttributes: FormAttributes = [
 export const shortFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
+    title: { items: { ru: "Тестовый атрибут" } },
     valueType: {
       type: ["string"],
     },
@@ -82,6 +84,7 @@ export const shortFormAttributeEnterprise: FormAttributesEnterprise = {
 //#region MinimalEnterprise
 export const minimalFormAttributesEnterprise: FormAttributesEnterprise = {
   ТестовыйАтрибут: {
+    Заголовок: "",
     Тип: "Строка",
   },
 }

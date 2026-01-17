@@ -14,7 +14,7 @@ import { StringboolEnterprise } from "../boolean/types"
 
 export interface FormAttribute {
   name: string
-  title?: I8nText
+  title: I8nText
   valueType?: TypeDescription
   mainAttribute?: boolean
   storedData?: boolean

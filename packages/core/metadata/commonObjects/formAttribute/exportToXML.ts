@@ -1,9 +1,9 @@
 import { defaults } from "~/metadata/appliedObjects/metadataCatalog"
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
 import { FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
 export const exportFormAttributesToXML = (
@@ -25,7 +25,7 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     _id: getElementId(context),
   }
 
-  const title = exportI8nTextToXML(context, mergedData.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
   if (title) result.Title = title
 
   const type = exportTypeDescriptionToXML(context, mergedData.valueType)

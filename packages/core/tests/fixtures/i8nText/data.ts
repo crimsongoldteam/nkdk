@@ -8,6 +8,18 @@ export const escapedContentI8nTextEnterprise: I8nTextEnterprise = {
   ru: "<Текст с экранированным символом>",
 }
 
+export const emptyItemsI8nText: I8nText = { items: {} }
+
+export const onlyNonDefaultLanguageI8nText: I8nText = { items: { en: "Field" } }
+
+export const emptyDefaultWithNonDefaultLanguageI8nText: I8nText = { items: { ru: "", en: "Field" } }
+
+export const defaultWithNonDefaultLanguageI8nText: I8nText = { items: { ru: "Поле", en: "Field" } }
+
+export const formattedWithNonEmptyDefaultI8nText: I8nText = { formatted: true, items: { ru: "Поле" } }
+
+export const formattedWithEmptyDefaultI8nText: I8nText = { formatted: true, items: { ru: "" } }
+
 export interface CombinedI8nTextFixture {
   name: string
   defaultLanguage: I8nText | undefined

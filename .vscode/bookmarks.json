@@ -21,10 +21,10 @@
 			]
 		},
 		{
-			"path": "packages/core/metadata/forms/collections/childItems/importPropertiesFromEnterprise.ts",
+			"path": "packages/core/metadata/forms/collections/childItems/importFromEnterprise.ts",
 			"bookmarks": [
 				{
-					"line": 32,
+					"line": 28,
 					"column": 0,
 					"label": ""
 				}

@@ -11,6 +11,7 @@ import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
+import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
@@ -34,6 +35,7 @@ const importFormAttributeFromEnterprise = (
     return {
       name,
       valueType: type,
+      title: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
     }
   }
 
@@ -44,9 +46,8 @@ const importFormAttributeFromEnterprise = (
   const result: FormAttribute = {
     name,
     valueType: type!,
+    title,
   }
-
-  if (title !== undefined) result.title = title
 
   const mainAttribute = importBooleanFromEnterprise(context, data.ОсновнойРеквизит)
   if (mainAttribute !== undefined) result.mainAttribute = mainAttribute

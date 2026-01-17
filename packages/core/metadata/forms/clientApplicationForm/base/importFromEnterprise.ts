@@ -9,7 +9,7 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsPropertiesFromEnterprise } from "../../collections/childItems/importPropertiesFromEnterprise"
+import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
@@ -239,7 +239,7 @@ export const importClientApplicationFormFromEnterprise = (
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  result.childItems = importChildItemsPropertiesFromEnterprise(context, childItemsResult.childItems, data.Элементы)
+  result.childItems = importChildItemsFromEnterprise(context, childItemsResult.childItems, data.Элементы)
 
   return result
 }
