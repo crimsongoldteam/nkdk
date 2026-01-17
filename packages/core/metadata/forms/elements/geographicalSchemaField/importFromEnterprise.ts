@@ -16,7 +16,11 @@ import {
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -289,5 +293,5 @@ const importGeographicalSchemaFieldPropsFromEnterprise = (
 registerMetadata(
   "ImportPartialFromEnterprise",
   "GeographicalSchemaField",
-  importGeographicalSchemaFieldPropsFromEnterprise
+  importGeographicalSchemaFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )

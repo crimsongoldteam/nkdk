@@ -13,7 +13,11 @@ import {
   CommandBarTypedEnterprise,
 } from "~/metadata/forms/elements/commandBar/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
@@ -170,4 +174,8 @@ const importCommandBarPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "CommandBar", importCommandBarPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "CommandBar",
+  importCommandBarPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

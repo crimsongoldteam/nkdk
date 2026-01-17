@@ -14,7 +14,12 @@ import {
   ColumnGroupTypedEnterprise,
 } from "~/metadata/forms/elements/columnGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ImportTypedFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
@@ -185,4 +190,13 @@ const importColumnGroupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "ColumnGroup", importColumnGroupPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "ColumnGroup",
+  importColumnGroupPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "ColumnGroup",
+  importColumnGroupTypedFromEnterprise as ImportTypedFromEnterpriseFn
+)

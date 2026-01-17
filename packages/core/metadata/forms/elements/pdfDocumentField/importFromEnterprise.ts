@@ -16,7 +16,11 @@ import {
 } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -309,4 +313,8 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "PdfDocumentField", importPdfDocumentFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "PdfDocumentField",
+  importPdfDocumentFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

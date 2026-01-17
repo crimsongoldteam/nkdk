@@ -14,6 +14,7 @@ import {
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
+  ImportPartialFromEnterpriseFn,
   ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
@@ -164,7 +165,11 @@ const importButtonGroupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "ButtonGroup", importButtonGroupPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "ButtonGroup",
+  importButtonGroupPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
 
 registerMetadata(
   "ImportTypedFromEnterprise",

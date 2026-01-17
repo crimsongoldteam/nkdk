@@ -11,7 +11,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importExtendedTooltipFromEnterprise } from "~/metadata/forms/elements/extendedTooltip/importFromEnterprise"
 import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -230,4 +234,8 @@ export const importPagePropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "Page", importPagePropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "Page",
+  importPagePartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

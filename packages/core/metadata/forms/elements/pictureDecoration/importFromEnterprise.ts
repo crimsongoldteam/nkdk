@@ -9,17 +9,21 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import {
   PictureDecoration,
   PictureDecorationPartialEnterprise,
   PictureDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 const importPictureDecorationEventsFromEnterprise = (
   data:
@@ -245,4 +249,8 @@ const importPictureDecorationPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "PictureDecoration", importPictureDecorationPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "PictureDecoration",
+  importPictureDecorationPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

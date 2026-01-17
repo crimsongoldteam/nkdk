@@ -308,5 +308,5 @@ const importTrackBarFieldPropsFromEnterprise = (
 registerMetadata(
   "ImportPartialFromEnterprise",
   "TrackBarField",
-  importTrackBarFieldPropsFromEnterprise as ImportPartialFromEnterpriseFn
+  importTrackBarFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )

@@ -16,7 +16,11 @@ import {
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -51,8 +55,7 @@ export function importSpreadSheetDocumentFieldPartialFromEnterprise<To extends S
   const props = importSpreadSheetDocumentFieldPropsFromEnterprise(context, data)
 
   // Merge events from Enterprise data with existing events from source
-  const mergedEvents =
-    props.events !== undefined ? { ...source.events, ...props.events } : source.events
+  const mergedEvents = props.events !== undefined ? { ...source.events, ...props.events } : source.events
 
   // Preserve extendedTooltip from source if Enterprise data has empty object
   const extendedTooltip =
@@ -389,5 +392,5 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 registerMetadata(
   "ImportPartialFromEnterprise",
   "SpreadSheetDocumentField",
-  importSpreadSheetDocumentFieldPropsFromEnterprise
+  importSpreadSheetDocumentFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )

@@ -17,7 +17,11 @@ import {
 } from "~/metadata/forms/elements/radioButtonField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -294,4 +298,8 @@ const importRadioButtonFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "RadioButtonField", importRadioButtonFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "RadioButtonField",
+  importRadioButtonFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

@@ -19,6 +19,7 @@ import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/conte
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
+  ImportPartialFromEnterpriseFn,
   ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
@@ -324,7 +325,11 @@ const importCalendarFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "CalendarField", importCalendarFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "CalendarField",
+  importCalendarFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
 
 registerMetadata(
   "ImportTypedFromEnterprise",

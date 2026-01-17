@@ -199,7 +199,7 @@ const importPagesEventsFromEnterprise = (
 registerMetadata(
   "ImportPartialFromEnterprise",
   "Pages",
-  importPagesPropsFromEnterprise as ImportPartialFromEnterpriseFn
+  importPagesPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )
 
 registerMetadata("ImportTypedFromEnterprise", "Pages", importPagesTypedFromEnterprise as ImportTypedFromEnterpriseFn)

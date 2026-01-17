@@ -21,6 +21,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
       name: "Объект",
       valueType: { type: ["CatalogRef.ТестоваяОбработка"] },
       mainAttribute: true,
+      title: { items: { ru: "Объект" } },
     },
   ],
   autoTitle: true,
