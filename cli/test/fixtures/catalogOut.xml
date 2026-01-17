@@ -79,8 +79,8 @@
 			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
 			<Explanation>
 				<v8:item>
-					<v8:content>Проекты компании</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Проекты компании</v8:content>
 				</v8:item>
 			</Explanation>
 			<FoldersOnTop>true</FoldersOnTop>
@@ -97,8 +97,8 @@
 			<Name>Проекты</Name>
 			<ObjectPresentation>
 				<v8:item>
-					<v8:content>Проект</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Проект</v8:content>
 				</v8:item>
 			</ObjectPresentation>
 			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
@@ -133,14 +133,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Предопределенный</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Предопределенный</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Признак предопределенного элемента</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Признак предопределенного элемента</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -159,14 +159,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Ссылка</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Ссылка</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Ссылка на элемент</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Ссылка на элемент</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -185,14 +185,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Пометка удаления</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Пометка удаления</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Пометка удаления элемента</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Пометка удаления элемента</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -211,14 +211,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Это группа</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Это группа</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Признак группы проектов</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Признак группы проектов</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -237,14 +237,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Владелец</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Владелец</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Владелец элемента</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Владелец элемента</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
@@ -264,14 +264,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Группа</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Группа, в которую входит данный проект.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа, в которую входит данный проект.</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -290,14 +290,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Наименование</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Наименование</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Наименование проекта</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Наименование проекта</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -316,14 +316,14 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Код</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Код проекта</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код проекта</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -332,8 +332,8 @@
 			<SubordinationUse>ToItems</SubordinationUse>
 			<Synonym>
 				<v8:item>
-					<v8:content>Проекты</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Проекты</v8:content>
 				</v8:item>
 			</Synonym>
 			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
@@ -359,14 +359,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Дата начала</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Дата начала</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Начало проекта (этапа)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Начало проекта (этапа)</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -397,14 +397,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Дата окончания</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Дата окончания</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Окончание проекта (этапа)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Окончание проекта (этапа)</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -440,14 +440,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Контрагент</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Контрагент</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Заказчик проекта</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Заказчик проекта</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -462,8 +462,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Проекты.Attribute.Контрагент</xr:DataPath>
 							<xr:Name>Отбор.Владелец</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Проекты.Attribute.Контрагент</xr:DataPath>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -482,14 +482,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Договор</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Договор</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Договор на выполнение проекта</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Договор на выполнение проекта</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -516,21 +516,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Комментарий</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Комментарий</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Произвольный комментарий</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Произвольный комментарий</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
 							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -554,15 +554,15 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Недействителен</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Недействителен</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
+							<v8:lang>ru</v8:lang>
 							<v8:content>Номенклатура выведена из ассортимента, но сведения о ней сохранены.
 Недействительная номенклатура по умолчанию скрывается из всех списков программы.</v8:content>
-							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -605,14 +605,14 @@
 					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Дополнительные реквизиты</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Дополнительные реквизиты</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Дополнительные реквизиты партии запасов</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Дополнительные реквизиты партии запасов</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Use>ForItem</Use>
@@ -635,14 +635,14 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Свойство</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Свойство</v8:content>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:content>Дополнительный реквизит</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Дополнительный реквизит</v8:content>
 								</v8:item>
 							</ToolTip>
 							<Type>
@@ -656,8 +656,8 @@
 							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 							<ChoiceParameterLinks>
 								<xr:Link>
-									<xr:DataPath xsi:type="xs:string">Catalog.Проекты.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:DataPath>
 									<xr:Name>Отбор.Владелец</xr:Name>
+									<xr:DataPath xsi:type="xs:string">Catalog.Проекты.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:DataPath>
 									<xr:ValueChange>Clear</xr:ValueChange>
 								</xr:Link>
 							</ChoiceParameterLinks>
@@ -674,14 +674,14 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Значение</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Значение</v8:content>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:content>Значение дополнительного реквизита</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Значение дополнительного реквизита</v8:content>
 								</v8:item>
 							</ToolTip>
 							<Type>
@@ -706,21 +706,21 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Текстовая строка</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Текстовая строка</v8:content>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:content>Полный текст строкового дополнительного реквизита</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Полный текст строкового дополнительного реквизита</v8:content>
 								</v8:item>
 							</ToolTip>
 							<Type>
 								<v8:Type>xs:string</v8:Type>
 								<v8:StringQualifiers>
-									<v8:AllowedLength>Variable</v8:AllowedLength>
 									<v8:Length>0</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
 								</v8:StringQualifiers>
 							</Type>
 						</Properties>
