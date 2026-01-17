@@ -50,7 +50,7 @@ export function importPagesPartialFromEnterprise<To extends Pages>(
   const result: To = {
     ...source,
     ...props,
-    childItems: props.childItems ?? [],
+    childItems: source.childItems ?? [],
   }
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)

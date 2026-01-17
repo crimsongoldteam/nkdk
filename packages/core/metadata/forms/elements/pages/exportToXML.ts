@@ -20,26 +20,33 @@ export function exportPagesToXML<From extends Pages | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-
   const result: PagesXML = {
     ...baseFields,
-    ExtendedTooltip: extendedTooltip,
-  }
+  } as PagesXML
 
   const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
-  //
+  if (data.currentPagesState !== undefined) result.CurrentPagesState = data.currentPagesState
+
+  if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
+
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
 
   if (data.height !== undefined) result.Height = data.height
 
   if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.pagesRepresentation !== undefined) result.PagesRepresentation = data.pagesRepresentation
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
 
@@ -61,6 +68,9 @@ export function exportPagesToXML<From extends Pages | undefined>(
 
   if (data.type !== undefined) result.Type = data.type
 
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
@@ -68,18 +78,6 @@ export function exportPagesToXML<From extends Pages | undefined>(
   if (data.visible !== undefined) result.Visible = data.visible
 
   if (data.width !== undefined) result.Width = data.width
-
-  if (data.currentPagesState !== undefined) result.CurrentPagesState = data.currentPagesState
-
-  if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
-
-  if (data.pagesRepresentation !== undefined) result.PagesRepresentation = data.pagesRepresentation
-
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }

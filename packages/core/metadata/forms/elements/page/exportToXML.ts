@@ -23,22 +23,54 @@ export function exportPageToXML<From extends Page | undefined>(
     ...baseFields,
   }
 
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
+
+  if (data.childItemsHorizontalAlign !== undefined) result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
+
+  if (data.childItemsVerticalAlign !== undefined) result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  const format = exportI8nTextToXML(context, data.format)
+  if (format !== undefined) result.Format = format
+
+  if (data.group !== undefined) result.Group = data.group
 
   if (data.height !== undefined) result.Height = data.height
 
   if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
 
+  if (data.horizontalSpacing !== undefined) result.HorizontalSpacing = data.horizontalSpacing
+
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.itemsAndTitlesAlign !== undefined) result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
+
+  const picture = exportPictureToXML(context, data.picture)
+  if (picture !== undefined) result.Picture = picture
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
 
+  if (data.scrollOnCompress !== undefined) result.ScrollOnCompress = data.scrollOnCompress
+
   if (data.shortcut !== undefined) result.Shortcut = data.shortcut
+
+  if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
+
+  if (data.slaveItemsWidth !== undefined) result.SlaveItemsWidth = data.slaveItemsWidth
 
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
+
+  if (data.titleDataPath !== undefined) result.TitleDataPath = data.titleDataPath
 
   const titleFont = exportFontToXML(context, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
@@ -53,54 +85,22 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.type !== undefined) result.Type = data.type
 
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.verticalScrollOnReduceSize !== undefined) result.VerticalScrollOnReduceSize = data.verticalScrollOnReduceSize
+
+  if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
   if (data.visible !== undefined) result.Visible = data.visible
 
   if (data.width !== undefined) result.Width = data.width
-
-  const childItems = exportChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) result.ChildItems = childItems
-
-  const backColor = exportColorToXML(context, data.backColor)
-  if (backColor !== undefined) result.BackColor = backColor
-
-  if (data.childItemsHorizontalAlign !== undefined) result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
-
-  if (data.childItemsVerticalAlign !== undefined) result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
-
-  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
-
-  const format = exportI8nTextToXML(context, data.format)
-  if (format !== undefined) result.Format = format
-
-  if (data.group !== undefined) result.Group = data.group
-
-  if (data.horizontalSpacing !== undefined) result.HorizontalSpacing = data.horizontalSpacing
-
-  if (data.itemsAndTitlesAlign !== undefined) result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
-
-  const picture = exportPictureToXML(context, data.picture)
-  if (picture !== undefined) result.Picture = picture
-
-  if (data.scrollOnCompress !== undefined) result.ScrollOnCompress = data.scrollOnCompress
-
-  if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
-
-  if (data.slaveItemsWidth !== undefined) result.SlaveItemsWidth = data.slaveItemsWidth
-
-  if (data.titleDataPath !== undefined) result.TitleDataPath = data.titleDataPath
-
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
-  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
-
-  if (data.verticalScrollOnReduceSize !== undefined) result.VerticalScrollOnReduceSize = data.verticalScrollOnReduceSize
-
-  if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
 
   return sortObject(result) as ToXMLType<From>
 }
