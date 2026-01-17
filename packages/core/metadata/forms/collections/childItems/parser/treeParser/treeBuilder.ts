@@ -61,22 +61,9 @@ const calculateLevelFromIndent = (indentTokens: IToken[]): number => {
 
   for (const token of indentTokens) {
     const indentText = token.image
-    for (let i = 0; i < indentText.length; i++) {
-      if (indentText[i] === "\t") {
-        level++
-        continue
-      }
-
-      if (indentText[i] !== " ") continue
-
-      let spaces = 0
-      while (i < indentText.length && indentText[i] === " ") {
-        spaces++
-        i++
-      }
-      level += Math.ceil(spaces / 2)
-      break
-    }
+    const tabs = (indentText.match(/\t/g) || []).length
+    const spaces = (indentText.match(/ /g) || []).length
+    level += tabs + Math.ceil(spaces / 2)
   }
 
   return level
