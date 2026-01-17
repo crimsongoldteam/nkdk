@@ -19,15 +19,14 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-
   const result: UsualGroupXML = {
-    ExtendedTooltip: extendedTooltip,
     ...baseFields,
-  }
+  } as UsualGroupXML
 
   const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
+
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 

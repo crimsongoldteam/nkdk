@@ -1,7 +1,7 @@
 import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/labelDecoration/types"
@@ -73,7 +73,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   const textColor = exportColorToXML(context, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportI8nTextToXML(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
