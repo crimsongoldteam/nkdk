@@ -1,3 +1,4 @@
+import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, CommandXML } from "./types"
@@ -18,7 +19,7 @@ export default function exportCommandToXML(
 
   const result: CommandXML = {
     _name: command.name,
-    _id: "1",
+    _id: getElementId(context),
   }
 
   if (command.title !== undefined) {

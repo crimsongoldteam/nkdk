@@ -9,6 +9,7 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 
 export const importFormAttributesFromEnterprise = (
@@ -38,7 +39,7 @@ const importFormAttributeFromEnterprise = (
 
   const type = importTypeDescriptionFromEnterprise(context, data.Тип)
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, data.Заголовок), name)
 
   const result: FormAttribute = {
     name,

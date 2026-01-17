@@ -72,14 +72,14 @@ const getStringQualifiers = (
 
   if (!stringQualifiers) {
     return {
-      "v8:AllowedLength": "Variable",
       "v8:Length": 0,
+      "v8:AllowedLength": "Variable",
     }
   }
 
   return {
-    "v8:AllowedLength": stringQualifiers.allowedLength,
     "v8:Length": stringQualifiers.length,
+    "v8:AllowedLength": stringQualifiers.allowedLength,
   }
 }
 
@@ -92,16 +92,16 @@ const getNumberQualifiers = (
 
   if (!numberQualifiers) {
     return {
-      "v8:AllowedSign": "Any",
       "v8:Digits": 0,
       "v8:FractionDigits": 0,
+      "v8:AllowedSign": "Any",
     }
   }
 
   return {
-    "v8:AllowedSign": numberQualifiers.allowedSign,
     "v8:Digits": numberQualifiers.digits,
     "v8:FractionDigits": numberQualifiers.fractionDigits,
+    "v8:AllowedSign": numberQualifiers.allowedSign,
   }
 }
 

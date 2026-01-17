@@ -24,7 +24,7 @@ describe("exportCommandToXML", () => {
 
     const xmlString = xmlExport({ Command: result! }, false)
 
-    const expectedResult = `<Command name="СоставКомплектаПодобратьФайлы" id="60">
+    const expectedResult = `<Command name="СоставКомплектаПодобратьФайлы" id="1">
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

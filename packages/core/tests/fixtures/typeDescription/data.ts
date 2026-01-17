@@ -12,17 +12,35 @@ export const typeFixturesTable: TypeFixture[] = [
   {
     internal: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
     enterprise: "Строка(10)",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:string</v8:Type>\n\t<v8:StringQualifiers>\n\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t<v8:Length>10</v8:Length>\n\t</v8:StringQualifiers>\n</TypeDescription>",
+    xml: `<TypeDescription>
+	<v8:Type>xs:string</v8:Type>
+	<v8:StringQualifiers>
+		<v8:Length>10</v8:Length>
+		<v8:AllowedLength>Variable</v8:AllowedLength>
+	</v8:StringQualifiers>
+</TypeDescription>`,
   },
   {
     internal: { type: ["string"] },
     enterprise: "Строка",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:string</v8:Type>\n\t<v8:StringQualifiers>\n\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t<v8:Length>0</v8:Length>\n\t</v8:StringQualifiers>\n</TypeDescription>",
+    xml: `<TypeDescription>
+	<v8:Type>xs:string</v8:Type>
+	<v8:StringQualifiers>
+		<v8:Length>0</v8:Length>
+		<v8:AllowedLength>Variable</v8:AllowedLength>
+	</v8:StringQualifiers>
+</TypeDescription>`,
   },
   {
     internal: { type: ["string"], stringQualifiers: { length: 100, allowedLength: "Fixed" } },
     enterprise: "ФиксированнаяСтрока(100)",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:string</v8:Type>\n\t<v8:StringQualifiers>\n\t\t<v8:AllowedLength>Fixed</v8:AllowedLength>\n\t\t<v8:Length>100</v8:Length>\n\t</v8:StringQualifiers>\n</TypeDescription>",
+    xml: `<TypeDescription>
+	<v8:Type>xs:string</v8:Type>
+	<v8:StringQualifiers>
+		<v8:Length>100</v8:Length>
+		<v8:AllowedLength>Fixed</v8:AllowedLength>
+	</v8:StringQualifiers>
+</TypeDescription>`,
   },
   //#endregion
 
@@ -30,17 +48,38 @@ export const typeFixturesTable: TypeFixture[] = [
   {
     internal: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Any" } },
     enterprise: "Число(10, 2)",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:decimal</v8:Type>\n\t<v8:NumberQualifiers>\n\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t<v8:Digits>10</v8:Digits>\n\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t</v8:NumberQualifiers>\n</TypeDescription>",
+    xml: `<TypeDescription>
+	<v8:Type>xs:decimal</v8:Type>
+	<v8:NumberQualifiers>
+		<v8:Digits>10</v8:Digits>
+		<v8:FractionDigits>2</v8:FractionDigits>
+		<v8:AllowedSign>Any</v8:AllowedSign>
+	</v8:NumberQualifiers>
+</TypeDescription>`,
   },
   {
     internal: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" } },
     enterprise: "ПоложительноеЧисло(10, 2)",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:decimal</v8:Type>\n\t<v8:NumberQualifiers>\n\t\t<v8:AllowedSign>Nonnegative</v8:AllowedSign>\n\t\t<v8:Digits>10</v8:Digits>\n\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t</v8:NumberQualifiers>\n</TypeDescription>",
+    xml: `<TypeDescription>
+	<v8:Type>xs:decimal</v8:Type>
+	<v8:NumberQualifiers>
+		<v8:Digits>10</v8:Digits>
+		<v8:FractionDigits>2</v8:FractionDigits>
+		<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+	</v8:NumberQualifiers>
+</TypeDescription>`,
   },
   {
     internal: { type: ["decimal"] },
     enterprise: "Число",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:decimal</v8:Type>\n\t<v8:NumberQualifiers>\n\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t<v8:Digits>0</v8:Digits>\n\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t</v8:NumberQualifiers>\n</TypeDescription>",
+    xml: `<TypeDescription>
+	<v8:Type>xs:decimal</v8:Type>
+	<v8:NumberQualifiers>
+		<v8:Digits>0</v8:Digits>
+		<v8:FractionDigits>0</v8:FractionDigits>
+		<v8:AllowedSign>Any</v8:AllowedSign>
+	</v8:NumberQualifiers>
+</TypeDescription>`,
   },
   //#endregion
 
@@ -129,13 +168,13 @@ export const typeFixturesTable: TypeFixture[] = [
 	<v8:Type>xs:decimal</v8:Type>
 	<v8:Type>xs:dateTime</v8:Type>
 	<v8:NumberQualifiers>
-		<v8:AllowedSign>Any</v8:AllowedSign>
 		<v8:Digits>10</v8:Digits>
 		<v8:FractionDigits>2</v8:FractionDigits>
+		<v8:AllowedSign>Any</v8:AllowedSign>
 	</v8:NumberQualifiers>
 	<v8:StringQualifiers>
-		<v8:AllowedLength>Variable</v8:AllowedLength>
 		<v8:Length>10</v8:Length>
+		<v8:AllowedLength>Variable</v8:AllowedLength>
 	</v8:StringQualifiers>
 	<v8:DateQualifiers>
 		<v8:DateFractions>DateTime</v8:DateFractions>
