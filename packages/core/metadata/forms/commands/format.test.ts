@@ -7,7 +7,6 @@ describe("formatCommands", () => {
   it("should format command", () => {
     const data: Command = {
       name: "СоставКомплектаПодобратьФайлы",
-      id: "60",
       title: { items: { ru: "Файлы" } },
       toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
       action: "СоставКомплектаПодобратьФайлы",

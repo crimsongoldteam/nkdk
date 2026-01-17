@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
+import importContentFromXML from "~/xml/import/importer"
 import importCommandFromXML from "./importFromXML"
 import { Command, CommandXML } from "./types"
-import importContentFromXML from "~/xml/import/importer"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -31,7 +31,6 @@ describe("importCommandFromXML", () => {
 
     const expectedResult: Command = {
       name: "СоставКомплектаПодобратьФайлы",
-      id: "60",
       title: { items: { ru: "Файлы" } },
       toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
       action: "СоставКомплектаПодобратьФайлы",

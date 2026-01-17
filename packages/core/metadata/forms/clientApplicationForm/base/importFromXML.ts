@@ -12,6 +12,7 @@ export const importClientApplicationFormFromXML = (
   xml: ClientApplicationFormXML
 ): ClientApplicationForm => {
   const result: ClientApplicationForm = {
+    commands: [],
     childItems: [],
   }
 
@@ -119,9 +120,9 @@ export const importClientApplicationFormFromXML = (
     result.modified = xml.Modified
   }
 
-  if (xml.URL !== undefined) {
-    result.url = xml.URL
-  }
+  // if (xml.URL !== undefined) {
+  //   result.url = xml.URL
+  // }
 
   if (xml.ShowTitle !== undefined) {
     result.showTitle = xml.ShowTitle

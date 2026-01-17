@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
-	<Attributes>
-		<Attribute name="Объект" id="1">
-			<Type>
-				<v8:Type>cfg:CatalogRef.ТестоваяОбработка</v8:Type>
-			</Type>
-			<MainAttribute>true</MainAttribute>
-		</Attribute>
-	</Attributes>
 	<AutoCommandBar name="ФормаКоманднаяПанель" id="2">
 		<Autofill>false</Autofill>
 		<HorizontalAlign>Left</HorizontalAlign>
@@ -16,12 +8,6 @@
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<AutoTitle>true</AutoTitle>
 	<AutoURL>true</AutoURL>
-	<ChildItems>
-		<InputField name="ПолеВвода1" id="3">
-			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="4"/>
-			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="5"/>
-		</InputField>
-	</ChildItems>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
 	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
 	<CloseOnChoice>true</CloseOnChoice>
@@ -34,33 +20,6 @@
 	<ConversationsRepresentation>Show</ConversationsRepresentation>
 	<Enabled>true</Enabled>
 	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
-	<Events>
-		<Event name="ActivationProcessing">Процедура3</Event>
-		<Event name="AddInDetachmentOnError">Процедура13</Event>
-		<Event name="BeforeClose">Процедура15</Event>
-		<Event name="BeforeLoadDataFromSettingsAtServer">Процедура14</Event>
-		<Event name="BeforeReopenFromOtherServer">Процедура16</Event>
-		<Event name="ChoiceProcessing">Процедура4</Event>
-		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>
-		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">Процедура11</Event>
-		<Event name="ExternalEvent">Процедура2</Event>
-		<Event name="FillCheckProcessingAtServer">Процедура12</Event>
-		<Event name="NavigationProcessing">Процедура8</Event>
-		<Event name="NewWriteProcessing">Процедура5</Event>
-		<Event name="NotificationProcessing">Процедура7</Event>
-		<Event name="OnChangeDisplaySettings">Процедура21</Event>
-		<Event name="OnClose">Процедура19</Event>
-		<Event name="OnCreateAtServer">Процедура24</Event>
-		<Event name="OnLoadDataFromSettingsAtServer">Процедура18</Event>
-		<Event name="OnMainServerAvailabilityChange">Процедура20</Event>
-		<Event name="OnOpen">Процедура22</Event>
-		<Event name="OnPasteFromClipboard">Процедура17</Event>
-		<Event name="OnReopenFromOtherServer">Процедура23</Event>
-		<Event name="OnSaveDataInSettingsAtServer">Процедура25</Event>
-		<Event name="URLGetProcessing">Процедура9</Event>
-		<Event name="URLListGetProcessing">Процедура10</Event>
-		<Event name="URLProcessing">Процедура6</Event>
-	</Events>
 	<FormWindowOpeningMode>LockOwnerWindow</FormWindowOpeningMode>
 	<Group>Horizontal</Group>
 	<Height>600</Height>
@@ -88,4 +47,45 @@
 	<VerticalSpacing>Single</VerticalSpacing>
 	<Width>800</Width>
 	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
+	<Events>
+		<Event name="ActivationProcessing">Процедура3</Event>
+		<Event name="AddInDetachmentOnError">Процедура13</Event>
+		<Event name="BeforeClose">Процедура15</Event>
+		<Event name="BeforeLoadDataFromSettingsAtServer">Процедура14</Event>
+		<Event name="BeforeReopenFromOtherServer">Процедура16</Event>
+		<Event name="ChoiceProcessing">Процедура4</Event>
+		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>
+		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">Процедура11</Event>
+		<Event name="ExternalEvent">Процедура2</Event>
+		<Event name="FillCheckProcessingAtServer">Процедура12</Event>
+		<Event name="NavigationProcessing">Процедура8</Event>
+		<Event name="NewWriteProcessing">Процедура5</Event>
+		<Event name="NotificationProcessing">Процедура7</Event>
+		<Event name="OnChangeDisplaySettings">Процедура21</Event>
+		<Event name="OnClose">Процедура19</Event>
+		<Event name="OnCreateAtServer">Процедура24</Event>
+		<Event name="OnLoadDataFromSettingsAtServer">Процедура18</Event>
+		<Event name="OnMainServerAvailabilityChange">Процедура20</Event>
+		<Event name="OnOpen">Процедура22</Event>
+		<Event name="OnPasteFromClipboard">Процедура17</Event>
+		<Event name="OnReopenFromOtherServer">Процедура23</Event>
+		<Event name="OnSaveDataInSettingsAtServer">Процедура25</Event>
+		<Event name="URLGetProcessing">Процедура9</Event>
+		<Event name="URLListGetProcessing">Процедура10</Event>
+		<Event name="URLProcessing">Процедура6</Event>
+	</Events>
+	<ChildItems>
+		<InputField name="ПолеВвода1" id="3">
+			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="4"/>
+			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="5"/>
+		</InputField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Объект" id="1">
+			<Type>
+				<v8:Type>cfg:CatalogRef.ТестоваяОбработка</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
 </Form>

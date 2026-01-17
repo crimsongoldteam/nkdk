@@ -1,0 +1,9 @@
+<AutoCommandBar name="ФормаКоманднаяПанель" id="-1" DisplayImportance="High">
+	<Autofill>false</Autofill>
+	<ChildItems>
+		<Button name="Кнопка1" id="1">
+			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="2"/>
+		</Button>
+	</ChildItems>
+	<HorizontalAlign>Left</HorizontalAlign>
+</AutoCommandBar>

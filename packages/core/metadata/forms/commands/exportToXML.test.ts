@@ -14,7 +14,6 @@ describe("exportCommandToXML", () => {
   it("should export command", () => {
     const command: Command = {
       name: "СоставКомплектаПодобратьФайлы",
-      id: "60",
       title: { items: { ru: "Файлы" } },
       toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
       action: "СоставКомплектаПодобратьФайлы",

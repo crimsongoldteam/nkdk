@@ -4,45 +4,55 @@ import { fullAutoCommandBar, minimalAutoCommandBar, parentElement } from "~/test
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportAutoCommandBarToXML } from "./exportToXML"
+import { exportFormAutoCommandBarToXML, exportTableAutoCommandBarToXML } from "./exportToXML"
 
 describe("exportAutoCommandBarToXML", () => {
-  it("should return all fields to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/autoCommandBar/full.xml")
+  describe("exportFormAutoCommandBarToXML", () => {
+    it("should return default when data is undefined", () => {
+      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalForm.xml")
 
-    const xmlData = exportAutoCommandBarToXML(mockСontext, fullAutoCommandBar, parentElement)
+      const xmlData = exportFormAutoCommandBarToXML(mockСontext, undefined)
 
-    const result = xmlExport({ AutoCommandBar: xmlData }, false)
+      const result = xmlExport({ AutoCommandBar: xmlData }, false)
 
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual(expectedResult)
+    })
+    it("should return all fields to XML", () => {
+      const expectedResult = readXMLFileAsString("forms/autoCommandBar/fullForm.xml")
+      const xmlData = exportFormAutoCommandBarToXML(mockСontext, fullAutoCommandBar)
+      const result = xmlExport({ AutoCommandBar: xmlData }, false)
+      expect(result).toEqual(expectedResult)
+    })
+    it("should export minimal", () => {
+      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalForm.xml")
+      const xmlData = exportFormAutoCommandBarToXML(mockСontext, minimalAutoCommandBar)
+      const result = xmlExport({ AutoCommandBar: xmlData }, false)
+      expect(result).toEqual(expectedResult)
+    })
   })
 
-  it("should return default when data is undefined", () => {
-    const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimal.xml")
+  describe("exportTableAutoCommandBarToXML", () => {
+    it("should return default when data is undefined", () => {
+      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalTable.xml")
 
-    const xmlData = exportAutoCommandBarToXML(mockСontext, undefined, parentElement)
+      const xmlData = exportTableAutoCommandBarToXML(mockСontext, undefined, parentElement)
 
-    const result = xmlExport({ AutoCommandBar: xmlData }, false)
+      const result = xmlExport({ AutoCommandBar: xmlData }, false)
 
-    expect(result).toEqual(expectedResult)
-  })
+      expect(result).toEqual(expectedResult)
+    })
+    it("should return all fields to XML", () => {
+      const expectedResult = readXMLFileAsString("forms/autoCommandBar/fullTable.xml")
+      const xmlData = exportTableAutoCommandBarToXML(mockСontext, fullAutoCommandBar, parentElement)
+      const result = xmlExport({ AutoCommandBar: xmlData }, false)
+      expect(result).toEqual(expectedResult)
+    })
 
-  it("should return name 'КоманднаяПанель' when parentElement is form", () => {
-    const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimal.xml")
-
-    const xmlData = exportAutoCommandBarToXML(mockСontext, undefined, parentElement)
-
-    const result = xmlExport({ AutoCommandBar: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimal.xml")
-    const xmlData = exportAutoCommandBarToXML(mockСontext, minimalAutoCommandBar, parentElement)
-
-    const result = xmlExport({ AutoCommandBar: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    it("should export minimal", () => {
+      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalTable.xml")
+      const xmlData = exportTableAutoCommandBarToXML(mockСontext, minimalAutoCommandBar, parentElement)
+      const result = xmlExport({ AutoCommandBar: xmlData }, false)
+      expect(result).toEqual(expectedResult)
+    })
   })
 })

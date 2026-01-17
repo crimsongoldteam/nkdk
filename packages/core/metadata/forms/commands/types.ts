@@ -3,6 +3,21 @@ import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/pict
 import { UserVisible, UserVisibleXML } from "../../commonObjects/userVisible/types"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "../../systemEnumerations/types"
 
+export interface Command {
+  name: string
+  title?: I8nText
+  toolTip?: I8nText
+  use?: UserVisible
+  shortcut?: string
+  picture?: Picture
+  action?: string
+  representation?: ButtonRepresentation
+  currentRowUse?: CurrentRowUse
+  modifiesSavedData?: boolean
+}
+
+export type Commands = Command[]
+
 export interface CommandXML {
   _name: string
   _id: string
@@ -17,19 +32,7 @@ export interface CommandXML {
   CurrentRowUse?: CurrentRowUse
 }
 
-export interface Command {
-  name: string
-  id: string
-  title?: I8nText
-  toolTip?: I8nText
-  use?: UserVisible
-  shortcut?: string
-  picture?: Picture
-  action?: string
-  representation?: ButtonRepresentation
-  currentRowUse?: CurrentRowUse
-  modifiesSavedData?: boolean
-}
+export type CommandsXML = CommandXML | CommandXML[]
 
 export interface CommandEnterprise {
   Заголовок?: I8nTextEnterprise
@@ -41,3 +44,5 @@ export interface CommandEnterprise {
   ИспользованиеТекущейСтроки?: CurrentRowUseEnterprise
   ИзменяемыеДанные?: boolean
 }
+
+export type CommandsEnterprise = Record<string, CommandEnterprise>

@@ -1,29 +1,29 @@
 <Table name="Таблица" id="1">
-	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="-1"/>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="2"/>
-	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="3"/>
-	<SearchControlAddition name="ТаблицаУправленияПоиском" id="4">
+	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2"/>
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="3"/>
+	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4"/>
+	<SearchControlAddition name="ТаблицаУправленияПоиском" id="5">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchControlAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="5"/>
-		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="6"/>
+		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="6"/>
+		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="7"/>
 	</SearchControlAddition>
-	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="7">
+	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="8">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchStringAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="8"/>
-		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="9"/>
+		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="9"/>
+		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="10"/>
 	</SearchStringAddition>
-	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="10">
+	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="11">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="11"/>
-		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="12"/>
+		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="12"/>
+		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="13"/>
 	</ViewStatusAddition>
 </Table>

@@ -4,17 +4,32 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
 import { NamedElement } from "../baseElement/types"
-import { getAutoCommandBarName, isHasContent } from "./helper"
+import { getAutoCommandBarName } from "./helper"
 
-export const exportAutoCommandBarToXML = (
+export const exportFormAutoCommandBarToXML = (
+  context: ConfigurationContext,
+  data: AutoCommandBar | undefined
+): AutoCommandBarXML => {
+  return exportAutoCommandBarPropsToXML(context, data, "ФормаКоманднаяПанель", "-1")
+}
+
+export const exportTableAutoCommandBarToXML = (
   context: ConfigurationContext,
   data: AutoCommandBar | undefined,
-  parentElement?: NamedElement
+  parentElement: NamedElement
+): AutoCommandBarXML => {
+  const id = getElementId(context)
+  const name = getAutoCommandBarName(parentElement)
+  return exportAutoCommandBarPropsToXML(context, data, name, id)
+}
+
+const exportAutoCommandBarPropsToXML = (
+  context: ConfigurationContext,
+  data: AutoCommandBar | undefined,
+  name: string,
+  id: string
 ): AutoCommandBarXML => {
   const autoCommandBar = data ?? getDefaultAutoCommandBar()
-
-  const id = isHasContent(autoCommandBar) ? getElementId(context) : "-1"
-  const name = getAutoCommandBarName(parentElement)
 
   const result: AutoCommandBarXML = {
     _name: name,

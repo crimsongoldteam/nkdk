@@ -51,6 +51,7 @@ export const importClientApplicationFormFromEnterprise = (
   if (!data) return undefined
 
   const result: ClientApplicationForm = {
+    commands: [],
     childItems: [],
   }
 
@@ -161,7 +162,7 @@ export const importClientApplicationFormFromEnterprise = (
   const modified = importBooleanFromEnterprise(context, data.Модифицированность)
   if (modified !== undefined) result.modified = modified
 
-  if (data.НавигационнаяСсылка !== undefined) result.url = data.НавигационнаяСсылка
+  // if (data.НавигационнаяСсылка !== undefined) result.url = data.НавигационнаяСсылка
 
   const showTitle = importBooleanFromEnterprise(context, data.ОтображатьЗаголовок)
   if (showTitle !== undefined) result.showTitle = showTitle

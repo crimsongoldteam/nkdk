@@ -4,7 +4,13 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const fullClientApplicationForm: ClientApplicationForm = {
+export const fullClientApplicationForm: Required<ClientApplicationForm> = {
+  commands: [
+    {
+      name: "Команда1",
+      title: { items: { ru: "Команда1" } },
+    },
+  ],
   autoCommandBar: {
     autofill: false,
     horizontalAlign: "Left",
@@ -38,7 +44,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   scale: 100,
   modalMode: false,
   modified: false,
-  url: "https://example.com",
   showTitle: true,
   showCloseButton: true,
   conversationsRepresentation: "Show",
@@ -113,7 +118,6 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
   Масштаб: 100,
   МодальныйРежим: "Ложь",
   Модифицированность: "Ложь",
-  НавигационнаяСсылка: "https://example.com",
   ОтображатьЗаголовок: "Истина",
   ОтображатьКнопкуЗакрытия: "Истина",
   ОтображениеОбсуждений: "Отображать",
@@ -168,6 +172,7 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
 
 export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],
+  commands: [],
 }
 
 export const minimalClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {}

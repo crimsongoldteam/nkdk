@@ -10,7 +10,6 @@ export default function importCommandFromXML(
 
   const result: Command = {
     name: xml._name,
-    id: xml._id,
     title: importI8nTextFromXML(context, xml.Title),
     toolTip: importI8nTextFromXML(context, xml.ToolTip),
     shortcut: xml.Shortcut,

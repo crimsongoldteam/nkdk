@@ -4,6 +4,7 @@ import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/form
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
 import { EventsXML } from "../../events/types"
 
@@ -38,7 +39,6 @@ export interface ClientApplicationFormEvents {
 
 export interface ClientApplicationForm {
   commandSet?: CommandSet
-  // elementType: FormElementType
   attributes?: FormAttribute[]
   autoCommandBar?: AutoCommandBar
   autoTitle?: boolean
@@ -56,14 +56,14 @@ export interface ClientApplicationForm {
   title?: I8nText
   closeOnChoice?: boolean
   closeOnOwnerClose?: boolean
-  // formName?: string
+  commands: Command[]
   usedFormServer?: SE.UsedServer
   purposeUseKey?: string
   windowOptionsKey?: string
   scale?: number
   modalMode?: boolean
   modified?: boolean
-  url?: string
+  // url?: string
   showTitle?: boolean
   showCloseButton?: boolean
   conversationsRepresentation?: SE.FormConversationsRepresentation
@@ -76,7 +76,7 @@ export interface ClientApplicationForm {
   saveDataInSettings?: SE.SaveFormDataInSettings
   savedInSettingsDataModified?: boolean
   readOnly?: boolean
-  uuid?: string
+  // uuid?: string
   width?: number
   slaveItemsWidth?: SE.ChildFormItemsWidth
   events?: ClientApplicationFormEvents
@@ -130,8 +130,8 @@ export interface ClientApplicationFormXML {
   ShowTitle?: boolean
   SlaveItemsWidth?: SE.ChildFormItemsWidth
   Title?: I8nTextXML
-  URL?: string
-  UUID?: string
+  // URL?: string
+  // UUID?: string
   UsedFormServer?: SE.UsedServer
   VerticalScroll?: SE.VerticalFormScroll
   VerticalSpacing?: SE.FormItemSpacing
@@ -145,6 +145,7 @@ export interface ClientApplicationFormXML {
   Attributes?: {
     Attribute: FormAttributesXML
   }
+  Commands?: { Command: CommandsXML }
 }
 
 export interface ClientApplicationFormEnterprise {
@@ -170,7 +171,7 @@ export interface ClientApplicationFormEnterprise {
   Масштаб?: number
   МодальныйРежим?: StringboolEnterprise
   Модифицированность?: StringboolEnterprise
-  НавигационнаяСсылка?: string
+  // НавигационнаяСсылка?: string
   ОтображатьЗаголовок?: StringboolEnterprise
   ОтображатьКнопкуЗакрытия?: StringboolEnterprise
   ОтображениеОбсуждений?: SE.FormConversationsRepresentationEnterprise
@@ -214,5 +215,6 @@ export interface ClientApplicationFormEnterprise {
     ПриСозданииНаСервере?: string
     ПриСохраненииДанныхВНастройкахНаСервере?: string
   }
+  Команды?: CommandsEnterprise
   Элементы?: ChildItemsPartialEnterprise
 }

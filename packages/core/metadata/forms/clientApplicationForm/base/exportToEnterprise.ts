@@ -159,7 +159,7 @@ export const exportClientApplicationFormToEnterprise = (
   const modified = exportBooleanToEnterprise(context, data.modified)
   if (modified !== undefined) result.Модифицированность = modified
 
-  if (data.url !== undefined) result.НавигационнаяСсылка = data.url
+  // if (data.url !== undefined) result.НавигационнаяСсылка = data.url
 
   const showTitle = exportBooleanToEnterprise(context, data.showTitle)
   if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle

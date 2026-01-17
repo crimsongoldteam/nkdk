@@ -8,7 +8,7 @@ import { AutoCommandBarXML } from "./types"
 
 describe("importAutoCommandBarFromXML", () => {
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ AutoCommandBar: AutoCommandBarXML }>("forms/autoCommandBar/full.xml")
+    const xmlData = readAndParseXMLFile<{ AutoCommandBar: AutoCommandBarXML }>("forms/autoCommandBar/fullForm.xml")
 
     const result = importAutoCommandBarFromXML(mockСontext, xmlData.AutoCommandBar)
 
@@ -16,7 +16,7 @@ describe("importAutoCommandBarFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ AutoCommandBar: AutoCommandBarXML }>("forms/autoCommandBar/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ AutoCommandBar: AutoCommandBarXML }>("forms/autoCommandBar/minimalForm.xml")
 
     const result = importAutoCommandBarFromXML(mockСontext, xmlData.AutoCommandBar)
 

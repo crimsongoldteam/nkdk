@@ -2,6 +2,14 @@ import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, CommandXML } from "./types"
 
+export const exportCommandsToXML = (
+  context: ConfigurationContext,
+  data: Command[] | undefined
+): CommandXML[] | undefined => {
+  if (!data) return undefined
+  return data.map((value: Command) => exportCommandToXML(context, value)!)
+}
+
 export default function exportCommandToXML(
   context: ConfigurationContext,
   command: Command | undefined
@@ -10,7 +18,7 @@ export default function exportCommandToXML(
 
   const result: CommandXML = {
     _name: command.name,
-    _id: command.id,
+    _id: "1",
   }
 
   if (command.title !== undefined) {

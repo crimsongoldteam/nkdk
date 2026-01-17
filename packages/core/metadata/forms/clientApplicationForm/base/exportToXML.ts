@@ -2,21 +2,18 @@ import { exportFormAttributesToXML } from "~/metadata/commonObjects/formAttribut
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
-import { exportAutoCommandBarToXML } from "~/metadata/forms/elements/autoCommandBar/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
+import { exportCommandsToXML } from "../../commands/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
+import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/exportToXML"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
-
-  const attributes = exportFormAttributesToXML(context, data.attributes)
-  const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
 
   const result: ClientApplicationFormXML = {
     _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
@@ -37,12 +34,9 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.18",
-    AutoCommandBar: autoCommandBar,
-  }
+  } as ClientApplicationFormXML
 
-  if (attributes !== undefined) {
-    result.Attributes = { Attribute: attributes }
-  }
+  result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)
 
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) {
@@ -166,10 +160,6 @@ export const exportClientApplicationFormToXML = (
     result.SlaveItemsWidth = data.slaveItemsWidth
   }
 
-  if (data.url !== undefined) {
-    result.URL = data.url
-  }
-
   if (data.usedFormServer !== undefined) {
     result.UsedFormServer = data.usedFormServer
   }
@@ -190,10 +180,6 @@ export const exportClientApplicationFormToXML = (
     result.WindowOptionsKey = data.windowOptionsKey
   }
 
-  // if (data.useForFoldersAndItems !== undefined) {
-  //   result.UseForFoldersAndItems = data.useForFoldersAndItems
-  // }
-
   const events = exportEventsToXML(context, data.events as Events | undefined)
   if (events !== undefined) {
     result.Events = events
@@ -204,5 +190,15 @@ export const exportClientApplicationFormToXML = (
     result.ChildItems = childItems
   }
 
-  return sortObject(result)
+  const attributes = exportFormAttributesToXML(context, data.attributes)
+  if (attributes !== undefined) {
+    result.Attributes = { Attribute: attributes }
+  }
+
+  const commands = exportCommandsToXML(context, data.commands)
+  if (commands !== undefined) {
+    result.Commands = { Command: commands }
+  }
+
+  return result
 }
