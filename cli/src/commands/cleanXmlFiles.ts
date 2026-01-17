@@ -1,8 +1,8 @@
 import * as cliProgress from "cli-progress"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { prepareFormXml } from "../core/cleanXml/cleanFormXml.js"
-import { cleanXml } from "../core/cleanXml/cleanXml.js"
+import { cleanForm } from "../core/cleanXml/cleanForm.js"
+import { cleanMetadata } from "../core/cleanXml/cleanMetadata.js"
 
 function isDirectory(path: string): boolean {
   try {
@@ -24,7 +24,7 @@ function cleanXmlFile(inputFile: string, outputFile: string): void {
   const xmlContent = readFileSync(inputFile, "utf-8")
   const fileName = inputFile.split(/[/\\]/).pop() || ""
   // Автоматически определяем Form.xml и обрабатываем через prepareFormXml
-  const processedXml = fileName === "Form.xml" ? prepareFormXml(xmlContent) : cleanXml(xmlContent)
+  const processedXml = fileName === "Form.xml" ? cleanForm(xmlContent) : cleanMetadata(xmlContent)
   const outputDir = dirname(outputFile)
   mkdirSync(outputDir, { recursive: true })
   writeFileSync(outputFile, processedXml, "utf-8")

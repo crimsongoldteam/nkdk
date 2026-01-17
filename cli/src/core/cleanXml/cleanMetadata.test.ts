@@ -9,8 +9,8 @@ const __dirname = dirname(__filename)
 
 describe("cleanMetadata", () => {
   it("should process catalogIn.xml and match catalogOut.xml", () => {
-    const inputPath = join(__dirname, "../../../test/fixtures/catalogIn.xml")
-    const expectedPath = join(__dirname, "../../../test/fixtures/catalogOut.xml")
+    const inputPath = join(__dirname, "../../../test/fixtures/metadata/before.xml")
+    const expectedPath = join(__dirname, "../../../test/fixtures/metadata/after.xml")
 
     const inputXml = readFileSync(inputPath, "utf-8")
     const expectedXml = readFileSync(expectedPath, "utf-8")

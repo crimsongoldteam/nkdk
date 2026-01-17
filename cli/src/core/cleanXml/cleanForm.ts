@@ -85,5 +85,5 @@ export const cleanForm = (xmlContent: string): string => {
 
   const parsedData = parseXml(xmlContent)
   const processedData = transform(parsedData)
-  return buildXml(processedData)
+  return buildXml(processedData).trimEnd()
 }

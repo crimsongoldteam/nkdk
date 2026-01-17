@@ -16,5 +16,10 @@ export const buildXml = (parsedData: any): string => {
 
   const outputXml = builder.build(parsedData)
 
+  // Добавляем XML декларацию, если её нет
+  if (!outputXml.trim().startsWith("<?xml")) {
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + outputXml
+  }
+
   return outputXml.trimEnd()
 }
