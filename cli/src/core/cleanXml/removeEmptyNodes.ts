@@ -29,6 +29,12 @@ export const removeEmptyNodes = (context: CleanContext, parsedData: any): any =>
 
   for (const key of allKeys) {
     const value = parsedData[key]
+
+    // Специальная обработка для FillValue: исключаем элементы без значения
+    if ((key === "FillValue" || key === "xr:FillValue") && isEmptyFillValue(value)) {
+      continue
+    }
+
     const processedValue = removeEmptyNodes(context, value)
 
     // Пропускаем пустые ноды, но не удаляем v8:content
@@ -100,5 +106,19 @@ const isEmptyNode = (value: any): boolean => {
     }
   }
 
+  return false
+}
+
+const isEmptyFillValue = (value: any): boolean => {
+  if (value === null || value === undefined) {
+    return true
+  }
+  if (typeof value === "string") {
+    return value.trim() === ""
+  }
+  if (typeof value === "object") {
+    const text = value["#text"]
+    return text === undefined || text === null || (typeof text === "string" && text.trim() === "")
+  }
   return false
 }
