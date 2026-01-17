@@ -6,19 +6,29 @@ export const sortData = (context: CleanContext, parsedData: any, isInsideSortabl
   }
 
   if (Array.isArray(parsedData)) {
-    return parsedData.map((item) => sortData(context, item, false))
+    const result = []
+
+    for (const item of parsedData) {
+      const resultValue = sortData(context, item, isInsideSortableTag)
+      result.push(resultValue)
+    }
+
+    return result
   }
 
   const result: Record<string, any> = {}
-  const keys = isInsideSortableTag
-    ? Object.keys(parsedData).sort((a, b) => a.localeCompare(b, "ru"))
-    : Object.keys(parsedData)
+  for (const key in parsedData) {
+    if (key == "@attributes") {
+      result["@attributes"] = parsedData["@attributes"]
+      continue
+    }
 
-  for (const key of keys) {
-    const isCurrentKeySortable = context.sortableTags.includes(key)
-    const nextIsInsideSortableTag = isInsideSortableTag ? false : isCurrentKeySortable
-    result[key] = sortData(context, parsedData[key], nextIsInsideSortableTag)
+    const isSortable = context.sortableTags.includes(key)
+    const resultValue = sortData(context, parsedData[key], isSortable)
+    result[key] = resultValue
   }
 
-  return result
+  const sortedKeys = isInsideSortableTag ? Object.keys(result).sort((a, b) => a.localeCompare(b, "ru")) : result
+
+  return sortedKeys
 }

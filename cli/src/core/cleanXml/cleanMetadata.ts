@@ -35,7 +35,6 @@ const metadataContext: CleanContext = {
     // "v8:item",
     "xr:CharacteristicTypes",
     "xr:CharacteristicValues",
-    "xr:StandardAttribute",
     // "v8:StringQualifiers",
     // "v8:NumberQualifiers",
     // "v8:DateQualifiers",
