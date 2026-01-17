@@ -36,11 +36,16 @@ export const exportClientApplicationFormToXML = (
     _version: "2.18",
   } as ClientApplicationFormXML
 
-  if (data.autoFillCheck !== undefined) {
-    result.AutoFillCheck = data.autoFillCheck
+  const attributes = exportFormAttributesToXML(context, data.attributes)
+  if (attributes !== undefined) {
+    result.Attributes = { Attribute: attributes }
   }
 
   result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)
+
+  if (data.autoFillCheck !== undefined) {
+    result.AutoFillCheck = data.autoFillCheck
+  }
 
   if (data.autoSaveDataInSettings !== undefined) {
     result.AutoSaveDataInSettings = data.autoSaveDataInSettings
@@ -52,6 +57,11 @@ export const exportClientApplicationFormToXML = (
 
   if (data.autoURL !== undefined) {
     result.AutoURL = data.autoURL
+  }
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) {
+    result.ChildItems = childItems
   }
 
   if (data.childItemsHorizontalAlign !== undefined) {
@@ -78,6 +88,11 @@ export const exportClientApplicationFormToXML = (
     result.CommandBarLocation = data.commandBarLocation
   }
 
+  const commands = exportCommandsToXML(context, data.commands)
+  if (commands !== undefined) {
+    result.Commands = { Command: commands }
+  }
+
   const commandSet = exportCommandSetToXML(context, data.commandSet)
   if (commandSet !== undefined) {
     result.CommandSet = commandSet
@@ -93,6 +108,11 @@ export const exportClientApplicationFormToXML = (
 
   if (data.enterKeyBehavior !== undefined) {
     result.EnterKeyBehavior = data.enterKeyBehavior
+  }
+
+  const events = exportEventsToXML(context, data.events as Events | undefined)
+  if (events !== undefined) {
+    result.Events = events
   }
 
   if (data.formWindowOpeningMode !== undefined) {
@@ -178,26 +198,6 @@ export const exportClientApplicationFormToXML = (
 
   if (data.windowOptionsKey !== undefined) {
     result.WindowOptionsKey = data.windowOptionsKey
-  }
-
-  const events = exportEventsToXML(context, data.events as Events | undefined)
-  if (events !== undefined) {
-    result.Events = events
-  }
-
-  const childItems = exportChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) {
-    result.ChildItems = childItems
-  }
-
-  const attributes = exportFormAttributesToXML(context, data.attributes)
-  if (attributes !== undefined) {
-    result.Attributes = { Attribute: attributes }
-  }
-
-  const commands = exportCommandsToXML(context, data.commands)
-  if (commands !== undefined) {
-    result.Commands = { Command: commands }
   }
 
   return result
