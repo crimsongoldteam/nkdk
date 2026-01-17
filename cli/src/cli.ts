@@ -42,3 +42,5 @@ program.parse()
 
 //npm run dev import /Users/nikita/git/ТестРаботы/xml /Users/nikita/git/ТестРаботы/nkdk
 //npm run dev export /Users/nikita/git/ТестРаботы/nkdk /Users/nikita/git/ТестРаботы/xml
+
+// npm run dev  /Users/nikita/git/nakidka-core/packages/core/tempTest/Before/Form.xml /Users/nikita/git/nakidka-core/packages/core/tempTest/Before/Form.xml

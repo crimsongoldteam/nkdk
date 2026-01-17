@@ -29,6 +29,7 @@ const formContext: CleanContext = {
   },
 
   sortableTags: [
+    "Form",
     "Attribute",
     "Command",
     "UsualGroup",

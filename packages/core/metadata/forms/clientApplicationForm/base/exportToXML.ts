@@ -6,8 +6,8 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportCommandsToXML } from "../../commands/exportToXML"
-import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/exportToXML"
+import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,
