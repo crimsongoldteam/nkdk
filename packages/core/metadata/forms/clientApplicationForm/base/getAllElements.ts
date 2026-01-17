@@ -1,4 +1,4 @@
-import { ChildItems } from "../../collections/childItems/types"
+import { ChildItem, ChildItems } from "../../collections/childItems/types"
 import { ClientApplicationForm } from "./types"
 
 export const getAllElements = (form: ClientApplicationForm): ChildItems => {
@@ -13,10 +13,15 @@ export const getAllElements = (form: ClientApplicationForm): ChildItems => {
     const element = queue.shift()!
     elements.push(element)
 
-    if (!("childItems" in element) || !Array.isArray(element.childItems)) continue
-
-    for (const childItem of element.childItems) queue.push(childItem)
+    const childItems = getChildItems(element)
+    queue.push(...childItems)
   }
 
   return elements
+}
+
+const getChildItems = (element: ChildItem): ChildItems => {
+  if (!("childItems" in element) || !Array.isArray(element.childItems)) return []
+
+  return element.childItems
 }
