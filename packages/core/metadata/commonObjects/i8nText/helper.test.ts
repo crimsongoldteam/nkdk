@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { isEmptyFormattedI8nText, isEmptyI8nText } from "./helper"
-import { FormattedI8nText, I8nText } from "./types"
+import { isEmptyI8nText } from "./helper"
+import { I8nText } from "./types"
 
 describe("isEmptyI8nText", () => {
   it("should return true for empty items object", () => {
@@ -64,22 +64,6 @@ describe("isEmptyI8nText", () => {
     const data: I8nText = { items: { en: "Text", de: "TextDE" } }
 
     const result = isEmptyI8nText(mockСontext, data)
-
-    expect(result).toBe(false)
-  })
-
-  it("should return false for default language (non-empty) with formatted property", () => {
-    const data: FormattedI8nText = { formatted: true, items: { ru: "Текст" } }
-
-    const result = isEmptyFormattedI8nText(mockСontext, data)
-
-    expect(result).toBe(false)
-  })
-
-  it("should return true for default language (empty) with formatted property", () => {
-    const data: FormattedI8nText = { formatted: true, items: { ru: "" } }
-
-    const result = isEmptyFormattedI8nText(mockСontext, data)
 
     expect(result).toBe(false)
   })

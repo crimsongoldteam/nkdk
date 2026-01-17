@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormattedI8nText, I8nText } from "./types"
+import { I8nText } from "./types"
+import { FormattedI8nText } from "../formattedI8nText/types"
 
 export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): boolean => {
   for (const [lang, content] of Object.entries(data.items)) {

@@ -28,6 +28,7 @@ const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
   // #region labelDecoration
+
   public labelDecoration(ctx: CstChildrenDictionary, context: ConfigurationContext): LabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
 
@@ -35,12 +36,15 @@ export class Visitor extends BaseVisitor {
 
     const name = this.visit(ctx.properties as CstNode[], context) || titleText
 
-    return {
-      elementType: FormElementType.LabelDecoration,
+    const title = this.createTitle(titleText, context.defaultLanguage)
+
+    const result: LabelDecoration = {
+      elementType: "LabelDecoration",
       name: name || "",
-      title: this.createTitle(titleText, context.defaultLanguage),
-      id: undefined,
-    } as LabelDecoration
+      title: title ? { items: title.items, formatted: false } : undefined,
+    }
+
+    return result
   }
   // #endregion
 
