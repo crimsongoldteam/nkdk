@@ -174,52 +174,52 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
   {
     name: "left titled",
     element: {
-      name: "Заголовок",
+      name: "Флажок",
       elementType: FormElementType.CheckBoxField,
-      title: { items: { ru: "Заголовок" } },
+      title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["Заголовок[]"],
+      strings: ["Заголовок флажка [ ] {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },
   {
     name: "right titled",
     element: {
-      name: "Заголовок",
+      name: "Флажок",
       elementType: FormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
-      title: { items: { ru: "Заголовок" } },
+      title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["[]Заголовок"],
+      strings: ["[ ] Заголовок флажка {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },
   {
     name: "left titled switch",
     element: {
-      name: "Заголовок",
+      name: "Флажок",
       elementType: FormElementType.CheckBoxField,
       checkBoxType: "Switch",
-      title: { items: { ru: "Заголовок" } },
+      title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["Заголовок[|1]"],
+      strings: ["Заголовок флажка [ |1] {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },
   {
     name: "right titled switch",
     element: {
-      name: "Заголовок",
+      name: "Флажок",
       elementType: FormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
       checkBoxType: "Switch",
-      title: { items: { ru: "Заголовок" } },
+      title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["[|1]Заголовок"],
+      strings: ["[|1] Заголовок флажка {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },

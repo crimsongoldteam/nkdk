@@ -20,15 +20,15 @@ export const exportCheckBoxFieldToStructure = (
     const title = element.title!.items.ru
     if (isRightTitled) {
       if (isSwitch) {
-        resultString = "[|1]" + title
+        resultString = "[|1] " + title + " " + formatElementName(element)
       } else {
-        resultString = "[]" + title
+        resultString = "[ ] " + title + " " + formatElementName(element)
       }
     } else {
       if (isSwitch) {
-        resultString = title + "[|1]"
+        resultString = title + " [ |1] " + formatElementName(element)
       } else {
-        resultString = title + "[]"
+        resultString = title + " [ ] " + formatElementName(element)
       }
     }
   } else {
