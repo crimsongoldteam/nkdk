@@ -31,7 +31,7 @@ export const fullSearchStringAddition: SearchStringAddition = {
   visible: true,
   width: 300,
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
 }
 
 export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {

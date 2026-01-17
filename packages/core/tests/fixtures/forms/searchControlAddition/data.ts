@@ -29,6 +29,7 @@ export const fullSearchControlAddition: SearchControlAddition = {
   extendedTooltip: {
     title: {
       items: { ru: "Оформление формы" },
+      formatted: false,
     },
     autoMaxHeight: true,
     autoMaxWidth: true,

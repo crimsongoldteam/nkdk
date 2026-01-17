@@ -17,6 +17,7 @@ export const otherParentElement: NamedElement = {
 export const fullExtendedTooltip: ExtendedTooltip = {
   title: {
     items: { ru: "Оформление формы" },
+    formatted: false,
   },
   autoMaxHeight: true,
   autoMaxWidth: true,

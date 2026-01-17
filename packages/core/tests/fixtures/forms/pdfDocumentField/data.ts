@@ -17,7 +17,7 @@ export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
   borderColor: { type: "WebColor", value: "Green" },
   currentPageNumber: 1,
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   height: 200,
   horizontalStretch: true,
   maxHeight: 500,

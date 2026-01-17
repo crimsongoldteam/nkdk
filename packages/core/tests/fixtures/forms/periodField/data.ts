@@ -14,7 +14,7 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   },
   autoCellHeight: true,
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   cellHyperlink: true,
   dataPath: "Объект.Реквизит",
   defaultItem: true,

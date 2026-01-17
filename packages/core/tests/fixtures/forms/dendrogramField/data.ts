@@ -76,7 +76,7 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",

@@ -62,6 +62,7 @@ export const fullTable: Table = {
   extendedTooltip: {
     title: {
       items: { ru: "Расширенная подсказка" },
+      formatted: false,
     },
   },
   fileDragMode: "AsFile",

@@ -79,7 +79,7 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
   events: {

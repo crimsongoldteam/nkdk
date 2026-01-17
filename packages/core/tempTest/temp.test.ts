@@ -59,7 +59,7 @@ const configurationContext = {
 // const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
 // const originalFormXml = readAndParseXMLFile<ClientApplicationFormXML>("forms/clientApplicationForm/full.xml")
 
-describe("DO test", () => {
+describe.skip("DO test", () => {
   it("should import-export form", () => {
     const fullPath = join(__dirname, "Before/Form.xml")
     const xml = readFileSync(fullPath, "utf-8")

@@ -20,7 +20,7 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
   editMode: "EnterOnInput",
   enabled: true,
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
   footerDataPath: "Объект.РеквизитПодвала",

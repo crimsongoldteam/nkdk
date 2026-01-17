@@ -71,7 +71,7 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   table: "",
   typeRestriction: { type: ["string"] },
   autoMaxHeight: false,
