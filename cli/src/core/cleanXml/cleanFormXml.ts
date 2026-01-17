@@ -1,11 +1,29 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser"
-import { SORTABLE_TAGS } from "./cleanXml.js"
+import type { CleanContext } from "./types.js"
+
+// Теги, внутри которых нужно сортировать дочерние элементы (без иерархии - только на первом уровне)
+const sortableTags = [
+  "Properties",
+  "xr:Properties",
+  "xr:StandardAttribute",
+  "v8:item",
+  "xr:CharacteristicTypes",
+  "xr:CharacteristicValues",
+  "v8:StringQualifiers",
+  "v8:NumberQualifiers",
+  "v8:DateQualifiers",
+  "xr:Link",
+]
 
 export function prepareFormXml(xmlContent: string): string {
+  const context: CleanContext = {
+    namespaces: {},
+    sortableTags: SORTABLE_TAGS,
+  }
   const parsedData = parseXml(xmlContent)
   const processedData = parsedData.Form
-    ? { Form: processFormElement(parsedData.Form, "Form") }
-    : processFormElement(parsedData)
+    ? { Form: processFormElement(context, parsedData.Form, "Form") }
+    : processFormElement(context, parsedData)
   const renumberedData = renumberIds(processedData)
   return buildXml(renumberedData)
 }
@@ -88,9 +106,14 @@ function getSortedKeys(allKeys: string[], parentKey: string): string[] {
   return allKeys.sort()
 }
 
-function processArray(arr: any[], parentKey: string, processor: (item: any, key: string) => any): any[] | undefined {
+function processArray(
+  context: CleanContext,
+  arr: any[],
+  parentKey: string,
+  processor: (item: any, key: string) => any
+): any[] | undefined {
   const shouldSort =
-    (SORTABLE_TAGS.includes(parentKey) || parentKey.endsWith(":Properties")) && parentKey !== "ChildItems"
+    (context.sortableTags.includes(parentKey) || parentKey.endsWith(":Properties")) && parentKey !== "ChildItems"
   const processed = arr.map((item) => processor(item, parentKey))
 
   if (shouldSort) {
@@ -104,7 +127,7 @@ function processArray(arr: any[], parentKey: string, processor: (item: any, key:
   return processed.length > 0 ? processed : undefined
 }
 
-function processChildItems(value: any, processor: (item: any, key: string) => any): any {
+function processChildItems(value: any, processor: (item: any, key: string) => any, context?: CleanContext): any {
   if (Array.isArray(value)) {
     return value.map((item) => processor(item, "ChildItems"))
   }
@@ -144,13 +167,13 @@ function processChildItems(value: any, processor: (item: any, key: string) => an
   return value
 }
 
-function processFormElement(obj: any, parentKey: string = ""): any {
+function processFormElement(context: CleanContext, obj: any, parentKey: string = ""): any {
   if (obj === null || obj === undefined || typeof obj !== "object") {
     return obj
   }
 
   if (Array.isArray(obj)) {
-    return processArray(obj, parentKey, processFormElement)
+    return processArray(context, obj, parentKey, (item, key) => processFormElement(context, item, key))
   }
 
   const result: Record<string, any> = {}
@@ -166,7 +189,9 @@ function processFormElement(obj: any, parentKey: string = ""): any {
     const value = obj[key]
 
     if (key === "ChildItems") {
-      const processedChildItems = processChildItems(value, processFormElement)
+      const processedChildItems = processChildItems(context, value, (item, key) =>
+        processFormElement(context, item, key)
+      )
       // Всегда сохраняем ChildItems, даже если обработка вернула undefined
       // (ChildItems может содержать только атрибуты или быть пустым)
       if (processedChildItems !== undefined) {
@@ -176,7 +201,7 @@ function processFormElement(obj: any, parentKey: string = ""): any {
         result[key] = value
       }
     } else {
-      const processed = processFormElement(value, key)
+      const processed = processFormElement(context, value, key)
       if (processed !== undefined) {
         result[key] = processed
       }
