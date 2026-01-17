@@ -36,21 +36,11 @@ export const exportClientApplicationFormToXML = (
     _version: "2.18",
   } as ClientApplicationFormXML
 
-  result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)
-
-  const title = exportI8nTextToXML(context, data.title)
-  if (title !== undefined) {
-    result.Title = title
-  }
-
-  const commandSet = exportCommandSetToXML(context, data.commandSet)
-  if (commandSet !== undefined) {
-    result.CommandSet = commandSet
-  }
-
   if (data.autoFillCheck !== undefined) {
     result.AutoFillCheck = data.autoFillCheck
   }
+
+  result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)
 
   if (data.autoSaveDataInSettings !== undefined) {
     result.AutoSaveDataInSettings = data.autoSaveDataInSettings
@@ -86,6 +76,11 @@ export const exportClientApplicationFormToXML = (
 
   if (data.commandBarLocation !== undefined) {
     result.CommandBarLocation = data.commandBarLocation
+  }
+
+  const commandSet = exportCommandSetToXML(context, data.commandSet)
+  if (commandSet !== undefined) {
+    result.CommandSet = commandSet
   }
 
   if (data.conversationsRepresentation !== undefined) {
@@ -158,6 +153,11 @@ export const exportClientApplicationFormToXML = (
 
   if (data.slaveItemsWidth !== undefined) {
     result.SlaveItemsWidth = data.slaveItemsWidth
+  }
+
+  const title = exportI8nTextToXML(context, data.title)
+  if (title !== undefined) {
+    result.Title = title
   }
 
   if (data.usedFormServer !== undefined) {
