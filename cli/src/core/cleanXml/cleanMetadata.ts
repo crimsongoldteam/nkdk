@@ -32,13 +32,8 @@ const metadataContext: CleanContext = {
     "Properties",
     "xr:Properties",
     "xr:StandardAttribute",
-    // "v8:item",
     "xr:CharacteristicTypes",
     "xr:CharacteristicValues",
-    // "v8:StringQualifiers",
-    // "v8:NumberQualifiers",
-    // "v8:DateQualifiers",
-    // "xr:Link",
   ],
 }
 
@@ -50,9 +45,9 @@ const pipe =
 export const cleanMetadata = (xmlContent: string): string => {
   const transform = pipe(
     (data) => addNamespaces(metadataContext, data),
-    (data) => sortData(metadataContext, data),
     (data) => removeEmptyNodes(metadataContext, data),
-    (data) => setUUID(metadataContext, data)
+    (data) => setUUID(metadataContext, data),
+    (data) => sortData(metadataContext, data, false, "")
   )
 
   const parsedData = parseXml(xmlContent)
