@@ -67,6 +67,7 @@ export interface ExtendedTooltipEnterprise {
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   Доступность?: StringboolEnterprise
   Заголовок?: I8nTextEnterprise
+  ФорматированныйЗаголовок?: I8nTextEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise

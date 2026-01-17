@@ -1,7 +1,10 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportFormattedI8nTextToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -54,8 +57,8 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
+  const title = exportFormattedI8nTextToEnterprise(context, data.title, "Заголовок", "ФорматированныйЗаголовок")
+  Object.assign(result, title)
 
   if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
 

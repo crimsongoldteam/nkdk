@@ -1,9 +1,8 @@
 import { ConfigurationContext } from "../../context/types"
-import { importBooleanFromXML } from "../boolean/importFromXML"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   xml: I8nTextXML | undefined
 ): I8nText | undefined => {
   if (!xml) return undefined
@@ -16,10 +15,6 @@ export const importI8nTextFromXML = (
 
   const result: I8nText = {
     items: {},
-  }
-
-  if (xml._formatted) {
-    result.formatted = importBooleanFromXML(context, xml._formatted)
   }
 
   for (const item of items) {

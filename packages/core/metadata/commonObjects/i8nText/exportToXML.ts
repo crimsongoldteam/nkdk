@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 import { isEmptyI8nText } from "./helper"
+import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const exportI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
@@ -26,5 +26,5 @@ export const exportI8nTextToXML = (
     v8Items.push({ "v8:lang": lang, "v8:content": content })
   })
 
-  return { _formatted: data.formatted, "v8:item": v8Items }
+  return { "v8:item": v8Items }
 }

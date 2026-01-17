@@ -28,7 +28,6 @@ export const importI8nTextCombinedFromEnterprise = (
   if (defaultLanguage === undefined && otherLanguagesEnterprise === undefined) return undefined
 
   const result: I8nText = {
-    formatted: defaultLanguage?.formatted,
     items: {},
   }
 
@@ -37,9 +36,11 @@ export const importI8nTextCombinedFromEnterprise = (
   }
 
   if (otherLanguagesEnterprise !== undefined) {
-    const otherLanguages = importI8nTextFromEnterprise(context, otherLanguagesEnterprise)
-    if (otherLanguages !== undefined) result.items = { ...result.items, ...otherLanguages.items }
+    const otherLanguages = importI8nTextFromEnterprise(context, otherLanguagesEnterprise)!
+    result.items = { ...result.items, ...otherLanguages.items }
   }
+
+  if (Object.keys(result.items).length === 0) return undefined
 
   return result
 }

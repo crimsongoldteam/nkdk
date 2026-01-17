@@ -1,104 +1,132 @@
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 
-export const withoutTextI8nText: I8nText = { items: { ru: "" } }
-
-export const escapedContentI8nText: I8nText = { items: { ru: "<Текст с экранированным символом>" } }
-
-export const escapedContentI8nTextEnterprise: I8nTextEnterprise = {
-  ru: "<Текст с экранированным символом>",
-}
-
-export const emptyItemsI8nText: I8nText = { items: {} }
-
-export const onlyNonDefaultLanguageI8nText: I8nText = { items: { en: "Field" } }
-
-export const emptyDefaultWithNonDefaultLanguageI8nText: I8nText = { items: { ru: "", en: "Field" } }
-
-export const defaultWithNonDefaultLanguageI8nText: I8nText = { items: { ru: "Поле", en: "Field" } }
-
-export const formattedWithNonEmptyDefaultI8nText: I8nText = { formatted: true, items: { ru: "Поле" } }
-
-export const formattedWithEmptyDefaultI8nText: I8nText = { formatted: true, items: { ru: "" } }
-
-export interface CombinedI8nTextFixture {
+export interface I8nTextFixture {
   name: string
-  defaultLanguage: I8nText | undefined
-  otherLanguagesEnterprise: I8nTextEnterprise | undefined
-  expectedResult: I8nText | undefined
-  expectedDefaultExport: string | undefined
-  expectedOtherExport: I8nTextEnterprise | undefined
-  // Для симметричных тестов: полный I8nText, который должен быть восстановлен после экспорта и импорта
-  fullI8nText?: I8nText
+  text: I8nText | undefined
+  textFromStructure?: I8nText | undefined
+  enterpriseFull?: I8nTextEnterprise | undefined
+  enterpriseDefaultLanguage?: string | undefined
+  enterpriseOtherLanguages?: I8nTextEnterprise | undefined
+  xml?: string
 }
 
-export const combinedI8nTextFixtures: CombinedI8nTextFixture[] = [
+export const i8nTextFixtures: I8nTextFixture[] = [
   {
-    name: "оба undefined",
-    defaultLanguage: undefined,
-    otherLanguagesEnterprise: undefined,
-    expectedResult: undefined,
-    expectedDefaultExport: undefined,
-    expectedOtherExport: undefined,
+    name: "undefined",
+    text: undefined,
+    textFromStructure: undefined,
+    enterpriseFull: undefined,
+    enterpriseDefaultLanguage: undefined,
+    enterpriseOtherLanguages: undefined,
   },
   {
-    name: "только defaultLanguage",
-    defaultLanguage: { items: { ru: "Поле" } },
-    otherLanguagesEnterprise: undefined,
-    expectedResult: { items: { ru: "Поле" } },
-    expectedDefaultExport: "Поле",
-    expectedOtherExport: undefined,
-    fullI8nText: { items: { ru: "Поле" } },
+    name: "only default language",
+    text: { items: { ru: "Поле" } },
+    textFromStructure: { items: { ru: "Поле" } },
+    enterpriseFull: "Поле",
+    enterpriseDefaultLanguage: "Поле",
+    enterpriseOtherLanguages: undefined,
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+</Title>`,
   },
   {
-    name: "только otherLanguagesEnterprise как объект с одним языком",
-    defaultLanguage: undefined,
-    otherLanguagesEnterprise: { en: "Field" },
-    expectedResult: { items: { en: "Field" } },
-    expectedDefaultExport: undefined,
-    expectedOtherExport: undefined,
+    name: "only other languages (single language)",
+    text: { items: { en: "Field" } },
+    textFromStructure: undefined,
+    enterpriseFull: { en: "Field" },
+    enterpriseDefaultLanguage: undefined,
+    enterpriseOtherLanguages: { en: "Field" },
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
   },
   {
-    name: "только otherLanguagesEnterprise как объект с несколькими языками",
-    defaultLanguage: undefined,
-    otherLanguagesEnterprise: { en: "Field", de: "Feld" },
-    expectedResult: { items: { en: "Field", de: "Feld" } },
-    expectedDefaultExport: undefined,
-    expectedOtherExport: undefined,
+    name: "only other languages (multiple languages)",
+    text: { items: { en: "Field", de: "Feld" } },
+    textFromStructure: undefined,
+    enterpriseFull: { en: "Field", de: "Feld" },
+    enterpriseDefaultLanguage: undefined,
+    enterpriseOtherLanguages: { en: "Field", de: "Feld" },
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+	<v8:item>
+		<v8:lang>de</v8:lang>
+		<v8:content>Feld</v8:content>
+	</v8:item>
+</Title>`,
   },
   {
-    name: "оба параметра с одним языком",
-    defaultLanguage: { items: { ru: "Поле" } },
-    otherLanguagesEnterprise: { en: "Field" },
-    expectedResult: { items: { ru: "Поле", en: "Field" } },
-    expectedDefaultExport: "Поле",
-    expectedOtherExport: { en: "Field" },
-    fullI8nText: { items: { ru: "Поле", en: "Field" } },
+    name: "both default and other languages",
+    text: { items: { ru: "Поле", en: "Field" } },
+    textFromStructure: { items: { ru: "Поле" } },
+    enterpriseFull: { ru: "Поле", en: "Field" },
+    enterpriseDefaultLanguage: "Поле",
+    enterpriseOtherLanguages: { en: "Field" },
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
   },
   {
-    name: "оба параметра с несколькими языками",
-    defaultLanguage: { items: { ru: "Поле" } },
-    otherLanguagesEnterprise: { en: "Field", de: "Feld" },
-    expectedResult: { items: { ru: "Поле", en: "Field", de: "Feld" } },
-    expectedDefaultExport: "Поле",
-    expectedOtherExport: { en: "Field", de: "Feld" },
-    fullI8nText: { items: { ru: "Поле", en: "Field", de: "Feld" } },
+    name: "default language with multiple languages, other languages empty",
+    text: { items: { ru: "Поле", en: "Field" } },
+    textFromStructure: { items: { ru: "Поле", en: "Field" } },
+    enterpriseFull: { ru: "Поле", en: "Field" },
+    enterpriseDefaultLanguage: "Поле",
+    enterpriseOtherLanguages: { en: "Field" },
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Field</v8:content>
+	</v8:item>
+</Title>`,
   },
   {
-    name: "с formatted в defaultLanguage",
-    defaultLanguage: { formatted: true, items: { ru: "Поле" } },
-    otherLanguagesEnterprise: { en: "Field" },
-    expectedResult: { formatted: true, items: { ru: "Поле", en: "Field" } },
-    expectedDefaultExport: "Поле",
-    expectedOtherExport: { en: "Field" },
-    fullI8nText: { formatted: true, items: { ru: "Поле", en: "Field" } },
+    name: "only non-default language",
+    text: { items: { en: "Поле" } },
+    textFromStructure: undefined,
+    enterpriseFull: { en: "Поле" },
+    enterpriseDefaultLanguage: undefined,
+    enterpriseOtherLanguages: { en: "Поле" },
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>en</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+</Title>`,
   },
   {
-    name: "defaultLanguage с несколькими языками, otherLanguagesEnterprise пустой",
-    defaultLanguage: { items: { ru: "Поле", en: "Field" } },
-    otherLanguagesEnterprise: {},
-    expectedResult: { items: { ru: "Поле", en: "Field" } },
-    expectedDefaultExport: "Поле",
-    expectedOtherExport: { en: "Field" },
-    fullI8nText: { items: { ru: "Поле", en: "Field" } },
+    name: "with escaped content",
+    text: { items: { ru: "<Текст с экранированным символом>" } },
+    textFromStructure: { items: { ru: "<Текст с экранированным символом>" } },
+    enterpriseFull: "<Текст с экранированным символом>",
+    enterpriseDefaultLanguage: "<Текст с экранированным символом>",
+    enterpriseOtherLanguages: undefined,
+    xml: `<Title>
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>&lt;Текст с экранированным символом&gt;</v8:content>
+	</v8:item>
+</Title>`,
   },
 ]

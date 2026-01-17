@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportFormattedI8nTextToXML, exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -52,7 +52,7 @@ export const exportExtendedTooltipToXML = (
   const textColor = exportColorToXML(context, extendendTooltip.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportI8nTextToXML(context, extendendTooltip.title)
+  const title = exportFormattedI8nTextToXML(context, extendendTooltip.title)
   if (title !== undefined) result.Title = title
 
   const toolTip = exportI8nTextToXML(context, extendendTooltip.toolTip)

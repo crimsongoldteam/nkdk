@@ -6,14 +6,13 @@ export const exportI8nTextToEnterprise = (
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined
+  if (Object.keys(title.items).length === 0) return undefined
 
   const defaultLanguage = context.defaultLanguage
 
   const items = title.items
 
   if (Object.keys(items).length === 1 && items[defaultLanguage]) return items[defaultLanguage]
-
-  if (Object.keys(items).length === 0 && title.formatted === undefined) return undefined
 
   return items
 }
@@ -39,5 +38,5 @@ export const exportI8nTextOtherToEnterprise = (
 
   const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
 
-  return exportI8nTextToEnterprise(context, { items: filtredItems, formatted: text.formatted })
+  return exportI8nTextToEnterprise(context, { items: filtredItems })
 }
