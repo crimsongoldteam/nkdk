@@ -12,6 +12,7 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
   name: "Заголовок",
   title: {
     items: { ru: "Заголовок формы" },
+    formatted: false,
   },
   backColor: { type: "WebColor", value: "Blue" },
   border: {
@@ -52,7 +53,7 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
   visible: true,
   width: 300,
   contextMenu: { autofill: false, childItems: [] },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" } } },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   events: {
     click: "ПроцедураНажатия",
     uRLProcessing: "ПроцедураОбработкиНавигационнойСсылки",
@@ -137,7 +138,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     element: {
       name: "ИмяПоля",
       elementType: FormElementType.LabelDecoration,
-      title: { items: { ru: "Заголовок" } },
+      title: { items: { ru: "Заголовок" }, formatted: false },
     },
     structured: {
       strings: ["Заголовок {ИмяПоля}"],
@@ -148,7 +149,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     name: "without title",
     element: {
       name: "ИмяПоля",
-      title: { items: { ru: "" } },
+      title: { items: { ru: "" }, formatted: false },
       elementType: FormElementType.LabelDecoration,
     },
     structured: {

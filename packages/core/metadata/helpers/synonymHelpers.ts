@@ -28,8 +28,6 @@ export const extractDifferentSynonymPart = (
   // Возвращаем новый I8nText с оставшимися языками
   return {
     items: differentItems,
-    // Сохраняем formatted, если он был
-    ...(synonym.formatted !== undefined && { formatted: synonym.formatted }),
   }
 }
 

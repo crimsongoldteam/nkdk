@@ -3,9 +3,11 @@ import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/impo
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import {
-  importI8nTextCombinedFromEnterprise,
-  importI8nTextFromEnterprise,
-} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+  importFormattedI8nTextCombinedFromEnterprise,
+  importFormattedI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
@@ -58,7 +60,7 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importFormattedI8nTextFromEnterprise(context, data.Заголовок, data.ФорматированныйЗаголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -75,7 +77,12 @@ export function importLabelDecorationPartialFromEnterprise<To extends LabelDecor
     ...props,
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importFormattedI8nTextCombinedFromEnterprise(
+    context,
+    source.title,
+    data?.Заголовок,
+    data?.ФорматированныйЗаголовок
+  )
   if (title !== undefined) result.title = title
 
   return result

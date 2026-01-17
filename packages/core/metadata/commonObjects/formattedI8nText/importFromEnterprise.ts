@@ -19,3 +19,30 @@ export const importFormattedI8nTextFromEnterprise = (
 
   return result
 }
+
+export const importFormattedI8nTextCombinedFromEnterprise = (
+  context: ConfigurationContext,
+  defaultLanguage: FormattedI8nText | undefined,
+  text: FormattedI8nTextEnterprise | undefined,
+  formattedText: FormattedI8nTextEnterprise | undefined
+): FormattedI8nText | undefined => {
+  if (defaultLanguage === undefined && text === undefined && formattedText === undefined) return undefined
+
+  const result: FormattedI8nText = {
+    items: {},
+    formatted: false,
+  }
+
+  if (defaultLanguage !== undefined) {
+    result.items = { ...result.items, ...defaultLanguage.items }
+  }
+
+  if (text !== undefined || formattedText !== undefined) {
+    const otherLanguages = importFormattedI8nTextFromEnterprise(context, text, formattedText)!
+    result.items = { ...result.items, ...otherLanguages.items }
+  }
+
+  if (Object.keys(result.items).length === 0) return undefined
+
+  return result
+}
