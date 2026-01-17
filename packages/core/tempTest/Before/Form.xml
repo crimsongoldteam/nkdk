@@ -26,7 +26,6 @@
 					<ChoiceList>
 						<xr:Item>
 							<xr:CheckState>0</xr:CheckState>
-							<xr:Presentation/>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation>
 									<v8:item>
@@ -143,7 +142,6 @@
 					<ChoiceList>
 						<xr:Item>
 							<xr:CheckState>0</xr:CheckState>
-							<xr:Presentation/>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation>
 									<v8:item>
@@ -364,11 +362,11 @@
 																<Title formatted="false">
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
-																		<v8:content>В экземпляр бюджета можно будет добавлять значения аналитики вручную или заполнить по данным бюджетирования. В вид бюджета будет добавлен элемент <добавляемые и прочие значения></v8:content>
+																		<v8:content>В экземпляр бюджета можно будет добавлять значения аналитики вручную или заполнить по данным бюджетирования. В вид бюджета будет добавлен элемент &lt;добавляемые и прочие значения&gt;</v8:content>
 																	</v8:item>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Dimension values can be added manually to the Budget entry form or populated according to the budgeting data. The <added and other values> item will be added to the budget profile</v8:content>
+																		<v8:content>Dimension values can be added manually to the Budget entry form or populated according to the budgeting data. The &lt;added and other values&gt; item will be added to the budget profile</v8:content>
 																	</v8:item>
 																</Title>
 															</ExtendedTooltip>
@@ -397,22 +395,22 @@
 																<Title formatted="false">
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
-																		<v8:content>В отчете вся явно не указанная в виде бюджета аналитика отображается как <прочие значения>. В экземпляре бюджета эта строка будет служить для ввода по пустой аналитике</v8:content>
+																		<v8:content>В отчете вся явно не указанная в виде бюджета аналитика отображается как &lt;прочие значения&gt;. В экземпляре бюджета эта строка будет служить для ввода по пустой аналитике</v8:content>
 																	</v8:item>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Dimension that is not explicitly specified as a budget is recorded in the report as <other values>. In the Budget entry form, this line will be used for entering by an empty dimension</v8:content>
+																		<v8:content>Dimension that is not explicitly specified as a budget is recorded in the report as &lt;other values&gt;. In the Budget entry form, this line will be used for entering by an empty dimension</v8:content>
 																	</v8:item>
 																</Title>
 															</ExtendedTooltip>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
-																	<v8:content>Показатель по аналитике, не входящей в список, отображать по строке <прочие значения></v8:content>
+																	<v8:content>Показатель по аналитике, не входящей в список, отображать по строке &lt;прочие значения&gt;</v8:content>
 																</v8:item>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Indicator by dimension which is not included in the list, display by line <other values></v8:content>
+																	<v8:content>Indicator by dimension which is not included in the list, display by line &lt;other values&gt;</v8:content>
 																</v8:item>
 															</Title>
 															<TitleLocation>Right</TitleLocation>
@@ -426,11 +424,11 @@
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
-																	<v8:content>В экземпляр бюджета можно будет добавлять значения аналитики в режиме "Редактировать списком". В вид бюджета будет добавлен элемент <добавляемые и прочие значения></v8:content>
+																	<v8:content>В экземпляр бюджета можно будет добавлять значения аналитики в режиме &quot;Редактировать списком&quot;. В вид бюджета будет добавлен элемент &lt;добавляемые и прочие значения&gt;</v8:content>
 																</v8:item>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>You will be able to add dimension values to the Budget entry form in the "Edit as a list" mode. Item <added and other values> will be added to the budget profile</v8:content>
+																	<v8:content>You will be able to add dimension values to the Budget entry form in the &quot;Edit as a list&quot; mode. Item &lt;added and other values&gt; will be added to the budget profile</v8:content>
 																</v8:item>
 															</Title>
 															<VerticalAlign>Top</VerticalAlign>
@@ -444,11 +442,11 @@
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
-																	<v8:content>В отчете вся явно не указанная в виде бюджета аналитика отображается как <прочие значения>. В экземпляре бюджета эта строка будет служить для ввода по пустой аналитике</v8:content>
+																	<v8:content>В отчете вся явно не указанная в виде бюджета аналитика отображается как &lt;прочие значения&gt;. В экземпляре бюджета эта строка будет служить для ввода по пустой аналитике</v8:content>
 																</v8:item>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Dimension that is not explicitly specified as a budget is recorded in the report as <other values>. In the Budget entry form, this line will be used for entering by an empty dimension</v8:content>
+																	<v8:content>Dimension that is not explicitly specified as a budget is recorded in the report as &lt;other values&gt;. In the Budget entry form, this line will be used for entering by an empty dimension</v8:content>
 																</v8:item>
 															</Title>
 															<VerticalAlign>Top</VerticalAlign>
@@ -480,11 +478,11 @@
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
-																	<v8:content>Показатель по аналитике, не входящей в список, отображать по строке <прочие значения></v8:content>
+																	<v8:content>Показатель по аналитике, не входящей в список, отображать по строке &lt;прочие значения&gt;</v8:content>
 																</v8:item>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Indicator by dimension which is not included in the list, display by line <other values></v8:content>
+																	<v8:content>Indicator by dimension which is not included in the list, display by line &lt;other values&gt;</v8:content>
 																</v8:item>
 															</Title>
 															<TitleLocation>Right</TitleLocation>
@@ -497,11 +495,11 @@
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
-																	<v8:content>В отчете вся явно неуказанная в виде бюджета аналитика отображается как <прочие значения>. В экземпляре бюджета эта строка будет служить для ввода по пустой аналитике</v8:content>
+																	<v8:content>В отчете вся явно неуказанная в виде бюджета аналитика отображается как &lt;прочие значения&gt;. В экземпляре бюджета эта строка будет служить для ввода по пустой аналитике</v8:content>
 																</v8:item>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>All dimension that is not explicitly specified as a budget is recorded in the report as <other values>. In the Budget entry form, this line will be used for entering by an empty dimension</v8:content>
+																	<v8:content>All dimension that is not explicitly specified as a budget is recorded in the report as &lt;other values&gt;. In the Budget entry form, this line will be used for entering by an empty dimension</v8:content>
 																</v8:item>
 															</Title>
 															<VerticalAlign>Top</VerticalAlign>
@@ -771,12 +769,12 @@
 				</v8:item>
 			</Title>
 			<Type>
+				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>
-					<v8:AllowedSign>Any</v8:AllowedSign>
 					<v8:Digits>10</v8:Digits>
 					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
 				</v8:NumberQualifiers>
-				<v8:Type>xs:decimal</v8:Type>
 			</Type>
 		</Attribute>
 		<Attribute name="ВыбранныеЗначения" id="137">
@@ -824,11 +822,11 @@
 				</v8:item>
 			</Title>
 			<Type>
-				<v8:StringQualifiers>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-					<v8:Length>0</v8:Length>
-				</v8:StringQualifiers>
 				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 		<Attribute name="ВидАналитики" id="140">

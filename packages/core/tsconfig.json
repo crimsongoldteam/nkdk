@@ -22,6 +22,7 @@
         "transform": "typia/lib/transform"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "~/*": ["./*"]
     }
