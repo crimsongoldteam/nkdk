@@ -9,6 +9,7 @@ import { ColumnGroup } from "~/metadata/forms/elements/columnGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importColumnGroupFromXML<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
@@ -53,6 +54,9 @@ export function importColumnGroupFromXML<To extends ColumnGroup | undefined>(
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
   if (xml.Type !== undefined) result.type = xml.Type
+
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
 

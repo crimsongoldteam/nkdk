@@ -24,6 +24,7 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportColumnGroupTypedToEnterprise = <From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
@@ -111,6 +112,9 @@ const exportColumnGroupPropsToEnterprise = (
 
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 

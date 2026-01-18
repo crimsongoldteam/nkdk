@@ -30,4 +30,3 @@ describe("exportColumnGroupToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-

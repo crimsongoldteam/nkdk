@@ -1,6 +1,7 @@
 <ColumnGroup name="ГруппаКолонок" id="1">
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
 	<FixingInTable>None</FixingInTable>
 	<Group>Horizontal</Group>
 	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>

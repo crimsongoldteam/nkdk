@@ -23,7 +23,7 @@ describe("exportTableToXML", () => {
   })
 
   it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("forms/table/minimal.xml")
+    const expectedResult = readXMLFileAsString("forms/table/minimal.xml").trimEnd()
     const xmlData = exportTableToXML(mockСontext, minimalTable)
 
     const result = xmlExport({ Table: xmlData }, false)

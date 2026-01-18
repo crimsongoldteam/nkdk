@@ -10,6 +10,7 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
@@ -21,7 +22,7 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
 
   const result: ColumnGroupXML = {
     ...baseFields,
-  }
+  } as ColumnGroupXML
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
@@ -52,6 +53,8 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
+
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
 

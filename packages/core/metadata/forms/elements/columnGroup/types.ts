@@ -11,7 +11,7 @@ import {
   TableChildItemsXML,
 } from "../../collections/tableChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface ColumnGroup extends NamedElement {
   elementType: "ColumnGroup"
@@ -38,6 +38,7 @@ export interface ColumnGroup extends NamedElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormGroupType
+  extendedTooltip?: ExtendedTooltip
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
@@ -59,6 +60,7 @@ export interface ColumnGroupXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormGroupType
+  ExtendedTooltip: ExtendedTooltipXML
   UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
