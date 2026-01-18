@@ -14,6 +14,39 @@
 	<BorderColor>web:Black</BorderColor>
 	<ChangeRowOrder>true</ChangeRowOrder>
 	<ChangeRowSet>true</ChangeRowSet>
+	<ChildItems>
+		<ColumnGroup name="ТаблицаГруппа1" id="2">
+			<ExtendedTooltip name="ТаблицаГруппа1РасширеннаяПодсказка" id="4"/>
+			<ChildItems>
+				<InputField name="ТаблицаПолеВвода" id="5">
+					<DataPath>Таблица.ПолеВвода</DataPath>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="ТаблицаПолеВводаКонтекстноеМеню" id="6"/>
+					<ExtendedTooltip name="ТаблицаПолеВводаРасширеннаяПодсказка" id="7"/>
+				</InputField>
+			</ChildItems>
+		</ColumnGroup>
+		<CheckBoxField name="ТаблицаПолеФлажка" id="8">
+			<DataPath>Таблица.ПолеФлажка</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="ТаблицаПолеФлажкаКонтекстноеМеню" id="9"/>
+			<ExtendedTooltip name="ТаблицаПолеФлажкаРасширеннаяПодсказка" id="10"/>
+		</CheckBoxField>
+		<PictureField name="ТаблицаПолеКартинки" id="11">
+			<DataPath>Таблица.ПолеКартинки</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<ContextMenu name="ТаблицаПолеКартинкиКонтекстноеМеню" id="12"/>
+			<ExtendedTooltip name="ТаблицаПолеКартинкиРасширеннаяПодсказка" id="13"/>
+		</PictureField>
+		<LabelField name="ТаблицаПолеНадписи" id="14">
+			<DataPath>Таблица.ПолеНадписи</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<ContextMenu name="ТаблицаПолеНадписиКонтекстноеМеню" id="15"/>
+			<ExtendedTooltip name="ТаблицаПолеНадписиРасширеннаяПодсказка" id="16"/>
+		</LabelField>
+	</ChildItems>
 	<ChoiceMode>true</ChoiceMode>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<CommandSet>
@@ -21,7 +54,7 @@
 		<ExcludedCommand>Copy</ExcludedCommand>
 		<ExcludedCommand>Delete</ExcludedCommand>
 	</CommandSet>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="3">
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="17">
 		<Autofill>false</Autofill>
 	</ContextMenu>
 	<CurrentRowUse>Auto</CurrentRowUse>
@@ -55,7 +88,7 @@
 		<Event name="Selection">ПроцедураВыбора</Event>
 		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
 	</Events>
-	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4">
+	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="18">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -91,14 +124,14 @@
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
 	<RowsPicture>true</RowsPicture>
-	<SearchControlAddition name="ТаблицаУправленияПоиском" id="5" DisplayImportance="High">
+	<SearchControlAddition name="ТаблицаУправленияПоиском" id="19" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchControlAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="6"/>
+		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="20"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="7"/>
+		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="21"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -122,14 +155,14 @@
 	</SearchControlAddition>
 	<SearchControlLocation>Auto</SearchControlLocation>
 	<SearchOnInput>Auto</SearchOnInput>
-	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="8" DisplayImportance="High">
+	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="22" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchStringAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="9"/>
+		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="23"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="10"/>
+		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="24"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -182,14 +215,14 @@
 	<VerticalLines>true</VerticalLines>
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>
-	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="11" DisplayImportance="High">
+	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="25" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="12"/>
+		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="26"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="13"/>
+		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="27"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>

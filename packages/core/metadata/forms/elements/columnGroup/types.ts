@@ -5,7 +5,11 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import {
+  TableChildItems,
+  TableChildItemsPartialEnterprise,
+  TableChildItemsXML,
+} from "../../collections/tableChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
@@ -38,7 +42,7 @@ export interface ColumnGroup extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  childItems: ChildItems
+  childItems: TableChildItems
 }
 
 export interface ColumnGroupXML extends BaseElementXML {
@@ -69,7 +73,7 @@ export interface ColumnGroupXML extends BaseElementXML {
   ShowInHeader?: boolean
   ShowTitle?: boolean
   TitleBackColor?: ColorXML
-  ChildItems?: ChildItemsXML
+  ChildItems?: TableChildItemsXML
 }
 
 export interface ColumnGroupPartialEnterprise {
@@ -102,7 +106,7 @@ export interface ColumnGroupPartialEnterprise {
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorEnterprise
-  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
+  ПодчиненныеЭлементы?: TableChildItemsPartialEnterprise
 }
 
 export interface ColumnGroupTypedEnterprise extends ColumnGroupPartialEnterprise {

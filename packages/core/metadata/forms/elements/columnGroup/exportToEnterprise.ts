@@ -8,6 +8,7 @@ import {
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportTableChildItemsToEnterprise } from "~/metadata/forms/collections/tableChildItems/exportToEnterprise"
 import {
   ColumnGroup,
   ColumnGroupPartialEnterprise,
@@ -23,7 +24,6 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
 export const exportColumnGroupTypedToEnterprise = <From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
@@ -159,7 +159,7 @@ const exportColumnGroupPropsToEnterprise = (
   const titleBackColor = exportColorToEnterprise(context, data.titleBackColor)
   if (titleBackColor !== undefined) result.ЦветФонаЗаголовка = titleBackColor
 
-  const childItems = exportPartialChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportTableChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   return result

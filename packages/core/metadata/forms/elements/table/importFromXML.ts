@@ -25,8 +25,8 @@ export function importTableFromXML<To extends Table | undefined>(
   const baseFields = importBaseElementFromXML(context, xml)
 
   const result: Table = {
-    ...baseFields,
     elementType: FormElementType.Table,
+    ...baseFields,
     childItems: [],
   }
 

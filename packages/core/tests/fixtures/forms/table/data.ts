@@ -44,7 +44,40 @@ export const fullTable: Table = {
   borderColor: { type: "WebColor", value: "Black" },
   changeRowOrder: true,
   changeRowSet: true,
-  childItems: [],
+  childItems: [
+    {
+      elementType: "ColumnGroup",
+      name: "ТаблицаГруппа1",
+      title: { items: { ru: "Группа 1" } },
+      childItems: [
+        {
+          elementType: FormElementType.InputField,
+          name: "ТаблицаПолеВвода",
+        },
+      ],
+    },
+    {
+      elementType: "CheckBoxField",
+      name: "ТаблицаПолеФлажка",
+      title: { items: { ru: "Поле флажка" } },
+      checkBoxType: "Auto",
+      dataPath: "Таблица.ПолеФлажка",
+      editMode: "EnterOnInput",
+    },
+    {
+      elementType: "PictureField",
+      name: "ТаблицаПолеКартинки",
+      dataPath: "Таблица.ПолеКартинки",
+      editMode: "EnterOnInput",
+    },
+    {
+      elementType: "LabelField",
+      name: "ТаблицаПолеНадписи",
+      title: { items: { ru: "Поле надписи" } },
+      dataPath: "Таблица.ПолеНадписи",
+      editMode: "EnterOnInput",
+    },
+  ],
   choiceMode: true,
   commandBarLocation: "Top",
   commandSet: ["WriteAndClose", "Copy", "Delete"],

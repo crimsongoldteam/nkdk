@@ -8,6 +8,7 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importTableChildItemsFromEnterprise } from "~/metadata/forms/collections/tableChildItems/importFromEnterprise"
 import {
   ColumnGroup,
   ColumnGroupPartialEnterprise,
@@ -184,8 +185,8 @@ const importColumnGroupPropsFromEnterprise = (
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  // const childItems = importTypedChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  // if (childItems !== undefined) result.childItems = childItems
+  const childItems = importTableChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   return result
 }

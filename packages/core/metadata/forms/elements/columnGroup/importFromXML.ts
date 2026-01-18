@@ -4,6 +4,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importTableChildItemsFromXML } from "~/metadata/forms/collections/tableChildItems/importFromXML"
 import { ColumnGroup } from "~/metadata/forms/elements/columnGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
@@ -83,6 +84,9 @@ export function importColumnGroupFromXML<To extends ColumnGroup | undefined>(
 
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
+
+  const childItems = importTableChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = childItems
 
   return result as To
 }
