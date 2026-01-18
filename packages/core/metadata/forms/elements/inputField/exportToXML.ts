@@ -213,8 +213,6 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.extendedEdit !== undefined) result.ExtendedEdit = data.extendedEdit
 
-  // if (data.extendedEditMultipleValues !== undefined) result.ExtendedEditMultipleValues = data.extendedEditMultipleValues
-
   const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font
 
@@ -263,7 +261,7 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
   const multipleValuesBackColor = exportColorToXML(context, data.multipleValuesBackColor)
   if (multipleValuesBackColor !== undefined) result.MultipleValuesBackColor = multipleValuesBackColor
 
-  if (data.multipleValuesExtendedEdit !== undefined) result.MultipleValuesExtendedEdit = data.multipleValuesExtendedEdit
+  if (data.multipleValuesExtendedEdit !== undefined) result.ExtendedEditMultipleValues = data.multipleValuesExtendedEdit
 
   const multipleValuesFont = exportFontToXML(context, data.multipleValuesFont)
   if (multipleValuesFont !== undefined) result.MultipleValuesFont = multipleValuesFont

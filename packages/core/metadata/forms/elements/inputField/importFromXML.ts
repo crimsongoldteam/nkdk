@@ -210,7 +210,7 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
 
   if (xml.ExtendedEdit !== undefined) result.extendedEdit = xml.ExtendedEdit
 
-  // if (xml.ExtendedEditMultipleValues !== undefined) result.extendedEditMultipleValues = xml.ExtendedEditMultipleValues
+  if (xml.ExtendedEditMultipleValues !== undefined) result.multipleValuesExtendedEdit = xml.ExtendedEditMultipleValues
 
   const font = importFontFromXML(context, xml.Font)
   if (font !== undefined) result.font = font
@@ -259,8 +259,6 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
 
   const multipleValuesBackColor = importColorFromXML(context, xml.MultipleValuesBackColor)
   if (multipleValuesBackColor !== undefined) result.multipleValuesBackColor = multipleValuesBackColor
-
-  if (xml.MultipleValuesExtendedEdit !== undefined) result.multipleValuesExtendedEdit = xml.MultipleValuesExtendedEdit
 
   const multipleValuesFont = importFontFromXML(context, xml.MultipleValuesFont)
   if (multipleValuesFont !== undefined) result.multipleValuesFont = multipleValuesFont

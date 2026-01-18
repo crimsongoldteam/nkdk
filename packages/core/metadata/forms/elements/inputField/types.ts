@@ -86,7 +86,7 @@ export interface InputField {
   multipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize
   multipleValuePresentationDataPath?: string
   multipleValuesBackColor?: Color
-  multipleValuesExtendedEdit?: boolean
+  multipleValuesExtendedEdit?: boolean // ExtendedEditMultipleValues in XML
   multipleValuesFont?: Font
   multipleValuesHyperlink?: boolean
   multipleValuesPicture?: Picture
@@ -206,7 +206,7 @@ export interface InputFieldXML extends BaseElementXML {
   EditText?: string
   EditTextUpdate?: SE.EditTextUpdate
   ExtendedEdit?: boolean
-  //ExtendedEditMultipleValues?: boolean
+  ExtendedEditMultipleValues?: boolean
   Font?: FontXML
   Format?: I8nTextXML
   Height?: number
@@ -228,7 +228,7 @@ export interface InputFieldXML extends BaseElementXML {
   MultipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize
   MultipleValuePresentationDataPath?: string
   MultipleValuesBackColor?: ColorXML
-  MultipleValuesExtendedEdit?: boolean
+  // MultipleValuesExtendedEdit?: boolean // ExtendedEditMultipleValues in XML
   MultipleValuesFont?: FontXML
   MultipleValuesHyperlink?: boolean
   MultipleValuesPicture?: PictureXML
