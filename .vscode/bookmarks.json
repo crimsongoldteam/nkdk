@@ -9,26 +9,6 @@
 					"label": "Test"
 				}
 			]
-		},
-		{
-			"path": "packages/core/metadata/commonObjects/formAttribute/exportToXML.test.ts",
-			"bookmarks": [
-				{
-					"line": 37,
-					"column": 0,
-					"label": ""
-				}
-			]
-		},
-		{
-			"path": "packages/core/metadata/forms/collections/childItems/importFromEnterprise.ts",
-			"bookmarks": [
-				{
-					"line": 28,
-					"column": 0,
-					"label": ""
-				}
-			]
 		}
 	]
 }

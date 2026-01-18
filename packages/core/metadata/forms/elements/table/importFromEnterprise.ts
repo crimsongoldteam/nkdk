@@ -15,6 +15,7 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importTableChildItemsFromEnterprise } from "../../collections/tableChildItems/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { importSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
@@ -327,8 +328,12 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  // const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  // if (childItems !== undefined) result.childItems = childItems
+  const itemsContext: ConfigurationContext = {
+    ...context,
+    allElements: data.ПодчиненныеЭлементы,
+  }
+
+  result.childItems = importTableChildItemsFromEnterprise(itemsContext, source.childItems)
 
   const searchOnInput = importSystemEnumerationFromEnterprise<SE.SearchInTableOnInput>(
     context,

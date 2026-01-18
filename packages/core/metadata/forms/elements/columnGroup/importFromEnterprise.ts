@@ -61,6 +61,9 @@ export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
+  const childItems = importTableChildItemsFromEnterprise(context, source.childItems)
+  result.childItems = childItems
+
   return result
 }
 
@@ -188,9 +191,6 @@ const importColumnGroupPropsFromEnterprise = (
 
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
-
-  const childItems = importTableChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   return result
 }

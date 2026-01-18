@@ -3,17 +3,15 @@ import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory
 import { ButtonGroupChildItems } from "../buttonGroupChildItems/types"
 import { ChildItem, ChildItems, ChildItemsPartialEnterprise } from "./types"
 
-export const importChildItemsFromEnterprise = (
-  context: ConfigurationContext,
-  childItems: ChildItems,
-  childItemsProperties?: ChildItemsPartialEnterprise
-): ChildItems => {
+export const importChildItemsFromEnterprise = (context: ConfigurationContext, childItems: ChildItems): ChildItems => {
+  const childItemsProperties = context.allElements!
+
   return childItems.map((item) => {
     const processedItem = importChildItemProperties(context, item, childItemsProperties)
 
     // Рекурсивно обрабатываем дочерние элементы
     if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
-      processedItem.childItems = importChildItemsFromEnterprise(context, processedItem.childItems, childItemsProperties)
+      processedItem.childItems = importChildItemsFromEnterprise(context, processedItem.childItems)
     }
 
     // Рекурсивно обрабатываем элементы командной панели
@@ -22,8 +20,7 @@ export const importChildItemsFromEnterprise = (
         ...processedItem.autoCommandBar,
         childItems: importChildItemsFromEnterprise(
           context,
-          processedItem.autoCommandBar.childItems,
-          childItemsProperties
+          processedItem.autoCommandBar.childItems
         ) as ButtonGroupChildItems,
       }
     }

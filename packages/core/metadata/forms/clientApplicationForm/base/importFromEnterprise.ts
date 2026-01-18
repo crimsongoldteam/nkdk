@@ -153,12 +153,15 @@ export const importClientApplicationFormFromEnterprise = (
     data.КоманднаяПанель
   )
   if (autoCommandBar !== undefined) {
+    const autoCommandBarContext: ConfigurationContext = {
+      ...context,
+      allElements: data.Элементы,
+    }
     result.autoCommandBar = {
       ...autoCommandBar,
       childItems: importChildItemsFromEnterprise(
-        context,
-        autoCommandBar.childItems,
-        data.Элементы
+        autoCommandBarContext,
+        autoCommandBar.childItems
       ) as ButtonGroupChildItems,
     }
   }
@@ -248,7 +251,12 @@ export const importClientApplicationFormFromEnterprise = (
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  result.childItems = importChildItemsFromEnterprise(context, childItemsResult.childItems, data.Элементы)
+  const itemsContext: ConfigurationContext = {
+    ...context,
+    allElements: data.Элементы,
+  }
+
+  result.childItems = importChildItemsFromEnterprise(itemsContext, childItemsResult.childItems)
 
   return result
 }
