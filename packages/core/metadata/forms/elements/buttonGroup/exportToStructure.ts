@@ -20,7 +20,7 @@ export function exportButtonGroupContentToStructure(
   context: ConfigurationContext,
   element: ButtonGroup
 ): IFormatElementResult {
-  const resultString = formatContent(context, element)
+  const resultString = "#" + formatContent(context, element)
   return {
     strings: [resultString],
     haveSimpleHorizontalGroup: false,

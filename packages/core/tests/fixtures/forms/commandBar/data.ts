@@ -122,4 +122,24 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       haveSimpleHorizontalGroup: false,
     },
   },
+
+  {
+    name: "with button group",
+    element: {
+      name: "КоманднаяПанель",
+      elementType: FormElementType.CommandBar,
+      childItems: [
+        {
+          elementType: FormElementType.ButtonGroup,
+          name: "ГруппаКнопок1",
+          childItems: [],
+          title: { items: { ru: "Группа кнопок" } },
+        },
+      ],
+    },
+    structured: {
+      strings: ["<#Группа кнопок {ГруппаКнопок1} |> {КоманднаяПанель}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
 ]

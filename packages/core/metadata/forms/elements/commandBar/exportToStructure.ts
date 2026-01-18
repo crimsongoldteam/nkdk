@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { ButtonGroupChildItem } from "../../collections/buttonGroupChildItems/types"
 import { formatElementName, wrapButtonContent } from "../../format/helpers"
 import { CommandBar } from "./types"
-import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 
 export const exportCommandBarToStructure = (
   context: ConfigurationContext,
@@ -32,6 +32,10 @@ export const exportCommandBarContentToStructure = (
 
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
     const result = exportFunction(context, item)
+    // ButtonGroup в CommandBar требует добавления | после себя
+    if (item.elementType === "ButtonGroup") {
+      return result.strings.map((s) => s + " |")
+    }
     return result.strings
   })
 

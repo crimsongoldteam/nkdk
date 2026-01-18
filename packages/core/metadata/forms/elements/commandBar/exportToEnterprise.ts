@@ -22,7 +22,6 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportButtonGroupChildItemsToEnterprise } from "../../collections/buttonGroupChildItems/exportToEnterprise"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
@@ -155,8 +154,8 @@ const exportCommandBarPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const childItems = exportButtonGroupChildItemsToEnterprise(context, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+  // const childItems = exportButtonGroupChildItemsToEnterprise(context, data.childItems)
+  // if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   return result
 }
