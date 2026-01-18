@@ -10,6 +10,7 @@ import {
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
@@ -150,6 +151,9 @@ export const exportClientApplicationFormToEnterprise = (
 
   const autoCommandBar = exportAutoCommandBarToEnterprise(context, data.autoCommandBar)
   if (autoCommandBar !== undefined) result.КоманднаяПанель = autoCommandBar
+
+  const commands = exportCommandsToEnterprise(context, data.commands)
+  if (commands !== undefined) result.Команды = commands
 
   if (data.scale !== undefined) result.Масштаб = data.scale
 
