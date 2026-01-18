@@ -9,6 +9,7 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ButtonGroupChildItems } from "../../collections/buttonGroupChildItems/types"
 import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
@@ -152,7 +153,14 @@ export const importClientApplicationFormFromEnterprise = (
     data.КоманднаяПанель
   )
   if (autoCommandBar !== undefined) {
-    result.autoCommandBar = autoCommandBar
+    result.autoCommandBar = {
+      ...autoCommandBar,
+      childItems: importChildItemsFromEnterprise(
+        context,
+        autoCommandBar.childItems,
+        data.Элементы
+      ) as ButtonGroupChildItems,
+    }
   }
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб

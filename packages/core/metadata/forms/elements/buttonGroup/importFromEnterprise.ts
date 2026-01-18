@@ -55,7 +55,7 @@ export function importButtonGroupPartialFromEnterprise<To extends ButtonGroup>(
   const result: To = {
     ...source,
     ...props,
-    childItems: props.childItems ?? [],
+    childItems: props.childItems && props.childItems.length > 0 ? props.childItems : source.childItems,
   }
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
