@@ -31,7 +31,7 @@ const exportFormAttributeToEnterprise = (
   const type = exportTypeDescriptionToEnterprise(context, data.valueType)
 
   const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
-  const title = exportI8nTextToEnterprise(context, filteredTitle)
+  const title = computeTitleForExport(context, data, filteredTitle)
 
   if (canUseShortFormat(data, title)) {
     return type!
@@ -55,6 +55,37 @@ const exportFormAttributeToEnterprise = (
   }
 
   return result as FormAttributeEnterprise
+}
+
+/**
+ * Вычисляет заголовок для экспорта в enterprise с учетом mainAttribute.
+ * Если mainAttribute = true:
+ * - Если заголовок пустой ("") - не выводить Заголовок
+ * - Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой) - вывести заголовок
+ * Иначе - обычная логика
+ */
+const computeTitleForExport = (
+  context: ConfigurationContext,
+  data: FormAttribute,
+  filteredTitle: ReturnType<typeof extractDifferentSynonymPart>
+): I8nTextEnterprise | undefined => {
+  const defaultLanguage = context.defaultLanguage
+  const defaultTitle = data.title?.items[defaultLanguage]
+
+  // Если mainAttribute = true
+  if (data.mainAttribute === true) {
+    // Если заголовок пустой - не выводить
+    if (defaultTitle === "") {
+      return undefined
+    }
+    // Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой)
+    if (filteredTitle === undefined && data.title && defaultTitle !== undefined) {
+      return exportI8nTextToEnterprise(context, data.title)
+    }
+  }
+
+  // Обычная логика
+  return exportI8nTextToEnterprise(context, filteredTitle)
 }
 
 const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {

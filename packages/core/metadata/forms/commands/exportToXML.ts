@@ -7,7 +7,7 @@ export const exportCommandsToXML = (
   context: ConfigurationContext,
   data: Command[] | undefined
 ): CommandXML[] | undefined => {
-  if (!data) return undefined
+  if (!data || data.length === 0) return undefined
   return data.map((value: Command) => exportCommandToXML(context, value)!)
 }
 

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import {
   fullFormAttributes,
   fullFormAttributesEnterprise,
+  mainAttributeTitleEqualsName,
+  mainAttributeTitleEqualsNameEnterprise,
   minimalFormAttributes,
   minimalFormAttributesEnterprise,
   shortFormAttribute,
@@ -32,5 +34,11 @@ describe("importFormAttributesFromEnterprise", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, shortFormAttributeEnterprise)
 
     expect(result).toEqual(shortFormAttribute)
+  })
+
+  it("should import title when mainAttribute=true and title equals name", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, mainAttributeTitleEqualsNameEnterprise)
+
+    expect(result).toEqual(mainAttributeTitleEqualsName)
   })
 })

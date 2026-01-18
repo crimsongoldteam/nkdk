@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import {
   fullFormAttributes,
   fullFormAttributesEnterprise,
+  mainAttributeTitleEqualsName,
+  mainAttributeTitleEqualsNameEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
@@ -24,5 +26,11 @@ describe("exportFormAttributesToEnterprise", () => {
     const result = exportFormAttributesToEnterprise(mockСontext, shortFormAttribute)
 
     expect(result).toEqual(shortFormAttributeEnterprise)
+  })
+
+  it("should export title when mainAttribute=true and title equals name", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, mainAttributeTitleEqualsName)
+
+    expect(result).toEqual(mainAttributeTitleEqualsNameEnterprise)
   })
 })

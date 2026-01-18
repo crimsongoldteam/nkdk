@@ -122,6 +122,28 @@ export const withMainAttributeFormAttribute: FormAttributes = [
 ]
 //#endregion
 
+//#region MainAttributeWithTitleEqualsName
+
+export const mainAttributeTitleEqualsName: FormAttributes = [
+  {
+    name: "ТестовыйАтрибут",
+    title: { items: { ru: "Тестовый атрибут" } },
+    valueType: {
+      type: ["string"],
+    },
+    mainAttribute: true,
+  },
+]
+
+export const mainAttributeTitleEqualsNameEnterprise: FormAttributesEnterprise = {
+  ТестовыйАтрибут: {
+    Заголовок: "Тестовый атрибут",
+    Тип: "Строка",
+    ОсновнойРеквизит: "Истина",
+  },
+}
+//#endregion
+
 //#region WithStoredData
 export const withStoredDataFormAttribute: FormAttributes = [
   {
