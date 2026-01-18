@@ -13,14 +13,13 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportCommandBarToXML<From extends CommandBar | undefined>(
   context: ConfigurationContext,
-  data: From,
-  parentElement: { name: string }
+  data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, parentElement)
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const result: CommandBarXML = {
     ...baseFields,

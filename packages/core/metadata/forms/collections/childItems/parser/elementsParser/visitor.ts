@@ -5,6 +5,7 @@ import type { Picture } from "~/metadata/commonObjects/picture/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
+import { ButtonGroup } from "~/metadata/forms/elements/buttonGroup/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
 import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import type { InputField } from "~/metadata/forms/elements/inputField/types"
@@ -242,14 +243,19 @@ export class Visitor extends BaseVisitor {
   // #region commandBar
 
   commandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): CommandBar {
-    const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as CommandBar["childItems"]
+    const childItems = visitAll(this, ctx.commandBarItem, context) as unknown as CommandBar["childItems"]
+    const filteredChildItems = childItems.filter((item) => {
+      if (item.name !== "") return true
+      if (item.title === undefined) return false
+      return Object.values(item.title.items).some((value) => value !== "")
+    })
 
     const name = this.visit(ctx.properties as CstNode[], context) || "CommandBar"
 
     const result: CommandBar = {
       elementType: FormElementType.CommandBar,
       name: name,
-      childItems: childItems,
+      childItems: filteredChildItems,
     }
 
     return result
@@ -271,16 +277,50 @@ export class Visitor extends BaseVisitor {
     return result
   }
 
-  commandBarButton(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
+  commandBarItem(ctx: CstChildrenDictionary, context: ConfigurationContext): Button | ButtonGroup {
+    if (ctx.commandBarButtonGroup) {
+      return this.visit(ctx.commandBarButtonGroup as CstNode[], context)
+    }
+    return this.visit(ctx.commandBarButton as CstNode[], context)
+  }
+
+  commandBarButton(ctx: CstChildrenDictionary, context: ConfigurationContext): Button | ButtonGroup {
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[], context) || titleText
 
+    const hashToken = ctx.Hash ? (ctx.Hash as IToken[]).length > 0 : false
+
     const title = this.createTitle(titleText, context.defaultLanguage)
+
+    if (hashToken) {
+      return {
+        elementType: FormElementType.ButtonGroup,
+        name: name || "",
+        title: title,
+        childItems: [],
+      }
+    }
 
     const result: Button = {
       elementType: FormElementType.Button,
       name: name || "",
       title: title,
+    }
+
+    return result
+  }
+
+  commandBarButtonGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): ButtonGroup {
+    const titleText = joinTokens(ctx.Button as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context) || titleText
+
+    const title = this.createTitle(titleText, context.defaultLanguage)
+
+    const result: ButtonGroup = {
+      elementType: FormElementType.ButtonGroup,
+      name: name || "",
+      title: title,
+      childItems: [],
     }
 
     return result

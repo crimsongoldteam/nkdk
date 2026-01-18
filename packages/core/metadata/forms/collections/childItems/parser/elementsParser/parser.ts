@@ -298,7 +298,7 @@ export class Parser extends CstParser {
     this.AT_LEAST_ONE_SEP({
       SEP: t.VBar,
       DEF: () => {
-        this.SUBRULE(this.commandBarButton)
+        this.SUBRULE(this.commandBarItem)
       },
     })
 
@@ -313,7 +313,30 @@ export class Parser extends CstParser {
     this.aligment("right")
   })
 
+  private readonly commandBarItem = this.RULE("commandBarItem", () => {
+    this.OR([
+      {
+        GATE: () => this.LA(1).tokenType === t.Hash,
+        ALT: () => this.SUBRULE(this.commandBarButtonGroup),
+      },
+      { ALT: () => this.SUBRULE(this.commandBarButton) },
+    ])
+  })
+
   private readonly commandBarButton = this.RULE("commandBarButton", () => {
+    this.OPTION1(() => {
+      this.CONSUME(t.Hash)
+    })
+    this.MANY(() => {
+      this.CONSUME(t.Button)
+    })
+    this.OPTION3(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  private readonly commandBarButtonGroup = this.RULE("commandBarButtonGroup", () => {
+    this.CONSUME(t.Hash)
     this.MANY(() => {
       this.CONSUME(t.Button)
     })

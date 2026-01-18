@@ -326,7 +326,7 @@ export const Hash = createToken({
   name: "Hash",
   pattern: /#+[ \t]*/,
   label: "#",
-  categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText),
+  categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText, Button),
 })
 
 export const Percent = createToken({
