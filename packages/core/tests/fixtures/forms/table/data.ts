@@ -22,7 +22,33 @@ export const sourceTable: Table = {
     autofill: false,
     childItems: [],
   },
-  childItems: [],
+  childItems: [
+    {
+      elementType: "ColumnGroup",
+      name: "ТаблицаГруппа1",
+      title: { items: { ru: "Группа 1" } },
+      childItems: [
+        {
+          elementType: FormElementType.InputField,
+          name: "ТаблицаПолеВвода",
+        },
+      ],
+    },
+    {
+      elementType: "CheckBoxField",
+      name: "ТаблицаПолеФлажка",
+      title: { items: { ru: "Поле флажка" } },
+    },
+    {
+      elementType: "PictureField",
+      name: "ТаблицаПолеКартинки",
+    },
+    {
+      elementType: "LabelField",
+      name: "ТаблицаПолеНадписи",
+      title: { items: { ru: "Поле надписи" } },
+    },
+  ],
 }
 
 export const fullTable: Table = {

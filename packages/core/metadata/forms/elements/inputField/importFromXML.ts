@@ -16,7 +16,7 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importInputFieldFromXML<To extends InputField | undefined>(
   context: ConfigurationContext,
@@ -27,7 +27,7 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
   const baseFields = importBaseElementFromXML(context, xml)
   const result: InputField = {
     ...baseFields,
-    elementType: "InputField",
+    elementType: FormElementType.InputField,
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight

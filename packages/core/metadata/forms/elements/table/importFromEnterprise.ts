@@ -142,7 +142,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
     ...source,
     elementType: FormElementType.Table,
     autoCommandBar: autoCommandBar,
-    childItems: [],
+    childItems: source.childItems ?? [],
   }
 
   const autoAddIncomplete = importBooleanFromEnterprise(context, data.АвтоВводНезаполненного)
