@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
@@ -83,7 +83,7 @@ export function exportHTMLDocumentFieldToXML<From extends HTMLDocumentField | un
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const title = exportI8nTextToXML(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
   const titleBackColor = exportColorToXML(context, data.titleBackColor)

@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
@@ -42,7 +42,7 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.shortcut !== undefined) result.Shortcut = data.shortcut
 
-  const title = exportI8nTextToXML(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
   const titleFont = exportFontToXML(context, data.titleFont)
