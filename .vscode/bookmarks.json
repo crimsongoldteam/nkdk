@@ -9,6 +9,16 @@
 					"label": "Test"
 				}
 			]
+		},
+		{
+			"path": "packages/core/metadata/forms/elements/table/importFromEnterprise.ts",
+			"bookmarks": [
+				{
+					"line": 329,
+					"column": 0,
+					"label": ""
+				}
+			]
 		}
 	]
 }

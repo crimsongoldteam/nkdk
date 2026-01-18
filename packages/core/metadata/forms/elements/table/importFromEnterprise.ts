@@ -143,7 +143,6 @@ export function importTablePartialFromEnterprise<To extends Table>(
     ...source,
     elementType: FormElementType.Table,
     autoCommandBar: autoCommandBar,
-    childItems: source.childItems ?? [],
   }
 
   const autoAddIncomplete = importBooleanFromEnterprise(context, data.АвтоВводНезаполненного)
@@ -328,12 +327,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const itemsContext: ConfigurationContext = {
-    ...context,
-    allElements: data.ПодчиненныеЭлементы,
-  }
-
-  result.childItems = importTableChildItemsFromEnterprise(itemsContext, source.childItems)
+  result.childItems = importTableChildItemsFromEnterprise(context, source.childItems ?? [])
 
   const searchOnInput = importSystemEnumerationFromEnterprise<SE.SearchInTableOnInput>(
     context,

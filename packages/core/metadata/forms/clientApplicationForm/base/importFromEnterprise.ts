@@ -9,7 +9,6 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ButtonGroupChildItems } from "../../collections/buttonGroupChildItems/types"
 import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
@@ -152,19 +151,7 @@ export const importClientApplicationFormFromEnterprise = (
     childItemsResult.autoCommandBar,
     data.КоманднаяПанель
   )
-  if (autoCommandBar !== undefined) {
-    const autoCommandBarContext: ConfigurationContext = {
-      ...context,
-      allElements: data.Элементы,
-    }
-    result.autoCommandBar = {
-      ...autoCommandBar,
-      childItems: importChildItemsFromEnterprise(
-        autoCommandBarContext,
-        autoCommandBar.childItems
-      ) as ButtonGroupChildItems,
-    }
-  }
+  if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
 
@@ -173,8 +160,6 @@ export const importClientApplicationFormFromEnterprise = (
 
   const modified = importBooleanFromEnterprise(context, data.Модифицированность)
   if (modified !== undefined) result.modified = modified
-
-  // if (data.НавигационнаяСсылка !== undefined) result.url = data.НавигационнаяСсылка
 
   const showTitle = importBooleanFromEnterprise(context, data.ОтображатьЗаголовок)
   if (showTitle !== undefined) result.showTitle = showTitle

@@ -1,3 +1,4 @@
+import { ChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -405,6 +406,27 @@ export const fullTableEnterprise: TablePartialEnterprise = {
     ПриОкончанииРедактирования: "ПроцедураПриОкончанииРедактирования",
     ПриСменеТекущегоРодителя: "ПроцедураПриСменеТекущегоРодителя",
     ПроверкаПеретаскивания: "ПроцедураПроверкиПеретаскивания",
+  },
+}
+
+export const fullTableChildItems: ChildItemsPartialEnterprise = {
+  ТаблицаПолеВвода: {
+    ПутьКДанным: "Таблица.ПолеВвода",
+    РежимВыбора: "Истина",
+    РежимРедактирования: "ВходПриВводе",
+  },
+  ТаблицаПолеФлажка: {
+    ПутьКДанным: "Таблица.ПолеФлажка",
+    РежимРедактирования: "ВходПриВводе",
+    ВидФлажка: "Авто",
+  },
+  ТаблицаПолеКартинки: {
+    ПутьКДанным: "Таблица.ПолеКартинки",
+    РежимРедактирования: "ВходПриВводе",
+  },
+  ТаблицаПолеНадписи: {
+    ПутьКДанным: "Таблица.ПолеНадписи",
+    РежимРедактирования: "ВходПриВводе",
   },
 }
 

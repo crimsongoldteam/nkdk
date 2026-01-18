@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
+import { ConfigurationContext } from "~/metadata/context/types"
+import "~/metadata/forms/elements/importFromEnterprise"
 import {
   fullTable,
+  fullTableChildItems,
   fullTableEnterprise,
   minimalTable,
   minimalTableEnterprise,
@@ -11,7 +14,11 @@ import { importTablePartialFromEnterprise } from "./importFromEnterprise"
 
 describe("importTableFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importTablePartialFromEnterprise(mockСontext, sourceTable, fullTableEnterprise)
+    const context: ConfigurationContext = {
+      ...mockСontext,
+      allElements: fullTableChildItems,
+    }
+    const result = importTablePartialFromEnterprise(context, sourceTable, fullTableEnterprise)
 
     expect(result).toEqual(fullTable)
   })
