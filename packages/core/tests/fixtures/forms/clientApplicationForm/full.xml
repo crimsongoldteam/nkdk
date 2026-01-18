@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
-	<AutoCommandBar name="ФормаКоманднаяПанель" id="2">
+	<Attributes>
+		<Attribute name="Объект" id="1">
+			<Type>
+				<v8:Type>cfg:CatalogRef.ТестоваяОбработка</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
 		<Autofill>false</Autofill>
 		<HorizontalAlign>Left</HorizontalAlign>
 	</AutoCommandBar>
@@ -8,45 +16,34 @@
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<AutoTitle>true</AutoTitle>
 	<AutoURL>true</AutoURL>
+	<ChildItems>
+		<InputField name="ПолеВвода1" id="2">
+			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="3"/>
+			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="4"/>
+		</InputField>
+	</ChildItems>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
 	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
 	<CloseOnChoice>true</CloseOnChoice>
 	<CloseOnOwnerClose>false</CloseOnOwnerClose>
 	<CollapseItemsByImportance>Use</CollapseItemsByImportance>
 	<CommandBarLocation>Top</CommandBarLocation>
+	<Commands>
+		<Command name="Команда1" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Команда1</v8:content>
+				</v8:item>
+			</Title>
+		</Command>
+	</Commands>
 	<CommandSet>
 		<ExcludedCommand>WriteAndClose</ExcludedCommand>
 	</CommandSet>
 	<ConversationsRepresentation>Show</ConversationsRepresentation>
 	<Enabled>true</Enabled>
 	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
-	<FormWindowOpeningMode>LockOwnerWindow</FormWindowOpeningMode>
-	<Group>Horizontal</Group>
-	<Height>600</Height>
-	<HorizontalSpacing>Double</HorizontalSpacing>
-	<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>
-	<ModalMode>false</ModalMode>
-	<Modified>false</Modified>
-	<PurposeUseKey>PurposeKey</PurposeUseKey>
-	<ReadOnly>false</ReadOnly>
-	<SaveDataInSettings>UseList</SaveDataInSettings>
-	<SavedInSettingsDataModified>true</SavedInSettingsDataModified>
-	<Scale>100</Scale>
-	<ShowCloseButton>true</ShowCloseButton>
-	<ShowTitle>true</ShowTitle>
-	<SlaveItemsWidth>Auto</SlaveItemsWidth>
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Полная форма приложения</v8:content>
-		</v8:item>
-	</Title>
-	<URL>https://example.com</URL>
-	<UsedFormServer>Main</UsedFormServer>
-	<VerticalScroll>Use</VerticalScroll>
-	<VerticalSpacing>Single</VerticalSpacing>
-	<Width>800</Width>
-	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
 	<Events>
 		<Event name="ActivationProcessing">Процедура3</Event>
 		<Event name="AddInDetachmentOnError">Процедура13</Event>
@@ -74,18 +71,30 @@
 		<Event name="URLListGetProcessing">Процедура10</Event>
 		<Event name="URLProcessing">Процедура6</Event>
 	</Events>
-	<ChildItems>
-		<InputField name="ПолеВвода1" id="3">
-			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="4"/>
-			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="5"/>
-		</InputField>
-	</ChildItems>
-	<Attributes>
-		<Attribute name="Объект" id="1">
-			<Type>
-				<v8:Type>cfg:CatalogRef.ТестоваяОбработка</v8:Type>
-			</Type>
-			<MainAttribute>true</MainAttribute>
-		</Attribute>
-	</Attributes>
+	<FormWindowOpeningMode>LockOwnerWindow</FormWindowOpeningMode>
+	<Group>Horizontal</Group>
+	<Height>600</Height>
+	<HorizontalSpacing>Double</HorizontalSpacing>
+	<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>
+	<ModalMode>false</ModalMode>
+	<Modified>false</Modified>
+	<PurposeUseKey>PurposeKey</PurposeUseKey>
+	<ReadOnly>false</ReadOnly>
+	<SaveDataInSettings>UseList</SaveDataInSettings>
+	<SavedInSettingsDataModified>true</SavedInSettingsDataModified>
+	<Scale>100</Scale>
+	<ShowCloseButton>true</ShowCloseButton>
+	<ShowTitle>true</ShowTitle>
+	<SlaveItemsWidth>Auto</SlaveItemsWidth>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Полная форма приложения</v8:content>
+		</v8:item>
+	</Title>
+	<UsedFormServer>Main</UsedFormServer>
+	<VerticalScroll>Use</VerticalScroll>
+	<VerticalSpacing>Single</VerticalSpacing>
+	<Width>800</Width>
+	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
 </Form>
