@@ -9,6 +9,12 @@ export const getAllElements = (form: ClientApplicationForm): ChildItems => {
     queue.push(childItem)
   }
 
+  if (form.autoCommandBar?.childItems) {
+    for (const childItem of form.autoCommandBar.childItems) {
+      queue.push(childItem)
+    }
+  }
+
   while (queue.length > 0) {
     const element = queue.shift()!
     elements.push(element)
@@ -21,7 +27,21 @@ export const getAllElements = (form: ClientApplicationForm): ChildItems => {
 }
 
 const getChildItems = (element: ChildItem): ChildItems => {
-  if (!("childItems" in element) || !Array.isArray(element.childItems)) return []
+  const result: ChildItems = []
 
-  return element.childItems
+  if ("childItems" in element && Array.isArray(element.childItems)) {
+    result.push(...element.childItems)
+  }
+
+  if (
+    "autoCommandBar" in element &&
+    element.autoCommandBar &&
+    typeof element.autoCommandBar === "object" &&
+    "childItems" in element.autoCommandBar &&
+    Array.isArray(element.autoCommandBar.childItems)
+  ) {
+    result.push(...element.autoCommandBar.childItems)
+  }
+
+  return result
 }

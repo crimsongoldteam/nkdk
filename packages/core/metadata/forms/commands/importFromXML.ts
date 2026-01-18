@@ -1,6 +1,6 @@
 import { importI8nTextFromXML } from "../../commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "../../context/types"
-import { Command, CommandXML } from "./types"
+import { Command, Commands, CommandsXML, CommandXML } from "./types"
 
 export default function importCommandFromXML(
   context: ConfigurationContext,
@@ -19,4 +19,12 @@ export default function importCommandFromXML(
   }
 
   return result
+}
+
+export function importCommandsFromXML(context: ConfigurationContext, xml: CommandsXML | undefined): Commands {
+  if (!xml) return []
+
+  const xmlArray = Array.isArray(xml) ? xml : [xml]
+
+  return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml)!)
 }

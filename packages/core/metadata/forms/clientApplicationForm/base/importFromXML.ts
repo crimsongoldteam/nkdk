@@ -3,6 +3,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
+import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
@@ -12,7 +13,7 @@ export const importClientApplicationFormFromXML = (
   xml: ClientApplicationFormXML
 ): ClientApplicationForm => {
   const result: ClientApplicationForm = {
-    commands: [],
+    commands: importCommandsFromXML(context, xml.Commands?.Command),
     childItems: [],
   }
 

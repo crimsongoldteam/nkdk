@@ -11,6 +11,7 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
+import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
 
@@ -51,7 +52,7 @@ export const importClientApplicationFormFromEnterprise = (
   if (!data) return undefined
 
   const result: ClientApplicationForm = {
-    commands: [],
+    commands: importCommandsFromEnterprise(context, data.Команды),
     childItems: [],
   }
 
