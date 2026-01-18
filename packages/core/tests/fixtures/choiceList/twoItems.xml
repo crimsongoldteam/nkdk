@@ -1,6 +1,5 @@
 <ChoiceList>
 	<xr:Item>
-		<xr:Presentation/>
 		<xr:CheckState>0</xr:CheckState>
 		<xr:Value xsi:type="FormChoiceListDesTimeValue">
 			<Presentation>
@@ -13,7 +12,6 @@
 		</xr:Value>
 	</xr:Item>
 	<xr:Item>
-		<xr:Presentation/>
 		<xr:CheckState>0</xr:CheckState>
 		<xr:Value xsi:type="FormChoiceListDesTimeValue">
 			<Presentation>
