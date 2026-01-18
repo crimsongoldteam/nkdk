@@ -9,14 +9,13 @@ import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/e
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
-import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -28,29 +27,49 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const autoCommandBar = exportTableAutoCommandBarToXML(context, data.autoCommandBar, data)
 
+  const backColor = exportColorToXML(context, data.backColor)
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+
   const childItems = exportChildItemsToXML(context, data.childItems)
+
+  const commandSet = exportCommandSetToXML(context, data.commandSet)
 
   const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
 
+  const events = exportEventsToXML(context, data.events)
+
   const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+
+  const font = exportFontToXML(context, data.font)
 
   const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
 
   const searchStringAddition = exportSearchStringAdditionToXML(context, data.searchStringAddition, data)
 
+  const textColor = exportColorToXML(context, data.textColor)
+
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+
+  const titleFont = exportFontToXML(context, data.titleFont)
+
+  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+
+  const toolTip = exportI8nTextToXML(context, data.toolTip)
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+
   const viewStatusAddition = exportViewStatusAdditionToXML(context, data.viewStatusAddition, data)
 
-  const result: TableXML = {
-    AutoCommandBar: autoCommandBar,
-    SearchControlAddition: searchControl,
-    SearchStringAddition: searchStringAddition,
-    ViewStatusAddition: viewStatusAddition,
-    ExtendedTooltip: extendedTooltip,
-    ContextMenu: contextMenu,
+  const result: Partial<TableXML> = {
     ...baseFields,
   }
 
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
   if (data.autoAddIncomplete !== undefined) result.AutoAddIncomplete = data.autoAddIncomplete
+
+  if (autoCommandBar !== undefined) result.AutoCommandBar = autoCommandBar
 
   if (data.autoInsertNewRow !== undefined) result.AutoInsertNewRow = data.autoInsertNewRow
 
@@ -62,13 +81,11 @@ export function exportTableToXML<From extends Table | undefined>(
 
   if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
 
-  const backColor = exportColorToXML(context, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
   if (data.behaviorOnHorizontalCompression !== undefined)
     result.BehaviorOnHorizontalCompression = data.behaviorOnHorizontalCompression
 
-  const borderColor = exportColorToXML(context, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.changeRowOrder !== undefined) result.ChangeRowOrder = data.changeRowOrder
@@ -81,7 +98,6 @@ export function exportTableToXML<From extends Table | undefined>(
 
   if (data.commandBarLocation !== undefined) result.CommandBarLocation = data.commandBarLocation
 
-  const commandSet = exportCommandSetToXML(context, data.commandSet)
   if (commandSet !== undefined) result.CommandSet = commandSet
 
   if (contextMenu !== undefined) result.ContextMenu = contextMenu
@@ -92,17 +108,18 @@ export function exportTableToXML<From extends Table | undefined>(
 
   if (data.defaultItem !== undefined) result.DefaultItem = data.defaultItem
 
-  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
-
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
   if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
 
   if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
 
+  if (events !== undefined) result.Events = events
+
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
   if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
 
-  const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font
 
   if (data.footer !== undefined) result.Footer = data.footer
@@ -157,9 +174,13 @@ export function exportTableToXML<From extends Table | undefined>(
 
   if (data.rowsPicture !== undefined) result.RowsPicture = data.rowsPicture
 
+  if (searchControl !== undefined) result.SearchControlAddition = searchControl
+
   if (data.searchControlLocation !== undefined) result.SearchControlLocation = data.searchControlLocation
 
   if (data.searchOnInput !== undefined) result.SearchOnInput = data.searchOnInput
+
+  if (searchStringAddition !== undefined) result.SearchStringAddition = searchStringAddition
 
   if (data.searchStringLocation !== undefined) result.SearchStringLocation = data.searchStringLocation
 
@@ -169,30 +190,24 @@ export function exportTableToXML<From extends Table | undefined>(
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const textColor = exportColorToXML(context, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleFont = exportFontToXML(context, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
 
   if (data.titleLocation !== undefined) result.TitleLocation = data.titleLocation
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.useAlternationRowColor !== undefined) result.UseAlternationRowColor = data.useAlternationRowColor
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
@@ -203,16 +218,15 @@ export function exportTableToXML<From extends Table | undefined>(
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
+  if (viewStatusAddition !== undefined) result.ViewStatusAddition = viewStatusAddition
+
   if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
 
   if (data.visible !== undefined) result.Visible = data.visible
 
   if (data.width !== undefined) result.Width = data.width
 
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
-
-  return sortObject(result) as ToXMLType<From>
+  return result as ToXMLType<From>
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML as ExportToXMLFn)
