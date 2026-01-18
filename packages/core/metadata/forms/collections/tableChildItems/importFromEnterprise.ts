@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
-import { TableChildItem, TableChildItems, TableChildItemsPartialEnterprise } from "./types"
+import { TableChildItem, TableChildItems, TableChildItemsEnterprise } from "./types"
 
 export const importTableChildItemsFromEnterprise = (
   context: ConfigurationContext,
-  data: TableChildItemsPartialEnterprise | undefined
+  data: TableChildItemsEnterprise | undefined
 ): TableChildItems => {
   if (!data) return []
 

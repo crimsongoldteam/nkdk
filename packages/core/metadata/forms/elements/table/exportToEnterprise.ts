@@ -4,7 +4,6 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportTypedChildItemsToEnterprise } from "~/metadata/forms/collections/childItems/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "~/metadata/forms/commandSet/exportToEnterprise"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
@@ -215,8 +214,8 @@ export const exportTableToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+  // const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
+  // if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   const searchOnInput = exportSystemEnumerationToEnterprise(
     context,

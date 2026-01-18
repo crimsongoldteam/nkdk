@@ -5,11 +5,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  TableChildItems,
-  TableChildItemsPartialEnterprise,
-  TableChildItemsXML,
-} from "../../collections/tableChildItems/types"
+import { TableChildItems, TableChildItemsEnterprise, TableChildItemsXML } from "../../collections/tableChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -108,7 +104,7 @@ export interface ColumnGroupPartialEnterprise {
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorEnterprise
-  ПодчиненныеЭлементы?: TableChildItemsPartialEnterprise
+  ПодчиненныеЭлементы?: TableChildItemsEnterprise
 }
 
 export interface ColumnGroupTypedEnterprise extends ColumnGroupPartialEnterprise {

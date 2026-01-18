@@ -21,6 +21,7 @@ import {
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
+  FormElementType,
   ImportPartialFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
@@ -40,7 +41,7 @@ export function importInputFieldTypedFromEnterprise<To extends InputField | unde
 
   const result: InputField = {
     ...props,
-    elementType: "InputField",
+    elementType: FormElementType.InputField,
     name,
   }
 
@@ -59,7 +60,7 @@ export function importInputFieldPartialFromEnterprise<To extends InputField>(
   const result: To = {
     ...source,
     ...props,
-    elementType: "InputField",
+    elementType: FormElementType.InputField,
     name: source.name,
   }
 
