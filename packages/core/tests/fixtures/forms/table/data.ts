@@ -81,7 +81,6 @@ export const fullTable: Table = {
           name: "ТаблицаПолеВвода",
           dataPath: "Таблица.ПолеВвода",
           editMode: "EnterOnInput",
-          extendedEditMultipleValues: true,
         },
       ],
     },

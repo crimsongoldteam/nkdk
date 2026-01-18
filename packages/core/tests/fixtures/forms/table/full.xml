@@ -21,7 +21,6 @@
 					<ContextMenu name="ТаблицаПолеВводаКонтекстноеМеню" id="6"/>
 					<DataPath>Таблица.ПолеВвода</DataPath>
 					<EditMode>EnterOnInput</EditMode>
-					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 					<ExtendedTooltip name="ТаблицаПолеВводаРасширеннаяПодсказка" id="7"/>
 				</InputField>
 			</ChildItems>

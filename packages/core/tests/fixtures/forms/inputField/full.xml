@@ -94,7 +94,6 @@
 		<Event name="Tuning">ПроцедураРегулирования</Event>
 	</Events>
 	<ExtendedEdit>true</ExtendedEdit>
-	<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3">
 		<Title formatted="false">
 			<v8:item>
