@@ -210,6 +210,8 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
 
   if (xml.ExtendedEdit !== undefined) result.extendedEdit = xml.ExtendedEdit
 
+  if (xml.ExtendedEditMultipleValues !== undefined) result.extendedEditMultipleValues = xml.ExtendedEditMultipleValues
+
   const font = importFontFromXML(context, xml.Font)
   if (font !== undefined) result.font = font
 

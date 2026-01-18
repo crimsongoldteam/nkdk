@@ -53,6 +53,9 @@ export const fullTable: Table = {
         {
           elementType: FormElementType.InputField,
           name: "ТаблицаПолеВвода",
+          dataPath: "Таблица.ПолеВвода",
+          editMode: "EnterOnInput",
+          extendedEditMultipleValues: true,
         },
       ],
     },

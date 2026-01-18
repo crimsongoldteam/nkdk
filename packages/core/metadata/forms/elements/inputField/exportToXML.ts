@@ -2,6 +2,7 @@ import { exportChoiceListToXML } from "~/metadata/commonObjects/choiceList/expor
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
@@ -12,7 +13,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
-import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -212,6 +212,8 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
   if (data.editTextUpdate !== undefined) result.EditTextUpdate = data.editTextUpdate
 
   if (data.extendedEdit !== undefined) result.ExtendedEdit = data.extendedEdit
+
+  if (data.extendedEditMultipleValues !== undefined) result.ExtendedEditMultipleValues = data.extendedEditMultipleValues
 
   const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font

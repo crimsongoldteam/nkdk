@@ -65,6 +65,7 @@ export interface InputField {
   editText?: string
   editTextUpdate?: SE.EditTextUpdate
   extendedEdit?: boolean
+  extendedEditMultipleValues?: boolean
   font?: Font
   format?: I8nText
   height?: number
@@ -206,6 +207,7 @@ export interface InputFieldXML extends BaseElementXML {
   EditText?: string
   EditTextUpdate?: SE.EditTextUpdate
   ExtendedEdit?: boolean
+  ExtendedEditMultipleValues?: boolean
   Font?: FontXML
   Format?: I8nTextXML
   Height?: number

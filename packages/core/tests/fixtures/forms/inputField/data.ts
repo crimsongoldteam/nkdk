@@ -126,6 +126,7 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
   editText: "Текст редактирования",
   editTextUpdate: "OnValueChange",
   extendedEdit: true,
+  extendedEditMultipleValues: true,
   font: { kind: "StyleItem", ref: "NormalTextFont" },
   format: { items: { ru: "Формат отображения" } },
   height: 100,

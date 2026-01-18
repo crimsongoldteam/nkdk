@@ -15,36 +15,54 @@
 	<ChangeRowOrder>true</ChangeRowOrder>
 	<ChangeRowSet>true</ChangeRowSet>
 	<ChildItems>
-		<ColumnGroup name="ТаблицаГруппа1" id="2">
-			<ExtendedTooltip name="ТаблицаГруппа1РасширеннаяПодсказка" id="4"/>
+		<ColumnGroup name="ТаблицаГруппа1" id="3">
 			<ChildItems>
 				<InputField name="ТаблицаПолеВвода" id="5">
+					<ContextMenu name="ТаблицаПолеВводаКонтекстноеМеню" id="6"/>
 					<DataPath>Таблица.ПолеВвода</DataPath>
 					<EditMode>EnterOnInput</EditMode>
 					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-					<ContextMenu name="ТаблицаПолеВводаКонтекстноеМеню" id="6"/>
 					<ExtendedTooltip name="ТаблицаПолеВводаРасширеннаяПодсказка" id="7"/>
 				</InputField>
 			</ChildItems>
+			<ExtendedTooltip name="ТаблицаГруппа1РасширеннаяПодсказка" id="4"/>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Группа 1</v8:content>
+				</v8:item>
+			</Title>
 		</ColumnGroup>
 		<CheckBoxField name="ТаблицаПолеФлажка" id="8">
-			<DataPath>Таблица.ПолеФлажка</DataPath>
-			<EditMode>EnterOnInput</EditMode>
 			<CheckBoxType>Auto</CheckBoxType>
 			<ContextMenu name="ТаблицаПолеФлажкаКонтекстноеМеню" id="9"/>
+			<DataPath>Таблица.ПолеФлажка</DataPath>
+			<EditMode>EnterOnInput</EditMode>
 			<ExtendedTooltip name="ТаблицаПолеФлажкаРасширеннаяПодсказка" id="10"/>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Поле флажка</v8:content>
+				</v8:item>
+			</Title>
 		</CheckBoxField>
 		<PictureField name="ТаблицаПолеКартинки" id="11">
+			<ContextMenu name="ТаблицаПолеКартинкиКонтекстноеМеню" id="12"/>
 			<DataPath>Таблица.ПолеКартинки</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ContextMenu name="ТаблицаПолеКартинкиКонтекстноеМеню" id="12"/>
 			<ExtendedTooltip name="ТаблицаПолеКартинкиРасширеннаяПодсказка" id="13"/>
 		</PictureField>
 		<LabelField name="ТаблицаПолеНадписи" id="14">
+			<ContextMenu name="ТаблицаПолеНадписиКонтекстноеМеню" id="15"/>
 			<DataPath>Таблица.ПолеНадписи</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ContextMenu name="ТаблицаПолеНадписиКонтекстноеМеню" id="15"/>
 			<ExtendedTooltip name="ТаблицаПолеНадписиРасширеннаяПодсказка" id="16"/>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Поле надписи</v8:content>
+				</v8:item>
+			</Title>
 		</LabelField>
 	</ChildItems>
 	<ChoiceMode>true</ChoiceMode>
@@ -60,9 +78,9 @@
 	<CurrentRowUse>Auto</CurrentRowUse>
 	<DataPath>Объект.ТабличнаяЧасть</DataPath>
 	<DefaultItem>true</DefaultItem>
+	<Enabled>true</Enabled>
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
-	<Enabled>true</Enabled>
 	<Events>
 		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
 		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
