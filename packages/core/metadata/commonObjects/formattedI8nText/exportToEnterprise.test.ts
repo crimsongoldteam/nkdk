@@ -28,9 +28,7 @@ describe("exportFormattedI8nTextToEnterprise", () => {
       it(`should export default: ${fixture.name}`, () => {
         const result = exportFormattedI8nTextDefaultToEnterprise(mockСontext, fixture.text)
 
-        // This function calls exportI8nTextToEnterprise which returns the i8n text content
-        // regardless of formatted flag, so it should match enterpriseText
-        expect(result).toEqual(fixture.enterpriseText)
+        expect(result).toEqual(fixture.enterpriseDefaultLanguage)
       })
     })
   })
@@ -40,7 +38,6 @@ describe("exportFormattedI8nTextToEnterprise", () => {
       it(`should export other: ${fixture.name}`, () => {
         const result = exportFormattedI8nTextOtherToEnterprise(mockСontext, fixture.text, "Title", "FormattedTitle")
 
-        // Extract other languages (excluding default language 'ru')
         if (!fixture.text) {
           expect(result).toEqual({})
           return
@@ -54,9 +51,9 @@ describe("exportFormattedI8nTextToEnterprise", () => {
         if (Object.keys(otherItems).length === 0) {
           expect(result).toEqual({})
         } else if (fixture.text.formatted) {
-          expect(result).toEqual({ FormattedTitle: { ...otherItems } })
+          expect(result).toEqual({ FormattedTitle: fixture.enterpriseOtherLanguagesFormattedText })
         } else {
-          expect(result).toEqual({ Title: { ...otherItems } })
+          expect(result).toEqual({ Title: fixture.enterpriseOtherLanguagesText })
         }
       })
     })

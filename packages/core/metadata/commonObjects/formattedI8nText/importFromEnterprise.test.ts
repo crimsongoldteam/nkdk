@@ -22,7 +22,7 @@ describe("importFormattedI8nTextFromEnterprise", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextCombinedFromEnterprise(
         mockСontext,
-        fixture.text,
+        fixture.textFromStructure,
         fixture.enterpriseText,
         fixture.enterpriseFormattedText
       )

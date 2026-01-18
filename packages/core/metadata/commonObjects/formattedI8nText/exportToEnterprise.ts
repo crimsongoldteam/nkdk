@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportI8nTextToEnterprise } from "../i8nText/exportToEnterprise"
+import { exportI8nTextDefaultToEnterprise, exportI8nTextToEnterprise } from "../i8nText/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
@@ -29,7 +29,7 @@ export const exportFormattedI8nTextDefaultToEnterprise = (
   context: ConfigurationContext,
   title: FormattedI8nText | undefined
 ): FormattedI8nTextEnterprise | undefined => {
-  return exportI8nTextToEnterprise(context, title)
+  return exportI8nTextDefaultToEnterprise(context, title)
 }
 
 export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, FormattedKey extends string>(
