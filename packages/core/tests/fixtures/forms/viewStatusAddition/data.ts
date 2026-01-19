@@ -4,7 +4,7 @@ export const parentElement = {
   name: "КакойТоЭлемент",
 }
 
-export const fullViewStatusAddition: ViewStatusAddition = {
+export const fullViewStatusAddition: Required<ViewStatusAddition> = {
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   border: { ref: "style:ControlBorder" },

@@ -5,6 +5,7 @@ import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
+import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { Page } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
@@ -30,6 +31,9 @@ export function importPageFromXML<To extends Page | undefined>(
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.Height !== undefined) result.height = xml.Height
 

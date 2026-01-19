@@ -5,6 +5,7 @@ import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
+import { exportExtendedTooltipToXML } from "~/metadata/forms/elements/extendedTooltip/exportToXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -38,6 +39,11 @@ export function exportPageToXML<From extends Page | undefined>(
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  if (data.extendedTooltip !== undefined) {
+    const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+    result.ExtendedTooltip = extendedTooltip
+  }
 
   const format = exportI8nTextToXML(context, data.format)
   if (format !== undefined) result.Format = format

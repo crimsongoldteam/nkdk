@@ -1,7 +1,8 @@
 import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPage: Page = {
+export const fullPage: RequiredFieldsElement<Page> = {
   elementType: FormElementType.Page,
   name: "Страница",
   enableContentChange: true,
@@ -30,6 +31,8 @@ export const fullPage: Page = {
   visible: true,
   width: 300,
   backColor: { type: "WebColor", value: "White" },
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  picture: { ref: "Picture", type: "StandardPicture", loadTransparent: true },
   childItemsHorizontalAlign: "Left",
   childItemsVerticalAlign: "Top",
   displayImportance: "High",
@@ -47,6 +50,7 @@ export const fullPage: Page = {
   verticalScrollOnReduceSize: true,
   verticalSpacing: "Single",
   childItems: [],
+  events: {},
 }
 
 export const fullPagePartialEnterprise: PagePartialEnterprise = {
@@ -76,8 +80,12 @@ export const fullPagePartialEnterprise: PagePartialEnterprise = {
   ГоризонтальноеПоложениеПодчиненных: "Лево",
   ГоризонтальныйИнтервал: "Одинарный",
   Группировка: "Вертикальная",
+  Картинка: "Картинка",
   ОтображатьЗаголовок: "Истина",
   ПутьКДаннымЗаголовка: "Объект.Заголовок",
+  РасширеннаяПодсказка: {
+    Заголовок: "Расширенная подсказка",
+  },
   СкроллПриСжатии: "Истина",
   Формат: "Формат",
   ЦветФона: "Белый",
