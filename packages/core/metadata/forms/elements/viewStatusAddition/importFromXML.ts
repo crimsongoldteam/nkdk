@@ -2,7 +2,6 @@ import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromX
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
-import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
@@ -25,8 +24,6 @@ export const importViewStatusAdditionFromXML = (
   const extendedToolTip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
-
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
 
@@ -34,13 +31,6 @@ export const importViewStatusAdditionFromXML = (
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
-
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
-
-  if (xml.Visible !== undefined) result.visible = xml.Visible
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
@@ -53,13 +43,13 @@ export const importViewStatusAdditionFromXML = (
   const borderColor = importColorFromXML(context, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const buttonsBackColor = importColorFromXML(context, xml.ButtonsBackColor)
+  const buttonsBackColor = importColorFromXML(context, xml.ButtonColor)
   if (buttonsBackColor !== undefined) result.buttonsBackColor = buttonsBackColor
 
   const font = importFontFromXML(context, xml.Font)
   if (font !== undefined) result.font = font
 
-  if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
+  if (xml.HorizontalLocation !== undefined) result.horizontalAlign = xml.HorizontalLocation
 
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { fullViewStatusAddition, fullViewStatusAdditionEnterprise } from "~/tests/fixtures/forms/viewStatusAddition/data"
+import {
+  fullViewStatusAddition,
+  fullViewStatusAdditionEnterprise,
+} from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importViewStatusAdditionFromEnterprise } from "./importFromEnterprise"
 

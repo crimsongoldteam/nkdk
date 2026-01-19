@@ -223,7 +223,6 @@ export const fullTable: Table = {
   viewStatusAddition: {
     displayImportance: "High",
     enabled: true,
-    horizontalAlignInGroup: "Left",
     title: {
       items: { ru: "Отображение состояния просмотра" },
     },
@@ -231,12 +230,6 @@ export const fullTable: Table = {
       items: { ru: "Подсказка" },
     },
     toolTipRepresentation: "None",
-    userVisible: {
-      common: true,
-      values: [{ name: "Администратор", value: true }],
-    },
-    verticalAlignInGroup: "Top",
-    visible: true,
   },
   visible: true,
   width: 600,
@@ -316,13 +309,9 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   ОтображениеСостоянияПросмотра: {
     Заголовок: "Отображение состояния просмотра",
     ВажностьПриОтображении: "Высокая",
-    ВертикальноеПоложениеВГруппе: "Верх",
-    Видимость: "Истина",
-    ГоризонтальноеПоложениеВГруппе: "Лево",
     Доступность: "Истина",
     ОтображениеПодсказки: "Нет",
     Подсказка: "Подсказка",
-    РазрешитьИспользование: { Администратор: "Истина" },
   },
   ОтображениеСтрокиПоиска: {
     Заголовок: "Отображение строки поиска",

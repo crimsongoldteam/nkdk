@@ -7,7 +7,7 @@
 	<BackColor>web:White</BackColor>
 	<Border ref="style:ControlBorder"/>
 	<BorderColor>web:Black</BorderColor>
-	<ButtonsBackColor>web:Gray</ButtonsBackColor>
+	<ButtonColor>web:Gray</ButtonColor>
 	<ContextMenu name="КакойТоЭлементСостояниеПросмотраКонтекстноеМеню" id="2">
 		<Autofill>false</Autofill>
 	</ContextMenu>
@@ -21,8 +21,7 @@
 		</Title>
 	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalLocation>Left</HorizontalLocation>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxWidth>500</MaxWidth>
 	<TextColor>web:Black</TextColor>
@@ -41,11 +40,5 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
-	<Visible>true</Visible>
 	<Width>300</Width>
 </ViewStatusAddition>

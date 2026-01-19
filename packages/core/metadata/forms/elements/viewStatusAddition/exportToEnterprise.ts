@@ -3,7 +3,6 @@ import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/export
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -67,23 +66,6 @@ export const exportViewStatusAdditionToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalAlignInGroup,
-    SE.ItemVerticalAlignToEnterprise
-  )
-  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
-
-  const visible = exportBooleanToEnterprise(context, data.visible)
-  if (visible !== undefined) result.Видимость = visible
-
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
-    context,
-    data.horizontalAlignInGroup,
-    SE.ItemHorizontalLocationToEnterprise
-  )
-  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
-
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
@@ -105,11 +87,6 @@ export const exportViewStatusAdditionToEnterprise = (
 
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
-
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
-  }
 
   if (Object.keys(result).length === 0) return undefined
 

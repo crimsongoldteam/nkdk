@@ -6,7 +6,7 @@ import {
 } from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const fullUsualGroup: UsualGroup = {
+export const fullUsualGroup: Required<UsualGroup> = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
   enableContentChange: true,
@@ -60,6 +60,8 @@ export const fullUsualGroup: UsualGroup = {
   united: false,
   verticalAlign: "Top",
   verticalSpacing: "Single",
+  table: "Таблица",
+  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   childItems: [],
 }
 
@@ -83,6 +85,7 @@ export const fullUsualGroupPartialEnterprise: UsualGroupPartialEnterprise = {
   РазрешитьИзменениеСостава: "Истина",
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   СочетаниеКлавиш: "Ctrl+S",
   ТолькоПросмотр: "Ложь",
   ЦветТекстаЗаголовка: "Черный",
@@ -112,6 +115,7 @@ export const fullUsualGroupPartialEnterprise: UsualGroupPartialEnterprise = {
   ЦветФона: "Белый",
   ЦветФонаЗаголовкаСкрытогоОтображения: "Серый",
   ШиринаПодчиненныхЭлементов: "Авто",
+  Таблица: "Таблица",
 }
 
 export const fullUsualGroupTypedEnterprise: UsualGroupTypedEnterprise = {

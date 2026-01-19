@@ -2,7 +2,6 @@ import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
-import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -47,12 +46,12 @@ export const exportViewStatusAdditionToXML = (
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   const buttonsBackColor = exportColorToXML(context, element.buttonsBackColor)
-  if (buttonsBackColor !== undefined) result.ButtonsBackColor = buttonsBackColor
+  if (buttonsBackColor !== undefined) result.ButtonColor = buttonsBackColor
 
   const font = exportFontToXML(context, element.font)
   if (font !== undefined) result.Font = font
 
-  if (element.horizontalAlign !== undefined) result.HorizontalAlign = element.horizontalAlign
+  if (element.horizontalAlign !== undefined) result.HorizontalLocation = element.horizontalAlign
 
   if (element.horizontalStretch !== undefined) result.HorizontalStretch = element.horizontalStretch
 
@@ -73,8 +72,6 @@ export const exportViewStatusAdditionToXML = (
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
-
   const title = exportI8nTextToXML(context, element.title)
   if (title !== undefined) result.Title = title
 
@@ -82,13 +79,6 @@ export const exportViewStatusAdditionToXML = (
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (element.toolTipRepresentation !== undefined) result.ToolTipRepresentation = element.toolTipRepresentation
-
-  const userVisible = exportUserVisibleToXML(context, element.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
-  if (element.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = element.verticalAlignInGroup
-
-  if (element.visible !== undefined) result.Visible = element.visible
 
   return sortObject(result)
 }
