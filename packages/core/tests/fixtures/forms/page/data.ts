@@ -1,8 +1,7 @@
 import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPage: RequiredFieldsElement<Page> = {
+export const fullPage: Required<Page> = {
   elementType: FormElementType.Page,
   name: "Страница",
   enableContentChange: true,
@@ -50,7 +49,6 @@ export const fullPage: RequiredFieldsElement<Page> = {
   verticalScrollOnReduceSize: true,
   verticalSpacing: "Single",
   childItems: [],
-  events: {},
 }
 
 export const fullPagePartialEnterprise: PagePartialEnterprise = {

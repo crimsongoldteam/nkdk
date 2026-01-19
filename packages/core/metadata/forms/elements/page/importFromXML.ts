@@ -107,6 +107,9 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
+  // const events = importEventsFromXML(context, xml.Events)
+  // if (events !== undefined) result.events = events
+
   return result as To
 }
 

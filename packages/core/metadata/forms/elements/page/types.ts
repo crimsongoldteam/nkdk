@@ -57,7 +57,7 @@ export interface PageXML extends BaseElementXML {
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   Title?: I8nTextXML
   TitleFont?: FontXML
   TitleTextColor?: ColorXML

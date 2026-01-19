@@ -22,7 +22,7 @@ export function exportPageToXML<From extends Page | undefined>(
 
   const result: PageXML = {
     ...baseFields,
-  }
+  } as PageXML
 
   const backColor = exportColorToXML(context, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
@@ -40,10 +40,8 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  if (data.extendedTooltip !== undefined) {
-    const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-    result.ExtendedTooltip = extendedTooltip
-  }
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  result.ExtendedTooltip = extendedTooltip
 
   const format = exportI8nTextToXML(context, data.format)
   if (format !== undefined) result.Format = format
