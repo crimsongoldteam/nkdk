@@ -32,7 +32,7 @@ export interface SearchStringAddition {
 export interface SearchStringAdditionXML extends BaseElementXML {
   AdditionSource: {
     Item: string
-    Type: "SearchStringAddition"
+    Type: "SearchStringRepresentation"
   }
   ContextMenu: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance

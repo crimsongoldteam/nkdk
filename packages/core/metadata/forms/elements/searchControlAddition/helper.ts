@@ -1,7 +1,7 @@
 import { SearchControlAddition } from "./types"
 
 export const getSearchControlAdditionName = (parentElement: { name: string }): string => {
-  return `${parentElement.name}УправленияПоиском`
+  return `${parentElement.name}УправлениеПоиском`
 }
 
 export const isHasContent = (data: SearchControlAddition): boolean => {

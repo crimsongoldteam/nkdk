@@ -10,21 +10,6 @@ export const exportAutoCommandBarToStructure = (
 ): IFormatElementResult => {
   if (!element) return { strings: [], haveSimpleHorizontalGroup: false }
 
-  const hasAutofill = element.autofill != false
-  const hasButtons = element.childItems && element.childItems.length > 0
-
-  // Если есть и autofill, и кнопки, разделяем на две строки
-  if (hasAutofill && hasButtons) {
-    const autofillContent = wrapButtonContent("...")
-    const buttons = exportButtonGroupChildItemsToStructure(context, element.childItems)
-    const buttonsContent = wrapButtonContent("... | " + buttons.join(" | "))
-
-    return {
-      strings: [autofillContent, buttonsContent],
-      haveSimpleHorizontalGroup: false,
-    }
-  }
-
   const content = exportAutoCommandBarContentToStructure(context, element)
 
   return {

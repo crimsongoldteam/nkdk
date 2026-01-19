@@ -40,7 +40,7 @@ export interface SearchControlAddition {
 export interface SearchControlAdditionXML extends BaseElementXML {
   AdditionSource: {
     Item: string
-    Type: "SearchControlAddition"
+    Type: "SearchControl"
   }
   AutoMaxWidth?: boolean
   BackColor?: ColorXML

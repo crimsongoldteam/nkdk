@@ -27,7 +27,7 @@ export const exportSearchStringAdditionToXML = (
     ...baseFields,
     AdditionSource: {
       Item: parentElement.name,
-      Type: "SearchStringAddition",
+      Type: "SearchStringRepresentation",
     },
     ContextMenu: contextMenu,
     ExtendedTooltip: extendedTooltip,

@@ -29,7 +29,7 @@ export const exportSearchControlAdditionToXML = (
   const result: SearchControlAdditionXML = {
     AdditionSource: {
       Item: parentElement.name,
-      Type: "SearchControlAddition",
+      Type: "SearchControl",
     },
     ...baseFields,
     ContextMenu: contextMenu,
