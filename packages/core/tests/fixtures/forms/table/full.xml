@@ -141,14 +141,14 @@
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
 	<RowsPicture>true</RowsPicture>
-	<SearchControlAddition name="ТаблицаУправленияПоиском" id="19" DisplayImportance="High">
+	<SearchControlAddition name="ТаблицаУправлениеПоиском" id="19" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
-			<Type>SearchControlAddition</Type>
+			<Type>SearchControl</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="20"/>
+		<ContextMenu name="ТаблицаУправлениеПоискомКонтекстноеМеню" id="20"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="21"/>
+		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="21"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -175,7 +175,7 @@
 	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="22" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
-			<Type>SearchStringAddition</Type>
+			<Type>SearchStringRepresentation</Type>
 		</AdditionSource>
 		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="23"/>
 		<Enabled>true</Enabled>
@@ -240,7 +240,6 @@
 		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="26"/>
 		<Enabled>true</Enabled>
 		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="27"/>
-		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -254,12 +253,6 @@
 			</v8:item>
 		</ToolTip>
 		<ToolTipRepresentation>None</ToolTipRepresentation>
-		<UserVisible>
-			<xr:Common>true</xr:Common>
-			<xr:Value name="Role.Администратор">true</xr:Value>
-		</UserVisible>
-		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
-		<Visible>true</Visible>
 	</ViewStatusAddition>
 	<ViewStatusLocation>Auto</ViewStatusLocation>
 	<Visible>true</Visible>

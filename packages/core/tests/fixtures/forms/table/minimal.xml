@@ -2,18 +2,18 @@
 	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2"/>
 	<ContextMenu name="ТаблицаКонтекстноеМеню" id="3"/>
 	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4"/>
-	<SearchControlAddition name="ТаблицаУправленияПоиском" id="5">
+	<SearchControlAddition name="ТаблицаУправлениеПоиском" id="5">
 		<AdditionSource>
 			<Item>Таблица</Item>
-			<Type>SearchControlAddition</Type>
+			<Type>SearchControl</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="6"/>
-		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="7"/>
+		<ContextMenu name="ТаблицаУправлениеПоискомКонтекстноеМеню" id="6"/>
+		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="7"/>
 	</SearchControlAddition>
 	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="8">
 		<AdditionSource>
 			<Item>Таблица</Item>
-			<Type>SearchStringAddition</Type>
+			<Type>SearchStringRepresentation</Type>
 		</AdditionSource>
 		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="9"/>
 		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="10"/>
