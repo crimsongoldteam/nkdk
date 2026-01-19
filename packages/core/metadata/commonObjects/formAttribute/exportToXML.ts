@@ -25,12 +25,19 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     _id: getElementId(context),
   }
 
+  const settings = exportTypeDescriptionToXML(context, mergedData.settings)
+  if (settings) {
+    result.Settings = {
+      "_xsi:type": "v8:TypeDescription",
+      ...settings,
+    }
+  }
+
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
   if (title) result.Title = title
 
   const type = exportTypeDescriptionToXML(context, mergedData.valueType)
   if (type) result.Type = type
-
   if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
 
   if (mergedData.storedData !== undefined) result.StoredData = mergedData.storedData

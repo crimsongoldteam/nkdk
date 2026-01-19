@@ -19,11 +19,17 @@ export interface FormAttribute {
   mainAttribute?: boolean
   storedData?: boolean
   use?: UserVisible
+  settings?: TypeDescription
+}
+
+interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
+  "_xsi:type": "v8:TypeDescription"
 }
 
 export interface FormAttributeXML {
   _name: string
   _id: string
+  Settings?: SettingsTypeDescriptionXML
   Title?: I8nTextXML
   Type?: TypeDescriptionXML
   MainAttribute?: boolean
@@ -38,6 +44,7 @@ export interface ConditionalAppearanceXML {
 export interface FormAttributeEnterprise {
   Заголовок?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise
+  ТипЗначения?: TypeDescriptionEnterprise
   ОсновнойРеквизит?: StringboolEnterprise
   СохраняемыеДанные?: StringboolEnterprise
   [UserVisibleKeysEnterprise.Allow]?: UserVisibleEnterprise

@@ -55,6 +55,9 @@ const importFormAttributeFromEnterprise = (
   const storedData = importBooleanFromEnterprise(context, data.СохраняемыеДанные)
   if (storedData !== undefined) result.storedData = storedData
 
+  const settings = importTypeDescriptionFromEnterprise(context, data.ТипЗначения)
+  if (settings !== undefined) result.settings = settings
+
   const use = importUserVisibleFromEnterprise(
     context,
     data[UserVisibleKeysEnterprise.Allow] || data[UserVisibleKeysEnterprise.Deny],

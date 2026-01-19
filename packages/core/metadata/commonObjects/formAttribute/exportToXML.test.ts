@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { fullFormAttributes, minimalFormAttributes, multipleFormAttributes } from "~/tests/fixtures/formAttributes/data"
+import {
+  choiceListFormAttribute,
+  fullFormAttributes,
+  minimalFormAttributes,
+  multipleFormAttributes,
+} from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -35,6 +40,16 @@ describe("exportFormAttributesToXML", () => {
     const expectedResult = readXMLFileAsString("formAttributes/multiple.xml")
 
     const xmlData = exportFormAttributesToXML(mockСontext, multipleFormAttributes)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice list", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/choiceList.xml")
+
+    const xmlData = exportFormAttributesToXML(mockСontext, choiceListFormAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

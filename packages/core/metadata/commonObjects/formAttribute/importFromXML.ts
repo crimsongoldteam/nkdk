@@ -33,6 +33,9 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const storedData = importBooleanFromXML(context, props.StoredData)
   if (storedData !== undefined) result.storedData = storedData
 
+  const settings = importTypeDescriptionFromXML(context, props.Settings)
+  if (settings !== undefined) result.settings = settings
+
   const use = importUserVisibleFromXML(context, props.Use)
   if (use !== undefined) result.use = use
 

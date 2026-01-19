@@ -49,6 +49,9 @@ const exportFormAttributeToEnterprise = (
   const storedData = exportBooleanToEnterprise(context, data.storedData)
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
+  const settings = exportTypeDescriptionToEnterprise(context, data.settings)
+  if (settings !== undefined) result.ТипЗначения = settings
+
   const use = exportUserVisibleToEnterprise(context, data.use)
   if (use) {
     Object.assign(result, use)
@@ -90,9 +93,10 @@ const computeTitleForExport = (
 
 const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {
   if (title !== undefined) return false
+  if (data.settings !== undefined) return false
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(
-      ([key, value]) => value !== undefined && !["name", "id", "valueType", "title"].includes(key)
+      ([key, value]) => value !== undefined && !["name", "id", "valueType", "title", "settings"].includes(key)
     )
   )
   return Object.keys(filteredData).length === 0

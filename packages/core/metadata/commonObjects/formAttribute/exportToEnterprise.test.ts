@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
+  choiceListFormAttribute,
+  choiceListFormAttributeEnterprise,
   fullFormAttributes,
   fullFormAttributesEnterprise,
   mainAttributeTitleEqualsName,
@@ -32,5 +34,11 @@ describe("exportFormAttributesToEnterprise", () => {
     const result = exportFormAttributesToEnterprise(mockСontext, mainAttributeTitleEqualsName)
 
     expect(result).toEqual(mainAttributeTitleEqualsNameEnterprise)
+  })
+
+  it("should export choice list", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, choiceListFormAttribute)
+
+    expect(result).toEqual(choiceListFormAttributeEnterprise)
   })
 })

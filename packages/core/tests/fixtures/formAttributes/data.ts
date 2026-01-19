@@ -157,3 +157,26 @@ export const withStoredDataFormAttribute: FormAttributes = [
   },
 ]
 //#endregion
+
+//#region ChoiceList
+export const choiceListFormAttribute: FormAttributes = [
+  {
+    settings: {
+      type: ["CatalogRef.ДоговорыКонтрагентов"],
+    },
+    name: "ВыбранныеЗначения",
+    title: { items: { ru: "Выбранные значения" } },
+    valueType: {
+      type: ["ValueListType"],
+    },
+  },
+]
+
+export const choiceListFormAttributeEnterprise: FormAttributesEnterprise = {
+  ВыбранныеЗначения: {
+    Тип: "СписокЗначений",
+    ТипЗначения: "Справочник.ДоговорыКонтрагентов",
+  },
+}
+
+//#endregion

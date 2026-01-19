@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { fullFormAttributes, minimalFormAttributes, multipleFormAttributes } from "~/tests/fixtures/formAttributes/data"
+import {
+  choiceListFormAttribute,
+  fullFormAttributes,
+  minimalFormAttributes,
+  multipleFormAttributes,
+} from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importFormAttributesFromXML } from "./importFromXML"
@@ -33,6 +38,14 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(multipleFormAttributes)
+  })
+
+  it("should import choice list", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/choiceList.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(choiceListFormAttribute)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {
