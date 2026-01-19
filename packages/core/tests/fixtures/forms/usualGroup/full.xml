@@ -1,4 +1,5 @@
 <UsualGroup name="ОбычнаяГруппа" id="1" DisplayImportance="High">
+	<AssociatedAssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedAssociatedTableElementId>
 	<BackColor>web:White</BackColor>
 	<Behavior>Auto</Behavior>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
@@ -8,7 +9,14 @@
 	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="2"/>
+	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="2">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<Format>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

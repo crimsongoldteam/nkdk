@@ -7,6 +7,7 @@ import {
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importExtendedTooltipFromEnterprise } from "~/metadata/forms/elements/extendedTooltip/importFromEnterprise"
 import {
   UsualGroup,
   UsualGroupPartialEnterprise,
@@ -285,6 +286,9 @@ const importUsualGroupPropsFromEnterprise = (
     SE.ChildFormItemsWidthFromEnterprise
   )
   if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
+
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   return result
 }

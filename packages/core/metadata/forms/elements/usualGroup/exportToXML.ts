@@ -1,6 +1,7 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
@@ -27,6 +28,9 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   if (childItems !== undefined) result.ChildItems = childItems
 
   result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+
+  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  if (table !== undefined) result.AssociatedAssociatedTableElementId = table
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 

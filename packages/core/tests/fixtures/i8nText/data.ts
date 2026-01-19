@@ -117,15 +117,15 @@ export const i8nTextFixtures: I8nTextFixture[] = [
   },
   {
     name: "with escaped content",
-    text: { items: { ru: "<Текст с экранированным символом>" } },
-    textFromStructure: { items: { ru: "<Текст с экранированным символом>" } },
-    enterpriseFull: "<Текст с экранированным символом>",
-    enterpriseDefaultLanguage: "<Текст с экранированным символом>",
+    text: { items: { ru: '<">' } },
+    textFromStructure: { items: { ru: '<">' } },
+    enterpriseFull: '<">',
+    enterpriseDefaultLanguage: '<">',
     enterpriseOtherLanguages: undefined,
     xml: `<Title>
 	<v8:item>
 		<v8:lang>ru</v8:lang>
-		<v8:content>&lt;Текст с экранированным символом&gt;</v8:content>
+		<v8:content>&lt;&quot;&gt;</v8:content>
 	</v8:item>
 </Title>`,
   },

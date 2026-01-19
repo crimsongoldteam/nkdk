@@ -1,9 +1,11 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
+import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
@@ -85,6 +87,9 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
   const format = importI8nTextFromXML(context, xml.Format)
   if (format !== undefined) result.format = format
 
@@ -122,6 +127,9 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
   if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
+
+  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedAssociatedTableElementId, "string")
+  if (table !== undefined) result.table = table
 
   return result as To
 }

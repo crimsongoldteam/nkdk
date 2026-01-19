@@ -173,17 +173,17 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   },
   {
     name: "with escaped content and formatted true",
-    text: { formatted: true, items: { ru: "<Текст с экранированным символом>" } },
-    textFromStructure: { items: { ru: "<Текст с экранированным символом>" } },
+    text: { formatted: true, items: { ru: '<">' } },
+    textFromStructure: { items: { ru: '<">' } },
     enterpriseText: undefined,
-    enterpriseFormattedText: "<Текст с экранированным символом>",
-    enterpriseDefaultLanguage: "<Текст с экранированным символом>",
+    enterpriseFormattedText: '<">',
+    enterpriseDefaultLanguage: '<">',
     enterpriseOtherLanguagesText: undefined,
     enterpriseOtherLanguagesFormattedText: undefined,
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
-		<v8:content>&lt;Текст с экранированным символом&gt;</v8:content>
+		<v8:content>&lt;&quot;&gt;</v8:content>
 	</v8:item>
 </Title>`,
   },

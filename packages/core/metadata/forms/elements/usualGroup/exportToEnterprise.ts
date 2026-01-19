@@ -7,6 +7,7 @@ import {
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportExtendedTooltipToEnterprise } from "~/metadata/forms/elements/extendedTooltip/exportToEnterprise"
 import {
   UsualGroup,
   UsualGroupPartialEnterprise,
@@ -253,6 +254,10 @@ const exportUsualGroupPropsToEnterprise = (
     SE.ChildFormItemsWidthToEnterprise
   )
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
+
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
   return result
 }
 
