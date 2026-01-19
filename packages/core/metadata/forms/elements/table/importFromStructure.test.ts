@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import "~/metadata/forms/elements/exportToStructure"
 import { tableStructureFixtures } from "~/tests/fixtures/forms/table/data"
 import { mockСontext } from "~/tests/mockContext"
 import { parseElement } from "../../collections/childItems/parser/elementsParser/parse"
@@ -20,5 +19,7 @@ const importTableFromStructure = (mockСontext: ConfigurationContext, mock: stri
 
   const treeNodes = parseTree(mockСontext, tokens)
 
-  return parseElement(mockСontext, treeNodes[0])
+  const node = treeNodes[0].type === "AutoCommandBar" ? treeNodes[1] : treeNodes[0]
+
+  return parseElement(mockСontext, node)
 }

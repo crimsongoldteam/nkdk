@@ -1,4 +1,4 @@
-﻿import { createToken, IMultiModeLexerDefinition, IToken, Lexer, TokenType } from "chevrotain"
+import { createToken, IMultiModeLexerDefinition, IToken, Lexer, TokenType } from "chevrotain"
 
 // #region combineTokens
 
@@ -308,7 +308,10 @@ export const Semicolon = keyword(
   OneLineGroupElementsContent
 )
 export const Colon = keyword("Colon", ":", InputHeader, TableCell, RadioButtonHeader)
-export const VBar = keyword("VBar", "|", Button, Picture, TableCell, TableCellContinue)
+
+export const Tilde = keyword("Tilde", "~", TableCell, TableCellContinue)
+
+export const VBar = keyword("VBar", "|", Button, Picture, TableCell, TableCellContinue, Tilde)
 export const Equals = keyword("Equals", "=", PropertiesNameText)
 
 export const Plus = createToken({
@@ -465,6 +468,7 @@ export const allTokens = [
   Dots,
   Dash,
   Hash,
+  Tilde,
   Text,
   Percent,
   VBar,
@@ -505,6 +509,7 @@ export const propertiesTokens = [
   Dots,
   Dash,
   Hash,
+  Tilde,
   Text,
   Percent,
   EscapedText,

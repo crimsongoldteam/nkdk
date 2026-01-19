@@ -7,14 +7,18 @@ import { Table } from "~/metadata/forms/elements/table/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const parseElement = (context: ConfigurationContext, element: TreeNode): ChildItem => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, context)
 
-  // Обрабатываем childItems рекурсивно
   addChildItemsToResult(context, cst, element)
+
+  if (cst.elementType === FormElementType.Table && element.autoCommandBar) {
+    cst.autoCommandBar = parseAutoCommandBar(context, element.autoCommandBar)
+  }
 
   return cst
 }

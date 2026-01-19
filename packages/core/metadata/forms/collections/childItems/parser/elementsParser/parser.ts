@@ -432,32 +432,77 @@ export class Parser extends CstParser {
   })
 
   private readonly tableDataCell = this.RULE("tableDataCell", () => {
-    // this.OPTION1(() => {
-    //   this.CONSUME(t.Dots)
-    // })
-
-    // this.OPTION2(() => {
-    //   this.choice(
-    //     1,
-    //     () => {
-    //       this.CONSUME(t.CheckboxChecked)
-    //     },
-    //     () => {
-    //       this.CONSUME(t.CheckboxUnchecked)
-    //     }
-    //   )
-    // })
-
-    this.OPTION3(() => {
-      this.CONSUME(t.TableCell)
-      this.MANY(() => {
-        this.CONSUME(t.TableCellContinue, { LABEL: "TableCell" })
-      })
-    })
-
-    this.OPTION4(() => {
-      this.SUBRULE(this.properties)
-    })
+    this.OR([
+      {
+        GATE: () => {
+          const firstToken = this.LA(1)
+          return (
+            firstToken?.tokenType === t.CheckboxChecked ||
+            firstToken?.tokenType === t.CheckboxUnchecked ||
+            firstToken?.tokenType === t.SwitchChecked ||
+            firstToken?.tokenType === t.SwitchUnchecked
+          )
+        },
+        ALT: () => {
+          // Checkbox field: [ ] title {name} or [X] title {name}
+          this.choice(
+            1,
+            () => {
+              this.CONSUME(t.CheckboxChecked)
+            },
+            () => {
+              this.CONSUME(t.CheckboxUnchecked)
+            },
+            () => {
+              this.CONSUME(t.SwitchChecked)
+            },
+            () => {
+              this.CONSUME(t.SwitchUnchecked)
+            }
+          )
+          this.MANY1(() => {
+            this.CONSUME(t.CheckboxHeader)
+          })
+          this.OPTION1(() => {
+            this.SUBRULE1(this.properties)
+          })
+        },
+      },
+      {
+        GATE: () => this.LA(1).tokenType === t.Tilde,
+        ALT: () => {
+          // Label field: ~{name}
+          this.CONSUME(t.Tilde)
+          this.OPTION2(() => {
+            this.SUBRULE2(this.properties)
+          })
+        },
+      },
+      {
+        GATE: () => this.LA(1).tokenType === t.Hash,
+        ALT: () => {
+          // Column group: #{name}
+          this.CONSUME(t.Hash)
+          this.OPTION3(() => {
+            this.SUBRULE3(this.properties)
+          })
+        },
+      },
+      {
+        ALT: () => {
+          // Regular input field: text {name} or just text
+          this.OPTION4(() => {
+            this.CONSUME(t.TableCell)
+            this.MANY2(() => {
+              this.CONSUME(t.TableCellContinue, { LABEL: "TableCell" })
+            })
+          })
+          this.OPTION5(() => {
+            this.SUBRULE4(this.properties)
+          })
+        },
+      },
+    ])
   })
   //#endregion
 

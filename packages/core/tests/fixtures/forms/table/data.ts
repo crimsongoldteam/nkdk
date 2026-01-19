@@ -565,7 +565,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   {
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
-    structure: `<...>
+    structure: `<...|>
 <... | Кнопка 1 {КнопкаТаблицы}>
 | Колонка таблицы 1 {Колонка1} | {Таблица1}`,
   },

@@ -7,9 +7,11 @@ import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
 import { ButtonGroup } from "~/metadata/forms/elements/buttonGroup/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
+import { ColumnGroup } from "~/metadata/forms/elements/columnGroup/types"
 import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import type { InputField } from "~/metadata/forms/elements/inputField/types"
 import type { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
+import { LabelField } from "~/metadata/forms/elements/labelField/types"
 import { Page } from "~/metadata/forms/elements/page/types"
 import { Pages } from "~/metadata/forms/elements/pages/types"
 import type { PictureDecoration } from "~/metadata/forms/elements/pictureDecoration/types"
@@ -331,11 +333,14 @@ export class Visitor extends BaseVisitor {
   // #region table
   table(ctx: CstChildrenDictionary, context: ConfigurationContext): Table {
     const cells = visitAll(this, ctx.tableCell as CstNode[], context) as unknown as Array<{
+      type?: "checkbox" | "label" | "columnGroup" | "input"
       name: string
+      title?: string
       properties?: string
+      checkBoxType?: "Switch" | undefined
     }>
 
-    const childItems: InputField[] = []
+    const childItems: Array<CheckBoxField | ColumnGroup | InputField | LabelField> = []
     let tableName: string | undefined
 
     // Обрабатываем ячейки таблицы
@@ -345,44 +350,97 @@ export class Visitor extends BaseVisitor {
       const cell = cells[i]
       const isLast = i === cells.length - 1
 
-      if (cell.properties) {
-        if (cell.name && cell.name.trim()) {
-          // Если в ячейке есть и name, и properties, это колонка
-          // properties - это имя колонки, name - это заголовок
+      // Если это последняя ячейка и в ней только properties без текста и без специального типа, это имя таблицы
+      if (
+        isLast &&
+        cell.properties &&
+        (!cell.name || !cell.name.trim()) &&
+        cell.type !== "checkbox" &&
+        cell.type !== "label" &&
+        cell.type !== "columnGroup"
+      ) {
+        tableName = cell.properties
+        continue
+      }
+
+      // Обрабатываем разные типы элементов
+      if (cell.type === "checkbox") {
+        // Checkbox field: [ ] title {name}
+        if (cell.properties) {
           childItems.push({
-            elementType: FormElementType.InputField,
+            elementType: FormElementType.CheckBoxField,
             name: cell.properties,
-            title: this.createTitle(cell.name, context.defaultLanguage),
-          } as InputField)
-        } else if (isLast) {
-          // Если в последней ячейке есть только properties (без name), это имя таблицы
-          tableName = cell.properties
-        } else {
-          // Если в не последней ячейке есть только properties (без name), это колонка без заголовка
-          childItems.push({
-            elementType: FormElementType.InputField,
-            name: cell.properties,
-          } as InputField)
+            title: cell.title ? this.createTitle(cell.title, context.defaultLanguage) : undefined,
+            checkBoxType: cell.checkBoxType,
+          } as CheckBoxField)
         }
-      } else if (cell.name && cell.name.trim()) {
-        // Если в ячейке есть только name (без properties), это колонка с именем = name
-        if (!isLast) {
+      } else if (cell.type === "label") {
+        // Label field: ~{name}
+        if (cell.properties) {
           childItems.push({
-            elementType: FormElementType.InputField,
-            name: cell.name,
-          } as InputField)
+            elementType: FormElementType.LabelField,
+            name: cell.properties,
+          } as LabelField)
+        }
+      } else if (cell.type === "columnGroup") {
+        // Column group: #{name}
+        if (cell.properties) {
+          childItems.push({
+            elementType: FormElementType.ColumnGroup,
+            name: cell.properties,
+            childItems: [],
+          } as ColumnGroup)
+        }
+      } else {
+        // Regular input field: text {name} or just text
+        if (cell.properties) {
+          if (cell.name && cell.name.trim()) {
+            // Если в ячейке есть и name, и properties, это колонка
+            // properties - это имя колонки, name - это заголовок
+            childItems.push({
+              elementType: FormElementType.InputField,
+              name: cell.properties,
+              title: this.createTitle(cell.name, context.defaultLanguage),
+            } as InputField)
+          } else if (isLast) {
+            // Если в последней ячейке есть только properties (без name), это имя таблицы
+            tableName = cell.properties
+          } else {
+            // Если в не последней ячейке есть только properties (без name), это колонка без заголовка
+            childItems.push({
+              elementType: FormElementType.InputField,
+              name: cell.properties,
+            } as InputField)
+          }
+        } else if (cell.name && cell.name.trim()) {
+          // Если в ячейке есть только name (без properties), это колонка с именем = name
+          if (!isLast) {
+            childItems.push({
+              elementType: FormElementType.InputField,
+              name: cell.name,
+            } as InputField)
+          }
         }
       }
     }
 
     return {
-      elementType: FormElementType.Table,
       name: tableName || "",
+      elementType: FormElementType.Table,
       childItems: childItems,
     } as Table
   }
 
-  tableCell(ctx: CstChildrenDictionary, context: ConfigurationContext): { name: string; properties?: string } {
+  tableCell(
+    ctx: CstChildrenDictionary,
+    context: ConfigurationContext
+  ): {
+    type?: "checkbox" | "label" | "columnGroup" | "input"
+    name: string
+    title?: string
+    properties?: string
+    checkBoxType?: "Switch" | undefined
+  } {
     const tableDataCellNodes = ctx.tableDataCell
       ? (Array.isArray(ctx.tableDataCell) ? ctx.tableDataCell : [ctx.tableDataCell]).filter(
           (item) => "children" in item
@@ -394,20 +452,77 @@ export class Visitor extends BaseVisitor {
     }
 
     const tableDataCell = this.visit(tableDataCellNodes[0] as CstNode, context) as {
+      type?: "checkbox" | "label" | "columnGroup" | "input"
       name: string
+      title?: string
       properties?: string
+      checkBoxType?: "Switch" | undefined
     }
 
     return tableDataCell
   }
 
-  tableDataCell(ctx: CstChildrenDictionary, context: ConfigurationContext): { name: string; properties?: string } {
+  tableDataCell(
+    ctx: CstChildrenDictionary,
+    context: ConfigurationContext
+  ): {
+    type?: "checkbox" | "label" | "columnGroup" | "input"
+    name: string
+    title?: string
+    properties?: string
+    checkBoxType?: "Switch" | undefined
+  } {
+    // Checkbox field: [ ] title {name} or [X] title {name}
+    if (ctx.CheckboxChecked || ctx.CheckboxUnchecked || ctx.SwitchChecked || ctx.SwitchUnchecked) {
+      const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
+      const properties = ctx.properties
+        ? (this.visit(ctx.properties as CstNode[], context) as string | undefined)
+        : undefined
+      const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? ("Switch" as const) : undefined
+
+      return {
+        type: "checkbox",
+        name: properties || "",
+        title: titleText || undefined,
+        properties: properties,
+        checkBoxType,
+      }
+    }
+
+    // Label field: ~{name}
+    if (ctx.Tilde) {
+      const properties = ctx.properties
+        ? (this.visit(ctx.properties as CstNode[], context) as string | undefined)
+        : undefined
+
+      return {
+        type: "label",
+        name: properties || "",
+        properties: properties,
+      }
+    }
+
+    // Column group: #{name}
+    if (ctx.Hash) {
+      const properties = ctx.properties
+        ? (this.visit(ctx.properties as CstNode[], context) as string | undefined)
+        : undefined
+
+      return {
+        type: "columnGroup",
+        name: properties || "",
+        properties: properties,
+      }
+    }
+
+    // Regular input field: text {name} or just text
     const cellText = joinTokens(ctx.TableCell as IToken[]) || ""
     const properties = ctx.properties
       ? (this.visit(ctx.properties as CstNode[], context) as string | undefined)
       : undefined
 
     return {
+      type: "input",
       name: cellText || "",
       properties: properties,
     }
