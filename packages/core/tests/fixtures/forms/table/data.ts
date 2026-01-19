@@ -524,6 +524,18 @@ export const labelColumnTable: Table = {
   ],
 }
 
+export const columnGroupTable: Table = {
+  name: "Таблица1",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      elementType: "ColumnGroup",
+      childItems: [],
+    },
+  ],
+}
+
 export const tableStructureFixtures: TableExportToStructureFixture[] = [
   {
     name: "table with input field",
@@ -542,7 +554,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   },
   {
     name: "table with group",
-    table: tableWithAutoCommandBar,
+    table: columnGroupTable,
     structure: `| #{Колонка1} | {Таблица1}`,
   },
   {
@@ -554,7 +566,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
     structure: `<...>
-    <... | Кнопка 1 {КнопкаТаблицы}>
+<... | Кнопка 1 {КнопкаТаблицы}>
 | Колонка таблицы 1 {Колонка1} | {Таблица1}`,
   },
 ]
