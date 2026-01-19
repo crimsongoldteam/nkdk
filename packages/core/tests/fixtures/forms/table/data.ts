@@ -13,7 +13,7 @@ export interface TableFixture {
 export interface TableExportToStructureFixture {
   name: string
   table: Table
-  expectedResult: string
+  structure: string
 }
 
 export const sourceTable: Table = {
@@ -489,21 +489,72 @@ export const tableWithAutoCommandBar: Table = {
   ],
 }
 
-export const tableExportToStructureFixtures: TableExportToStructureFixture[] = [
+export const inputColumnTable: Table = {
+  name: "Таблица1",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      title: { items: { ru: "Колонка 1" } },
+      elementType: FormElementType.InputField,
+    } as InputField,
+  ],
+}
+
+export const checkboxColumnTable: Table = {
+  name: "Таблица1",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      title: { items: { ru: "Флажок" } },
+      elementType: "CheckBoxField",
+    },
+  ],
+}
+
+export const labelColumnTable: Table = {
+  name: "Таблица1",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      elementType: "LabelField",
+    },
+  ],
+}
+
+export const tableStructureFixtures: TableExportToStructureFixture[] = [
   {
-    name: "should format one-column table",
-    table: oneColumnTable,
-    expectedResult: `| Колонка 1 {Колонка1} | {Таблица1}`,
+    name: "table with input field",
+    table: inputColumnTable,
+    structure: `| Колонка 1 {Колонка1} | {Таблица1}`,
   },
   {
-    name: "should format two-column table",
-    table: twoColumnTable,
-    expectedResult: `| Колонка 1 {Колонка1} | Колонка 2 {Колонка2} | {Таблица1}`,
+    name: "table with checkbox field",
+    table: checkboxColumnTable,
+    structure: `| [ ] Флажок {Колонка1} | {Таблица1}`,
   },
   {
-    name: "should format table with auto command bar",
+    name: "table with label field",
+    table: labelColumnTable,
+    structure: `| ~{Колонка1} | {Таблица1}`,
+  },
+  {
+    name: "table with group",
     table: tableWithAutoCommandBar,
-    expectedResult: `<... | Кнопка 1 {КнопкаТаблицы}>
+    structure: `| #{Колонка1} | {Таблица1}`,
+  },
+  {
+    name: "two-column table",
+    table: twoColumnTable,
+    structure: `| Колонка 1 {Колонка1} | Колонка 2 {Колонка2} | {Таблица1}`,
+  },
+  {
+    name: "table with auto command bar",
+    table: tableWithAutoCommandBar,
+    structure: `<...>
+    <... | Кнопка 1 {КнопкаТаблицы}>
 | Колонка таблицы 1 {Колонка1} | {Таблица1}`,
   },
 ]

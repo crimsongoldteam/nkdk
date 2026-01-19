@@ -328,114 +328,48 @@ export class Visitor extends BaseVisitor {
 
   // #endregion
 
-  //   buttonGroup(ctx: CstChildrenDictionary): any
-  //   if (ctx.button && Array.isArray(ctx.button)
-  //   ) {
-  //       return
-  //   ctx;
-  //   .
-  //   button;
-  //   .
-  //   filter((btn): btn is CstNode
-  //   => "children" in
-  //   btn;
-  //   )
-  //         .
-  //   map((btn)
-  //   => this.
-  //   visit(btn)
-  //   )
-  // }
-  // return []
-
-  // pageHeader(ctx: CstChildrenDictionary)
-  // : Page
-  // {
-  //   const name = joinTokens(ctx.PageHeaderText as IToken[]) || ""
-
-  //   return {
-  //       elementType: FormElementType.Page,
-  //       name: name || "",
-  //       id: undefined,
-  //     } as Page
-  // }
-
-  // pagesHeader(ctx: CstChildrenDictionary)
-  // : Pages
-  // {
-  //   const name = joinTokens(ctx.PageHeaderText as IToken[]) || ""
-
-  //   return {
-  //       elementType: FormElementType.Pages,
-  //       name: name || "",
-  //       id: undefined,
-  //     } as Pages
-  // }
-
-  // verticalGroupHeader(ctx: CstChildrenDictionary)
-  // : UsualGroup
-  // {
-  //   const name = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
-
-  //   return {
-  //       elementType: FormElementType.UsualGroup,
-  //       name: name || "",
-  //       id: undefined,
-  //     } as UsualGroup
-  // }
-
-  // horizontalGroup(ctx: CstChildrenDictionary)
-  // : UsualGroup
-  // {
-  //   // Для горизонтальной группы берем имя из первого заголовка
-  //   const verticalGroupHeaders = ctx.verticalGroupHeader
-  //   let name = ""
-  //   if (
-  //     verticalGroupHeaders &&
-  //     Array.isArray(verticalGroupHeaders) &&
-  //     verticalGroupHeaders.length > 0
-  //   ) {
-  //     const firstHeader = verticalGroupHeaders[0]
-  //     if (firstHeader && "children" in firstHeader && firstHeader.children?.GroupHeaderText) {
-  //       name = joinTokens(firstHeader.children.GroupHeaderText as IToken[]) || ""
-  //     }
-  //   }
-
-  //   return {
-  //       elementType: FormElementType.UsualGroup,
-  //       name: name || "",
-  //       id: undefined,
-  //     } as UsualGroup
-  // }
-
   // #region table
   table(ctx: CstChildrenDictionary, context: ConfigurationContext): Table {
-    // Обрабатываем tableLine - это массив из AT_LEAST_ONE
-    // В Chevrotain AT_LEAST_ONE создает массив с именем правила
-    const tableLineValue = ctx.tableLine
-    const tableLineArray = tableLineValue ? (Array.isArray(tableLineValue) ? tableLineValue : [tableLineValue]) : []
-
-    const tableLines = visitAll(this, tableLineArray as CstNode[], context) as unknown as Array<{
-      cells: Array<{ name: string; properties?: string }>
+    const cells = visitAll(this, ctx.tableCell as CstNode[], context) as unknown as Array<{
+      name: string
+      properties?: string
     }>
 
     const childItems: InputField[] = []
     let tableName: string | undefined
 
-    // Обрабатываем первую строку таблицы (заголовки колонок)
-    if (tableLines.length > 0) {
-      const firstLine = tableLines[0]
-      for (const cell of firstLine.cells) {
-        if (cell.properties) {
-          // Если в ячейке есть properties, это имя таблицы
-          tableName = cell.properties
-        }
+    // Обрабатываем ячейки таблицы
+    // Последняя ячейка с только properties (без name или с пустым name) - это имя таблицы
+    // Остальные ячейки - это колонки
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i]
+      const isLast = i === cells.length - 1
+
+      if (cell.properties) {
         if (cell.name && cell.name.trim()) {
-          // Если в ячейке есть имя (и оно не пустое), это колонка
+          // Если в ячейке есть и name, и properties, это колонка
+          // properties - это имя колонки, name - это заголовок
+          childItems.push({
+            elementType: FormElementType.InputField,
+            name: cell.properties,
+            title: this.createTitle(cell.name, context.defaultLanguage),
+          } as InputField)
+        } else if (isLast) {
+          // Если в последней ячейке есть только properties (без name), это имя таблицы
+          tableName = cell.properties
+        } else {
+          // Если в не последней ячейке есть только properties (без name), это колонка без заголовка
+          childItems.push({
+            elementType: FormElementType.InputField,
+            name: cell.properties,
+          } as InputField)
+        }
+      } else if (cell.name && cell.name.trim()) {
+        // Если в ячейке есть только name (без properties), это колонка с именем = name
+        if (!isLast) {
           childItems.push({
             elementType: FormElementType.InputField,
             name: cell.name,
-            id: undefined,
           } as InputField)
         }
       }
@@ -443,24 +377,9 @@ export class Visitor extends BaseVisitor {
 
     return {
       elementType: FormElementType.Table,
-      name: tableName || "table",
-      id: undefined,
+      name: tableName || "",
       childItems: childItems,
     } as Table
-  }
-
-  tableLine(
-    ctx: CstChildrenDictionary,
-    context: ConfigurationContext
-  ): { cells: Array<{ name: string; properties?: string }> } {
-    // Обрабатываем ячейки из AT_LEAST_ONE_SEP
-    // В Chevrotain AT_LEAST_ONE_SEP создает массив с именем правила (tableCell)
-    const cells = visitAll(this, ctx.tableCell as CstNode[], context) as unknown as Array<{
-      name: string
-      properties?: string
-    }>
-
-    return { cells }
   }
 
   tableCell(ctx: CstChildrenDictionary, context: ConfigurationContext): { name: string; properties?: string } {
@@ -483,22 +402,14 @@ export class Visitor extends BaseVisitor {
   }
 
   tableDataCell(ctx: CstChildrenDictionary, context: ConfigurationContext): { name: string; properties?: string } {
-    // TableCellContinue с LABEL: "TableCell" попадает в тот же массив
-    const tableCellTokens = (ctx.TableCell as IToken[]) || []
-    const cellName = joinTokens(tableCellTokens) || ""
-
-    // Обрабатываем properties
-    const propertiesNode = ctx.properties
-      ? Array.isArray(ctx.properties)
-        ? ctx.properties[0]
-        : ctx.properties
+    const cellText = joinTokens(ctx.TableCell as IToken[]) || ""
+    const properties = ctx.properties
+      ? (this.visit(ctx.properties as CstNode[], context) as string | undefined)
       : undefined
-    const properties =
-      propertiesNode && "children" in propertiesNode ? this.visit([propertiesNode as CstNode], context) : undefined
 
     return {
-      name: cellName || "",
-      properties: properties as string | undefined,
+      name: cellText || "",
+      properties: properties,
     }
   }
   // #endregion

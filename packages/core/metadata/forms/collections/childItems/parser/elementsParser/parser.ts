@@ -413,12 +413,6 @@ export class Parser extends CstParser {
   // #region table
 
   private readonly table = this.RULE("table", () => {
-    this.AT_LEAST_ONE(() => {
-      this.SUBRULE(this.tableLine)
-    })
-  })
-
-  private readonly tableLine = this.RULE("tableLine", () => {
     this.CONSUME1(t.VBar)
 
     this.AT_LEAST_ONE_SEP({

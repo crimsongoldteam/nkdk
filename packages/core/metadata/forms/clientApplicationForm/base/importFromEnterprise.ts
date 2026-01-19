@@ -47,9 +47,14 @@ const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof Clie
 export const importClientApplicationFormFromEnterprise = (
   context: ConfigurationContext,
   data: ClientApplicationFormEnterprise | undefined,
-  childItemsResult: ChildItemsStructureResult
+  structure: ChildItemsStructureResult
 ): ClientApplicationForm | undefined => {
   if (!data) return undefined
+
+  const itemsContext: ConfigurationContext = {
+    ...context,
+    allElements: data.Элементы,
+  }
 
   const result: ClientApplicationForm = {
     commands: importCommandsFromEnterprise(context, data.Команды),
@@ -146,11 +151,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   if (data.КлючСохраненияПоложенияОкна !== undefined) result.windowOptionsKey = data.КлючСохраненияПоложенияОкна
 
-  const autoCommandBar = importAutoCommandBarFromEnterprise(
-    context,
-    childItemsResult.autoCommandBar,
-    data.КоманднаяПанель
-  )
+  const autoCommandBar = importAutoCommandBarFromEnterprise(context, structure.autoCommandBar, data.КоманднаяПанель)
   if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
@@ -236,12 +237,7 @@ export const importClientApplicationFormFromEnterprise = (
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  const itemsContext: ConfigurationContext = {
-    ...context,
-    allElements: data.Элементы,
-  }
-
-  result.childItems = importChildItemsFromEnterprise(itemsContext, childItemsResult.childItems)
+  result.childItems = importChildItemsFromEnterprise(itemsContext, structure.childItems)
 
   return result
 }
