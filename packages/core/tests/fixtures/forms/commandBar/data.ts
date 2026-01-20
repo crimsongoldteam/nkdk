@@ -6,13 +6,27 @@ import {
 } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import {
+  fullCommandBarChildItemsAllEnterprise,
+  fullCommandBarChildItemsStructure,
+  fullCommandBarChildItemsTyped,
+} from "../../commandBarChildItems/data"
 
 export const parentElement: NamedElement = {
   name: "КоманднаяПанель",
   elementType: FormElementType.BaseElement,
 }
 
-export const fullCommandBar: CommandBar = {
+export const sourceCommandBar: CommandBar = {
+  elementType: FormElementType.CommandBar,
+  name: "КоманднаяПанель",
+  childItems: fullCommandBarChildItemsStructure,
+  title: {
+    items: { ru: "Командная панель" },
+  },
+}
+
+export const fullCommandBar: Required<CommandBar> = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
   enableContentChange: true,
@@ -43,8 +57,10 @@ export const fullCommandBar: CommandBar = {
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
-  childItems: [],
+  childItems: fullCommandBarChildItemsTyped,
 }
+
+export const fullCommandBarAllItems = fullCommandBarChildItemsAllEnterprise
 
 export const minimalCommandBar: CommandBar = {
   elementType: FormElementType.CommandBar,

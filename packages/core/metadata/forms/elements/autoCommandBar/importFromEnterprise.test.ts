@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromEnterprise"
 import {
   fullAutoCommandBar,
+  fullAutoCommandBarAllItems,
   fullAutoExportCommandBarEnterprise,
-  fullChildItems,
   minimalAutoCommandBar,
   sourceAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
@@ -14,7 +14,7 @@ describe("importAutoCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const context = {
       ...mockСontext,
-      allElements: fullChildItems,
+      allElements: fullAutoCommandBarAllItems,
     }
 
     const result = importAutoCommandBarFromEnterprise(context, sourceAutoCommandBar, fullAutoExportCommandBarEnterprise)

@@ -1,8 +1,43 @@
 <CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
 	<Autofill>true</Autofill>
+	<ChildItems>
+		<Button name="Кнопка1" id="2">
+			<CommandName>ВыполнитьКоманда1</CommandName>
+			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="3"/>
+		</Button>
+		<ButtonGroup name="ГруппаКнопок" id="4">
+			<ChildItems>
+				<Button name="Кнопка2" id="5">
+					<CommandName>ВыполнитьКоманда2</CommandName>
+					<ExtendedTooltip name="Кнопка2РасширеннаяПодсказка" id="6"/>
+				</Button>
+			</ChildItems>
+			<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="7"/>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка для группы кнопок</v8:content>
+				</v8:item>
+			</ToolTip>
+		</ButtonGroup>
+		<Popup name="Подменю" id="8">
+			<ChildItems>
+				<Button name="Кнопка3" id="10">
+					<CommandName>ВыполнитьКоманда3</CommandName>
+					<ExtendedTooltip name="Кнопка3РасширеннаяПодсказка" id="11"/>
+				</Button>
+			</ChildItems>
+			<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="9"/>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка для подменю</v8:content>
+				</v8:item>
+			</ToolTip>
+		</Popup>
+	</ChildItems>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="2"/>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>

@@ -7,71 +7,29 @@ import {
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  CommandBar,
-  CommandBarPartialEnterprise,
-  CommandBarTypedEnterprise,
-} from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  ImportPartialFromEnterpriseFn,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { importCommandBarChildItemsTypedFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
-
-export function importCommandBarTypedFromEnterprise<To extends CommandBar | undefined>(
-  context: ConfigurationContext,
-  data: ToTypedEnterpriseType<To>,
-  name: string
-): To {
-  if (data === undefined) return undefined as To
-
-  const props = importCommandBarPropsFromEnterprise(context, data)
-
-  const result: CommandBar = {
-    ...props,
-    elementType: "CommandBar",
-    name,
-    childItems: props.childItems ?? [],
-  }
-
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
-
-  return result as To
-}
+import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 
 export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   context: ConfigurationContext,
-  source: To,
+  structure: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importCommandBarPropsFromEnterprise(context, data)
+  if (!data && !structure) return undefined as unknown as To
+
   const result: To = {
-    ...source,
-    ...props,
-    childItems: props.childItems ?? [],
+    ...structure,
+    childItems: structure.childItems ?? [],
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, structure.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
-}
-
-const importCommandBarPropsFromEnterprise = (
-  context: ConfigurationContext,
-  data: CommandBarTypedEnterprise | CommandBarPartialEnterprise | undefined
-): Omit<Partial<CommandBar>, "elementType" | "name"> => {
-  const result: Omit<Partial<CommandBar>, "elementType" | "name"> = {
-    childItems: [],
-  }
-
-  if (data === undefined) return result
+  if (!data) return result
 
   const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
@@ -121,9 +79,6 @@ const importCommandBarPropsFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
-  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
-
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
@@ -168,7 +123,7 @@ const importCommandBarPropsFromEnterprise = (
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const childItems = importCommandBarChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
+  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
   if (childItems !== undefined) result.childItems = childItems
 
   return result

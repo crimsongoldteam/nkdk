@@ -23,7 +23,6 @@ import {
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportCommandBarTypedToEnterprise = <From extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -115,9 +114,6 @@ const exportCommandBarPropsToEnterprise = (
 
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
-
-  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 

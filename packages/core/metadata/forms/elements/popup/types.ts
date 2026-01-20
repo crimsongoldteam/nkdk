@@ -6,9 +6,9 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
+  CommandBarChildItem,
   CommandBarChildItemsTypedEnterprise,
   CommandBarChildItemsXML,
-  CommandbarChildItem,
 } from "../../collections/commandBarChildItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
@@ -41,7 +41,7 @@ export interface Popup {
   representation?: SE.ButtonRepresentation
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
-  childItems: CommandbarChildItem[]
+  childItems: CommandBarChildItem[]
 }
 
 export interface PopupXML extends BaseElementXML {

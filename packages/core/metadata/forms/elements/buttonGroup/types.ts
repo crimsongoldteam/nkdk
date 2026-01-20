@@ -5,9 +5,9 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
+  CommandBarChildItem,
   CommandBarChildItemsTypedEnterprise,
   CommandBarChildItemsXML,
-  CommandbarChildItem,
 } from "../../collections/commandBarChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
@@ -34,7 +34,7 @@ export interface ButtonGroup extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  childItems: CommandbarChildItem[]
+  childItems: CommandBarChildItem[]
 }
 
 export interface ButtonGroupXML extends BaseElementXML {

@@ -5,10 +5,9 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importCommandBarChildItemsFromXML } from "../../collections/commandBarChildItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importCommandBarFromXML<To extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -20,7 +19,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   const result: CommandBar = {
     ...baseFields,
-    elementType: "CommandBar",
+    elementType: FormElementType.CommandBar,
     childItems: [],
   }
 
@@ -37,9 +36,6 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
   if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
-
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
-  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title

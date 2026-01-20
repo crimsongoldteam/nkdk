@@ -8,8 +8,8 @@ import {
 } from "../../elements/buttonGroup/types"
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise, PopupXML } from "../../elements/popup/types"
 
-export type CommandbarChildItem = Button | ButtonGroup | Popup
-export type CommandBarChildItems = CommandbarChildItem[]
+export type CommandBarChildItem = Button | ButtonGroup | Popup
+export type CommandBarChildItems = CommandBarChildItem[]
 
 export type CommandBarChildItemXML = ButtonXML | ButtonGroupXML | PopupXML
 export type CommandBarChildItemRecordXML = Record<FormElementType, CommandBarChildItemXML>

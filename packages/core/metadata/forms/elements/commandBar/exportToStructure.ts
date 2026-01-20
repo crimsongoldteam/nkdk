@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
-import { CommandbarChildItem } from "../../collections/commandBarChildItems/types"
+import { CommandBarChildItem } from "../../collections/commandBarChildItems/types"
 import { formatElementName, wrapButtonContent } from "../../format/helpers"
 import { CommandBar } from "./types"
 
@@ -21,7 +21,7 @@ export const exportCommandBarToStructure = (
 
 export const exportCommandBarContentToStructure = (
   context: ConfigurationContext,
-  element: { childItems: CommandbarChildItem[] }
+  element: { childItems: CommandBarChildItem[] }
 ): string => {
   if (!element.childItems || element.childItems.length === 0) {
     return wrapButtonContent("")

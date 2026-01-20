@@ -5,12 +5,11 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
+  CommandBarChildItem,
   CommandBarChildItemsTypedEnterprise,
   CommandBarChildItemsXML,
-  CommandbarChildItem,
 } from "../../collections/commandBarChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface CommandBar extends NamedElement {
   elementType: "CommandBar"
@@ -19,7 +18,6 @@ export interface CommandBar extends NamedElement {
   horizontalAlign?: SE.ItemHorizontalLocation
   enableContentChange?: boolean
   enabled?: boolean
-  extendedTooltip?: ExtendedTooltip
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
@@ -36,14 +34,13 @@ export interface CommandBar extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  childItems: CommandbarChildItem[]
+  childItems: CommandBarChildItem[]
 }
 
 export interface CommandBarXML extends BaseElementXML {
   Autofill?: boolean
   _DisplayImportance?: SE.DisplayImportance
   HorizontalAlign?: SE.ItemHorizontalLocation
-  ExtendedTooltip: ExtendedTooltipXML
   EnableContentChange?: boolean
   Enabled?: boolean
   Height?: number
@@ -83,7 +80,6 @@ export interface CommandBarPartialEnterprise {
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   СочетаниеКлавиш?: string
   ТолькоПросмотр?: StringboolEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise

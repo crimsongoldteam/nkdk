@@ -9,7 +9,6 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportCommandBarToXML<From extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -19,11 +18,8 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-
   const result: CommandBarXML = {
     ...baseFields,
-    ExtendedTooltip: extendedTooltip,
   }
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
