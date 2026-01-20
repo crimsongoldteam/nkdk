@@ -15,6 +15,7 @@ import { LabelField } from "~/metadata/forms/elements/labelField/types"
 import { Page } from "~/metadata/forms/elements/page/types"
 import { Pages } from "~/metadata/forms/elements/pages/types"
 import type { PictureDecoration } from "~/metadata/forms/elements/pictureDecoration/types"
+import type { PictureField } from "~/metadata/forms/elements/pictureField/types"
 import type { RadioButtonField } from "~/metadata/forms/elements/radioButtonField/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
@@ -333,14 +334,14 @@ export class Visitor extends BaseVisitor {
   // #region table
   table(ctx: CstChildrenDictionary, context: ConfigurationContext): Table {
     const cells = visitAll(this, ctx.tableCell as CstNode[], context) as unknown as Array<{
-      type?: "checkbox" | "label" | "columnGroup" | "input"
+      type?: "checkbox" | "label" | "columnGroup" | "input" | "picture"
       name: string
       title?: string
       properties?: string
       checkBoxType?: "Switch" | undefined
     }>
 
-    const childItems: Array<CheckBoxField | ColumnGroup | InputField | LabelField> = []
+    const childItems: Array<CheckBoxField | ColumnGroup | InputField | LabelField | PictureField> = []
     let tableName: string | undefined
 
     // Обрабатываем ячейки таблицы
@@ -357,7 +358,8 @@ export class Visitor extends BaseVisitor {
         (!cell.name || !cell.name.trim()) &&
         cell.type !== "checkbox" &&
         cell.type !== "label" &&
-        cell.type !== "columnGroup"
+        cell.type !== "columnGroup" &&
+        cell.type !== "picture"
       ) {
         tableName = cell.properties
         continue
@@ -390,6 +392,14 @@ export class Visitor extends BaseVisitor {
             name: cell.properties,
             childItems: [],
           } as ColumnGroup)
+        }
+      } else if (cell.type === "picture") {
+        // Picture field: @{name}
+        if (cell.properties) {
+          childItems.push({
+            elementType: FormElementType.PictureField,
+            name: cell.properties,
+          } as PictureField)
         }
       } else {
         // Regular input field: text {name} or just text
@@ -435,7 +445,7 @@ export class Visitor extends BaseVisitor {
     ctx: CstChildrenDictionary,
     context: ConfigurationContext
   ): {
-    type?: "checkbox" | "label" | "columnGroup" | "input"
+    type?: "checkbox" | "label" | "columnGroup" | "input" | "picture"
     name: string
     title?: string
     properties?: string
@@ -452,7 +462,7 @@ export class Visitor extends BaseVisitor {
     }
 
     const tableDataCell = this.visit(tableDataCellNodes[0] as CstNode, context) as {
-      type?: "checkbox" | "label" | "columnGroup" | "input"
+      type?: "checkbox" | "label" | "columnGroup" | "input" | "picture"
       name: string
       title?: string
       properties?: string
@@ -466,7 +476,7 @@ export class Visitor extends BaseVisitor {
     ctx: CstChildrenDictionary,
     context: ConfigurationContext
   ): {
-    type?: "checkbox" | "label" | "columnGroup" | "input"
+    type?: "checkbox" | "label" | "columnGroup" | "input" | "picture"
     name: string
     title?: string
     properties?: string
@@ -510,6 +520,19 @@ export class Visitor extends BaseVisitor {
 
       return {
         type: "columnGroup",
+        name: properties || "",
+        properties: properties,
+      }
+    }
+
+    // Picture field: @{name}
+    if (ctx.Picture) {
+      const properties = ctx.properties
+        ? (this.visit(ctx.properties as CstNode[], context) as string | undefined)
+        : undefined
+
+      return {
+        type: "picture",
         name: properties || "",
         properties: properties,
       }

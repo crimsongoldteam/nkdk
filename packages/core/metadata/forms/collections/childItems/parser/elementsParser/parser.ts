@@ -489,6 +489,16 @@ export class Parser extends CstParser {
         },
       },
       {
+        GATE: () => this.LA(1).tokenType === t.Picture,
+        ALT: () => {
+          // Picture field: @{name}
+          this.CONSUME(t.Picture)
+          this.OPTION6(() => {
+            this.SUBRULE5(this.properties)
+          })
+        },
+      },
+      {
         ALT: () => {
           // Regular input field: text {name} or just text
           this.OPTION4(() => {
