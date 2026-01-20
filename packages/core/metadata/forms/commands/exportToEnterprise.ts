@@ -31,11 +31,7 @@ const exportCommandToEnterprise = (
   const picture = exportPictureToEnterprise(context, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const currentRowUse = exportSystemEnumerationToEnterprise(
-    context,
-    data.currentRowUse,
-    SE.CurrentRowUseToEnterprise
-  )
+  const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
   const use = exportUserVisibleToEnterprise(context, data.use)
