@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { importButtonGroupChildItemsFromXML } from "../../collections/buttonGroupChildItems/importFromXML"
+import { importCommandBarChildItemsFromXML } from "../../collections/commandBarChildItems/importFromXML"
 
 export function importContextMenuFromXML(context: ConfigurationContext, xml: ContextMenuXML): ContextMenu | undefined {
   if (xml === undefined) return undefined
@@ -13,7 +13,7 @@ export function importContextMenuFromXML(context: ConfigurationContext, xml: Con
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
 
-  const childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
+  const childItems = importCommandBarChildItemsFromXML(context, xml.ChildItems)
   if (childItems !== undefined) result.childItems = childItems
 
   if (!isHasContent(result)) return undefined

@@ -3,15 +3,16 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 
 export const importAutoCommandBarFromEnterprise = (
   context: ConfigurationContext,
-  source: AutoCommandBar | undefined,
-  data: AutoCommandBarEnterprise | undefined
+  structure: AutoCommandBar | undefined,
+  enterprise: AutoCommandBarEnterprise | undefined
 ): AutoCommandBar | undefined => {
-  if (!data && !source) return undefined
+  if (!enterprise && !structure) return undefined
 
-  const sourceExt: AutoCommandBar = source ?? {
+  const sourceExt: AutoCommandBar = structure ?? {
     childItems: [],
     autofill: true,
   }
@@ -20,24 +21,27 @@ export const importAutoCommandBarFromEnterprise = (
     ...sourceExt,
   }
 
-  if (!data) return result
+  if (!enterprise) return result
 
-  const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
+  const autofill = importBooleanFromEnterprise(context, enterprise.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
   const displayImportance = importSystemEnumerationFromEnterprise(
     context,
-    data.ВажностьПриОтображении,
+    enterprise.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
   const horizontalAlign = importSystemEnumerationFromEnterprise(
     context,
-    data.ГоризонтальноеПоложение,
+    enterprise.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
+
+  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
+  if (childItems !== undefined) result.childItems = childItems
 
   return result
 }

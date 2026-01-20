@@ -6,10 +6,10 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
-  ButtonGroupChildItem,
-  ButtonGroupChildItemsEnterprise,
-  ButtonGroupChildItemsXML,
-} from "../../collections/buttonGroupChildItems/types"
+  CommandBarChildItemsTypedEnterprise,
+  CommandBarChildItemsXML,
+  CommandbarChildItem,
+} from "../../collections/commandBarChildItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -41,7 +41,7 @@ export interface Popup {
   representation?: SE.ButtonRepresentation
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
-  childItems: ButtonGroupChildItem[]
+  childItems: CommandbarChildItem[]
 }
 
 export interface PopupXML extends BaseElementXML {
@@ -70,7 +70,7 @@ export interface PopupXML extends BaseElementXML {
   Shape?: SE.ButtonShape
   ShapeRepresentation?: SE.ButtonShapeRepresentation
   ExtendedTooltip: ExtendedTooltipXML
-  ChildItems?: ButtonGroupChildItemsXML
+  ChildItems?: CommandBarChildItemsXML
 }
 
 export interface PopupPartialEnterprise {
@@ -100,7 +100,7 @@ export interface PopupPartialEnterprise {
   Фигура?: SE.ButtonShapeEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise
-  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
+  ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
 }
 
 export interface PopupTypedEnterprise extends PopupPartialEnterprise {

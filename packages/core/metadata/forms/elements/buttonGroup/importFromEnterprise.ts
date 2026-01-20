@@ -21,7 +21,7 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
+import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export function importButtonGroupTypedFromEnterprise<To extends ButtonGroup | undefined>(
@@ -159,7 +159,7 @@ const importButtonGroupPropsFromEnterprise = (
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
   return result

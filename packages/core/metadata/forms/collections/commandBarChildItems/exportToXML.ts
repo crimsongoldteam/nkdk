@@ -2,24 +2,24 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
-  ButtonGroupChildItemRecordXML,
-  ButtonGroupChildItems,
-  ButtonGroupChildItemsXML,
-  ButtonGroupChildItemXML,
+  CommandBarChildItemRecordXML,
+  CommandBarChildItemXML,
+  CommandBarChildItems,
+  CommandBarChildItemsXML,
 } from "./types"
 
-export const exportButtonGroupChildItemsToXML = (
+export const exportCommandBarChildItemsToXML = (
   context: ConfigurationContext,
-  data: ButtonGroupChildItems | undefined
-): ButtonGroupChildItemsXML | undefined => {
+  data: CommandBarChildItems | undefined
+): CommandBarChildItemsXML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: ButtonGroupChildItemRecordXML[] = []
+  const result: CommandBarChildItemRecordXML[] = []
   for (const item of data) {
     const fn = getOperationFunction("ExportToXML", item.elementType)
     if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
     const resultItem = fn(context, item)
-    result.push({ [item.elementType]: resultItem } as Record<FormElementType, ButtonGroupChildItemXML>)
+    result.push({ [item.elementType]: resultItem } as Record<FormElementType, CommandBarChildItemXML>)
   }
 
   return result.length === 1 ? result[0] : result

@@ -18,16 +18,16 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
+import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 
 export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
   context: ConfigurationContext,
-  data: ToTypedEnterpriseType<To>,
+  enterprise: ToTypedEnterpriseType<To>,
   name: string
 ): To {
-  if (data === undefined) return undefined as To
+  if (enterprise === undefined) return undefined as To
 
-  const props = importPopupPropsFromEnterprise(context, data)
+  const props = importPopupPropsFromEnterprise(context, enterprise)
 
   const result: Popup = {
     ...props,
@@ -36,7 +36,7 @@ export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, enterprise.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -62,123 +62,123 @@ export function importPopupPartialFromEnterprise<To extends Popup>(
 
 const importPopupPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: PopupTypedEnterprise | PopupPartialEnterprise | undefined
+  enterprise: PopupTypedEnterprise | PopupPartialEnterprise | undefined
 ): Omit<Partial<Popup>, "elementType" | "name"> => {
   const result: Omit<Partial<Popup>, "elementType" | "name"> = {
     childItems: [],
   }
 
-  if (data === undefined) return result
+  if (enterprise === undefined) return result
 
   const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
-    data.ВертикальноеПоложениеВГруппе,
+    enterprise.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
   const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
     context,
-    data.Вид,
+    enterprise.Вид,
     SE.FormGroupTypeFromEnterprise
   )
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, enterprise.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  if (data.Высота !== undefined) result.height = data.Высота
+  if (enterprise.Высота !== undefined) result.height = enterprise.Высота
 
   const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
-    data.ГоризонтальноеПоложениеВГруппе,
+    enterprise.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, enterprise.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
   const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
-    data.ОтображениеПодсказки,
+    enterprise.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, enterprise.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
-    data.РазрешитьИспользование,
+    enterprise.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
   const userVisibleDeny = importUserVisibleFromEnterprise(
     context,
-    data.ЗапретитьИспользование,
+    enterprise.ЗапретитьИспользование,
     "ЗапретитьИспользование"
   )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const enableContentChange = importBooleanFromEnterprise(context, data.РазрешитьИзменениеСостава)
+  const enableContentChange = importBooleanFromEnterprise(context, enterprise.РазрешитьИзменениеСостава)
   if (enableContentChange !== undefined) result.enableContentChange = enableContentChange
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, enterprise.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, enterprise.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
+  if (enterprise.СочетаниеКлавиш !== undefined) result.shortcut = enterprise.СочетаниеКлавиш
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, enterprise.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, enterprise.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  if (data.Ширина !== undefined) result.width = data.Ширина
+  if (enterprise.Ширина !== undefined) result.width = enterprise.Ширина
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, enterprise.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, enterprise.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const picture = importPictureFromEnterprise(context, data.Картинка)
+  const picture = importPictureFromEnterprise(context, enterprise.Картинка)
   if (picture !== undefined) result.picture = picture
 
   const representation = importSystemEnumerationFromEnterprise<SE.ButtonRepresentation>(
     context,
-    data.Отображение,
+    enterprise.Отображение,
     SE.ButtonRepresentationFromEnterprise
   )
   if (representation !== undefined) result.representation = representation
 
   const shapeRepresentation = importSystemEnumerationFromEnterprise<SE.ButtonShapeRepresentation>(
     context,
-    data.ОтображениеФигуры,
+    enterprise.ОтображениеФигуры,
     SE.ButtonShapeRepresentationFromEnterprise
   )
   if (shapeRepresentation !== undefined) result.shapeRepresentation = shapeRepresentation
 
   const shape = importSystemEnumerationFromEnterprise<SE.ButtonShape>(
     context,
-    data.Фигура,
+    enterprise.Фигура,
     SE.ButtonShapeFromEnterprise
   )
   if (shape !== undefined) result.shape = shape
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, enterprise.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, enterprise.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, enterprise.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
   return result

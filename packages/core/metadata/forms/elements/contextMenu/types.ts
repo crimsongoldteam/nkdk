@@ -1,26 +1,26 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
-  ButtonGroupChildItems,
-  ButtonGroupChildItemsEnterprise,
-  ButtonGroupChildItemsXML,
-} from "../../collections/buttonGroupChildItems/types"
+  CommandBarChildItems,
+  CommandBarChildItemsTypedEnterprise,
+  CommandBarChildItemsXML,
+} from "../../collections/commandBarChildItems/types"
 import { BaseElementXML } from "../baseElement/types"
 
 export interface ContextMenu {
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
-  childItems: ButtonGroupChildItems
+  childItems: CommandBarChildItems
 }
 
 export interface ContextMenuXML extends BaseElementXML {
   _DisplayImportance?: SE.DisplayImportance
   Autofill?: boolean
-  ChildItems?: ButtonGroupChildItemsXML
+  ChildItems?: CommandBarChildItemsXML
 }
 
 export interface ContextMenuEnterprise {
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   Автозаполнение?: StringboolEnterprise
-  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
+  ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
 }

@@ -1,9 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ButtonGroupChildItems } from "../buttonGroupChildItems/types"
-import { ChildItem, ChildItems, ChildItemsPartialEnterprise } from "./types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import { CommandBarChildItems } from "../commandBarChildItems/types"
+import { ChildItem, ChildItems, ChildItemsPartialEnterprise, ChildItemsTypedEnterprise } from "./types"
 
-export const importChildItemsFromEnterprise = (context: ConfigurationContext, childItems: ChildItems): ChildItems => {
+export const importChildItemsPartialFromEnterprise = (
+  context: ConfigurationContext,
+  childItems: ChildItems
+): ChildItems => {
   const childItemsProperties = context.allElements!
 
   return childItems.map((item) => {
@@ -11,22 +15,37 @@ export const importChildItemsFromEnterprise = (context: ConfigurationContext, ch
 
     // Рекурсивно обрабатываем дочерние элементы
     if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
-      processedItem.childItems = importChildItemsFromEnterprise(context, processedItem.childItems)
+      processedItem.childItems = importChildItemsPartialFromEnterprise(context, processedItem.childItems)
     }
 
     // Рекурсивно обрабатываем элементы командной панели
     if ("autoCommandBar" in processedItem && processedItem.autoCommandBar?.childItems?.length) {
       processedItem.autoCommandBar = {
         ...processedItem.autoCommandBar,
-        childItems: importChildItemsFromEnterprise(
+        childItems: importChildItemsPartialFromEnterprise(
           context,
           processedItem.autoCommandBar.childItems
-        ) as ButtonGroupChildItems,
+        ) as CommandBarChildItems,
       }
     }
 
     return processedItem
   })
+}
+
+export const importChildItemsTypedFromEnterprise = (
+  context: ConfigurationContext,
+  childItems: ChildItemsTypedEnterprise
+): ChildItems => {
+  const result: ChildItems = []
+  for (const [name, item] of Object.entries(childItems)) {
+    const elementType = importFormElementTypeFromEnterprise(context, item.Тип)
+    const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
+    if (fn == undefined) throw new Error(`Import function not found for element type: ${elementType}`)
+    const resultItem = fn(context, item, name) as ChildItem
+    result.push(resultItem)
+  }
+  return result
 }
 
 const importChildItemProperties = (

@@ -4,7 +4,7 @@ import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/met
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
+import { exportCommandBarChildItemsToXML } from "~/metadata/forms/collections/commandBarChildItems/exportToXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -64,7 +64,7 @@ export function exportPopupToXML<From extends Popup | undefined>(
   if (data.visible !== undefined) result.Visible = data.visible
 
   if (data.width !== undefined) result.Width = data.width
-  const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
+  const childItems = exportCommandBarChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   const backColor = exportColorToXML(context, data.backColor)

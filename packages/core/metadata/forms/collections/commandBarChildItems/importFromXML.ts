@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { ButtonGroupChildItems, ButtonGroupChildItemsXML } from "./types"
+import { CommandBarChildItems, CommandBarChildItemsXML } from "./types"
 
-export const importButtonGroupChildItemsFromXML = (
+export const importCommandBarChildItemsFromXML = (
   context: ConfigurationContext,
-  xml: ButtonGroupChildItemsXML | undefined
-): ButtonGroupChildItems => {
+  xml: CommandBarChildItemsXML | undefined
+): CommandBarChildItems => {
   if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]

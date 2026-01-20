@@ -9,7 +9,7 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
@@ -237,7 +237,7 @@ export const importClientApplicationFormFromEnterprise = (
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  result.childItems = importChildItemsFromEnterprise(itemsContext, structure.childItems)
+  result.childItems = importChildItemsPartialFromEnterprise(itemsContext, structure.childItems)
 
   return result
 }

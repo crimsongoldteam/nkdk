@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ButtonGroupChildItems } from "./types"
+import { CommandBarChildItems } from "./types"
 
-export const exportButtonGroupChildItemsToStructure = (
+export const exportCommandBarChildItemsToStructure = (
   context: ConfigurationContext,
-  childItems: ButtonGroupChildItems
+  childItems: CommandBarChildItems
 ): string[] => {
   const buttons: string[] = []
 

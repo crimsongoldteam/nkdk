@@ -3,7 +3,7 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
+import { exportCommandBarChildItemsToXML } from "~/metadata/forms/collections/commandBarChildItems/exportToXML"
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -64,7 +64,7 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
+  const childItems = exportCommandBarChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.autofill !== undefined) result.Autofill = data.autofill

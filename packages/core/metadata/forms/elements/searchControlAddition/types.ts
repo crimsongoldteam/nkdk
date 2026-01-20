@@ -6,10 +6,10 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
-  ButtonGroupChildItems,
-  ButtonGroupChildItemsEnterprise,
-  ButtonGroupChildItemsXML,
-} from "../../collections/buttonGroupChildItems/types"
+  CommandBarChildItems,
+  CommandBarChildItemsTypedEnterprise,
+  CommandBarChildItemsXML,
+} from "../../collections/commandBarChildItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
@@ -34,7 +34,7 @@ export interface SearchControlAddition {
   userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
-  childItems: ButtonGroupChildItems
+  childItems: CommandBarChildItems
 }
 
 export interface SearchControlAdditionXML extends BaseElementXML {
@@ -50,7 +50,7 @@ export interface SearchControlAdditionXML extends BaseElementXML {
   MaxWidth?: number
   TextColor?: ColorXML
   Width?: number
-  ChildItems?: ButtonGroupChildItemsXML
+  ChildItems?: CommandBarChildItemsXML
   ContextMenu: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
@@ -85,5 +85,5 @@ export interface SearchControlAdditionEnterprise {
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
+  ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
 }

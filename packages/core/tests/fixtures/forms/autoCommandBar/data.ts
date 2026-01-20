@@ -1,5 +1,8 @@
+import { ChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
+import { CommandBarChildItemsTypedEnterprise } from "~/metadata/forms/collections/commandBarChildItems/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -10,7 +13,47 @@ export const parentElement: NamedElement = {
 
 export const sourceAutoCommandBar: AutoCommandBar = {
   autofill: true,
-  childItems: [],
+  childItems: [
+    {
+      elementType: FormElementType.Button,
+      name: "Кнопка1",
+    },
+    {
+      elementType: FormElementType.ButtonGroup,
+      name: "ГруппаКнопок",
+      childItems: [],
+    },
+    {
+      elementType: FormElementType.Popup,
+      name: "Подменю",
+      childItems: [],
+    },
+  ],
+}
+
+export const fullChildItems: ChildItemsPartialEnterprise = {
+  Кнопка1: {
+    Подсказка: "Подсказка для кнопки",
+    Команда: "ВыполнитьКоманда1",
+  } as ButtonPartialEnterprise,
+  ГруппаКнопок1: {
+    Подсказка: "Подсказка для группы кнопок",
+    ПодчиненныеЭлементы: {
+      Кнопка2: {
+        Тип: "Кнопка",
+        Команда: "ВыполнитьКоманда2",
+      },
+    } as CommandBarChildItemsTypedEnterprise,
+  },
+  Подменю3: {
+    Подсказка: "Подсказка для подменю",
+    ПодчиненныеЭлементы: {
+      Кнопка3: {
+        Тип: "Кнопка",
+        Команда: "ВыполнитьКоманда3",
+      },
+    } as CommandBarChildItemsTypedEnterprise,
+  },
 }
 
 export const fullAutoCommandBar: AutoCommandBar = {
@@ -21,6 +64,31 @@ export const fullAutoCommandBar: AutoCommandBar = {
     {
       elementType: FormElementType.Button,
       name: "Кнопка1",
+      commandName: "ВыполнитьКоманда1",
+    },
+    {
+      elementType: FormElementType.ButtonGroup,
+      name: "ГруппаКнопок",
+      toolTip: { items: { ru: "Подсказка для группы кнопок" } },
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка2",
+          commandName: "ВыполнитьКоманда2",
+        },
+      ],
+    },
+    {
+      elementType: FormElementType.Popup,
+      name: "Подменю",
+      toolTip: { items: { ru: "Подсказка для подменю" } },
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка3",
+          commandName: "ВыполнитьКоманда3",
+        },
+      ],
     },
   ],
 }

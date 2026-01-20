@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
+import { exportCommandBarChildItemsToXML } from "../../collections/commandBarChildItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { getDefaultContextMenu } from "./defaults"
 import { getContextMenuName } from "./helper"
@@ -20,7 +20,7 @@ export function exportContextMenuToXML(
 
   if (contextMenu.autofill !== undefined) result.Autofill = contextMenu.autofill
 
-  const childItems = exportButtonGroupChildItemsToXML(context, contextMenu.childItems)
+  const childItems = exportCommandBarChildItemsToXML(context, contextMenu.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   return sortObject(result)

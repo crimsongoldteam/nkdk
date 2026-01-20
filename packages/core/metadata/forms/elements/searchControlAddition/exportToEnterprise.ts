@@ -4,7 +4,7 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportButtonGroupChildItemsToEnterprise } from "~/metadata/forms/collections/buttonGroupChildItems/exportToEnterprise"
+import { exportCommandBarChildItemsToEnterprise } from "~/metadata/forms/collections/commandBarChildItems/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import {
   SearchControlAddition,
@@ -63,7 +63,7 @@ export const exportSearchControlAdditionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const childItems = exportButtonGroupChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportCommandBarChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
