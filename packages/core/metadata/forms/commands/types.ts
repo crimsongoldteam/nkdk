@@ -1,6 +1,6 @@
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "../../commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/picture/types"
-import { UserVisible, UserVisibleXML } from "../../commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "../../commonObjects/userVisible/types"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "../../systemEnumerations/types"
 
 export interface Command {
@@ -43,6 +43,8 @@ export interface CommandEnterprise {
   ОтображениеКнопки?: ButtonRepresentation
   ИспользованиеТекущейСтроки?: CurrentRowUseEnterprise
   ИзменяемыеДанные?: boolean
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
 }
 
 export type CommandsEnterprise = Record<string, CommandEnterprise>

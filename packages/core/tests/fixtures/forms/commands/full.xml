@@ -1,0 +1,27 @@
+<Command name="СоставКомплектаПодобратьФайлы" id="1">
+	<Action>СоставКомплектаПодобратьФайлы</Action>
+	<CurrentRowUse>DontUse</CurrentRowUse>
+	<ModifiesSavedData>true</ModifiesSavedData>
+	<Picture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</Picture>
+	<Representation>PictureAndText</Representation>
+	<Shortcut>Ctrl+F</Shortcut>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Файлы</v8:content>
+		</v8:item>
+	</Title>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Состав комплекта подобрать файлы</v8:content>
+		</v8:item>
+	</ToolTip>
+	<Use>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</Use>
+</Command>

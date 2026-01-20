@@ -1,46 +1,32 @@
 import { describe, expect, it } from "vitest"
+import { fullCommands, minimalCommands } from "~/tests/fixtures/forms/commands/data"
 import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import exportCommandToXML from "./exportToXML"
-import { Command } from "./types"
+import { exportCommandsToXML } from "./exportToXML"
 
 describe("exportCommandToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportCommandToXML(mockСontext, undefined)
+    const result = exportCommandsToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should export command", () => {
-    const command: Command = {
-      name: "СоставКомплектаПодобратьФайлы",
-      title: { items: { ru: "Файлы" } },
-      toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
-      action: "СоставКомплектаПодобратьФайлы",
-      currentRowUse: "DontUse",
-    }
+  it("should export all fields to XML", () => {
+    const expectedResult = readXMLFileAsString("forms/commands/full.xml")
+    const xmlData = exportCommandsToXML(mockСontext, fullCommands)
 
-    const result = exportCommandToXML(mockСontext, command)
+    const result = xmlExport({ Command: xmlData! }, false)
 
-    const xmlString = xmlExport({ Command: result! }, false)
+    expect(result).toEqual(expectedResult)
+  })
 
-    const expectedResult = `<Command name="СоставКомплектаПодобратьФайлы" id="1">
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Файлы</v8:content>
-		</v8:item>
-	</Title>
-	<ToolTip>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Состав комплекта подобрать файлы</v8:content>
-		</v8:item>
-	</ToolTip>
-	<Action>СоставКомплектаПодобратьФайлы</Action>
-	<CurrentRowUse>DontUse</CurrentRowUse>
-</Command>`
+  it("should export minimal", () => {
+    const expectedResult = readXMLFileAsString("forms/commands/minimal.xml")
+    const xmlData = exportCommandsToXML(mockСontext, minimalCommands)
 
-    expect(xmlString).toBe(expectedResult)
+    const result = xmlExport({ Command: xmlData! }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 })

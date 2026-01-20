@@ -1,22 +1,37 @@
 import { importI8nTextFromXML } from "../../commonObjects/i8nText/importFromXML"
+import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
+import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, Commands, CommandsXML, CommandXML } from "./types"
 
-export default function importCommandFromXML(
-  context: ConfigurationContext,
-  xml: CommandXML | undefined
-): Command | undefined {
+function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | undefined): Command | undefined {
   if (!xml) return undefined
 
   const result: Command = {
     name: xml._name,
-    title: importI8nTextFromXML(context, xml.Title),
-    toolTip: importI8nTextFromXML(context, xml.ToolTip),
-    shortcut: xml.Shortcut,
-    action: xml.Action,
-    currentRowUse: xml.CurrentRowUse,
-    modifiesSavedData: xml.ModifiesSavedData,
   }
+
+  const title = importI8nTextFromXML(context, xml.Title)
+  if (title !== undefined) result.title = title
+
+  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
+
+  if (xml.Action !== undefined) result.action = xml.Action
+
+  if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse
+
+  if (xml.ModifiesSavedData !== undefined) result.modifiesSavedData = xml.ModifiesSavedData
+
+  const use = importUserVisibleFromXML(context, xml.Use)
+  if (use !== undefined) result.use = use
+
+  const picture = importPictureFromXML(context, xml.Picture)
+  if (picture !== undefined) result.picture = picture
+
+  if (xml.Representation !== undefined) result.representation = xml.Representation
 
   return result
 }

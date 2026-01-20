@@ -1,8 +1,12 @@
 import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
+import { exportPictureToEnterprise } from "../../commonObjects/picture/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "../../commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "../../context/types"
+import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
+import * as SE from "../../systemEnumerations/types"
 import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./types"
 
-export const exportCommandToEnterprise = (
+const exportCommandToEnterprise = (
   context: ConfigurationContext,
   data: Command | undefined
 ): CommandEnterprise | undefined => {
@@ -24,7 +28,22 @@ export const exportCommandToEnterprise = (
 
   if (data.modifiesSavedData !== undefined) result.ИзменяемыеДанные = data.modifiesSavedData
 
-  return result
+  const picture = exportPictureToEnterprise(context, data.picture)
+  if (picture !== undefined) result.Картинка = picture
+
+  const currentRowUse = exportSystemEnumerationToEnterprise(
+    context,
+    data.currentRowUse,
+    SE.CurrentRowUseToEnterprise
+  )
+  if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
+
+  const use = exportUserVisibleToEnterprise(context, data.use)
+  if (use !== undefined) {
+    Object.assign(result, use)
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined
 }
 
 export const exportCommandsToEnterprise = (
