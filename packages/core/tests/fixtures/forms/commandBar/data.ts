@@ -71,6 +71,7 @@ export const minimalCommandBar: CommandBar = {
 export const minimalCommandBarPartialEnterprise: CommandBarPartialEnterprise = {}
 
 export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
+  Заголовок: "Командная панель",
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",

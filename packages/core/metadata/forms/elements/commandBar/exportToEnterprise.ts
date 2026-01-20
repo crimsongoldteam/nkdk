@@ -1,47 +1,35 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import {
-  exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
-} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  CommandBar,
-  CommandBarPartialEnterprise,
-  CommandBarTypedEnterprise,
-} from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar, CommandBarPartialEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  ExportPartialToEnterpriseFn,
-  ExportTypedToEnterpriseFn,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 
-export const exportCommandBarTypedToEnterprise = <From extends CommandBar | undefined>(
-  context: ConfigurationContext,
-  data: From
-): ToTypedEnterpriseType<From> => {
-  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
+// export const exportCommandBarTypedToEnterprise = <From extends CommandBar | undefined>(
+//   context: ConfigurationContext,
+//   data: From
+// ): ToTypedEnterpriseType<From> => {
+//   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
-  const props = exportCommandBarPropsToEnterprise(context, data)
+//   const props = exportCommandBarPropsToEnterprise(context, data)
 
-  const result: CommandBarTypedEnterprise = {
-    Тип: "КоманднаяПанель",
-    ...props,
-  }
+//   const result: CommandBarTypedEnterprise = {
+//     Тип: "КоманднаяПанель",
+//     ...props,
+//   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
+//   const title = exportI8nTextToEnterprise(context, data.title)
+//   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result) as ToTypedEnterpriseType<From>
-}
+//   return sortObject(result) as ToTypedEnterpriseType<From>
+// }
 
 export const exportCommandBarPartialToEnterprise = <From extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -55,7 +43,7 @@ export const exportCommandBarPartialToEnterprise = <From extends CommandBar | un
     ...props,
   }
 
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
@@ -161,8 +149,9 @@ registerMetadata(
   "CommandBar",
   exportCommandBarPartialToEnterprise as ExportPartialToEnterpriseFn
 )
-registerMetadata(
-  "ExportTypedToEnterprise",
-  "CommandBar",
-  exportCommandBarTypedToEnterprise as ExportTypedToEnterpriseFn
-)
+
+// registerMetadata(
+//   "ExportTypedToEnterprise",
+//   "CommandBar",
+//   exportCommandBarTypedToEnterprise as ExportTypedToEnterpriseFn
+// )

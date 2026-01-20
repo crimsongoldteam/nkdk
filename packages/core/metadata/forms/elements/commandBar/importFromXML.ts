@@ -33,8 +33,6 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.Height !== undefined) result.height = xml.Height
 
-  if (xml.HorizontalLocation !== undefined) result.horizontalAlign = xml.HorizontalLocation
-
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 
   if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
@@ -73,6 +71,8 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
   if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
+
+  if (xml.HorizontalLocation !== undefined) result.horizontalAlign = xml.HorizontalLocation
 
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible

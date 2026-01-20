@@ -5,6 +5,7 @@ import {
   exportI8nTextOtherToEnterprise,
   exportI8nTextToEnterprise,
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportExtendedTooltipToEnterprise } from "~/metadata/forms/elements/extendedTooltip/exportToEnterprise"
@@ -59,7 +60,12 @@ export const exportUsualGroupPartialToEnterprise = <From extends UsualGroup | un
     ...props,
   }
 
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  let title: I8nTextEnterprise | undefined
+  if (data.showTitle == false) {
+    title = exportI8nTextToEnterprise(context, data.title)
+  } else {
+    title = exportI8nTextOtherToEnterprise(context, data.title)
+  }
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>

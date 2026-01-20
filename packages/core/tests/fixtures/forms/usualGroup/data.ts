@@ -152,6 +152,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       elementType: FormElementType.UsualGroup,
       group: "Horizontal",
       showTitle: false,
+      title: { items: { ru: "Заголовок группы" } },
       childItems: [
         {
           name: "Элемент1",

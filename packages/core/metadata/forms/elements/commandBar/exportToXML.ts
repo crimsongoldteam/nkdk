@@ -36,11 +36,11 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
   const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
   if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
 
-  if (data.horizontalAlign !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.height !== undefined) result.Height = data.height
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalLocation = data.horizontalAlign
+  if (data.horizontalAlign !== undefined) result.HorizontalLocation = data.horizontalAlign
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
