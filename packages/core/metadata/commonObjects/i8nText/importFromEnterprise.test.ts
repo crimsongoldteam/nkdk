@@ -5,25 +5,21 @@ import { importI8nTextCombinedFromEnterprise, importI8nTextFromEnterprise } from
 
 describe("importI8nTextFromEnterprise", () => {
   describe("importI8nTextFromEnterprise", () => {
-    i8nTextFixtures.forEach((fixture) => {
-      it(`should import: ${fixture.name}`, () => {
-        const result = importI8nTextFromEnterprise(mockСontext, fixture.enterpriseFull)
-        expect(result).toEqual(fixture.text)
-      })
+    it.each(i8nTextFixtures)("should import: $name", (fixture) => {
+      const result = importI8nTextFromEnterprise(mockСontext, fixture.enterpriseFull)
+      expect(result).toEqual(fixture.text)
     })
   })
 
   describe("importI8nTextCombinedFromEnterprise", () => {
-    i8nTextFixtures.forEach((fixture) => {
-      it(`should import combined: ${fixture.name}`, () => {
-        const result = importI8nTextCombinedFromEnterprise(
-          mockСontext,
-          fixture.textFromStructure,
-          fixture.enterpriseOtherLanguages
-        )
+    it.each(i8nTextFixtures)("should import combined: $name", (fixture) => {
+      const result = importI8nTextCombinedFromEnterprise(
+        mockСontext,
+        fixture.textFromStructure,
+        fixture.enterpriseOtherLanguages
+      )
 
-        expect(result).toEqual(fixture.text)
-      })
+      expect(result).toEqual(fixture.text)
     })
   })
 })

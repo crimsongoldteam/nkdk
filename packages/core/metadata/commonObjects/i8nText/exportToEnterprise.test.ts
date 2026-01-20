@@ -9,29 +9,23 @@ import {
 
 describe("exportI8nTextToEnterprise", () => {
   describe("exportI8nTextToEnterprise", () => {
-    i8nTextFixtures.forEach((fixture) => {
-      it(`should export: ${fixture.name}`, () => {
-        const result = exportI8nTextToEnterprise(mockСontext, fixture.text)
-        expect(result).toEqual(fixture.enterpriseFull)
-      })
+    it.each(i8nTextFixtures)("should export: $name", (fixture) => {
+      const result = exportI8nTextToEnterprise(mockСontext, fixture.text)
+      expect(result).toEqual(fixture.enterpriseFull)
     })
   })
 
   describe("exportI8nTextDefaultToEnterprise", () => {
-    i8nTextFixtures.forEach((fixture) => {
-      it(`should export default: ${fixture.name}`, () => {
-        const result = exportI8nTextDefaultToEnterprise(mockСontext, fixture.text)
-        expect(result).toEqual(fixture.enterpriseDefaultLanguage)
-      })
+    it.each(i8nTextFixtures)("should export default: $name", (fixture) => {
+      const result = exportI8nTextDefaultToEnterprise(mockСontext, fixture.text)
+      expect(result).toEqual(fixture.enterpriseDefaultLanguage)
     })
   })
 
   describe("exportI8nTextOtherToEnterprise", () => {
-    i8nTextFixtures.forEach((fixture) => {
-      it(`should export other: ${fixture.name}`, () => {
-        const result = exportI8nTextOtherToEnterprise(mockСontext, fixture.text)
-        expect(result).toEqual(fixture.enterpriseOtherLanguages)
-      })
+    it.each(i8nTextFixtures)("should export other: $name", (fixture) => {
+      const result = exportI8nTextOtherToEnterprise(mockСontext, fixture.text)
+      expect(result).toEqual(fixture.enterpriseOtherLanguages)
     })
   })
 })

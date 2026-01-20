@@ -18,12 +18,10 @@ describe("exportI8nTextToXML", () => {
   })
 
   describe("exportI8nTextToXMLWithDefaultLanguage", () => {
-    i8nTextFixtures.forEach((fixture) => {
-      it(`should export: ${fixture.name}`, () => {
-        const result = exportI8nTextToXMLWithDefaultLanguage(mockСontext, fixture.text)
-        const xml = result ? xmlExport({ Title: result }, false) : undefined
-        expect(xml).toEqual(fixture.xml)
-      })
+    it.each(i8nTextFixtures)("should export: $name", (fixture) => {
+      const result = exportI8nTextToXMLWithDefaultLanguage(mockСontext, fixture.text)
+      const xml = result ? xmlExport({ Title: result }, false) : undefined
+      expect(xml).toEqual(fixture.xml)
     })
   })
 })
