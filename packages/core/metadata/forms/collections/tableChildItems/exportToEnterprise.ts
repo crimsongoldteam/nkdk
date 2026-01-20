@@ -1,14 +1,14 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { TableChildItemTypedEnterprise, TableChildItems, TableChildItemsEnterprise } from "./types"
+import { TableChildItemTypedEnterprise, TableChildItems, TableChildItemsTypedEnterprise } from "./types"
 
 export const exportTableChildItemsToEnterprise = (
   context: ConfigurationContext,
   data: TableChildItems | undefined
-): TableChildItemsEnterprise | undefined => {
+): TableChildItemsTypedEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: TableChildItemsEnterprise = {}
+  const result: TableChildItemsTypedEnterprise = {}
   for (const item of data) {
     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)

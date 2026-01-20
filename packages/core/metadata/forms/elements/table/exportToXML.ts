@@ -3,7 +3,6 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
@@ -16,6 +15,7 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
+import { exportTableChildItemsToXML } from "../../collections/tableChildItems/exportToXML"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -31,7 +31,7 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const borderColor = exportColorToXML(context, data.borderColor)
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportTableChildItemsToXML(context, data.childItems)
 
   const commandSet = exportCommandSetToXML(context, data.commandSet)
 

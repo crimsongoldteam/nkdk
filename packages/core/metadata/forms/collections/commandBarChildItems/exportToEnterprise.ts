@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { CommandBarChildItems, CommandBarChildItemsTypedEnterprise, CommandBarChildItemTypedEnterprise } from "./types"
+import { CommandBarChildItems, CommandBarChildItemsTypedEnterprise } from "./types"
 
 export const exportCommandBarChildItemsToEnterprise = (
   context: ConfigurationContext,
@@ -13,7 +13,9 @@ export const exportCommandBarChildItemsToEnterprise = (
     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
     const resultItem = fn(context, item)
-    result[item.name] = resultItem as CommandBarChildItemTypedEnterprise
+    const name = item.name
+
+    result[name] = resultItem
   }
 
   return result

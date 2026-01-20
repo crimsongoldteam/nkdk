@@ -3,13 +3,13 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { TableChildItems, TableChildItemsXML } from "../../collections/tableChildItems/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import {
@@ -39,7 +39,7 @@ export interface Table {
   borderColor?: Color
   changeRowOrder?: boolean
   changeRowSet?: boolean
-  childItems: ChildItems
+  childItems: TableChildItems
   choiceMode?: boolean
   commandBarLocation?: SE.FormItemCommandBarLabelLocation
   commandSet?: CommandSet
@@ -146,7 +146,7 @@ export interface TableXML extends BaseElementXML {
   BorderColor?: ColorXML
   ChangeRowOrder?: boolean
   ChangeRowSet?: boolean
-  ChildItems?: ChildItemsXML
+  ChildItems?: TableChildItemsXML
   ChoiceMode?: boolean
   CommandBarLocation?: SE.FormItemCommandBarLabelLocation
   CommandSet?: CommandSetXML
@@ -263,7 +263,7 @@ export interface TablePartialEnterprise {
   ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
   Подвал?: StringboolEnterprise
   Подсказка?: I8nTextEnterprise
-  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
+  // ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
   ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
   ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise

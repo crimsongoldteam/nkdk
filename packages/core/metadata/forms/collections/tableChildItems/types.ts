@@ -23,12 +23,13 @@ import {
   LabelFieldTypedEnterprise,
   LabelFieldXML,
 } from "../../elements/labelField/types"
+import { PictureField, PictureFieldXML } from "../../elements/pictureField/types"
 
-export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelField
+export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelField | PictureField
 
 export type TableChildItems = TableChildItem[]
 
-export type TableChildItemXML = CheckBoxFieldXML | ColumnGroupXML | InputFieldXML | LabelFieldXML
+export type TableChildItemXML = CheckBoxFieldXML | ColumnGroupXML | InputFieldXML | LabelFieldXML | PictureFieldXML
 
 export type TableChildItemRecordXML = Record<FormElementType, TableChildItemXML>
 export type TableChildItemsXML = TableChildItemRecordXML | TableChildItemRecordXML[]
@@ -46,4 +47,4 @@ export type TableChildItemTypedEnterprise =
   | LabelFieldTypedEnterprise
 
 export type TableChildItemsPartialEnterprise = Record<string, TableChildItemPartialEnterprise>
-export type TableChildItemsEnterprise = Record<string, TableChildItemTypedEnterprise>
+export type TableChildItemsTypedEnterprise = Record<string, TableChildItemTypedEnterprise>

@@ -19,6 +19,7 @@ export type CommandBarChildItemTypedEnterprise =
   | ButtonTypedEnterprise
   | ButtonGroupTypedEnterprise
   | PopupTypedEnterprise
+
 export type CommandBarChildItemsTypedEnterprise = Record<string, CommandBarChildItemTypedEnterprise>
 
 export type CommandBarChildItemPartialEnterprise =

@@ -513,6 +513,17 @@ export const labelColumnTable: Table = {
   ],
 }
 
+export const pictureColumnTable: Table = {
+  name: "Таблица1",
+  elementType: FormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      elementType: "PictureField",
+    },
+  ],
+}
+
 export const columnGroupTable: Table = {
   name: "Таблица1",
   elementType: FormElementType.Table,
@@ -540,6 +551,11 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     name: "table with label field",
     table: labelColumnTable,
     structure: `| ~{Колонка1} | {Таблица1}`,
+  },
+  {
+    name: "table with picture field",
+    table: pictureColumnTable,
+    structure: `| @{Колонка1} | {Таблица1}`,
   },
   {
     name: "table with group",

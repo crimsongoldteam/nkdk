@@ -356,7 +356,6 @@ export type TypeRules<T> = T extends Button
                                                             XML: TableXML
                                                             Element: Table
                                                             PartialEnterprise: TablePartialEnterprise
-                                                            TypedEnterprise: TablePartialEnterprise
                                                           }
                                                         : T extends TextDocumentField
                                                           ? {

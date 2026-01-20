@@ -3,7 +3,6 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
@@ -16,6 +15,7 @@ import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
 import { importSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
 import { importSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
 import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
+import { importTableChildItemsFromXML } from "../../collections/tableChildItems/importFromXML"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
@@ -58,7 +58,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.ChangeRowSet !== undefined) result.changeRowSet = xml.ChangeRowSet
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  const childItems = importTableChildItemsFromXML(context, xml.ChildItems)
   result.childItems = childItems
 
   if (xml.ChoiceMode !== undefined) result.choiceMode = xml.ChoiceMode

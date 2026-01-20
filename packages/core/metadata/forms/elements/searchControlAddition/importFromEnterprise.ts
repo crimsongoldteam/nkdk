@@ -4,7 +4,6 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importCommandBarChildItemsPartialFromEnterprise } from "~/metadata/forms/collections/commandBarChildItems/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "~/metadata/forms/elements/extendedTooltip/importFromEnterprise"
 import {
@@ -13,6 +12,7 @@ import {
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importCommandBarChildItemsTypedFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 
 export const importSearchControlAdditionFromEnterprise = <From extends SearchControlAdditionEnterprise | undefined>(
   context: ConfigurationContext,
@@ -67,7 +67,7 @@ export const importSearchControlAdditionFromEnterprise = <From extends SearchCon
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, data.ПодчиненныеЭлементы)
+  const childItems = importCommandBarChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)

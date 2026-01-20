@@ -1,11 +1,20 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importChildItemsPartialFromEnterprise } from "../childItems/importFromEnterprise"
-import { ChildItems } from "../childItems/types"
-import { TableChildItems } from "./types"
+import {
+  importChildItemsPartialFromEnterprise,
+  importChildItemsTypedFromEnterprise,
+} from "../childItems/importFromEnterprise"
+import { TableChildItems, TableChildItemsTypedEnterprise } from "./types"
 
-export const importTableChildItemsFromEnterprise = (
+export const importTableChildItemsPartialFromEnterprise = (
   context: ConfigurationContext,
-  items: ChildItems
+  items: TableChildItems
 ): TableChildItems => {
-  return importChildItemsPartialFromEnterprise(context, items) as TableChildItems
+  return importChildItemsPartialFromEnterprise(context, items)
+}
+
+export const importTableChildItemsTypedFromEnterprise = (
+  context: ConfigurationContext,
+  items: TableChildItemsTypedEnterprise
+): TableChildItems => {
+  return importChildItemsTypedFromEnterprise(context, items)
 }

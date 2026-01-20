@@ -15,7 +15,7 @@ export const importCommandBarChildItemsPartialFromEnterprise = (
 
 export const importCommandBarChildItemsTypedFromEnterprise = (
   context: ConfigurationContext,
-  items: CommandBarChildItemsTypedEnterprise
+  items: CommandBarChildItemsTypedEnterprise | undefined
 ): CommandBarChildItems => {
-  return importChildItemsTypedFromEnterprise(context, items) as CommandBarChildItems
+  return importChildItemsTypedFromEnterprise(context, items)
 }

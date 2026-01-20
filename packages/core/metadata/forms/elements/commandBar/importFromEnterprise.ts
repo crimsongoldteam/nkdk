@@ -20,8 +20,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { importCommandBarChildItemsTypedFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
 
 export function importCommandBarTypedFromEnterprise<To extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -168,7 +168,7 @@ const importCommandBarPropsFromEnterprise = (
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, data.ПодчиненныеЭлементы)
+  const childItems = importCommandBarChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
   return result

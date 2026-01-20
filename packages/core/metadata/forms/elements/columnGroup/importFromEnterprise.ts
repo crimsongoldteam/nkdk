@@ -8,7 +8,7 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importTableChildItemsFromEnterprise } from "~/metadata/forms/collections/tableChildItems/importFromEnterprise"
+import { importTableChildItemsPartialFromEnterprise } from "~/metadata/forms/collections/tableChildItems/importFromEnterprise"
 import {
   ColumnGroup,
   ColumnGroupPartialEnterprise,
@@ -61,7 +61,7 @@ export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
-  const childItems = importTableChildItemsFromEnterprise(context, source.childItems)
+  const childItems = importTableChildItemsPartialFromEnterprise(context, source.childItems)
   result.childItems = childItems
 
   return result
