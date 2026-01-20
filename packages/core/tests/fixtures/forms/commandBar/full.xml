@@ -38,9 +38,10 @@
 	</ChildItems>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12"/>
+	<GroupHorizontalAlign>Center</GroupHorizontalAlign>
 	<Height>200</Height>
-	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalLocation>Left</HorizontalLocation>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>

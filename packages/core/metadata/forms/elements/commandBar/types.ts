@@ -10,10 +10,12 @@ import {
   CommandBarChildItemsXML,
 } from "../../collections/commandBarChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface CommandBar extends NamedElement {
   elementType: "CommandBar"
   autofill?: boolean
+  extendedTooltip?: ExtendedTooltip
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation
   enableContentChange?: boolean
@@ -40,17 +42,18 @@ export interface CommandBar extends NamedElement {
 export interface CommandBarXML extends BaseElementXML {
   Autofill?: boolean
   _DisplayImportance?: SE.DisplayImportance
-  HorizontalAlign?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation //HorizontalAlignInGroup
   EnableContentChange?: boolean
   Enabled?: boolean
   Height?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  HorizontalLocation?: SE.ItemHorizontalLocation // HorizontalAlign
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
   Title?: I8nTextXML
   TitleFont?: FontXML
   TitleTextColor?: ColorXML
+  ExtendedTooltip: ExtendedTooltipXML // Нет в Enterprise
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormGroupType

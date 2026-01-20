@@ -1,1 +1,3 @@
-<CommandBar name="КоманднаяПанель" id="1"/>
+<CommandBar name="КоманднаяПанель" id="1">
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="2"/>
+</CommandBar>

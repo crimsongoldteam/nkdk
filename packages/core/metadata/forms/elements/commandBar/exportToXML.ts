@@ -5,10 +5,10 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandBarChildItemsToXML } from "~/metadata/forms/collections/commandBarChildItems/exportToXML"
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportCommandBarToXML<From extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -20,15 +20,27 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   const result: CommandBarXML = {
     ...baseFields,
-  }
+  } as CommandBarXML
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.autofill !== undefined) result.Autofill = data.autofill
+
+  const childItems = exportCommandBarChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
+  if (data.horizontalAlign !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
+
   if (data.height !== undefined) result.Height = data.height
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalLocation = data.horizontalAlign
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
@@ -52,6 +64,9 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   if (data.type !== undefined) result.Type = data.type
 
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
@@ -60,19 +75,7 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  const childItems = exportCommandBarChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) result.ChildItems = childItems
-
-  if (data.autofill !== undefined) result.Autofill = data.autofill
-
-  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
-
-  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
-
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
-  return sortObject(result) as ToXMLType<From>
+  return result as ToXMLType<From>
 }
 
 registerMetadata("ExportToXML", "CommandBar", exportCommandBarToXML as ExportToXMLFn)

@@ -8,6 +8,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importCommandBarChildItemsFromXML } from "../../collections/commandBarChildItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importCommandBarFromXML<To extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -23,13 +24,16 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
     childItems: [],
   }
 
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
   if (xml.Height !== undefined) result.height = xml.Height
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.HorizontalLocation !== undefined) result.horizontalAlign = xml.HorizontalLocation
 
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 
@@ -68,7 +72,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
-  if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible

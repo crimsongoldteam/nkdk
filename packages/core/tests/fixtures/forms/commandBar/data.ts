@@ -26,13 +26,13 @@ export const sourceCommandBar: CommandBar = {
   },
 }
 
-export const fullCommandBar: Required<CommandBar> = {
+export const fullCommandBar: Omit<Required<CommandBar>, "extendedTooltip"> = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
   enableContentChange: true,
   enabled: true,
   height: 200,
-  horizontalAlignInGroup: "Left",
+  horizontalAlignInGroup: "Center",
   horizontalStretch: true,
   readOnly: false,
   shortcut: "Ctrl+S",
@@ -75,7 +75,7 @@ export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
   Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
+  ГоризонтальноеПоложениеВГруппе: "Центр",
   Доступность: "Истина",
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
