@@ -21,7 +21,7 @@ export const importAutoCommandBarFromEnterprise = (
     ...sourceExt,
   }
 
-  if (!enterprise) return result
+  if (!enterprise || Object.keys(enterprise).length === 0) return result
 
   const autofill = importBooleanFromEnterprise(context, enterprise.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill

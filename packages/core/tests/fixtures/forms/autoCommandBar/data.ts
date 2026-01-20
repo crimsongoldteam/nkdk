@@ -12,7 +12,7 @@ export const parentElement: NamedElement = {
 }
 
 export const sourceAutoCommandBar: AutoCommandBar = {
-  autofill: true,
+  autofill: false,
   childItems: [
     {
       elementType: FormElementType.Button,
@@ -34,23 +34,23 @@ export const sourceAutoCommandBar: AutoCommandBar = {
 export const fullChildItems: ChildItemsPartialEnterprise = {
   Кнопка1: {
     Подсказка: "Подсказка для кнопки",
-    Команда: "ВыполнитьКоманда1",
+    ИмяКоманды: "ВыполнитьКоманда1",
   } as ButtonPartialEnterprise,
-  ГруппаКнопок1: {
+  ГруппаКнопок: {
     Подсказка: "Подсказка для группы кнопок",
     ПодчиненныеЭлементы: {
       Кнопка2: {
         Тип: "Кнопка",
-        Команда: "ВыполнитьКоманда2",
+        ИмяКоманды: "ВыполнитьКоманда2",
       },
     } as CommandBarChildItemsTypedEnterprise,
   },
-  Подменю3: {
+  Подменю: {
     Подсказка: "Подсказка для подменю",
     ПодчиненныеЭлементы: {
       Кнопка3: {
         Тип: "Кнопка",
-        Команда: "ВыполнитьКоманда3",
+        ИмяКоманды: "ВыполнитьКоманда3",
       },
     } as CommandBarChildItemsTypedEnterprise,
   },

@@ -187,5 +187,5 @@ const importPopupPropsFromEnterprise = (
 registerMetadata(
   "ImportPartialFromEnterprise",
   "Popup",
-  importPopupPropsFromEnterprise as ImportPartialFromEnterpriseFn
+  importPopupPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromEnterprise"
 import {
+  fullAutoCommandBar,
   fullAutoExportCommandBarEnterprise,
   fullChildItems,
-  fullPropsAutoCommandBar,
   minimalAutoCommandBar,
   sourceAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
@@ -19,11 +19,11 @@ describe("importAutoCommandBarFromEnterprise", () => {
 
     const result = importAutoCommandBarFromEnterprise(context, sourceAutoCommandBar, fullAutoExportCommandBarEnterprise)
 
-    expect(result).toEqual(fullPropsAutoCommandBar)
+    expect(result).toEqual(fullAutoCommandBar)
   })
 
   it("should import minimal", () => {
-    const result = importAutoCommandBarFromEnterprise(mockСontext, sourceAutoCommandBar, {})
+    const result = importAutoCommandBarFromEnterprise(mockСontext, undefined, {})
 
     expect(result).toEqual(minimalAutoCommandBar)
   })
