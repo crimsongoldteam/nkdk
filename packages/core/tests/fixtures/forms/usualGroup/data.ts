@@ -235,25 +235,35 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
   {Элемент2}: `,
   },
   {
-    name: "horizontal if possible group",
+    name: "horizontal (if possible) group",
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
       childItems: [
         {
-          name: "Элемент1",
-          elementType: FormElementType.InputField,
-        } as InputField,
+          name: "ВертикальнаяГруппа1",
+          elementType: FormElementType.UsualGroup,
+          group: "Vertical",
+          childItems: [
+            {
+              name: "Элемент1",
+              elementType: FormElementType.InputField,
+            } as InputField,
+          ],
+        } as UsualGroup,
         {
           name: "Элемент2",
           elementType: FormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
-    structured: `%#{Группа} {Элемент1}: ; {Элемент2}: `,
+    structured: `%#{Группа}
+  #{ВертикальнаяГруппа1}
+    {Элемент1}: 
+  {Элемент2}: `,
   },
   {
-    name: "one-line group if possible without title",
+    name: "one-line group (if possible) without title",
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
@@ -272,7 +282,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     structured: `%#{Группа}% {Элемент1}: ; {Элемент2}: `,
   },
   {
-    name: "one-line group if possible with title",
+    name: "one-line group (if possible) with title",
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
@@ -291,7 +301,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     structured: `%#Заголовок группы {Группа}% {Элемент1}: ; {Элемент2}: `,
   },
   {
-    name: "one-line group if possible with empty title",
+    name: "one-line group (if possible) with empty title",
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,

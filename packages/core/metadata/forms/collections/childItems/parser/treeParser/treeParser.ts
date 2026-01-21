@@ -27,7 +27,7 @@ const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderT
   const type = detectElementType(builderNode.tokens)
 
   const currentTreeNode: TreeNode =
-    type === ParseElementType.OneLineGroup
+    type === ParseElementType.OneLineHorizontalGroup
       ? processOneLineGroup(context, builderNode)
       : {
           tokens: builderNode.tokens,

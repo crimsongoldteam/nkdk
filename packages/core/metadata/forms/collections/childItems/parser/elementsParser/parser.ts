@@ -555,6 +555,9 @@ export class Parser extends CstParser {
 
   private readonly horizontalGroup = this.RULE("horizontalGroup", () => {
     this.CONSUME(t.Percent)
+    this.OPTION2(() => {
+      this.CONSUME(t.Hash)
+    })
 
     this.MANY(() => {
       this.CONSUME(t.GroupHeaderText)
@@ -567,6 +570,9 @@ export class Parser extends CstParser {
 
   private readonly oneLineGroup = this.RULE("oneLineGroup", () => {
     this.CONSUME1(t.Percent)
+    this.OPTION2(() => {
+      this.CONSUME(t.Hash)
+    })
     this.MANY(() => {
       this.CONSUME(t.GroupHeaderText)
     })

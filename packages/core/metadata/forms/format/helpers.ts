@@ -19,9 +19,13 @@ export const formatDefaultLanguageText = (
 
 export const formatElementTitleAndName = (
   context: ConfigurationContext,
-  element: { title?: I8nText; name: string }
+  element: { title?: I8nText; name: string },
+  alwaysShowTitle: boolean = false
 ) => {
-  const titleText = formatDefaultLanguageText(context, element.title!)
+  let titleText = formatDefaultLanguageText(context, element.title!)
+  if (alwaysShowTitle && !titleText) {
+    titleText = '""'
+  }
 
   if (!titleText) return formatElementName(element)
 

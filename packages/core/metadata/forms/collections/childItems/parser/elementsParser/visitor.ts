@@ -603,14 +603,18 @@ export class Visitor extends BaseVisitor {
 
   horizontalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
     const title = joinTokens(ctx.GroupHeaderText as IToken[])
+    const hasHash = !!ctx.Hash
 
     const name = this.visit(ctx.properties as CstNode[], context)
 
     const result: UsualGroup = {
       name: name,
       elementType: FormElementType.UsualGroup,
-      group: "Horizontal",
       childItems: [],
+    }
+
+    if (!hasHash) {
+      result.group = "Horizontal"
     }
 
     if (title !== undefined) {
@@ -624,21 +628,23 @@ export class Visitor extends BaseVisitor {
 
   oneLineGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
     const title = joinTokens(ctx.GroupHeaderText as IToken[])
+    const hasHash = !!ctx.Hash
 
     const name = this.visit(ctx.properties as CstNode[], context)
 
     const result: UsualGroup = {
       name: name,
       elementType: FormElementType.UsualGroup,
-      group: "Horizontal",
       childItems: [],
     }
 
+    if (!hasHash) {
+      result.group = "Horizontal"
+    }
+
     if (title !== undefined) {
-      // Always create title if title token exists (even if empty string)
       result.title = this.createTitle(title, context.defaultLanguage)
     } else {
-      // For one-line groups, if no title token, set showTitle to false
       result.showTitle = false
     }
 

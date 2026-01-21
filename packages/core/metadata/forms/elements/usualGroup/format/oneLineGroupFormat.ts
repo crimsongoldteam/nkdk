@@ -55,5 +55,5 @@ const formatGroupHeader = (context: ConfigurationContext, element: UsualGroup): 
     return formatElementName(element)
   }
 
-  return formatElementTitleAndName(context, element)
+  return formatElementTitleAndName(context, element, true)
 }

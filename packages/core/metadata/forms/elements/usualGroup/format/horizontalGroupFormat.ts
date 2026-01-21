@@ -7,9 +7,13 @@ import { exportOtherElementToStructure } from "../../baseElement/exportToStructu
 import { NamedElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
+const horizontalGroupPrefix = "%"
+const horizontalIfPossibleGroupPrefix = "%#"
+
 export const formatHorizontalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
+  const prefix = element.group === undefined ? horizontalIfPossibleGroupPrefix : horizontalGroupPrefix
   let result: IFormatElementResult = {
-    strings: ["%" + formatElementName(element)],
+    strings: [prefix + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
   }
 
