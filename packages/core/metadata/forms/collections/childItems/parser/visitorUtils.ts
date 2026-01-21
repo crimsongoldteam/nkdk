@@ -6,15 +6,19 @@ export function joinTokens(tokens: { image: string }[]): string | undefined {
   }
   const result = (tokens as IToken[])
     .map((token) => {
-      // Handle EscapedText tokens: strip quotes from the image
+      // Handle EscapedText tokens: strip quotes from the image and convert doubled quotes
       if ((token as IToken).tokenType?.name === "EscapedText") {
-        const image = token.image.trim()
+        let image = token.image.trim()
         // Remove leading and trailing quotes (single or double)
         if ((image.startsWith('"') && image.endsWith('"')) || (image.startsWith("'") && image.endsWith("'"))) {
           // For EscapedText, preserve empty string content (don't trim the content itself)
-          const content = image.slice(1, -1)
+          let content = image.slice(1, -1)
+          // Convert doubled quotes "" to single quote " (format uses doubled quotes for escaping)
+          content = content.replace(/""/g, '"')
           return content
         }
+        // If no outer quotes, still try to convert doubled quotes (in case tokenizer already stripped them)
+        return image.replace(/""/g, '"')
       }
       return token.image
     })

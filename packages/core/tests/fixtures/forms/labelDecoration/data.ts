@@ -157,4 +157,17 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       haveSimpleHorizontalGroup: false,
     },
   },
+
+  {
+    name: "with escaped title",
+    element: {
+      name: "ИмяПоля",
+      elementType: FormElementType.LabelDecoration,
+      title: { items: { ru: 'Заголовок "формы"' }, formatted: false },
+    },
+    structured: {
+      strings: ['"Заголовок ""формы""" {ИмяПоля}'],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
 ]

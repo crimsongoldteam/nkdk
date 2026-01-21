@@ -14,7 +14,7 @@ export const formatDefaultLanguageText = (
   if (!text) return undefined
 
   const defaultLanguage = context.defaultLanguage
-  return text.items[defaultLanguage]
+  return escapeWithDoubleQuotes(text.items[defaultLanguage])
 }
 
 export const formatElementTitleAndName = (
@@ -35,4 +35,33 @@ export const toCamelCase = (str: string): string => {
 
 export const wrapButtonContent = (content: string): string => {
   return "<" + content + ">"
+}
+
+/**
+ * Экранирует текст в двойные кавычки, если он содержит специальные символы.
+ * Если текст содержит двойные кавычки, они удваиваются.
+ *
+ * Специальные символы из лексера: ', %, #, ;, |, <, >, {, }, [, ], (, ), ,, :, ~, =, +, /, &, ?, _, -
+ *
+ * @param text - текст для экранирования
+ * @returns экранированный текст в двойных кавычках или исходный текст
+ */
+export const escapeWithDoubleQuotes = (text: string | undefined): string | undefined => {
+  if (!text) return undefined
+
+  // Специальные символы из лексера, которые требуют экранирования
+  const specialChars = /['%#;"|<>{}[\]():~=+\/&?_\-]/
+
+  // Проверяем, содержит ли текст специальные символы или двойные кавычки
+  const needsEscaping = specialChars.test(text) || text.includes('"')
+
+  if (!needsEscaping) {
+    return text
+  }
+
+  // Удваиваем двойные кавычки
+  const escapedText = text.replace(/"/g, '""')
+
+  // Оборачиваем в двойные кавычки
+  return `"${escapedText}"`
 }

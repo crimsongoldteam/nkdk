@@ -355,7 +355,7 @@ export const Dashes = createToken({
 
 export const EscapedText = createToken({
   name: "EscapedText",
-  pattern: /"((?:[^"\\]|\\.)*)"[ \t]*|'((?:[^'\\]|\\.)*)'[ \t]*/,
+  pattern: /"((?:[^"\\]|""|\\.)*)"[ \t]*|'((?:[^'\\]|''|\\.)*)'[ \t]*/,
   label: "\"...\" или '...'",
   categories: combineTokens,
 })
