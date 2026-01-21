@@ -13,12 +13,6 @@ import { importClientApplicationFormFromEnterprise } from "./importFromEnterpris
 import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
 
 describe("importClientApplicationFormFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importClientApplicationFormFromEnterprise(mockСontext, undefined, { childItems: [] })
-
-    expect(result).toBeUndefined()
-  })
-
   it("should import all fields from Enterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockСontext, fullClientApplicationFormEnterprise, {
       childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],

@@ -47,11 +47,9 @@ const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof Clie
 
 export const importClientApplicationFormFromEnterprise = (
   context: ConfigurationContext,
-  data: ClientApplicationFormEnterprise | undefined,
+  data: ClientApplicationFormEnterprise,
   structure: ChildItemsStructureResult
-): ClientApplicationForm | undefined => {
-  if (!data) return undefined
-
+): ClientApplicationForm => {
   const itemsContext: ConfigurationContext = {
     ...context,
     allElements: data.Элементы,

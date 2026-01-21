@@ -92,7 +92,7 @@ describe("DO test", () => {
     const newXML = xmlExport({ Form: newXMLData })
     writeFileSync(join(__dirname, "After/Form.xml"), newXML, "utf-8")
 
-    const newXMLMetadataData = exportFormMetadataToXML(configurationContext, newForm)
+    const newXMLMetadataData = exportFormMetadataToXML(configurationContext, newForm, "ФормаСвойствИзмерения")
     const newXMLMetadata = xmlExport({ MetaDataObject: newXMLMetadataData })
     writeFileSync(join(__dirname, "After/Metadata.xml"), newXMLMetadata, "utf-8")
   })
