@@ -997,8 +997,8 @@
 		</Command>
 	</Commands>
 	<Events>
-		<Event name="OnOpen">ПриОткрытии</Event>
 		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
+		<Event name="OnOpen">ПриОткрытии</Event>
 	</Events>
 	<Title>
 		<v8:item>
