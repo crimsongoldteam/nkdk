@@ -9,30 +9,51 @@ import {
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportClientApplicationFormToXML } from "./exportToXML"
+import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./exportToXML"
 
-describe("exportClientApplicationFormToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportClientApplicationFormToXML(mockСontext, undefined)
+describe("exportToXML", () => {
+  describe("exportClientApplicationFormToXML", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = exportClientApplicationFormToXML(mockСontext, undefined)
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should export all fields to XML", () => {
+      const expectedResult = readXMLFileAsString("forms/clientApplicationForm/full.xml")
+      const xmlData = exportClientApplicationFormToXML(mockСontext, fullClientApplicationForm)
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should export minimal", () => {
+      const expectedResult = readXMLFileAsString("forms/clientApplicationForm/minimal.xml")
+      const xmlData = exportClientApplicationFormToXML(mockСontext, minimalClientApplicationForm)
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
   })
+  describe("exportFormMetadataToXML", () => {
+    it("should export all fields to XML", () => {
+      const expectedResult = readXMLFileAsString("forms/clientApplicationForm/fullMetadata.xml")
+      const xmlData = exportFormMetadataToXML(mockСontext, fullClientApplicationForm, "ФормаКакаяТо")
 
-  it("should export all fields to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/full.xml")
-    const xmlData = exportClientApplicationFormToXML(mockСontext, fullClientApplicationForm)
+      const result = xmlExport({ MetaDataObject: xmlData })
 
-    const result = xmlExport({ Form: xmlData })
+      expect(result).toEqual(expectedResult)
+    })
 
-    expect(result).toEqual(expectedResult)
-  })
+    it("should export minimal", () => {
+      const expectedResult = readXMLFileAsString("forms/clientApplicationForm/minimalMetadata.xml")
+      const xmlData = exportFormMetadataToXML(mockСontext, minimalClientApplicationForm, "ФормаКакаяТо")
 
-  it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/minimal.xml")
-    const xmlData = exportClientApplicationFormToXML(mockСontext, minimalClientApplicationForm)
+      const result = xmlExport({ MetaDataObject: xmlData })
 
-    const result = xmlExport({ Form: xmlData })
-
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual(expectedResult)
+    })
   })
 })

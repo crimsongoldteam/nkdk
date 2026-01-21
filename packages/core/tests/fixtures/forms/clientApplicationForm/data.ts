@@ -99,6 +99,10 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
 }
 
 export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {
+  Синоним: "Синоним формы",
+  Комментарий: "Комментарий к форме",
+  ВключатьСправкуВСодержание: "Истина",
+  НазначенияИспользования: "ПлатформаИМобильноеПриложение",
   АвтоЗаголовок: "Истина",
   АвтоматическоеСохранениеДанныхВНастройках: "Использовать",
   АвтоНавигационнаяСсылка: "Истина",

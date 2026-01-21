@@ -226,7 +226,7 @@ export interface ClientApplicationFormEnterprise {
 
   Синоним?: I8nTextEnterprise
   Комментарий?: string
-  ВключатьСправкуВСодержание?: boolean
+  ВключатьСправкуВСодержание?: StringboolEnterprise
   НазначенияИспользования?: "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"
 }
 

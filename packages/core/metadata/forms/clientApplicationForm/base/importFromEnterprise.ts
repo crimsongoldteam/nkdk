@@ -1,6 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importFormAttributesFromEnterprise } from "~/metadata/commonObjects/formAttribute/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importUsePurposesFromEnterprise } from "~/metadata/commonObjects/usePurposes/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   ClientApplicationForm,
@@ -240,6 +241,17 @@ export const importClientApplicationFormFromEnterprise = (
 
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
+
+  const synonim = importI8nTextFromEnterprise(context, data.Синоним)
+  if (synonim !== undefined) result.synonim = synonim
+
+  if (data.Комментарий !== undefined) result.comment = data.Комментарий
+
+  const includeHelpInContents = importBooleanFromEnterprise(context, data.ВключатьСправкуВСодержание)
+  if (includeHelpInContents !== undefined) result.includeHelpInContents = includeHelpInContents
+
+  const usePurposes = importUsePurposesFromEnterprise(context, data.НазначенияИспользования)
+  if (usePurposes !== undefined) result.usePurposes = usePurposes
 
   result.childItems = importChildItemsPartialFromEnterprise(itemsContext, structure.childItems)
 

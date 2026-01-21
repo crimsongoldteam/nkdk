@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttribute/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportUsePurposesToEnterprise } from "~/metadata/commonObjects/usePurposes/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   ClientApplicationForm,
@@ -69,6 +70,17 @@ export const exportClientApplicationFormToEnterprise = (
   if (!data) return undefined
 
   const result: ClientApplicationFormEnterprise = {}
+
+  const synonym = exportI8nTextToEnterprise(context, data.synonim)
+  if (synonym !== undefined) result.Синоним = synonym
+
+  if (data.comment !== undefined) result.Комментарий = data.comment
+
+  const includeHelpInContents = exportBooleanToEnterprise(context, data.includeHelpInContents)
+  if (includeHelpInContents !== undefined) result.ВключатьСправкуВСодержание = includeHelpInContents
+
+  const usePurposes = exportUsePurposesToEnterprise(context, data.usePurposes)
+  if (usePurposes !== undefined) result.НазначенияИспользования = usePurposes
 
   const autoTitle = exportBooleanToEnterprise(context, data.autoTitle)
   if (autoTitle !== undefined) result.АвтоЗаголовок = autoTitle
