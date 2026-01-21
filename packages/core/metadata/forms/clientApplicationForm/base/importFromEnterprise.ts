@@ -151,7 +151,11 @@ export const importClientApplicationFormFromEnterprise = (
 
   if (data.КлючСохраненияПоложенияОкна !== undefined) result.windowOptionsKey = data.КлючСохраненияПоложенияОкна
 
-  const autoCommandBar = importAutoCommandBarFromEnterprise(context, structure.autoCommandBar, data.КоманднаяПанель)
+  const autoCommandBar = importAutoCommandBarFromEnterprise(
+    itemsContext,
+    structure.autoCommandBar,
+    data.КоманднаяПанель
+  )
   if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб

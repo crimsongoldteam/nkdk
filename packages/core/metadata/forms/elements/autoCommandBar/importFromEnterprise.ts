@@ -21,6 +21,9 @@ export const importAutoCommandBarFromEnterprise = (
     ...sourceExt,
   }
 
+  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
+  if (childItems !== undefined) result.childItems = childItems
+
   if (!enterprise || Object.keys(enterprise).length === 0) return result
 
   const autofill = importBooleanFromEnterprise(context, enterprise.Автозаполнение)
@@ -39,9 +42,6 @@ export const importAutoCommandBarFromEnterprise = (
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
-
-  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
-  if (childItems !== undefined) result.childItems = childItems
 
   return result
 }
