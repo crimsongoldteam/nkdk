@@ -17,7 +17,7 @@ describe("importTableFromStructure", () => {
 const importTableFromStructure = (mockСontext: ConfigurationContext, mock: string[]) => {
   const tokens = tokenize(mock[0])
 
-  const treeNodes = parseTree(mockСontext, tokens)
+  const treeNodes = parseTree(mockСontext, tokens, true)
 
   const node = treeNodes[0].type === "AutoCommandBar" ? treeNodes[1] : treeNodes[0]
 

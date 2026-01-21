@@ -5,12 +5,16 @@ import { detectElementType } from "./detector"
 import { buildTree } from "./treeBuilder"
 import { BuilderTreeNode, ElementWithChildItems, ParseElementType, TreeNode } from "./types"
 
-export const parseTree = (context: ConfigurationContext, tokens: IToken[]): TreeNode[] => {
+export const parseTree = (
+  context: ConfigurationContext,
+  tokens: IToken[],
+  partialParse: boolean = false
+): TreeNode[] => {
   const builderNodes = buildTree(tokens)
 
   const flatten = processTreeNodes(context, builderNodes)
 
-  if (flatten.length > 0 && flatten[0].type === ParseElementType.PotentialAutoCommandBar) {
+  if (!partialParse && flatten.length > 0 && flatten[0].type === ParseElementType.PotentialAutoCommandBar) {
     flatten[0].type = ParseElementType.AutoCommandBar
   }
 
