@@ -12,7 +12,7 @@ import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from
 export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
   xml: ClientApplicationFormXML,
-  xmlMetadata?: FormMetadataXML
+  xmlMetadata: FormMetadataXML
 ): ClientApplicationForm => {
   const result: ClientApplicationForm = {
     commands: importCommandsFromXML(context, xml.Commands?.Command),
