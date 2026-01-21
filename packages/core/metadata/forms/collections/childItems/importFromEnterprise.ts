@@ -57,7 +57,8 @@ export const importChildItemsTypedFromEnterprise = <To extends ChildItem>(
   for (const [name, item] of Object.entries(childItemsEnterprise)) {
     const elementType = importFormElementTypeFromEnterprise(context, item.Тип)
     const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
-    if (fn == undefined) throw new Error(`Import function not found for element type: ${elementType}`)
+    if (fn == undefined)
+      throw new Error(`ImportTypedFromEnterprise function not found for element type: ${elementType}`)
     const resultItem = fn(context, item, name) as NonNullable<To>
     result.push(resultItem)
   }
@@ -74,7 +75,8 @@ const importChildItemProperties = (
   const propertiesEnterprise = childItemsProperties[item.name]
 
   const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
-  if (fn == undefined) throw new Error(`Import function not found for element type: ${item.elementType}`)
+  if (fn == undefined)
+    throw new Error(`ImportPartialFromEnterprise function not found for element type: ${item.elementType}`)
   const result = fn(context, item, propertiesEnterprise) as ChildItem
 
   return result

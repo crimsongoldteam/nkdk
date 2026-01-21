@@ -30,7 +30,7 @@ describe("importChildItemsFromXML", () => {
     }
 
     expect(() => importChildItemsFromXML(mockСontext, xmlData.ChildItems)).toThrow(
-      "Import function not found for element type: InvalidElement"
+      "ImportFromXML function not found for element type: InvalidElement"
     )
   })
 })

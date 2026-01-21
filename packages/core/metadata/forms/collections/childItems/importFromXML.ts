@@ -11,7 +11,7 @@ export const importChildItemsFromXML = (context: ConfigurationContext, xml: Chil
   return items.map((item) => {
     const elementType = Object.keys(item)[0] as FormElementType
     const importFunction = getOperationFunction("ImportFromXML", elementType)
-    if (!importFunction) throw new Error(`Import function not found for element type: ${elementType}`)
+    if (!importFunction) throw new Error(`ImportFromXML function not found for element type: ${elementType}`)
     return importFunction(context, item[elementType])!
   })
 }
