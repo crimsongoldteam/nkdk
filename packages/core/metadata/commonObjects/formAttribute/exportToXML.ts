@@ -25,8 +25,10 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     _id: getElementId(context),
   }
 
+  const isValueListType = mergedData.valueType?.type.includes("ValueListType")
+
   const settings = exportTypeDescriptionToXML(context, mergedData.settings)
-  if (settings) {
+  if (settings || isValueListType) {
     result.Settings = {
       "_xsi:type": "v8:TypeDescription",
       ...settings,

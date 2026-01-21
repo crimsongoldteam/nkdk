@@ -8,6 +8,8 @@ import {
   mainAttributeTitleEqualsNameEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
+  withEmptySettingsFormAttribute,
+  withEmptySettingsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportFormAttributesToEnterprise } from "./exportToEnterprise"
@@ -40,5 +42,11 @@ describe("exportFormAttributesToEnterprise", () => {
     const result = exportFormAttributesToEnterprise(mockСontext, choiceListFormAttribute)
 
     expect(result).toEqual(choiceListFormAttributeEnterprise)
+  })
+
+  it("should export with empty settings", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, withEmptySettingsFormAttribute)
+
+    expect(result).toEqual(withEmptySettingsFormAttributeEnterprise)
   })
 })

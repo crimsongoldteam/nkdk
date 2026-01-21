@@ -17,7 +17,7 @@ export const exportCommandBarChildItemsToXML = (
   const result: CommandBarChildItemRecordXML[] = []
   for (const item of data) {
     const fn = getOperationFunction("ExportToXML", item.elementType)
-    if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    if (fn == undefined) throw new Error(`ExportToXML function not found for element type: ${item.elementType}`)
     const resultItem = fn(context, item)
     result.push({ [item.elementType]: resultItem } as Record<FormElementType, CommandBarChildItemXML>)
   }

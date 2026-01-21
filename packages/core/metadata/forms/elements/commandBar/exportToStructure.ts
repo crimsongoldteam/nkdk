@@ -30,7 +30,8 @@ export const exportCommandBarContentToStructure = (
   const buttonStrings = element.childItems.flatMap((item) => {
     const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
 
-    if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    if (!exportFunction)
+      throw new Error(`ExportToStructureContent function not found for element type: ${item.elementType}`)
     const result = exportFunction(context, item)
     // ButtonGroup в CommandBar требует добавления | после себя
     if (item.elementType === "ButtonGroup") {

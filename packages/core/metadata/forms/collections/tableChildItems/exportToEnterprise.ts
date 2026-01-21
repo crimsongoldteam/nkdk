@@ -11,7 +11,8 @@ export const exportTableChildItemsToEnterprise = (
   const result: TableChildItemsTypedEnterprise = {}
   for (const item of data) {
     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
-    if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    if (fn == undefined)
+      throw new Error(`ExportTypedToEnterprise function not found for element type: ${item.elementType}`)
     const resultItem = fn(context, item)
     result[item.name] = resultItem as TableChildItemTypedEnterprise
   }

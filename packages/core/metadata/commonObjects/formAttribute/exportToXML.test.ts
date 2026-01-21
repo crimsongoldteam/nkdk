@@ -4,6 +4,7 @@ import {
   fullFormAttributes,
   minimalFormAttributes,
   multipleFormAttributes,
+  withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -50,6 +51,16 @@ describe("exportFormAttributesToXML", () => {
     const expectedResult = readXMLFileAsString("formAttributes/choiceList.xml")
 
     const xmlData = exportFormAttributesToXML(mockСontext, choiceListFormAttribute)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export with empty settings", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/withEmptySettings.xml")
+
+    const xmlData = exportFormAttributesToXML(mockСontext, withEmptySettingsFormAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

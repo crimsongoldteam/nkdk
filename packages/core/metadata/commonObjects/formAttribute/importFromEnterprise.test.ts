@@ -10,6 +10,8 @@ import {
   minimalFormAttributesEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
+  withEmptySettingsFormAttribute,
+  withEmptySettingsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importFormAttributesFromEnterprise } from "./importFromEnterprise"
@@ -48,5 +50,11 @@ describe("importFormAttributesFromEnterprise", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, choiceListFormAttributeEnterprise)
 
     expect(result).toEqual(choiceListFormAttribute)
+  })
+
+  it("should import with empty settings", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, withEmptySettingsFormAttributeEnterprise)
+
+    expect(result).toEqual(withEmptySettingsFormAttribute)
   })
 })

@@ -19,6 +19,8 @@ export const importTypeDescriptionFromXML = (
     ...(dateQualifiers !== undefined && { dateQualifiers }),
   }
 
+  if (result.type.length === 0) return undefined
+
   return result
 }
 
@@ -29,8 +31,6 @@ export const extractTypes = (item: TypeDescriptionXML): string[] => {
   const result: string[] = []
   if (type !== undefined) result.push(...type)
   if (typeSet !== undefined) result.push(...typeSet)
-
-  if (result.length === 0) throw new Error("Type is undefined")
 
   return result
 }

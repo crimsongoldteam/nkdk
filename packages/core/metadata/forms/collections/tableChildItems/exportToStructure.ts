@@ -11,7 +11,8 @@ export const exportTableChildItemsToStructure = (
   for (const item of childItems) {
     const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
 
-    if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    if (!exportFunction)
+      throw new Error(`ExportToStructureContent function not found for element type: ${item.elementType}`)
     const result = exportFunction(context, item)
     items.push(...result.strings)
   }

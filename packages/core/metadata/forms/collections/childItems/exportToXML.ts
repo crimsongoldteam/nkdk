@@ -12,7 +12,7 @@ export const exportChildItemsToXML = (
   const result: ChildItemsXML = []
   for (const item of data) {
     const exportFunction = getOperationFunction("ExportToXML", item.elementType)
-    if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    if (!exportFunction) throw new Error(`ExportToXML function not found for element type: ${item.elementType}`)
     const value = exportFunction(context, item)
     result.push({ [item.elementType]: value } as Record<FormElementType, ChildItemXML>)
   }

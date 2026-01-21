@@ -4,6 +4,7 @@ import {
   fullFormAttributes,
   minimalFormAttributes,
   multipleFormAttributes,
+  withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -46,6 +47,14 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(choiceListFormAttribute)
+  })
+
+  it("should import with empty settings", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withEmptySettings.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(withEmptySettingsFormAttribute)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {

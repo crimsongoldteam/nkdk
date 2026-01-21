@@ -1,15 +1,8 @@
 import {
-  exportClientApplicationFormToEnterprise,
-  exportClientApplicationFormToStructure,
   exportMetadataCatalogToXML,
-  exportToYAML,
-  importClientApplicationFormFromXML,
-  importContentFromXML,
   importFromYAML,
   importMetadataCatalogFromEnterprise,
   xmlExport,
-  type ClientApplicationFormXML,
-  type FormMetadataXML,
   type MetadataCatalogContext,
   type MetadataCatalogEnterprise,
 } from "@nakidka/core"
@@ -100,23 +93,6 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
 
   const xmlString = xmlExport({ MetaDataObject: xmlData })
   writeFileSync(outputPath, xmlString, "utf-8")
-
-  for (const form of forms) {
-    const formPath = join(catalogDirPath, "Forms", form)
-    const formXml = readFileSync(formPath, "utf-8")
-    const formXmlData = importContentFromXML<{ Form: ClientApplicationFormXML }>(formXml)
-    const formMetadataXml = readFileSync(formPath, "utf-8")
-    const formMetadataXmlData = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(formMetadataXml)
-
-    const formData = importClientApplicationFormFromXML(context, formXmlData.Form, formMetadataXmlData.MetaDataObject)
-    const formYaml = exportClientApplicationFormToEnterprise(context, formData)
-    const formYamlString = exportToYAML(formYaml)
-    writeFileSync(join(outputPath, "Forms", form, `Form.yml`), formYamlString, "utf-8")
-
-    const formStructuredObject = exportClientApplicationFormToStructure(context, formData)
-    const formStructuredObjectString = exportToYAML(formStructuredObject)
-    writeFileSync(join(outputPath, "Forms", form, "Form.nkdk"), formStructuredObjectString, "utf-8")
-  }
 }
 
 /**

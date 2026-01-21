@@ -9,7 +9,7 @@ import {
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { basename, dirname, join, relative } from "path"
-import { importForm } from "./importForm.js"
+import { importForms } from "./importForm.js"
 
 export const importCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
@@ -45,7 +45,7 @@ export const importCatalog = (inputPath: string, outputPath: string): void => {
   const catalogName = basename(inputPath, ".xml")
   const inputCatalogDir = join(catalogDir, catalogName)
   const outputDir = dirname(outputPath)
-  importForm(inputCatalogDir, outputDir)
+  importForms(inputCatalogDir, outputDir)
 }
 
 const copyTemplates = (inputPath: string, outputPath: string) => {
@@ -103,8 +103,8 @@ export const importCatalogsFromDirectory = (inputPath: string, outputPath: strin
       const entry = xmlFiles[i]
       const inputFile = join(catalogsPath, entry.name)
       const nameWithoutExtension = entry.name.replace(/\.xml$/i, "")
-      const outputFilePath = join(outputPath, "Catalogs", nameWithoutExtension)
-      const outputFileYmlPath = join(outputFilePath, "Item.yml")
+      const outputFilePath = join(outputPath, "Справочник", nameWithoutExtension)
+      const outputFileYmlPath = join(outputFilePath, "Свойства.yml")
       const fileName = entry.name
 
       try {

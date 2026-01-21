@@ -180,3 +180,18 @@ export const choiceListFormAttributeEnterprise: FormAttributesEnterprise = {
 }
 
 //#endregion
+
+//#region WithEmptySettings
+
+export const withEmptySettingsFormAttribute: FormAttributes = [
+  {
+    name: "ВыбранныеЗначения",
+    title: { items: { ru: "Выбранные значения" } },
+    valueType: { type: ["ValueListType"] },
+  },
+]
+
+export const withEmptySettingsFormAttributeEnterprise: FormAttributesEnterprise = {
+  ВыбранныеЗначения: "СписокЗначений",
+}
+//#endregion
