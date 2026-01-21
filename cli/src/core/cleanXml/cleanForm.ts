@@ -4,6 +4,7 @@ import { parseXml } from "./parseXml.js"
 import { removeEmptyNodes } from "./removeEmptyNodes.js"
 import { setFormElementId } from "./setFormElementId.js"
 import { sortData } from "./sortData.js"
+import { sortEvents } from "./sortEvents.js"
 import { CleanContext } from "./types.js"
 
 const formContext: CleanContext = {
@@ -81,6 +82,7 @@ export const cleanForm = (xmlContent: string): string => {
     (data) => addNamespaces(formContext, data),
     (data) => removeEmptyNodes(formContext, data),
     (data) => sortData(formContext, data, false, ""),
+    (data) => sortEvents(formContext, data),
     (data) => setFormElementId(formContext, data)
   )
 
