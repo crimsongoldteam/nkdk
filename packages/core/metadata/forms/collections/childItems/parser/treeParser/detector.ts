@@ -87,7 +87,7 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     if (token.tokenType === Percent) {
       percentTokenCount++
       if (firstTokenType === Percent && percentTokenCount > 1) {
-        return ParseElementType.OneLineGroup
+        return ParseElementType.OneLineHorizontalGroup
       }
     }
 
@@ -108,7 +108,7 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   if (firstTokenType === LAngle) return ParseElementType.Button
   if (firstTokenType === Slash) return ParseElementType.Page
   if (firstTokenType === Percent) {
-    return percentTokenCount > 1 ? ParseElementType.OneLineGroup : ParseElementType.HorizontalGroup
+    return percentTokenCount > 1 ? ParseElementType.OneLineHorizontalGroup : ParseElementType.HorizontalGroup
   }
 
   return determineFieldType(

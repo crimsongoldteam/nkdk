@@ -152,7 +152,6 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       elementType: FormElementType.UsualGroup,
       group: "Horizontal",
       showTitle: false,
-      title: { items: { ru: "Заголовок группы" } },
       childItems: [
         {
           name: "Элемент1",
@@ -234,6 +233,81 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
   #{ВертикальнаяГруппа1}
     {Элемент1}: 
   {Элемент2}: `,
+  },
+  {
+    name: "horizontal if possible group",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      childItems: [
+        {
+          name: "Элемент1",
+          elementType: FormElementType.InputField,
+        } as InputField,
+        {
+          name: "Элемент2",
+          elementType: FormElementType.InputField,
+        } as InputField,
+      ],
+    } as UsualGroup,
+    structured: `%#{Группа} {Элемент1}: ; {Элемент2}: `,
+  },
+  {
+    name: "one-line group if possible without title",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      showTitle: false,
+      childItems: [
+        {
+          name: "Элемент1",
+          elementType: FormElementType.InputField,
+        } as InputField,
+        {
+          name: "Элемент2",
+          elementType: FormElementType.InputField,
+        } as InputField,
+      ],
+    } as UsualGroup,
+    structured: `%#{Группа}% {Элемент1}: ; {Элемент2}: `,
+  },
+  {
+    name: "one-line group if possible with title",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      title: { items: { ru: "Заголовок группы" } },
+      childItems: [
+        {
+          name: "Элемент1",
+          elementType: FormElementType.InputField,
+        } as InputField,
+        {
+          name: "Элемент2",
+          elementType: FormElementType.InputField,
+        } as InputField,
+      ],
+    } as UsualGroup,
+    structured: `%#Заголовок группы {Группа}% {Элемент1}: ; {Элемент2}: `,
+  },
+  {
+    name: "one-line group if possible with empty title",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      title: { items: { ru: "" } },
+      childItems: [
+        {
+          name: "Элемент1",
+          elementType: FormElementType.InputField,
+        } as InputField,
+        {
+          name: "Элемент2",
+          elementType: FormElementType.InputField,
+        } as InputField,
+      ],
+    } as UsualGroup,
+    structured: `%#"" {Группа}% {Элемент1}: ; {Элемент2}: `,
   },
   {
     name: "vertical group",

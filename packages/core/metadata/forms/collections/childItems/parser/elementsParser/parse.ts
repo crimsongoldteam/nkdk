@@ -4,10 +4,10 @@ import { ChildItem, ChildItems } from "~/metadata/forms/collections/childItems/t
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Table } from "~/metadata/forms/elements/table/types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const parseElement = (context: ConfigurationContext, element: TreeNode): ChildItem => {
   const ast = parseByElementType(element)
@@ -84,7 +84,7 @@ const parseByElementType = (element: TreeNode): CstNode => {
       return elementsParser.parseVerticalGroup(element.tokens)
     case ParseElementType.HorizontalGroup:
       return elementsParser.parseHorizontalGroup(element.tokens)
-    case ParseElementType.OneLineGroup:
+    case ParseElementType.OneLineHorizontalGroup:
       return elementsParser.parseOneLineGroup(element.tokens)
     case ParseElementType.PictureDecoration:
       return elementsParser.parsePictureDecoration(element.tokens)

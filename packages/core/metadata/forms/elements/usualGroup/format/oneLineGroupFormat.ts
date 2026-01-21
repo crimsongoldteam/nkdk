@@ -6,6 +6,10 @@ import { exportOtherElementToStructure } from "../../baseElement/exportToStructu
 import { NamedElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
+const horizontalGroupPrefix = "%"
+const horizontalIfPossibleGroupPrefix = "%#"
+const oneLineGroupSuffix = "%"
+
 export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
@@ -35,26 +39,21 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
     }
   }
 
-  // Форматируем заголовок для one-line группы
-  let header: string
-  if (element.showTitle === false) {
-    // Без заголовка - только имя
-    header = formatElementName(element)
-  } else {
-    // С заголовком - используем formatElementTitleAndName
-    const title = element.title?.items?.["ru"] ?? ""
-    if (title === "") {
-      // Пустой заголовок - формат: "" {Группа}
-      header = `"" ${formatElementName(element)}`
-    } else {
-      header = formatElementTitleAndName(context, element)
-    }
-  }
+  const header = formatGroupHeader(context, element)
 
   const joinedItems = groupItems.map((item) => item.join("")).join(separator)
-  let resultLine = "%" + header + "% " + joinedItems
+  const prefix = element.group === undefined ? horizontalIfPossibleGroupPrefix : horizontalGroupPrefix
+  let resultLine = prefix + header + oneLineGroupSuffix + " " + joinedItems
 
   result.strings.push(resultLine)
 
   return result
+}
+
+const formatGroupHeader = (context: ConfigurationContext, element: UsualGroup): string => {
+  if (element.showTitle === false) {
+    return formatElementName(element)
+  }
+
+  return formatElementTitleAndName(context, element)
 }

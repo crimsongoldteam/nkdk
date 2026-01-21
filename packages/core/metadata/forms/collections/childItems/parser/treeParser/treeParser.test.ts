@@ -293,7 +293,7 @@ text2`
       expect(simplified).toEqual([
         {
           content: "% %",
-          type: "OneLineGroup",
+          type: "OneLineHorizontalGroup",
           childItems: [
             {
               content: "text1",
@@ -320,7 +320,7 @@ text2`
       expect(simplified).toEqual([
         {
           content: "%group header{GroupName}%",
-          type: "OneLineGroup",
+          type: "OneLineHorizontalGroup",
           childItems: [
             {
               content: "text1",

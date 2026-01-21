@@ -27,14 +27,14 @@ export enum ParseElementType {
   Pages = "Pages",
   VerticalGroup = "VerticalGroup",
   HorizontalGroup = "HorizontalGroup",
-  OneLineGroup = "OneLineGroup",
+  OneLineHorizontalGroup = "OneLineHorizontalGroup",
   OtherField = "OtherField",
 }
 
 export const ElementWithChildItems = [
   ParseElementType.VerticalGroup,
   ParseElementType.HorizontalGroup,
-  ParseElementType.OneLineGroup,
+  ParseElementType.OneLineHorizontalGroup,
   ParseElementType.Page,
   ParseElementType.Pages,
 ]

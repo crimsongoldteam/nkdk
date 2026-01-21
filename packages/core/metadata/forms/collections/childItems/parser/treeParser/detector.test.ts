@@ -33,13 +33,30 @@ describe("detectElementType", () => {
     expect(result).toEqual(ParseElementType.HorizontalGroup)
   })
 
-  it("should detect one line group when wrapped with %", () => {
+  it("should detect horizontal if possible group starting with %#", () => {
+    const mock = `%#HorizontalIfPossibleGroup`
+
+    const tokens = tokenize(mock)
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.HorizontalGroup)
+  })
+  it("should detect one line horizontal group when wrapped with %", () => {
     const mock = `%OneLineGroup%`
 
     const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.OneLineGroup)
+    expect(result).toEqual(ParseElementType.OneLineHorizontalGroup)
+  })
+
+  it("should detect one line horizontal if possible group when wrapped with %", () => {
+    const mock = `%#OneLineGroup%`
+
+    const tokens = tokenize(mock)
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.OneLineHorizontalGroup)
   })
 
   it("should detect pages starting with //", () => {
