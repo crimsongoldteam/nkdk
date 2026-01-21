@@ -7,21 +7,25 @@ import {
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importClientApplicationFormFromXML } from "./importFromXML"
-import { ClientApplicationFormXML } from "./types"
+import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Form: ClientApplicationFormXML }>("forms/clientApplicationForm/full.xml")
-
-    const result = importClientApplicationFormFromXML(mockСontext, xmlData.Form)
+    const xmlForm = readAndParseXMLFile<{ Form: ClientApplicationFormXML }>("forms/clientApplicationForm/full.xml")
+    const xmlMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
+      "forms/clientApplicationForm/fullMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML(mockСontext, xmlForm, xmlMetadata)
 
     expect(result).toEqual(fullClientApplicationForm)
   })
 
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Form: ClientApplicationFormXML }>("forms/clientApplicationForm/minimal.xml")
-
-    const result = importClientApplicationFormFromXML(mockСontext, xmlData.Form)
+    const xmlMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
+      "forms/clientApplicationForm/minimalMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML(mockСontext, xmlData.Form, xmlMetadata)
 
     expect(result).toEqual(minimalClientApplicationForm)
   })

@@ -1,5 +1,6 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
@@ -38,48 +39,55 @@ export interface ClientApplicationFormEvents {
 }
 
 export interface ClientApplicationForm {
-  commandSet?: CommandSet
+  //#region ClientApplicationForm
   attributes?: FormAttribute[]
   autoCommandBar?: AutoCommandBar
-  autoTitle?: boolean
+  autoFillCheck?: boolean
   autoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
+  autoTitle?: boolean
   autoURL?: boolean
-  verticalScroll?: SE.VerticalFormScroll
-  childItemsVerticalAlign?: SE.ItemVerticalAlign
-  verticalSpacing?: SE.FormItemSpacing
-  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
-  height?: number
+  childItems: ChildItems
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  horizontalSpacing?: SE.FormItemSpacing
-  group?: SE.ChildFormItemsGroup
-  enabled?: boolean
-  title?: I8nText
+  childItemsVerticalAlign?: SE.ItemVerticalAlign
   closeOnChoice?: boolean
   closeOnOwnerClose?: boolean
+  collapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  commandBarLocation?: SE.FormCommandBarLabelLocation
+  commandSet?: CommandSet
   commands: Command[]
-  usedFormServer?: SE.UsedServer
-  purposeUseKey?: string
-  windowOptionsKey?: string
-  scale?: number
+  conversationsRepresentation?: SE.FormConversationsRepresentation
+  enabled?: boolean
+  enterKeyBehavior?: SE.EnterKeyBehaviorType
+  events?: ClientApplicationFormEvents
+  formWindowOpeningMode?: SE.FormWindowOpeningMode
+  group?: SE.ChildFormItemsGroup
+  height?: number
+  horizontalSpacing?: SE.FormItemSpacing
+  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
   modalMode?: boolean
   modified?: boolean
-  // url?: string
-  showTitle?: boolean
-  showCloseButton?: boolean
-  conversationsRepresentation?: SE.FormConversationsRepresentation
-  enterKeyBehavior?: SE.EnterKeyBehaviorType
-  childItems: ChildItems
-  commandBarLocation?: SE.FormCommandBarLabelLocation
-  autoFillCheck?: boolean
-  formWindowOpeningMode?: SE.FormWindowOpeningMode
-  collapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  purposeUseKey?: string
+  readOnly?: boolean
   saveDataInSettings?: SE.SaveFormDataInSettings
   savedInSettingsDataModified?: boolean
-  readOnly?: boolean
-  // uuid?: string
-  width?: number
+  scale?: number
+  showCloseButton?: boolean
+  showTitle?: boolean
   slaveItemsWidth?: SE.ChildFormItemsWidth
-  events?: ClientApplicationFormEvents
+  title?: I8nText
+  usedFormServer?: SE.UsedServer
+  verticalScroll?: SE.VerticalFormScroll
+  verticalSpacing?: SE.FormItemSpacing
+  width?: number
+  windowOptionsKey?: string
+  //#endregion
+
+  //#region FormMetadata
+  synonim?: I8nText
+  comment?: string
+  includeHelpInContents?: boolean
+  usePurposes?: ("PlatformApplication" | "MobilePlatformApplication")[]
+  //#endregion
 }
 
 export interface ClientApplicationFormXML {
@@ -130,8 +138,6 @@ export interface ClientApplicationFormXML {
   ShowTitle?: boolean
   SlaveItemsWidth?: SE.ChildFormItemsWidth
   Title?: I8nTextXML
-  // URL?: string
-  // UUID?: string
   UsedFormServer?: SE.UsedServer
   VerticalScroll?: SE.VerticalFormScroll
   VerticalSpacing?: SE.FormItemSpacing
@@ -217,4 +223,43 @@ export interface ClientApplicationFormEnterprise {
   }
   Команды?: CommandsEnterprise
   Элементы?: ChildItemsPartialEnterprise
+
+  Синоним?: I8nTextEnterprise
+  Комментарий?: string
+  ВключатьСправкуВСодержание?: boolean
+  НазначенияИспользования?: "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"
+}
+
+export interface FormMetadataXML {
+  _xmlns?: string
+  "_xmlns:app"?: string
+  "_xmlns:cfg"?: string
+  "_xmlns:cmi"?: string
+  "_xmlns:ent"?: string
+  "_xmlns:lf"?: string
+  "_xmlns:style"?: string
+  "_xmlns:sys"?: string
+  "_xmlns:v8"?: string
+  "_xmlns:v8ui"?: string
+  "_xmlns:web"?: string
+  "_xmlns:win"?: string
+  "_xmlns:xen"?: string
+  "_xmlns:xpr"?: string
+  "_xmlns:xr"?: string
+  "_xmlns:xs"?: string
+  "_xmlns:xsi"?: string
+  _version?: string
+  Form: {
+    _uuid?: string
+    Properties: {
+      Name: string
+      Synonym?: I8nTextXML
+      Comment?: string
+      FormType: "Managed"
+      IncludeHelpInContents?: boolean
+      UsePurposes?: {
+        "v8:Value": MetadataSimpleValueXML | MetadataSimpleValueXML[]
+      }
+    }
+  }
 }
