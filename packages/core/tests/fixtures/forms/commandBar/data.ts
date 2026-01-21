@@ -159,4 +159,24 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       haveSimpleHorizontalGroup: false,
     },
   },
+
+  {
+    name: "with popup",
+    element: {
+      name: "КоманднаяПанель",
+      elementType: FormElementType.CommandBar,
+      childItems: [
+        {
+          elementType: FormElementType.Popup,
+          name: "Меню",
+          title: { items: { ru: "Выпадающее меню" } },
+          childItems: [],
+        },
+      ],
+    },
+    structured: {
+      strings: ["<^Выпадающее меню {Меню}> {КоманднаяПанель}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
 ]
