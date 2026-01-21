@@ -1,16 +1,18 @@
 import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttribute/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
 import { importEventsFromXML } from "../../events/importFromXML"
-import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 
 export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
-  xml: ClientApplicationFormXML
+  xml: ClientApplicationFormXML,
+  xmlMetadata?: FormMetadataXML
 ): ClientApplicationForm => {
   const result: ClientApplicationForm = {
     commands: importCommandsFromXML(context, xml.Commands?.Command),
@@ -186,6 +188,41 @@ export const importClientApplicationFormFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) {
     result.events = events
+  }
+
+  const metadata = importFormMetadataFromXML(context, xmlMetadata)
+
+  return { ...result, ...metadata }
+}
+
+function importFormMetadataFromXML(
+  context: ConfigurationContext,
+  xmlMetadata?: FormMetadataXML
+): Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> {
+  const result: Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> =
+    {}
+
+  if (!xmlMetadata) return result
+
+  const props = xmlMetadata.Form?.Properties
+  if (!props) return result
+
+  const synonim = importI8nTextFromXML(context, props.Synonym)
+  if (synonim !== undefined) {
+    result.synonim = synonim
+  }
+
+  if (props.Comment !== undefined) {
+    result.comment = props.Comment
+  }
+
+  if (props.IncludeHelpInContents !== undefined) {
+    result.includeHelpInContents = props.IncludeHelpInContents
+  }
+
+  const usePurposes = importUsePurposesFromXML(context, props.UsePurposes)
+  if (usePurposes !== undefined) {
+    result.usePurposes = usePurposes
   }
 
   return result
