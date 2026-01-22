@@ -10,12 +10,10 @@ import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportTableChildItemsToXML } from "../../collections/tableChildItems/exportToXML"
 import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
-import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
-import { exportTableChildItemsToXML } from "../../collections/tableChildItems/exportToXML"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -43,9 +41,9 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const font = exportFontToXML(context, data.font)
 
-  const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
+  const searchControl = exportSingleSearchControlAdditionToXML(context, data.searchControl, data)
 
-  const searchStringAddition = exportSearchStringAdditionToXML(context, data.searchStringAddition, data)
+  const searchStringAddition = exportSingleSearchStringAdditionToXML(context, data.searchStringAddition, data)
 
   const textColor = exportColorToXML(context, data.textColor)
 

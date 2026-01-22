@@ -19,6 +19,7 @@ export const exportSearchControlAdditionToXML = (
   const name = getSearchControlAdditionName(parentElement)
 
   const element: SearchControlAddition = data ?? {
+    elementType: "SearchControlAddition",
     childItems: [],
   }
   const baseFields = exportElementPropsToXML(context, { name })

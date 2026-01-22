@@ -1,28 +1,47 @@
 import { describe, expect, it } from "vitest"
-import { fullSearchControlAddition } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importSearchControlAdditionFromXML } from "./importFromXML"
+import { importSearchControlAdditionFromXML, importSingleSearchControlAdditionFromXML } from "./importFromXML"
 import { SearchControlAdditionXML } from "./types"
 
 describe("importSearchControlAdditionFromXML", () => {
-  it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ SearchControlAddition: SearchControlAdditionXML }>(
-      "forms/searchControlAddition/full.xml"
-    )
+  describe("importSingleSearchControlAdditionFromXML", () => {
+    it("should import all fields from XML", () => {
+      const xmlData = readAndParseXMLFile<{ SearchControlAddition: SearchControlAdditionXML }>(
+        "forms/searchControlAddition/full.xml"
+      )
 
-    const result = importSearchControlAdditionFromXML(mockСontext, xmlData.SearchControlAddition)
+      const result = importSingleSearchControlAdditionFromXML(mockСontext, xmlData.SearchControlAddition)
 
-    expect(result).toEqual(fullSearchControlAddition)
+      expect(result).toEqual(fullSingleSearchControlAddition)
+    })
+
+    it("should import minimal", () => {
+      const xmlData = readAndParseXMLFile<{ SearchControlAddition: SearchControlAdditionXML }>(
+        "forms/searchControlAddition/minimal.xml"
+      )
+
+      const result = importSingleSearchControlAdditionFromXML(mockСontext, xmlData.SearchControlAddition)
+
+      expect(result).toBeUndefined()
+    })
   })
 
-  it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ SearchControlAddition: SearchControlAdditionXML }>(
-      "forms/searchControlAddition/minimal.xml"
-    )
+  describe("importSearchControlAdditionFromXML", () => {
+    it("should import all fields from XML", () => {
+      const xmlData = readAndParseXMLFile<{ SearchControlAddition: SearchControlAdditionXML }>(
+        "forms/searchControlAddition/full.xml"
+      )
 
-    const result = importSearchControlAdditionFromXML(mockСontext, xmlData.SearchControlAddition)
+      const result = importSearchControlAdditionFromXML(mockСontext, xmlData.SearchControlAddition)
+    })
 
-    expect(result).toBeUndefined()
+    it("should import minimal", () => {
+      const xmlData = readAndParseXMLFile<{ SearchControlAddition: SearchControlAdditionXML }>(
+        "forms/searchControlAddition/minimal.xml"
+      )
+
+      const result = importSearchControlAdditionFromXML(mockСontext, xmlData.SearchControlAddition)
+    })
   })
 })

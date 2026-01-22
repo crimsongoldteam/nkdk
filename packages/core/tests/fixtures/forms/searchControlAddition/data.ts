@@ -1,7 +1,7 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
-  SearchControlAddition,
   SearchControlAdditionEnterprise,
+  SingleSearchControlAddition,
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -10,7 +10,8 @@ export const parentElement: NamedElement = {
   name: "Дополнение",
 }
 
-export const fullSearchControlAddition: SearchControlAddition = {
+export const fullSearchControlAddition: SingleSearchControlAddition = {
+  elementType: "SearchControlAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
@@ -123,7 +124,8 @@ export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterpris
   },
 }
 
-export const minimalSearchControlAddition: SearchControlAddition = {
+export const minimalSingleSearchControlAddition: SingleSearchControlAddition = {
+  elementType: "SearchControlAddition",
   childItems: [],
 }
 

@@ -137,6 +137,16 @@ import {
   RadioButtonFieldXML,
 } from "../forms/elements/radioButtonField/types"
 import {
+  SearchControlAddition,
+  SearchControlAdditionEnterprise,
+  SearchControlAdditionXML,
+} from "../forms/elements/searchControlAddition/types"
+import {
+  SearchStringAddition,
+  SearchStringAdditionEnterprise,
+  SearchStringAdditionXML,
+} from "../forms/elements/searchStringAddition/types"
+import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
   SpreadSheetDocumentFieldTypedEnterprise,
@@ -165,227 +175,205 @@ import {
 export type TypeRules<T> = T extends Button
   ? {
       XML: ButtonXML
-      Element: Button
       PartialEnterprise: ButtonPartialEnterprise
       TypedEnterprise: ButtonTypedEnterprise
     }
   : T extends ButtonGroup
     ? {
         XML: ButtonGroupXML
-        Element: ButtonGroup
         PartialEnterprise: ButtonGroupPartialEnterprise
         TypedEnterprise: ButtonGroupTypedEnterprise
       }
     : T extends CalendarField
       ? {
           XML: CalendarFieldXML
-          Element: CalendarField
           PartialEnterprise: CalendarFieldPartialEnterprise
           TypedEnterprise: CalendarFieldTypedEnterprise
         }
       : T extends ChartField
         ? {
             XML: ChartFieldXML
-            Element: ChartField
             PartialEnterprise: ChartFieldPartialEnterprise
             TypedEnterprise: ChartFieldTypedEnterprise
           }
         : T extends CheckBoxField
           ? {
               XML: CheckBoxFieldXML
-              Element: CheckBoxField
               PartialEnterprise: CheckBoxFieldPartialEnterprise
               TypedEnterprise: CheckBoxFieldTypedEnterprise
             }
           : T extends ColumnGroup
             ? {
                 XML: ColumnGroupXML
-                Element: ColumnGroup
                 PartialEnterprise: ColumnGroupPartialEnterprise
                 TypedEnterprise: ColumnGroupTypedEnterprise
               }
             : T extends CommandBar
               ? {
                   XML: CommandBarXML
-                  Element: CommandBar
                   PartialEnterprise: CommandBarPartialEnterprise
                   TypedEnterprise: CommandBarTypedEnterprise
                 }
               : T extends DendrogramField
                 ? {
                     XML: DendrogramFieldXML
-                    Element: DendrogramField
                     PartialEnterprise: DendrogramFieldPartialEnterprise
                     TypedEnterprise: DendrogramFieldTypedEnterprise
                   }
                 : T extends FormattedDocumentField
                   ? {
                       XML: FormattedDocumentFieldXML
-                      Element: FormattedDocumentField
                       PartialEnterprise: FormattedDocumentFieldPartialEnterprise
                       TypedEnterprise: FormattedDocumentFieldTypedEnterprise
                     }
                   : T extends GanttChartField
                     ? {
                         XML: GanttChartFieldXML
-                        Element: GanttChartField
                         PartialEnterprise: GanttChartFieldPartialEnterprise
                         TypedEnterprise: GanttChartFieldTypedEnterprise
                       }
                     : T extends GeographicalSchemaField
                       ? {
                           XML: GeographicalSchemaFieldXML
-                          Element: GeographicalSchemaField
                           PartialEnterprise: GeographicalSchemaFieldPartialEnterprise
                           TypedEnterprise: GeographicalSchemaFieldTypedEnterprise
                         }
                       : T extends GraphicalSchemaField
                         ? {
                             XML: GraphicalSchemaFieldXML
-                            Element: GraphicalSchemaField
                             PartialEnterprise: GraphicalSchemaFieldPartialEnterprise
                             TypedEnterprise: GraphicalSchemaFieldTypedEnterprise
                           }
                         : T extends HTMLDocumentField
                           ? {
                               XML: HTMLDocumentFieldXML
-                              Element: HTMLDocumentField
                               PartialEnterprise: HTMLDocumentFieldPartialEnterprise
                               TypedEnterprise: HTMLDocumentFieldTypedEnterprise
                             }
                           : T extends InputField
                             ? {
                                 XML: InputFieldXML
-                                Element: InputField
                                 PartialEnterprise: InputFieldPartialEnterprise
                                 TypedEnterprise: InputFieldTypedEnterprise
                               }
                             : T extends LabelDecoration
                               ? {
                                   XML: LabelDecorationXML
-                                  Element: LabelDecoration
                                   PartialEnterprise: LabelDecorationPartialEnterprise
                                   TypedEnterprise: LabelDecorationTypedEnterprise
                                 }
                               : T extends LabelField
                                 ? {
                                     XML: LabelFieldXML
-                                    Element: LabelField
                                     PartialEnterprise: LabelFieldPartialEnterprise
                                     TypedEnterprise: LabelFieldTypedEnterprise
                                   }
                                 : T extends Page
                                   ? {
                                       XML: PageXML
-                                      Element: Page
                                       PartialEnterprise: PagePartialEnterprise
                                       TypedEnterprise: PageTypedEnterprise
                                     }
                                   : T extends Pages
                                     ? {
                                         XML: PagesXML
-                                        Element: Pages
                                         PartialEnterprise: PagesPartialEnterprise
                                         TypedEnterprise: PagesTypedEnterprise
                                       }
                                     : T extends PdfDocumentField
                                       ? {
                                           XML: PdfDocumentFieldXML
-                                          Element: PdfDocumentField
                                           PartialEnterprise: PdfDocumentFieldPartialEnterprise
                                           TypedEnterprise: PdfDocumentFieldTypedEnterprise
                                         }
                                       : T extends PeriodField
                                         ? {
                                             XML: PeriodFieldXML
-                                            Element: PeriodField
                                             PartialEnterprise: PeriodFieldPartialEnterprise
                                             TypedEnterprise: PeriodFieldTypedEnterprise
                                           }
                                         : T extends PictureDecoration
                                           ? {
                                               XML: PictureDecorationXML
-                                              Element: PictureDecoration
                                               PartialEnterprise: PictureDecorationPartialEnterprise
                                               TypedEnterprise: PictureDecorationTypedEnterprise
                                             }
                                           : T extends PictureField
                                             ? {
                                                 XML: PictureFieldXML
-                                                Element: PictureField
                                                 PartialEnterprise: PictureFieldPartialEnterprise
                                                 TypedEnterprise: PictureFieldTypedEnterprise
                                               }
                                             : T extends PlannerField
                                               ? {
                                                   XML: PlannerFieldXML
-                                                  Element: PlannerField
                                                   PartialEnterprise: PlannerFieldPartialEnterprise
                                                   TypedEnterprise: PlannerFieldTypedEnterprise
                                                 }
                                               : T extends Popup
                                                 ? {
                                                     XML: PopupXML
-                                                    Element: Popup
                                                     PartialEnterprise: PopupPartialEnterprise
                                                     TypedEnterprise: PopupTypedEnterprise
                                                   }
                                                 : T extends ProgressBarField
                                                   ? {
                                                       XML: ProgressBarFieldXML
-                                                      Element: ProgressBarField
                                                       PartialEnterprise: ProgressBarFieldPartialEnterprise
                                                       TypedEnterprise: ProgressBarFieldTypedEnterprise
                                                     }
                                                   : T extends RadioButtonField
                                                     ? {
                                                         XML: RadioButtonFieldXML
-                                                        Element: RadioButtonField
                                                         PartialEnterprise: RadioButtonFieldPartialEnterprise
                                                         TypedEnterprise: RadioButtonFieldTypedEnterprise
                                                       }
                                                     : T extends SpreadSheetDocumentField
                                                       ? {
                                                           XML: SpreadSheetDocumentFieldXML
-                                                          Element: SpreadSheetDocumentField
                                                           PartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise
                                                           TypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise
                                                         }
                                                       : T extends Table
                                                         ? {
                                                             XML: TableXML
-                                                            Element: Table
                                                             PartialEnterprise: TablePartialEnterprise
                                                           }
-                                                        : T extends TextDocumentField
+                                                        : T extends SearchControlAddition
                                                           ? {
-                                                              XML: TextDocumentFieldXML
-                                                              Element: TextDocumentField
-                                                              PartialEnterprise: TextDocumentFieldPartialEnterprise
-                                                              TypedEnterprise: TextDocumentFieldTypedEnterprise
+                                                              XML: SearchControlAdditionXML
+                                                              PartialEnterprise: SearchControlAdditionEnterprise
                                                             }
-                                                          : T extends TrackBarField
+                                                          : T extends SearchStringAddition
                                                             ? {
-                                                                XML: TrackBarFieldXML
-                                                                Element: TrackBarField
-                                                                PartialEnterprise: TrackBarFieldPartialEnterprise
-                                                                TypedEnterprise: TrackBarFieldTypedEnterprise
+                                                                XML: SearchStringAdditionXML
+                                                                PartialEnterprise: SearchStringAdditionEnterprise
                                                               }
-                                                            : T extends UsualGroup
+                                                            : T extends TextDocumentField
                                                               ? {
-                                                                  XML: UsualGroupXML
-                                                                  Element: UsualGroup
-                                                                  PartialEnterprise: UsualGroupPartialEnterprise
-                                                                  TypedEnterprise: UsualGroupTypedEnterprise
+                                                                  XML: TextDocumentFieldXML
+                                                                  PartialEnterprise: TextDocumentFieldPartialEnterprise
+                                                                  TypedEnterprise: TextDocumentFieldTypedEnterprise
                                                                 }
-                                                              : T extends ContextMenu
+                                                              : T extends TrackBarField
                                                                 ? {
-                                                                    XML: ContextMenuXML
+                                                                    XML: TrackBarFieldXML
+                                                                    PartialEnterprise: TrackBarFieldPartialEnterprise
+                                                                    TypedEnterprise: TrackBarFieldTypedEnterprise
                                                                   }
-                                                                : T extends ExtendedTooltip
+                                                                : T extends UsualGroup
                                                                   ? {
-                                                                      XML: ExtendedTooltipXML
-                                                                      Element: ExtendedTooltip
-                                                                      PartialEnterprise: ExtendedTooltipEnterprise
+                                                                      XML: UsualGroupXML
+                                                                      PartialEnterprise: UsualGroupPartialEnterprise
+                                                                      TypedEnterprise: UsualGroupTypedEnterprise
                                                                     }
-                                                                  : never
+                                                                  : T extends ContextMenu
+                                                                    ? {
+                                                                        XML: ContextMenuXML
+                                                                      }
+                                                                    : T extends ExtendedTooltip
+                                                                      ? {
+                                                                          XML: ExtendedTooltipXML
+                                                                          PartialEnterprise: ExtendedTooltipEnterprise
+                                                                        }
+                                                                      : never

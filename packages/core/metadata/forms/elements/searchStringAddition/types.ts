@@ -10,6 +10,8 @@ import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMe
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface SearchStringAddition {
+  elementType: "SearchStringAddition"
+  name: string
   backColor?: Color
   borderColor?: Color
   font?: Font
@@ -29,12 +31,15 @@ export interface SearchStringAddition {
   visible?: boolean
 }
 
+export interface SingleSearchStringAddition extends Omit<SearchStringAddition, "name"> {}
+
 export interface SearchStringAdditionXML extends BaseElementXML {
   AdditionSource: {
     Item: string
     Type: "SearchStringRepresentation"
   }
   ContextMenu: ContextMenuXML
+
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
   ExtendedTooltip: ExtendedTooltipXML

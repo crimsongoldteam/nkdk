@@ -1,29 +1,56 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromXML"
-import { fullSearchStringAddition } from "~/tests/fixtures/forms/searchStringAddition/data"
+import {
+  fullSearchStringAddition,
+  fullSingleSearchStringAddition,
+  minimalSearchStringAddition,
+} from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importSearchStringAdditionFromXML } from "./importFromXML"
+import { importSearchStringAdditionFromXML, importSingleSearchStringAdditionFromXML } from "./importFromXML"
 import { SearchStringAdditionXML } from "./types"
 
 describe("importSearchStringAdditionFromXML", () => {
-  it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-      "forms/searchStringAddition/full.xml"
-    )
+  describe("importSingleSearchStringAdditionFromXML", () => {
+    it("should import all fields from XML", () => {
+      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
+        "forms/searchStringAddition/full.xml"
+      )
 
-    const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+      const result = importSingleSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
 
-    expect(result).toEqual(fullSearchStringAddition)
+      expect(result).toEqual(fullSingleSearchStringAddition)
+    })
+
+    it("should import minimal", () => {
+      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
+        "forms/searchStringAddition/minimal.xml"
+      )
+
+      const result = importSingleSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+
+      expect(result).toBeUndefined()
+    })
   })
+  describe("importSearchStringAdditionFromXML", () => {
+    it("should import all fields from XML", () => {
+      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
+        "forms/searchStringAddition/full.xml"
+      )
 
-  it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-      "forms/searchStringAddition/minimal.xml"
-    )
+      const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
 
-    const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+      expect(result).toEqual(fullSearchStringAddition)
+    })
 
-    expect(result).toBeUndefined()
+    it("should import minimal", () => {
+      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
+        "forms/searchStringAddition/minimal.xml"
+      )
+
+      const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+
+      expect(result).toEqual(minimalSearchStringAddition)
+    })
   })
 })

@@ -15,8 +15,8 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportAutoCommandBarToEnterprise } from "../autoCommandBar/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { exportSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
-import { exportSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
+import { exportSingleSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
+import { exportSingleSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
 import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/exportToEnterprise"
 
 export const exportTableToEnterprise = (
@@ -197,7 +197,7 @@ export const exportTableToEnterprise = (
   const viewStatusAddition = exportViewStatusAdditionToEnterprise(context, data.viewStatusAddition)
   if (viewStatusAddition !== undefined) result.ОтображениеСостоянияПросмотра = viewStatusAddition
 
-  const searchStringAddition = exportSearchStringAdditionToEnterprise(context, data.searchStringAddition)
+  const searchStringAddition = exportSingleSearchStringAdditionToEnterprise(context, data.searchStringAddition)
   if (searchStringAddition !== undefined) result.ОтображениеСтрокиПоиска = searchStringAddition
 
   const behaviorOnHorizontalCompression = exportSystemEnumerationToEnterprise(
@@ -314,7 +314,7 @@ export const exportTableToEnterprise = (
   const readOnly = exportBooleanToEnterprise(context, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const searchControl = exportSearchControlAdditionToEnterprise(context, data.searchControl)
+  const searchControl = exportSingleSearchControlAdditionToEnterprise(context, data.searchControl)
   if (searchControl !== undefined) result.УправлениеПоиском = searchControl
 
   const borderColor = exportColorToEnterprise(context, data.borderColor)

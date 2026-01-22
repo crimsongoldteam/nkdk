@@ -156,6 +156,7 @@ export const fullTable: Table = {
   rowSelectionMode: "Row",
   rowsPicture: true,
   searchControl: {
+    elementType: "SearchControlAddition",
     childItems: [],
     displayImportance: "High",
     enabled: true,
@@ -178,6 +179,7 @@ export const fullTable: Table = {
   searchOnInput: "Auto",
   searchStringLocation: "Auto",
   searchStringAddition: {
+    elementType: "SearchStringAddition",
     displayImportance: "High",
     enabled: true,
     horizontalAlignInGroup: "Left",

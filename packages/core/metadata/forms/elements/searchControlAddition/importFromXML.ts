@@ -4,15 +4,47 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
-import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
+import {
+  SearchControlAddition,
+  SearchControlAdditionXML,
+  SingleSearchControlAddition,
+} from "~/metadata/forms/elements/searchControlAddition/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
 
-export const importSearchControlAdditionFromXML = (
+export function importSearchControlAdditionFromXML<To extends SearchControlAddition | undefined>(
+  context: ConfigurationContext,
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
+
+  const props = importSearchControlAdditionPropsFromXML(context, xml)
+  if (props === undefined) return undefined as To
+
+  return {
+    name: xml._name,
+    ...props,
+  } as To
+}
+
+export const importSingleSearchControlAdditionFromXML = (
   context: ConfigurationContext,
   xml: SearchControlAdditionXML
-): SearchControlAddition | undefined => {
-  const result: SearchControlAddition = {
+): SingleSearchControlAddition | undefined => {
+  const result = importSearchControlAdditionPropsFromXML(context, xml)
+  if (result === undefined) return undefined
+
+  return result
+}
+
+export const importSearchControlAdditionPropsFromXML = (
+  context: ConfigurationContext,
+  xml: SearchControlAdditionXML
+): SingleSearchControlAddition | undefined => {
+  const result: SingleSearchControlAddition = {
+    elementType: "SearchControlAddition",
     childItems: [],
   }
 
@@ -67,3 +99,5 @@ export const importSearchControlAdditionFromXML = (
 
   return result
 }
+
+registerMetadata("ImportFromXML", "SearchControlAddition", importSearchControlAdditionFromXML as ImportFromXMLFn)

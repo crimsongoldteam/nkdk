@@ -21,6 +21,7 @@ export const importSearchControlAdditionFromEnterprise = <From extends SearchCon
   if (!data) return undefined as From extends undefined ? undefined : SearchControlAddition
 
   const result: SearchControlAddition = {
+    elementType: "SearchControlAddition",
     childItems: [],
   }
 

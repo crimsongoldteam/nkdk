@@ -15,6 +15,8 @@ import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMe
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface SearchControlAddition {
+  elementType: "SearchControlAddition"
+  name: string
   autoMaxWidth?: boolean
   backColor?: Color
   borderColor?: Color
@@ -36,6 +38,8 @@ export interface SearchControlAddition {
   visible?: boolean
   childItems: CommandBarChildItems
 }
+
+export interface SingleSearchControlAddition extends Omit<SearchControlAddition, "name"> {}
 
 export interface SearchControlAdditionXML extends BaseElementXML {
   AdditionSource: {

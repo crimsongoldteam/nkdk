@@ -3,16 +3,41 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
+import {
+  SearchStringAddition,
+  SearchStringAdditionXML,
+  SingleSearchStringAddition,
+} from "~/metadata/forms/elements/searchStringAddition/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
 
-export const importSearchStringAdditionFromXML = (
+export const importSearchStringAdditionFromXML = <To extends SearchStringAddition | undefined>(
+  context: ConfigurationContext,
+  xml: ToXMLType<To> | undefined
+): To => {
+  if (xml === undefined) return undefined as To
+
+  const props = importSingleSearchStringAdditionFromXML(context, xml)
+
+  const result: SearchStringAddition = {
+    elementType: "SearchStringAddition",
+    name: xml._name,
+    ...props,
+  }
+
+  return result as To
+}
+
+export const importSingleSearchStringAdditionFromXML = (
   context: ConfigurationContext,
   xml: SearchStringAdditionXML
-): SearchStringAddition | undefined => {
-  const result: SearchStringAddition = {}
+): SingleSearchStringAddition | undefined => {
+  const result: SingleSearchStringAddition = {
+    elementType: "SearchStringAddition",
+  }
 
   const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
@@ -61,3 +86,5 @@ export const importSearchStringAdditionFromXML = (
 
   return result
 }
+
+registerMetadata("ImportFromXML", "SearchStringAddition", importSearchStringAdditionFromXML as ImportFromXMLFn)

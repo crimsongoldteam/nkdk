@@ -7,19 +7,52 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
+  SingleSearchStringAddition,
 } from "~/metadata/forms/elements/searchStringAddition/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { isHasContent } from "./helper"
 
-export const importSearchStringAdditionFromEnterprise = <From extends SearchStringAdditionEnterprise | undefined>(
+export const importSearchStringAdditionPartialFromEnterprise = <To extends SearchStringAddition>(
   context: ConfigurationContext,
-  data: From
-): From extends undefined ? undefined : SearchStringAddition => {
-  if (!data) return undefined as From extends undefined ? undefined : SearchStringAddition
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To => {
+  const props = importSearchStringAdditionPropsFromEnterprise(context, data)
 
-  const result: SearchStringAddition = {}
+  const result: To = {
+    ...source,
+    ...props,
+    elementType: source.elementType,
+    name: source.name,
+  }
+
+  return result
+}
+
+export const importSingleSearchStringAdditionFromEnterprise = (
+  context: ConfigurationContext,
+  data: SearchStringAdditionEnterprise | undefined
+): SingleSearchStringAddition | undefined => {
+  const props = importSearchStringAdditionPropsFromEnterprise(context, data)
+  if (props === undefined) return undefined
+
+  return props
+}
+
+export const importSearchStringAdditionPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: SearchStringAdditionEnterprise | undefined
+): SingleSearchStringAddition | undefined => {
+  if (!data) return undefined
+
+  const result: SingleSearchStringAddition = {
+    elementType: "SearchStringAddition",
+  }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
@@ -98,5 +131,13 @@ export const importSearchStringAdditionFromEnterprise = <From extends SearchStri
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as From extends undefined ? undefined : SearchStringAddition
+  if (!isHasContent(result)) return undefined
+
+  return result
 }
+
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "SearchStringAddition",
+  importSearchStringAdditionPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

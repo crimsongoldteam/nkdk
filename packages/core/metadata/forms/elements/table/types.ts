@@ -13,14 +13,14 @@ import { TableChildItems, TableChildItemsXML } from "../../collections/tableChil
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import {
-  SearchControlAddition,
   SearchControlAdditionEnterprise,
   SearchControlAdditionXML,
+  SingleSearchControlAddition,
 } from "../searchControlAddition/types"
 import {
-  SearchStringAddition,
   SearchStringAdditionEnterprise,
   SearchStringAdditionXML,
+  SingleSearchStringAddition,
 } from "../searchStringAddition/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise, ViewStatusAdditionXML } from "../viewStatusAddition/types"
 
@@ -80,11 +80,11 @@ export interface Table {
   rowPictureDataPath?: string
   rowSelectionMode?: SE.TableRowSelectionMode
   rowsPicture?: boolean
-  searchControl?: SearchControlAddition
+  searchControl?: SingleSearchControlAddition
   searchControlLocation?: SE.SearchControlLocation
   searchOnInput?: SE.SearchInTableOnInput
   searchStringLocation?: SE.SearchStringLocation
-  searchStringAddition?: SearchStringAddition
+  searchStringAddition?: SingleSearchStringAddition
   selectionMode?: SE.TableSelectionMode
   shortcut?: string
   skipOnInput?: boolean

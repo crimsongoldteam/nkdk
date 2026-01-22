@@ -1,13 +1,20 @@
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
+  SingleSearchStringAddition,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 
 export const parentElement = {
   name: "КакойТоЭлемент",
 }
 
-export const fullSearchStringAddition: SearchStringAddition = {
+export const sourceSearchStringAddition: SearchStringAddition = {
+  elementType: "SearchStringAddition",
+  name: "КакойТоЭлементСтрокаПоиска",
+}
+
+export const fullSingleSearchStringAddition: SingleSearchStringAddition = {
+  elementType: "SearchStringAddition",
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
   displayImportance: "High",
@@ -54,4 +61,16 @@ export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise 
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
-export const minimalSearchStringAddition: SearchStringAddition = {}
+export const fullSearchStringAddition: SearchStringAddition = {
+  ...fullSingleSearchStringAddition,
+  name: "КакойТоЭлементСтрокаПоиска",
+}
+
+export const minimalSearchStringAddition: SearchStringAddition = {
+  elementType: "SearchStringAddition",
+  name: "КакойТоЭлементСтрокаПоиска",
+}
+
+export const minimalSingleSearchStringAddition: SingleSearchStringAddition = {
+  elementType: "SearchStringAddition",
+}

@@ -7,18 +7,48 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
+  SingleSearchStringAddition,
 } from "~/metadata/forms/elements/searchStringAddition/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import result from "antd/es/result"
 
-export const exportSearchStringAdditionToEnterprise = (
+type SearchStringAdditionCommonFields = Omit<SearchStringAddition, "elementType" | "name">
+
+export const exportSingleSearchStringAdditionToEnterprise = (
   context: ConfigurationContext,
-  data: SearchStringAddition | undefined
+  data: SingleSearchStringAddition | undefined
 ): SearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
 
+  const result = exportSearchStringAdditionCommonFieldsToEnterprise(context, data)
+
+  if (Object.keys(result).length === 0) return undefined
+
+  return result
+}
+
+export const exportSearchStringAdditionPartialToEnterprise = <From extends SearchStringAddition | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ToPartialEnterpriseType<From> => {
+  if (!data) return undefined as ToPartialEnterpriseType<From>
+
+  const props = exportSearchStringAdditionCommonFieldsToEnterprise(context, data)
+
+  if (Object.keys(result).length === 0) return undefined as ToPartialEnterpriseType<From>
+
+  return result
+}
+
+const exportSearchStringAdditionCommonFieldsToEnterprise = (
+  context: ConfigurationContext,
+  data: SearchStringAdditionCommonFields
+): SearchStringAdditionEnterprise => {
   const result: SearchStringAdditionEnterprise = {}
 
   const displayImportance = exportSystemEnumerationToEnterprise(
@@ -89,7 +119,11 @@ export const exportSearchStringAdditionToEnterprise = (
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  if (Object.keys(result).length === 0) return undefined
-
   return result
 }
+
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "SearchStringAddition",
+  exportSearchStringAdditionPartialToEnterprise as ExportPartialToEnterpriseFn
+)

@@ -1,19 +1,47 @@
 import { describe, expect, it } from "vitest"
-import { fullSearchStringAddition, fullSearchStringAdditionEnterprise } from "~/tests/fixtures/forms/searchStringAddition/data"
+import {
+  fullSearchStringAddition,
+  fullSearchStringAdditionEnterprise,
+  fullSingleSearchStringAddition,
+  minimalSearchStringAddition,
+  sourceSearchStringAddition,
+} from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importSearchStringAdditionFromEnterprise } from "./importFromEnterprise"
+import {
+  importSearchStringAdditionPartialFromEnterprise,
+  importSingleSearchStringAdditionFromEnterprise,
+} from "./importFromEnterprise"
 
-describe("importSearchStringAdditionFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
-    const result = importSearchStringAdditionFromEnterprise(mockСontext, fullSearchStringAdditionEnterprise)
+describe("importFromEnterprise", () => {
+  describe("importSingleSearchStringAdditionFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importSingleSearchStringAdditionFromEnterprise(mockСontext, fullSearchStringAdditionEnterprise)
 
-    expect(result).toEqual(fullSearchStringAddition)
+      expect(result).toEqual(fullSingleSearchStringAddition)
+    })
+
+    it("should import minimal", () => {
+      const result = importSingleSearchStringAdditionFromEnterprise(mockСontext, {})
+
+      expect(result).toBeUndefined()
+    })
   })
 
-  it("should import minimal", () => {
-    const result = importSearchStringAdditionFromEnterprise(mockСontext, {})
+  describe("importSearchStringAdditionPartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importSearchStringAdditionPartialFromEnterprise(
+        mockСontext,
+        sourceSearchStringAddition,
+        fullSearchStringAdditionEnterprise
+      )
 
-    expect(result).toEqual({})
+      expect(result).toEqual(fullSearchStringAddition)
+    })
+
+    it("should import minimal", () => {
+      const result = importSearchStringAdditionPartialFromEnterprise(mockСontext, sourceSearchStringAddition, {})
+
+      expect(result).toEqual(minimalSearchStringAddition)
+    })
   })
 })
-
