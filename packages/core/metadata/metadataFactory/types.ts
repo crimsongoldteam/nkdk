@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { ChildItem } from "../forms/collections/childItems/types"
+import { AllChildItem } from "../forms/collections/childItems/types"
 import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
@@ -26,12 +26,12 @@ export type ToTypedEnterpriseType<T> = T extends undefined
 
 // #region functions
 
-export type ImportFromXMLFn = <To extends ChildItem | undefined>(
+export type ImportFromXMLFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
   data: ToXMLType<To>
 ) => To
 
-export type ImportTypedFromEnterpriseFn = <To extends ChildItem | undefined>(
+export type ImportTypedFromEnterpriseFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string

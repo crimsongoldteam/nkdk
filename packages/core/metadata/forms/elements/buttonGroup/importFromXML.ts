@@ -16,13 +16,13 @@ export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
-
   const result: ButtonGroup = {
     elementType: "ButtonGroup",
     ...baseFields,
-    childItems: childItems,
+    childItems: [],
   }
+
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
 

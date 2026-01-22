@@ -263,7 +263,6 @@ export interface TablePartialEnterprise {
   ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
   Подвал?: StringboolEnterprise
   Подсказка?: I8nTextEnterprise
-  // ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
   ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
   ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise

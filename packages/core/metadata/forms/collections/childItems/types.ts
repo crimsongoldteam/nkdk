@@ -1,26 +1,11 @@
-import {
-  FormElementType,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-  ToXMLType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType, ToXMLType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { CalendarField } from "../../elements/calendarField/types"
 import { ChartField } from "../../elements/chartField/types"
-import {
-  CheckBoxField,
-  CheckBoxFieldPartialEnterprise,
-  CheckBoxFieldTypedEnterprise,
-  CheckBoxFieldXML,
-} from "../../elements/checkBoxField/types"
-import {
-  ColumnGroup,
-  ColumnGroupPartialEnterprise,
-  ColumnGroupTypedEnterprise,
-  ColumnGroupXML,
-} from "../../elements/columnGroup/types"
+import { CheckBoxField, CheckBoxFieldTypedEnterprise, CheckBoxFieldXML } from "../../elements/checkBoxField/types"
+import { ColumnGroup, ColumnGroupTypedEnterprise, ColumnGroupXML } from "../../elements/columnGroup/types"
 import { CommandBar } from "../../elements/commandBar/types"
 import { DendrogramField } from "../../elements/dendrogramField/types"
 import { FormattedDocumentField } from "../../elements/formattedDocumentField/types"
@@ -28,19 +13,9 @@ import { GanttChartField } from "../../elements/ganttChartField/types"
 import { GeographicalSchemaField } from "../../elements/geographicalSchemaField/types"
 import { GraphicalSchemaField } from "../../elements/graphicalSchemaField/types"
 import { HTMLDocumentField } from "../../elements/htmlDocumentField/types"
-import {
-  InputField,
-  InputFieldPartialEnterprise,
-  InputFieldTypedEnterprise,
-  InputFieldXML,
-} from "../../elements/inputField/types"
+import { InputField, InputFieldTypedEnterprise, InputFieldXML } from "../../elements/inputField/types"
 import { LabelDecoration } from "../../elements/labelDecoration/types"
-import {
-  LabelField,
-  LabelFieldPartialEnterprise,
-  LabelFieldTypedEnterprise,
-  LabelFieldXML,
-} from "../../elements/labelField/types"
+import { LabelField, LabelFieldTypedEnterprise, LabelFieldXML } from "../../elements/labelField/types"
 import { Page } from "../../elements/page/types"
 import { Pages } from "../../elements/pages/types"
 import { PdfDocumentField } from "../../elements/pdfDocumentField/types"
@@ -194,87 +169,10 @@ export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseTyp
 
 // #endregion
 
-// export type ChildItemXML =
-//   | ButtonXML
-//   | ButtonGroupXML
-//   | CalendarFieldXML
-//   | ChartFieldXML
-//   | CheckBoxFieldXML
-//   | ColumnGroupXML
-//   | CommandBarXML
-//   | DendrogramFieldXML
-//   | FormattedDocumentFieldXML
-//   | GanttChartFieldXML
-//   | GeographicalSchemaFieldXML
-//   | GraphicalSchemaFieldXML
-//   | HTMLDocumentFieldXML
-//   | InputFieldXML
-//   | LabelDecorationXML
-//   | LabelFieldXML
-//   | PageXML
-//   | PagesXML
-//   | PdfDocumentFieldXML
-//   | PeriodFieldXML
-//   | PictureDecorationXML
-//   | PictureFieldXML
-//   | PlannerFieldXML
-//   | PopupXML
-//   | ProgressBarFieldXML
-//   | RadioButtonFieldXML
-//   | SpreadSheetDocumentFieldXML
-//   | TableXML
-//   | TextDocumentFieldXML
-//   | TrackBarFieldXML
-//   | UsualGroupXML
-
-// export type ChildItemRecordXML = Record<FormElementType, ChildItemXML>
-
-// export type ChildItemsXML = ChildItemRecordXML | ChildItemRecordXML[]
-
-// export type ChildItemPartialEnterprise =
-//   | ButtonGroupPartialEnterprise
-//   | ButtonPartialEnterprise
-//   | CalendarFieldPartialEnterprise
-//   | ChartFieldPartialEnterprise
-//   | CheckBoxFieldPartialEnterprise
-//   | ColumnGroupPartialEnterprise
-//   | CommandBarPartialEnterprise
-//   | DendrogramFieldPartialEnterprise
-//   | FormattedDocumentFieldPartialEnterprise
-//   | GanttChartFieldPartialEnterprise
-//   | GeographicalSchemaFieldPartialEnterprise
-//   | GraphicalSchemaFieldPartialEnterprise
-//   | HTMLDocumentFieldPartialEnterprise
-//   | InputFieldPartialEnterprise
-//   | LabelDecorationPartialEnterprise
-//   | LabelFieldPartialEnterprise
-//   | PagePartialEnterprise
-//   | PagesPartialEnterprise
-//   | PdfDocumentFieldPartialEnterprise
-//   | PeriodFieldPartialEnterprise
-//   | PictureDecorationPartialEnterprise
-//   | PictureFieldPartialEnterprise
-//   | PlannerFieldPartialEnterprise
-//   | PopupPartialEnterprise
-//   | ProgressBarFieldPartialEnterprise
-//   | RadioButtonFieldPartialEnterprise
-//   | SpreadSheetDocumentFieldPartialEnterprise
-//   | TablePartialEnterprise
-//   | UsualGroupPartialEnterprise
-//   | LabelDecorationPartialEnterprise
-//   | PeriodFieldPartialEnterprise
-//   | PictureFieldPartialEnterprise
-//   | PlannerFieldPartialEnterprise
-//   | ProgressBarFieldPartialEnterprise
-//   | RadioButtonFieldPartialEnterprise
-//   | SpreadSheetDocumentFieldPartialEnterprise
-//   | TextDocumentFieldPartialEnterprise
-//   | TrackBarFieldPartialEnterprise
-
-// export type ChildItemsPartialEnterprise = Record<string, ChildItemPartialEnterprise>
+// #region TableChildItem
 
 export interface ChildItemsStructureResult {
-  childItems: GroupChildItem[]
+  childItems: GroupChildItems
   autoCommandBar?: AutoCommandBar
 }
 export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelField | PictureField
@@ -283,14 +181,8 @@ export type TableChildItems = TableChildItem[]
 
 export type TableChildItemXML = CheckBoxFieldXML | ColumnGroupXML | InputFieldXML | LabelFieldXML | PictureFieldXML
 
-export type TableChildItemRecordXML = Record<FormElementType, TableChildItemXML>
+export type TableChildItemRecordXML = Record<TableChildItem["elementType"], TableChildItemXML>
 export type TableChildItemsXML = TableChildItemRecordXML | TableChildItemRecordXML[]
-
-export type TableChildItemPartialEnterprise =
-  | CheckBoxFieldPartialEnterprise
-  | ColumnGroupPartialEnterprise
-  | InputFieldPartialEnterprise
-  | LabelFieldPartialEnterprise
 
 export type TableChildItemTypedEnterprise =
   | CheckBoxFieldTypedEnterprise
@@ -298,82 +190,6 @@ export type TableChildItemTypedEnterprise =
   | InputFieldTypedEnterprise
   | LabelFieldTypedEnterprise
 
-export type TableChildItemsPartialEnterprise = Record<string, TableChildItemPartialEnterprise>
 export type TableChildItemsTypedEnterprise = Record<string, TableChildItemTypedEnterprise>
 
-// export type ChildItemTypedEnterprise = (
-//   | ButtonGroupTypedEnterprise
-//   | ButtonTypedEnterprise
-//   | CalendarFieldTypedEnterprise
-//   | ChartFieldTypedEnterprise
-//   | CheckBoxFieldTypedEnterprise
-//   | ColumnGroupTypedEnterprise
-//   | CommandBarTypedEnterprise
-//   | DendrogramFieldTypedEnterprise
-//   | FormattedDocumentFieldTypedEnterprise
-//   | GanttChartFieldTypedEnterprise
-//   | GeographicalSchemaFieldTypedEnterprise
-//   | GraphicalSchemaFieldTypedEnterprise
-//   | HTMLDocumentFieldTypedEnterprise
-//   | InputFieldTypedEnterprise
-//   | LabelDecorationTypedEnterprise
-//   | LabelFieldTypedEnterprise
-//   | PageTypedEnterprise
-//   | PagesTypedEnterprise
-//   | PdfDocumentFieldTypedEnterprise
-//   | PeriodFieldTypedEnterprise
-//   | PictureDecorationTypedEnterprise
-//   | PictureFieldTypedEnterprise
-//   | PlannerFieldTypedEnterprise
-//   | PopupTypedEnterprise
-//   | ProgressBarFieldTypedEnterprise
-//   | RadioButtonFieldTypedEnterprise
-//   | SpreadSheetDocumentFieldTypedEnterprise
-//   | UsualGroupTypedEnterprise
-//   | LabelDecorationTypedEnterprise
-//   | PeriodFieldTypedEnterprise
-//   | PictureFieldTypedEnterprise
-//   | PlannerFieldTypedEnterprise
-//   | ProgressBarFieldTypedEnterprise
-//   | RadioButtonFieldTypedEnterprise
-//   | SpreadSheetDocumentFieldTypedEnterprise
-//   | TextDocumentFieldTypedEnterprise
-//   | TrackBarFieldTypedEnterprise
-// ) & { Тип: FormFieldTypeEnterprise }
-
-// export type ChildItemsTypedEnterprise = Record<string, ChildItemTypedEnterprise>
-// export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
-// export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
-
-// export type CommandBarGroupChildItemXML = ButtonXML | ButtonGroupXML | PopupXML
-// export type CommandBarGroupChildItemRecordXML = Record<"Button" | "ButtonGroup" | "Popup", CommandBarGroupChildItemXML>
-// export type CommandBarGroupChildItemsXML = CommandBarGroupChildItemRecordXML | CommandBarGroupChildItemsXML[]
-
-// export type CommandBarGroupChildItemTypedEnterprise =
-//   | ButtonTypedEnterprise
-//   | ButtonGroupTypedEnterprise
-//   | PopupTypedEnterprise
-// export type CommandBarGroupChildItemsTypedEnterprise = Record<string, CommandBarGroupChildItemTypedEnterprise>
-
-// export type CommandBarChildItem = CommandBarGroupChildItem | SearchStringAddition | SearchControlAddition
-// export type CommandBarChildItems = CommandBarChildItem[]
-
-// export type CommandBarChildItemXML = CommandBarGroupChildItemXML | SearchStringAdditionXML | SearchControlAdditionXML
-// export type CommandBarChildItemRecordXML = Record<
-//   "Button" | "ButtonGroup" | "Popup" | "SearchStringAddition" | "SearchControlAddition", CommandBarChildItemXML
-// >
-// export type CommandBarChildItemsXML = CommandBarChildItemRecordXML | CommandBarChildItemRecordXML[]
-
-// export type CommandBarChildItemTypedEnterprise = ButtonTypedEnterprise |
-//   ButtonGroupTypedEnterprise |
-//   PopupTypedEnterprise
-
-// export type CommandBarChildItemsTypedEnterprise = Record<string, CommandBarChildItemTypedEnterprise>
-
-// export type CommandBarChildItemPartialEnterprise = ButtonPartialEnterprise |
-//   ButtonGroupPartialEnterprise |
-//   PopupPartialEnterprise |
-//   SearchControlAdditionEnterprise |
-//   SearchStringAdditionEnterprise
-
-// export type CommandBarChildItemsPartialEnterprise = Record<string, CommandBarChildItemPartialEnterprise>
+// #endregion

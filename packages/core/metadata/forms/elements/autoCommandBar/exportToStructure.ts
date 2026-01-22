@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { wrapButtonContent } from "../../format/helpers"
 import { IFormatElementResult } from "../../format/types"
 import { AutoCommandBar } from "./types"
-import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 
 export const exportAutoCommandBarToStructure = (
   context: ConfigurationContext,
@@ -28,8 +28,16 @@ export const exportAutoCommandBarContentToStructure = (
     buttons.push("...")
   }
 
-  const childItems = exportChildItemsToStructure(context, element.childItems)
-  buttons.push(...childItems.strings)
+  const buttonStrings = element.childItems.flatMap((item) => {
+    const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
+
+    if (!exportFunction)
+      throw new Error(`ExportToStructureContent function not found for element type: ${item.elementType}`)
+    const result = exportFunction(context, item)
+    return result.strings
+  })
+
+  buttons.push(...buttonStrings)
 
   const content = buttons.length > 0 ? buttons.join(" | ") : ""
   const finalContent = buttons.length === 1 && buttons[0] === "..." ? "...|" : content || "|"

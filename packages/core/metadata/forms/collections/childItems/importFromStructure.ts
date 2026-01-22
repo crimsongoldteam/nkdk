@@ -3,7 +3,7 @@ import { parseAutoCommandBar, parseElement } from "./parser/elementsParser/parse
 import { tokenize } from "./parser/tokenizer/tokenizer"
 import { parseTree } from "./parser/treeParser/treeParser"
 import { ParseElementType, TreeNode } from "./parser/treeParser/types"
-import { ChildItemsStructureResult } from "./types"
+import { ChildItemsStructureResult, GroupChildItems } from "./types"
 
 export const importChildItemsFromStructure = (
   context: ConfigurationContext,
@@ -17,7 +17,7 @@ export const importChildItemsFromStructure = (
 
   const autoCommandBar = autoCommandBarNode ? parseAutoCommandBar(context, autoCommandBarNode) : undefined
 
-  const childItems = childItemsNodes.map((node) => parseElement(context, node))
+  const childItems = childItemsNodes.map((node) => parseElement(context, node)) as GroupChildItems
 
   return {
     childItems,
