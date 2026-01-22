@@ -25,8 +25,7 @@ export function importPageFromXML<To extends Page | undefined>(
     childItems: [],
   }
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 

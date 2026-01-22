@@ -10,12 +10,12 @@ import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { exportTableChildItemsToXML } from "../../collections/tableChildItems/exportToXML"
 import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSingleSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
-import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -31,7 +31,7 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const borderColor = exportColorToXML(context, data.borderColor)
 
-  const childItems = exportTableChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, data.childItems)
 
   const commandSet = exportCommandSetToXML(context, data.commandSet)
 

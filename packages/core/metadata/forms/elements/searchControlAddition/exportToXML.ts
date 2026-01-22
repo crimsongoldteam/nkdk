@@ -3,7 +3,6 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportCommandBarChildItemsToXML } from "~/metadata/forms/collections/commandBarChildItems/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import {
   SearchControlAddition,
@@ -16,6 +15,7 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getSearchControlAdditionName } from "./helper"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportSearchControlAdditionToXML<From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
@@ -72,7 +72,7 @@ const exportSearchControlAdditionPropsToXML = (
     ExtendedTooltip: extendedTooltip,
   }
 
-  const childItems = exportCommandBarChildItemsToXML(context, element.childItems)
+  const childItems = exportChildItemsToXML(context, element.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   if (element.displayImportance !== undefined) result._DisplayImportance = element.displayImportance

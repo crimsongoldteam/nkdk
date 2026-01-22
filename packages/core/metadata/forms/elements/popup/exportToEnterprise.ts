@@ -20,7 +20,7 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportCommandBarChildItemsToEnterprise } from "../../collections/commandBarChildItems/exportToEnterprise"
+import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
 export const exportPopupTypedToEnterprise = <From extends Popup | undefined>(
   context: ConfigurationContext,
@@ -153,7 +153,7 @@ const exportPopupPropsToEnterprise = (context: ConfigurationContext, data: Popup
   const backColor = exportColorToEnterprise(context, data.backColor)
   if (backColor !== undefined) result.ЦветФона = backColor
 
-  const childItems = exportCommandBarChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   return result

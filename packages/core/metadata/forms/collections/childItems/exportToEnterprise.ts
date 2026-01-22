@@ -1,25 +1,25 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AllChildItem } from "./types"
 
-// export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
-//   context: ConfigurationContext,
-//   data: From[] | undefined
-// ): Record<string, ToPartialEnterpriseType<From>> | undefined => {
-//   if (!data || data.length === 0) return undefined
+export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
+  context: ConfigurationContext,
+  data: From[] | undefined
+): Record<string, ToTypedEnterpriseType<From>> | undefined => {
+  if (!data || data.length === 0) return undefined
 
-//   const result: Record<string, ToPartialEnterpriseType<From>> = {}
-//   for (const item of data) {
-//     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
-//     if (fn == undefined)
-//       throw new Error(`ExportTypedToEnterprise function not found for element type: ${item.elementType}`)
-//     const resultItem = fn(context, item)
-//     result[item.name] = resultItem as ToPartialEnterpriseType<From>
-//   }
+  const result: Record<string, ToTypedEnterpriseType<From>> = {}
+  for (const item of data) {
+    const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
+    if (fn == undefined)
+      throw new Error(`ExportTypedToEnterprise function not found for element type: ${item.elementType}`)
+    const resultItem = fn(context, item)
+    result[item.name] = resultItem as ToTypedEnterpriseType<From>
+  }
 
-//   return result
-// }
+  return result
+}
 
 export const exportPartialChildItemsToEnterprise = <From extends AllChildItem>(
   context: ConfigurationContext,

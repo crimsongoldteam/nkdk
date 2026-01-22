@@ -11,11 +11,11 @@ import { Table } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { importTableChildItemsFromXML } from "../../collections/tableChildItems/importFromXML"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
 import { importSingleSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
-import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
 import { importSingleSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
+import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
@@ -58,8 +58,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.ChangeRowSet !== undefined) result.changeRowSet = xml.ChangeRowSet
 
-  const childItems = importTableChildItemsFromXML(context, xml.ChildItems)
-  result.childItems = childItems
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.ChoiceMode !== undefined) result.choiceMode = xml.ChoiceMode
 

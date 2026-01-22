@@ -22,8 +22,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportCommandBarChildItemsToEnterprise } from "../../collections/commandBarChildItems/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
 export const exportButtonGroupTypedToEnterprise = <From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -140,7 +140,7 @@ const exportButtonGroupPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const childItems = exportCommandBarChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   return result

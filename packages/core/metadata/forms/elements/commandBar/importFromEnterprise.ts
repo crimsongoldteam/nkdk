@@ -12,7 +12,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
+import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
 export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   context: ConfigurationContext,
@@ -123,7 +123,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
+  const childItems = importChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
   if (childItems !== undefined) result.childItems = childItems
 
   return result

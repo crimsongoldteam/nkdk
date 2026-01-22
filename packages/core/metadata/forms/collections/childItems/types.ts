@@ -177,6 +177,21 @@ export type CommandBarGroupChildItemsPartialEnterprise = Record<
   ToPartialEnterpriseType<CommandBarGroupChildItem>
 >
 
+export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<CommandBarGroupChildItem>>
+
+// #endregion
+
+// #region PagesChildItem
+
+export type PagesChildItem = Page
+export type PagesChildItems = PagesChildItem[]
+
+export type PagesChildItemXML = Record<PagesChildItem["elementType"], ToXMLType<PagesChildItem>>
+export type PagesChildItemsXML = PagesChildItemXML | PagesChildItemXML[]
+
+export type PagesChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<PagesChildItem>>
+export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<PagesChildItem>>
+
 // #endregion
 
 // export type ChildItemXML =

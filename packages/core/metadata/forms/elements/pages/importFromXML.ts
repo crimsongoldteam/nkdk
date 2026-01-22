@@ -9,7 +9,6 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { Page } from "../page/types"
 
 export function importPagesFromXML<To extends Pages | undefined>(
   context: ConfigurationContext,
@@ -66,8 +65,7 @@ export function importPagesFromXML<To extends Pages | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined) result.childItems = childItems as Page[]
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.CurrentPagesState !== undefined) result.currentPagesState = xml.CurrentPagesState
 

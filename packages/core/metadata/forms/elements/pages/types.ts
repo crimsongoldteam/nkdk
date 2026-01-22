@@ -6,10 +6,9 @@ import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PagesChildItems, PagesChildItemsXML } from "../../collections/childItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { Page } from "../page/types"
-import { ChildItemsXML } from "../../collections/childItems/types"
 
 export interface Pages extends NamedElement {
   elementType: "Pages"
@@ -38,7 +37,7 @@ export interface Pages extends NamedElement {
   events?: {
     onCurrentPageChange?: string
   }
-  childItems: Page[]
+  childItems: PagesChildItems
 }
 
 export interface PagesXML extends BaseElementXML {
@@ -66,7 +65,7 @@ export interface PagesXML extends BaseElementXML {
   CurrentRowUse?: SE.CurrentRowUse
   PagesRepresentation?: SE.FormPagesRepresentation
   Events?: EventsXML
-  ChildItems?: ChildItemsXML
+  ChildItems?: PagesChildItemsXML
 }
 
 export interface PagesPartialEnterprise {

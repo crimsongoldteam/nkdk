@@ -4,7 +4,6 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportCommandBarChildItemsToEnterprise } from "~/metadata/forms/collections/commandBarChildItems/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import {
   SearchControlAddition,
@@ -17,6 +16,7 @@ import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
 type SearchControlAdditionCommonFields = Omit<SearchControlAddition, "elementType" | "name">
 
@@ -92,7 +92,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const childItems = exportCommandBarChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)

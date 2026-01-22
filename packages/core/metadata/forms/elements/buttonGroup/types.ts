@@ -4,6 +4,7 @@ import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/typ
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+
 import {
   CommandBarGroupChildItems,
   CommandBarGroupChildItemsTypedEnterprise,

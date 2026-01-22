@@ -6,7 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ButtonGroup } from "~/metadata/forms/elements/buttonGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { importCommandBarGroupChildItemsFromXML } from "../../collections/commandBarChildItems/importFromXML"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 
 export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
@@ -16,7 +16,7 @@ export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
 
-  const childItems = importCommandBarGroupChildItemsFromXML(context, xml.ChildItems)
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   const result: ButtonGroup = {
     elementType: "ButtonGroup",

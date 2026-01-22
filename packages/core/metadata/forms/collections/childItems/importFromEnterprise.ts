@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } from "./types"
 
 /**
@@ -48,23 +49,23 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
  * @param allProperties - Typed enterprise object with child items keyed by name
  * @returns Array of imported child items
  */
-// export const importChildItemsTypedFromEnterprise = <To extends ChildItem>(
-//   context: ConfigurationContext,
-//   allProperties?: AllChildItemsPartialEnterprise
-// ): To[] => {
-//   if (!allProperties) return []
+export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
+  context: ConfigurationContext,
+  allProperties?: Record<string, ToTypedEnterpriseType<To>>
+): To[] => {
+  if (!allProperties) return []
 
-//   const result: To[] = []
-//   for (const [name, item] of Object.entries(allProperties)) {
-//     const elementType = importFormElementTypeFromEnterprise(context, item.Тип)
-//     const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
-//     if (fn == undefined)
-//       throw new Error(`ImportTypedFromEnterprise function not found for element type: ${elementType}`)
-//     const resultItem = fn(context, item, name) as NonNullable<To>
-//     result.push(resultItem)
-//   }
-//   return result
-// }
+  const result: To[] = []
+  for (const [name, item] of Object.entries(allProperties)) {
+    const elementType = importFormElementTypeFromEnterprise(context, item.Тип)
+    const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
+    if (fn == undefined)
+      throw new Error(`ImportTypedFromEnterprise function not found for element type: ${elementType}`)
+    const resultItem = fn(context, item, name) as NonNullable<To>
+    result.push(resultItem)
+  }
+  return result
+}
 
 const importChildItemProperties = <To extends AllChildItem>(
   context: ConfigurationContext,

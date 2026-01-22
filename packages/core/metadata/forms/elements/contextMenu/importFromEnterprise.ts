@@ -3,7 +3,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importCommandBarChildItemsTypedFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
+import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
 export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise | undefined>(
   context: ConfigurationContext,
@@ -25,8 +25,7 @@ export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
-  const childItems = importCommandBarChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
+  result.childItems = importChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
 
   return result
 }

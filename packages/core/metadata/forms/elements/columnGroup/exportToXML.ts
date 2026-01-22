@@ -4,13 +4,13 @@ import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/met
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportTableChildItemsToXML } from "~/metadata/forms/collections/tableChildItems/exportToXML"
 import { ColumnGroup, ColumnGroupXML } from "~/metadata/forms/elements/columnGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
@@ -87,7 +87,7 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  const childItems = exportTableChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   return sortObject(result) as ToXMLType<From>

@@ -25,8 +25,7 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
     childItems: [],
   }
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   // const associatedTable = importTableFromXML(context, xml.AssociatedTable)
   // if (associatedTable !== undefined) result.associatedTable = associatedTable

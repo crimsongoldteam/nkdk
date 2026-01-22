@@ -7,9 +7,9 @@ import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGro
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { exportCommandBarChildItemsToXML } from "../../collections/commandBarChildItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -19,7 +19,7 @@ export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const childItems = exportCommandBarChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, data.childItems)
   const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const result: ButtonGroupXML = {

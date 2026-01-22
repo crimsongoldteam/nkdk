@@ -6,7 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { importCommandBarChildItemsFromXML } from "../../collections/commandBarChildItems/importFromXML"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
@@ -63,8 +63,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  const childItems = importCommandBarChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
 

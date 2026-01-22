@@ -4,12 +4,12 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importCommandBarChildItemsFromXML } from "~/metadata/forms/collections/commandBarChildItems/importFromXML"
 import { Popup } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 export function importPopupFromXML<To extends Popup | undefined>(
   context: ConfigurationContext,
   xml: ToXMLType<To> | undefined
@@ -27,7 +27,7 @@ export function importPopupFromXML<To extends Popup | undefined>(
     childItems: [],
   }
 
-  result.childItems = importCommandBarChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 

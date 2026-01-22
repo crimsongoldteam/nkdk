@@ -8,7 +8,6 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importTableChildItemsPartialFromEnterprise } from "~/metadata/forms/collections/tableChildItems/importFromEnterprise"
 import {
   ColumnGroup,
   ColumnGroupPartialEnterprise,
@@ -24,6 +23,7 @@ import {
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -60,9 +60,6 @@ export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
-
-  const childItems = importTableChildItemsPartialFromEnterprise(context, source.childItems)
-  result.childItems = childItems
 
   return result
 }
@@ -191,6 +188,8 @@ const importColumnGroupPropsFromEnterprise = (
 
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
+
+  result.childItems = importChildItemsTypedFromEnterprise(context, data?.ПодчиненныеЭлементы)
 
   return result
 }

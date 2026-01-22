@@ -6,7 +6,11 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import { CommandBarGroupChildItem, CommandBarGroupChildItemXML } from "../../collections/childItems/types"
+import {
+  CommandBarGroupChildItem,
+  CommandBarGroupChildItemsTypedEnterprise,
+  CommandBarGroupChildItemXML,
+} from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 

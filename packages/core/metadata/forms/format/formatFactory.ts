@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { ChildItems } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
+import { AllChildItems } from "../collections/childItems/types"
 
 type FormatRegistry = {
   format: FormatElementFunction
@@ -33,7 +33,7 @@ export const formatElement = <T extends NamedElement>(
   return result
 }
 
-export const formatElements = (context: ConfigurationContext, items: ChildItems): IFormatElementResult => {
+export const formatElements = (context: ConfigurationContext, items: AllChildItems): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

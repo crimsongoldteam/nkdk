@@ -3,7 +3,6 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importCommandBarChildItemsFromXML } from "~/metadata/forms/collections/commandBarChildItems/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import {
   SearchControlAddition,
@@ -12,6 +11,7 @@ import {
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
 
@@ -82,8 +82,7 @@ export const importSearchControlAdditionPropsFromXML = (
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  const childItems = importCommandBarChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined) result.childItems = childItems
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 

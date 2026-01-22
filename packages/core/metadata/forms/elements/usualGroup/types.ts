@@ -5,7 +5,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { GroupChildItem, GroupChildItemXML, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
+import { GroupChildItem, GroupChildItemsXML, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -104,7 +104,7 @@ export interface UsualGroupXML extends BaseElementXML {
   United?: boolean
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalSpacing?: SE.FormItemSpacing
-  ChildItems?: GroupChildItemXML | GroupChildItemXML[]
+  ChildItems?: GroupChildItemsXML
 }
 
 export interface UsualGroupPartialEnterprise {
