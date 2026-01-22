@@ -8,6 +8,7 @@ import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
   SingleSearchStringAddition,
+  SingleSearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
@@ -40,7 +41,7 @@ export const importSearchStringAdditionPartialFromEnterprise = <To extends Searc
 
 export const importSingleSearchStringAdditionFromEnterprise = (
   context: ConfigurationContext,
-  data: SearchStringAdditionEnterprise | undefined
+  data: SingleSearchStringAdditionEnterprise | undefined
 ): SingleSearchStringAddition | undefined => {
   const props = importSearchStringAdditionPropsFromEnterprise(context, data)
   if (props === undefined) return undefined

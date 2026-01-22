@@ -8,6 +8,7 @@ import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
   SingleSearchStringAddition,
+  SingleSearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
@@ -21,7 +22,7 @@ type SearchStringAdditionCommonFields = Omit<SearchStringAddition, "elementType"
 export const exportSingleSearchStringAdditionToEnterprise = (
   context: ConfigurationContext,
   data: SingleSearchStringAddition | undefined
-): SearchStringAdditionEnterprise | undefined => {
+): SingleSearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   const result = exportSearchStringAdditionCommonFieldsToEnterprise(context, data)
