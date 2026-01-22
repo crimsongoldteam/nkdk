@@ -192,4 +192,5 @@ export type TableChildItemTypedEnterprise =
 
 export type TableChildItemsTypedEnterprise = Record<string, TableChildItemTypedEnterprise>
 
+export type TableChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<TableChildItem>>
 // #endregion

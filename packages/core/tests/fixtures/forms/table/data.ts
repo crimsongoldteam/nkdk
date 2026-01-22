@@ -1,4 +1,4 @@
-import { AllChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
+import { TableChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -28,12 +28,7 @@ export const sourceTable: Table = {
       elementType: "ColumnGroup",
       name: "ТаблицаГруппа1",
       title: { items: { ru: "Группа 1" } },
-      childItems: [
-        {
-          elementType: FormElementType.InputField,
-          name: "ТаблицаПолеВвода",
-        },
-      ],
+      childItems: [ ],
     },
     {
       elementType: "CheckBoxField",
@@ -400,11 +395,14 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   },
 }
 
-export const fullTableChildItems: AllChildItemsPartialEnterprise = {
-  ТаблицаПолеВвода: {
-    ПутьКДанным: "Таблица.ПолеВвода",
-    РежимВыбора: "Истина",
-    РежимРедактирования: "ВходПриВводе",
+export const fullTableChildItems: TableChildItemsPartialEnterprise = {
+  ТаблицаГруппа1: {
+    ПодчиненныеЭлементы: {
+      ТаблицаПолеВвода: {
+        Тип: "ПолеВвода",
+        ПутьКДанным: "Таблица.ПолеВвода",
+        РежимРедактирования: "ВходПриВводе",} ,
+    },
   },
   ТаблицаПолеФлажка: {
     ПутьКДанным: "Таблица.ПолеФлажка",

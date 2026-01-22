@@ -15,12 +15,12 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { importSingleSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
 import { importSingleSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
 import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
-import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
   data:

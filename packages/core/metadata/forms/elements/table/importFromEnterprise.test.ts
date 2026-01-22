@@ -12,6 +12,7 @@ import {
 import { mockСontext } from "~/tests/mockContext"
 import { importTablePartialFromEnterprise } from "./importFromEnterprise"
 
+
 describe("importTableFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const context: ConfigurationContext = {

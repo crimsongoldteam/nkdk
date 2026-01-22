@@ -23,6 +23,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
   FormElementType,
   ImportPartialFromEnterpriseFn,
+  ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -568,4 +569,10 @@ registerMetadata(
   "ImportPartialFromEnterprise",
   "InputField",
   importInputFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
+
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "InputField",
+  importInputFieldTypedFromEnterprise as ImportTypedFromEnterpriseFn
 )
