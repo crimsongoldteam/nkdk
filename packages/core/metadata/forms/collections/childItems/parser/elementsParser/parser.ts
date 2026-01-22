@@ -295,10 +295,12 @@ export class Parser extends CstParser {
 
     this.CONSUME1(t.LAngle)
 
-    this.AT_LEAST_ONE_SEP({
+    this.SUBRULE1(this.commandBarItem)
+
+    this.MANY_SEP({
       SEP: t.VBar,
       DEF: () => {
-        this.SUBRULE(this.commandBarItem)
+        this.SUBRULE2(this.commandBarItem)
       },
     })
 

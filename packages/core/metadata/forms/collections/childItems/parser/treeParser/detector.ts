@@ -102,10 +102,15 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   }
 
   // Определение типа на основе собранной информации
-  if (firstTokenType === LAngle && hasVBar) {
-    return hasCurlyBracesAfterRAngle ? ParseElementType.CommandBar : ParseElementType.PotentialAutoCommandBar
+  if (firstTokenType === LAngle) {
+    if (hasCurlyBracesAfterRAngle) {
+      return ParseElementType.CommandBar
+    }
+    if (hasVBar) {
+      return ParseElementType.PotentialAutoCommandBar
+    }
+    return ParseElementType.Button
   }
-  if (firstTokenType === LAngle) return ParseElementType.Button
   if (firstTokenType === Slash) return ParseElementType.Page
   if (firstTokenType === Percent) {
     return percentTokenCount > 1 ? ParseElementType.OneLineHorizontalGroup : ParseElementType.HorizontalGroup
