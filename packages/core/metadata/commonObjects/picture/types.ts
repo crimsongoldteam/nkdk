@@ -8,7 +8,7 @@ export interface PictureXML {
 
 export interface Picture {
   ref: string | SE.PictureLib
-  type: "StandardPicture" | "CommonPicture"
+  type: "StandardPicture" | "CommonPicture" | "AbsolutePicture"
   loadTransparent: boolean
 }
 

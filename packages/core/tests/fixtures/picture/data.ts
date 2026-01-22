@@ -46,3 +46,18 @@ export const standardPictureWithoutTransparentEnterprise: PictureEnterprise = {
   ПрозрачныйФон: "Ложь",
 }
 //#endregion
+
+//#region Absolute Picture
+
+export const absolutePicture: Picture = {
+  ref: "Picture.png",
+  type: "AbsolutePicture",
+  loadTransparent: false,
+}
+
+export const absolutePictureEnterprise: PictureEnterprise = {
+  Ссылка: "Picture.png",
+  ПрозрачныйФон: "Ложь",
+}
+
+//#endregion
