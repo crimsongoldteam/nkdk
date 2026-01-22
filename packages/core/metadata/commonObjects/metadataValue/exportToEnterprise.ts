@@ -79,10 +79,16 @@ export const exportFormChoiceListValueToEnterprise = (
   context: ConfigurationContext,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueEnterprise => {
-  const valueResult = exportMetadataValueToEnterprise(context, data.value) as string
+  const valueResult = exportMetadataValueToEnterprise(context, data.value)
 
   const presentationItems = data.presentation?.items
   const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
+
+  // Если значение undefined, всегда возвращаем строку в формате (представление)
+  if (valueResult === undefined) {
+    const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
+    return `(${presentation})`
+  }
 
   // Если есть несколько языков, возвращаем объект
   if (hasMultipleLanguages && presentationItems) {
@@ -94,7 +100,6 @@ export const exportFormChoiceListValueToEnterprise = (
 
   // Иначе возвращаем строку в формате "значение"(представление)
   const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
-
   return `${valueResult}(${presentation})`
 }
 

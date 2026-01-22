@@ -183,7 +183,6 @@ export const importFormChoiceListValueFromXML = (
 ): MetadataFormChoiceListValue | undefined => {
   const value = importMetadataValueFromXML(context, data.Value)
   const presentation = importI8nTextFromXML(context, data.Presentation)
-  if (!value) return undefined
   return { type: "formChoiceListDesTimeValue", value, presentation }
 }
 

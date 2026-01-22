@@ -73,11 +73,17 @@ export const exportFormChoiceListValueToXML = (
   context: ConfigurationContext,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueXML => {
-  const value = exportMetadataValueToXML(context, data.value)!
+  const value = exportMetadataValueToXML(context, data.value)
+  
+  // Если значение undefined, создаем объект с xsi:nil="true"
+  const valueXML: MetadataValueXML = value ?? ({
+    "_xsi:nil": true,
+  } as any)
+  
   return {
     "_xsi:type": "FormChoiceListDesTimeValue",
     Presentation: exportI8nTextToXML(context, data.presentation),
-    Value: value,
+    Value: valueXML,
   } as MetadataFormChoiceListValueXML
 }
 

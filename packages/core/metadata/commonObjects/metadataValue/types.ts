@@ -79,7 +79,7 @@ export interface MetadataFixedArrayValue extends MetadataAbstractValue {
 export interface MetadataFormChoiceListValue extends MetadataAbstractValue {
   type: "formChoiceListDesTimeValue"
   presentation?: I8nText
-  value: MetadataValue
+  value?: MetadataValue
 }
 
 export type MetadataValue = MetadataSimpleValue | MetadataFixedArrayValue | MetadataFormChoiceListValue

@@ -74,6 +74,21 @@ const importStringValueFromEnterprise = (context: ConfigurationContext, data: st
     }
   }
 
+  // Проверяем на FormChoiceListDesTimeValue с пустым значением: формат (представление)
+  const emptyFormChoiceListMatch = data.match(/^\(([^)]+)\)$/)
+  if (emptyFormChoiceListMatch) {
+    const [, presentation] = emptyFormChoiceListMatch
+    return {
+      type: "formChoiceListDesTimeValue",
+      presentation: {
+        items: {
+          ru: presentation,
+        },
+      },
+      value: undefined,
+    }
+  }
+
   // Проверяем на строку в кавычках
   if (data.startsWith('"') && data.endsWith('"')) {
     const value = data.slice(1, -1)
@@ -127,7 +142,8 @@ export const importFormChoiceListValueFromEnterprise = (
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
     const parsed = formulaFormatParser(data)
-    const value = importMetadataValueFromEnterprise(context, parsed.formula)!
+    // Если formula пустая, значит это формат (presentation) без значения
+    const value = parsed.formula ? importMetadataValueFromEnterprise(context, parsed.formula) : undefined
     const presentation = importI8nTextFromEnterprise(context, parsed.parameters[0])
 
     return {

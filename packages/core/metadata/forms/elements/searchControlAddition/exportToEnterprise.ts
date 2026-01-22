@@ -15,8 +15,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 type SearchControlAdditionCommonFields = Omit<SearchControlAddition, "elementType" | "name">
 
@@ -41,9 +41,15 @@ export const exportSearchControlAdditionPartialToEnterprise = <From extends Sear
 
   const props = exportSearchControlAdditionCommonFieldsToEnterprise(context, data)
 
-  if (Object.keys(props).length === 0) return undefined as ToPartialEnterpriseType<From>
+  const result = {
+    ...props,
+  }
 
-  return props as ToPartialEnterpriseType<From>
+  if (data.additionSource !== undefined) result.Источник = data.additionSource
+
+  if (Object.keys(result).length === 0) return undefined as ToPartialEnterpriseType<From>
+
+  return result as ToPartialEnterpriseType<From>
 }
 
 const exportSearchControlAdditionCommonFieldsToEnterprise = (
