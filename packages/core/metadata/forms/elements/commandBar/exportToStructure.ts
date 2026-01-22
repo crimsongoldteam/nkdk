@@ -19,6 +19,20 @@ export const exportCommandBarToStructure = (
   }
 }
 
+const processCommandBarChildItems = (
+  context: ConfigurationContext,
+  childItems: CommandBarChildItem[]
+): string[] => {
+  return childItems.flatMap((item) => {
+    const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
+
+    if (!exportFunction)
+      throw new Error(`ExportToStructureContent function not found for element type: ${item.elementType}`)
+    const result = exportFunction(context, item)
+    return result.strings
+  })
+}
+
 export const exportCommandBarContentToStructure = (
   context: ConfigurationContext,
   element: { childItems: CommandBarChildItem[] }
@@ -27,20 +41,11 @@ export const exportCommandBarContentToStructure = (
     return wrapButtonContent("")
   }
 
-  const buttonStrings = element.childItems.flatMap((item) => {
-    const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
+  const buttonStrings = processCommandBarChildItems(context, element.childItems)
 
-    if (!exportFunction)
-      throw new Error(`ExportToStructureContent function not found for element type: ${item.elementType}`)
-    const result = exportFunction(context, item)
-    // ButtonGroup в CommandBar требует добавления | после себя
-    if (item.elementType === "ButtonGroup") {
-      return result.strings.map((s) => s + " |")
-    }
-    return result.strings
-  })
+  const result = buttonStrings.length > 1 ? buttonStrings.join(" | ") : buttonStrings[0] + " |"
 
-  return wrapButtonContent(buttonStrings.join(" | "))
+  return wrapButtonContent(result)
 }
 
 registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure as ExportToStructureFn)

@@ -175,7 +175,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<^Выпадающее меню {Меню}> {КоманднаяПанель}"],
+      strings: ["<^Выпадающее меню {Меню} |> {КоманднаяПанель}"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -193,7 +193,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<?УправлениеПоиском {Дополнение}|> {КоманднаяПанель}"],
+      strings: ["<?УправлениеПоиском {Дополнение} |> {КоманднаяПанель}"],
       haveSimpleHorizontalGroup: false,
     },
   },
