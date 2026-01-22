@@ -187,13 +187,13 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       childItems: [
         {
           elementType: FormElementType.SearchControlAddition,
-          name: "УправлениеПоиском",
+          name: "Дополнение",
           childItems: [],
         },
       ],
     },
     structured: {
-      strings: ["<?УправлениеПоиском {УправлениеПоиском}> {КоманднаяПанель}"],
+      strings: ["<?УправлениеПоиском {Дополнение}|> {КоманднаяПанель}"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -205,12 +205,12 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       childItems: [
         {
           elementType: FormElementType.SearchStringAddition,
-          name: "ОтображениеСтрокиПоиска",
+          name: "Дополнение",
         },
       ],
     },
     structured: {
-      strings: ["<?ОтображениеСтрокиПоиска {ОтображениеСтрокиПоиска}> {КоманднаяПанель}"],
+      strings: ["<?ОтображениеСтрокиПоиска {Дополнение} |> {КоманднаяПанель}"],
       haveSimpleHorizontalGroup: false,
     },
   },

@@ -21,8 +21,7 @@ export function importSearchControlAdditionFromXML<To extends SearchControlAddit
 ): To {
   if (xml === undefined) return undefined as To
 
-  const props = importSearchControlAdditionPropsFromXML(context, xml)
-  if (props === undefined) return undefined as To
+  const props = importSearchControlAdditionPropsFromXML(context, xml) ?? { elementType: "SearchControlAddition", childItems: [] }
 
   const result: SearchControlAddition = {
     name: xml._name,
