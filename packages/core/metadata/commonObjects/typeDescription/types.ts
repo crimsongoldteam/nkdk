@@ -244,6 +244,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "СтандартныйПериод",
     prefix: "v8",
   },
+  StandardBeginningDate: {
+    enterprise: "СтандартнаяДатаНачала",
+    prefix: "v8",
+  },
   ValueTable: {
     enterprise: "ТаблицаЗначений",
     prefix: "v8",

@@ -1,63 +1,69 @@
 import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
 
-//#region Standard Picture BusinessProcess
-export const standardPicture: Picture = {
-  ref: "BusinessProcess",
-  type: "StandardPicture",
-  loadTransparent: true,
+export interface PictureTestCase {
+  name: string
+  picture: Picture
+  pictureEnterprise: PictureEnterprise
+  enterpriseExpected: PictureEnterprise
+  fixture: string | undefined
+  enterpriseImport?: boolean
 }
 
-export const standardPictureEnterprise = `БизнесПроцесс`
-//#endregion
-
-//#region Common Picture
-export const commonPicture: Picture = {
-  ref: "ОбщаяКартинка1",
-  type: "CommonPicture",
-  loadTransparent: true,
-}
-
-export const commonPictureEnterprise = `ОбщаяКартинка1`
-//#endregion
-
-//#region Common Picture Without Transparent
-export const coommomPictureWithoutTransparent: Picture = {
-  ref: "Картинка1",
-  type: "CommonPicture",
-  loadTransparent: false,
-}
-
-export const coommomPictureWithoutTransparentEnterprise: PictureEnterprise = {
-  Ссылка: "Картинка1",
-  ПрозрачныйФон: "Ложь",
-}
-
-//#endregion
-
-//#region Standard Picture Without Transparent
-export const standardPictureWithoutTransparent: Picture = {
-  ref: "Report",
-  type: "StandardPicture",
-  loadTransparent: false,
-}
-
-export const standardPictureWithoutTransparentEnterprise: PictureEnterprise = {
-  Ссылка: "Отчет",
-  ПрозрачныйФон: "Ложь",
-}
-//#endregion
-
-//#region Absolute Picture
-
-export const absolutePicture: Picture = {
-  ref: "Picture.png",
-  type: "AbsolutePicture",
-  loadTransparent: false,
-}
-
-export const absolutePictureEnterprise: PictureEnterprise = {
-  Ссылка: "Picture.png",
-  ПрозрачныйФон: "Ложь",
-}
-
-//#endregion
+export const pictureTestCases: readonly PictureTestCase[] = [
+  {
+    name: "standard picture",
+    picture: {
+      ref: "BusinessProcess",
+      type: "StandardPicture",
+      loadTransparent: true,
+    } as Picture,
+    pictureEnterprise: "БизнесПроцесс" as PictureEnterprise,
+    enterpriseExpected: "БизнесПроцесс" as PictureEnterprise,
+    fixture: "picture/standart.xml",
+  },
+  {
+    name: "common picture",
+    picture: {
+      ref: "ОбщаяКартинка1",
+      type: "CommonPicture",
+      loadTransparent: true,
+    } as Picture,
+    pictureEnterprise: "ОбщаяКартинка1" as PictureEnterprise,
+    enterpriseExpected: "ОбщаяКартинка1" as PictureEnterprise,
+    fixture: "picture/common.xml",
+  },
+  {
+    name: "common picture without transparent",
+    picture: {
+      ref: "Картинка1",
+      type: "CommonPicture",
+      loadTransparent: false,
+    } as Picture,
+    pictureEnterprise: { Ссылка: "Картинка1", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
+    enterpriseExpected: { Ссылка: "Картинка1", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
+    fixture: "picture/commonWithoutTransparent.xml",
+  },
+  {
+    name: "standard picture without transparent",
+    picture: {
+      ref: "Report",
+      type: "StandardPicture",
+      loadTransparent: false,
+    } as Picture,
+    pictureEnterprise: { Ссылка: "Отчет", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
+    enterpriseExpected: { Ссылка: "Отчет", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
+    fixture: "picture/standartWithoutTransparent.xml",
+  },
+  {
+    name: "absolute picture",
+    picture: {
+      ref: "Picture.png",
+      type: "AbsolutePicture",
+      loadTransparent: false,
+    } as Picture,
+    pictureEnterprise: { Ссылка: "Picture.png", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
+    enterpriseExpected: { Ссылка: "Picture.png", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
+    fixture: "picture/absolute.xml",
+    enterpriseImport: false,
+  },
+] as const

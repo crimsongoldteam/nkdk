@@ -8,13 +8,20 @@ export const importPictureFromXML = (
 ): Picture | undefined => {
   if (!xml) return undefined
 
-  const [type, ref] = xml["xr:Ref"].split(".")
+  const loadTransparent = importBooleanFromXML(context, xml["xr:LoadTransparent"])!
 
-  const result: Picture = {
-    ref: ref,
-    type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",
-    loadTransparent: importBooleanFromXML(context, xml["xr:LoadTransparent"])!,
+  if (xml["xr:Abs"]) {
+    return {
+      ref: xml["xr:Abs"],
+      type: "AbsolutePicture",
+      loadTransparent,
+    }
   }
 
-  return result
+  const [type, ref] = xml["xr:Ref"]!.split(".")
+  return {
+    ref,
+    type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",
+    loadTransparent,
+  }
 }
