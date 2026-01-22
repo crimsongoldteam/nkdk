@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
+  emptyValueChoiceList,
+  emptyValueChoiceListEnterprise,
   oneItemChoiceList,
   oneItemChoiceListEnterprise,
   twoItemsChoiceList,
@@ -24,5 +26,11 @@ describe("importChoiceListFromEnterprise", () => {
     const result = importChoiceListFromEnterprise(mockСontext, twoItemsChoiceListEnterprise)
 
     expect(result).toEqual(twoItemsChoiceList)
+  })
+
+  it("should import empty value choice list", () => {
+    const result = importChoiceListFromEnterprise(mockСontext, emptyValueChoiceListEnterprise)
+
+    expect(result).toEqual(emptyValueChoiceList)
   })
 })

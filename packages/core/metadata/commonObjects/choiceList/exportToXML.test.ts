@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { oneItemChoiceList, twoItemsChoiceList } from "~/tests/fixtures/choiceList/data"
+import { emptyValueChoiceList, oneItemChoiceList, twoItemsChoiceList } from "~/tests/fixtures/choiceList/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -24,5 +24,13 @@ describe("exportChoiceListToXML", () => {
     const xmlData = readXMLFileAsString("choiceList/twoItems.xml")
     const xmlString = xmlExport({ ChoiceList: result }, false)
     expect(xmlString).toEqual(xmlData)
+  })
+
+  it("should export empty value choice list", () => {
+    const result = exportChoiceListToXML(mockСontext, emptyValueChoiceList)
+    const expectedResult = readXMLFileAsString("choiceList/empty.xml")
+
+    const xmlData = xmlExport({ ChoiceList: result }, false)
+    expect(xmlData).toEqual(expectedResult)
   })
 })

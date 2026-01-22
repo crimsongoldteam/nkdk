@@ -33,3 +33,14 @@ export const twoItemsChoiceList: ChoiceList = [
 ]
 
 export const twoItemsChoiceListEnterprise: ChoiceListEnterprise = ['"Значение1"(Значение 1)', "2(Значение 2)"]
+
+export const emptyValueChoiceList: ChoiceList = [
+  {
+    type: "formChoiceListDesTimeValue",
+    presentation: { items: { ru: "Пустое значение" } },
+    value: undefined,
+  },
+]
+
+export const emptyValueChoiceListEnterprise: ChoiceListEnterprise = 
+  ['(Пустое значение)']

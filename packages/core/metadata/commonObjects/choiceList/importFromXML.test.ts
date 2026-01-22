@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { oneItemChoiceList, twoItemsChoiceList } from "~/tests/fixtures/choiceList/data"
+import { emptyValueChoiceList, oneItemChoiceList, twoItemsChoiceList } from "~/tests/fixtures/choiceList/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChoiceListFromXML } from "./importFromXML"
@@ -25,5 +25,13 @@ describe("importChoiceListFromXML", () => {
     }
     const result = importChoiceListFromXML(mockСontext, xmlData.ChoiceList)
     expect(result).toEqual(twoItemsChoiceList)
+  })
+
+  it("should import empty value choice list", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceList: ChoiceListXML }>("choiceList/empty.xml") as {
+      ChoiceList: ChoiceListXML
+    }
+    const result = importChoiceListFromXML(mockСontext, xmlData.ChoiceList)
+    expect(result).toEqual(emptyValueChoiceList)
   })
 })

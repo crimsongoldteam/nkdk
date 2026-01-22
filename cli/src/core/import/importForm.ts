@@ -35,7 +35,15 @@ export const importForms = (inputPath: string, outputPath: string) => {
       importForm(formsPath, name, outputPath)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      console.log(`❌ Ошибка при обработке формы ${name}: ${errorMessage}`)
+      const errorStack = error instanceof Error ? error.stack : undefined
+      console.error(`❌ Ошибка при обработке формы ${name}:`)
+      console.error(`   Сообщение: ${errorMessage}`)
+      if (errorStack) {
+        console.error(`   Стек вызовов:\n${errorStack}`)
+      }
+      if (error instanceof Error && error.name) {
+        console.error(`   Тип ошибки: ${error.name}`)
+      }
     }
   }
 }
@@ -97,7 +105,17 @@ const importForm = (path: string, name: string, outputPath: string) => {
       writeFileSync(join(outputFormDir, "Форма.nkdk"), formStructuredObject.strings.join("\n"), "utf-8")
     }
   } catch (error) {
-    // const errorMessage = error instanceof Error ? error.message : String(error)
-    console.log(`❌ Ошибка при импорте формы ${name}: ${String(error)}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error(`❌ Ошибка при импорте формы ${name}:`)
+    console.error(`   Путь к форме: ${formPath}`)
+    console.error(`   Путь к метаданным: ${formMetadataPath}`)
+    console.error(`   Сообщение: ${errorMessage}`)
+    if (error instanceof Error && error.name) {
+      console.error(`   Тип ошибки: ${error.name}`)
+    }
+    if (errorStack) {
+      console.error(`   Стек вызовов:\n${errorStack}`)
+    }
   }
 }

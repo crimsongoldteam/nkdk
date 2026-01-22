@@ -1,0 +1,15 @@
+<ChoiceList>
+	<xr:Item>
+		<xr:Presentation/>
+		<xr:CheckState>0</xr:CheckState>
+		<xr:Value xsi:type="FormChoiceListDesTimeValue">
+			<Presentation>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Пустое значение</v8:content>
+				</v8:item>
+			</Presentation>
+			<Value xsi:nil="true"/>
+		</xr:Value>
+	</xr:Item>
+</ChoiceList>
