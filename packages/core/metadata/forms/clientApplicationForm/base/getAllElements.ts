@@ -1,5 +1,4 @@
-import { AllChildItems, ChildItem } from "../../collections/childItems/types"
-import { CommandBarChildItem } from "../../collections/commandBarChildItems/types"
+import { AllChildItem, AllChildItems } from "../../collections/childItems/types"
 import { ClientApplicationForm } from "./types"
 
 export const getAllElements = (form: ClientApplicationForm): AllChildItems => {
@@ -27,7 +26,7 @@ export const getAllElements = (form: ClientApplicationForm): AllChildItems => {
   return elements
 }
 
-const getChildItems = (element: ChildItem | CommandBarChildItem): AllChildItems => {
+const getChildItems = (element: AllChildItem): AllChildItems => {
   const result: AllChildItems = []
 
   if ("childItems" in element && Array.isArray(element.childItems)) {

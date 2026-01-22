@@ -4,7 +4,7 @@ import {
   CommandBarGroupChildItems,
   CommandBarGroupChildItemsTypedEnterprise,
   CommandBarGroupChildItemsXML,
-} from "../../collections/commandBarChildItems/types"
+} from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 
 export interface ContextMenu {

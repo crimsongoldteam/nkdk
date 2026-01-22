@@ -5,7 +5,7 @@ import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/chi
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChildItemsFromXML } from "./importFromXML"
-import { ChildItemsXML } from "./types"
+import { AllChildItemsXML } from "./types"
 
 describe("importChildItemsFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -17,7 +17,7 @@ describe("importChildItemsFromXML", () => {
   it.each(
     childItemsFixturesTable.filter((fixture) => fixture.xmlPath) as Array<ChildItemsFixture & { xmlPath: string }>
   )("$name", ({ element, xmlPath }) => {
-    const xmlData = readAndParseXMLFile<{ ChildItems: ChildItemsXML }>(xmlPath)
+    const xmlData = readAndParseXMLFile<{ ChildItems: AllChildItemsXML }>(xmlPath)
 
     const result = importChildItemsFromXML(mockСontext, xmlData.ChildItems)
 

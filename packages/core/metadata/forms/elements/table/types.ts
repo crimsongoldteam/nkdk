@@ -9,7 +9,7 @@ import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/f
 
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { TableChildItems, TableChildItemsXML } from "../../collections/tableChildItems/types"
+import { TableChildItems, TableChildItemsXML } from "../../collections/childItems/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import {

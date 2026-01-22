@@ -5,11 +5,8 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  CommandBarGroupChildItems,
-  CommandBarGroupChildItemsTypedEnterprise,
-  CommandBarGroupChildItemsXML,
-} from "../../collections/commandBarChildItems/types"
+
+import { CommandBarGroupChildItem, CommandBarGroupChildItemXML } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -41,7 +38,7 @@ export interface Popup {
   representation?: SE.ButtonRepresentation
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
-  childItems: CommandBarGroupChildItems
+  childItems: CommandBarGroupChildItem[]
 }
 
 export interface PopupXML extends BaseElementXML {
@@ -70,7 +67,7 @@ export interface PopupXML extends BaseElementXML {
   Shape?: SE.ButtonShape
   ShapeRepresentation?: SE.ButtonShapeRepresentation
   ExtendedTooltip: ExtendedTooltipXML
-  ChildItems?: CommandBarGroupChildItemsXML
+  ChildItems?: CommandBarGroupChildItemXML | CommandBarGroupChildItemXML[]
 }
 
 export interface PopupPartialEnterprise {

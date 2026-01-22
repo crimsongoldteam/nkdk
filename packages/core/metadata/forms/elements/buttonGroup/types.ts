@@ -8,7 +8,7 @@ import {
   CommandBarGroupChildItems,
   CommandBarGroupChildItemsTypedEnterprise,
   CommandBarGroupChildItemsXML,
-} from "../../collections/commandBarChildItems/types"
+} from "../../collections/childItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 

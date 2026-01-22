@@ -1,14 +1,14 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarChildItem, CommandBarChildItemsXML } from "../../collections/commandBarChildItems/types"
+import { CommandBarChildItems, CommandBarChildItemsXML } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 
 export interface AutoCommandBar {
   autofill: boolean
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation
-  childItems: CommandBarChildItem[]
+  childItems: CommandBarChildItems
 }
 
 export interface AutoCommandBarXML extends BaseElementXML {

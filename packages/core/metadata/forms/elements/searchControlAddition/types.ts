@@ -9,7 +9,7 @@ import {
   CommandBarChildItems,
   CommandBarChildItemsTypedEnterprise,
   CommandBarChildItemsXML,
-} from "../../collections/commandBarChildItems/types"
+} from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"

@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { exportCommandBarChildItemsToXML } from "../../collections/commandBarChildItems/exportToXML"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { NamedElement } from "../baseElement/types"
 import { getAutoCommandBarName } from "./helper"
 
@@ -40,7 +40,7 @@ const exportAutoCommandBarPropsToXML = (
   if (autoCommandBar.displayImportance !== undefined) result._DisplayImportance = autoCommandBar.displayImportance
   if (autoCommandBar.horizontalAlign !== undefined) result.HorizontalAlign = autoCommandBar.horizontalAlign
 
-  result.ChildItems = exportCommandBarChildItemsToXML(context, autoCommandBar.childItems)
+  result.ChildItems = exportChildItemsToXML(context, autoCommandBar.childItems)
 
   return sortObject(result)
 }

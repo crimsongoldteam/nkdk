@@ -4,7 +4,7 @@ import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/t
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
-import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { GroupChilItemPartialEnterprise, GroupChildItem, GroupChildItemXML } from "../../collections/childItems/types"
 import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
 import { EventsXML } from "../../events/types"
@@ -46,7 +46,7 @@ export interface ClientApplicationForm {
   autoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
   autoTitle?: boolean
   autoURL?: boolean
-  childItems: ChildItems
+  childItems: GroupChildItem[]
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
   childItemsVerticalAlign?: SE.ItemVerticalAlign
   closeOnChoice?: boolean
@@ -147,7 +147,7 @@ export interface ClientApplicationFormXML {
   UseForFoldersAndItems?: SE.FoldersAndItemsUse
   AutoCommandBar: AutoCommandBarXML
   Events?: EventsXML
-  ChildItems?: ChildItemsXML
+  ChildItems?: GroupChildItemXML[] | GroupChildItemXML
   Attributes?: {
     Attribute: FormAttributesXML
   }
@@ -222,7 +222,7 @@ export interface ClientApplicationFormEnterprise {
     ПриСохраненииДанныхВНастройкахНаСервере?: string
   }
   Команды?: CommandsEnterprise
-  Элементы?: ChildItemsPartialEnterprise
+  Элементы?: GroupChilItemPartialEnterprise
 
   Синоним?: I8nTextEnterprise
   Комментарий?: string

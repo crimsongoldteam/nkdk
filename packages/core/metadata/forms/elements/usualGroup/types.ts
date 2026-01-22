@@ -5,7 +5,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { GroupChildItem, GroupChildItemXML, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -56,7 +56,7 @@ export interface UsualGroup {
   united?: boolean
   verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
-  childItems: ChildItems
+  childItems: GroupChildItem[]
 }
 
 export interface UsualGroupXML extends BaseElementXML {
@@ -104,7 +104,7 @@ export interface UsualGroupXML extends BaseElementXML {
   United?: boolean
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalSpacing?: SE.FormItemSpacing
-  ChildItems?: ChildItemsXML
+  ChildItems?: GroupChildItemXML | GroupChildItemXML[]
 }
 
 export interface UsualGroupPartialEnterprise {
@@ -157,5 +157,5 @@ export interface UsualGroupPartialEnterprise {
 
 export interface UsualGroupTypedEnterprise extends UsualGroupPartialEnterprise {
   Тип: "Группа"
-  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
+  ПодчиненныеЭлементы?: GroupChilItemPartialEnterprise
 }

@@ -2,9 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
-import { ChildItems } from "./types"
+import { AllChildItem } from "./types"
 
-export const exportChildItemsToStructure = (context: ConfigurationContext, items: ChildItems): IFormatElementResult => {
+export const exportChildItemsToStructure = <From extends AllChildItem>(
+  context: ConfigurationContext,
+  items: From[]
+): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

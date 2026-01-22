@@ -1,6 +1,6 @@
 import type { CstNode, IToken } from "chevrotain"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { ChildItem, ChildItems } from "~/metadata/forms/collections/childItems/types"
+import { AllChildItem, AllChildItems } from "~/metadata/forms/collections/childItems/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Table } from "~/metadata/forms/elements/table/types"
@@ -9,7 +9,7 @@ import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
-export const parseElement = (context: ConfigurationContext, element: TreeNode): ChildItem => {
+export const parseElement = (context: ConfigurationContext, element: TreeNode): AllChildItem => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, context)
@@ -42,7 +42,7 @@ const addChildItemsToResult = (context: ConfigurationContext, cst: NamedElement,
 
   // Для таблицы childItems уже установлены в visitor из ячеек первой строки
   // Не перезаписываем их, если они уже есть
-  if (element.type === ParseElementType.Table && cst.childItems && (cst.childItems as ChildItems)?.length > 0) {
+  if (element.type === ParseElementType.Table && cst.childItems && (cst.childItems as AllChildItems)?.length > 0) {
     return
   }
 

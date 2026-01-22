@@ -3,7 +3,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importCommandBarChildItemsPartialFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
+import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
 export const importAutoCommandBarFromEnterprise = (
   context: ConfigurationContext,
@@ -21,7 +21,7 @@ export const importAutoCommandBarFromEnterprise = (
     ...sourceExt,
   }
 
-  const childItems = importCommandBarChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
+  const childItems = importChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
   if (childItems !== undefined) result.childItems = childItems
 
   if (!enterprise || Object.keys(enterprise).length === 0) return result

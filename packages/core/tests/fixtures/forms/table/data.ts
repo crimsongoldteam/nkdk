@@ -1,4 +1,4 @@
-import { ChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
+import { AllChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -400,7 +400,7 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   },
 }
 
-export const fullTableChildItems: ChildItemsPartialEnterprise = {
+export const fullTableChildItems: AllChildItemsPartialEnterprise = {
   ТаблицаПолеВвода: {
     ПутьКДанным: "Таблица.ПолеВвода",
     РежимВыбора: "Истина",

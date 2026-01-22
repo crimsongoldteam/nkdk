@@ -5,11 +5,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  TableChildItems,
-  TableChildItemsTypedEnterprise,
-  TableChildItemsXML,
-} from "../../collections/tableChildItems/types"
+import { TableChildItems, TableChildItemsTypedEnterprise, TableChildItemsXML } from "../../collections/childItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 

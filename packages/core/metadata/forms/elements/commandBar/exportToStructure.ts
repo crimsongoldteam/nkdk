@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
-import { CommandBarChildItem } from "../../collections/commandBarChildItems/types"
+import { CommandBarChildItem } from "../../collections/childItems/types"
 import { formatElementName, wrapButtonContent } from "../../format/helpers"
 import { CommandBar } from "./types"
 

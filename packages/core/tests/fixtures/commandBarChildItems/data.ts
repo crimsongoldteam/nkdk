@@ -1,9 +1,8 @@
 import {
   CommandBarChildItem,
-  CommandBarChildItems,
   CommandBarChildItemsPartialEnterprise,
   CommandBarChildItemsTypedEnterprise,
-} from "~/metadata/forms/collections/commandBarChildItems/types"
+} from "~/metadata/forms/collections/childItems/types"
 import { ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -49,7 +48,7 @@ export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
   },
 ]
 
-export const fullCommandBarChildItemsTyped: CommandBarChildItems = [
+export const fullCommandBarChildItemsTyped: CommandBarChildItem[] = [
   {
     elementType: FormElementType.Button,
     name: "Кнопка1",

@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportCommandBarChildItemsToStructure } from "../../collections/commandBarChildItems/exportToStructure"
 import { wrapButtonContent } from "../../format/helpers"
 import { IFormatElementResult } from "../../format/types"
 import { AutoCommandBar } from "./types"
+import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 
 export const exportAutoCommandBarToStructure = (
   context: ConfigurationContext,
@@ -28,7 +28,8 @@ export const exportAutoCommandBarContentToStructure = (
     buttons.push("...")
   }
 
-  buttons.push(...exportCommandBarChildItemsToStructure(context, element.childItems))
+  const childItems = exportChildItemsToStructure(context, element.childItems)
+  buttons.push(...childItems.strings)
 
   const content = buttons.length > 0 ? buttons.join(" | ") : ""
   const finalContent = buttons.length === 1 && buttons[0] === "..." ? "...|" : content || "|"
