@@ -164,4 +164,4 @@ export function exportPdfDocumentFieldToXML<From extends PdfDocumentField | unde
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "PdfDocumentField", exportPdfDocumentFieldToXML as ExportToXMLFn)
+registerMetadata("ExportToXML", "PDFDocumentField", exportPdfDocumentFieldToXML as ExportToXMLFn)

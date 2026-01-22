@@ -7,7 +7,7 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
-  elementType: "PdfDocumentField",
+  elementType: "PDFDocumentField",
   name: "ПолеPDFДокумента",
   title: {
     items: { ru: "Поле PDF документа" },
@@ -167,7 +167,7 @@ export const fullPdfDocumentFieldTypedEnterprise: PdfDocumentFieldTypedEnterpris
 }
 
 export const minimalPdfDocumentField: PdfDocumentField = {
-  elementType: FormElementType.PdfDocumentField,
+  elementType: FormElementType.PDFDocumentField,
   name: "ПолеPDFДокумента",
 }
 

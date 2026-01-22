@@ -104,7 +104,7 @@ export const FormElementTypeToEnterprise = {
   LabelField: "ПолеНадписи",
   Page: "Страница",
   Pages: "Страницы",
-  PdfDocumentField: "ПолеPDFДокумента",
+  PDFDocumentField: "ПолеPDFДокумента",
   PeriodField: "ПолеПериода",
   PictureDecoration: "Рисунок",
   PictureField: "ПолеРисунка",

@@ -24,7 +24,7 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
 
   const result: PdfDocumentField = {
     ...baseFields,
-    elementType: "PdfDocumentField",
+    elementType: "PDFDocumentField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -168,4 +168,4 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
   return result as To
 }
 
-registerMetadata("ImportFromXML", "PdfDocumentField", importPdfDocumentFieldFromXML as ImportFromXMLFn)
+registerMetadata("ImportFromXML", "PDFDocumentField", importPdfDocumentFieldFromXML as ImportFromXMLFn)

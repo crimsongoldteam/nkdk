@@ -399,6 +399,16 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     prefix: "cfg",
     modifier: "alwaysType",
   },
+  AccountingRegisterRecordSet: {
+    enterprise: "РегистрБухгалтерииНаборЗаписей",
+    prefix: "cfg",
+    modifier: "alwaysType",
+  },
+  AccountingRegisterRecordManager: {
+    enterprise: "РегистрБухгалтерииМенеджерЗаписи",
+    prefix: "cfg",
+    modifier: "alwaysType",
+  },
 } as const
 
 export const TypeDescriptionPrefixes = Object.fromEntries(

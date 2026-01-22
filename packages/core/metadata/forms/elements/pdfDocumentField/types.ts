@@ -17,7 +17,7 @@ import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMe
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface PdfDocumentField {
-  elementType: "PdfDocumentField"
+  elementType: "PDFDocumentField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

@@ -136,6 +136,16 @@ export const typeFixturesTable: TypeFixture[] = [
     xml: "<TypeDescription>\n\t<v8:Type>v8:StandardPeriod</v8:Type>\n</TypeDescription>",
   },
   {
+    internal: { type: ["StandardBeginningDate"] },
+    enterprise: "СтандартнаяДатаНачала",
+    xml: "<TypeDescription>\n\t<v8:Type>v8:StandardBeginningDate</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["date"] },
+    enterprise: "Дата",
+    xml: "<TypeDescription>\n\t<v8:Type>xs:date</v8:Type>\n</TypeDescription>",
+  },
+  {
     internal: { type: ["ValueTable"] },
     enterprise: "ТаблицаЗначений",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueTable</v8:Type>\n</TypeDescription>",
@@ -149,6 +159,11 @@ export const typeFixturesTable: TypeFixture[] = [
     internal: { type: ["ValueListType"] },
     enterprise: "СписокЗначений",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueListType</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DynamicList"] },
+    enterprise: "ДинамическийСписок",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:DynamicList</v8:Type>\n</TypeDescription>",
   },
 
   //#endregion
@@ -292,6 +307,21 @@ export const typeFixturesTable: TypeFixture[] = [
     internal: { type: ["ReportObject.КакойТоОтчет"] },
     enterprise: "ОтчетОбъект.КакойТоОтчет",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ReportObject.КакойТоОтчет</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["InformationRegisterRecordSet"] },
+    enterprise: "РегистрСведенийНаборЗаписей",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:InformationRegisterRecordSet</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["InformationRegisterRecordManager"] },
+    enterprise: "РегистрСведенийМенеджерЗаписи",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:InformationRegisterRecordManager</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["AccountingRegisterRecordSet"] },
+    enterprise: "РегистрБухгалтерииНаборЗаписей",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:AccountingRegisterRecordSet</v8:Type>\n</TypeDescription>",
   },
   //#endregion
 
@@ -575,6 +605,51 @@ export const typeFixturesTable: TypeFixture[] = [
     internal: { type: ["CatalogRef"] },
     enterprise: "Справочник",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["CatalogObject"] },
+    enterprise: "СправочникОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:CatalogObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DocumentObject"] },
+    enterprise: "ДокументОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:DocumentObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ExchangePlanObject"] },
+    enterprise: "ПланОбменаОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ExchangePlanObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["BusinessProcessRoutePointObject"] },
+    enterprise: "ТочкаМаршрутаБизнесПроцессаОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:BusinessProcessRoutePointObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["BusinessProcessObject"] },
+    enterprise: "БизнесПроцессОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:BusinessProcessObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ChartOfCalculationTypesObject"] },
+    enterprise: "ПланВидовРасчетаОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfCalculationTypesObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["TaskObject"] },
+    enterprise: "ЗадачаОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:TaskObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ChartOfCharacteristicTypesObject"] },
+    enterprise: "ПланВидовХарактеристикОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfCharacteristicTypesObject</v8:TypeSet>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ChartOfAccountObject"] },
+    enterprise: "ПланСчетовОбъект",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfAccountObject</v8:TypeSet>\n</TypeDescription>",
   },
   //#endregion
 ] as const

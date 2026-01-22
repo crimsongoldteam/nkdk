@@ -284,11 +284,11 @@ const exportPdfDocumentFieldPropsToEnterprise = (
 
 registerMetadata(
   "ExportPartialToEnterprise",
-  "PdfDocumentField",
+  "PDFDocumentField",
   exportPdfDocumentFieldPartialToEnterprise as ExportPartialToEnterpriseFn
 )
 registerMetadata(
   "ExportTypedToEnterprise",
-  "PdfDocumentField",
+  "PDFDocumentField",
   exportPdfDocumentFieldTypedToEnterprise as ExportTypedToEnterpriseFn
 )

@@ -37,7 +37,7 @@ export function importPdfDocumentFieldTypedFromEnterprise<To extends PdfDocument
 
   const result: PdfDocumentField = {
     ...props,
-    elementType: "PdfDocumentField",
+    elementType: "PDFDocumentField",
     name,
   }
 
@@ -56,7 +56,7 @@ export function importPdfDocumentFieldPartialFromEnterprise<To extends PdfDocume
   const result: To = {
     ...source,
     ...props,
-    elementType: "PdfDocumentField",
+    elementType: "PDFDocumentField",
   }
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
@@ -308,6 +308,6 @@ const importPdfDocumentFieldPropsFromEnterprise = (
 
 registerMetadata(
   "ImportPartialFromEnterprise",
-  "PdfDocumentField",
+  "PDFDocumentField",
   importPdfDocumentFieldPartialFromEnterprise as ImportPartialFromEnterpriseFn
 )
