@@ -52,7 +52,7 @@ describe("exportSearchStringAdditionToXML", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml")
 
-      const xmlData = exportSearchStringAdditionToXML(mockСontext, fullSearchStringAddition, parentElement)
+      const xmlData = exportSearchStringAdditionToXML(mockСontext, fullSearchStringAddition)
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
@@ -61,7 +61,7 @@ describe("exportSearchStringAdditionToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
-      const xmlData = exportSearchStringAdditionToXML(mockСontext, minimalSearchStringAddition, parentElement)
+      const xmlData = exportSearchStringAdditionToXML(mockСontext, minimalSearchStringAddition)
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
