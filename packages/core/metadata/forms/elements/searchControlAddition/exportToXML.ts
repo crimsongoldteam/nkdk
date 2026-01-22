@@ -5,34 +5,69 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandBarChildItemsToXML } from "~/metadata/forms/collections/commandBarChildItems/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
-import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
+import {
+  SearchControlAddition,
+  SearchControlAdditionXML,
+  SingleSearchControlAddition,
+} from "~/metadata/forms/elements/searchControlAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getSearchControlAdditionName } from "./helper"
 
-export const exportSearchControlAdditionToXML = (
+export function exportSearchControlAdditionToXML<From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
-  data: SearchControlAddition | undefined,
+  data: From
+): ToXMLType<From> {
+  if (!data) return undefined as ToXMLType<From>
+
+  const result = exportSearchControlAdditionPropsToXML(context, data, {
+    name: data.name,
+    additionSource: data.additionSource,
+  })
+
+  return result as ToXMLType<From>
+}
+
+export const exportSingleSearchControlAdditionToXML = (
+  context: ConfigurationContext,
+  data: SingleSearchControlAddition | undefined,
   parentElement: { name: string }
 ): SearchControlAdditionXML => {
   const name = getSearchControlAdditionName(parentElement)
 
-  const element: SearchControlAddition = data ?? {
-    elementType: "SearchControlAddition",
-    childItems: [],
-  }
-  const baseFields = exportElementPropsToXML(context, { name })
+  const result = exportSearchControlAdditionPropsToXML(context, data, { name, additionSource: parentElement.name })
 
-  const contextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
-  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
+  return result
+}
+
+const exportSearchControlAdditionPropsToXML = (
+  context: ConfigurationContext,
+  data: SingleSearchControlAddition | undefined,
+  params: { name: string; additionSource?: string }
+): SearchControlAdditionXML => {
+  const element = data ?? { elementType: "SearchControlAddition", childItems: [] }
+
+  const baseFields = exportElementPropsToXML(context, { name: params.name })
+
+  const contextMenu = exportContextMenuToXML(context, element.contextMenu, { name: params.name })
+  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name: params.name })
+
+  const additionSourceXML =
+    params.additionSource !== undefined
+      ? {
+          AdditionSource: {
+            Item: params.additionSource,
+            Type: "SearchControl" as const,
+          },
+        }
+      : {}
 
   const result: SearchControlAdditionXML = {
-    AdditionSource: {
-      Item: parentElement.name,
-      Type: "SearchControl",
-    },
     ...baseFields,
+    ...additionSourceXML,
     ContextMenu: contextMenu,
     ExtendedTooltip: extendedTooltip,
   }
@@ -83,3 +118,5 @@ export const exportSearchControlAdditionToXML = (
 
   return sortObject(result)
 }
+
+registerMetadata("ExportToXML", "SearchControlAddition", exportSearchControlAdditionToXML as ExportToXMLFn)

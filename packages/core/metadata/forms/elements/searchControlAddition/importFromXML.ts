@@ -3,6 +3,7 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importCommandBarChildItemsFromXML } from "~/metadata/forms/collections/commandBarChildItems/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import {
   SearchControlAddition,
@@ -23,10 +24,16 @@ export function importSearchControlAdditionFromXML<To extends SearchControlAddit
   const props = importSearchControlAdditionPropsFromXML(context, xml)
   if (props === undefined) return undefined as To
 
-  return {
+  const result: SearchControlAddition = {
     name: xml._name,
     ...props,
-  } as To
+    elementType: "SearchControlAddition",
+  }
+
+  const additionSource = xml.AdditionSource?.Item
+  if (additionSource !== undefined) result.additionSource = additionSource
+
+  return result as To
 }
 
 export const importSingleSearchControlAdditionFromXML = (
@@ -74,6 +81,9 @@ export const importSearchControlAdditionPropsFromXML = (
   if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
+
+  const childItems = importCommandBarChildItemsFromXML(context, xml.ChildItems)
+  if (childItems !== undefined) result.childItems = childItems
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 

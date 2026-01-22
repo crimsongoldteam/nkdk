@@ -18,9 +18,9 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { importTableChildItemsPartialFromEnterprise } from "../../collections/tableChildItems/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { importSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
-import { importSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
+import { importSingleSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
 import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
+import { importSingleSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -309,7 +309,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const viewStatusAddition = importViewStatusAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра)
   if (viewStatusAddition !== undefined) result.viewStatusAddition = viewStatusAddition
 
-  const searchStringAddition = importSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
+  const searchStringAddition = importSingleSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
   const behaviorOnHorizontalCompression =
@@ -443,7 +443,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const searchControl = importSearchControlAdditionFromEnterprise(context, data.УправлениеПоиском)
+  const searchControl = importSingleSearchControlAdditionFromEnterprise(context, data.УправлениеПоиском)
   if (searchControl !== undefined) result.searchControl = searchControl
 
   const borderColor = importColorFromEnterprise(context, data.ЦветРамки)

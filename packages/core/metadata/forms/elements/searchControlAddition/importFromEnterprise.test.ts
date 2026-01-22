@@ -2,28 +2,50 @@ import { describe, expect, it } from "vitest"
 import {
   fullSearchControlAddition,
   fullSearchControlAdditionEnterprise,
+  fullSingleSearchControlAddition,
+  fullSingleSearchControlAdditionEnterprise,
   minimalSearchControlAddition,
-  minimalSearchControlAdditionEnterprise,
+  sourceSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importSearchControlAdditionFromEnterprise } from "./importFromEnterprise"
+import {
+  importSearchControlAdditionPartialFromEnterprise,
+  importSingleSearchControlAdditionFromEnterprise,
+} from "./importFromEnterprise"
 
-describe("importSearchControlAdditionFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importSearchControlAdditionFromEnterprise(mockСontext, undefined)
+describe("importFromEnterprise", () => {
+  describe("importSingleSearchControlAdditionFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importSingleSearchControlAdditionFromEnterprise(
+        mockСontext,
+        fullSingleSearchControlAdditionEnterprise
+      )
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullSingleSearchControlAddition)
+    })
+
+    it("should import minimal", () => {
+      const result = importSingleSearchControlAdditionFromEnterprise(mockСontext, {})
+
+      expect(result).toBeUndefined()
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importSearchControlAdditionFromEnterprise(mockСontext, fullSearchControlAdditionEnterprise)
+  describe("importSearchControlAdditionPartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importSearchControlAdditionPartialFromEnterprise(
+        mockСontext,
+        sourceSearchControlAddition,
+        fullSearchControlAdditionEnterprise
+      )
 
-    expect(result).toEqual(fullSearchControlAddition)
-  })
+      expect(result).toEqual(fullSearchControlAddition)
+    })
 
-  it("should import minimal", () => {
-    const result = importSearchControlAdditionFromEnterprise(mockСontext, minimalSearchControlAdditionEnterprise)
+    it("should import minimal", () => {
+      const result = importSearchControlAdditionPartialFromEnterprise(mockСontext, sourceSearchControlAddition, {})
 
-    expect(result).toEqual(minimalSearchControlAddition)
+      expect(result).toEqual(minimalSearchControlAddition)
+    })
   })
 })

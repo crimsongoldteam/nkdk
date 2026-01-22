@@ -1,7 +1,9 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
+  SearchControlAddition,
   SearchControlAdditionEnterprise,
   SingleSearchControlAddition,
+  SingleSearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -10,7 +12,13 @@ export const parentElement: NamedElement = {
   name: "Дополнение",
 }
 
-export const fullSearchControlAddition: SingleSearchControlAddition = {
+export const sourceSearchControlAddition: SearchControlAddition = {
+  elementType: "SearchControlAddition",
+  name: "ДополнениеУправлениеПоиском",
+  childItems: [],
+}
+
+export const fullSingleSearchControlAddition: Required<SingleSearchControlAddition> = {
   elementType: "SearchControlAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
@@ -76,7 +84,7 @@ export const fullSearchControlAddition: SingleSearchControlAddition = {
   childItems: [],
 }
 
-export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {
+export const fullSingleSearchControlAdditionEnterprise: SingleSearchControlAdditionEnterprise = {
   АвтоМаксимальнаяШирина: "Истина",
   МаксимальнаяШирина: 400,
   РастягиватьПоГоризонтали: "Истина",
@@ -122,6 +130,23 @@ export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterpris
     Ширина: 300,
     Шрифт: "ОбычныйШрифтТекста",
   },
+}
+
+export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {
+  ...fullSingleSearchControlAdditionEnterprise,
+  Источник: "РодительскийЭлемент",
+}
+
+export const fullSearchControlAddition: Required<SearchControlAddition> = {
+  ...fullSingleSearchControlAddition,
+  additionSource: "РодительскийЭлемент",
+  name: "ДополнениеУправлениеПоиском",
+}
+
+export const minimalSearchControlAddition: SearchControlAddition = {
+  elementType: "SearchControlAddition",
+  name: "ДополнениеУправлениеПоиском",
+  childItems: [],
 }
 
 export const minimalSingleSearchControlAddition: SingleSearchControlAddition = {

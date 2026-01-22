@@ -13,9 +13,9 @@ import { TableChildItems, TableChildItemsXML } from "../../collections/tableChil
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import {
-  SearchControlAdditionEnterprise,
   SearchControlAdditionXML,
   SingleSearchControlAddition,
+  SingleSearchControlAdditionEnterprise,
 } from "../searchControlAddition/types"
 import {
   SearchStringAdditionEnterprise,
@@ -287,7 +287,7 @@ export interface TablePartialEnterprise {
   СочетаниеКлавиш?: string
   СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
   ТолькоПросмотр?: StringboolEnterprise
-  УправлениеПоиском?: SearchControlAdditionEnterprise
+  УправлениеПоиском?: SingleSearchControlAdditionEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветТекста?: ColorEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise

@@ -13,7 +13,9 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportTableChildItemsToXML } from "../../collections/tableChildItems/exportToXML"
 import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportSingleSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
+import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,

@@ -4,23 +4,59 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { importExtendedTooltipFromEnterprise } from "~/metadata/forms/elements/extendedTooltip/importFromEnterprise"
 import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
+  SingleSearchControlAddition,
+  SingleSearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { importCommandBarChildItemsTypedFromEnterprise } from "../../collections/commandBarChildItems/importFromEnterprise"
+import { isHasContent } from "./helper"
 
-export const importSearchControlAdditionFromEnterprise = <From extends SearchControlAdditionEnterprise | undefined>(
+export const importSearchControlAdditionPartialFromEnterprise = <To extends SearchControlAddition>(
   context: ConfigurationContext,
-  data: From
-): From extends undefined ? undefined : SearchControlAddition => {
-  if (!data) return undefined as From extends undefined ? undefined : SearchControlAddition
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To => {
+  const props = importSearchControlAdditionPropsFromEnterprise(context, data)
 
-  const result: SearchControlAddition = {
+  const result: To = {
+    ...source,
+    ...props,
+    elementType: source.elementType,
+    name: source.name,
+  }
+
+  if (data?.Источник !== undefined) {
+    result.additionSource = data.Источник
+  }
+
+  return result
+}
+
+export const importSingleSearchControlAdditionFromEnterprise = (
+  context: ConfigurationContext,
+  data: SingleSearchControlAdditionEnterprise | undefined
+): SingleSearchControlAddition | undefined => {
+  const props = importSearchControlAdditionPropsFromEnterprise(context, data)
+  if (props === undefined) return undefined
+
+  return props
+}
+
+export const importSearchControlAdditionPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: SearchControlAdditionEnterprise | undefined
+): SingleSearchControlAddition | undefined => {
+  if (!data) return undefined
+
+  const result: SingleSearchControlAddition = {
     elementType: "SearchControlAddition",
     childItems: [],
   }
@@ -110,5 +146,13 @@ export const importSearchControlAdditionFromEnterprise = <From extends SearchCon
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as From extends undefined ? undefined : SearchControlAddition
+  if (!isHasContent(result)) return undefined
+
+  return result
 }
+
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "SearchControlAddition",
+  importSearchControlAdditionPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)

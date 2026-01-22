@@ -2,29 +2,44 @@ import { describe, expect, it } from "vitest"
 import {
   fullSearchControlAddition,
   fullSearchControlAdditionEnterprise,
+  fullSingleSearchControlAddition,
+  fullSingleSearchControlAdditionEnterprise,
   minimalSearchControlAddition,
-  minimalSearchControlAdditionEnterprise,
+  minimalSingleSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportSearchControlAdditionToEnterprise } from "./exportToEnterprise"
+import {
+  exportSearchControlAdditionPartialToEnterprise,
+  exportSingleSearchControlAdditionToEnterprise,
+} from "./exportToEnterprise"
 
-describe("exportSearchControlAdditionToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportSearchControlAdditionToEnterprise(mockСontext, undefined)
+describe("exportToEnterprise", () => {
+  describe("exportSingleSearchControlAdditionToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportSingleSearchControlAdditionToEnterprise(mockСontext, fullSingleSearchControlAddition)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullSingleSearchControlAdditionEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportSingleSearchControlAdditionToEnterprise(mockСontext, minimalSingleSearchControlAddition)
+
+      expect(result).toBeUndefined()
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportSearchControlAdditionToEnterprise(mockСontext, fullSearchControlAddition)
+  describe("exportSearchControlAdditionPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportSearchControlAdditionPartialToEnterprise(mockСontext, fullSearchControlAddition)
 
-    expect(result).toEqual(fullSearchControlAdditionEnterprise)
-  })
+      expect(result).toEqual(fullSearchControlAdditionEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportSearchControlAdditionToEnterprise(mockСontext, minimalSearchControlAddition)
+    it("should export minimal", () => {
+      const result = exportSearchControlAdditionPartialToEnterprise(mockСontext, minimalSearchControlAddition)
 
-    expect(result).toEqual(minimalSearchControlAdditionEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
 

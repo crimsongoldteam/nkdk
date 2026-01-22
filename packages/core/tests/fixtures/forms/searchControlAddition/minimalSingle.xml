@@ -1,4 +1,8 @@
 <SearchControlAddition name="ДополнениеУправлениеПоиском" id="1">
+	<AdditionSource>
+		<Item>Дополнение</Item>
+		<Type>SearchControl</Type>
+	</AdditionSource>
 	<ContextMenu name="ДополнениеУправлениеПоискомКонтекстноеМеню" id="2"/>
 	<ExtendedTooltip name="ДополнениеУправлениеПоискомРасширеннаяПодсказка" id="3"/>
 </SearchControlAddition>

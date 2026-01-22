@@ -16,6 +16,7 @@ import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "
 
 export interface SearchControlAddition {
   elementType: "SearchControlAddition"
+  additionSource?: string
   name: string
   autoMaxWidth?: boolean
   backColor?: Color
@@ -42,7 +43,7 @@ export interface SearchControlAddition {
 export interface SingleSearchControlAddition extends Omit<SearchControlAddition, "name"> {}
 
 export interface SearchControlAdditionXML extends BaseElementXML {
-  AdditionSource: {
+  AdditionSource?: {
     Item: string
     Type: "SearchControl"
   }
@@ -69,6 +70,7 @@ export interface SearchControlAdditionXML extends BaseElementXML {
 }
 
 export interface SearchControlAdditionEnterprise {
+  Источник?: string
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   МаксимальнаяШирина?: number
   РастягиватьПоГоризонтали?: StringboolEnterprise
@@ -91,3 +93,5 @@ export interface SearchControlAdditionEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
 }
+
+export interface SingleSearchControlAdditionEnterprise extends Omit<SearchControlAdditionEnterprise, "Источник"> {}
