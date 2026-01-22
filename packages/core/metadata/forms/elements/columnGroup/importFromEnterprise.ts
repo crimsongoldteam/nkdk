@@ -22,8 +22,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
