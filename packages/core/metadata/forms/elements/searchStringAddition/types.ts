@@ -11,6 +11,7 @@ import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "
 
 export interface SearchStringAddition {
   elementType: "SearchStringAddition"
+  additionSource?: string
   name: string
   backColor?: Color
   borderColor?: Color
@@ -31,10 +32,10 @@ export interface SearchStringAddition {
   visible?: boolean
 }
 
-export interface SingleSearchStringAddition extends Omit<SearchStringAddition, "name"> {}
+export interface SingleSearchStringAddition extends Omit<SearchStringAddition, "name" | "additionSource"> {}
 
 export interface SearchStringAdditionXML extends BaseElementXML {
-  AdditionSource: {
+  AdditionSource?: {
     Item: string
     Type: "SearchStringRepresentation"
   }
@@ -59,6 +60,7 @@ export interface SearchStringAdditionXML extends BaseElementXML {
 }
 
 export interface SearchStringAdditionEnterprise {
+  Источник?: string
   РастягиватьПоГоризонтали?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветТекста?: ColorEnterprise
@@ -79,3 +81,5 @@ export interface SearchStringAdditionEnterprise {
   ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
 }
+
+export interface SingleSearchStringAdditionEnterprise extends Omit<SearchStringAdditionEnterprise, "Источник"> {}

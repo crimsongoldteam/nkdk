@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest"
 import {
-  fullSearchStringAdditionEnterprise,
+  fullSearchStringAddition,
   fullSingleSearchStringAddition,
+  fullSingleSearchStringAdditionEnterprise,
+  minimalSearchStringAddition,
   minimalSingleSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import {
-  exportSearchStringAdditionToEnterprise,
+  exportSearchStringAdditionPartialToEnterprise,
   exportSingleSearchStringAdditionToEnterprise,
 } from "./exportToEnterprise"
 
@@ -21,7 +23,7 @@ describe("exportSearchStringAdditionToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
       const result = exportSingleSearchStringAdditionToEnterprise(mockСontext, fullSingleSearchStringAddition)
 
-      expect(result).toEqual(fullSearchStringAdditionEnterprise)
+      expect(result).toEqual(fullSingleSearchStringAdditionEnterprise)
     })
 
     it("should export minimal", () => {
@@ -33,19 +35,19 @@ describe("exportSearchStringAdditionToEnterprise", () => {
 
   describe("exportSearchStringAdditionToEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = exportSearchStringAdditionToEnterprise(mockСontext, undefined)
+      const result = exportSearchStringAdditionPartialToEnterprise(mockСontext, undefined)
 
       expect(result).toBeUndefined()
     })
 
     it("should export all fields to Enterprise", () => {
-      const result = exportSearchStringAdditionToEnterprise(mockСontext, fullSingleSearchStringAddition)
+      const result = exportSearchStringAdditionPartialToEnterprise(mockСontext, fullSearchStringAddition)
 
-      expect(result).toEqual(fullSearchStringAdditionEnterprise)
+      expect(result).toEqual(fullSingleSearchStringAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSearchStringAdditionToEnterprise(mockСontext, minimalSingleSearchStringAddition)
+      const result = exportSearchStringAdditionPartialToEnterprise(mockСontext, minimalSearchStringAddition)
 
       expect(result).toBeUndefined()
     })

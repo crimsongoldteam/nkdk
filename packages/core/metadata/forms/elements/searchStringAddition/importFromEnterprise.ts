@@ -31,6 +31,10 @@ export const importSearchStringAdditionPartialFromEnterprise = <To extends Searc
     name: source.name,
   }
 
+  if (data?.Источник !== undefined) {
+    result.additionSource = data.Источник
+  }
+
   return result
 }
 

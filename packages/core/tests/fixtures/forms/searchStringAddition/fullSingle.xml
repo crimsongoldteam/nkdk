@@ -1,6 +1,6 @@
 <SearchStringAddition name="КакойТоЭлементСтрокаПоиска" id="1" DisplayImportance="High">
 	<AdditionSource>
-		<Item>РодительскийЭлемент</Item>
+		<Item>КакойТоЭлемент</Item>
 		<Type>SearchStringRepresentation</Type>
 	</AdditionSource>
 	<BackColor>web:White</BackColor>

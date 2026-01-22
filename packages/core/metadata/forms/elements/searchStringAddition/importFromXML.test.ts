@@ -14,7 +14,7 @@ describe("importSearchStringAdditionFromXML", () => {
   describe("importSingleSearchStringAdditionFromXML", () => {
     it("should import all fields from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-        "forms/searchStringAddition/full.xml"
+        "forms/searchStringAddition/fullSingle.xml"
       )
 
       const result = importSingleSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
@@ -24,7 +24,7 @@ describe("importSearchStringAdditionFromXML", () => {
 
     it("should import minimal", () => {
       const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-        "forms/searchStringAddition/minimal.xml"
+        "forms/searchStringAddition/minimalSingle.xml"
       )
 
       const result = importSingleSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)

@@ -18,12 +18,14 @@ import { getSearchStringAdditionName } from "./helper"
 
 export function exportSearchStringAdditionToXML<From extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
-  data: From,
-  parentElement: { name: string }
+  data: From
 ): ToXMLType<From> {
   if (!data) return undefined as ToXMLType<From>
 
-  const result = exportSearchStringAdditionPropsToXML(context, data, { name: data.name })
+  const result = exportSearchStringAdditionPropsToXML(context, data, {
+    name: data.name,
+    additionSource: data.additionSource,
+  })
 
   return result as ToXMLType<From>
 }
@@ -35,7 +37,7 @@ export const exportSingleSearchStringAdditionToXML = (
 ): SearchStringAdditionXML => {
   const name = getSearchStringAdditionName(parentElement)
 
-  const result = exportSearchStringAdditionPropsToXML(context, data, { name })
+  const result = exportSearchStringAdditionPropsToXML(context, data, { name, additionSource: parentElement.name })
 
   return result
 }
@@ -43,20 +45,28 @@ export const exportSingleSearchStringAdditionToXML = (
 const exportSearchStringAdditionPropsToXML = (
   context: ConfigurationContext,
   data: SingleSearchStringAddition | undefined,
-  parentElement: { name: string }
+  params: { name: string; additionSource?: string }
 ): SearchStringAdditionXML => {
   const element = data ?? { elementType: "SearchStringAddition" }
 
-  const baseFields = exportElementPropsToXML(context, parentElement)
+  const baseFields = exportElementPropsToXML(context, { name: params.name })
 
-  const contextMenu = exportContextMenuToXML(context, element.contextMenu, parentElement)
-  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, parentElement)
+  const contextMenu = exportContextMenuToXML(context, element.contextMenu, { name: params.name })
+  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name: params.name })
+
+  const additionSourceXML =
+    params.additionSource !== undefined
+      ? {
+          AdditionSource: {
+            Item: params.additionSource,
+            Type: "SearchStringRepresentation" as const,
+          },
+        }
+      : {}
+
   const result: SearchStringAdditionXML = {
     ...baseFields,
-    AdditionSource: {
-      Item: parentElement.name,
-      Type: "SearchStringRepresentation",
-    },
+    ...additionSourceXML,
     ContextMenu: contextMenu,
     ExtendedTooltip: extendedTooltip,
   }

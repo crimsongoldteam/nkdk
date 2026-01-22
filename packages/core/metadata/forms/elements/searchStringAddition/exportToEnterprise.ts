@@ -15,7 +15,6 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import result from "antd/es/result"
 
 type SearchStringAdditionCommonFields = Omit<SearchStringAddition, "elementType" | "name">
 
@@ -40,9 +39,9 @@ export const exportSearchStringAdditionPartialToEnterprise = <From extends Searc
 
   const props = exportSearchStringAdditionCommonFieldsToEnterprise(context, data)
 
-  if (Object.keys(result).length === 0) return undefined as ToPartialEnterpriseType<From>
+  if (Object.keys(props).length === 0) return undefined as ToPartialEnterpriseType<From>
 
-  return result
+  return props as ToPartialEnterpriseType<From>
 }
 
 const exportSearchStringAdditionCommonFieldsToEnterprise = (

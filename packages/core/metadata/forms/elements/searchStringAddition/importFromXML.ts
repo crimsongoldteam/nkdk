@@ -28,6 +28,9 @@ export const importSearchStringAdditionFromXML = <To extends SearchStringAdditio
     ...props,
   }
 
+  const additionSource = xml.AdditionSource?.Item
+  if (additionSource !== undefined) result.additionSource = additionSource
+
   return result as To
 }
 

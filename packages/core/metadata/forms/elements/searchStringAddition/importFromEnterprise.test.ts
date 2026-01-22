@@ -3,6 +3,7 @@ import {
   fullSearchStringAddition,
   fullSearchStringAdditionEnterprise,
   fullSingleSearchStringAddition,
+  fullSingleSearchStringAdditionEnterprise,
   minimalSearchStringAddition,
   sourceSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
@@ -15,7 +16,10 @@ import {
 describe("importFromEnterprise", () => {
   describe("importSingleSearchStringAdditionFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importSingleSearchStringAdditionFromEnterprise(mockСontext, fullSearchStringAdditionEnterprise)
+      const result = importSingleSearchStringAdditionFromEnterprise(
+        mockСontext,
+        fullSingleSearchStringAdditionEnterprise
+      )
 
       expect(result).toEqual(fullSingleSearchStringAddition)
     })

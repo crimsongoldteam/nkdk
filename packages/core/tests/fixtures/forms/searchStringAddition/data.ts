@@ -2,6 +2,7 @@ import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
   SingleSearchStringAddition,
+  SingleSearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 
 export const parentElement = {
@@ -13,7 +14,7 @@ export const sourceSearchStringAddition: SearchStringAddition = {
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
-export const fullSingleSearchStringAddition: SingleSearchStringAddition = {
+export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition> = {
   elementType: "SearchStringAddition",
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
@@ -41,7 +42,7 @@ export const fullSingleSearchStringAddition: SingleSearchStringAddition = {
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
 }
 
-export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
+export const fullSingleSearchStringAdditionEnterprise: SingleSearchStringAdditionEnterprise = {
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Истина",
@@ -61,8 +62,14 @@ export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise 
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
-export const fullSearchStringAddition: SearchStringAddition = {
+export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
+  ...fullSingleSearchStringAdditionEnterprise,
+  Источник: "РодительскийЭлемент",
+}
+
+export const fullSearchStringAddition: Required<SearchStringAddition> = {
   ...fullSingleSearchStringAddition,
+  additionSource: "РодительскийЭлемент",
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
@@ -73,4 +80,9 @@ export const minimalSearchStringAddition: SearchStringAddition = {
 
 export const minimalSingleSearchStringAddition: SingleSearchStringAddition = {
   elementType: "SearchStringAddition",
+}
+
+export const minimaSearchStringAddition: SearchStringAddition = {
+  ...minimalSearchStringAddition,
+  name: "КакойТоЭлементСтрокаПоиска",
 }
