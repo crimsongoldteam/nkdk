@@ -1,4 +1,5 @@
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormFieldTypeEnterprise } from "~/metadata/systemEnumerations/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise, ButtonXML } from "../../elements/button/types"
 import {
@@ -161,7 +162,7 @@ import {
   UsualGroupTypedEnterprise,
   UsualGroupXML,
 } from "../../elements/usualGroup/types"
-import { FormFieldTypeEnterprise } from "~/metadata/systemEnumerations/types"
+import { CommandBarChildItem, CommandBarChildItemPartialEnterprise } from "../commandBarChildItems/types"
 
 export type ChildItem =
   | Button
@@ -200,6 +201,15 @@ export type ChildItem =
   | UsualGroup
 
 export type ChildItems = ChildItem[]
+
+export type AllChildItem = ChildItem | CommandBarChildItem
+
+export type AllChildItems = (ChildItem | CommandBarChildItem)[]
+
+export type AllChildItemsPartialEnterprise = Record<
+  string,
+  ChildItemPartialEnterprise | CommandBarChildItemPartialEnterprise
+>
 
 export type ChildItemXML =
   | ButtonXML

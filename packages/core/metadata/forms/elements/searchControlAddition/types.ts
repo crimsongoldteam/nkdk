@@ -40,7 +40,7 @@ export interface SearchControlAddition {
   childItems: CommandBarChildItems
 }
 
-export interface SingleSearchControlAddition extends Omit<SearchControlAddition, "name"> {}
+export interface SingleSearchControlAddition extends Omit<SearchControlAddition, "name" | "additionSource"> {}
 
 export interface SearchControlAdditionXML extends BaseElementXML {
   AdditionSource?: {

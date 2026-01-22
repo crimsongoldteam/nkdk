@@ -5,9 +5,9 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
-  CommandBarChildItem,
-  CommandBarChildItemsTypedEnterprise,
-  CommandBarChildItemsXML,
+  CommandBarGroupChildItems,
+  CommandBarGroupChildItemsTypedEnterprise,
+  CommandBarGroupChildItemsXML,
 } from "../../collections/commandBarChildItems/types"
 import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
@@ -34,7 +34,7 @@ export interface ButtonGroup extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  childItems: CommandBarChildItem[]
+  childItems: CommandBarGroupChildItems
 }
 
 export interface ButtonGroupXML extends BaseElementXML {
@@ -58,7 +58,7 @@ export interface ButtonGroupXML extends BaseElementXML {
   Width?: number
   ExtendedTooltip: ExtendedTooltipXML
   Representation?: SE.ButtonGroupRepresentation
-  ChildItems?: CommandBarChildItemsXML
+  ChildItems?: CommandBarGroupChildItemsXML
 }
 
 export interface ButtonGroupPartialEnterprise {
@@ -83,7 +83,7 @@ export interface ButtonGroupPartialEnterprise {
   ЦветТекстаЗаголовка?: ColorEnterprise
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
-  ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
+  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
 }
 
 export interface ButtonGroupTypedEnterprise extends ButtonGroupPartialEnterprise {

@@ -1,38 +1,39 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ChildItems, ChildItemsPartialEnterprise } from "./types"
+import { ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
+import { AllChildItem } from "./types"
 
-export const exportTypedChildItemsToEnterprise = (
+// export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
+//   context: ConfigurationContext,
+//   data: From[] | undefined
+// ): Record<string, ToPartialEnterpriseType<From>> | undefined => {
+//   if (!data || data.length === 0) return undefined
+
+//   const result: Record<string, ToPartialEnterpriseType<From>> = {}
+//   for (const item of data) {
+//     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
+//     if (fn == undefined)
+//       throw new Error(`ExportTypedToEnterprise function not found for element type: ${item.elementType}`)
+//     const resultItem = fn(context, item)
+//     result[item.name] = resultItem as ToPartialEnterpriseType<From>
+//   }
+
+//   return result
+// }
+
+export const exportPartialChildItemsToEnterprise = <From extends AllChildItem>(
   context: ConfigurationContext,
-  data: ChildItems | undefined
-): ChildItemsPartialEnterprise | undefined => {
+  data: From[] | undefined
+): Record<string, ToPartialEnterpriseType<From>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: ChildItemsPartialEnterprise = {}
-  for (const item of data) {
-    const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
-    if (fn == undefined)
-      throw new Error(`ExportTypedToEnterprise function not found for element type: ${item.elementType}`)
-    const resultItem = fn(context, item)
-    result[item.name] = resultItem
-  }
-
-  return result
-}
-
-export const exportPartialChildItemsToEnterprise = (
-  context: ConfigurationContext,
-  data: ChildItems | undefined
-): ChildItemsPartialEnterprise | undefined => {
-  if (!data || data.length === 0) return undefined
-
-  const result: ChildItemsPartialEnterprise = {}
+  const result: Record<string, ToPartialEnterpriseType<From>> = {}
   for (const item of data) {
     const fn = getOperationFunction("ExportPartialToEnterprise", item.elementType)
     if (fn == undefined)
       throw new Error(`ExportPartialToEnterprise function not found for element type: ${item.elementType}`)
     const resultItem = fn(context, item)
-    result[item.name] = resultItem
+    result[item.name] = resultItem as ToPartialEnterpriseType<From>
   }
 
   return result

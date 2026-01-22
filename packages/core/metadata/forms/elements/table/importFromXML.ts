@@ -11,11 +11,11 @@ import { Table } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
-import { importSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
-import { importSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
-import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
 import { importTableChildItemsFromXML } from "../../collections/tableChildItems/importFromXML"
+import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
+import { importSingleSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
+import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
+import { importSingleSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
@@ -145,7 +145,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.RowsPicture !== undefined) result.rowsPicture = xml.RowsPicture
 
-  const searchControl = importSearchControlAdditionFromXML(context, xml.SearchControlAddition)
+  const searchControl = importSingleSearchControlAdditionFromXML(context, xml.SearchControlAddition)
   if (searchControl !== undefined) result.searchControl = searchControl
 
   if (xml.SearchControlLocation !== undefined) result.searchControlLocation = xml.SearchControlLocation
@@ -154,7 +154,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.SearchStringLocation !== undefined) result.searchStringLocation = xml.SearchStringLocation
 
-  const searchStringAddition = importSearchStringAdditionFromXML(context, xml.SearchStringAddition)
+  const searchStringAddition = importSingleSearchStringAdditionFromXML(context, xml.SearchStringAddition)
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
   if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode

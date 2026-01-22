@@ -1,15 +1,15 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { ChildItems, ChildItemsXML, ChildItemXML } from "./types"
+import { AllChildItem, ChildItemXML } from "./types"
 
-export const exportChildItemsToXML = (
+export const exportChildItemsToXML = <From extends AllChildItem>(
   context: ConfigurationContext,
-  data: ChildItems | undefined
-): ChildItemsXML | undefined => {
+  data: From[] | undefined
+): Record<From["elementType"], ChildItemXML>[] | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: ChildItemsXML = []
+  const result: Record<From["elementType"], ChildItemXML>[] = []
   for (const item of data) {
     const exportFunction = getOperationFunction("ExportToXML", item.elementType)
     if (!exportFunction) throw new Error(`ExportToXML function not found for element type: ${item.elementType}`)
