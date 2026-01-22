@@ -332,6 +332,13 @@ export const Hash = createToken({
   categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText, Button),
 })
 
+export const Caret = createToken({
+  name: "Caret",
+  pattern: /\^[ \t]*/,
+  label: "^",
+  categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText, Button),
+})
+
 export const Percent = createToken({
   name: "Percent",
   pattern: /%+[ \t]*/,
@@ -468,6 +475,7 @@ export const allTokens = [
   Dots,
   Dash,
   Hash,
+  Caret,
   Tilde,
   Text,
   Percent,
@@ -509,6 +517,7 @@ export const propertiesTokens = [
   Dots,
   Dash,
   Hash,
+  Caret,
   Tilde,
   Text,
   Percent,

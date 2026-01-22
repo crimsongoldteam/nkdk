@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
 import { commandBarStructureFixturesTable } from "~/tests/fixtures/forms/commandBar/data"
 import { mockСontext } from "~/tests/mockContext"
+import { parseElement } from "../../collections/childItems/parser/elementsParser/parse"
 import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
 import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
 

@@ -16,7 +16,10 @@ import { Page } from "~/metadata/forms/elements/page/types"
 import { Pages } from "~/metadata/forms/elements/pages/types"
 import type { PictureDecoration } from "~/metadata/forms/elements/pictureDecoration/types"
 import type { PictureField } from "~/metadata/forms/elements/pictureField/types"
+import { Popup } from "~/metadata/forms/elements/popup/types"
 import type { RadioButtonField } from "~/metadata/forms/elements/radioButtonField/types"
+import { SearchControlAddition } from "~/metadata/forms/elements/searchControlAddition/types"
+import { SearchStringAddition } from "~/metadata/forms/elements/searchStringAddition/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
 import {
@@ -280,9 +283,18 @@ export class Visitor extends BaseVisitor {
     return result
   }
 
-  commandBarItem(ctx: CstChildrenDictionary, context: ConfigurationContext): Button | ButtonGroup {
+  commandBarItem(
+    ctx: CstChildrenDictionary,
+    context: ConfigurationContext
+  ): Button | ButtonGroup | Popup | SearchControlAddition | SearchStringAddition {
     if (ctx.commandBarButtonGroup) {
       return this.visit(ctx.commandBarButtonGroup as CstNode[], context)
+    }
+    if (ctx.commandBarPopup) {
+      return this.visit(ctx.commandBarPopup as CstNode[], context)
+    }
+    if (ctx.commandBarSearchAddition) {
+      return this.visit(ctx.commandBarSearchAddition as CstNode[], context)
     }
     return this.visit(ctx.commandBarButton as CstNode[], context)
   }
@@ -326,6 +338,59 @@ export class Visitor extends BaseVisitor {
       childItems: [],
     }
 
+    return result
+  }
+
+  commandBarPopup(ctx: CstChildrenDictionary, context: ConfigurationContext): Popup {
+    const titleText = joinTokens(ctx.Button as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context) || titleText
+
+    const title = this.createTitle(titleText, context.defaultLanguage)
+
+    const result: Popup = {
+      elementType: FormElementType.Popup,
+      name: name || "",
+      title: title,
+      childItems: [],
+    }
+
+    return result
+  }
+
+  commandBarSearchAddition(
+    ctx: CstChildrenDictionary,
+    context: ConfigurationContext
+  ): SearchControlAddition | SearchStringAddition {
+    const titleText = joinTokens(ctx.Button as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context) || titleText
+
+    // Определяем тип по тексту: "УправлениеПоиском" -> SearchControlAddition, "ОтображениеСтрокиПоиска" -> SearchStringAddition
+    const isSearchControl = titleText.includes("УправлениеПоиском")
+    const isSearchString = titleText.includes("ОтображениеСтрокиПоиска")
+
+    if (isSearchControl) {
+      const result: SearchControlAddition = {
+        elementType: FormElementType.SearchControlAddition,
+        name: name || "",
+        childItems: [],
+      }
+      return result
+    }
+
+    if (isSearchString) {
+      const result: SearchStringAddition = {
+        elementType: FormElementType.SearchStringAddition,
+        name: name || "",
+      }
+      return result
+    }
+
+    // По умолчанию возвращаем SearchControlAddition
+    const result: SearchControlAddition = {
+      elementType: FormElementType.SearchControlAddition,
+      name: name || "",
+      childItems: [],
+    }
     return result
   }
 

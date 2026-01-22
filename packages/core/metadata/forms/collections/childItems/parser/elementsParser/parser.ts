@@ -319,6 +319,14 @@ export class Parser extends CstParser {
         GATE: () => this.LA(1).tokenType === t.Hash,
         ALT: () => this.SUBRULE(this.commandBarButtonGroup),
       },
+      {
+        GATE: () => this.LA(1).tokenType === t.Caret,
+        ALT: () => this.SUBRULE(this.commandBarPopup),
+      },
+      {
+        GATE: () => this.LA(1).tokenType === t.Question,
+        ALT: () => this.SUBRULE(this.commandBarSearchAddition),
+      },
       { ALT: () => this.SUBRULE(this.commandBarButton) },
     ])
   })
@@ -337,6 +345,26 @@ export class Parser extends CstParser {
 
   private readonly commandBarButtonGroup = this.RULE("commandBarButtonGroup", () => {
     this.CONSUME(t.Hash)
+    this.MANY(() => {
+      this.CONSUME(t.Button)
+    })
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  private readonly commandBarPopup = this.RULE("commandBarPopup", () => {
+    this.CONSUME(t.Caret)
+    this.MANY(() => {
+      this.CONSUME(t.Button)
+    })
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  private readonly commandBarSearchAddition = this.RULE("commandBarSearchAddition", () => {
+    this.CONSUME(t.Question)
     this.MANY(() => {
       this.CONSUME(t.Button)
     })
