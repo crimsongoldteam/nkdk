@@ -8,6 +8,7 @@ import { CleanContext } from "./types.js"
 
 const metadataContext: CleanContext = {
   namespaces: {
+    xmlns: "http://v8.1c.ru/8.3/MDClasses",
     "xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
     "xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
     "xmlns:cmi": "http://v8.1c.ru/8.2/managed-application/cmi",
@@ -24,7 +25,6 @@ const metadataContext: CleanContext = {
     "xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    xmlns: "http://v8.1c.ru/8.3/MDClasses",
     version: "2.20",
   },
 

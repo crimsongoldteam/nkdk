@@ -34,7 +34,7 @@ const findTemplates = (catalogDirPath: string): string[] => {
  * @returns массив имен форм (имена подпапок в Forms)
  */
 const findForms = (catalogDirPath: string): string[] => {
-  const formsPath = join(catalogDirPath, "Forms")
+  const formsPath = join(catalogDirPath, "Формы")
   if (!existsSync(formsPath)) {
     return []
   }
@@ -49,7 +49,7 @@ const findForms = (catalogDirPath: string): string[] => {
 export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
     defaultLanguage: "ru",
-    // testMode: true,
+    testMode: true,
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")

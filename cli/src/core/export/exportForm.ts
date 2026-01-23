@@ -20,6 +20,7 @@ import { dirname, join, relative } from "path"
 export const exportForm = (inputPath: string, outputPath: string, formName: string): void => {
   const context = {
     defaultLanguage: "ru",
+    testMode: true,
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")
@@ -85,7 +86,7 @@ export const exportFormsFromDirectory = (inputPath: string, outputPath: string) 
   for (const catalogDir of catalogDirs) {
     const catalogDirPath = join(catalogsPath, catalogDir.name)
     const formsPath = join(catalogDirPath, "Формы")
-    
+
     if (!existsSync(formsPath)) {
       continue
     }

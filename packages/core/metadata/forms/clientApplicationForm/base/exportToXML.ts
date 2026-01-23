@@ -35,7 +35,7 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    _version: "2.18",
+    _version: "2.20",
   } as ClientApplicationFormXML
 
   const attributes = exportFormAttributesToXML(context, data.attributes)
@@ -117,10 +117,6 @@ export const exportClientApplicationFormToXML = (
     result.Events = events
   }
 
-  if (data.formWindowOpeningMode !== undefined) {
-    result.FormWindowOpeningMode = data.formWindowOpeningMode
-  }
-
   if (data.group !== undefined) {
     result.Group = data.group
   }
@@ -198,6 +194,10 @@ export const exportClientApplicationFormToXML = (
     result.Width = data.width
   }
 
+  if (data.formWindowOpeningMode !== undefined) {
+    result.WindowOpeningMode = data.formWindowOpeningMode
+  }
+
   if (data.windowOptionsKey !== undefined) {
     result.WindowOptionsKey = data.windowOptionsKey
   }
@@ -211,6 +211,7 @@ export const exportFormMetadataToXML = (
   name: string
 ): FormMetadataXML => {
   const result: FormMetadataXML = {
+    _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
     "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
     "_xmlns:cmi": "http://v8.1c.ru/8.2/managed-application/cmi",
@@ -227,7 +228,6 @@ export const exportFormMetadataToXML = (
     "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     _version: "2.20",
     Form: {
       _uuid: getUUID(context),

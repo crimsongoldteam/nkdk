@@ -153,8 +153,8 @@ export const importClientApplicationFormFromXML = (
     result.autoFillCheck = xml.AutoFillCheck
   }
 
-  if (xml.FormWindowOpeningMode !== undefined) {
-    result.formWindowOpeningMode = xml.FormWindowOpeningMode
+  if (xml.WindowOpeningMode !== undefined) {
+    result.formWindowOpeningMode = xml.WindowOpeningMode
   }
 
   if (xml.CollapseItemsByImportance !== undefined) {
