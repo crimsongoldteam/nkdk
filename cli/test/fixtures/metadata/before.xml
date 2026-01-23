@@ -943,8 +943,10 @@
 					</Attribute>
 				</ChildObjects>
 			</TabularSection>
-			<Form>ФормаСписка</Form>
-			<Form>ФормаЭлемента</Form>
+			<Form>ФормаБ</Form>
+			<Form>ФормаА</Form>
+			<Template>ШаблонБ</Template>
+			<Template>ШаблонА</Template>
 		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

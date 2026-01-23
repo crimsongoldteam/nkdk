@@ -727,8 +727,10 @@
 					</Attribute>
 				</ChildObjects>
 			</TabularSection>
-			<Form>ФормаСписка</Form>
-			<Form>ФормаЭлемента</Form>
+			<Form>ФормаА</Form>
+			<Form>ФормаБ</Form>
+			<Template>ШаблонА</Template>
+			<Template>ШаблонБ</Template>
 		</ChildObjects>
 	</Catalog>
 </MetaDataObject>
