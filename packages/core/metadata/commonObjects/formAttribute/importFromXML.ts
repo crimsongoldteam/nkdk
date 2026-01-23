@@ -30,7 +30,7 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const mainAttribute = importBooleanFromXML(context, props.MainAttribute)
   if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
 
-  const storedData = importBooleanFromXML(context, props.StoredData)
+  const storedData = importBooleanFromXML(context, props.SavedData)
   if (storedData !== undefined) result.storedData = storedData
 
   const settings = importTypeDescriptionFromXML(context, props.Settings)

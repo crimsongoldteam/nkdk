@@ -10,6 +10,14 @@ export const fullFormAttributes: FormAttributes = [
       type: ["decimal"],
     },
     mainAttribute: true,
+    storedData: true,
+    use: {
+      common: true,
+      values: [
+        { name: "Администратор", value: true },
+        { name: "Пользователь", value: false },
+      ],
+    },
   },
   {
     name: "ТестовыйАтрибут",
@@ -32,6 +40,11 @@ export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
   Объект: {
     Тип: "Число",
     ОсновнойРеквизит: "Истина",
+    СохраняемыеДанные: "Истина",
+    РазрешитьИспользование: {
+      Администратор: "Истина",
+      Пользователь: "Ложь",
+    },
   },
   ТестовыйАтрибут: {
     Заголовок: "Заголовок атрибута",

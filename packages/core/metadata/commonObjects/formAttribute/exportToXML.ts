@@ -35,14 +35,15 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     }
   }
 
+  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
+
+  if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
+
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
   if (title) result.Title = title
 
   const type = exportTypeDescriptionToXML(context, mergedData.valueType)
   if (type) result.Type = type
-  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
-
-  if (mergedData.storedData !== undefined) result.StoredData = mergedData.storedData
 
   const use = exportUserVisibleToXML(context, mergedData.use)
   if (use) result.Use = use

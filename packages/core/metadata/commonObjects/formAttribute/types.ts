@@ -33,7 +33,7 @@ export interface FormAttributeXML {
   Title?: I8nTextXML
   Type?: TypeDescriptionXML
   MainAttribute?: boolean
-  StoredData?: boolean
+  SavedData?: boolean
   Use?: UserVisibleXML
 }
 
