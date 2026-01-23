@@ -13,6 +13,7 @@ import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
   ImportPartialFromEnterpriseFn,
+  ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -187,4 +188,9 @@ registerMetadata(
   "ImportPartialFromEnterprise",
   "Popup",
   importPopupPartialFromEnterprise as ImportPartialFromEnterpriseFn
+)
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "Popup",
+  importPopupTypedFromEnterprise as ImportTypedFromEnterpriseFn
 )

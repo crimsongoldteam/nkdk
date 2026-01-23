@@ -60,7 +60,7 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   }
 
   // Получаем имя каталога из пути к файлу
-  // Ожидаем структуру: .../Catalogs/CatalogName/Item.yml
+  // Ожидаем структуру: .../Справочник/CatalogName/Свойства.yml
   const catalogDirPath = dirname(inputPath)
   const catalogDir = basename(catalogDirPath)
   const catalogName = catalogDir
@@ -96,12 +96,12 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
 }
 
 /**
- * Ищет все YAML файлы в каталоге inputPath/Catalogs и обрабатывает их через exportCatalog
+ * Ищет все YAML файлы в каталоге inputPath/Справочник и обрабатывает их через exportCatalog
  * @param inputPath - путь к входящему каталогу
  * @param outputPath - путь к исходящему каталогу
  */
 export const exportCatalogsFromDirectory = (inputPath: string, outputPath: string) => {
-  const catalogsPath = join(inputPath, "Catalogs")
+  const catalogsPath = join(inputPath, "Справочник")
 
   if (!existsSync(catalogsPath)) {
     return
@@ -115,13 +115,13 @@ export const exportCatalogsFromDirectory = (inputPath: string, outputPath: strin
     return
   }
 
-  // Ищем Item.yml файлы в каждом подкаталоге
+  // Ищем Свойства.yml файлы в каждом подкаталоге
   const yamlFiles: Array<{ dir: string; path: string }> = []
   for (const dir of catalogDirs) {
     const dirPath = join(catalogsPath, dir.name)
-    const itemYmlPath = join(dirPath, "Item.yml")
-    if (existsSync(itemYmlPath)) {
-      yamlFiles.push({ dir: dir.name, path: itemYmlPath })
+    const propertiesYmlPath = join(dirPath, "Свойства.yml")
+    if (existsSync(propertiesYmlPath)) {
+      yamlFiles.push({ dir: dir.name, path: propertiesYmlPath })
     }
   }
 
@@ -149,7 +149,7 @@ export const exportCatalogsFromDirectory = (inputPath: string, outputPath: strin
     for (let i = 0; i < yamlFiles.length; i++) {
       const { dir, path: inputFile } = yamlFiles[i]
       const outputFile = join(outputPath, "Catalogs", `${dir}.xml`)
-      const fileName = `${dir}/Item.yml`
+      const fileName = `${dir}/Свойства.yml`
 
       try {
         mkdirSync(join(outputPath, "Catalogs"), { recursive: true })
