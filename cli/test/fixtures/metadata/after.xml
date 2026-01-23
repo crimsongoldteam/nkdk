@@ -731,6 +731,29 @@
 			<Form>ФормаБ</Form>
 			<Template>ШаблонА</Template>
 			<Template>ШаблонБ</Template>
+			<Command uuid="11111111-1111-4111-8111-111111111111">
+				<Properties>
+					<CommandParameterType>
+						<v8:Type>cfg:CatalogRef.ДоговорыКредитовИДепозитов</v8:Type>
+					</CommandParameterType>
+					<Group>FormNavigationPanelGoTo</Group>
+					<ModifiesData>false</ModifiesData>
+					<Name>ВариантыГрафиковДоговора</Name>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+					<ParameterUseMode>Single</ParameterUseMode>
+					<Representation>Auto</Representation>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Варианты графиков</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Schedule options</v8:content>
+						</v8:item>
+					</Synonym>
+				</Properties>
+			</Command>
 		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

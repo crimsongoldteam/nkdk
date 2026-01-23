@@ -4,6 +4,7 @@ import { parseXml } from "./parseXml.js"
 import { removeEmptyNodes } from "./removeEmptyNodes.js"
 import { setUUID } from "./setUUID.js"
 import { sortData } from "./sortData.js"
+import { sortChildObjects } from "./sortChildObjects.js"
 import { CleanContext } from "./types.js"
 
 const metadataContext: CleanContext = {
@@ -47,7 +48,8 @@ export const cleanMetadata = (xmlContent: string): string => {
     (data) => addNamespaces(metadataContext, data),
     (data) => removeEmptyNodes(metadataContext, data),
     (data) => setUUID(metadataContext, data),
-    (data) => sortData(metadataContext, data, false, "")
+    (data) => sortData(metadataContext, data, false, ""),
+    (data) => sortChildObjects(metadataContext, data)
   )
 
   const parsedData = parseXml(xmlContent)
