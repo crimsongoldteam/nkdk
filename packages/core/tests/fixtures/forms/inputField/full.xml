@@ -45,7 +45,7 @@
 	<ChoiceListHeight>200</ChoiceListHeight>
 	<ChoiceParameterLinks>
 		<xr:Link>
-				<xr:Name>Отбор.Владелец</xr:Name>
+			<xr:Name>Отбор.Владелец</xr:Name>
 			<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
 			<xr:ValueChange>Clear</xr:ValueChange>
 		</xr:Link>

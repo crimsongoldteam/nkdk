@@ -7,8 +7,8 @@
 		<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
 		<ChoiceParameterLinks>
 			<xr:Link>
-				<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
 				<xr:Name>Отбор.Владелец</xr:Name>
+				<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
 				<xr:ValueChange>Clear</xr:ValueChange>
 			</xr:Link>
 		</ChoiceParameterLinks>

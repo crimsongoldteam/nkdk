@@ -4,8 +4,8 @@
 		<xr:ChoiceHistoryOnInput>DontUse</xr:ChoiceHistoryOnInput>
 		<xr:ChoiceParameterLinks>
 			<xr:Link>
-				<xr:DataPath xsi:type="xs:string">Catalog.Справочник2.Attribute.Реквизит2</xr:DataPath>
 				<xr:Name>Отбор.Владелец2</xr:Name>
+				<xr:DataPath xsi:type="xs:string">Catalog.Справочник2.Attribute.Реквизит2</xr:DataPath>
 				<xr:ValueChange>Clear</xr:ValueChange>
 			</xr:Link>
 		</xr:ChoiceParameterLinks>

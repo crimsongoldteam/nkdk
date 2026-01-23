@@ -22,7 +22,7 @@ describe("exportChoiceParameterLinksToXML", () => {
 
   it("should export ChoiceParameterLinks with single Link", () => {
     const data = singleChoiceParameterLinks
-    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportSingle.xml").trimEnd()
+    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportSingle.xml")
 
     const exported = exportChoiceParameterLinksToXML(mockСontext, data)
     const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
@@ -32,7 +32,7 @@ describe("exportChoiceParameterLinksToXML", () => {
 
   it("should export ChoiceParameterLinks with multiple Links", () => {
     const data = multipleChoiceParameterLinks
-    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportMultiple.xml").trimEnd()
+    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportMultiple.xml")
 
     const exported = exportChoiceParameterLinksToXML(mockСontext, data)
     const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
@@ -42,7 +42,7 @@ describe("exportChoiceParameterLinksToXML", () => {
 
   it("should export ChoiceParameterLinks with DataPath as string", () => {
     const data = withStringDataPathChoiceParameterLinks
-    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/withStringDataPath.xml").trimEnd()
+    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/withStringDataPath.xml")
 
     const exported = exportChoiceParameterLinksToXML(mockСontext, data)
     const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)

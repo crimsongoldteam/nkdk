@@ -9,8 +9,8 @@ export const exportChoiceParameterLinkToXML = (
   const dataPath = exportMetadataSimpleValueToXML(context, link.dataPath, "string")!
 
   return {
-    "xr:DataPath": dataPath,
     "xr:Name": link.name,
+    "xr:DataPath": dataPath,
     "xr:ValueChange": link.valueChange,
   }
 }
