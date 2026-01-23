@@ -215,7 +215,7 @@ export const withDynamicListFormAttribute: FormAttributes = [
   {
     name: "ВыбранныеЗначения",
     title: { items: { ru: "Выбранные значения" } },
-    valueType: { type: ["ValueListType"] },
+    valueType: { type: ["DynamicList"] },
     settings: fullDynamicList,
   },
 ]
