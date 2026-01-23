@@ -25,15 +25,13 @@ export type DynamicListXML = {
 }
 
 export type DynamicListEnterprise = {
-  Settings: {
-    "@attributes": {
-      "xsi:type": string
-    }
-    ManualQuery?: boolean
-    DynamicDataRead?: boolean
-    Parameter?: Array<Record<string, unknown>>
-    MainTable?: string
-    ListSettings?: Record<string, unknown>
-    [key: string]: unknown
+  "@attributes": {
+    "xsi:type": string
   }
+  ManualQuery?: boolean
+  DynamicDataRead?: boolean
+  Parameter?: Array<Record<string, unknown>>
+  MainTable?: string
+  ListSettings?: Record<string, unknown>
+  [key: string]: unknown
 }

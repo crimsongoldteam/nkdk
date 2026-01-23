@@ -11,6 +11,7 @@ import {
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
 import { StringboolEnterprise } from "../boolean/types"
+import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
 
 export interface FormAttribute {
   name: string
@@ -19,7 +20,7 @@ export interface FormAttribute {
   mainAttribute?: boolean
   storedData?: boolean
   use?: UserVisible
-  settings?: TypeDescription
+  settings?: TypeDescription | DynamicList
 }
 
 interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
@@ -29,7 +30,7 @@ interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
 export interface FormAttributeXML {
   _name: string
   _id: string
-  Settings?: SettingsTypeDescriptionXML
+  Settings?: SettingsTypeDescriptionXML | DynamicListXML
   Title?: I8nTextXML
   Type?: TypeDescriptionXML
   MainAttribute?: boolean
@@ -47,6 +48,7 @@ export interface FormAttributeEnterprise {
   ТипЗначения?: TypeDescriptionEnterprise
   ОсновнойРеквизит?: StringboolEnterprise
   СохраняемыеДанные?: StringboolEnterprise
+  ДинамическийСписок?: DynamicListEnterprise
   [UserVisibleKeysEnterprise.Allow]?: UserVisibleEnterprise
   [UserVisibleKeysEnterprise.Deny]?: UserVisibleEnterprise
 }

@@ -4,6 +4,7 @@ import {
   fullFormAttributes,
   minimalFormAttributes,
   multipleFormAttributes,
+  withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -61,6 +62,16 @@ describe("exportFormAttributesToXML", () => {
     const expectedResult = readXMLFileAsString("formAttributes/withEmptySettings.xml")
 
     const xmlData = exportFormAttributesToXML(mockСontext, withEmptySettingsFormAttribute)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export with dynamic list", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/withDynamicList.xml")
+
+    const xmlData = exportFormAttributesToXML(mockСontext, withDynamicListFormAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

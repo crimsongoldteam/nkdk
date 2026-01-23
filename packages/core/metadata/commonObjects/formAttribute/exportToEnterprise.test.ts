@@ -8,6 +8,8 @@ import {
   mainAttributeTitleEqualsNameEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
+  withDynamicListFormAttribute,
+  withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
   withEmptySettingsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
@@ -48,5 +50,11 @@ describe("exportFormAttributesToEnterprise", () => {
     const result = exportFormAttributesToEnterprise(mockСontext, withEmptySettingsFormAttribute)
 
     expect(result).toEqual(withEmptySettingsFormAttributeEnterprise)
+  })
+
+  it("should export with dynamic list", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, withDynamicListFormAttribute)
+
+    expect(result).toEqual(withDynamicListFormAttributeEnterprise)
   })
 })

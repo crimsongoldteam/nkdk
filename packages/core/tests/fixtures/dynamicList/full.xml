@@ -8,10 +8,6 @@
 				<v8:lang>ru</v8:lang>
 				<v8:content>Начало периода</v8:content>
 			</v8:item>
-			<v8:item>
-				<v8:lang>en</v8:lang>
-				<v8:content>Period start</v8:content>
-			</v8:item>
 		</dcssch:title>
 		<dcssch:valueType>
 			<v8:Type>xs:dateTime</v8:Type>
@@ -29,10 +25,6 @@
 				<v8:lang>ru</v8:lang>
 				<v8:content>Конец периода</v8:content>
 			</v8:item>
-			<v8:item>
-				<v8:lang>en</v8:lang>
-				<v8:content>Period end</v8:content>
-			</v8:item>
 		</dcssch:title>
 		<dcssch:valueType>
 			<v8:Type>xs:dateTime</v8:Type>
@@ -49,10 +41,6 @@
 			<v8:item>
 				<v8:lang>ru</v8:lang>
 				<v8:content>Первые</v8:content>
-			</v8:item>
-			<v8:item>
-				<v8:lang>en</v8:lang>
-				<v8:content>First</v8:content>
 			</v8:item>
 		</dcssch:title>
 		<dcssch:valueType>

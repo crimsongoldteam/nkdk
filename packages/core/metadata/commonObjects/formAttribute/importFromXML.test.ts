@@ -4,6 +4,7 @@ import {
   fullFormAttributes,
   minimalFormAttributes,
   multipleFormAttributes,
+  withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -55,6 +56,14 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(withEmptySettingsFormAttribute)
+  })
+
+  it("should import with dynamic list", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withDynamicList.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(withDynamicListFormAttribute)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {

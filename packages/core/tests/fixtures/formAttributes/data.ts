@@ -1,4 +1,5 @@
 import { FormAttributes, FormAttributesEnterprise } from "~/metadata/commonObjects/formAttribute/types"
+import { fullDynamicList } from "../dynamicList/data"
 
 //#region FullFormAttributes
 
@@ -206,5 +207,23 @@ export const withEmptySettingsFormAttribute: FormAttributes = [
 
 export const withEmptySettingsFormAttributeEnterprise: FormAttributesEnterprise = {
   ВыбранныеЗначения: "СписокЗначений",
+}
+//#endregion
+
+//#region WithDynamicList
+export const withDynamicListFormAttribute: FormAttributes = [
+  {
+    name: "ВыбранныеЗначения",
+    title: { items: { ru: "Выбранные значения" } },
+    valueType: { type: ["ValueListType"] },
+    settings: fullDynamicList,
+  },
+]
+
+export const withDynamicListFormAttributeEnterprise: FormAttributesEnterprise = {
+  ВыбранныеЗначения: {
+    Тип: "ДинамическийСписок",
+    ДинамическийСписок: fullDynamicList,
+  },
 }
 //#endregion

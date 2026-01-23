@@ -1,4 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportDynamicListToEnterprise } from "~/metadata/commonObjects/dynamicList/exportToEnterprise"
 import {
   FormAttribute,
   FormAttributeEnterprise,
@@ -7,10 +8,11 @@ import {
 } from "~/metadata/commonObjects/formAttribute/types"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
-import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
+import { DynamicList } from "../dynamicList/types"
 import { I8nTextEnterprise } from "../i8nText/types"
 
 export const exportFormAttributesToEnterprise = (
@@ -49,8 +51,16 @@ const exportFormAttributeToEnterprise = (
   const storedData = exportBooleanToEnterprise(context, data.storedData)
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
-  const settings = exportTypeDescriptionToEnterprise(context, data.settings)
-  if (settings !== undefined) result.ТипЗначения = settings
+  if (data.settings !== undefined) {
+    // Check if settings is a DynamicList (has Settings property) or TypeDescription (has type property)
+    if ("Settings" in data.settings) {
+      const dynamicList = exportDynamicListToEnterprise(context, data.settings as DynamicList)
+      if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
+    } else {
+      const settings = exportTypeDescriptionToEnterprise(context, data.settings as TypeDescription)
+      if (settings !== undefined) result.ТипЗначения = settings
+    }
+  }
 
   const use = exportUserVisibleToEnterprise(context, data.use)
   if (use) {
