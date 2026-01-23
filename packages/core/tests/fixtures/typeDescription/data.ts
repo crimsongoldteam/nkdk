@@ -141,11 +141,6 @@ export const typeFixturesTable: TypeFixture[] = [
     xml: "<TypeDescription>\n\t<v8:Type>v8:StandardBeginningDate</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["date"] },
-    enterprise: "Дата",
-    xml: "<TypeDescription>\n\t<v8:Type>xs:date</v8:Type>\n</TypeDescription>",
-  },
-  {
     internal: { type: ["ValueTable"] },
     enterprise: "ТаблицаЗначений",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueTable</v8:Type>\n</TypeDescription>",
