@@ -10,6 +10,8 @@ import {
   minimalFormAttributesEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
+  withDynamicListFormAttribute,
+  withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
   withEmptySettingsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
@@ -56,5 +58,11 @@ describe("importFormAttributesFromEnterprise", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, withEmptySettingsFormAttributeEnterprise)
 
     expect(result).toEqual(withEmptySettingsFormAttribute)
+  })
+
+  it("should import with dynamic list", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, withDynamicListFormAttributeEnterprise)
+
+    expect(result).toEqual(withDynamicListFormAttribute)
   })
 })

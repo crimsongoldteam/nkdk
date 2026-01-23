@@ -30,8 +30,11 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const isValueListType = mergedData.valueType?.type.includes("ValueListType")
   const isDynamicListValueType = mergedData.valueType?.type.includes("DynamicList")
 
+  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
+
   const settings = mergedData.settings
-  const isDynamicListSettings = settings !== undefined && ("@attributes" in settings || (isDynamicListValueType && !("type" in settings)))
+  const isDynamicListSettings =
+    settings !== undefined && ("@attributes" in settings || (isDynamicListValueType && !("type" in settings)))
 
   if (isDynamicListSettings) {
     const settingsCopy = { ...(settings as DynamicList) }
@@ -52,9 +55,6 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
       }
     }
   }
-
-  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
-
   if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)

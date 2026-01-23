@@ -11,6 +11,7 @@ import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
+import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "../i8nText/types"
 
@@ -55,8 +56,13 @@ const importFormAttributeFromEnterprise = (
   const storedData = importBooleanFromEnterprise(context, data.СохраняемыеДанные)
   if (storedData !== undefined) result.storedData = storedData
 
-  const settings = importTypeDescriptionFromEnterprise(context, data.ТипЗначения)
-  if (settings !== undefined) result.settings = settings
+  if (data.ДинамическийСписок !== undefined) {
+    const dynamicList = importDynamicListFromEnterprise(context, data.ДинамическийСписок)
+    if (dynamicList !== undefined) result.settings = dynamicList
+  } else {
+    const settings = importTypeDescriptionFromEnterprise(context, data.ТипЗначения)
+    if (settings !== undefined) result.settings = settings
+  }
 
   const use = importUserVisibleFromEnterprise(
     context,
