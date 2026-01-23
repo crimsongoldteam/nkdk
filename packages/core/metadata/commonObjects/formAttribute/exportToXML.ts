@@ -28,18 +28,20 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   }
 
   const isValueListType = mergedData.valueType?.type.includes("ValueListType")
+  const isDynamicListValueType = mergedData.valueType?.type.includes("DynamicList")
 
   const settings = mergedData.settings
-  const isDynamicList =
-    settings !== undefined &&
-    "type" in settings &&
-    Array.isArray(settings.type) &&
-    settings.type.includes("DynamicList")
+  const isDynamicListSettings = settings !== undefined && ("@attributes" in settings || (isDynamicListValueType && !("type" in settings)))
 
-  if (isDynamicList && "type" in settings) {
+  if (isDynamicListSettings) {
+    const settingsCopy = { ...(settings as DynamicList) }
+    // Remove @attributes if present, we'll set _xsi:type directly
+    if ("@attributes" in settingsCopy) {
+      delete settingsCopy["@attributes"]
+    }
     result.Settings = {
-      "_xsi:type": "v8:DynamicList",
-      ...(settings as DynamicList),
+      "_xsi:type": "DynamicList",
+      ...settingsCopy,
     }
   } else {
     const typeDescriptionSettings = exportTypeDescriptionToXML(context, settings as TypeDescription | undefined)

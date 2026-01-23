@@ -52,11 +52,14 @@ const exportFormAttributeToEnterprise = (
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
   if (data.settings !== undefined) {
-    // Check if settings is a DynamicList (has Settings property) or TypeDescription (has type property)
-    if ("Settings" in data.settings) {
+    // Check if valueType is DynamicList or if settings has @attributes (indicating it's a DynamicList)
+    const isDynamicListValueType = data.valueType?.type.includes("DynamicList")
+    const isDynamicListSettings = "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
+    
+    if (isDynamicListSettings) {
       const dynamicList = exportDynamicListToEnterprise(context, data.settings as DynamicList)
       if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
-    } else {
+    } else if ("type" in data.settings) {
       const settings = exportTypeDescriptionToEnterprise(context, data.settings as TypeDescription)
       if (settings !== undefined) result.ТипЗначения = settings
     }

@@ -3,6 +3,8 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importDynamicListFromXML } from "../dynamicList/importFromXML"
+import { DynamicListXML } from "../dynamicList/types"
 import { FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
 export const importFormAttributesFromXML = (
@@ -33,8 +35,17 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const storedData = importBooleanFromXML(context, props.SavedData)
   if (storedData !== undefined) result.storedData = storedData
 
-  const settings = importTypeDescriptionFromXML(context, props.Settings)
-  if (settings !== undefined) result.settings = settings
+  // Check if Settings is a DynamicList (has _xsi:type indicating DynamicList) or TypeDescription
+  if (props.Settings !== undefined) {
+    const settingsAsAny = props.Settings as any
+    if (settingsAsAny["_xsi:type"] === "DynamicList" || settingsAsAny["_xsi:type"] === "v8:DynamicList") {
+      const dynamicList = importDynamicListFromXML(context, props.Settings as DynamicListXML)
+      if (dynamicList !== undefined) result.settings = dynamicList
+    } else {
+      const settings = importTypeDescriptionFromXML(context, props.Settings)
+      if (settings !== undefined) result.settings = settings
+    }
+  }
 
   const use = importUserVisibleFromXML(context, props.Use)
   if (use !== undefined) result.use = use
