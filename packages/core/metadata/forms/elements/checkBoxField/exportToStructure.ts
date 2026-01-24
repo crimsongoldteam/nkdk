@@ -35,35 +35,25 @@ const formatCheckBoxFieldContent = (
   element: CheckBoxField,
   forContent: boolean
 ): string => {
-  const result = []
-  const titleParts = getCheckBoxTitle(context, element, forContent)
-  result.push(...titleParts)
-
-  const name = formatElementName(element)
-  result.push(name)
-
-  return result.join(" ")
-}
-
-const getCheckBoxTitle = (context: ConfigurationContext, element: CheckBoxField, forContent: boolean): string[] => {
   const title = formatDefaultLanguageText(context, element.title)
-
-  const isRightTitled = element.headerHorizontalAlign === "Right" || forContent
   const isSwitch = element.checkBoxType === "Switch" && !forContent
-
-  const parts = []
-
   const symbol = isSwitch ? "[ |1]" : "[ ]"
+  const name = formatElementName(element)
 
-  if (isRightTitled) {
-    parts.push(symbol)
-    if (title) parts.push(title)
-  } else {
-    parts.push(title ?? '""')
-    parts.push(symbol)
+  if (title) {
+    const isRightTitled = element.headerHorizontalAlign === "Right" || forContent
+    if (isRightTitled) {
+      return `${symbol} ${title} ${name}`
+    } else {
+      return `${title} ${symbol} ${name}`
+    }
   }
 
-  return parts
+  if (isSwitch) {
+    return `${symbol} ${name}`
+  }
+
+  return `${name} ${symbol}`
 }
 
 registerMetadata(
