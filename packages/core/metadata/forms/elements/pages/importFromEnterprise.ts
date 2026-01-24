@@ -147,18 +147,13 @@ const importPagesPropsFromEnterprise = (
   )
   if (pagesRepresentation !== undefined) result.pagesRepresentation = pagesRepresentation
 
-  const userVisibleAllow = importUserVisibleFromEnterprise(
+  const userVisible = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
-    "РазрешитьИспользование"
+    data.ЗапретитьИспользование
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
+  if (userVisible !== undefined) {
+    result.userVisible = userVisible
   }
 
   const currentPagesState = importSystemEnumerationFromEnterprise<SE.FormPagesState>(

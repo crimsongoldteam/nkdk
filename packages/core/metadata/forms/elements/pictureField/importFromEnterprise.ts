@@ -267,18 +267,13 @@ const importPictureFieldPropsFromEnterprise = (
   const zoomable = importBooleanFromEnterprise(context, data.Масштабировать)
   if (zoomable !== undefined) result.zoomable = zoomable
 
-  const userVisibleAllow = importUserVisibleFromEnterprise(
+  const userVisible = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
-    "РазрешитьИспользование"
+    data.ЗапретитьИспользование
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
+  if (userVisible !== undefined) {
+    result.userVisible = userVisible
   }
 
   const pictureSize = importSystemEnumerationFromEnterprise<SE.PictureSize>(

@@ -186,18 +186,13 @@ const importTrackBarFieldPropsFromEnterprise = (
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const userVisibleFormField = importUserVisibleFromEnterprise(
+  const userVisible = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
-    "РазрешитьИспользование"
+    data.ЗапретитьИспользование
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleFormField !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleFormField || userVisibleDeny
+  if (userVisible !== undefined) {
+    result.userVisible = userVisible
   }
 
   const warningOnEdit = importI8nTextFromEnterprise(context, data.ПредупреждениеПриРедактировании)

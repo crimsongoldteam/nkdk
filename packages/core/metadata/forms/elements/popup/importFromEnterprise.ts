@@ -110,18 +110,13 @@ const importPopupPropsFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, enterprise.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const userVisibleAllow = importUserVisibleFromEnterprise(
+  const userVisible = importUserVisibleFromEnterprise(
     context,
     enterprise.РазрешитьИспользование,
-    "РазрешитьИспользование"
+    enterprise.ЗапретитьИспользование
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    enterprise.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
+  if (userVisible !== undefined) {
+    result.userVisible = userVisible
   }
 
   const enableContentChange = importBooleanFromEnterprise(context, enterprise.РазрешитьИзменениеСостава)

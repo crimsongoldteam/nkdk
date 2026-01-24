@@ -109,18 +109,13 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  const userVisibleAllow = importUserVisibleFromEnterprise(
+  const userVisible = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
-    "РазрешитьИспользование"
+    data.ЗапретитьИспользование
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
+  if (userVisible !== undefined) {
+    result.userVisible = userVisible
   }
 
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)

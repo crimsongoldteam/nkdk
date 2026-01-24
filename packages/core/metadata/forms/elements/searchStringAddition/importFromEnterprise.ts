@@ -102,18 +102,13 @@ export const importSearchStringAdditionPropsFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const userVisibleAllow = importUserVisibleFromEnterprise(
+  const userVisible = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
-    "РазрешитьИспользование"
+    data.ЗапретитьИспользование
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
+  if (userVisible !== undefined) {
+    result.userVisible = userVisible
   }
 
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
