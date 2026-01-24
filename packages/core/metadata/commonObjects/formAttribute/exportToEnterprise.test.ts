@@ -12,6 +12,12 @@ import {
   withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
   withEmptySettingsFormAttributeEnterprise,
+  tableWithColumnsFormAttribute,
+  tableWithColumnsFormAttributeEnterprise,
+  treeWithColumnFormAttribute,
+  treeWithColumnFormAttributeEnterprise,
+  withFunctionalOptionsFormAttribute,
+  withFunctionalOptionsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportFormAttributesToEnterprise } from "./exportToEnterprise"
@@ -56,5 +62,23 @@ describe("exportFormAttributesToEnterprise", () => {
     const result = exportFormAttributesToEnterprise(mockСontext, withDynamicListFormAttribute)
 
     expect(result).toEqual(withDynamicListFormAttributeEnterprise)
+  })
+
+  it("should export table with columns", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, tableWithColumnsFormAttribute)
+
+    expect(result).toEqual(tableWithColumnsFormAttributeEnterprise)
+  })
+
+  it("should export tree with column", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, treeWithColumnFormAttribute)
+
+    expect(result).toEqual(treeWithColumnFormAttributeEnterprise)
+  })
+
+  it("should export with functional options", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, withFunctionalOptionsFormAttribute)
+
+    expect(result).toEqual(withFunctionalOptionsFormAttributeEnterprise)
   })
 })

@@ -6,6 +6,9 @@ import {
   multipleFormAttributes,
   withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
+  tableWithColumnsFormAttribute,
+  treeWithColumnFormAttribute,
+  withFunctionalOptionsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -64,6 +67,30 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(withDynamicListFormAttribute)
+  })
+
+  it("should import table with columns", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/tableWithColumns.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(tableWithColumnsFormAttribute)
+  })
+
+  it("should import tree with column", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/treeWithColumn.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(treeWithColumnFormAttribute)
+  })
+
+  it("should import with functional options", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withFunctionalOptions.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(withFunctionalOptionsFormAttribute)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {

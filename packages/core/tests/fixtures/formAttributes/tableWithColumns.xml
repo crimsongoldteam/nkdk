@@ -2,7 +2,7 @@
 	<Columns>
 		<Column name="Колонка1" id="2">
 			<Type>
-				<v8:Type>v8:boolean</v8:Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Column>
 		<Column name="Колонка2" id="3">

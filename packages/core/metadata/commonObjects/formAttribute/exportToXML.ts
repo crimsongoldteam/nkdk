@@ -5,8 +5,16 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { DynamicList } from "../dynamicList/types"
-import { exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
-import { FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
+import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
+import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
+import {
+  FormAttribute,
+  FormAttributeColumn,
+  FormAttributeColumnXML,
+  FormAttributes,
+  FormAttributesXML,
+  FormAttributeXML,
+} from "./types"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
@@ -27,10 +35,10 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     _id: getElementId(context),
   }
 
+  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
+
   const isValueListType = mergedData.valueType?.type.includes("ValueListType")
   const isDynamicListValueType = mergedData.valueType?.type.includes("DynamicList")
-
-  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
 
   const settings = mergedData.settings
   const isDynamicListSettings =
@@ -55,6 +63,12 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
       }
     }
   }
+  if (mergedData.columns && mergedData.columns.length > 0) {
+    result.Columns = {
+      Column: exportFormAttributeColumnsToXML(context, mergedData.columns),
+    }
+  }
+
   if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
@@ -66,5 +80,47 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const use = exportUserVisibleToXML(context, mergedData.use)
   if (use) result.Use = use
 
+  const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
+  if (functionalOptions) result.FunctionalOptions = functionalOptions
+
   return result
+}
+
+const exportFormAttributeColumnsToXML = (
+  context: ConfigurationContext,
+  columns: FormAttributeColumn[]
+): FormAttributeColumnXML | FormAttributeColumnXML[] => {
+  const result = columns.map((column) => {
+    const res: FormAttributeColumnXML = {
+      _name: column.name,
+      _id: column.id || getElementId(context),
+    }
+
+    const title = exportI8nTextToXML(context, column.title)
+    if (title) res.Title = title
+
+    const type = exportTypeDescriptionToXML(context, column.type)
+    if (type) res.Type = type
+
+    const view = exportUserVisibleToXML(context, column.view)
+    if (view) res.View = view
+
+    const edit = exportUserVisibleToXML(context, column.edit)
+    if (edit) res.Edit = edit
+
+    if (column.fillCheck) {
+      res.FillCheck = column.fillCheck
+    }
+
+    if (column.columns && column.columns.length > 0) {
+      res.Column = exportFormAttributeColumnsToXML(context, column.columns)
+    }
+
+    const functionalOptions = exportFunctionalOptionsToXML(context, column.functionalOptions)
+    if (functionalOptions) res.FunctionalOptions = functionalOptions
+
+    return res
+  })
+
+  return result.length === 1 ? result[0] : result
 }

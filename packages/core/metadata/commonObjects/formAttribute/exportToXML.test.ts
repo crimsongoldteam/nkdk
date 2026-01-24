@@ -6,6 +6,9 @@ import {
   multipleFormAttributes,
   withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
+  tableWithColumnsFormAttribute,
+  treeWithColumnFormAttribute,
+  withFunctionalOptionsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -72,6 +75,39 @@ describe("exportFormAttributesToXML", () => {
     const expectedResult = readXMLFileAsString("formAttributes/withDynamicList.xml")
 
     const xmlData = exportFormAttributesToXML(mockСontext, withDynamicListFormAttribute)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export table with columns", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/tableWithColumns.xml")
+    mockСontext.context = {}
+
+    const xmlData = exportFormAttributesToXML(mockСontext, tableWithColumnsFormAttribute)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export tree with column", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/treeWithColumn.xml")
+    mockСontext.context = {}
+
+    const xmlData = exportFormAttributesToXML(mockСontext, treeWithColumnFormAttribute)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export with functional options", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/withFunctionalOptions.xml")
+    mockСontext.context = {}
+
+    const xmlData = exportFormAttributesToXML(mockСontext, withFunctionalOptionsFormAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

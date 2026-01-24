@@ -14,6 +14,12 @@ import {
   withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
   withEmptySettingsFormAttributeEnterprise,
+  tableWithColumnsFormAttribute,
+  tableWithColumnsFormAttributeEnterprise,
+  treeWithColumnFormAttribute,
+  treeWithColumnFormAttributeEnterprise,
+  withFunctionalOptionsFormAttribute,
+  withFunctionalOptionsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importFormAttributesFromEnterprise } from "./importFromEnterprise"
@@ -64,5 +70,42 @@ describe("importFormAttributesFromEnterprise", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, withDynamicListFormAttributeEnterprise)
 
     expect(result).toEqual(withDynamicListFormAttribute)
+  })
+
+  it("should import table with columns", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, tableWithColumnsFormAttributeEnterprise)
+
+    // Reset IDs for comparison since Enterprise doesn't provide them
+    const expected = tableWithColumnsFormAttribute.map(attr => ({
+      ...attr,
+      columns: attr.columns?.map(col => ({ ...col, id: "" }))
+    }))
+
+    expect(result).toEqual(expected)
+  })
+
+  it("should import tree with column", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, treeWithColumnFormAttributeEnterprise)
+
+    // Reset IDs recursively for comparison
+    const resetIds = (columns?: any[]): any[] | undefined =>
+      columns?.map((col) => {
+        const res = { ...col, id: "" }
+        if (col.columns) res.columns = resetIds(col.columns)
+        return res
+      })
+
+    const expected = treeWithColumnFormAttribute.map((attr) => ({
+      ...attr,
+      columns: resetIds(attr.columns),
+    }))
+
+    expect(result).toEqual(expected)
+  })
+
+  it("should import with functional options", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, withFunctionalOptionsFormAttributeEnterprise)
+
+    expect(result).toEqual(withFunctionalOptionsFormAttribute)
   })
 })

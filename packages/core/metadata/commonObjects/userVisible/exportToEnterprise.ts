@@ -4,7 +4,8 @@ import { UserVisibleEnterprise, UserVisibleKeysEnterprise, type UserVisible } fr
 
 export const exportUserVisibleToEnterprise = (
   context: ConfigurationContext,
-  userVisible: UserVisible | undefined
+  userVisible: UserVisible | undefined,
+  keys?: { allow: UserVisibleKeysEnterprise; deny: UserVisibleKeysEnterprise }
 ): Partial<Record<UserVisibleKeysEnterprise, UserVisibleEnterprise>> | undefined => {
   if (!userVisible) return undefined
 
@@ -13,9 +14,10 @@ export const exportUserVisibleToEnterprise = (
     values[item.name] = exportBooleanToEnterprise(context, item.value)!
   })
 
-  const key: UserVisibleKeysEnterprise = userVisible.common
-    ? UserVisibleKeysEnterprise.Allow
-    : UserVisibleKeysEnterprise.Deny
+  const allowKey = keys?.allow ?? UserVisibleKeysEnterprise.Allow
+  const denyKey = keys?.deny ?? UserVisibleKeysEnterprise.Deny
+
+  const key: UserVisibleKeysEnterprise = userVisible.common ? allowKey : denyKey
   return {
     [key]: values,
   }

@@ -2,6 +2,8 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportDynamicListToEnterprise } from "~/metadata/commonObjects/dynamicList/exportToEnterprise"
 import {
   FormAttribute,
+  FormAttributeColumn,
+  FormAttributeColumnEnterprise,
   FormAttributeEnterprise,
   FormAttributes,
   FormAttributesEnterprise,
@@ -10,9 +12,13 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { DynamicList } from "../dynamicList/types"
+import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
 
 export const exportFormAttributesToEnterprise = (
@@ -54,8 +60,9 @@ const exportFormAttributeToEnterprise = (
   if (data.settings !== undefined) {
     // Check if valueType is DynamicList or if settings has @attributes (indicating it's a DynamicList)
     const isDynamicListValueType = data.valueType?.type.includes("DynamicList")
-    const isDynamicListSettings = "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
-    
+    const isDynamicListSettings =
+      "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
+
     if (isDynamicListSettings) {
       const dynamicList = exportDynamicListToEnterprise(context, data.settings as DynamicList)
       if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
@@ -70,7 +77,68 @@ const exportFormAttributeToEnterprise = (
     Object.assign(result, use)
   }
 
+  if (data.columns && data.columns.length > 0) {
+    result.Колонки = exportFormAttributeColumnsToEnterprise(context, data.columns)
+  }
+
+  const functionalOptions = exportFunctionalOptionsToEnterprise(context, data.functionalOptions)
+  if (functionalOptions) {
+    result.ФункциональныеОпции = functionalOptions
+  }
+
   return result as FormAttributeEnterprise
+}
+
+const exportFormAttributeColumnsToEnterprise = (
+  context: ConfigurationContext,
+  columns: FormAttributeColumn[]
+): Record<string, FormAttributeColumnEnterprise> => {
+  return Object.fromEntries(
+    columns.map((column) => [column.name, exportFormAttributeColumnToEnterprise(context, column)])
+  )
+}
+
+const exportFormAttributeColumnToEnterprise = (
+  context: ConfigurationContext,
+  column: FormAttributeColumn
+): FormAttributeColumnEnterprise => {
+  const result: FormAttributeColumnEnterprise = {}
+
+  const title = exportI8nTextToEnterprise(context, column.title)
+  if (title) result.Заголовок = title
+
+  const type = exportTypeDescriptionToEnterprise(context, column.type)
+  if (type) result.Тип = type
+
+  const fillCheck = exportSystemEnumerationToEnterprise<FillCheckingEnterprise>(
+    context,
+    column.fillCheck,
+    FillCheckingToEnterprise
+  )
+  if (fillCheck) result.ПроверкаЗаполнения = fillCheck
+
+  const view = exportUserVisibleToEnterprise(context, column.view, {
+    allow: UserVisibleKeysEnterprise.AllowView,
+    deny: UserVisibleKeysEnterprise.DenyView,
+  })
+  if (view) Object.assign(result, view)
+
+  const edit = exportUserVisibleToEnterprise(context, column.edit, {
+    allow: UserVisibleKeysEnterprise.AllowEdit,
+    deny: UserVisibleKeysEnterprise.DenyEdit,
+  })
+  if (edit) Object.assign(result, edit)
+
+  if (column.columns && column.columns.length > 0) {
+    result.Колонки = exportFormAttributeColumnsToEnterprise(context, column.columns)
+  }
+
+  const functionalOptions = exportFunctionalOptionsToEnterprise(context, column.functionalOptions)
+  if (functionalOptions) {
+    result.ФункциональныеОпции = functionalOptions
+  }
+
+  return result
 }
 
 /**
@@ -107,9 +175,13 @@ const computeTitleForExport = (
 const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {
   if (title !== undefined) return false
   if (data.settings !== undefined) return false
+  if (data.columns !== undefined && data.columns.length > 0) return false
+  if (data.functionalOptions !== undefined && data.functionalOptions.length > 0) return false
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(
-      ([key, value]) => value !== undefined && !["name", "id", "valueType", "title", "settings"].includes(key)
+      ([key, value]) =>
+        value !== undefined &&
+        !["name", "id", "valueType", "title", "settings", "columns", "functionalOptions"].includes(key)
     )
   )
   return Object.keys(filteredData).length === 0

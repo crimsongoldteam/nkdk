@@ -35,4 +35,7 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</Use>
+	<FunctionalOptions>
+		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
+	</FunctionalOptions>
 </Attribute>

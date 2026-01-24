@@ -23,6 +23,10 @@ export interface UserVisible {
 export const UserVisibleKeysEnterprise = {
   Allow: "РазрешитьИспользование",
   Deny: "ЗапретитьИспользование",
+  AllowView: "РазрешитьПросмотр",
+  DenyView: "ЗапретитьПросмотр",
+  AllowEdit: "РазрешитьРедактирование",
+  DenyEdit: "ЗапретитьРедактирование",
 } as const
 
 export type UserVisibleKeysEnterprise = (typeof UserVisibleKeysEnterprise)[keyof typeof UserVisibleKeysEnterprise]

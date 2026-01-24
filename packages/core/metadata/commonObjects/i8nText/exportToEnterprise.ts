@@ -12,7 +12,7 @@ export const exportI8nTextToEnterprise = (
 
   const items = title.items
 
-  if (Object.keys(items).length === 1 && items[defaultLanguage]) return items[defaultLanguage]
+  if (Object.keys(items).length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
 
   return items
 }

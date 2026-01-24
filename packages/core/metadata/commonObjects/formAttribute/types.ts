@@ -10,8 +10,14 @@ import {
   UserVisibleKeysEnterprise,
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
+import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 import { StringboolEnterprise } from "../boolean/types"
 import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
+import {
+  FunctionalOptions,
+  FunctionalOptionsEnterprise,
+  FunctionalOptionsXML,
+} from "../functionalOptionsProperty/types"
 
 export interface FormAttribute {
   name: string
@@ -19,12 +25,41 @@ export interface FormAttribute {
   valueType?: TypeDescription
   mainAttribute?: boolean
   storedData?: boolean
-  use?: UserVisible
+  view?: UserVisible
+  edit?: UserVisible
+  fillCheck?: FillChecking
   settings?: TypeDescription | DynamicList
+  columns?: FormAttributeColumn[]
+  functionalOptions?: FunctionalOptions
+  useAlways: UseAlways
+}
+
+export interface FormAttributeColumn {
+  name: string
+  id: string
+  title?: I8nText
+  type?: TypeDescription
+  view?: UserVisible
+  edit?: UserVisible
+  fillCheck?: FillChecking
+  columns?: FormAttributeColumn[]
+  functionalOptions?: FunctionalOptions
 }
 
 interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
   "_xsi:type": "v8:TypeDescription"
+}
+
+export interface FormAttributeColumnXML {
+  _name: string
+  _id: string
+  Title?: I8nTextXML
+  Type?: TypeDescriptionXML
+  View?: UserVisibleXML
+  Edit?: UserVisibleXML
+  FillCheck?: FillChecking
+  Column?: FormAttributeColumnXML | FormAttributeColumnXML[]
+  FunctionalOptions?: FunctionalOptionsXML
 }
 
 export interface FormAttributeXML {
@@ -35,11 +70,29 @@ export interface FormAttributeXML {
   Type?: TypeDescriptionXML
   MainAttribute?: boolean
   SavedData?: boolean
-  Use?: UserVisibleXML
+  FillCheck?: FillChecking
+  View?: UserVisibleXML
+  Edit?: UserVisibleXML
+  Columns?: {
+    Column: FormAttributeColumnXML | FormAttributeColumnXML[]
+  }
+  FunctionalOptions?: FunctionalOptionsXML
 }
 
 export interface ConditionalAppearanceXML {
   ConditionalAppearance: Record<string, unknown>
+}
+
+export interface FormAttributeColumnEnterprise {
+  Заголовок?: I8nTextEnterprise
+  Тип?: TypeDescriptionEnterprise
+  ПроверкаЗаполнения?: FillCheckingEnterprise
+  [UserVisibleKeysEnterprise.AllowView]?: UserVisibleEnterprise
+  [UserVisibleKeysEnterprise.DenyView]?: UserVisibleEnterprise
+  [UserVisibleKeysEnterprise.AllowEdit]?: UserVisibleEnterprise
+  [UserVisibleKeysEnterprise.DenyEdit]?: UserVisibleEnterprise
+  Колонки?: Record<string, FormAttributeColumnEnterprise>
+  ФункциональныеОпции?: FunctionalOptionsEnterprise
 }
 
 export interface FormAttributeEnterprise {
@@ -51,6 +104,8 @@ export interface FormAttributeEnterprise {
   ДинамическийСписок?: DynamicListEnterprise
   [UserVisibleKeysEnterprise.Allow]?: UserVisibleEnterprise
   [UserVisibleKeysEnterprise.Deny]?: UserVisibleEnterprise
+  Колонки?: Record<string, FormAttributeColumnEnterprise>
+  ФункциональныеОпции?: FunctionalOptionsEnterprise
 }
 
 export type FormAttributes = FormAttribute[]

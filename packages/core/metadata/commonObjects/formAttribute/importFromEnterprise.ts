@@ -1,6 +1,8 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import {
   FormAttribute,
+  FormAttributeColumn,
+  FormAttributeColumnEnterprise,
   FormAttributeEnterprise,
   FormAttributes,
   FormAttributesEnterprise,
@@ -11,7 +13,10 @@ import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { FillChecking, FillCheckingFromEnterprise } from "~/metadata/systemEnumerations/types"
 import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
+import { importFunctionalOptionsFromEnterprise } from "../functionalOptionsProperty/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "../i8nText/types"
 
@@ -75,7 +80,76 @@ const importFormAttributeFromEnterprise = (
   )
   if (use !== undefined) result.use = use
 
+  if (data.Колонки) {
+    result.columns = importFormAttributeColumnsFromEnterprise(context, data.Колонки)
+  }
+
+  const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
+  if (functionalOptions) result.functionalOptions = functionalOptions
+
   return result
+}
+
+const importFormAttributeColumnsFromEnterprise = (
+  context: ConfigurationContext,
+  data: Record<string, FormAttributeColumnEnterprise>
+): FormAttributeColumn[] => {
+  return Object.entries(data).map(([name, value]) => importFormAttributeColumnFromEnterprise(context, value, name))
+}
+
+const importFormAttributeColumnFromEnterprise = (
+  context: ConfigurationContext,
+  data: FormAttributeColumnEnterprise,
+  name: string
+): FormAttributeColumn => {
+  const column: FormAttributeColumn = {
+    name,
+    id: "", // Enterprise doesn't provide IDs
+  }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title) column.title = title
+
+  const type = importTypeDescriptionFromEnterprise(context, data.Тип)
+  if (type) column.type = type
+
+  const fillCheck = importSystemEnumerationFromEnterprise<FillChecking>(
+    context,
+    data.ПроверкаЗаполнения,
+    FillCheckingFromEnterprise
+  )
+  if (fillCheck) column.fillCheck = fillCheck
+
+  const view = importUserVisibleFromEnterprise(
+    context,
+    data[UserVisibleKeysEnterprise.AllowView] || data[UserVisibleKeysEnterprise.DenyView],
+    data[UserVisibleKeysEnterprise.AllowView]
+      ? UserVisibleKeysEnterprise.AllowView
+      : data[UserVisibleKeysEnterprise.DenyView]
+        ? UserVisibleKeysEnterprise.DenyView
+        : undefined
+  )
+  if (view) column.view = view
+
+  const edit = importUserVisibleFromEnterprise(
+    context,
+    data[UserVisibleKeysEnterprise.AllowEdit] || data[UserVisibleKeysEnterprise.DenyEdit],
+    data[UserVisibleKeysEnterprise.AllowEdit]
+      ? UserVisibleKeysEnterprise.AllowEdit
+      : data[UserVisibleKeysEnterprise.DenyEdit]
+        ? UserVisibleKeysEnterprise.DenyEdit
+        : undefined
+  )
+  if (edit) column.edit = edit
+
+  if (data.Колонки) {
+    column.columns = importFormAttributeColumnsFromEnterprise(context, data.Колонки)
+  }
+
+  const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
+  if (functionalOptions) column.functionalOptions = functionalOptions
+
+  return column
 }
 
 /**

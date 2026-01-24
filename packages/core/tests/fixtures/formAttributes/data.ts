@@ -3,7 +3,7 @@ import { fullDynamicList } from "../dynamicList/data"
 
 //#region FullFormAttributes
 
-export const fullFormAttributes: FormAttributes = [
+export const fullFormAttributes: Required<FormAttributes> = [
   {
     name: "Объект",
     title: { items: { ru: "" } },
@@ -12,13 +12,22 @@ export const fullFormAttributes: FormAttributes = [
     },
     mainAttribute: true,
     storedData: true,
-    use: {
+    view: {
       common: true,
       values: [
         { name: "Администратор", value: true },
         { name: "Пользователь", value: false },
       ],
     },
+    edit: {
+      common: true,
+      values: [
+        { name: "Администратор", value: true },
+        { name: "Пользователь", value: false },
+      ],
+    },
+    fillCheck: "ShowError",
+    useAlways: ["Список.Ref"],
   },
   {
     name: "ТестовыйАтрибут",
@@ -34,6 +43,15 @@ export const fullFormAttributes: FormAttributes = [
         { name: "Пользователь", value: false },
       ],
     },
+    edit: {
+      common: false,
+      values: [
+        { name: "Администратор", value: true },
+        { name: "Пользователь", value: false },
+      ],
+    },
+    fillCheck: "ShowError",
+    useAlways: ["Список.Ref"],
   },
 ]
 
@@ -226,4 +244,103 @@ export const withDynamicListFormAttributeEnterprise: FormAttributesEnterprise = 
     ДинамическийСписок: fullDynamicList,
   },
 }
+//#endregion
+
+//#region TableWithColumns
+
+export const tableWithColumnsFormAttribute: FormAttributes = [
+  {
+    name: "Таблица",
+    title: { items: { ru: "" } },
+    valueType: { type: ["ValueTable"] },
+    columns: [
+      {
+        name: "Колонка1",
+        id: "2",
+        type: { type: ["boolean"] },
+      },
+      {
+        name: "Колонка2",
+        id: "3",
+        type: { type: ["boolean"] },
+      },
+    ],
+  },
+]
+
+export const tableWithColumnsFormAttributeEnterprise: FormAttributesEnterprise = {
+  Таблица: {
+    Заголовок: "",
+    Тип: "ТаблицаЗначений",
+    Колонки: {
+      Колонка1: {
+        Тип: "Булево",
+      },
+      Колонка2: {
+        Тип: "Булево",
+      },
+    },
+  },
+}
+
+//#endregion
+
+//#region TreeWithColumn
+
+export const treeWithColumnFormAttribute: FormAttributes = [
+  {
+    name: "Дерево",
+    title: { items: { ru: "" } },
+    valueType: { type: ["ValueTree"] },
+    columns: [
+      {
+        name: "Колонка1",
+        id: "2",
+        title: { items: { ru: "abc" } },
+        type: { type: ["string"] },
+        view: { common: false, values: [] },
+        edit: { common: false, values: [] },
+        fillCheck: "ShowError",
+      },
+    ],
+  },
+]
+
+export const treeWithColumnFormAttributeEnterprise: FormAttributesEnterprise = {
+  Дерево: {
+    Заголовок: "",
+    Тип: "ДеревоЗначений",
+    Колонки: {
+      Колонка1: {
+        Заголовок: "abc",
+        Тип: "Строка",
+        ПроверкаЗаполнения: "ВыдаватьОшибку",
+        ЗапретитьПросмотр: {},
+        ЗапретитьРедактирование: {},
+      },
+    },
+  },
+}
+
+//#endregion
+
+//#region WithFunctionalOptions
+
+export const withFunctionalOptionsFormAttribute: FormAttributes = [
+  {
+    name: "ТестовыйАтрибут",
+    title: { items: { ru: "Заголовок" } },
+    valueType: { type: ["string"] },
+    functionalOptions: ["FunctionalOption.ФункциональнаяОпция1"],
+  },
+]
+
+export const withFunctionalOptionsFormAttributeEnterprise: FormAttributesEnterprise = {
+  ТестовыйАтрибут: {
+    Заголовок: "Заголовок",
+    Тип: "Строка",
+    ФункциональныеОпции: ["FunctionalOption.ФункциональнаяОпция1"],
+  },
+}
+
 //#endregion

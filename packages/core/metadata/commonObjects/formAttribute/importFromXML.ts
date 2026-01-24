@@ -5,7 +5,15 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importDynamicListFromXML } from "../dynamicList/importFromXML"
 import { DynamicListXML } from "../dynamicList/types"
-import { FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
+import { importFunctionalOptionsFromXML } from "../functionalOptionsProperty/importFromXML"
+import {
+  FormAttribute,
+  FormAttributeColumn,
+  FormAttributeColumnXML,
+  FormAttributes,
+  FormAttributesXML,
+  FormAttributeXML,
+} from "./types"
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
@@ -50,5 +58,53 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const use = importUserVisibleFromXML(context, props.Use)
   if (use !== undefined) result.use = use
 
+  if (props.Columns !== undefined) {
+    result.columns = importFormAttributeColumnsFromXML(context, props.Columns.Column)
+  }
+
+  const functionalOptions = importFunctionalOptionsFromXML(context, props.FunctionalOptions)
+  if (functionalOptions !== undefined) result.functionalOptions = functionalOptions
+
   return result
+}
+
+const importFormAttributeColumnsFromXML = (
+  context: ConfigurationContext,
+  xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
+): FormAttributeColumn[] | undefined => {
+  if (!xml) return undefined
+
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((item) => {
+    const column: FormAttributeColumn = {
+      name: item._name,
+      id: item._id,
+    }
+
+    const title = importI8nTextFromXML(context, item.Title)
+    if (title) column.title = title
+
+    const type = importTypeDescriptionFromXML(context, item.Type)
+    if (type) column.type = type
+
+    const view = importUserVisibleFromXML(context, item.View)
+    if (view) column.view = view
+
+    const edit = importUserVisibleFromXML(context, item.Edit)
+    if (edit) column.edit = edit
+
+    if (item.FillCheck) {
+      column.fillCheck = item.FillCheck
+    }
+
+    if (item.Column) {
+      column.columns = importFormAttributeColumnsFromXML(context, item.Column)
+    }
+
+    const functionalOptions = importFunctionalOptionsFromXML(context, item.FunctionalOptions)
+    if (functionalOptions !== undefined) column.functionalOptions = functionalOptions
+
+    return column
+  })
 }
