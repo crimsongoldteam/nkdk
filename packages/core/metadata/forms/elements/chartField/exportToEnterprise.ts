@@ -28,6 +28,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 
 export function exportChartFieldTypedToEnterprise<From extends ChartField | undefined>(
   context: ConfigurationContext,
@@ -249,7 +250,10 @@ const exportChartFieldPropsToEnterprise = (
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (userVisible !== undefined) {
     Object.assign(result, userVisible)
   }

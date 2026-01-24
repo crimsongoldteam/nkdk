@@ -9,7 +9,7 @@ import {
 } from "~/metadata/commonObjects/formAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
-import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
@@ -77,17 +77,6 @@ const importFormAttributeFromEnterprise = (
     if (settings !== undefined) result.settings = settings
   }
 
-  const use = importUserVisibleFromEnterprise(
-    context,
-    data[UserVisibleKeysEnterprise.Allow] || data[UserVisibleKeysEnterprise.Deny],
-    data[UserVisibleKeysEnterprise.Allow]
-      ? UserVisibleKeysEnterprise.Allow
-      : data[UserVisibleKeysEnterprise.Deny]
-        ? UserVisibleKeysEnterprise.Deny
-        : undefined
-  )
-  if (use !== undefined) result.use = use
-
   if (data.Колонки) {
     result.columns = importFormAttributeColumnsFromEnterprise(context, data.Колонки)
   }
@@ -133,23 +122,15 @@ const importFormAttributeColumnFromEnterprise = (
 
   const view = importUserVisibleFromEnterprise(
     context,
-    data[UserVisibleKeysEnterprise.AllowView] || data[UserVisibleKeysEnterprise.DenyView],
-    data[UserVisibleKeysEnterprise.AllowView]
-      ? UserVisibleKeysEnterprise.AllowView
-      : data[UserVisibleKeysEnterprise.DenyView]
-        ? UserVisibleKeysEnterprise.DenyView
-        : undefined
+    data[UserViewKeysEnterprise.Allow],
+    data[UserViewKeysEnterprise.Deny]
   )
   if (view) column.view = view
 
   const edit = importUserVisibleFromEnterprise(
     context,
-    data[UserVisibleKeysEnterprise.AllowEdit] || data[UserVisibleKeysEnterprise.DenyEdit],
-    data[UserVisibleKeysEnterprise.AllowEdit]
-      ? UserVisibleKeysEnterprise.AllowEdit
-      : data[UserVisibleKeysEnterprise.DenyEdit]
-        ? UserVisibleKeysEnterprise.DenyEdit
-        : undefined
+    data[UserEditKeysEnterprise.Allow],
+    data[UserEditKeysEnterprise.Deny]
   )
   if (edit) column.edit = edit
 

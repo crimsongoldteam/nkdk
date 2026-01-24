@@ -80,11 +80,6 @@ const exportFormAttributeToEnterprise = (
     }
   }
 
-  const use = exportUserVisibleToEnterprise(context, data.use)
-  if (use) {
-    Object.assign(result, use)
-  }
-
   if (data.columns && data.columns.length > 0) {
     result.Колонки = exportFormAttributeColumnsToEnterprise(context, data.columns)
   }

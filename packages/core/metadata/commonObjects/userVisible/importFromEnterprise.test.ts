@@ -9,7 +9,7 @@ describe("importUserVisibleFromEnterprise", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = importUserVisibleFromEnterprise(mockСontext, mock, "РазрешитьИспользование")
+    const result = importUserVisibleFromEnterprise(mockСontext, mock, undefined)
 
     expect(result).toEqual({
       common: true,
@@ -25,7 +25,7 @@ describe("importUserVisibleFromEnterprise", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = importUserVisibleFromEnterprise(mockСontext, mock, "ЗапретитьИспользование")
+    const result = importUserVisibleFromEnterprise(mockСontext, undefined, mock)
 
     expect(result).toEqual({
       common: false,
