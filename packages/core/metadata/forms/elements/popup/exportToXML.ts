@@ -5,12 +5,11 @@ import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportPopupToXML<From extends Popup | undefined>(
   context: ConfigurationContext,
@@ -20,16 +19,24 @@ export function exportPopupToXML<From extends Popup | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-
   const result: PopupXML = {
-    ExtendedTooltip: extendedTooltip,
     ...baseFields,
-  }
+  } as PopupXML
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.height !== undefined) result.Height = data.height
 
@@ -37,7 +44,16 @@ export function exportPopupToXML<From extends Popup | undefined>(
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
+  const picture = exportPictureToXML(context, data.picture)
+  if (picture !== undefined) result.Picture = picture
+
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
+
+  if (data.representation !== undefined) result.Representation = data.representation
+
+  if (data.shape !== undefined) result.Shape = data.shape
+
+  if (data.shapeRepresentation !== undefined) result.ShapeRepresentation = data.shapeRepresentation
 
   if (data.shortcut !== undefined) result.Shortcut = data.shortcut
 
@@ -57,6 +73,9 @@ export function exportPopupToXML<From extends Popup | undefined>(
 
   if (data.type !== undefined) result.Type = data.type
 
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
@@ -65,28 +84,7 @@ export function exportPopupToXML<From extends Popup | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) result.ChildItems = childItems
-
-  const backColor = exportColorToXML(context, data.backColor)
-  if (backColor !== undefined) result.BackColor = backColor
-
-  const borderColor = exportColorToXML(context, data.borderColor)
-  if (borderColor !== undefined) result.BorderColor = borderColor
-
-  const picture = exportPictureToXML(context, data.picture)
-  if (picture !== undefined) result.Picture = picture
-
-  if (data.representation !== undefined) result.Representation = data.representation
-
-  if (data.shape !== undefined) result.Shape = data.shape
-
-  if (data.shapeRepresentation !== undefined) result.ShapeRepresentation = data.shapeRepresentation
-
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
-  return sortObject(result) as ToXMLType<From>
+  return result as ToXMLType<From>
 }
 
 registerMetadata("ExportToXML", "Popup", exportPopupToXML as ExportToXMLFn)

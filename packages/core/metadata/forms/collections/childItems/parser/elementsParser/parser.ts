@@ -385,26 +385,17 @@ export class Parser extends CstParser {
     this.OPTION1(() => {
       this.MANY(() => {
         this.CONSUME1(t.Dots)
-      })
-      this.OPTION2(() => {
         this.CONSUME1(t.VBar)
-        this.AT_LEAST_ONE_SEP({
-          SEP: t.VBar,
-          DEF: () => {
-            this.SUBRULE1(this.commandBarButton)
-          },
-        })
       })
     })
 
-    this.OPTION3(() => {
-      this.SUBRULE2(this.commandBarButton)
-      this.MANY_SEP({
-        SEP: t.VBar,
-        DEF: () => {
-          this.SUBRULE3(this.commandBarButton)
-        },
-      })
+    this.SUBRULE1(this.commandBarItem)
+
+    this.MANY_SEP({
+      SEP: t.VBar,
+      DEF: () => {
+        this.SUBRULE2(this.commandBarItem)
+      },
     })
 
     this.OPTION4(() => {
