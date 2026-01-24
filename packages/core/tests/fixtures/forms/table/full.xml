@@ -233,6 +233,7 @@
 	<ToolTipRepresentation>Auto</ToolTipRepresentation>
 	<UpdateOnDataChange>Auto</UpdateOnDataChange>
 	<UseAlternationRowColor>true</UseAlternationRowColor>
+	<UserSettingsGroup>СписокКомпоновщикНастроекПользовательскиеНастройки</UserSettingsGroup>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
@@ -266,5 +267,4 @@
 	<ViewStatusLocation>Auto</ViewStatusLocation>
 	<Visible>true</Visible>
 	<Width>600</Width>
-	<UserSettingsGroup>СписокКомпоновщикНастроекПользовательскиеНастройки</UserSettingsGroup>
 </Table>

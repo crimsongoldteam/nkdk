@@ -27,7 +27,8 @@ export const fullFormAttributes: Required<FormAttributes> = [
       ],
     },
     fillCheck: "ShowError",
-    useAlways: ["Список.Ref"],
+    fieldsList: ["Список.Ref"],
+    save: ["Объект"],
   },
   {
     name: "ТестовыйАтрибут",
@@ -52,7 +53,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
     },
     fillCheck: "ShowError",
     functionalOptions: ["FunctionalOption.ФункциональнаяОпция1"],
-    useAlways: ["Список.Ref"],
+    fieldsList: ["Список.Ref"],
   },
 ]
 
@@ -313,7 +314,7 @@ export const treeWithColumnFormAttribute: FormAttributes = [
         fillCheck: "ShowError",
       },
     ],
-    useAlways: ["Дерево.Колонка1"],
+    fieldsList: ["Дерево.Колонка1"],
   },
 ]
 

@@ -16,12 +16,12 @@ import {
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 import { StringboolEnterprise } from "../boolean/types"
 import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
+import { FieldsList, FieldsListEnterprise, FieldsListXML } from "../FieldsList/types"
 import {
   FunctionalOptions,
   FunctionalOptionsEnterprise,
   FunctionalOptionsXML,
 } from "../functionalOptionsProperty/types"
-import { UseAlways, UseAlwaysEnterprise, UseAlwaysXML } from "../useAlways/types"
 
 export interface FormAttribute {
   name: string
@@ -35,7 +35,8 @@ export interface FormAttribute {
   settings?: TypeDescription | DynamicList
   columns?: FormAttributeColumn[]
   functionalOptions?: FunctionalOptions
-  useAlways?: UseAlways
+  fieldsList?: FieldsList
+  save?: FieldsList
 }
 
 export interface FormAttributeColumn {
@@ -81,8 +82,9 @@ export interface FormAttributeXML {
     Column: FormAttributeColumnXML | FormAttributeColumnXML[]
   }
   FunctionalOptions?: FunctionalOptionsXML
-  UseAlways?: UseAlwaysXML
+  UseAlways?: FieldsListXML
   Use?: UserVisibleXML
+  Save?: FieldsListXML
 }
 
 export interface ConditionalAppearanceXML {
@@ -114,9 +116,10 @@ export interface FormAttributeEnterprise {
   [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
   Колонки?: Record<string, FormAttributeColumnEnterprise>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
-  ИспользоватьВсегда?: UseAlwaysEnterprise
+  ИспользоватьВсегда?: FieldsListEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ПроверкаЗаполнения?: FillCheckingEnterprise
+  Сохранение?: FieldsListEnterprise
 }
 
 export type FormAttributes = FormAttribute[]

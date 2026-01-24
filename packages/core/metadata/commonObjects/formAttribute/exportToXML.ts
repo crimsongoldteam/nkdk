@@ -7,7 +7,7 @@ import { DynamicList } from "../dynamicList/types"
 import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
 import { TypeDescription } from "../typeDescription/types"
-import { exportUseAlwaysToXML } from "../useAlways/exportToXML"
+import { exportFieldsListToXML } from "../FieldsList/exportToXML"
 import {
   FormAttribute,
   FormAttributeColumn,
@@ -68,8 +68,8 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const edit = exportUserVisibleToXML(context, mergedData.edit)
   if (edit) result.Edit = edit
 
-  const useAlways = exportUseAlwaysToXML(context, mergedData.useAlways)
-  if (useAlways) result.UseAlways = useAlways
+  const fieldsList = exportFieldsListToXML(context, mergedData.fieldsList)
+  if (fieldsList) result.UseAlways = fieldsList
 
   return result
 }

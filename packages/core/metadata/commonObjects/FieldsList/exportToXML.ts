@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { UseAlways, UseAlwaysXML } from "./types"
+import { FieldsList, FieldsListXML } from "./types"
 
-export const exportUseAlwaysToXML = (
+export const exportFieldsListToXML = (
   _context: ConfigurationContext,
-  data: UseAlways | undefined
-): UseAlwaysXML | undefined => {
+  data: FieldsList | undefined
+): FieldsListXML | undefined => {
   if (!data || data.length === 0) return undefined
 
   return {

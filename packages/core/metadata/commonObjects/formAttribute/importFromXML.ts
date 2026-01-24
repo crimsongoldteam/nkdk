@@ -6,7 +6,7 @@ import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importDynamicListFromXML } from "../dynamicList/importFromXML"
 import { DynamicListXML } from "../dynamicList/types"
 import { importFunctionalOptionsFromXML } from "../functionalOptionsProperty/importFromXML"
-import { importUseAlwaysFromXML } from "../useAlways/importFromXML"
+import { importFieldsListFromXML } from "../FieldsList/importFromXML"
 import {
   FormAttribute,
   FormAttributeColumn,
@@ -71,8 +71,8 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const functionalOptions = importFunctionalOptionsFromXML(context, props.FunctionalOptions)
   if (functionalOptions !== undefined) result.functionalOptions = functionalOptions
 
-  const useAlways = importUseAlwaysFromXML(context, props.UseAlways)
-  if (useAlways !== undefined) result.useAlways = useAlways
+  const fieldsList = importFieldsListFromXML(context, props.UseAlways)
+  if (fieldsList !== undefined) result.fieldsList = fieldsList
 
   return result
 }

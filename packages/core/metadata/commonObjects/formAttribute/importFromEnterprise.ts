@@ -19,7 +19,7 @@ import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterp
 import { importFunctionalOptionsFromEnterprise } from "../functionalOptionsProperty/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "../i8nText/types"
-import { importUseAlwaysFromEnterprise } from "../useAlways/importFromEnterprise"
+import { importFieldsListFromEnterprise } from "../FieldsList/importFromEnterprise"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
@@ -98,8 +98,8 @@ const importFormAttributeFromEnterprise = (
   const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
   if (functionalOptions) result.functionalOptions = functionalOptions
 
-  const useAlways = importUseAlwaysFromEnterprise(context, data.ИспользоватьВсегда)
-  if (useAlways) result.useAlways = useAlways
+  const fieldsList = importFieldsListFromEnterprise(context, data.ИспользоватьВсегда)
+  if (fieldsList) result.fieldsList = fieldsList
 
   return result
 }

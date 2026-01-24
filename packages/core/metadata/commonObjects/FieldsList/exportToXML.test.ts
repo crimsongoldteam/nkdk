@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
-import { fullUseAlways } from "~/tests/fixtures/useAlways/data"
+import { fullFieldsList } from "~/tests/fixtures/fieldsList/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportUseAlwaysToXML } from "./exportToXML"
+import { exportFieldsListToXML } from "./exportToXML"
 
-describe("exportUseAlwaysToXML", () => {
+describe("exportFieldsListToXML", () => {
   it("should export undefined when data is undefined", () => {
-    const result = exportUseAlwaysToXML(mockСontext, undefined)
+    const result = exportFieldsListToXML(mockСontext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const expectedResult = readXMLFileAsString("useAlways/full.xml")
+    const expectedResult = readXMLFileAsString("fieldsList/full.xml")
 
-    const xmlData = exportUseAlwaysToXML(mockСontext, fullUseAlways)
+    const xmlData = exportFieldsListToXML(mockСontext, fullFieldsList)
 
     const result = xmlExport({ UseAlways: xmlData }, false)
 

@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { UseAlways, UseAlwaysEnterprise } from "./types"
+import { FieldsList, FieldsListEnterprise } from "./types"
 
-export const importUseAlwaysFromEnterprise = (
+export const importFieldsListFromEnterprise = (
   _context: ConfigurationContext,
-  enterprise: UseAlwaysEnterprise | undefined
-): UseAlways | undefined => {
+  enterprise: FieldsListEnterprise | undefined
+): FieldsList | undefined => {
   if (!enterprise || enterprise.length === 0) return undefined
 
   return enterprise

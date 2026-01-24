@@ -24,7 +24,7 @@ import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { DynamicList } from "../dynamicList/types"
 import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
-import { exportUseAlwaysToEnterprise } from "../useAlways/exportToEnterprise"
+import { exportFieldsListToEnterprise } from "../FieldsList/exportToEnterprise"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,
@@ -107,9 +107,9 @@ const exportFormAttributeToEnterprise = (
     result.ФункциональныеОпции = functionalOptions
   }
 
-  const useAlways = exportUseAlwaysToEnterprise(context, data.useAlways)
-  if (useAlways) {
-    result.ИспользоватьВсегда = useAlways
+  const fieldsList = exportFieldsListToEnterprise(context, data.fieldsList)
+  if (fieldsList) {
+    result.ИспользоватьВсегда = fieldsList
   }
 
   return result as FormAttributeEnterprise

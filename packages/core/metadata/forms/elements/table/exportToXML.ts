@@ -10,12 +10,12 @@ import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSingleSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -94,8 +94,8 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
   if (data.dataPath !== undefined) result.DataPath = data.dataPath
   if (data.defaultItem !== undefined) result.DefaultItem = data.defaultItem
-  if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
   if (data.enabled !== undefined) result.Enabled = data.enabled
+  if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
   if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
   if (events !== undefined) result.Events = events
   if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
@@ -147,6 +147,7 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
   if (data.updateOnDataChange !== undefined) result.UpdateOnDataChange = data.updateOnDataChange
   if (data.useAlternationRowColor !== undefined) result.UseAlternationRowColor = data.useAlternationRowColor
+  if (data.userSettingsGroup !== undefined) result.UserSettingsGroup = data.userSettingsGroup
   if (userVisible !== undefined) result.UserVisible = userVisible
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
   if (data.verticalLines !== undefined) result.VerticalLines = data.verticalLines
@@ -156,7 +157,6 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
   if (data.visible !== undefined) result.Visible = data.visible
   if (data.width !== undefined) result.Width = data.width
-  if (data.userSettingsGroup !== undefined) result.UserSettingsGroup = data.userSettingsGroup
 
   return result as ToXMLType<From>
 }
