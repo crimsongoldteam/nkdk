@@ -65,6 +65,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   readOnly: false,
   width: 800,
   slaveItemsWidth: "Auto",
+  saveWindowSettings: true,
   childItems: [
     {
       name: "ПолеВвода1",

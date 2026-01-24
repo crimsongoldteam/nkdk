@@ -1,15 +1,15 @@
 import {
-  exportClientApplicationFormToXML,
+  exportCatalogFormToXML,
   exportFormMetadataToXML,
+  importCatalogFormFromEnterprise,
   importChildItemsFromStructure,
-  importClientApplicationFormFromEnterprise,
   importFromYAML,
   xmlExport,
-  type ClientApplicationFormEnterprise,
 } from "@nakidka/core"
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
+import { CatalogFormEnterprise } from "~/metadata/forms/index.js"
 
 /**
  * Экспортирует форму из Enterprise формата в XML
@@ -24,7 +24,7 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")
-  const enterpriseData = importFromYAML(yamlContent) as ClientApplicationFormEnterprise
+  const enterpriseData = importFromYAML(yamlContent) as CatalogFormEnterprise
 
   if (!enterpriseData) {
     throw new Error("Не удалось распарсить YAML")
@@ -39,14 +39,14 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
   }
 
   const childItems = importChildItemsFromStructure(context, childItemsStructure)
-  const formData = importClientApplicationFormFromEnterprise(context, enterpriseData, childItems)
+  const formData = importCatalogFormFromEnterprise(context, enterpriseData, childItems)
 
   if (!formData) {
     throw new Error("Не удалось импортировать форму из Enterprise формата")
   }
 
   // Экспортируем Form.xml
-  const formXmlData = exportClientApplicationFormToXML(context, formData)
+  const formXmlData = exportCatalogFormToXML(context, formData)
   if (!formXmlData) {
     throw new Error("Не удалось экспортировать форму в XML")
   }

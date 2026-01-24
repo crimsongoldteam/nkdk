@@ -88,6 +88,7 @@
 	<ReadOnly>false</ReadOnly>
 	<SaveDataInSettings>UseList</SaveDataInSettings>
 	<SavedInSettingsDataModified>true</SavedInSettingsDataModified>
+	<SaveWindowSettings>true</SaveWindowSettings>
 	<Scale>100</Scale>
 	<ShowCloseButton>true</ShowCloseButton>
 	<ShowTitle>true</ShowTitle>

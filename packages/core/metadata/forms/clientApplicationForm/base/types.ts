@@ -82,6 +82,7 @@ export interface ClientApplicationForm {
   verticalSpacing?: SE.FormItemSpacing
   width?: number
   windowOptionsKey?: string
+  saveWindowSettings?: boolean
   //#endregion
 
   //#region FormMetadata
@@ -148,6 +149,7 @@ export interface ClientApplicationFormXML {
   CommandSet?: CommandSetXML
   UseForFoldersAndItems?: SE.FoldersAndItemsUse
   AutoCommandBar: AutoCommandBarXML
+  SaveWindowSettings?: boolean
   Events?: EventsXML
   ChildItems?: GroupChildItemXML[] | GroupChildItemXML
   Attributes?: {
@@ -197,6 +199,7 @@ export interface ClientApplicationFormEnterprise {
   ТолькоПросмотр?: StringboolEnterprise
   Ширина?: number
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  СохранятьНастройкиОкна?: StringboolEnterprise
   Реквизиты?: FormAttributesEnterprise
   Параметры?: FormParametersEnterprise
   События?: {
