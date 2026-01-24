@@ -14,6 +14,9 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</Use>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
 </Attribute>
 <Attribute name="ТестовыйАтрибут" id="2">
 	<SavedData>true</SavedData>
@@ -38,4 +41,7 @@
 	<FunctionalOptions>
 		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
 	</FunctionalOptions>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
 </Attribute>

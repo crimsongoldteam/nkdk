@@ -51,6 +51,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
       ],
     },
     fillCheck: "ShowError",
+    functionalOptions: ["FunctionalOption.ФункциональнаяОпция1"],
     useAlways: ["Список.Ref"],
   },
 ]
@@ -64,6 +65,7 @@ export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
       Администратор: "Истина",
       Пользователь: "Ложь",
     },
+    ИспользоватьВсегда: ["Список.Ref"],
   },
   ТестовыйАтрибут: {
     Заголовок: "Заголовок атрибута",
@@ -73,6 +75,8 @@ export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
       Администратор: "Истина",
       Пользователь: "Ложь",
     },
+    ФункциональныеОпции: ["FunctionalOption.ФункциональнаяОпция1"],
+    ИспользоватьВсегда: ["Список.Ref"],
   },
 }
 
@@ -303,6 +307,7 @@ export const treeWithColumnFormAttribute: FormAttributes = [
         fillCheck: "ShowError",
       },
     ],
+    useAlways: ["Дерево.Колонка1"],
   },
 ]
 
@@ -319,6 +324,7 @@ export const treeWithColumnFormAttributeEnterprise: FormAttributesEnterprise = {
         ЗапретитьРедактирование: {},
       },
     },
+    ИспользоватьВсегда: ["Дерево.Колонка1"],
   },
 }
 

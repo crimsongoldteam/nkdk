@@ -19,6 +19,7 @@ import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterp
 import { importFunctionalOptionsFromEnterprise } from "../functionalOptionsProperty/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "../i8nText/types"
+import { importUseAlwaysFromEnterprise } from "../useAlways/importFromEnterprise"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
@@ -61,6 +62,13 @@ const importFormAttributeFromEnterprise = (
   const storedData = importBooleanFromEnterprise(context, data.СохраняемыеДанные)
   if (storedData !== undefined) result.storedData = storedData
 
+  const fillCheck = importSystemEnumerationFromEnterprise<FillChecking>(
+    context,
+    data.ПроверкаЗаполнения,
+    FillCheckingFromEnterprise
+  )
+  if (fillCheck) result.fillCheck = fillCheck
+
   if (data.ДинамическийСписок !== undefined) {
     const dynamicList = importDynamicListFromEnterprise(context, data.ДинамическийСписок)
     if (dynamicList !== undefined) result.settings = dynamicList
@@ -86,6 +94,9 @@ const importFormAttributeFromEnterprise = (
 
   const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
   if (functionalOptions) result.functionalOptions = functionalOptions
+
+  const useAlways = importUseAlwaysFromEnterprise(context, data.ИспользоватьВсегда)
+  if (useAlways) result.useAlways = useAlways
 
   return result
 }

@@ -18,6 +18,7 @@ import {
   FunctionalOptionsEnterprise,
   FunctionalOptionsXML,
 } from "../functionalOptionsProperty/types"
+import { UseAlways, UseAlwaysEnterprise, UseAlwaysXML } from "../useAlways/types"
 
 export interface FormAttribute {
   name: string
@@ -31,7 +32,8 @@ export interface FormAttribute {
   settings?: TypeDescription | DynamicList
   columns?: FormAttributeColumn[]
   functionalOptions?: FunctionalOptions
-  useAlways: UseAlways
+  useAlways?: UseAlways
+  use?: UserVisible
 }
 
 export interface FormAttributeColumn {
@@ -77,6 +79,8 @@ export interface FormAttributeXML {
     Column: FormAttributeColumnXML | FormAttributeColumnXML[]
   }
   FunctionalOptions?: FunctionalOptionsXML
+  UseAlways?: UseAlwaysXML
+  Use?: UserVisibleXML
 }
 
 export interface ConditionalAppearanceXML {
@@ -106,6 +110,8 @@ export interface FormAttributeEnterprise {
   [UserVisibleKeysEnterprise.Deny]?: UserVisibleEnterprise
   Колонки?: Record<string, FormAttributeColumnEnterprise>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
+  ИспользоватьВсегда?: UseAlwaysEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
 }
 
 export type FormAttributes = FormAttribute[]

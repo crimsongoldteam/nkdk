@@ -20,6 +20,7 @@ import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { DynamicList } from "../dynamicList/types"
 import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
+import { exportUseAlwaysToEnterprise } from "../useAlways/exportToEnterprise"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,
@@ -57,6 +58,13 @@ const exportFormAttributeToEnterprise = (
   const storedData = exportBooleanToEnterprise(context, data.storedData)
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
+  const fillCheck = exportSystemEnumerationToEnterprise<FillCheckingEnterprise>(
+    context,
+    data.fillCheck,
+    FillCheckingToEnterprise
+  )
+  if (fillCheck) result.ПроверкаЗаполнения = fillCheck
+
   if (data.settings !== undefined) {
     // Check if valueType is DynamicList or if settings has @attributes (indicating it's a DynamicList)
     const isDynamicListValueType = data.valueType?.type.includes("DynamicList")
@@ -84,6 +92,11 @@ const exportFormAttributeToEnterprise = (
   const functionalOptions = exportFunctionalOptionsToEnterprise(context, data.functionalOptions)
   if (functionalOptions) {
     result.ФункциональныеОпции = functionalOptions
+  }
+
+  const useAlways = exportUseAlwaysToEnterprise(context, data.useAlways)
+  if (useAlways) {
+    result.ИспользоватьВсегда = useAlways
   }
 
   return result as FormAttributeEnterprise

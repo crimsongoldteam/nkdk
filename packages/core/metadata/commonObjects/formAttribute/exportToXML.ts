@@ -15,6 +15,7 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
+import { exportUseAlwaysToXML } from "../useAlways/exportToXML"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
@@ -71,6 +72,8 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
 
   if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
 
+  if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
+
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
   if (title) result.Title = title
 
@@ -82,6 +85,9 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
 
   const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
   if (functionalOptions) result.FunctionalOptions = functionalOptions
+
+  const useAlways = exportUseAlwaysToXML(context, mergedData.useAlways)
+  if (useAlways) result.UseAlways = useAlways
 
   return result
 }

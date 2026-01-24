@@ -14,6 +14,7 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
+import { importUseAlwaysFromXML } from "../useAlways/importFromXML"
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
@@ -43,6 +44,8 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const storedData = importBooleanFromXML(context, props.SavedData)
   if (storedData !== undefined) result.storedData = storedData
 
+  if (props.FillCheck !== undefined) result.fillCheck = props.FillCheck
+
   // Check if Settings is a DynamicList (has _xsi:type indicating DynamicList) or TypeDescription
   if (props.Settings !== undefined) {
     const settingsAsAny = props.Settings as any
@@ -64,6 +67,9 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
 
   const functionalOptions = importFunctionalOptionsFromXML(context, props.FunctionalOptions)
   if (functionalOptions !== undefined) result.functionalOptions = functionalOptions
+
+  const useAlways = importUseAlwaysFromXML(context, props.UseAlways)
+  if (useAlways !== undefined) result.useAlways = useAlways
 
   return result
 }
