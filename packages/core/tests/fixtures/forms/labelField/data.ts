@@ -3,6 +3,7 @@ import {
   LabelFieldPartialEnterprise,
   LabelFieldTypedEnterprise,
 } from "~/metadata/forms/elements/labelField/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -182,3 +183,36 @@ export const minimalLabelFieldPartialEnterprise: LabelFieldPartialEnterprise = {
 export const minimalLabelFieldTypedEnterprise: LabelFieldTypedEnterprise = {
   Тип: "ПолеНадписи",
 }
+
+export interface LabelFieldStructureFixture {
+  name: string
+  element: LabelField
+  structured: IFormatElementResult
+}
+
+export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
+  {
+    name: "with title",
+    element: {
+      name: "ПолеНадписи",
+      elementType: FormElementType.LabelField,
+      title: { items: { ru: "Поле надписи" } },
+    },
+    structured: {
+      strings: ["~Поле надписи: {ПолеНадписи}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without title",
+    element: {
+      name: "ПолеНадписи",
+      elementType: FormElementType.LabelField,
+      title: undefined,
+    },
+    structured: {
+      strings: ["~{ПолеНадписи}: "],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+]
