@@ -19,11 +19,6 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
     haveSimpleHorizontalGroup: false,
   }
 
-  if (element.childItems?.length === 0) {
-    result.strings.push(separatorSymbol)
-    return result
-  }
-
   let groupItems: string[][] = []
 
   if (element.childItems) {
@@ -42,7 +37,10 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
   const header = formatGroupHeader(context, element)
 
   const joinedItems = groupItems.map((item) => item.join("")).join(separator)
-  const prefix = element.group === undefined ? horizontalIfPossibleGroupPrefix : horizontalGroupPrefix
+  const prefix =
+    element.group === undefined || element.group === "HorizontalIfPossible"
+      ? horizontalIfPossibleGroupPrefix
+      : horizontalGroupPrefix
   let resultLine = prefix + header + oneLineGroupSuffix + " " + joinedItems
 
   result.strings.push(resultLine)

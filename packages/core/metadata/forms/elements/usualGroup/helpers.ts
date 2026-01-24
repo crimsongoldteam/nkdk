@@ -5,10 +5,13 @@ import { UsualGroup } from "./types"
 export const isOneLineGroup = (_context: ConfigurationContext, element: UsualGroup): boolean => {
   if (!isHorizontalGroup(element)) return false
 
+  const childItems = element.childItems ?? []
+  if (childItems.length === 0) return false
+
   // Only explicitly showing title (showTitle === true) prevents one-line format
   if (element.showTitle === true) return false
 
-  for (const item of element.childItems || []) {
+  for (const item of childItems) {
     if (!isOneLineElement(item)) return false
   }
 

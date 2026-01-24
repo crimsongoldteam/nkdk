@@ -341,4 +341,33 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
   {Элемент1}: 
   {Элемент2}: `,
   },
+  {
+    name: "empty horizontal group",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
+      childItems: [],
+    } as UsualGroup,
+    structured: `%{Группа}`,
+  },
+  {
+    name: "empty vertical group",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      group: "Vertical",
+      childItems: [],
+    } as UsualGroup,
+    structured: `#{Группа}`,
+  },
+  {
+    name: "empty horizontal (if possible) group",
+    element: {
+      name: "Группа",
+      elementType: FormElementType.UsualGroup,
+      childItems: [],
+    } as UsualGroup,
+    structured: `%#{Группа}`,
+  },
 ]

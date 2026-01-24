@@ -11,7 +11,10 @@ const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
 
 export const formatHorizontalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
-  const prefix = element.group === undefined ? horizontalIfPossibleGroupPrefix : horizontalGroupPrefix
+  const prefix =
+    element.group === undefined || element.group === "HorizontalIfPossible"
+      ? horizontalIfPossibleGroupPrefix
+      : horizontalGroupPrefix
   let result: IFormatElementResult = {
     strings: [prefix + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
