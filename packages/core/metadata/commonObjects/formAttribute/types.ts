@@ -5,9 +5,12 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import {
+  UserEditEnterprise,
+  UserEditKeysEnterprise,
+  UserViewEnterprise,
+  UserViewKeysEnterprise,
   UserVisible,
   UserVisibleEnterprise,
-  UserVisibleKeysEnterprise,
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
@@ -33,7 +36,6 @@ export interface FormAttribute {
   columns?: FormAttributeColumn[]
   functionalOptions?: FunctionalOptions
   useAlways?: UseAlways
-  use?: UserVisible
 }
 
 export interface FormAttributeColumn {
@@ -91,10 +93,10 @@ export interface FormAttributeColumnEnterprise {
   Заголовок?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise
   ПроверкаЗаполнения?: FillCheckingEnterprise
-  [UserVisibleKeysEnterprise.AllowView]?: UserVisibleEnterprise
-  [UserVisibleKeysEnterprise.DenyView]?: UserVisibleEnterprise
-  [UserVisibleKeysEnterprise.AllowEdit]?: UserVisibleEnterprise
-  [UserVisibleKeysEnterprise.DenyEdit]?: UserVisibleEnterprise
+  [UserViewKeysEnterprise.Allow]?: UserViewEnterprise
+  [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
+  [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
+  [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
   Колонки?: Record<string, FormAttributeColumnEnterprise>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
 }
@@ -106,12 +108,15 @@ export interface FormAttributeEnterprise {
   ОсновнойРеквизит?: StringboolEnterprise
   СохраняемыеДанные?: StringboolEnterprise
   ДинамическийСписок?: DynamicListEnterprise
-  [UserVisibleKeysEnterprise.Allow]?: UserVisibleEnterprise
-  [UserVisibleKeysEnterprise.Deny]?: UserVisibleEnterprise
+  [UserViewKeysEnterprise.Allow]?: UserViewEnterprise
+  [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
+  [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
+  [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
   Колонки?: Record<string, FormAttributeColumnEnterprise>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
   ИспользоватьВсегда?: UseAlwaysEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
+  ПроверкаЗаполнения?: FillCheckingEnterprise
 }
 
 export type FormAttributes = FormAttribute[]

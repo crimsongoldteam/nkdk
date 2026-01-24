@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "../../../tests/mockContext"
 import { exportUserVisibleToEnterprise } from "./exportToEnterprise"
-import { UserVisible } from "./types"
+import { UserVisible, UserVisibleKeysEnterprise } from "./types"
 
 describe("exportUserVisibleToEnterprise", () => {
   it("should format allow `use`", () => {
@@ -20,7 +20,10 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockСontext, use)
+    const result = exportUserVisibleToEnterprise(mockСontext, use, {
+      allow: UserVisibleKeysEnterprise.Allow,
+      deny: UserVisibleKeysEnterprise.Deny,
+    })
 
     expect(result).toEqual(expectedResult)
   })
@@ -41,7 +44,10 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockСontext, use)
+    const result = exportUserVisibleToEnterprise(mockСontext, use, {
+      allow: UserVisibleKeysEnterprise.Allow,
+      deny: UserVisibleKeysEnterprise.Deny,
+    })
 
     expect(result).toEqual(expectedResult)
   })

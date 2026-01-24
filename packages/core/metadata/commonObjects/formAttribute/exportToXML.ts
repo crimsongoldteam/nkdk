@@ -7,6 +7,7 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { DynamicList } from "../dynamicList/types"
 import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
+import { exportUseAlwaysToXML } from "../useAlways/exportToXML"
 import {
   FormAttribute,
   FormAttributeColumn,
@@ -15,7 +16,6 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
-import { exportUseAlwaysToXML } from "../useAlways/exportToXML"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
@@ -80,8 +80,11 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const type = exportTypeDescriptionToXML(context, mergedData.valueType)
   if (type) result.Type = type
 
-  const use = exportUserVisibleToXML(context, mergedData.use)
-  if (use) result.Use = use
+  const view = exportUserVisibleToXML(context, mergedData.view)
+  if (view) result.View = view
+
+  const edit = exportUserVisibleToXML(context, mergedData.edit)
+  if (edit) result.Edit = edit
 
   const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
   if (functionalOptions) result.FunctionalOptions = functionalOptions

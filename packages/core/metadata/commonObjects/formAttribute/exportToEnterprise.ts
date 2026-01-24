@@ -12,7 +12,7 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
@@ -131,14 +131,14 @@ const exportFormAttributeColumnToEnterprise = (
   if (fillCheck) result.ПроверкаЗаполнения = fillCheck
 
   const view = exportUserVisibleToEnterprise(context, column.view, {
-    allow: UserVisibleKeysEnterprise.AllowView,
-    deny: UserVisibleKeysEnterprise.DenyView,
+    allow: UserViewKeysEnterprise.Allow,
+    deny: UserViewKeysEnterprise.Deny,
   })
   if (view) Object.assign(result, view)
 
   const edit = exportUserVisibleToEnterprise(context, column.edit, {
-    allow: UserVisibleKeysEnterprise.AllowEdit,
-    deny: UserVisibleKeysEnterprise.DenyEdit,
+    allow: UserEditKeysEnterprise.Allow,
+    deny: UserEditKeysEnterprise.Deny,
   })
   if (edit) Object.assign(result, edit)
 

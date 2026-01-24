@@ -1,21 +1,20 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { ConfigurationContext } from "../../context/types"
-import { type UserVisible, UserVisibleKeysEnterprise } from "./types"
+import { type UserVisible } from "./types"
 
 export const importUserVisibleFromEnterprise = (
   context: ConfigurationContext,
-  value: Record<string, StringboolEnterprise> | undefined,
-  usageType: UserVisibleKeysEnterprise | undefined
+  valueAllow: Record<string, StringboolEnterprise> | undefined,
+  valueDeny: Record<string, StringboolEnterprise> | undefined
 ): UserVisible | undefined => {
-  if (value === undefined || typeof usageType === "boolean" || usageType === undefined) {
+  if (valueAllow === undefined || valueDeny === undefined) {
     return undefined
   }
 
-  const common =
-    usageType === UserVisibleKeysEnterprise.Allow ||
-    usageType === UserVisibleKeysEnterprise.AllowView ||
-    usageType === UserVisibleKeysEnterprise.AllowEdit
+  const common = valueAllow !== undefined
+
+  const value = common ? valueAllow : valueDeny
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
