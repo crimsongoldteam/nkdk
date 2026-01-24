@@ -62,6 +62,8 @@ const parseByElementType = (element: TreeNode): CstNode => {
   switch (element.type) {
     case ParseElementType.LabelDecoration:
       return elementsParser.parseLabelDecoration(element.tokens)
+    case ParseElementType.LabelField:
+      return elementsParser.parseLabelField(element.tokens)
     case ParseElementType.InputField:
       return elementsParser.parseInputField(element.tokens)
     case ParseElementType.Button:

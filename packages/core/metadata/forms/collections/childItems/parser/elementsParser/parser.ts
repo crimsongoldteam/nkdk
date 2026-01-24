@@ -12,6 +12,11 @@ export class Parser extends CstParser {
     return this.labelDecoration()
   }
 
+  public parseLabelField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.labelField()
+  }
+
   public parseInputField(tokens: IToken[]): CstNode {
     this.input = tokens
     return this.inputField()
@@ -120,6 +125,34 @@ export class Parser extends CstParser {
   // #endregion
 
   // #region labelField
+
+  private readonly labelField = this.RULE("labelField", () => {
+    this.CONSUME(t.Tilde)
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.LCurly)
+
+        this.MANY1(() => {
+          this.CONSUME1(t.LabelContent, { LABEL: "LabelHeaderName" })
+        })
+
+        this.OPTION1(() => {
+          this.CONSUME(t.RCurly)
+        })
+      },
+      () => {
+        this.MANY2(() => {
+          this.CONSUME2(t.LabelContent, { LABEL: "LabelHeader" })
+        })
+      }
+    )
+    this.CONSUME(t.Colon)
+
+    this.OPTION3(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
     // this.aligment("left")

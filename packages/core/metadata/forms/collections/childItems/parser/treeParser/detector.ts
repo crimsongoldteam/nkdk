@@ -18,6 +18,7 @@ import {
   Slash,
   SwitchChecked,
   SwitchUnchecked,
+  Tilde,
   VBar,
   Whitespace,
 } from "../tokenizer/lexer"
@@ -151,6 +152,10 @@ const determineFieldType = (
 
   if (hasRadioButton) {
     return ParseElementType.RadioButtonField
+  }
+
+  if (firstTokenType === Tilde) {
+    return ParseElementType.LabelField
   }
 
   if (hasColon) {

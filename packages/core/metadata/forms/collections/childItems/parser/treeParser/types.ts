@@ -13,6 +13,7 @@ export interface BuilderTreeNode {
 }
 export enum ParseElementType {
   LabelDecoration = "LabelDecoration",
+  LabelField = "LabelField",
   InputField = "InputField",
   Button = "Button",
   RightTitledCheckboxField = "RightTitledCheckboxField",

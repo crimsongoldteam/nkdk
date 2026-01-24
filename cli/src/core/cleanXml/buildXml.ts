@@ -2,7 +2,7 @@ import { XMLBuilder } from "fast-xml-parser"
 
 export const buildXml = (parsedData: any): string => {
   const builder = new XMLBuilder({
-    preserveOrder: false,
+    preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "",
     attributesGroupName: "@attributes",

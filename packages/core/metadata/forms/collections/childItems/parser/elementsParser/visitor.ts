@@ -34,7 +34,28 @@ import { Parser } from "./parser"
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
-  // #region labelDecoration
+  // #region labelField
+
+  public labelField(ctx: CstChildrenDictionary, context: ConfigurationContext): LabelField {
+    const titleText = joinTokens((ctx.LabelHeader || ctx.LabelHeaderName) as IToken[])
+
+    const titleName = joinTokens(ctx.LabelHeaderName as IToken[]) || titleText
+
+    const name = this.visit(ctx.properties as CstNode[], context) || titleName
+
+    const title = this.createTitle(titleText, context.defaultLanguage)
+
+    const result: LabelField = {
+      elementType: FormElementType.LabelField,
+      name: name,
+    }
+
+    if (title !== undefined) {
+      result.title = title
+    }
+
+    return result
+  }
 
   public labelDecoration(ctx: CstChildrenDictionary, context: ConfigurationContext): LabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""

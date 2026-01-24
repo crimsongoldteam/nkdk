@@ -2,7 +2,7 @@ import { XMLParser } from "fast-xml-parser"
 
 export const parseXml = (xmlContent: string): any => {
   const primaryOptions = {
-    preserveOrder: false,
+    preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "",
     attributesGroupName: "@attributes",
