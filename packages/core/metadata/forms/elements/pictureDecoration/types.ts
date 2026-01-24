@@ -2,6 +2,11 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import {
+  FormattedI8nText,
+  FormattedI8nTextEnterprise,
+  FormattedI8nTextXML,
+} from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
@@ -29,7 +34,7 @@ export interface PictureDecoration {
   shortcut?: string
   skipOnInput?: boolean
   textColor?: Color
-  title?: I8nText
+  title?: FormattedI8nText
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormDecorationType
@@ -74,7 +79,7 @@ export interface PictureDecorationXML extends BaseElementXML {
   Shortcut?: string
   SkipOnInput?: boolean
   TextColor?: ColorXML
-  Title?: I8nTextXML
+  Title?: FormattedI8nTextXML
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormDecorationType
@@ -107,7 +112,8 @@ export interface PictureDecorationPartialEnterprise {
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
+  Заголовок?: FormattedI8nTextEnterprise
+  ФорматированныйЗаголовок?: FormattedI8nTextEnterprise
   КонтекстноеМеню?: ContextMenuEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number

@@ -1,7 +1,7 @@
 import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -13,6 +13,7 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportFormattedI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/formattedI8nText/exportToXML"
 
 export function exportPictureDecorationToXML<From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
@@ -59,7 +60,7 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
   const textColor = exportColorToXML(context, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportFormattedI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)

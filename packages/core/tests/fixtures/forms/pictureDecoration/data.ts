@@ -10,6 +10,7 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   elementType: FormElementType.PictureDecoration,
   name: "ДекорацияКартинки",
   title: {
+    formatted: false,
     items: { ru: "Декорация картинки" },
   },
   border: {
