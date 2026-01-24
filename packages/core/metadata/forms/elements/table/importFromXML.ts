@@ -226,6 +226,8 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
+  if (xml.UserSettingsGroup !== undefined) result.userSettingsGroup = xml.UserSettingsGroup
+
   return result as To
 }
 

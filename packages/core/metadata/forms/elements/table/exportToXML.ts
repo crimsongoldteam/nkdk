@@ -156,6 +156,7 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
   if (data.visible !== undefined) result.Visible = data.visible
   if (data.width !== undefined) result.Width = data.width
+  if (data.userSettingsGroup !== undefined) result.UserSettingsGroup = data.userSettingsGroup
 
   return result as ToXMLType<From>
 }

@@ -240,6 +240,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   autoRefreshPeriod: 60,
   allowRootChoice: true,
   allowGettingCurrentRowURL: true,
+  userSettingsGroup: "СписокКомпоновщикНастроекПользовательскиеНастройки",
   events: {
     selection: "ПроцедураВыбора",
     valueChoice: "ПроцедураВыбораЗначения",
@@ -387,6 +388,7 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   ПериодАвтоОбновления: 60,
   РазрешитьВыборКорня: "Истина",
   РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки: "Истина",
+  ГруппаПользовательскихНастроек: "СписокКомпоновщикНастроекПользовательскиеНастройки",
   События: {
     Выбор: "ПроцедураВыбора",
     ВыборЗначения: "ПроцедураВыбораЗначения",

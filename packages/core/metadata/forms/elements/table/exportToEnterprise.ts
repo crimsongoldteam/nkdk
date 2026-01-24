@@ -385,6 +385,8 @@ export const exportTableToEnterprise = (
   if (allowGettingCurrentRowURL !== undefined)
     result.РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки = allowGettingCurrentRowURL
 
+  if (data.userSettingsGroup !== undefined) result.ГруппаПользовательскихНастроек = data.userSettingsGroup
+
   return result
 }
 

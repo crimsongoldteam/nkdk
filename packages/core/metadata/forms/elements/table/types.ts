@@ -133,18 +133,6 @@ export interface Table {
   }
 
   // Dynamic list
-  // <!-- АвтоОбновление (AutoRefresh)
-  // ВосстанавливатьТекущуюСтроку (RestoreCurrentRow)
-  // ВыборГруппИЭлементов (ChoiceFoldersAndItems)
-  // ДополнительныеПараметрыСоздания (AdditionalCreateParameters)
-  // ОбновлениеПриИзмененииДанных (UpdateOnDataChange)
-  // ОтображатьКорень (ShowRoot)
-  // Период (Period)
-  // ПериодАвтоОбновления (AutoRefreshPeriod)
-  // РазрешитьВыборКорня (AllowRootChoice)
-  // РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки (AllowGettingCurrentRowURL)
-  // РодительВерхнегоУровня (TopLevelParent) -->
-
   autoRefresh?: boolean
   restoreCurrentRow?: boolean
   choiceFoldersAndItems?: SE.FoldersAndItemsUse
@@ -154,6 +142,7 @@ export interface Table {
   autoRefreshPeriod?: number
   allowRootChoice?: boolean
   allowGettingCurrentRowURL?: boolean
+  userSettingsGroup?: string
   // period?: boolean // Игнорируем эти поля
   // topLevelParent?: boolean
 }
@@ -248,6 +237,7 @@ export interface TableXML extends BaseElementXML {
   AutoRefreshPeriod?: number
   AllowRootChoice?: boolean
   AllowGettingCurrentRowURL?: boolean
+  UserSettingsGroup?: string
 }
 
 export interface TablePartialEnterprise {
@@ -339,6 +329,7 @@ export interface TablePartialEnterprise {
   ПериодАвтоОбновления?: number
   РазрешитьВыборКорня?: StringboolEnterprise
   РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки?: StringboolEnterprise
+  ГруппаПользовательскихНастроек?: string
   События?: {
     Выбор?: string
     ВыборЗначения?: string

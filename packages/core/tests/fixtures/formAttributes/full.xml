@@ -1,5 +1,8 @@
 <Attribute name="Объект" id="1">
 	<MainAttribute>true</MainAttribute>
+	<FunctionalOptions>
+		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
+	</FunctionalOptions>
 	<SavedData>true</SavedData>
 	<FillCheck>ShowError</FillCheck>
 	<Type>
@@ -50,9 +53,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</Edit>
-	<FunctionalOptions>
-		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
-	</FunctionalOptions>
 	<UseAlways>
 		<Field>Список.Ref</Field>
 	</UseAlways>

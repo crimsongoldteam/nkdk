@@ -507,6 +507,8 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (allowGettingCurrentRowURL !== undefined) result.allowGettingCurrentRowURL = allowGettingCurrentRowURL
 
+  if (data.ГруппаПользовательскихНастроек !== undefined) result.userSettingsGroup = data.ГруппаПользовательскихНастроек
+
   return result as To
 }
 
