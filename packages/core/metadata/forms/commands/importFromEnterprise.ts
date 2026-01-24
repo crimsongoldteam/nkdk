@@ -31,6 +31,8 @@ const importCommandFromEnterprise = (
 
   if (data.ИзменяемыеДанные !== undefined) result.modifiesSavedData = data.ИзменяемыеДанные
 
+  if (data.Таблица !== undefined) result.table = data.Таблица
+
   const picture = importPictureFromEnterprise(context, data.Картинка)
   if (picture !== undefined) result.picture = picture
 

@@ -11,7 +11,7 @@ export const exportFormParametersToXML = (
   }
 
   const result = parameters.map((parameter) => exportFormParameterToXML(context, parameter))
-  return result.length === 1 ? result[0] : result
+  return result
 }
 
 const exportFormParameterToXML = (context: ConfigurationContext, parameter: FormParameter): FormParameterXML => {

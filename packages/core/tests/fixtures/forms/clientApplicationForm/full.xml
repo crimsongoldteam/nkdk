@@ -8,6 +8,13 @@
 			</Type>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="Параметр1">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
 		<Autofill>false</Autofill>
 		<HorizontalAlign>Left</HorizontalAlign>

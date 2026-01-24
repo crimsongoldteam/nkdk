@@ -1,3 +1,4 @@
+import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importI8nTextFromXML } from "../../commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
@@ -24,6 +25,9 @@ function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | u
   if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse
 
   if (xml.ModifiesSavedData !== undefined) result.modifiesSavedData = xml.ModifiesSavedData
+
+  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+  if (table !== undefined) result.table = table
 
   const use = importUserVisibleFromXML(context, xml.Use)
   if (use !== undefined) result.use = use

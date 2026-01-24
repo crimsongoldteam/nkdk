@@ -19,6 +19,7 @@ export const fullCommands: Required<Command>[] = [
     representation: "PictureAndText",
     currentRowUse: "DontUse",
     modifiesSavedData: true,
+    table: "Таблица",
   },
 ]
 
@@ -33,6 +34,7 @@ export const fullCommandsEnterprise: CommandsEnterprise = {
     Картинка: "Печать",
     ИспользованиеТекущейСтроки: "НеИспользует",
     РазрешитьИспользование: { Администратор: "Истина" },
+    Таблица: "Таблица",
   },
 }
 

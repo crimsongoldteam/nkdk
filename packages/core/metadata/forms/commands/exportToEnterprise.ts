@@ -29,6 +29,8 @@ const exportCommandToEnterprise = (
 
   if (data.modifiesSavedData !== undefined) result.ИзменяемыеДанные = data.modifiesSavedData
 
+  if (data.table !== undefined) result.Таблица = data.table
+
   const picture = exportPictureToEnterprise(context, data.picture)
   if (picture !== undefined) result.Картинка = picture
 

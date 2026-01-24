@@ -188,6 +188,11 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
   Элементы: {
     ПолеВвода1: {},
   },
+  Параметры: {
+    Параметр1: {
+      Тип: "Булево",
+    },
+  },
 }
 
 export const minimalClientApplicationForm: ClientApplicationForm = {

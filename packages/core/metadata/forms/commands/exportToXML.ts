@@ -25,6 +25,13 @@ function exportCommandToXML(context: ConfigurationContext, command: Command | un
     result.Action = command.action
   }
 
+  if (command.table !== undefined) {
+    result.AssociatedTableElementId = {
+      "_xsi:type": "xs:string",
+      "#text": command.table,
+    }
+  }
+
   if (command.currentRowUse !== undefined) {
     result.CurrentRowUse = command.currentRowUse
   }

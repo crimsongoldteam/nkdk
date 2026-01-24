@@ -1,4 +1,5 @@
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "../../commonObjects/i8nText/types"
+import { MetadataSimpleValueXML } from "../../commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "../../commonObjects/userVisible/types"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "../../systemEnumerations/types"
@@ -14,6 +15,7 @@ export interface Command {
   representation?: ButtonRepresentation
   currentRowUse?: CurrentRowUse
   modifiesSavedData?: boolean
+  table?: string
 }
 
 export type Commands = Command[]
@@ -30,6 +32,7 @@ export interface CommandXML {
   Representation?: ButtonRepresentation
   ModifiesSavedData?: boolean
   CurrentRowUse?: CurrentRowUse
+  AssociatedTableElementId?: MetadataSimpleValueXML
 }
 
 export type CommandsXML = CommandXML | CommandXML[]
@@ -45,6 +48,7 @@ export interface CommandEnterprise {
   ИзменяемыеДанные?: boolean
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
+  Таблица?: string
 }
 
 export type CommandsEnterprise = Record<string, CommandEnterprise>
