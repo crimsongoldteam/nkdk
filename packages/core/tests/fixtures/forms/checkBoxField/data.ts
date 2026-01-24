@@ -215,7 +215,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       headerHorizontalAlign: "Right",
     },
     structured: {
-      strings: ["{Флажок} [ ]"],
+      strings: ["[ ] {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -240,7 +240,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
     },
     structured: {
-      strings: ["[ |1] {Флажок}"],
+      strings: ["{Флажок} [ |1]"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -268,6 +268,32 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["[ |1] {Флажок}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+]
+
+export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureFixture[] = [
+  {
+    name: "left titled",
+    element: {
+      name: "Флажок",
+      elementType: FormElementType.CheckBoxField,
+      title: { items: { ru: "Заголовок флажка" } },
+    },
+    structured: {
+      strings: ["[ ] Заголовок флажка {Флажок}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "left titled without title",
+    element: {
+      name: "Флажок",
+      elementType: FormElementType.CheckBoxField,
+    },
+    structured: {
+      strings: ["[ ] {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },

@@ -39,9 +39,9 @@ const formatCheckBoxFieldContent = (
   const isSwitch = element.checkBoxType === "Switch" && !forContent
   const symbol = isSwitch ? "[ |1]" : "[ ]"
   const name = formatElementName(element)
+  const isRightTitled = element.headerHorizontalAlign === "Right" || forContent
 
   if (title) {
-    const isRightTitled = element.headerHorizontalAlign === "Right" || forContent
     if (isRightTitled) {
       return `${symbol} ${title} ${name}`
     } else {
@@ -49,7 +49,7 @@ const formatCheckBoxFieldContent = (
     }
   }
 
-  if (isSwitch) {
+  if (isRightTitled) {
     return `${symbol} ${name}`
   }
 
