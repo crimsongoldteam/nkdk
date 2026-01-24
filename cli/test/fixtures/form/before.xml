@@ -153,6 +153,24 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ГруппаФиксированноеЗначениеРасширеннаяПодсказка" id="50"/>
 			<ChildItems>
+				<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение2" id="999">
+					<Visible>false</Visible>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<TextColor>style:ПоясняющийТекст</TextColor>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>В бюджете будут отображаться только выбранные значения. Эти значения будут отображаться всегда, вне зависимости от того, есть по ним обороты или нет</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Only selected values will be displayed in the budget. These values are always displayed regardless of whether they have turnovers or not</v8:content>
+						</v8:item>
+					</Title>
+					<VerticalAlign>Top</VerticalAlign>
+					<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначениеКонтекстноеМеню" id="42"/>
+					<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначениеРасширеннаяПодсказка" id="43"/>
+				</LabelDecoration>
 				<RadioButtonField name="ФиксированноеЗначения" id="4">
 					<DataPath>ФиксированноеЗначение</DataPath>
 					<TitleLocation>None</TitleLocation>

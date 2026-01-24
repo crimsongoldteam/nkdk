@@ -304,7 +304,25 @@
 		<UsualGroup name="ГруппаФиксированноеЗначение" id="28">
 			<Behavior>Usual</Behavior>
 			<ChildItems>
-				<RadioButtonField name="ФиксированноеЗначения" id="29">
+				<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение2" id="29">
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначениеКонтекстноеМеню" id="30"/>
+					<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначениеРасширеннаяПодсказка" id="31"/>
+					<TextColor>style:ПоясняющийТекст</TextColor>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>В бюджете будут отображаться только выбранные значения. Эти значения будут отображаться всегда, вне зависимости от того, есть по ним обороты или нет</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Only selected values will be displayed in the budget. These values are always displayed regardless of whether they have turnovers or not</v8:content>
+						</v8:item>
+					</Title>
+					<VerticalAlign>Top</VerticalAlign>
+					<Visible>false</Visible>
+				</LabelDecoration>
+				<RadioButtonField name="ФиксированноеЗначения" id="32">
 					<ChoiceList>
 						<xr:Item>
 							<xr:CheckState>0</xr:CheckState>
@@ -323,12 +341,12 @@
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
-					<ContextMenu name="ФиксированноеЗначенияКонтекстноеМеню" id="30"/>
+					<ContextMenu name="ФиксированноеЗначенияКонтекстноеМеню" id="33"/>
 					<DataPath>ФиксированноеЗначение</DataPath>
 					<Events>
 						<Event name="OnChange">ФиксированноеЗначениеПриИзменении</Event>
 					</Events>
-					<ExtendedTooltip name="ФиксированноеЗначенияРасширеннаяПодсказка" id="31">
+					<ExtendedTooltip name="ФиксированноеЗначенияРасширеннаяПодсказка" id="34">
 						<AutoMaxWidth>false</AutoMaxWidth>
 						<Title formatted="false">
 							<v8:item>
@@ -345,10 +363,10 @@
 					<TitleLocation>None</TitleLocation>
 					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 				</RadioButtonField>
-				<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение" id="32">
+				<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение" id="35">
 					<AutoMaxWidth>false</AutoMaxWidth>
-					<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначениеКонтекстноеМеню" id="33"/>
-					<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначениеРасширеннаяПодсказка" id="34"/>
+					<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначениеКонтекстноеМеню" id="36"/>
+					<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначениеРасширеннаяПодсказка" id="37"/>
 					<TextColor>style:ПоясняющийТекст</TextColor>
 					<Title formatted="false">
 						<v8:item>
@@ -363,55 +381,55 @@
 					<VerticalAlign>Top</VerticalAlign>
 					<Visible>false</Visible>
 				</LabelDecoration>
-				<UsualGroup name="ГруппаСдвигЗначений" id="35">
+				<UsualGroup name="ГруппаСдвигЗначений" id="38">
 					<Behavior>Usual</Behavior>
 					<ChildItems>
-						<LabelDecoration name="Декорация1" id="36">
-							<ContextMenu name="Декорация1КонтекстноеМеню" id="37"/>
-							<ExtendedTooltip name="Декорация1РасширеннаяПодсказка" id="38"/>
+						<LabelDecoration name="Декорация1" id="39">
+							<ContextMenu name="Декорация1КонтекстноеМеню" id="40"/>
+							<ExtendedTooltip name="Декорация1РасширеннаяПодсказка" id="41"/>
 						</LabelDecoration>
-						<Pages name="ГруппаВыборФиксированныхЗначений" id="39">
+						<Pages name="ГруппаВыборФиксированныхЗначений" id="42">
 							<ChildItems>
-								<Page name="ФиксированныеАналитики" id="40">
+								<Page name="ФиксированныеАналитики" id="43">
 									<ChildItems>
-										<Table name="ВыбранныеЗначенияАналитика" id="41">
-											<AutoCommandBar name="ВыбранныеЗначенияАналитикаКоманднаяПанель" id="42">
+										<Table name="ВыбранныеЗначенияАналитика" id="44">
+											<AutoCommandBar name="ВыбранныеЗначенияАналитикаКоманднаяПанель" id="45">
 												<Autofill>false</Autofill>
 												<ChildItems>
-													<Button name="ВыбранныеЗначенияДобавить" id="43">
+													<Button name="ВыбранныеЗначенияДобавить" id="46">
 														<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.Add</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияДобавитьРасширеннаяПодсказка" id="44"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияДобавитьРасширеннаяПодсказка" id="47"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияИзменить" id="45">
+													<Button name="ВыбранныеЗначенияИзменить" id="48">
 														<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.Change</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияИзменитьРасширеннаяПодсказка" id="46"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияИзменитьРасширеннаяПодсказка" id="49"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияУдалить" id="47">
+													<Button name="ВыбранныеЗначенияУдалить" id="50">
 														<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.Delete</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияУдалитьРасширеннаяПодсказка" id="48"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияУдалитьРасширеннаяПодсказка" id="51"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="Подбор" id="49">
+													<Button name="Подбор" id="52">
 														<CommandName>Form.Command.Подбор</CommandName>
-														<ExtendedTooltip name="ПодборРасширеннаяПодсказка" id="50"/>
+														<ExtendedTooltip name="ПодборРасширеннаяПодсказка" id="53"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<ButtonGroup name="ГруппаКнопокПереместить" id="51">
+													<ButtonGroup name="ГруппаКнопокПереместить" id="54">
 														<ChildItems>
-															<Button name="ВыбранныеЗначенияПереместитьВверх" id="52">
+															<Button name="ВыбранныеЗначенияПереместитьВверх" id="55">
 																<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.MoveUp</CommandName>
-																<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВверхРасширеннаяПодсказка" id="53"/>
+																<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВверхРасширеннаяПодсказка" id="56"/>
 																<Type>CommandBarButton</Type>
 															</Button>
-															<Button name="ВыбранныеЗначенияПереместитьВниз" id="54">
+															<Button name="ВыбранныеЗначенияПереместитьВниз" id="57">
 																<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.MoveDown</CommandName>
-																<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВнизРасширеннаяПодсказка" id="55"/>
+																<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВнизРасширеннаяПодсказка" id="58"/>
 																<Type>CommandBarButton</Type>
 															</Button>
 														</ChildItems>
-														<ExtendedTooltip name="ГруппаКнопокПереместитьРасширеннаяПодсказка" id="56"/>
+														<ExtendedTooltip name="ГруппаКнопокПереместитьРасширеннаяПодсказка" id="59"/>
 														<Representation>Compact</Representation>
 														<Title>
 															<v8:item>
@@ -424,22 +442,22 @@
 															</v8:item>
 														</Title>
 													</ButtonGroup>
-													<ButtonGroup name="ГруппаКнопокУпорядочить" id="57">
+													<ButtonGroup name="ГруппаКнопокУпорядочить" id="60">
 														<ChildItems>
-															<Button name="ВыбранныеЗначенияСортироватьСписокПоВозрастанию" id="58">
+															<Button name="ВыбранныеЗначенияСортироватьСписокПоВозрастанию" id="61">
 																<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.SortListAsc</CommandName>
-																<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоВозрастаниюРасширеннаяПодсказка" id="59"/>
+																<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоВозрастаниюРасширеннаяПодсказка" id="62"/>
 																<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																<Type>CommandBarButton</Type>
 															</Button>
-															<Button name="ВыбранныеЗначенияСортироватьСписокПоУбыванию" id="60">
+															<Button name="ВыбранныеЗначенияСортироватьСписокПоУбыванию" id="63">
 																<CommandName>Form.Item.ВыбранныеЗначенияАналитика.StandardCommand.SortListDesc</CommandName>
-																<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоУбываниюРасширеннаяПодсказка" id="61"/>
+																<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоУбываниюРасширеннаяПодсказка" id="64"/>
 																<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 																<Type>CommandBarButton</Type>
 															</Button>
 														</ChildItems>
-														<ExtendedTooltip name="ГруппаКнопокУпорядочитьРасширеннаяПодсказка" id="62"/>
+														<ExtendedTooltip name="ГруппаКнопокУпорядочитьРасширеннаяПодсказка" id="65"/>
 														<Representation>Compact</Representation>
 														<Title>
 															<v8:item>
@@ -456,38 +474,38 @@
 											</AutoCommandBar>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<ChildItems>
-												<InputField name="ВыбранныеЗначенияЗначение" id="63">
-													<ContextMenu name="ВыбранныеЗначенияЗначениеКонтекстноеМеню" id="64"/>
+												<InputField name="ВыбранныеЗначенияЗначение" id="66">
+													<ContextMenu name="ВыбранныеЗначенияЗначениеКонтекстноеМеню" id="67"/>
 													<DataPath>ВыбранныеЗначения.Value</DataPath>
 													<EditMode>EnterOnInput</EditMode>
-													<ExtendedTooltip name="ВыбранныеЗначенияЗначениеРасширеннаяПодсказка" id="65"/>
+													<ExtendedTooltip name="ВыбранныеЗначенияЗначениеРасширеннаяПодсказка" id="68"/>
 													<TitleLocation>None</TitleLocation>
 												</InputField>
 											</ChildItems>
-											<ContextMenu name="ВыбранныеЗначенияАналитикаКонтекстноеМеню" id="66"/>
+											<ContextMenu name="ВыбранныеЗначенияАналитикаКонтекстноеМеню" id="69"/>
 											<DataPath>ВыбранныеЗначения</DataPath>
 											<EnableDrag>true</EnableDrag>
 											<EnableStartDrag>true</EnableStartDrag>
-											<ExtendedTooltip name="ВыбранныеЗначенияАналитикаРасширеннаяПодсказка" id="67"/>
+											<ExtendedTooltip name="ВыбранныеЗначенияАналитикаРасширеннаяПодсказка" id="70"/>
 											<FileDragMode>AsFile</FileDragMode>
 											<Header>false</Header>
 											<Representation>List</Representation>
-											<SearchControlAddition name="ВыбранныеЗначенияАналитикаУправлениеПоиском" id="68">
+											<SearchControlAddition name="ВыбранныеЗначенияАналитикаУправлениеПоиском" id="71">
 												<AdditionSource>
 													<Item>ВыбранныеЗначенияАналитика</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="ВыбранныеЗначенияАналитикаУправлениеПоискомКонтекстноеМеню" id="69"/>
-												<ExtendedTooltip name="ВыбранныеЗначенияАналитикаУправлениеПоискомРасширеннаяПодсказка" id="70"/>
+												<ContextMenu name="ВыбранныеЗначенияАналитикаУправлениеПоискомКонтекстноеМеню" id="72"/>
+												<ExtendedTooltip name="ВыбранныеЗначенияАналитикаУправлениеПоискомРасширеннаяПодсказка" id="73"/>
 											</SearchControlAddition>
 											<SearchControlLocation>None</SearchControlLocation>
-											<SearchStringAddition name="ВыбранныеЗначенияАналитикаСтрокаПоиска" id="71">
+											<SearchStringAddition name="ВыбранныеЗначенияАналитикаСтрокаПоиска" id="74">
 												<AdditionSource>
 													<Item>ВыбранныеЗначенияАналитика</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="ВыбранныеЗначенияАналитикаСтрокаПоискаКонтекстноеМеню" id="72"/>
-												<ExtendedTooltip name="ВыбранныеЗначенияАналитикаСтрокаПоискаРасширеннаяПодсказка" id="73"/>
+												<ContextMenu name="ВыбранныеЗначенияАналитикаСтрокаПоискаКонтекстноеМеню" id="75"/>
+												<ExtendedTooltip name="ВыбранныеЗначенияАналитикаСтрокаПоискаРасширеннаяПодсказка" id="76"/>
 											</SearchStringAddition>
 											<SearchStringLocation>None</SearchStringLocation>
 											<Title>
@@ -501,29 +519,29 @@
 												</v8:item>
 											</Title>
 											<TitleLocation>Auto</TitleLocation>
-											<ViewStatusAddition name="ВыбранныеЗначенияАналитикаСостояниеПросмотра" id="74">
+											<ViewStatusAddition name="ВыбранныеЗначенияАналитикаСостояниеПросмотра" id="77">
 												<AdditionSource>
 													<Item>ВыбранныеЗначенияАналитика</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="ВыбранныеЗначенияАналитикаСостояниеПросмотраКонтекстноеМеню" id="75"/>
-												<ExtendedTooltip name="ВыбранныеЗначенияАналитикаСостояниеПросмотраРасширеннаяПодсказка" id="76"/>
+												<ContextMenu name="ВыбранныеЗначенияАналитикаСостояниеПросмотраКонтекстноеМеню" id="78"/>
+												<ExtendedTooltip name="ВыбранныеЗначенияАналитикаСостояниеПросмотраРасширеннаяПодсказка" id="79"/>
 												<HorizontalLocation>Left</HorizontalLocation>
 											</ViewStatusAddition>
 											<ViewStatusLocation>None</ViewStatusLocation>
 										</Table>
-										<Pages name="ГруппаВидимостьРедактирования" id="77">
+										<Pages name="ГруппаВидимостьРедактирования" id="80">
 											<ChildItems>
-												<Page name="РедактированиеДоступно" id="78">
+												<Page name="РедактированиеДоступно" id="81">
 													<ChildItems>
-														<CheckBoxField name="РазрешитьРедактирование" id="79">
+														<CheckBoxField name="РазрешитьРедактирование" id="82">
 															<CheckBoxType>Auto</CheckBoxType>
-															<ContextMenu name="РазрешитьРедактированиеКонтекстноеМеню" id="80"/>
+															<ContextMenu name="РазрешитьРедактированиеКонтекстноеМеню" id="83"/>
 															<DataPath>РазрешитьРедактирование</DataPath>
 															<Events>
 																<Event name="OnChange">РазрешитьДобавлениеПриИзменении</Event>
 															</Events>
-															<ExtendedTooltip name="РазрешитьРедактированиеРасширеннаяПодсказка" id="81">
+															<ExtendedTooltip name="РазрешитьРедактированиеРасширеннаяПодсказка" id="84">
 																<AutoMaxWidth>false</AutoMaxWidth>
 																<Title formatted="false">
 																	<v8:item>
@@ -549,14 +567,14 @@
 															<TitleLocation>Right</TitleLocation>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 														</CheckBoxField>
-														<CheckBoxField name="ДобавитьПрочиеЗначения" id="82">
+														<CheckBoxField name="ДобавитьПрочиеЗначения" id="85">
 															<CheckBoxType>Auto</CheckBoxType>
-															<ContextMenu name="ДобавитьПрочиеЗначенияКонтекстноеМеню" id="83"/>
+															<ContextMenu name="ДобавитьПрочиеЗначенияКонтекстноеМеню" id="86"/>
 															<DataPath>ДобавитьПрочиеЗначения</DataPath>
 															<Events>
 																<Event name="OnChange">ДобавитьПрочиеЗначенияПриИзменении</Event>
 															</Events>
-															<ExtendedTooltip name="ДобавитьПрочиеЗначенияРасширеннаяПодсказка" id="84">
+															<ExtendedTooltip name="ДобавитьПрочиеЗначенияРасширеннаяПодсказка" id="87">
 																<AutoMaxWidth>false</AutoMaxWidth>
 																<Title formatted="false">
 																	<v8:item>
@@ -582,10 +600,10 @@
 															<TitleLocation>Right</TitleLocation>
 															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 														</CheckBoxField>
-														<LabelDecoration name="ПримечаниеРазрешитьДобавление" id="85">
+														<LabelDecoration name="ПримечаниеРазрешитьДобавление" id="88">
 															<AutoMaxWidth>false</AutoMaxWidth>
-															<ContextMenu name="ПримечаниеРазрешитьДобавлениеКонтекстноеМеню" id="86"/>
-															<ExtendedTooltip name="ПримечаниеРазрешитьДобавлениеРасширеннаяПодсказка" id="87"/>
+															<ContextMenu name="ПримечаниеРазрешитьДобавлениеКонтекстноеМеню" id="89"/>
+															<ExtendedTooltip name="ПримечаниеРазрешитьДобавлениеРасширеннаяПодсказка" id="90"/>
 															<TextColor>style:ПоясняющийТекст</TextColor>
 															<Title formatted="false">
 																<v8:item>
@@ -600,10 +618,10 @@
 															<VerticalAlign>Top</VerticalAlign>
 															<Visible>false</Visible>
 														</LabelDecoration>
-														<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение2" id="88">
+														<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение2" id="91">
 															<AutoMaxWidth>false</AutoMaxWidth>
-															<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначение2КонтекстноеМеню" id="89"/>
-															<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначение2РасширеннаяПодсказка" id="90"/>
+															<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначение2КонтекстноеМеню" id="92"/>
+															<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначение2РасширеннаяПодсказка" id="93"/>
 															<TextColor>style:ПоясняющийТекст</TextColor>
 															<Title formatted="false">
 																<v8:item>
@@ -619,7 +637,7 @@
 															<Visible>false</Visible>
 														</LabelDecoration>
 													</ChildItems>
-													<ExtendedTooltip name="РедактированиеДоступноРасширеннаяПодсказка" id="91"/>
+													<ExtendedTooltip name="РедактированиеДоступноРасширеннаяПодсказка" id="94"/>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -631,16 +649,16 @@
 														</v8:item>
 													</Title>
 												</Page>
-												<Page name="РедактированиеНедоступно" id="92">
+												<Page name="РедактированиеНедоступно" id="95">
 													<ChildItems>
-														<CheckBoxField name="ДобавитьПрочиеЗначения1" id="93">
+														<CheckBoxField name="ДобавитьПрочиеЗначения1" id="96">
 															<CheckBoxType>Auto</CheckBoxType>
-															<ContextMenu name="ДобавитьПрочиеЗначения1КонтекстноеМеню" id="94"/>
+															<ContextMenu name="ДобавитьПрочиеЗначения1КонтекстноеМеню" id="97"/>
 															<DataPath>ДобавитьПрочиеЗначения</DataPath>
 															<Events>
 																<Event name="OnChange">ДобавитьПрочиеЗначенияПриИзменении</Event>
 															</Events>
-															<ExtendedTooltip name="ДобавитьПрочиеЗначения1РасширеннаяПодсказка" id="95"/>
+															<ExtendedTooltip name="ДобавитьПрочиеЗначения1РасширеннаяПодсказка" id="98"/>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
@@ -653,10 +671,10 @@
 															</Title>
 															<TitleLocation>Right</TitleLocation>
 														</CheckBoxField>
-														<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение3" id="96">
+														<LabelDecoration name="ПримечаниеВариантОтчетаФиксЗначение3" id="99">
 															<AutoMaxWidth>false</AutoMaxWidth>
-															<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначение3КонтекстноеМеню" id="97"/>
-															<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначение3РасширеннаяПодсказка" id="98"/>
+															<ContextMenu name="ПримечаниеВариантОтчетаФиксЗначение3КонтекстноеМеню" id="100"/>
+															<ExtendedTooltip name="ПримечаниеВариантОтчетаФиксЗначение3РасширеннаяПодсказка" id="101"/>
 															<TextColor>style:ПоясняющийТекст</TextColor>
 															<Title formatted="false">
 																<v8:item>
@@ -671,7 +689,7 @@
 															<VerticalAlign>Top</VerticalAlign>
 														</LabelDecoration>
 													</ChildItems>
-													<ExtendedTooltip name="РедактированиеНедоступноРасширеннаяПодсказка" id="99"/>
+													<ExtendedTooltip name="РедактированиеНедоступноРасширеннаяПодсказка" id="102"/>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -684,7 +702,7 @@
 													</Title>
 												</Page>
 											</ChildItems>
-											<ExtendedTooltip name="ГруппаВидимостьРедактированияРасширеннаяПодсказка" id="100"/>
+											<ExtendedTooltip name="ГруппаВидимостьРедактированияРасширеннаяПодсказка" id="103"/>
 											<PagesRepresentation>None</PagesRepresentation>
 											<Title>
 												<v8:item>
@@ -698,7 +716,7 @@
 											</Title>
 										</Pages>
 									</ChildItems>
-									<ExtendedTooltip name="ФиксированныеАналитикиРасширеннаяПодсказка" id="101"/>
+									<ExtendedTooltip name="ФиксированныеАналитикиРасширеннаяПодсказка" id="104"/>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -710,90 +728,90 @@
 										</v8:item>
 									</Title>
 								</Page>
-								<Page name="Измерения" id="102">
+								<Page name="Измерения" id="105">
 									<ChildItems>
-										<Table name="ВыбранныеЗначенияИзмерения" id="103">
-											<AutoCommandBar name="ВыбранныеЗначенияИзмеренияКоманднаяПанель" id="104">
+										<Table name="ВыбранныеЗначенияИзмерения" id="106">
+											<AutoCommandBar name="ВыбранныеЗначенияИзмеренияКоманднаяПанель" id="107">
 												<Autofill>false</Autofill>
 												<ChildItems>
-													<Button name="ВыбранныеЗначенияДобавитьИзм" id="105">
+													<Button name="ВыбранныеЗначенияДобавитьИзм" id="108">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.Add</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияДобавитьИзмРасширеннаяПодсказка" id="106"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияДобавитьИзмРасширеннаяПодсказка" id="109"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияИзменитьИзм" id="107">
+													<Button name="ВыбранныеЗначенияИзменитьИзм" id="110">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.Change</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияИзменитьИзмРасширеннаяПодсказка" id="108"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияИзменитьИзмРасширеннаяПодсказка" id="111"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияУдалитьИзм" id="109">
+													<Button name="ВыбранныеЗначенияУдалитьИзм" id="112">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.Delete</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияУдалитьИзмРасширеннаяПодсказка" id="110"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияУдалитьИзмРасширеннаяПодсказка" id="113"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияПереместитьВверхИзм" id="111">
+													<Button name="ВыбранныеЗначенияПереместитьВверхИзм" id="114">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.MoveUp</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВверхИзмРасширеннаяПодсказка" id="112"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВверхИзмРасширеннаяПодсказка" id="115"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияПереместитьВнизИзм" id="113">
+													<Button name="ВыбранныеЗначенияПереместитьВнизИзм" id="116">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.MoveDown</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВнизИзмРасширеннаяПодсказка" id="114"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияПереместитьВнизИзмРасширеннаяПодсказка" id="117"/>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияСортироватьСписокПоВозрастаниюИзм" id="115">
+													<Button name="ВыбранныеЗначенияСортироватьСписокПоВозрастаниюИзм" id="118">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.SortListAsc</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоВозрастаниюИзмРасширеннаяПодсказка" id="116"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоВозрастаниюИзмРасширеннаяПодсказка" id="119"/>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ВыбранныеЗначенияСортироватьСписокПоУбываниюИзм" id="117">
+													<Button name="ВыбранныеЗначенияСортироватьСписокПоУбываниюИзм" id="120">
 														<CommandName>Form.Item.ВыбранныеЗначенияИзмерения.StandardCommand.SortListDesc</CommandName>
-														<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоУбываниюИзмРасширеннаяПодсказка" id="118"/>
+														<ExtendedTooltip name="ВыбранныеЗначенияСортироватьСписокПоУбываниюИзмРасширеннаяПодсказка" id="121"/>
 														<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 														<Type>CommandBarButton</Type>
 													</Button>
-													<Button name="ПодборИзм" id="119">
+													<Button name="ПодборИзм" id="122">
 														<CommandName>Form.Command.Подбор</CommandName>
-														<ExtendedTooltip name="ПодборИзмРасширеннаяПодсказка" id="120"/>
+														<ExtendedTooltip name="ПодборИзмРасширеннаяПодсказка" id="123"/>
 														<Type>CommandBarButton</Type>
 													</Button>
 												</ChildItems>
 											</AutoCommandBar>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<ChildItems>
-												<InputField name="ВыбранныеЗначенияЗначениеИзм" id="121">
-													<ContextMenu name="ВыбранныеЗначенияЗначениеИзмКонтекстноеМеню" id="122"/>
+												<InputField name="ВыбранныеЗначенияЗначениеИзм" id="124">
+													<ContextMenu name="ВыбранныеЗначенияЗначениеИзмКонтекстноеМеню" id="125"/>
 													<DataPath>ВыбранныеЗначения.Value</DataPath>
 													<EditMode>EnterOnInput</EditMode>
-													<ExtendedTooltip name="ВыбранныеЗначенияЗначениеИзмРасширеннаяПодсказка" id="123"/>
+													<ExtendedTooltip name="ВыбранныеЗначенияЗначениеИзмРасширеннаяПодсказка" id="126"/>
 													<TitleLocation>None</TitleLocation>
 												</InputField>
 											</ChildItems>
-											<ContextMenu name="ВыбранныеЗначенияИзмеренияКонтекстноеМеню" id="124"/>
+											<ContextMenu name="ВыбранныеЗначенияИзмеренияКонтекстноеМеню" id="127"/>
 											<DataPath>ВыбранныеЗначения</DataPath>
 											<EnableDrag>true</EnableDrag>
 											<EnableStartDrag>true</EnableStartDrag>
-											<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияРасширеннаяПодсказка" id="125"/>
+											<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияРасширеннаяПодсказка" id="128"/>
 											<FileDragMode>AsFile</FileDragMode>
 											<Header>false</Header>
 											<Representation>List</Representation>
-											<SearchControlAddition name="ВыбранныеЗначенияИзмеренияУправлениеПоиском" id="126">
+											<SearchControlAddition name="ВыбранныеЗначенияИзмеренияУправлениеПоиском" id="129">
 												<AdditionSource>
 													<Item>ВыбранныеЗначенияИзмерения</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
-												<ContextMenu name="ВыбранныеЗначенияИзмеренияУправлениеПоискомКонтекстноеМеню" id="127"/>
-												<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияУправлениеПоискомРасширеннаяПодсказка" id="128"/>
+												<ContextMenu name="ВыбранныеЗначенияИзмеренияУправлениеПоискомКонтекстноеМеню" id="130"/>
+												<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияУправлениеПоискомРасширеннаяПодсказка" id="131"/>
 											</SearchControlAddition>
 											<SearchControlLocation>None</SearchControlLocation>
-											<SearchStringAddition name="ВыбранныеЗначенияИзмеренияСтрокаПоиска" id="129">
+											<SearchStringAddition name="ВыбранныеЗначенияИзмеренияСтрокаПоиска" id="132">
 												<AdditionSource>
 													<Item>ВыбранныеЗначенияИзмерения</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="ВыбранныеЗначенияИзмеренияСтрокаПоискаКонтекстноеМеню" id="130"/>
-												<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияСтрокаПоискаРасширеннаяПодсказка" id="131"/>
+												<ContextMenu name="ВыбранныеЗначенияИзмеренияСтрокаПоискаКонтекстноеМеню" id="133"/>
+												<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияСтрокаПоискаРасширеннаяПодсказка" id="134"/>
 											</SearchStringAddition>
 											<SearchStringLocation>None</SearchStringLocation>
 											<Title>
@@ -807,19 +825,19 @@
 												</v8:item>
 											</Title>
 											<TitleLocation>Auto</TitleLocation>
-											<ViewStatusAddition name="ВыбранныеЗначенияИзмеренияСостояниеПросмотра" id="132">
+											<ViewStatusAddition name="ВыбранныеЗначенияИзмеренияСостояниеПросмотра" id="135">
 												<AdditionSource>
 													<Item>ВыбранныеЗначенияИзмерения</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
-												<ContextMenu name="ВыбранныеЗначенияИзмеренияСостояниеПросмотраКонтекстноеМеню" id="133"/>
-												<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияСостояниеПросмотраРасширеннаяПодсказка" id="134"/>
+												<ContextMenu name="ВыбранныеЗначенияИзмеренияСостояниеПросмотраКонтекстноеМеню" id="136"/>
+												<ExtendedTooltip name="ВыбранныеЗначенияИзмеренияСостояниеПросмотраРасширеннаяПодсказка" id="137"/>
 												<HorizontalLocation>Left</HorizontalLocation>
 											</ViewStatusAddition>
 											<ViewStatusLocation>None</ViewStatusLocation>
 										</Table>
 									</ChildItems>
-									<ExtendedTooltip name="ИзмеренияРасширеннаяПодсказка" id="135"/>
+									<ExtendedTooltip name="ИзмеренияРасширеннаяПодсказка" id="138"/>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -832,7 +850,7 @@
 									</Title>
 								</Page>
 							</ChildItems>
-							<ExtendedTooltip name="ГруппаВыборФиксированныхЗначенийРасширеннаяПодсказка" id="136"/>
+							<ExtendedTooltip name="ГруппаВыборФиксированныхЗначенийРасширеннаяПодсказка" id="139"/>
 							<PagesRepresentation>None</PagesRepresentation>
 							<Title>
 								<v8:item>
@@ -846,7 +864,7 @@
 							</Title>
 						</Pages>
 					</ChildItems>
-					<ExtendedTooltip name="ГруппаСдвигЗначенийРасширеннаяПодсказка" id="137"/>
+					<ExtendedTooltip name="ГруппаСдвигЗначенийРасширеннаяПодсказка" id="140"/>
 					<Group>Horizontal</Group>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
@@ -862,7 +880,7 @@
 					</Title>
 				</UsualGroup>
 			</ChildItems>
-			<ExtendedTooltip name="ГруппаФиксированноеЗначениеРасширеннаяПодсказка" id="138"/>
+			<ExtendedTooltip name="ГруппаФиксированноеЗначениеРасширеннаяПодсказка" id="141"/>
 			<Group>Vertical</Group>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
@@ -877,18 +895,18 @@
 				</v8:item>
 			</Title>
 		</UsualGroup>
-		<Button name="ВыборДополнительныхПолей" id="139">
+		<Button name="ВыборДополнительныхПолей" id="142">
 			<CommandName>Form.Command.ВыборДополнительныхПолей</CommandName>
-			<ExtendedTooltip name="ВыборДополнительныхПолейРасширеннаяПодсказка" id="140"/>
+			<ExtendedTooltip name="ВыборДополнительныхПолейРасширеннаяПодсказка" id="143"/>
 			<Type>Hyperlink</Type>
 			<Visible>false</Visible>
 		</Button>
-		<CommandBar name="ГруппаПодвал" id="141">
+		<CommandBar name="ГруппаПодвал" id="144">
 			<ChildItems>
-				<Button name="Выбрать" id="142">
+				<Button name="Выбрать" id="145">
 					<CommandName>Form.Command.Выбрать</CommandName>
 					<DefaultButton>true</DefaultButton>
-					<ExtendedTooltip name="ВыбратьРасширеннаяПодсказка" id="143"/>
+					<ExtendedTooltip name="ВыбратьРасширеннаяПодсказка" id="146"/>
 					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
@@ -901,14 +919,14 @@
 					</Title>
 					<Type>CommandBarButton</Type>
 				</Button>
-				<Button name="Закрыть" id="144">
+				<Button name="Закрыть" id="147">
 					<CommandName>Form.StandardCommand.Close</CommandName>
-					<ExtendedTooltip name="ЗакрытьРасширеннаяПодсказка" id="145"/>
+					<ExtendedTooltip name="ЗакрытьРасширеннаяПодсказка" id="148"/>
 					<Representation>Text</Representation>
 					<Type>CommandBarButton</Type>
 				</Button>
 			</ChildItems>
-			<ExtendedTooltip name="ГруппаПодвалРасширеннаяПодсказка" id="146"/>
+			<ExtendedTooltip name="ГруппаПодвалРасширеннаяПодсказка" id="149"/>
 			<HorizontalLocation>Right</HorizontalLocation>
 			<Title>
 				<v8:item>
@@ -923,7 +941,7 @@
 		</CommandBar>
 	</ChildItems>
 	<Commands>
-		<Command name="Выбрать" id="147">
+		<Command name="Выбрать" id="150">
 			<Action>Выбрать</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 			<Title>
@@ -947,7 +965,7 @@
 				</v8:item>
 			</ToolTip>
 		</Command>
-		<Command name="Подбор" id="148">
+		<Command name="Подбор" id="151">
 			<Action>Подбор</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 			<Title>
@@ -971,7 +989,7 @@
 				</v8:item>
 			</ToolTip>
 		</Command>
-		<Command name="ВыборДополнительныхПолей" id="149">
+		<Command name="ВыборДополнительныхПолей" id="152">
 			<Action>ВыборДополнительныхПолей</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 			<Title>
