@@ -184,6 +184,17 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
   },
   {
+    name: "left titled without title",
+    element: {
+      name: "Флажок",
+      elementType: FormElementType.CheckBoxField,
+    },
+    structured: {
+      strings: ["{Флажок} [ ]"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
     name: "right titled",
     element: {
       name: "Флажок",
@@ -193,6 +204,18 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["[ ] Заголовок флажка {Флажок}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "right titled without title",
+    element: {
+      name: "Флажок",
+      elementType: FormElementType.CheckBoxField,
+      headerHorizontalAlign: "Right",
+    },
+    structured: {
+      strings: ["{Флажок} [ ]"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -210,6 +233,18 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
   },
   {
+    name: "left titled switch without title",
+    element: {
+      name: "Флажок",
+      elementType: FormElementType.CheckBoxField,
+      checkBoxType: "Switch",
+    },
+    structured: {
+      strings: ["[ |1] {Флажок}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
     name: "right titled switch",
     element: {
       name: "Флажок",
@@ -219,7 +254,20 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["[|1] Заголовок флажка {Флажок}"],
+      strings: ["[ |1] Заголовок флажка {Флажок}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "right titled switch without title",
+    element: {
+      name: "Флажок",
+      elementType: FormElementType.CheckBoxField,
+      headerHorizontalAlign: "Right",
+      checkBoxType: "Switch",
+    },
+    structured: {
+      strings: ["[ |1] {Флажок}"],
       haveSimpleHorizontalGroup: false,
     },
   },
