@@ -4,6 +4,7 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportFormattedI8nTextToEnterprise } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -72,7 +73,10 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (userVisible !== undefined) {
     Object.assign(result, userVisible)
   }

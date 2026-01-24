@@ -5,6 +5,7 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   CheckBoxField,
@@ -237,7 +238,10 @@ const exportCheckBoxFieldPropsToEnterprise = (
   const equalItemsWidth = exportBooleanToEnterprise(context, data.equalItemsWidth)
   if (equalItemsWidth !== undefined) result.ОдинаковаяШиринаЭлементов = equalItemsWidth
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (userVisible !== undefined) {
     Object.assign(result, userVisible)
   }

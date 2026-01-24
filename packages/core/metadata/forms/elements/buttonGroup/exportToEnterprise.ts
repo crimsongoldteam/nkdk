@@ -6,6 +6,7 @@ import {
   exportI8nTextToEnterprise,
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   ButtonGroup,
@@ -135,7 +136,10 @@ const exportButtonGroupPropsToEnterprise = (
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (userVisible !== undefined) {
     Object.assign(result, userVisible)
   }

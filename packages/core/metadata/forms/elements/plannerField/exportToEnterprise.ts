@@ -8,6 +8,7 @@ import {
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   PlannerField,
@@ -183,7 +184,10 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const userVisibleFormField = exportUserVisibleToEnterprise(context, data.userVisible)
+  const userVisibleFormField = exportUserVisibleToEnterprise(context, data.userVisible, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (userVisibleFormField !== undefined) {
     Object.assign(result, userVisibleFormField)
   }

@@ -7,6 +7,7 @@ import {
   exportI8nTextToEnterprise,
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   LabelDecoration,
@@ -188,7 +189,10 @@ const exportLabelDecorationPropsToEnterprise = (
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (userVisible !== undefined) {
     Object.assign(result, userVisible)
   }

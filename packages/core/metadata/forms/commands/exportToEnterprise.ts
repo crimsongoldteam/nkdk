@@ -1,6 +1,7 @@
 import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "../../commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "../../commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "../../commonObjects/userVisible/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -34,7 +35,10 @@ const exportCommandToEnterprise = (
   const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
-  const use = exportUserVisibleToEnterprise(context, data.use)
+  const use = exportUserVisibleToEnterprise(context, data.use, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
   if (use !== undefined) {
     Object.assign(result, use)
   }

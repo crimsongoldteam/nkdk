@@ -1,7 +1,6 @@
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../../commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "../../commonObjects/picture/importFromEnterprise"
-import { UserVisibleKeysEnterprise } from "../../commonObjects/userVisible/types"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -42,15 +41,7 @@ const importCommandFromEnterprise = (
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const use = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование || data.ЗапретитьИспользование,
-    data.РазрешитьИспользование
-      ? UserVisibleKeysEnterprise.Allow
-      : data.ЗапретитьИспользование
-        ? UserVisibleKeysEnterprise.Deny
-        : undefined
-  )
+  const use = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (use !== undefined) result.use = use
 
   return result

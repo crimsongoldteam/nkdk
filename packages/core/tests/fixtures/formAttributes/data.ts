@@ -36,7 +36,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
       type: ["string"],
     },
     storedData: true,
-    use: {
+    view: {
       common: true,
       values: [
         { name: "Администратор", value: true },
