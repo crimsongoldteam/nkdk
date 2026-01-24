@@ -1,0 +1,11 @@
+<Parameter name="КлючевойПараметр">
+	<Type>
+		<v8:Type>xs:boolean</v8:Type>
+	</Type>
+	<KeyParameter>true</KeyParameter>
+</Parameter>
+<Parameter name="Параметр">
+	<Type>
+		<v8:Type>xs:boolean</v8:Type>
+	</Type>
+</Parameter>

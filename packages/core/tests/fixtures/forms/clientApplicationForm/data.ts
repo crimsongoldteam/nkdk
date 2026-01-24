@@ -5,6 +5,12 @@ import {
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullClientApplicationForm: Required<ClientApplicationForm> = {
+  parameters: [
+    {
+      name: "Параметр1",
+      type: { type: ["boolean"] },
+    },
+  ],
   commands: [
     {
       name: "Команда1",

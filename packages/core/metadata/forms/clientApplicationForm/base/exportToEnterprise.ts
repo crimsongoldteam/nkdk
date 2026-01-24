@@ -1,5 +1,6 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttribute/exportToEnterprise"
+import { exportFormParametersToEnterprise } from "~/metadata/commonObjects/formParameter/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUsePurposesToEnterprise } from "~/metadata/commonObjects/usePurposes/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -249,6 +250,9 @@ export const exportClientApplicationFormToEnterprise = (
 
   const attributes = exportFormAttributesToEnterprise(context, data.attributes)
   if (attributes !== undefined) result.Реквизиты = attributes
+
+  const parameters = exportFormParametersToEnterprise(context, data.parameters)
+  if (parameters !== undefined) result.Параметры = parameters
 
   const events = exportClientApplicationFormEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events

@@ -4,6 +4,7 @@ import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/t
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
+import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../../commonObjects/formParameter/types"
 import { GroupChilItemPartialEnterprise, GroupChildItem, GroupChildItemXML } from "../../collections/childItems/types"
 import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
@@ -47,6 +48,7 @@ export interface ClientApplicationForm {
   autoTitle?: boolean
   autoURL?: boolean
   childItems: GroupChildItem[]
+  parameters?: FormParameters
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
   childItemsVerticalAlign?: SE.ItemVerticalAlign
   closeOnChoice?: boolean
@@ -151,6 +153,9 @@ export interface ClientApplicationFormXML {
   Attributes?: {
     Attribute: FormAttributesXML
   }
+  Parameters?: {
+    Parameter: FormParametersXML
+  }
   Commands?: { Command: CommandsXML }
 }
 
@@ -193,6 +198,7 @@ export interface ClientApplicationFormEnterprise {
   Ширина?: number
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
   Реквизиты?: FormAttributesEnterprise
+  Параметры?: FormParametersEnterprise
   События?: {
     АвтоПодборПользователейСистемыВзаимодействия?: string
     ВнешнееСобытие?: string

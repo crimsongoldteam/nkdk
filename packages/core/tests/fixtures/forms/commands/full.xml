@@ -1,5 +1,6 @@
 <Command name="СоставКомплектаПодобратьФайлы" id="1">
 	<Action>СоставКомплектаПодобратьФайлы</Action>
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<CurrentRowUse>DontUse</CurrentRowUse>
 	<ModifiesSavedData>true</ModifiesSavedData>
 	<Picture>

@@ -1,5 +1,6 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importFormAttributesFromEnterprise } from "~/metadata/commonObjects/formAttribute/importFromEnterprise"
+import { importFormParametersFromEnterprise } from "~/metadata/commonObjects/formParameter/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUsePurposesFromEnterprise } from "~/metadata/commonObjects/usePurposes/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -239,6 +240,9 @@ export const importClientApplicationFormFromEnterprise = (
 
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
+
+  const parameters = importFormParametersFromEnterprise(context, data.Параметры)
+  if (parameters !== undefined) result.parameters = parameters
 
   const synonim = importI8nTextFromEnterprise(context, data.Синоним)
   if (synonim !== undefined) result.synonim = synonim

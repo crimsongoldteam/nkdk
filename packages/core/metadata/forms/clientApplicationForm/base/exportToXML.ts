@@ -1,4 +1,5 @@
 import { exportFormAttributesToXML } from "~/metadata/commonObjects/formAttribute/exportToXML"
+import { exportFormParametersToXML } from "~/metadata/commonObjects/formParameter/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUsePurposesToXML } from "~/metadata/commonObjects/usePurposes/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -41,6 +42,11 @@ export const exportClientApplicationFormToXML = (
   const attributes = exportFormAttributesToXML(context, data.attributes)
   if (attributes !== undefined) {
     result.Attributes = { Attribute: attributes }
+  }
+
+  const parameters = exportFormParametersToXML(context, data.parameters)
+  if (parameters !== undefined) {
+    result.Parameters = { Parameter: parameters }
   }
 
   result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)

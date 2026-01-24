@@ -1,4 +1,5 @@
 import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttribute/importFromXML"
+import { importFormParametersFromXML } from "~/metadata/commonObjects/formParameter/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -22,6 +23,11 @@ export const importClientApplicationFormFromXML = (
   const attributes = importFormAttributesFromXML(context, xml.Attributes?.Attribute)
   if (attributes !== undefined) {
     result.attributes = attributes
+  }
+
+  const parameters = importFormParametersFromXML(context, xml.Parameters?.Parameter)
+  if (parameters !== undefined) {
+    result.parameters = parameters
   }
 
   const autoCommandBar = importAutoCommandBarFromXML(context, xml.AutoCommandBar)
