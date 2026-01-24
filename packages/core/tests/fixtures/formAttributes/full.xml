@@ -23,6 +23,9 @@
 	<UseAlways>
 		<Field>Список.Ref</Field>
 	</UseAlways>
+	<Save>
+		<Field>Объект</Field>
+	</Save>
 </Attribute>
 <Attribute name="ТестовыйАтрибут" id="2">
 	<FunctionalOptions>

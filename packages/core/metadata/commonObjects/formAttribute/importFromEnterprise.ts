@@ -101,6 +101,9 @@ const importFormAttributeFromEnterprise = (
   const fieldsList = importFieldsListFromEnterprise(context, data.ИспользоватьВсегда)
   if (fieldsList) result.fieldsList = fieldsList
 
+  const save = importFieldsListFromEnterprise(context, data.Сохранение)
+  if (save) result.save = save
+
   return result
 }
 

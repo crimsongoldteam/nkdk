@@ -35,6 +35,7 @@ export interface ButtonGroup extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
+  сommandSource?: string
   childItems: CommandBarGroupChildItems
 }
 
@@ -59,6 +60,7 @@ export interface ButtonGroupXML extends BaseElementXML {
   Width?: number
   ExtendedTooltip: ExtendedTooltipXML
   Representation?: SE.ButtonGroupRepresentation
+  CommandSource?: string
   ChildItems?: CommandBarGroupChildItemsXML
 }
 
@@ -84,6 +86,7 @@ export interface ButtonGroupPartialEnterprise {
   ЦветТекстаЗаголовка?: ColorEnterprise
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
+  ИсточникКоманд?: string
   ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
 }
 

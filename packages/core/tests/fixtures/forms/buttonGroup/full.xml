@@ -4,6 +4,7 @@
 			<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="3"/>
 		</Button>
 	</ChildItems>
+	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="4"/>

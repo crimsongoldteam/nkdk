@@ -6,7 +6,7 @@ import {
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const fullButtonGroup: ButtonGroup = {
+export const fullButtonGroup: Required<ButtonGroup> = {
   elementType: "ButtonGroup",
   enableContentChange: true,
   enabled: true,
@@ -41,6 +41,10 @@ export const fullButtonGroup: ButtonGroup = {
     items: { ru: "Группа кнопок" },
   },
   representation: "Compact",
+  сommandSource: "FormCommandPanelGlobalCommands",
+  extendedTooltip: {
+    title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
+  },
 }
 
 export const fullButtonGroupSource: ButtonGroup = {

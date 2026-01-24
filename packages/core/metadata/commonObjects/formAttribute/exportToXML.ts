@@ -71,6 +71,9 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const fieldsList = exportFieldsListToXML(context, mergedData.fieldsList)
   if (fieldsList) result.UseAlways = fieldsList
 
+  const save = exportFieldsListToXML(context, mergedData.save)
+  if (save) result.Save = save
+
   return result
 }
 

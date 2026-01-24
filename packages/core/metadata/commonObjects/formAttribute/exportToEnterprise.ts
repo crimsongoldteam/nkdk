@@ -112,6 +112,11 @@ const exportFormAttributeToEnterprise = (
     result.ИспользоватьВсегда = fieldsList
   }
 
+  const save = exportFieldsListToEnterprise(context, data.save)
+  if (save) {
+    result.Сохранение = save
+  }
+
   return result as FormAttributeEnterprise
 }
 

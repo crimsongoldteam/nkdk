@@ -74,6 +74,9 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const fieldsList = importFieldsListFromXML(context, props.UseAlways)
   if (fieldsList !== undefined) result.fieldsList = fieldsList
 
+  const save = importFieldsListFromXML(context, props.Save)
+  if (save !== undefined) result.save = save
+
   return result
 }
 
