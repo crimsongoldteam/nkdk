@@ -11,14 +11,13 @@ export function joinTokens(tokens: { image: string }[]): string | undefined {
         let image = token.image.trim()
         // Remove leading and trailing quotes (single or double)
         if ((image.startsWith('"') && image.endsWith('"')) || (image.startsWith("'") && image.endsWith("'"))) {
+          const quote = image[0]
           // For EscapedText, preserve empty string content (don't trim the content itself)
           let content = image.slice(1, -1)
-          // Convert doubled quotes "" to single quote " (format uses doubled quotes for escaping)
-          content = content.replace(/""/g, '"')
-          return content
+          return unescapeText(content, quote)
         }
         // If no outer quotes, still try to convert doubled quotes (in case tokenizer already stripped them)
-        return image.replace(/""/g, '"')
+        return unescapeText(image, '"')
       }
       return token.image
     })
@@ -33,4 +32,36 @@ export function visitAll(visitor: any, ctx: CstElement[], param?: any): CstNode[
     return []
   }
   return ctx.map((item) => visitor.visit(item, param))
+}
+
+/**
+ * Обрабатывает escape-последовательности в строке.
+ * Поддерживает doubled quotes (для " и ') и backslash escapes (\n, \t, \r, \\, \", \', \uXXXX, \xXX).
+ */
+export function unescapeText(content: string, quote: string): string {
+  // 1. Обрабатываем удвоенные кавычки (например, "" -> ")
+  const doubledQuote = quote + quote
+  let result = content.replace(new RegExp(doubledQuote, "g"), quote)
+
+  // 2. Обрабатываем backslash escapes
+  return result.replace(/\\(n|t|r|\\|"|'|u[0-9A-Fa-f]{4}|x[0-9A-Fa-f]{2})/g, (match, p1) => {
+    switch (p1) {
+      case "n":
+        return "\n"
+      case "t":
+        return "\t"
+      case "r":
+        return "\r"
+      case "\\":
+        return "\\"
+      case '"':
+        return '"'
+      case "'":
+        return "'"
+      default:
+        if (p1.startsWith("u")) return String.fromCharCode(parseInt(p1.slice(1), 16))
+        if (p1.startsWith("x")) return String.fromCharCode(parseInt(p1.slice(1), 16))
+        return match
+    }
+  })
 }

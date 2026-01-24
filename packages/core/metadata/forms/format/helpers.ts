@@ -44,6 +44,7 @@ export const wrapButtonContent = (content: string): string => {
 /**
  * Экранирует текст в двойные кавычки, если он содержит специальные символы.
  * Если текст содержит двойные кавычки, они удваиваются.
+ * Переносы строк, табуляция и другие специальные символы заменяются на \n, \t и т.д.
  *
  * Специальные символы из лексера: ', %, #, ;, |, <, >, {, }, [, ], (, ), ,, :, ~, =, +, /, &, ?, _, -
  *
@@ -54,7 +55,8 @@ export const escapeWithDoubleQuotes = (text: string | undefined): string | undef
   if (!text) return undefined
 
   // Специальные символы из лексера, которые требуют экранирования
-  const specialChars = /['%#;"|<>{}[\]():~=+\/&?_\-]/
+  // Добавляем переносы строк, табуляцию, возврат каретки и обратный слэш
+  const specialChars = /['%#;"|<>{}[\]():~=+\/&?_\-\n\t\r\\]/
 
   // Проверяем, содержит ли текст специальные символы или двойные кавычки
   const needsEscaping = specialChars.test(text) || text.includes('"')
@@ -63,8 +65,14 @@ export const escapeWithDoubleQuotes = (text: string | undefined): string | undef
     return text
   }
 
-  // Удваиваем двойные кавычки
-  const escapedText = text.replace(/"/g, '""')
+  // Заменяем специальные символы на их escape-последовательности
+  // Важно: сначала заменяем обратный слэш, чтобы не заэкранировать слэши в \n, \t и т.д.
+  const escapedText = text
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/\t/g, "\\t")
+    .replace(/\r/g, "\\r")
+    .replace(/"/g, '""')
 
   // Оборачиваем в двойные кавычки
   return `"${escapedText}"`
