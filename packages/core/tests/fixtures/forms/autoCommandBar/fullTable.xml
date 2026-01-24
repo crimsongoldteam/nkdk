@@ -22,12 +22,12 @@
 		</ButtonGroup>
 		<Popup name="Подменю" id="8">
 			<ChildItems>
-				<Button name="Кнопка3" id="10">
+				<Button name="Кнопка3" id="9">
 					<CommandName>ВыполнитьКоманда3</CommandName>
-					<ExtendedTooltip name="Кнопка3РасширеннаяПодсказка" id="11"/>
+					<ExtendedTooltip name="Кнопка3РасширеннаяПодсказка" id="10"/>
 				</Button>
 			</ChildItems>
-			<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="9"/>
+			<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="11"/>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>ru</v8:lang>

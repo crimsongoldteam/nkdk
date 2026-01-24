@@ -1,8 +1,5 @@
 <Attribute name="Объект" id="1">
 	<MainAttribute>true</MainAttribute>
-	<FunctionalOptions>
-		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
-	</FunctionalOptions>
 	<SavedData>true</SavedData>
 	<FillCheck>ShowError</FillCheck>
 	<Type>
@@ -28,6 +25,9 @@
 	</UseAlways>
 </Attribute>
 <Attribute name="ТестовыйАтрибут" id="2">
+	<FunctionalOptions>
+		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
+	</FunctionalOptions>
 	<SavedData>true</SavedData>
 	<FillCheck>ShowError</FillCheck>
 	<Title>

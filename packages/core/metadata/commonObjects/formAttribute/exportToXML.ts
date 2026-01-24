@@ -1,12 +1,12 @@
 import { defaults } from "~/metadata/appliedObjects/metadataCatalog"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
-import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { DynamicList } from "../dynamicList/types"
 import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
+import { TypeDescription } from "../typeDescription/types"
 import { exportUseAlwaysToXML } from "../useAlways/exportToXML"
 import {
   FormAttribute,
@@ -38,32 +38,9 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
 
   if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
 
-  const isValueListType = mergedData.valueType?.type.includes("ValueListType")
-  const isDynamicListValueType = mergedData.valueType?.type.includes("DynamicList")
+  const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
+  if (functionalOptions) result.FunctionalOptions = functionalOptions
 
-  const settings = mergedData.settings
-  const isDynamicListSettings =
-    settings !== undefined && ("@attributes" in settings || (isDynamicListValueType && !("type" in settings)))
-
-  if (isDynamicListSettings) {
-    const settingsCopy = { ...(settings as DynamicList) }
-    // Remove @attributes if present, we'll set _xsi:type directly
-    if ("@attributes" in settingsCopy) {
-      delete settingsCopy["@attributes"]
-    }
-    result.Settings = {
-      "_xsi:type": "DynamicList",
-      ...settingsCopy,
-    }
-  } else {
-    const typeDescriptionSettings = exportTypeDescriptionToXML(context, settings as TypeDescription | undefined)
-    if (typeDescriptionSettings || isValueListType) {
-      result.Settings = {
-        "_xsi:type": "v8:TypeDescription",
-        ...typeDescriptionSettings,
-      }
-    }
-  }
   if (mergedData.columns && mergedData.columns.length > 0) {
     result.Columns = {
       Column: exportFormAttributeColumnsToXML(context, mergedData.columns),
@@ -71,6 +48,11 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   }
 
   if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
+
+  const settings = exportFormAttributeSettingsToXML(context, mergedData.settings, mergedData.valueType)
+  if (settings) {
+    result.Settings = settings
+  }
 
   if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
 
@@ -86,13 +68,44 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const edit = exportUserVisibleToXML(context, mergedData.edit)
   if (edit) result.Edit = edit
 
-  const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
-  if (functionalOptions) result.FunctionalOptions = functionalOptions
-
   const useAlways = exportUseAlwaysToXML(context, mergedData.useAlways)
   if (useAlways) result.UseAlways = useAlways
 
   return result
+}
+
+const exportFormAttributeSettingsToXML = (
+  context: ConfigurationContext,
+  settings: FormAttribute["settings"],
+  valueType: FormAttribute["valueType"]
+): FormAttributeXML["Settings"] => {
+  const isValueListType = valueType?.type.includes("ValueListType")
+  const isDynamicListValueType = valueType?.type.includes("DynamicList")
+
+  const isDynamicListSettings =
+    settings !== undefined && ("@attributes" in settings || (isDynamicListValueType && !("type" in settings)))
+
+  if (isDynamicListSettings) {
+    const settingsCopy = { ...(settings as DynamicList) }
+    // Remove @attributes if present, we'll set _xsi:type directly
+    if ("@attributes" in settingsCopy) {
+      delete settingsCopy["@attributes"]
+    }
+    return {
+      "_xsi:type": "DynamicList",
+      ...settingsCopy,
+    }
+  } else {
+    const typeDescriptionSettings = exportTypeDescriptionToXML(context, settings as TypeDescription | undefined)
+    if (typeDescriptionSettings || isValueListType) {
+      return {
+        "_xsi:type": "v8:TypeDescription",
+        ...typeDescriptionSettings,
+      }
+    }
+  }
+
+  return undefined
 }
 
 const exportFormAttributeColumnsToXML = (
