@@ -110,4 +110,102 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       haveSimpleHorizontalGroup: false,
     },
   },
+  {
+    name: "with buttons",
+    element: {
+      autofill: false,
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка1",
+          title: { items: { ru: "Кнопка Номер 1" } },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка2",
+          title: { items: { ru: "Кнопка Номер 2" } },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка3",
+          title: { items: { ru: "Кнопка Номер 3" } },
+        },
+      ],
+    },
+    structured: {
+      strings: ["<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+
+  {
+    name: "with button group",
+    element: {
+      autofill: false,
+      childItems: [
+        {
+          elementType: FormElementType.ButtonGroup,
+          name: "ГруппаКнопок1",
+          childItems: [],
+          title: { items: { ru: "Группа кнопок" } },
+        },
+      ],
+    },
+    structured: {
+      strings: ["<#Группа кнопок {ГруппаКнопок1} |>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+
+  {
+    name: "with popup",
+    element: {
+      autofill: false,
+      childItems: [
+        {
+          elementType: FormElementType.Popup,
+          name: "Меню",
+          title: { items: { ru: "Выпадающее меню" } },
+          childItems: [],
+        },
+      ],
+    },
+    structured: {
+      strings: ["<^Выпадающее меню {Меню} |>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "with search control addition",
+    element: {
+      autofill: false,
+      childItems: [
+        {
+          elementType: FormElementType.SearchControlAddition,
+          name: "Дополнение",
+          childItems: [],
+        },
+      ],
+    },
+    structured: {
+      strings: ["<?УправлениеПоиском {Дополнение} |>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "with search string addition",
+    element: {
+      autofill: false,
+      childItems: [
+        {
+          elementType: FormElementType.SearchStringAddition,
+          name: "Дополнение",
+        },
+      ],
+    },
+    structured: {
+      strings: ["<?ОтображениеСтрокиПоиска {Дополнение} |>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
 ]

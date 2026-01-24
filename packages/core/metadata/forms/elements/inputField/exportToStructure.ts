@@ -7,7 +7,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { InputField } from "./types"
 
-const UNDERLINE = t.Underscore.LABEL as string
+// const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
 export const exportInputFieldToStructure = (
@@ -23,10 +23,12 @@ export const exportInputFieldToStructure = (
   // let value = element.value ?? ""
   let value = ""
 
-  const modificators = getModificators(element)
-  if (modificators.length > 0) {
-    value += UNDERLINE.repeat(2) + modificators
-  }
+  // const modificators = getModificators(element)
+  // if (modificators.length > 0) {
+  //   value += UNDERLINE.repeat(2) + modificators
+  // }
+
+  const modificators = []
 
   // Добавляем пробел перед именем только если есть значение или модификаторы
   const hasValue = value.length > 0 || modificators.length > 0
@@ -55,20 +57,20 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
   return (hasValue ? " " : "") + formatElementName(element)
 }
 
-function getModificators(element: InputField): string {
-  const propertyMap = {
-    choiceButton: "В",
-    dropListButton: "С",
-    clearButton: "Х",
-    openButton: "О",
-    spinButton: "Д",
-  }
+// function getModificators(element: InputField): string {
+//   const propertyMap = {
+//     choiceButton: "В",
+//     dropListButton: "С",
+//     clearButton: "Х",
+//     openButton: "О",
+//     spinButton: "Д",
+//   }
 
-  return Object.entries(propertyMap)
-    .filter(([key, _]) => element[key as keyof InputField] !== undefined)
-    .map(([_, value]) => value)
-    .join("")
-}
+//   return Object.entries(propertyMap)
+//     .filter(([key, _]) => element[key as keyof InputField] !== undefined)
+//     .map(([_, value]) => value)
+//     .join("")
+// }
 
 registerMetadata("ExportToStructure", "InputField", exportInputFieldToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck(FormElementType.InputField, () => true)
