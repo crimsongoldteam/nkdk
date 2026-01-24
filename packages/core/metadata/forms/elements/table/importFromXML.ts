@@ -30,6 +30,12 @@ export function importTableFromXML<To extends Table | undefined>(
     childItems: [],
   }
 
+  if (xml.AdditionalCreateParameters !== undefined) result.additionalCreateParameters = xml.AdditionalCreateParameters
+
+  if (xml.AllowGettingCurrentRowURL !== undefined) result.allowGettingCurrentRowURL = xml.AllowGettingCurrentRowURL
+
+  if (xml.AllowRootChoice !== undefined) result.allowRootChoice = xml.AllowRootChoice
+
   if (xml.AutoAddIncomplete !== undefined) result.autoAddIncomplete = xml.AutoAddIncomplete
 
   const autoCommandBar = importAutoCommandBarFromXML(context, xml.AutoCommandBar)
@@ -45,6 +51,10 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
+  if (xml.AutoRefresh !== undefined) result.autoRefresh = xml.AutoRefresh
+
+  if (xml.AutoRefreshPeriod !== undefined) result.autoRefreshPeriod = xml.AutoRefreshPeriod
+
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
@@ -59,6 +69,8 @@ export function importTableFromXML<To extends Table | undefined>(
   if (xml.ChangeRowSet !== undefined) result.changeRowSet = xml.ChangeRowSet
 
   result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+
+  if (xml.ChoiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = xml.ChoiceFoldersAndItems
 
   if (xml.ChoiceMode !== undefined) result.choiceMode = xml.ChoiceMode
 
@@ -78,11 +90,14 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
-  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
-
   if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
 
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
   if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
 
   const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
@@ -136,6 +151,8 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
 
+  if (xml.RestoreCurrentRow !== undefined) result.restoreCurrentRow = xml.RestoreCurrentRow
+
   if (xml.RowInputMode !== undefined) result.rowInputMode = xml.RowInputMode
 
   if (xml.RowPictureDataPath !== undefined) result.rowPictureDataPath = xml.RowPictureDataPath
@@ -151,14 +168,16 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.SearchOnInput !== undefined) result.searchOnInput = xml.SearchOnInput
 
-  if (xml.SearchStringLocation !== undefined) result.searchStringLocation = xml.SearchStringLocation
-
   const searchStringAddition = importSingleSearchStringAdditionFromXML(context, xml.SearchStringAddition)
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
+
+  if (xml.SearchStringLocation !== undefined) result.searchStringLocation = xml.SearchStringLocation
 
   if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
+
+  if (xml.ShowRoot !== undefined) result.showRoot = xml.ShowRoot
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
@@ -183,6 +202,8 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
+  if (xml.UpdateOnDataChange !== undefined) result.updateOnDataChange = xml.UpdateOnDataChange
+
   if (xml.UseAlternationRowColor !== undefined) result.useAlternationRowColor = xml.UseAlternationRowColor
 
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
@@ -196,17 +217,14 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 
-  if (xml.ViewStatusLocation !== undefined) result.viewStatusLocation = xml.ViewStatusLocation
-
   const viewStatusAddition = importViewStatusAdditionFromXML(context, xml.ViewStatusAddition)
   if (viewStatusAddition !== undefined) result.viewStatusAddition = viewStatusAddition
+
+  if (xml.ViewStatusLocation !== undefined) result.viewStatusLocation = xml.ViewStatusLocation
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
   if (xml.Width !== undefined) result.width = xml.Width
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
 
   return result as To
 }

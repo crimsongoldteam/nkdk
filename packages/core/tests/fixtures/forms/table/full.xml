@@ -1,4 +1,7 @@
 <Table name="Таблица" id="1" DisplayImportance="High">
+	<AdditionalCreateParameters>true</AdditionalCreateParameters>
+	<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
+	<AllowRootChoice>true</AllowRootChoice>
 	<AutoAddIncomplete>true</AutoAddIncomplete>
 	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2">
 		<Autofill>false</Autofill>
@@ -9,6 +12,8 @@
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxHeightInTableRows>true</AutoMaxHeightInTableRows>
 	<AutoMaxWidth>true</AutoMaxWidth>
+	<AutoRefresh>true</AutoRefresh>
+	<AutoRefreshPeriod>60</AutoRefreshPeriod>
 	<BackColor>web:White</BackColor>
 	<BehaviorOnHorizontalCompression>Auto</BehaviorOnHorizontalCompression>
 	<BorderColor>web:Black</BorderColor>
@@ -64,6 +69,7 @@
 			</Title>
 		</LabelField>
 	</ChildItems>
+	<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
 	<ChoiceMode>true</ChoiceMode>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<CommandSet>
@@ -77,8 +83,8 @@
 	<CurrentRowUse>Auto</CurrentRowUse>
 	<DataPath>Объект.ТабличнаяЧасть</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<Enabled>true</Enabled>
 	<EnableDrag>true</EnableDrag>
+	<Enabled>true</Enabled>
 	<EnableStartDrag>true</EnableStartDrag>
 	<Events>
 		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
@@ -137,6 +143,7 @@
 	<ReadOnly>false</ReadOnly>
 	<RefreshRequest>None</RefreshRequest>
 	<Representation>List</Representation>
+	<RestoreCurrentRow>true</RestoreCurrentRow>
 	<RowInputMode>EndOfWindow</RowInputMode>
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
@@ -204,6 +211,7 @@
 	<SearchStringLocation>Auto</SearchStringLocation>
 	<SelectionMode>SingleRow</SelectionMode>
 	<Shortcut>Ctrl+T</Shortcut>
+	<ShowRoot>true</ShowRoot>
 	<SkipOnInput>false</SkipOnInput>
 	<TextColor>web:Black</TextColor>
 	<Title>
@@ -223,6 +231,7 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>Auto</ToolTipRepresentation>
+	<UpdateOnDataChange>Auto</UpdateOnDataChange>
 	<UseAlternationRowColor>true</UseAlternationRowColor>
 	<UserVisible>
 		<xr:Common>true</xr:Common>

@@ -131,6 +131,31 @@ export interface Table {
     onCurrentParentChange?: string
     dragCheck?: string
   }
+
+  // Dynamic list
+  // <!-- АвтоОбновление (AutoRefresh)
+  // ВосстанавливатьТекущуюСтроку (RestoreCurrentRow)
+  // ВыборГруппИЭлементов (ChoiceFoldersAndItems)
+  // ДополнительныеПараметрыСоздания (AdditionalCreateParameters)
+  // ОбновлениеПриИзмененииДанных (UpdateOnDataChange)
+  // ОтображатьКорень (ShowRoot)
+  // Период (Period)
+  // ПериодАвтоОбновления (AutoRefreshPeriod)
+  // РазрешитьВыборКорня (AllowRootChoice)
+  // РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки (AllowGettingCurrentRowURL)
+  // РодительВерхнегоУровня (TopLevelParent) -->
+
+  autoRefresh?: boolean
+  restoreCurrentRow?: boolean
+  choiceFoldersAndItems?: SE.FoldersAndItemsUse
+  additionalCreateParameters?: boolean
+  updateOnDataChange?: SE.UpdateOnDataChange
+  showRoot?: boolean
+  autoRefreshPeriod?: number
+  allowRootChoice?: boolean
+  allowGettingCurrentRowURL?: boolean
+  // period?: boolean // Игнорируем эти поля
+  // topLevelParent?: boolean
 }
 
 export interface TableXML extends BaseElementXML {
@@ -214,6 +239,15 @@ export interface TableXML extends BaseElementXML {
   Visible?: boolean
   Width?: number
   Events?: EventsXML
+  AutoRefresh?: boolean
+  RestoreCurrentRow?: boolean
+  ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
+  AdditionalCreateParameters?: boolean
+  UpdateOnDataChange?: SE.UpdateOnDataChange
+  ShowRoot?: boolean
+  AutoRefreshPeriod?: number
+  AllowRootChoice?: boolean
+  AllowGettingCurrentRowURL?: boolean
 }
 
 export interface TablePartialEnterprise {
@@ -296,6 +330,15 @@ export interface TablePartialEnterprise {
   Ширина?: number
   Шрифт?: FontEnterprise
   ШрифтЗаголовка?: FontEnterprise
+  АвтоОбновление?: StringboolEnterprise
+  ВосстанавливатьТекущуюСтроку?: StringboolEnterprise
+  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
+  ДополнительныеПараметрыСоздания?: StringboolEnterprise
+  ОбновлениеПриИзмененииДанных?: SE.UpdateOnDataChangeEnterprise
+  ОтображатьКорень?: StringboolEnterprise
+  ПериодАвтоОбновления?: number
+  РазрешитьВыборКорня?: StringboolEnterprise
+  РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки?: StringboolEnterprise
   События?: {
     Выбор?: string
     ВыборЗначения?: string

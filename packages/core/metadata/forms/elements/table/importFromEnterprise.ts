@@ -475,6 +475,43 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const events = importTableEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
+  const autoRefresh = importBooleanFromEnterprise(context, data.АвтоОбновление)
+  if (autoRefresh !== undefined) result.autoRefresh = autoRefresh
+
+  const restoreCurrentRow = importBooleanFromEnterprise(context, data.ВосстанавливатьТекущуюСтроку)
+  if (restoreCurrentRow !== undefined) result.restoreCurrentRow = restoreCurrentRow
+
+  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
+    context,
+    data.ВыборГруппИЭлементов,
+    SE.FoldersAndItemsUseFromEnterprise
+  )
+  if (choiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = choiceFoldersAndItems
+
+  const additionalCreateParameters = importBooleanFromEnterprise(context, data.ДополнительныеПараметрыСоздания)
+  if (additionalCreateParameters !== undefined) result.additionalCreateParameters = additionalCreateParameters
+
+  const updateOnDataChange = importSystemEnumerationFromEnterprise<SE.UpdateOnDataChange>(
+    context,
+    data.ОбновлениеПриИзмененииДанных,
+    SE.UpdateOnDataChangeFromEnterprise
+  )
+  if (updateOnDataChange !== undefined) result.updateOnDataChange = updateOnDataChange
+
+  const showRoot = importBooleanFromEnterprise(context, data.ОтображатьКорень)
+  if (showRoot !== undefined) result.showRoot = showRoot
+
+  if (data.ПериодАвтоОбновления !== undefined) result.autoRefreshPeriod = data.ПериодАвтоОбновления
+
+  const allowRootChoice = importBooleanFromEnterprise(context, data.РазрешитьВыборКорня)
+  if (allowRootChoice !== undefined) result.allowRootChoice = allowRootChoice
+
+  const allowGettingCurrentRowURL = importBooleanFromEnterprise(
+    context,
+    data.РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки
+  )
+  if (allowGettingCurrentRowURL !== undefined) result.allowGettingCurrentRowURL = allowGettingCurrentRowURL
+
   return result as To
 }
 

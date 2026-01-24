@@ -346,6 +346,41 @@ export const exportTableToEnterprise = (
   const events = exportEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events
 
+  const autoRefresh = exportBooleanToEnterprise(context, data.autoRefresh)
+  if (autoRefresh !== undefined) result.АвтоОбновление = autoRefresh
+
+  const restoreCurrentRow = exportBooleanToEnterprise(context, data.restoreCurrentRow)
+  if (restoreCurrentRow !== undefined) result.ВосстанавливатьТекущуюСтроку = restoreCurrentRow
+
+  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise(
+    context,
+    data.choiceFoldersAndItems,
+    SE.FoldersAndItemsUseToEnterprise
+  )
+  if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
+
+  const additionalCreateParameters = exportBooleanToEnterprise(context, data.additionalCreateParameters)
+  if (additionalCreateParameters !== undefined) result.ДополнительныеПараметрыСоздания = additionalCreateParameters
+
+  const updateOnDataChange = exportSystemEnumerationToEnterprise(
+    context,
+    data.updateOnDataChange,
+    SE.UpdateOnDataChangeToEnterprise
+  )
+  if (updateOnDataChange !== undefined) result.ОбновлениеПриИзмененииДанных = updateOnDataChange
+
+  const showRoot = exportBooleanToEnterprise(context, data.showRoot)
+  if (showRoot !== undefined) result.ОтображатьКорень = showRoot
+
+  if (data.autoRefreshPeriod !== undefined) result.ПериодАвтоОбновления = data.autoRefreshPeriod
+
+  const allowRootChoice = exportBooleanToEnterprise(context, data.allowRootChoice)
+  if (allowRootChoice !== undefined) result.РазрешитьВыборКорня = allowRootChoice
+
+  const allowGettingCurrentRowURL = exportBooleanToEnterprise(context, data.allowGettingCurrentRowURL)
+  if (allowGettingCurrentRowURL !== undefined)
+    result.РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки = allowGettingCurrentRowURL
+
   return result
 }
 

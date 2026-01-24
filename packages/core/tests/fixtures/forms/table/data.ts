@@ -2,6 +2,7 @@ import { TableChildItemsPartialEnterprise } from "~/metadata/forms/collections/c
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export interface TableFixture {
   name: string
@@ -28,7 +29,7 @@ export const sourceTable: Table = {
       elementType: "ColumnGroup",
       name: "ТаблицаГруппа1",
       title: { items: { ru: "Группа 1" } },
-      childItems: [ ],
+      childItems: [],
     },
     {
       elementType: "CheckBoxField",
@@ -47,7 +48,7 @@ export const sourceTable: Table = {
   ],
 }
 
-export const fullTable: Table = {
+export const fullTable: RequiredFieldsElement<Table> = {
   elementType: FormElementType.Table,
   name: "Таблица",
   autoAddIncomplete: true,
@@ -230,6 +231,15 @@ export const fullTable: Table = {
   },
   visible: true,
   width: 600,
+  autoRefresh: true,
+  restoreCurrentRow: true,
+  choiceFoldersAndItems: "FoldersAndItems",
+  additionalCreateParameters: true,
+  updateOnDataChange: "Auto",
+  showRoot: true,
+  autoRefreshPeriod: 60,
+  allowRootChoice: true,
+  allowGettingCurrentRowURL: true,
   events: {
     selection: "ПроцедураВыбора",
     valueChoice: "ПроцедураВыбораЗначения",
@@ -368,6 +378,15 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   Ширина: 600,
   Шрифт: "ОбычныйШрифтТекста",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  АвтоОбновление: "Истина",
+  ВосстанавливатьТекущуюСтроку: "Истина",
+  ВыборГруппИЭлементов: "ГруппыИЭлементы",
+  ДополнительныеПараметрыСоздания: "Истина",
+  ОбновлениеПриИзмененииДанных: "Авто",
+  ОтображатьКорень: "Истина",
+  ПериодАвтоОбновления: 60,
+  РазрешитьВыборКорня: "Истина",
+  РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки: "Истина",
   События: {
     Выбор: "ПроцедураВыбора",
     ВыборЗначения: "ПроцедураВыбораЗначения",
@@ -401,7 +420,8 @@ export const fullTableChildItems: TableChildItemsPartialEnterprise = {
       ТаблицаПолеВвода: {
         Тип: "ПолеВвода",
         ПутьКДанным: "Таблица.ПолеВвода",
-        РежимРедактирования: "ВходПриВводе",} ,
+        РежимРедактирования: "ВходПриВводе",
+      },
     },
   },
   ТаблицаПолеФлажка: {
