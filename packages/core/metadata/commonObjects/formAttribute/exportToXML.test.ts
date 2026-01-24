@@ -4,11 +4,10 @@ import {
   fullFormAttributes,
   minimalFormAttributes,
   multipleFormAttributes,
-  withDynamicListFormAttribute,
-  withEmptySettingsFormAttribute,
   tableWithColumnsFormAttribute,
   treeWithColumnFormAttribute,
-  withFunctionalOptionsFormAttribute,
+  withDynamicListFormAttribute,
+  withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -97,17 +96,6 @@ describe("exportFormAttributesToXML", () => {
     mockСontext.context = {}
 
     const xmlData = exportFormAttributesToXML(mockСontext, treeWithColumnFormAttribute)
-
-    const result = xmlExport({ Attribute: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should export with functional options", () => {
-    const expectedResult = readXMLFileAsString("formAttributes/withFunctionalOptions.xml")
-    mockСontext.context = {}
-
-    const xmlData = exportFormAttributesToXML(mockСontext, withFunctionalOptionsFormAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

@@ -1,6 +1,7 @@
 <Attribute name="Объект" id="1">
 	<MainAttribute>true</MainAttribute>
 	<SavedData>true</SavedData>
+	<FillCheck>ShowError</FillCheck>
 	<Type>
 		<v8:Type>xs:decimal</v8:Type>
 		<v8:NumberQualifiers>
@@ -9,17 +10,23 @@
 			<v8:AllowedSign>Any</v8:AllowedSign>
 		</v8:NumberQualifiers>
 	</Type>
-	<Use>
+	<View>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
-	</Use>
+	</View>
+	<Edit>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</Edit>
 	<UseAlways>
 		<Field>Список.Ref</Field>
 	</UseAlways>
 </Attribute>
 <Attribute name="ТестовыйАтрибут" id="2">
 	<SavedData>true</SavedData>
+	<FillCheck>ShowError</FillCheck>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -33,11 +40,16 @@
 			<v8:AllowedLength>Variable</v8:AllowedLength>
 		</v8:StringQualifiers>
 	</Type>
-	<Use>
+	<View>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
-	</Use>
+	</View>
+	<Edit>
+		<xr:Common>false</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</Edit>
 	<FunctionalOptions>
 		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
 	</FunctionalOptions>

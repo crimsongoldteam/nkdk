@@ -69,6 +69,20 @@ const importFormAttributeFromEnterprise = (
   )
   if (fillCheck) result.fillCheck = fillCheck
 
+  const view = importUserVisibleFromEnterprise(
+    context,
+    data[UserViewKeysEnterprise.Allow] ?? (data[UserViewKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
+    data[UserViewKeysEnterprise.Deny]
+  )
+  if (view) result.view = view
+
+  const edit = importUserVisibleFromEnterprise(
+    context,
+    data[UserEditKeysEnterprise.Allow] ?? (data[UserEditKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
+    data[UserEditKeysEnterprise.Deny]
+  )
+  if (edit) result.edit = edit
+
   if (data.ДинамическийСписок !== undefined) {
     const dynamicList = importDynamicListFromEnterprise(context, data.ДинамическийСписок)
     if (dynamicList !== undefined) result.settings = dynamicList

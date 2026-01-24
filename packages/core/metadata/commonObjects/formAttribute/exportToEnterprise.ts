@@ -12,7 +12,11 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import {
+  UserEditKeysEnterprise,
+  UserViewKeysEnterprise,
+  UserVisibleKeysEnterprise,
+} from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
@@ -64,6 +68,20 @@ const exportFormAttributeToEnterprise = (
     FillCheckingToEnterprise
   )
   if (fillCheck) result.ПроверкаЗаполнения = fillCheck
+
+  const view = exportUserVisibleToEnterprise(context, data.view, {
+    allow: UserVisibleKeysEnterprise.Allow,
+    deny: UserVisibleKeysEnterprise.Deny,
+  })
+  if (view) Object.assign(result, view)
+
+  if (JSON.stringify(data.view) !== JSON.stringify(data.edit)) {
+    const edit = exportUserVisibleToEnterprise(context, data.edit, {
+      allow: UserEditKeysEnterprise.Allow,
+      deny: UserEditKeysEnterprise.Deny,
+    })
+    if (edit) Object.assign(result, edit)
+  }
 
   if (data.settings !== undefined) {
     // Check if valueType is DynamicList or if settings has @attributes (indicating it's a DynamicList)

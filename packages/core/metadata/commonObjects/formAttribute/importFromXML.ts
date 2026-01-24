@@ -46,6 +46,12 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
 
   if (props.FillCheck !== undefined) result.fillCheck = props.FillCheck
 
+  const view = importUserVisibleFromXML(context, props.View ?? props.Use)
+  if (view) result.view = view
+
+  const edit = importUserVisibleFromXML(context, props.Edit ?? props.Use)
+  if (edit) result.edit = edit
+
   // Check if Settings is a DynamicList (has _xsi:type indicating DynamicList) or TypeDescription
   if (props.Settings !== undefined) {
     const settingsAsAny = props.Settings as any
