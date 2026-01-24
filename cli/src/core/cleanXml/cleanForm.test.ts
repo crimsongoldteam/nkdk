@@ -19,4 +19,14 @@ describe("cleanForm", () => {
 
     expect(result).toEqual(expectedXml)
   })
+
+  it("should remove Period from Table in form/tablePeriod.xml", () => {
+    const inputPath = join(__dirname, "../../../test/fixtures/form/tablePeriod.xml")
+    const inputXml = readFileSync(inputPath, "utf-8")
+
+    const result = cleanForm(inputXml)
+
+    expect(result).not.toContain("<Period>")
+    expect(result).toContain("<Table")
+  })
 })
