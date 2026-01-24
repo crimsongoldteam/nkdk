@@ -44,11 +44,6 @@ export const exportClientApplicationFormToXML = (
     result.Attributes = { Attribute: attributes }
   }
 
-  const parameters = exportFormParametersToXML(context, data.parameters)
-  if (parameters !== undefined) {
-    result.Parameters = { Parameter: parameters }
-  }
-
   result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)
 
   if (data.autoFillCheck !== undefined) {
@@ -145,6 +140,11 @@ export const exportClientApplicationFormToXML = (
 
   if (data.modified !== undefined) {
     result.Modified = data.modified
+  }
+
+  const parameters = exportFormParametersToXML(context, data.parameters)
+  if (parameters !== undefined) {
+    result.Parameters = { Parameter: parameters }
   }
 
   if (data.purposeUseKey !== undefined) {
