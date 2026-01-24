@@ -29,6 +29,8 @@ export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
 
   if (childItems !== undefined) result.ChildItems = childItems
 
+  if (data.commandSource !== undefined) result.CommandSource = data.commandSource
+
   result.ExtendedTooltip = extendedTooltip
 
   if (data.representation !== undefined) result.Representation = data.representation

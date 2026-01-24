@@ -138,6 +138,8 @@ const importButtonGroupPropsFromEnterprise = (
   const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
+  if (data.ИсточникКоманд !== undefined) result.commandSource = data.ИсточникКоманд
+
   const representation = importSystemEnumerationFromEnterprise<SE.ButtonGroupRepresentation>(
     context,
     data.Отображение,

@@ -129,6 +129,8 @@ const exportButtonGroupPropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
+  if (data.commandSource !== undefined) result.ИсточникКоманд = data.commandSource
+
   const representation = exportSystemEnumerationToEnterprise(
     context,
     data.representation,

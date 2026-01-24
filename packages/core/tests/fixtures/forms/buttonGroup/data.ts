@@ -41,7 +41,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
     items: { ru: "Группа кнопок" },
   },
   representation: "Compact",
-  сommandSource: "FormCommandPanelGlobalCommands",
+  commandSource: "FormCommandPanelGlobalCommands",
   extendedTooltip: {
     title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
   },
@@ -72,7 +72,11 @@ export const fullButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise = {
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Отображение: "Компактное",
+  РасширеннаяПодсказка: {
+    Заголовок: "ГруппаКнопокРасширеннаяПодсказка",
+  },
   ПодчиненныеЭлементы: {
     Кнопка: {
       Тип: "Кнопка",
@@ -100,7 +104,11 @@ export const fullButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Отображение: "Компактное",
+  РасширеннаяПодсказка: {
+    Заголовок: "ГруппаКнопокРасширеннаяПодсказка",
+  },
   ПодчиненныеЭлементы: {
     Кнопка: {
       Тип: "Кнопка",

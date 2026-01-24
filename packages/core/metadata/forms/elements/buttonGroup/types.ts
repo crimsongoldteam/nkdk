@@ -35,7 +35,7 @@ export interface ButtonGroup extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  сommandSource?: string
+  commandSource?: string
   childItems: CommandBarGroupChildItems
 }
 

@@ -7,7 +7,14 @@
 	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="4"/>
+	<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="4">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>ГруппаКнопокРасширеннаяПодсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

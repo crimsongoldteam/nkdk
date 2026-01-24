@@ -4,10 +4,10 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { DynamicList } from "../dynamicList/types"
+import { exportFieldsListToXML } from "../FieldsList/exportToXML"
 import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
 import { TypeDescription } from "../typeDescription/types"
-import { exportFieldsListToXML } from "../FieldsList/exportToXML"
 import {
   FormAttribute,
   FormAttributeColumn,
@@ -32,20 +32,28 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const mergedData = { ...defaults, ...data }
 
   const result: FormAttributeXML = {
-    _name: mergedData.name,
     _id: getElementId(context),
+    _name: mergedData.name,
   }
-
-  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
-
-  const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
-  if (functionalOptions) result.FunctionalOptions = functionalOptions
 
   if (mergedData.columns && mergedData.columns.length > 0) {
     result.Columns = {
       Column: exportFormAttributeColumnsToXML(context, mergedData.columns),
     }
   }
+
+  const edit = exportUserVisibleToXML(context, mergedData.edit)
+  if (edit) result.Edit = edit
+
+  if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
+
+  const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
+  if (functionalOptions) result.FunctionalOptions = functionalOptions
+
+  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
+
+  const save = exportFieldsListToXML(context, mergedData.save)
+  if (save) result.Save = save
 
   if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
 
@@ -54,25 +62,17 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     result.Settings = settings
   }
 
-  if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
-
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
   if (title) result.Title = title
 
   const type = exportTypeDescriptionToXML(context, mergedData.valueType)
   if (type) result.Type = type
 
-  const view = exportUserVisibleToXML(context, mergedData.view)
-  if (view) result.View = view
-
-  const edit = exportUserVisibleToXML(context, mergedData.edit)
-  if (edit) result.Edit = edit
-
   const fieldsList = exportFieldsListToXML(context, mergedData.fieldsList)
   if (fieldsList) result.UseAlways = fieldsList
 
-  const save = exportFieldsListToXML(context, mergedData.save)
-  if (save) result.Save = save
+  const view = exportUserVisibleToXML(context, mergedData.view)
+  if (view) result.View = view
 
   return result
 }
@@ -117,9 +117,23 @@ const exportFormAttributeColumnsToXML = (
 ): FormAttributeColumnXML | FormAttributeColumnXML[] => {
   const result = columns.map((column) => {
     const res: FormAttributeColumnXML = {
-      _name: column.name,
       _id: column.id || getElementId(context),
+      _name: column.name,
     }
+
+    if (column.columns && column.columns.length > 0) {
+      res.Column = exportFormAttributeColumnsToXML(context, column.columns)
+    }
+
+    const edit = exportUserVisibleToXML(context, column.edit)
+    if (edit) res.Edit = edit
+
+    if (column.fillCheck) {
+      res.FillCheck = column.fillCheck
+    }
+
+    const functionalOptions = exportFunctionalOptionsToXML(context, column.functionalOptions)
+    if (functionalOptions) res.FunctionalOptions = functionalOptions
 
     const title = exportI8nTextToXML(context, column.title)
     if (title) res.Title = title
@@ -129,20 +143,6 @@ const exportFormAttributeColumnsToXML = (
 
     const view = exportUserVisibleToXML(context, column.view)
     if (view) res.View = view
-
-    const edit = exportUserVisibleToXML(context, column.edit)
-    if (edit) res.Edit = edit
-
-    if (column.fillCheck) {
-      res.FillCheck = column.fillCheck
-    }
-
-    if (column.columns && column.columns.length > 0) {
-      res.Column = exportFormAttributeColumnsToXML(context, column.columns)
-    }
-
-    const functionalOptions = exportFunctionalOptionsToXML(context, column.functionalOptions)
-    if (functionalOptions) res.FunctionalOptions = functionalOptions
 
     return res
   })

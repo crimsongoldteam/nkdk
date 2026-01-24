@@ -8,6 +8,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -23,6 +24,11 @@ export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   }
 
   result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
+  if (xml.CommandSource !== undefined) result.commandSource = xml.CommandSource
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
 

@@ -1,7 +1,15 @@
-<Attribute name="Объект" id="1">
-	<MainAttribute>true</MainAttribute>
-	<SavedData>true</SavedData>
+<Attribute id="1" name="Объект">
+	<Edit>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</Edit>
 	<FillCheck>ShowError</FillCheck>
+	<MainAttribute>true</MainAttribute>
+	<Save>
+		<Field>Объект</Field>
+	</Save>
+	<SavedData>true</SavedData>
 	<Type>
 		<v8:Type>xs:decimal</v8:Type>
 		<v8:NumberQualifiers>
@@ -10,29 +18,26 @@
 			<v8:AllowedSign>Any</v8:AllowedSign>
 		</v8:NumberQualifiers>
 	</Type>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
 	<View>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</View>
+</Attribute>
+<Attribute id="2" name="ТестовыйАтрибут">
 	<Edit>
-		<xr:Common>true</xr:Common>
+		<xr:Common>false</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</Edit>
-	<UseAlways>
-		<Field>Список.Ref</Field>
-	</UseAlways>
-	<Save>
-		<Field>Объект</Field>
-	</Save>
-</Attribute>
-<Attribute name="ТестовыйАтрибут" id="2">
+	<FillCheck>ShowError</FillCheck>
 	<FunctionalOptions>
 		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
 	</FunctionalOptions>
 	<SavedData>true</SavedData>
-	<FillCheck>ShowError</FillCheck>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -46,17 +51,12 @@
 			<v8:AllowedLength>Variable</v8:AllowedLength>
 		</v8:StringQualifiers>
 	</Type>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
 	<View>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</View>
-	<Edit>
-		<xr:Common>false</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-		<xr:Value name="Role.Пользователь">false</xr:Value>
-	</Edit>
-	<UseAlways>
-		<Field>Список.Ref</Field>
-	</UseAlways>
 </Attribute>
