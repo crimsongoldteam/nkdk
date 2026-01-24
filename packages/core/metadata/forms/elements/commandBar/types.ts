@@ -36,6 +36,7 @@ export interface CommandBar extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
+  commandSource?: string
   childItems: CommandBarChildItem[]
 }
 
@@ -50,6 +51,7 @@ export interface CommandBarXML extends BaseElementXML {
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
+  CommandSource?: string
   Title?: I8nTextXML
   TitleFont?: FontXML
   TitleTextColor?: ColorXML
@@ -88,6 +90,7 @@ export interface CommandBarPartialEnterprise {
   ЦветТекстаЗаголовка?: ColorEnterprise
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
+  ИсточникКоманд?: string
   ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
 }
 

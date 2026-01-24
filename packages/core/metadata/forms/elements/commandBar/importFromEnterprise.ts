@@ -89,6 +89,8 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
+  if (data.ИсточникКоманд !== undefined) result.commandSource = data.ИсточникКоманд
+
   const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 

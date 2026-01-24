@@ -29,6 +29,8 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
   const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
+  if (data.commandSource !== undefined) result.CommandSource = data.commandSource
+
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled

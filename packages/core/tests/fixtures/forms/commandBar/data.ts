@@ -57,6 +57,7 @@ export const fullCommandBar: Omit<Required<CommandBar>, "extendedTooltip"> = {
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
+  commandSource: "Form",
   childItems: fullCommandBarChildItemsTyped,
 }
 
@@ -92,6 +93,7 @@ export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
   Автозаполнение: "Истина",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
+  ИсточникКоманд: "Form",
 }
 
 export const fullCommandBarTypedEnterprise: CommandBarTypedEnterprise = {

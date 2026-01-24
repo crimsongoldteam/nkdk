@@ -114,6 +114,8 @@ const exportCommandBarPropsToEnterprise = (
 
   if (data.width !== undefined) result.Ширина = data.width
 
+  if (data.commandSource !== undefined) result.ИсточникКоманд = data.commandSource
+
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 

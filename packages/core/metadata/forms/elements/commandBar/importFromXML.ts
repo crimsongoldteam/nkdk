@@ -63,6 +63,8 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
+  if (xml.CommandSource !== undefined) result.commandSource = xml.CommandSource
+
   result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
