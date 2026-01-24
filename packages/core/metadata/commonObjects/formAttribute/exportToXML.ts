@@ -32,8 +32,8 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const mergedData = { ...defaults, ...data }
 
   const result: FormAttributeXML = {
-    _id: getElementId(context),
     _name: mergedData.name,
+    _id: getElementId(context),
   }
 
   if (mergedData.columns && mergedData.columns.length > 0) {
@@ -117,13 +117,22 @@ const exportFormAttributeColumnsToXML = (
 ): FormAttributeColumnXML | FormAttributeColumnXML[] => {
   const result = columns.map((column) => {
     const res: FormAttributeColumnXML = {
-      _id: column.id || getElementId(context),
       _name: column.name,
+      _id: getElementId(context),
     }
 
     if (column.columns && column.columns.length > 0) {
       res.Column = exportFormAttributeColumnsToXML(context, column.columns)
     }
+
+    const title = exportI8nTextToXML(context, column.title)
+    if (title) res.Title = title
+
+    const type = exportTypeDescriptionToXML(context, column.type)
+    if (type) res.Type = type
+
+    const view = exportUserVisibleToXML(context, column.view)
+    if (view) res.View = view
 
     const edit = exportUserVisibleToXML(context, column.edit)
     if (edit) res.Edit = edit
@@ -134,15 +143,6 @@ const exportFormAttributeColumnsToXML = (
 
     const functionalOptions = exportFunctionalOptionsToXML(context, column.functionalOptions)
     if (functionalOptions) res.FunctionalOptions = functionalOptions
-
-    const title = exportI8nTextToXML(context, column.title)
-    if (title) res.Title = title
-
-    const type = exportTypeDescriptionToXML(context, column.type)
-    if (type) res.Type = type
-
-    const view = exportUserVisibleToXML(context, column.view)
-    if (view) res.View = view
 
     return res
   })

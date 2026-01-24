@@ -149,6 +149,15 @@ describe("detectElementType", () => {
     expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
   })
 
+  it("should detect left titled checkbox containing [ ]", () => {
+    const mock = `Checkbox [ ] {name}`
+
+    const tokens = lexer.tokenize(mock).tokens
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
+  })
+
   it("should detect right titled checkbox containing []", () => {
     const mock = `[]Some Text`
 

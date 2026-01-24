@@ -83,8 +83,8 @@
 	<CurrentRowUse>Auto</CurrentRowUse>
 	<DataPath>Объект.ТабличнаяЧасть</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EnableDrag>true</EnableDrag>
 	<Enabled>true</Enabled>
+	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
 	<Events>
 		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
