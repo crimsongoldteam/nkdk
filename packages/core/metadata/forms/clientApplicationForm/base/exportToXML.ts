@@ -163,6 +163,10 @@ export const exportClientApplicationFormToXML = (
     result.SavedInSettingsDataModified = data.savedInSettingsDataModified
   }
 
+  if (data.saveWindowSettings !== undefined) {
+    result.SaveWindowSettings = data.saveWindowSettings
+  }
+
   if (data.scale !== undefined) {
     result.Scale = data.scale
   }
