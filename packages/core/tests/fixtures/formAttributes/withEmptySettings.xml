@@ -1,4 +1,4 @@
-<Attribute id="1" name="ВыбранныеЗначения">
+<Attribute name="ВыбранныеЗначения" id="1">
 	<Settings xsi:type="v8:TypeDescription"/>
 	<Title>
 		<v8:item>

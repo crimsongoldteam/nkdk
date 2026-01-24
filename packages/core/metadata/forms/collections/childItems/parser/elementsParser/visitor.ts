@@ -172,34 +172,49 @@ export class Visitor extends BaseVisitor {
 
   // #region checkboxField
   rightTitledCheckboxField(ctx: CstChildrenDictionary, context: ConfigurationContext): CheckBoxField {
-    const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
-
-    const name = this.visit(ctx.properties as CstNode[], context) || titleText
+    const titleText = joinTokens(ctx.CheckboxHeader as IToken[])
+    const propertiesNodes = (ctx.properties || []) as CstNode[]
+    const name = (propertiesNodes.length > 0 ? this.visit(propertiesNodes[0], context) : undefined) || titleText || ""
 
     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
-    return {
+    const result: CheckBoxField = {
       elementType: FormElementType.CheckBoxField,
-      name: name || "",
-      title: this.createTitle(titleText, context.defaultLanguage),
+      name,
       headerHorizontalAlign: "Right",
-      id: undefined,
-      checkBoxType: checkBoxType || undefined,
-    } as CheckBoxField
+    }
+
+    if (titleText !== undefined) {
+      result.title = this.createTitle(titleText, context.defaultLanguage)
+    }
+
+    if (checkBoxType !== undefined) {
+      result.checkBoxType = checkBoxType
+    }
+
+    return result
   }
 
   leftTitledCheckboxField(ctx: CstChildrenDictionary, context: ConfigurationContext): CheckBoxField {
-    const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
-    const name = this.visit(ctx.properties as CstNode[], context) || titleText
+    const titleText = joinTokens(ctx.CheckboxHeader as IToken[])
+    const propertiesNodes = (ctx.properties || []) as CstNode[]
+    const name = (propertiesNodes.length > 0 ? this.visit(propertiesNodes[0], context) : undefined) || titleText || ""
 
     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 
-    return {
+    const result: any = {
       elementType: FormElementType.CheckBoxField,
-      name: name || "",
-      title: this.createTitle(titleText, context.defaultLanguage),
-      id: undefined,
-      checkBoxType: checkBoxType || undefined,
-    } as CheckBoxField
+      name,
+    }
+
+    if (titleText !== undefined) {
+      result.title = this.createTitle(titleText, context.defaultLanguage)
+    }
+
+    if (checkBoxType !== undefined) {
+      result.checkBoxType = checkBoxType
+    }
+
+    return result
   }
 
   //#endregion

@@ -188,6 +188,10 @@ export class Parser extends CstParser {
   private readonly rightTitledCheckboxField = this.RULE("rightTitledCheckboxField", () => {
     this.aligment("left")
 
+    this.OPTION1(() => {
+      this.SUBRULE1(this.properties)
+    })
+
     this.choice(
       1,
       () => {
@@ -208,8 +212,8 @@ export class Parser extends CstParser {
       this.CONSUME(t.CheckboxHeader)
     })
 
-    this.OPTION(() => {
-      this.SUBRULE(this.properties)
+    this.OPTION2(() => {
+      this.SUBRULE2(this.properties)
     })
 
     this.aligment("right")
@@ -218,7 +222,11 @@ export class Parser extends CstParser {
   private readonly leftTitledCheckboxField = this.RULE("leftTitledCheckboxField", () => {
     this.aligment("left")
 
-    this.MANY1(() => {
+    this.OPTION1(() => {
+      this.SUBRULE1(this.properties)
+    })
+
+    this.MANY(() => {
       this.CONSUME(t.CheckboxHeader)
     })
 
@@ -239,7 +247,7 @@ export class Parser extends CstParser {
     )
 
     this.OPTION3(() => {
-      this.SUBRULE(this.properties)
+      this.SUBRULE2(this.properties)
     })
 
     this.aligment("right")

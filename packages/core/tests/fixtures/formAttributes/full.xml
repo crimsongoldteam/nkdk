@@ -1,4 +1,4 @@
-<Attribute id="1" name="Объект">
+<Attribute name="Объект" id="1">
 	<Edit>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
@@ -27,7 +27,7 @@
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</View>
 </Attribute>
-<Attribute id="2" name="ТестовыйАтрибут">
+<Attribute name="ТестовыйАтрибут" id="2">
 	<Edit>
 		<xr:Common>false</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>

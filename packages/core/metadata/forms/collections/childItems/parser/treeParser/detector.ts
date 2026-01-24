@@ -36,6 +36,7 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   let percentTokenCount = 0
   let hasColon = false
   let hasRightCheckbox = false
+  let hasCheckbox = false
   let hasRadioButton = false
   let insideProperties = false
   let lastToken: IToken | undefined
@@ -71,18 +72,24 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     // Пропуск свойств внутри фигурных скобок
     if (token.tokenType === LCurly) {
       insideProperties = true
+      lastToken = token
       continue
     }
     if (token.tokenType === RCurly) {
       insideProperties = false
+      lastToken = token
       continue
     }
-    if (insideProperties) continue
+    if (insideProperties) {
+      lastToken = token
+      continue
+    }
 
     // Сбор информации о токенах
     if (token.tokenType === VBar) hasVBar = true
     if (token.tokenType === Colon) hasColon = true
     if (radioButtonTokens.includes(token.tokenType)) hasRadioButton = true
+    if (checkboxTokens.includes(token.tokenType as any)) hasCheckbox = true
 
     if (token.tokenType === Percent) {
       percentTokenCount++
@@ -123,7 +130,8 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     hasRadioButton,
     hasLeftArrow,
     firstTokenType!,
-    checkboxTokens
+    checkboxTokens,
+    hasCheckbox
   )
 }
 
@@ -134,7 +142,8 @@ const determineFieldType = (
   hasRadioButton: boolean,
   hasLeftArrow: boolean,
   firstTokenType: IToken["tokenType"],
-  checkboxTokens: (typeof CheckboxChecked)[]
+  checkboxTokens: (typeof CheckboxChecked)[],
+  hasCheckbox: boolean
 ): ParseElementType => {
   if (hasVBar && !hasLeftArrow) {
     return ParseElementType.Table
@@ -154,6 +163,10 @@ const determineFieldType = (
 
   if (checkboxTokens.includes(firstTokenType as typeof CheckboxChecked)) {
     return ParseElementType.RightTitledCheckboxField
+  }
+
+  if (hasCheckbox) {
+    return ParseElementType.LeftTitledCheckboxField
   }
 
   // начинается с @ - картинка
