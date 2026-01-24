@@ -203,6 +203,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
     prefix: "dcsset",
   },
+  Filter: {
+    enterprise: "Отбор",
+    prefix: "dcsset",
+  },
   // Primitive types
   string: {
     enterprise: "Строка",

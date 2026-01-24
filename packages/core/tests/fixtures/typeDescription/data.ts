@@ -542,6 +542,11 @@ export const typeFixturesTable: TypeFixture[] = [
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
     xml: "<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>",
   },
+  {
+    internal: { type: ["Filter"] },
+    enterprise: "Отбор",
+    xml: "<TypeDescription>\n\t<v8:Type>dcsset:Filter</v8:Type>\n</TypeDescription>",
+  },
   //#endregion
   //#endregion
 
