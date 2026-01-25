@@ -11,6 +11,11 @@ export const addNamespaces = (context: CleanContext, parsedData: any): any => {
     return keys.some((k) => !k.startsWith("?") && k !== ":@")
   })
 
+  const prefixedNamespaced = Object.entries(context.namespaces).reduce((acc, [prefix, uri]) => {
+    acc[`@_${prefix}`] = uri
+    return acc
+  }, {} as Record<string, string>)
+
   if (rootElement) {
     // Инициализируем атрибуты, если их нет
     if (!rootElement[":@"]) {
@@ -19,7 +24,7 @@ export const addNamespaces = (context: CleanContext, parsedData: any): any => {
 
     // Объединяем namespace из context.namespaces с существующими атрибутами
     rootElement[":@"] = {
-      ...context.namespaces,
+      ...prefixedNamespaced,
     }
   }
 

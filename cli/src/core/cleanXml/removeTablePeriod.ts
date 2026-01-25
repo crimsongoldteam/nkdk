@@ -8,7 +8,7 @@ export const removeTablePeriod = (context: CleanContext, parsedData: any): any =
   if (Array.isArray(parsedData)) {
     return parsedData
       .map((item) => removeTablePeriod(context, item))
-      .filter((item) => item !== undefined)
+      .filter((item) => item !== undefined && item !== null)
   }
 
   if (typeof parsedData !== "object") {

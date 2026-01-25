@@ -4,7 +4,7 @@ export const parseXml = (xmlContent: string): any => {
   const primaryOptions = {
     preserveOrder: true,
     ignoreAttributes: false,
-    attributeNamePrefix: "",
+    attributeNamePrefix: "@_",
     // attributesGroupName: "@attributes",
     textNodeName: "#text",
     trimValues: true,

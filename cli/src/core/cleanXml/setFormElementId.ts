@@ -1,8 +1,7 @@
 import type { CleanContext } from "./types.js"
 
 export const setFormElementId = (context: CleanContext, parsedData: any): any => {
-  let idCounter = 1
-
+  // Don't renumber IDs - keep them as they are in the input
   const process = (data: any): any => {
     if (data === null || data === undefined) {
       return data
@@ -24,22 +23,11 @@ export const setFormElementId = (context: CleanContext, parsedData: any): any =>
     }
 
     const children = data[tagName]
-    const attributes = data[":@"]
-
-    let newAttributes = attributes ? { ...attributes } : undefined
-
-    // Перенумеровываем id, если он есть, и это не AutoCommandBar с id="-1"
-    if (newAttributes && newAttributes.id !== undefined) {
-      const isAutoCommandBarSpecial = tagName === "AutoCommandBar" && String(newAttributes.id) === "-1"
-      if (!isAutoCommandBarSpecial) {
-        newAttributes.id = String(idCounter++)
-      }
-    }
+    const processedChildren = process(children)
 
     return {
       ...data,
-      [tagName]: process(children),
-      ...(newAttributes ? { ":@": newAttributes } : {}),
+      [tagName]: processedChildren,
     }
   }
 

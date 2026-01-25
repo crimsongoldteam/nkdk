@@ -8,14 +8,14 @@ export const buildXml = (parsedData: any): string => {
   const builder = new XMLBuilder({
     preserveOrder: true,
     ignoreAttributes: false,
-    attributeNamePrefix: "",
-    attributesGroupName: "@attributes",
+    attributeNamePrefix: "@_",
     textNodeName: "#text",
     format: true,
     suppressEmptyNode: true,
     suppressBooleanAttributes: false,
     indentBy: "\t",
     processEntities: true,
+    // htmlEntities: true,
   })
 
   try {

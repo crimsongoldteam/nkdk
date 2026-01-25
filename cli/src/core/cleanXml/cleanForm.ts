@@ -1,9 +1,6 @@
 import { addNamespaces } from "./addNamespaces.js"
 import { buildXml } from "./buildXml.js"
 import { parseXml } from "./parseXml.js"
-import { removeEmptyNodes } from "./removeEmptyNodes.js"
-import { removeTablePeriod } from "./removeTablePeriod.js"
-import { sortData } from "./sortData.js"
 import { CleanContext } from "./types.js"
 
 const formContext: CleanContext = {
@@ -29,7 +26,7 @@ const formContext: CleanContext = {
   },
 
   sortableTags: [
-    "Attribute",
+    "Attributes",
     "AutoCommandBar",
     "Form",
     "Attribute",
@@ -66,10 +63,11 @@ const formContext: CleanContext = {
     "SpreadSheetDocumentField",
     "TextDocumentField",
     "TrackBarField",
-    "UsualGroup",
     "ViewStatusAddition",
     "SearchControlAddition",
     "SearchStringAddition",
+    "ChildItems",
+    "Events",
   ],
 }
 
@@ -81,11 +79,11 @@ const pipe =
 export const cleanForm = (xmlContent: string): string => {
   const transform = pipe(
     (data) => addNamespaces(formContext, data),
-    (data) => removeEmptyNodes(formContext, data),
-    (data) => removeTablePeriod(formContext, data),
-    (data) => sortData(formContext, data, false),
-    // (data) => sortEvents(formContext, data),
-    // (data) => setFormElementId(formContext, data)
+    // (data) => removeEmptyNodes(formContext, data),
+    // (data) => removeTablePeriod(formContext, data),
+    // (data) => normalizeTextNodes(data),
+    // (data) => sortData(formContext, data, false),
+    // (data) => sortEvents(formContext, data)
   )
 
   const parsedData = parseXml(xmlContent)
