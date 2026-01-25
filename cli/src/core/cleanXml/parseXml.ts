@@ -5,7 +5,7 @@ export const parseXml = (xmlContent: string): any => {
     preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "",
-    attributesGroupName: "@attributes",
+    // attributesGroupName: "@attributes",
     textNodeName: "#text",
     trimValues: true,
     parseTagValue: true,

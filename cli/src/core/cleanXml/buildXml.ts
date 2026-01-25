@@ -1,6 +1,10 @@
 import { XMLBuilder } from "fast-xml-parser"
 
 export const buildXml = (parsedData: any): string => {
+  if (parsedData === null || parsedData === undefined) {
+    return ""
+  }
+
   const builder = new XMLBuilder({
     preserveOrder: true,
     ignoreAttributes: false,
@@ -14,12 +18,16 @@ export const buildXml = (parsedData: any): string => {
     processEntities: true,
   })
 
-  const outputXml = builder.build(parsedData)
-
-  // Добавляем XML декларацию, если её нет
-  if (!outputXml.trim().startsWith("<?xml")) {
-    return '<?xml version="1.0" encoding="UTF-8"?>\n' + outputXml
+  try {
+    const outputXml = builder.build(parsedData)
+    const trimmedOutput = outputXml.trimStart()
+    if (trimmedOutput === "") return ""
+    if (!trimmedOutput.startsWith("<?xml")) {
+      return '<?xml version="1.0" encoding="UTF-8"?>\n' + trimmedOutput
+    }
+    return outputXml.trimEnd()
+  } catch (error) {
+    console.error("Error building XML:", error)
+    return ""
   }
-
-  return outputXml.trimEnd()
 }

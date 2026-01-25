@@ -10,6 +10,13 @@ import { LabelField } from "./types"
 const TILDE = t.Tilde.LABEL as string
 const COLON = t.Colon.LABEL as string
 
+export const exportLabelFieldToStructure = (
+  _context: ConfigurationContext,
+  element: LabelField
+): IFormatElementResult => {
+  return exportLabelFieldContentToStructure(_context, element)
+}
+
 export const exportLabelFieldContentToStructure = (
   _context: ConfigurationContext,
   element: LabelField
@@ -38,13 +45,6 @@ const formatNamePart = (element: LabelField, hasTitle: boolean): string => {
   if (!hasTitle) return ""
 
   return formatElementName(element)
-}
-
-export const exportLabelFieldToStructure = (
-  _context: ConfigurationContext,
-  element: LabelField
-): IFormatElementResult => {
-  return exportLabelFieldContentToStructure(_context, element)
 }
 
 registerMetadata(

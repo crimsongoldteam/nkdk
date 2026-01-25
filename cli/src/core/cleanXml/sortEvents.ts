@@ -1,47 +1,49 @@
 import type { CleanContext } from "./types.js"
 
 export const sortEvents = (context: CleanContext, parsedData: any): any => {
-  if (parsedData == null || typeof parsedData !== "object") {
+  if (parsedData === null || parsedData === undefined) {
     return parsedData
   }
 
   if (Array.isArray(parsedData)) {
-    return parsedData.map((item) => sortEvents(context, item))
+    return parsedData
+      .map((item) => sortEvents(context, item))
+      .filter((item) => item !== undefined)
   }
 
-  const result: Record<string, any> = {}
+  if (typeof parsedData !== "object") {
+    return parsedData
+  }
 
-  // Process all keys
-  for (const key of Object.keys(parsedData)) {
-    if (key === "Events" && parsedData[key] != null) {
-      const events = parsedData[key]
+  const tagName = Object.keys(parsedData).find((k) => k !== ":@")
+  if (!tagName || tagName === "#text") {
+    return parsedData
+  }
 
-      // If Events contains Event array, sort them by name attribute
-      if (events.Event != null) {
-        if (Array.isArray(events.Event)) {
-          // Sort array of events by @attributes.name
-          const sortedEvents = [...events.Event].sort((a, b) => {
-            const nameA = a["@attributes"]?.name || ""
-            const nameB = b["@attributes"]?.name || ""
-            return nameA.localeCompare(nameB, "ru")
-          })
-          result[key] = {
-            ...events,
-            Event: sortedEvents,
-          }
-        } else {
-          // Single event, no sorting needed
-          result[key] = events
-        }
-      } else {
-        // No Event property, keep as is
-        result[key] = sortEvents(context, events)
+  const children = parsedData[tagName]
+
+  if (tagName === "Events" && Array.isArray(children)) {
+    // Сортируем детей (элементы Event) по атрибуту name
+    const sortedChildren = [...children].sort((a, b) => {
+      const tagA = Object.keys(a).find((k) => k !== ":@")
+      const tagB = Object.keys(b).find((k) => k !== ":@")
+
+      if (tagA === "Event" && tagB === "Event") {
+        const nameA = a[":@"]?.name || ""
+        const nameB = b[":@"]?.name || ""
+        return nameA.localeCompare(nameB, "ru")
       }
-    } else {
-      // Recursively process other keys
-      result[key] = sortEvents(context, parsedData[key])
+      return 0
+    })
+
+    return {
+      ...parsedData,
+      [tagName]: sortEvents(context, sortedChildren),
     }
   }
 
-  return result
+  return {
+    ...parsedData,
+    [tagName]: sortEvents(context, children),
+  }
 }

@@ -5,38 +5,40 @@ export const removeTablePeriod = (context: CleanContext, parsedData: any): any =
     return parsedData
   }
 
+  if (Array.isArray(parsedData)) {
+    return parsedData
+      .map((item) => removeTablePeriod(context, item))
+      .filter((item) => item !== undefined)
+  }
+
   if (typeof parsedData !== "object") {
     return parsedData
   }
 
-  if (Array.isArray(parsedData)) {
-    return parsedData.map((item) => removeTablePeriod(context, item))
+  const tagName = Object.keys(parsedData).find((k) => k !== ":@")
+  if (!tagName || tagName === "#text") {
+    return parsedData
   }
 
-  const result: Record<string, any> = {}
+  const children = parsedData[tagName]
 
-  for (const key of Object.keys(parsedData)) {
-    const value = parsedData[key]
-
-    if (key === "Table") {
-      if (Array.isArray(value)) {
-        result[key] = value.map((table) => {
-          if (typeof table === "object" && table !== null) {
-            const { Period, ...rest } = table
-            return removeTablePeriod(context, rest)
-          }
-          return table
-        })
-      } else if (typeof value === "object" && value !== null) {
-        const { Period, ...rest } = value
-        result[key] = removeTablePeriod(context, rest)
-      } else {
-        result[key] = value
+  if (tagName === "Table" && Array.isArray(children)) {
+    // Удаляем Period из детей Table
+    const filteredChildren = children.filter((child) => {
+      if (typeof child !== "object" || child === null) {
+        return true
       }
-    } else {
-      result[key] = removeTablePeriod(context, value)
+      const childTagName = Object.keys(child).find((k) => k !== ":@")
+      return childTagName !== "Period"
+    })
+    return {
+      ...parsedData,
+      [tagName]: removeTablePeriod(context, filteredChildren),
     }
   }
 
-  return result
+  return {
+    ...parsedData,
+    [tagName]: removeTablePeriod(context, children),
+  }
 }
