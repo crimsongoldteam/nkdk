@@ -139,6 +139,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const closeOnOwnerClose = importBooleanFromEnterprise(context, data.ЗакрыватьПриЗакрытииВладельца)
   if (closeOnOwnerClose !== undefined) result.closeOnOwnerClose = closeOnOwnerClose
+  
 
   const usedFormServer = importSystemEnumerationFromEnterprise<SE.UsedServer>(
     context,
@@ -234,6 +235,9 @@ export const importClientApplicationFormFromEnterprise = (
     SE.ChildFormItemsWidthFromEnterprise
   )
   if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
+
+  const saveWindowSettings = importBooleanFromEnterprise(context, data.СохранятьНастройкиОкна)
+  if (saveWindowSettings !== undefined) result.saveWindowSettings = saveWindowSettings
 
   const events = importClientApplicationFormEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events

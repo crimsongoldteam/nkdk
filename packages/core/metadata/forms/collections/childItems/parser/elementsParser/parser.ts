@@ -134,7 +134,7 @@ export class Parser extends CstParser {
         this.CONSUME(t.LCurly)
 
         this.MANY1(() => {
-          this.CONSUME1(t.LabelContent, { LABEL: "LabelHeaderName" })
+          this.CONSUME1(t.InputHeader, { LABEL: "LabelHeaderName" })
         })
 
         this.OPTION1(() => {
@@ -143,7 +143,7 @@ export class Parser extends CstParser {
       },
       () => {
         this.MANY2(() => {
-          this.CONSUME2(t.LabelContent, { LABEL: "LabelHeader" })
+          this.CONSUME2(t.InputHeader, { LABEL: "LabelHeader" })
         })
       }
     )

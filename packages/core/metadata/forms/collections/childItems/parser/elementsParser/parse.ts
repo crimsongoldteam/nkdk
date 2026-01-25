@@ -36,7 +36,7 @@ export const parseOneLineGroupElements = (
 }
 
 const addChildItemsToResult = (context: ConfigurationContext, cst: NamedElement, element: TreeNode): void => {
-  if (!("childItems" in cst)) return
+  if (!cst || !("childItems" in cst)) return
 
   if (element.type === ParseElementType.CommandBar) return
 

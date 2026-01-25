@@ -153,6 +153,7 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
   ТолькоПросмотр: "Ложь",
   Ширина: 800,
   ШиринаПодчиненныхЭлементов: "Авто",
+  СохранятьНастройкиОкна: "Истина",
   Реквизиты: {
     Объект: {
       Тип: "Справочник.ТестоваяОбработка",
