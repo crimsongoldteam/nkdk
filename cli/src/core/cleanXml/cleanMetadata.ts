@@ -1,6 +1,7 @@
 import { addNamespaces } from "./addNamespaces.js"
 import { buildXml } from "./buildXml.js"
 import { parseXml } from "./parseXml.js"
+import { removeEmptyNodes } from "./removeEmptyNodes.js"
 import { setUUID } from "./setUUID.js"
 import { sortChildObjects } from "./sortChildObjects.js"
 import { sortData } from "./sortData.js"
@@ -45,7 +46,7 @@ const pipe =
 export const cleanMetadata = (xmlContent: string): string => {
   const transform = pipe(
     (data) => addNamespaces(metadataContext, data),
-    // (data) => removeEmptyNodes(metadataContext, data),
+    (data) => removeEmptyNodes(metadataContext, data),
     (data) => sortData(metadataContext, data, false),
     (data) => setUUID(metadataContext, data),
     (data) => sortChildObjects(metadataContext, data)
