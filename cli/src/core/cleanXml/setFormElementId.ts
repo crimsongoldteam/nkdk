@@ -1,35 +1,43 @@
 import type { CleanContext } from "./types.js"
 
 export const setFormElementId = (context: CleanContext, parsedData: any): any => {
-  // Don't renumber IDs - keep them as they are in the input
-  const process = (data: any): any => {
-    if (data === null || data === undefined) {
-      return data
-    }
+  return process(parsedData, { id: 1 })
+}
 
-    if (Array.isArray(data)) {
-      return data
-        .map((item) => process(item))
-        .filter((item) => item !== undefined)
-    }
+const process = (data: any, params: { id: number }): any => {
+  if (data === null || data === undefined) {
+    return data
+  }
 
-    if (typeof data !== "object") {
-      return data
-    }
+  if (Array.isArray(data)) {
+    return data.map((item) => process(item, params)).filter((item) => item !== undefined)
+  }
 
-    const tagName = Object.keys(data).find((k) => k !== ":@")
-    if (!tagName || tagName === "#text") {
-      return data
-    }
+  if (typeof data !== "object") {
+    return data
+  }
 
-    const children = data[tagName]
-    const processedChildren = process(children)
+  const attributes = data[":@"]
 
-    return {
-      ...data,
-      [tagName]: processedChildren,
+  if (attributes !== undefined && typeof attributes === "object") {
+    for (const [key, value] of Object.entries(attributes)) {
+      if (key !== "@_id") continue
+      if (value === "-1") continue
+      attributes[key] = String(params.id)
+      params.id++
     }
   }
 
-  return process(parsedData)
+  const tagName = Object.keys(data).find((k) => k !== ":@")
+  if (!tagName || tagName === "#text") {
+    return data
+  }
+
+  const children = data[tagName]
+  const processedChildren = process(children, params)
+
+  return {
+    ...data,
+    [tagName]: processedChildren,
+  }
 }

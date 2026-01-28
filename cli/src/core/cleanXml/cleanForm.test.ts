@@ -16,7 +16,7 @@ describe("cleanForm", () => {
     const expectedXml = readFileSync(expectedPath, "utf-8")
 
     const result = cleanForm(inputXml)
-
+    
     expect(result).toEqual(expectedXml)
   })
 

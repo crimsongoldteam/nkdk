@@ -1,10 +1,9 @@
 import { addNamespaces } from "./addNamespaces.js"
 import { buildXml } from "./buildXml.js"
 import { parseXml } from "./parseXml.js"
-import { removeEmptyNodes } from "./removeEmptyNodes.js"
 import { setUUID } from "./setUUID.js"
-import { sortData } from "./sortData.js"
 import { sortChildObjects } from "./sortChildObjects.js"
+import { sortData } from "./sortData.js"
 import { CleanContext } from "./types.js"
 
 const metadataContext: CleanContext = {
@@ -26,7 +25,6 @@ const metadataContext: CleanContext = {
     "xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    version: "2.20",
   },
 
   sortableTags: [
@@ -46,9 +44,9 @@ const pipe =
 export const cleanMetadata = (xmlContent: string): string => {
   const transform = pipe(
     (data) => addNamespaces(metadataContext, data),
-    (data) => removeEmptyNodes(metadataContext, data),
+    // (data) => removeEmptyNodes(metadataContext, data),
+    (data) => sortData(metadataContext, data, false),
     (data) => setUUID(metadataContext, data),
-    (data) => sortData(metadataContext, data, false, ""),
     (data) => sortChildObjects(metadataContext, data)
   )
 

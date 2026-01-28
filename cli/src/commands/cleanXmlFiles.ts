@@ -23,6 +23,7 @@ function isFile(path: string): boolean {
 function cleanXmlFile(inputFile: string, outputFile: string): void {
   const xmlContent = readFileSync(inputFile, "utf-8")
   const fileName = inputFile.split(/[/\\]/).pop() || ""
+  if (fileName !== "Form.xml") return
   // Автоматически определяем Form.xml и обрабатываем через prepareFormXml
   const processedXml = fileName === "Form.xml" ? cleanForm(xmlContent) : cleanMetadata(xmlContent)
   const outputDir = dirname(outputFile)

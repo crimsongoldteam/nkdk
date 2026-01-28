@@ -19,7 +19,8 @@ export const sortChildObjects = (context: CleanContext, parsedData: any): any =>
 
     if (key === "ChildObjects" && value != null && typeof value === "object") {
       const processed: Record<string, any> = {}
-      for (const childType of Object.keys(value)) {
+      const sortedKeys = Object.keys(value).sort((a, b) => a.localeCompare(b))
+      for (const childType of sortedKeys) {
         const childValue = value[childType]
         const shouldSort = (childType === "Form" || childType === "Template") && Array.isArray(childValue)
         processed[childType] = shouldSort

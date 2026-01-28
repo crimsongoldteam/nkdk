@@ -2,6 +2,7 @@ import { addNamespaces } from "./addNamespaces.js"
 import { buildXml } from "./buildXml.js"
 import { parseXml } from "./parseXml.js"
 import { removeTablePeriod } from "./removeTablePeriod.js"
+import { setFormElementId } from "./setFormElementId.js"
 import { sortData } from "./sortData.js"
 import { sortEvents } from "./sortEvents.js"
 import { CleanContext } from "./types.js"
@@ -84,9 +85,9 @@ export const cleanForm = (xmlContent: string): string => {
     (data) => addNamespaces(formContext, data),
     // (data) => removeEmptyNodes(formContext, data),
     (data) => removeTablePeriod(formContext, data),
-    // (data) => normalizeTextNodes(data),
     (data) => sortData(formContext, data, false),
-    (data) => sortEvents(formContext, data)
+    (data) => sortEvents(formContext, data),
+    (data) => setFormElementId(formContext, data)
   )
 
   const parsedData = parseXml(xmlContent)
