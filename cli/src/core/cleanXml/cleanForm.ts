@@ -1,6 +1,7 @@
 import { addNamespaces } from "./addNamespaces.js"
 import { buildXml } from "./buildXml.js"
 import { parseXml } from "./parseXml.js"
+import { removeEmptyNodes } from "./removeEmptyNodes.js"
 import { removeTablePeriod } from "./removeTablePeriod.js"
 import { setFormElementId } from "./setFormElementId.js"
 import { sortData } from "./sortData.js"
@@ -83,7 +84,7 @@ const pipe =
 export const cleanForm = (xmlContent: string): string => {
   const transform = pipe(
     (data) => addNamespaces(formContext, data),
-    // (data) => removeEmptyNodes(formContext, data),
+    (data) => removeEmptyNodes(formContext, data),
     (data) => removeTablePeriod(formContext, data),
     (data) => sortData(formContext, data, false),
     (data) => sortEvents(formContext, data),
