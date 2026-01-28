@@ -188,6 +188,7 @@ export interface LabelFieldStructureFixture {
   name: string
   element: LabelField
   structured: IFormatElementResult
+  content: IFormatElementResult
 }
 
 export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
@@ -202,6 +203,10 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       strings: ["~Поле надписи: {ПолеНадписи}"],
       haveSimpleHorizontalGroup: false,
     },
+    content: {
+      strings: ["~Поле надписи {ПолеНадписи}"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "without title",
@@ -212,6 +217,10 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     },
     structured: {
       strings: ["~{ПолеНадписи}: "],
+      haveSimpleHorizontalGroup: false,
+    },
+    content: {
+      strings: ["~{ПолеНадписи}"],
       haveSimpleHorizontalGroup: false,
     },
   },

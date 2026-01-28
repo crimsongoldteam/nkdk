@@ -1,4 +1,3 @@
-import { exportMetadataCommandsToEnterprise } from "../metadataCommand/exportToEnterprise"
 import { exportAdditionalIndexesToEnterprise } from "~/metadata/commonObjects/additionalIndex/exportToEnterprise"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportCharacteristicsDescriptionsToEnterprise } from "~/metadata/commonObjects/characteristicsDescription/exportToEnterprise"
@@ -12,6 +11,7 @@ import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/comm
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportMetadataCommandsToEnterprise } from "../metadataCommand/exportToEnterprise"
 import { MetadataCatalog, MetadataCatalogEnterprise } from "./types"
 
 export const exportMetadataCatalogToEnterprise = (

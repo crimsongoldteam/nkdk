@@ -5,6 +5,7 @@ export { exportCatalogFormToXML } from "./clientApplicationForm/catalog/exportTo
 export { importCatalogFormFromEnterprise } from "./clientApplicationForm/catalog/importFromEnterprise.js"
 export { importCatalogFormFromXML } from "./clientApplicationForm/catalog/importFromXML.js"
 export type { CatalogFormEnterprise, CatalogFormXML } from "./clientApplicationForm/catalog/types.js"
+export type { FormMetadataXML } from "./clientApplicationForm/base/types.js"
 export { importChildItemsFromStructure } from "./collections/childItems/importFromStructure.js"
 
 import "./elements/exportToEnterprise.js"
