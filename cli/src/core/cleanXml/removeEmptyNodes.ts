@@ -67,6 +67,11 @@ export const removeEmptyNodes = (context: CleanContext, parsedData: any): any =>
       return undefined
     }
 
+    // Если есть атрибут xsi:type и нет контента - удаляем ноду полностью
+    if (attrs && attrs["@_xsi:type"]) {
+      return undefined
+    }
+
     // Находим имя тега из исходных данных
     const tagName = Object.keys(parsedData).find((k) => k !== ":@")
 
