@@ -1,35 +1,5 @@
 import type { CleanContext } from "./types.js"
 
-export const normalizeTextNodes = (node: any): any => {
-  if (node === null || node === undefined) {
-    return node
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(normalizeTextNodes)
-  }
-
-  if (typeof node !== "object") {
-    return node
-  }
-
-  // If this node has a #text property that is an array, flatten it
-  if (node.hasOwnProperty("#text") && Array.isArray(node["#text"])) {
-    const textArray = node["#text"]
-    return {
-      ...node,
-      "#text": textArray.length > 0 ? textArray[0] : undefined
-    }
-  }
-
-  // Recursively normalize all properties
-  const normalized: any = {}
-  for (const key of Object.keys(node)) {
-    normalized[key] = normalizeTextNodes(node[key])
-  }
-  return normalized
-}
-
 export const removeEmptyNodes = (context: CleanContext, parsedData: any): any => {
   if (parsedData === null || parsedData === undefined) {
     return parsedData
@@ -77,10 +47,13 @@ export const removeEmptyNodes = (context: CleanContext, parsedData: any): any =>
 
   const children = parsedData[tagName]
   const processedChildren = removeEmptyNodes(context, children)
-  
+
   const hasNonNilAttrs = hasAttributesOtherThanNil(parsedData[":@"])
-  
-  if (!hasNonNilAttrs && (processedChildren === undefined || (Array.isArray(processedChildren) && processedChildren.length === 0))) {
+
+  if (
+    !hasNonNilAttrs &&
+    (processedChildren === undefined || (Array.isArray(processedChildren) && processedChildren.length === 0))
+  ) {
     // If it's a known tag that should be kept even if empty, keep it
     // But for now, 1C clean XML usually removes them
     return []
@@ -88,7 +61,7 @@ export const removeEmptyNodes = (context: CleanContext, parsedData: any): any =>
 
   return {
     ...parsedData,
-    [tagName]: processedChildren !== undefined ? processedChildren : []
+    [tagName]: processedChildren !== undefined ? processedChildren : [],
   }
 }
 
@@ -96,7 +69,7 @@ const isEmptyElement = (element: any): boolean => {
   if (element === null || element === undefined) return true
   if (typeof element !== "object") return false
   if (Array.isArray(element)) return element.length === 0
-  
+
   // Check if object only has attributes and no content
   const keys = Object.keys(element)
   return keys.length === 0 || (keys.length === 1 && element[":@"])
