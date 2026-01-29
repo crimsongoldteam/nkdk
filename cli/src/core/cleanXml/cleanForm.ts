@@ -71,8 +71,8 @@ const formContext: CleanContext = {
     "ViewStatusAddition",
     "SearchControlAddition",
     "SearchStringAddition",
-    "ChildItems",
-    "Events",
+    // "ChildItems",
+    // "Events",
   ],
 }
 

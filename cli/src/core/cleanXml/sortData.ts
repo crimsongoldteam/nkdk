@@ -21,8 +21,6 @@ export const sortData = (context: CleanContext, parsedData: any, isInsideSortabl
   if (!tagName || tagName === "#text") return parsedData
 
   const isSortable = context.sortableTags.includes(tagName)
-  
-  // appendFileSync("/Users/nikita/git/nakidka-core/sort-log.txt", `Tag: ${tagName}, Sortable: ${isSortable}\n`)
 
   const children = parsedData[tagName]
   return {
