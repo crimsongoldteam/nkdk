@@ -5,12 +5,20 @@ export interface PictureXML {
   "xr:Ref"?: string
   "xr:Abs"?: string
   "xr:LoadTransparent": boolean
+  "xr:TransparentPixel"?: {
+    x: number
+    y: number
+  }
 }
 
 export interface Picture {
   ref: string | SE.PictureLib
   type: "StandardPicture" | "CommonPicture" | "AbsolutePicture"
   loadTransparent: boolean
+  transparentPixel?: {
+    x: number
+    y: number
+  }
 }
 
 export type PictureEnterpriseRef = string | SE.PictureLibEnterprise
@@ -18,6 +26,7 @@ export type PictureEnterpriseRef = string | SE.PictureLibEnterprise
 export interface PictureEnterpriseExtended {
   Ссылка: PictureEnterpriseRef
   ПрозрачныйФон: StringboolEnterprise
+  ПрозрачныйПиксель?: { x: number; y: number }
 }
 
 export type PictureEnterprise = PictureEnterpriseRef | PictureEnterpriseExtended

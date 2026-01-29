@@ -3,9 +3,10 @@ import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/export
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import {
-  exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
-} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+  exportFormattedI8nTextOtherToEnterprise,
+  exportFormattedI8nTextToEnterprise,
+} from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -58,8 +59,8 @@ export const exportLabelDecorationTypedToEnterprise = <From extends LabelDecorat
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
+  const title = exportFormattedI8nTextToEnterprise(context, data.title, "Заголовок", "ФорматированныйЗаголовок")
+  Object.assign(result, title)
 
   return sortObject(result) as ToTypedEnterpriseType<From>
 }
@@ -74,8 +75,8 @@ export const exportLabelDecorationPartialToEnterprise = <From extends LabelDecor
     ...props,
   }
 
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
+  const title = exportFormattedI8nTextOtherToEnterprise(context, data.title, "Заголовок", "ФорматированныйЗаголовок")
+  Object.assign(result, title)
 
   return sortObject(result) as ToPartialEnterpriseType<From>
 }

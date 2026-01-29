@@ -14,8 +14,7 @@ export const exportPictureToXML = (
     }
   }
 
-  const ref =
-    picture.type === "StandardPicture" ? `StdPicture.${picture.ref}` : `CommonPicture.${picture.ref}`
+  const ref = picture.type === "StandardPicture" ? `StdPicture.${picture.ref}` : `CommonPicture.${picture.ref}`
   return {
     "xr:Ref": ref,
     "xr:LoadTransparent": picture.loadTransparent,

@@ -1,25 +1,14 @@
 import { describe, expect, it } from "vitest"
+import { pictureDecorationStructureFixturesTable } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { FormElementType } from "../../../metadataFactory/types"
 import { exportPictureDecorationToStructure } from "./exportToStructure"
-import { PictureDecoration } from "./types"
 
 describe("exportPictureDecorationToStructure", () => {
-  it("should format picture decoration", () => {
-    const element: PictureDecoration = {
-      elementType: FormElementType.PictureDecoration,
-      picture: {
-        ref: "Печать",
-        type: "CommonPicture",
-        loadTransparent: false,
-      },
-      name: "ИмяПоля",
+  it.each(pictureDecorationStructureFixturesTable)(
+    "should export input field $name",
+    ({ element: input, structured: expected }) => {
+      const result = exportPictureDecorationToStructure(mockСontext, input)
+      expect(result.strings).toEqual(expected.strings)
     }
-
-    const expectedResult = ["@Печать {ИмяПоля}"]
-
-    const result = exportPictureDecorationToStructure(mockСontext, element)
-
-    expect(result.strings).toEqual(expectedResult)
-  })
+  )
 })

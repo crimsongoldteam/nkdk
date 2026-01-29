@@ -11,6 +11,8 @@ export function exportPictureToEnterprise(
 
   let ref: PictureEnterprise | undefined
 
+  const defaultLoadTransparent = picture.type === "StandardPicture"
+
   if (picture.type === "StandardPicture") {
     const result = exportSystemEnumerationToEnterprise(context, picture.ref, SE.PictureLibToEnterprise)
 
@@ -21,7 +23,7 @@ export function exportPictureToEnterprise(
     ref = picture.ref
   }
 
-  if (!picture.loadTransparent) {
+  if (picture.loadTransparent !== defaultLoadTransparent) {
     return {
       Ссылка: ref,
       ПрозрачныйФон: "Ложь",

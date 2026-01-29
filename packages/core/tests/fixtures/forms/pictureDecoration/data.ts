@@ -3,6 +3,7 @@ import {
   PictureDecorationPartialEnterprise,
   PictureDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -131,3 +132,49 @@ export const minimalPictureDecorationPartialEnterprise: PictureDecorationPartial
 export const minimalPictureDecorationTypedEnterprise: PictureDecorationTypedEnterprise = {
   Тип: "Рисунок",
 }
+
+export interface PictureDecorationStructureFixture {
+  name: string
+  element: PictureDecoration
+  structured: IFormatElementResult
+}
+
+export const pictureDecorationStructureFixturesTable: PictureDecorationStructureFixture[] = [
+  {
+    name: "with title",
+    element: {
+      name: "ИмяПоля",
+      elementType: FormElementType.PictureDecoration,
+      picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
+      title: { items: { ru: "Заголовок" }, formatted: false },
+    },
+    structured: {
+      strings: ["@Печать Заголовок {ИмяПоля}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without title",
+    element: {
+      name: "ИмяПоля",
+      picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
+      elementType: FormElementType.PictureDecoration,
+    },
+    structured: {
+      strings: ["@Печать {ИмяПоля}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "with common picture",
+    element: {
+      name: "ИмяПоля",
+      picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: true },
+      elementType: FormElementType.PictureDecoration,
+    },
+    structured: {
+      strings: ["@Предупреждение32 {ИмяПоля}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+]

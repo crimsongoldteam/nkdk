@@ -1,19 +1,23 @@
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
+import { PictureEnterprise } from "~/metadata/commonObjects/picture/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { formatElementTitleAndName } from "../../format/helpers"
-import { NamedElement } from "../baseElement/types"
 import { PictureDecoration } from "./types"
 
 export const exportPictureDecorationToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  element: NamedElement
+  element: PictureDecoration
 ): IFormatElementResult => {
-  const pictureDecoration = element as PictureDecoration
+  const picture: PictureEnterprise | undefined = exportPictureToEnterprise(context, element.picture)
+
+  const pictureString = typeof picture === "string" ? picture : ""
+
   const result: IFormatElementResult = {
-    strings: ["@" + pictureDecoration.picture?.ref + " " + formatElementTitleAndName(context, pictureDecoration)],
+    strings: ["@" + pictureString + " " + formatElementTitleAndName(context, element)],
     haveSimpleHorizontalGroup: false,
   }
 
