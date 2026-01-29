@@ -162,7 +162,7 @@
 	<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
 	<MultipleValuesPicture>
 		<xr:Ref>CommonPicture.ОбщаяКартинка</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
+		<xr:LoadTransparent>false</xr:LoadTransparent>
 	</MultipleValuesPicture>
 	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
 	<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>

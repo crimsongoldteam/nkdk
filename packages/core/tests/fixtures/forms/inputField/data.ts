@@ -153,7 +153,7 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
   multipleValuesPicture: {
     type: "CommonPicture",
     ref: "ОбщаяКартинка",
-    loadTransparent: true,
+    loadTransparent: false,
   },
   multipleValuesTextColor: { type: "WebColor", value: "Red" },
   multipleValueValueDataPath: "Объект.Value",
