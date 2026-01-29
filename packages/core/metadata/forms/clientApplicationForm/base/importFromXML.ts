@@ -191,6 +191,10 @@ export const importClientApplicationFormFromXML = (
     result.slaveItemsWidth = xml.SlaveItemsWidth
   }
 
+  if (xml.SaveWindowSettings !== undefined) {
+    result.saveWindowSettings = xml.SaveWindowSettings
+  }
+
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) {
     result.events = events

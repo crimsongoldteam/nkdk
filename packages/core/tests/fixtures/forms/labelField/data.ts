@@ -213,7 +213,6 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     element: {
       name: "ПолеНадписи",
       elementType: FormElementType.LabelField,
-      title: undefined,
     },
     structured: {
       strings: ["~{ПолеНадписи}: "],

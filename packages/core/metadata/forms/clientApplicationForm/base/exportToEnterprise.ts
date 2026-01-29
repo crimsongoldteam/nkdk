@@ -96,6 +96,9 @@ export const exportClientApplicationFormToEnterprise = (
   const autoURL = exportBooleanToEnterprise(context, data.autoURL)
   if (autoURL !== undefined) result.АвтоНавигационнаяСсылка = autoURL
 
+  const saveWindowSettings = exportBooleanToEnterprise(context, data.saveWindowSettings)
+  if (saveWindowSettings !== undefined) result.СохранятьНастройкиОкна = saveWindowSettings
+
   const verticalScroll = exportSystemEnumerationToEnterprise(
     context,
     data.verticalScroll,

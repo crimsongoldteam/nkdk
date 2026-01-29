@@ -37,7 +37,7 @@ export class Visitor extends BaseVisitor {
   // #region labelField
 
   public labelField(ctx: CstChildrenDictionary, context: ConfigurationContext): LabelField {
-    const titleText = joinTokens((ctx.LabelHeader || ctx.LabelHeaderName) as IToken[])
+    const titleText = joinTokens(ctx.LabelHeader as IToken[])
 
     const titleName = joinTokens(ctx.LabelHeaderName as IToken[]) || titleText
 

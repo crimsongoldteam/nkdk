@@ -14,7 +14,18 @@ export const exportLabelFieldToStructure = (
   _context: ConfigurationContext,
   element: LabelField
 ): IFormatElementResult => {
-  return exportLabelFieldContentToStructure(_context, element)
+  const hasTitle = element.title?.items.ru !== undefined
+
+  let header = formatTitle(element, hasTitle)
+
+  header = TILDE + header + COLON + " "
+
+  let namePart = formatNamePart(element, hasTitle)
+
+  return {
+    strings: [header + namePart],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 export const exportLabelFieldContentToStructure = (
@@ -25,9 +36,13 @@ export const exportLabelFieldContentToStructure = (
 
   let header = formatTitle(element, hasTitle)
 
-  header = TILDE + header + COLON + " "
+  header = TILDE + header
 
   let namePart = formatNamePart(element, hasTitle)
+
+  if (hasTitle) {
+    header = header + " "
+  }
 
   return {
     strings: [header + namePart],

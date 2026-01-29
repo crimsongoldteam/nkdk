@@ -7,14 +7,16 @@ import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenize
 import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
 
 describe("importLabelFieldFromStructure", () => {
-  it.each(labelFieldStructureFixturesTable)(
-    "should import label field $name",
-    ({ element: label, structured: structured }) => {
-      const result = importLabelFieldFromStructure(mockСontext, structured.strings)
+  describe("importLabelFieldFromStructure", () => {
+    it.each(labelFieldStructureFixturesTable)(
+      "should import label field $name",
+      ({ element: label, structured: structured }) => {
+        const result = importLabelFieldFromStructure(mockСontext, structured.strings)
 
-      expect(result).toEqual(label)
-    }
-  )
+        expect(result).toEqual(label)
+      }
+    )
+  })
 })
 
 const importLabelFieldFromStructure = (mockСontext: ConfigurationContext, mock: string[]) => {
