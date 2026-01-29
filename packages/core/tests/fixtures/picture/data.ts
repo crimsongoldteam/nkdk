@@ -26,22 +26,11 @@ export const pictureTestCases: readonly PictureTestCase[] = [
     picture: {
       ref: "ОбщаяКартинка1",
       type: "CommonPicture",
-      loadTransparent: true,
+      loadTransparent: false,
     } as Picture,
     pictureEnterprise: "ОбщаяКартинка1" as PictureEnterprise,
     enterpriseExpected: "ОбщаяКартинка1" as PictureEnterprise,
     fixture: "picture/common.xml",
-  },
-  {
-    name: "common picture with transparent",
-    picture: {
-      ref: "Картинка1",
-      type: "CommonPicture",
-      loadTransparent: false,
-    } as Picture,
-    pictureEnterprise: { Ссылка: "Картинка1", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
-    enterpriseExpected: { Ссылка: "Картинка1", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
-    fixture: "picture/commonWithoutTransparent.xml",
   },
   {
     name: "absolute picture",
@@ -60,16 +49,16 @@ export const pictureTestCases: readonly PictureTestCase[] = [
     picture: {
       ref: "Picture.png",
       type: "AbsolutePicture",
-      loadTransparent: false,
-      transparentPixel: { x: 10, y: 10 },
+      loadTransparent: true,
+      transparentPixel: { x: 10, y: 15 },
     } as Picture,
     pictureEnterprise: {
       Ссылка: "Picture.png",
       ПрозрачныйФон: "Ложь",
-      ПрозрачныйПиксель: { x: 10, y: 10 },
+      ПрозрачныйПиксель: { x: 10, y: 15 },
     } as PictureEnterprise,
     enterpriseExpected: "Picture.png" as PictureEnterprise,
-    fixture: "picture/absolute.xml",
+    fixture: "picture/absoluteWithTransparent.xml",
     enterpriseImport: false,
   },
 ] as const

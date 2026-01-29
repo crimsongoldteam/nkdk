@@ -1,0 +1,5 @@
+<Picture>
+	<xr:Abs>Picture.png</xr:Abs>
+	<xr:LoadTransparent>true</xr:LoadTransparent>
+	<xr:TransparentPixel x="10" y="15"/>
+</Picture>

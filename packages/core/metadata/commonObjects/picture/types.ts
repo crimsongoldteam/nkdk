@@ -25,7 +25,7 @@ export type PictureEnterpriseRef = string | SE.PictureLibEnterprise
 
 export interface PictureEnterpriseExtended {
   Ссылка: PictureEnterpriseRef
-  ПрозрачныйФон: StringboolEnterprise
+  ПрозрачныйФон?: StringboolEnterprise
   ПрозрачныйПиксель?: { x: number; y: number }
 }
 
