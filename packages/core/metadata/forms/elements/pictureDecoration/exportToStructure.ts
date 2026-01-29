@@ -17,7 +17,7 @@ export const exportPictureDecorationToStructure: FormatElementFunction = (
   const pictureString = typeof picture === "string" ? picture : ""
 
   const result: IFormatElementResult = {
-    strings: ["@" + pictureString + " " + formatElementTitleAndName(context, element)],
+    strings: ["@" + (pictureString ? pictureString + " " : "") + formatElementTitleAndName(context, element)],
     haveSimpleHorizontalGroup: false,
   }
 
