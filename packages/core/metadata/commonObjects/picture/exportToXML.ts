@@ -7,16 +7,20 @@ export const exportPictureToXML = (
 ): PictureXML | undefined => {
   if (!picture) return undefined
 
+  const result: PictureXML = {} as PictureXML
+
   if (picture.type === "AbsolutePicture") {
-    return {
-      "xr:Abs": picture.ref as string,
-      "xr:LoadTransparent": picture.loadTransparent,
-    }
+    result["xr:Abs"] = picture.ref as string
+  } else {
+    const ref = picture.type === "StandardPicture" ? `StdPicture.${picture.ref}` : `CommonPicture.${picture.ref}`
+    result["xr:Ref"] = ref
   }
 
-  const ref = picture.type === "StandardPicture" ? `StdPicture.${picture.ref}` : `CommonPicture.${picture.ref}`
-  return {
-    "xr:Ref": ref,
-    "xr:LoadTransparent": picture.loadTransparent,
+  result["xr:LoadTransparent"] = picture.loadTransparent
+
+  if (picture.transparentPixel && picture.loadTransparent) {
+    result["xr:TransparentPixel"] = picture.transparentPixel
   }
+
+  return result
 }

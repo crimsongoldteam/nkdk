@@ -26,7 +26,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
     picture: {
       ref: "ОбщаяКартинка1",
       type: "CommonPicture",
-      loadTransparent: false,
+      loadTransparent: true,
     } as Picture,
     pictureEnterprise: "ОбщаяКартинка1" as PictureEnterprise,
     enterpriseExpected: "ОбщаяКартинка1" as PictureEnterprise,
@@ -37,7 +37,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
     picture: {
       ref: "Картинка1",
       type: "CommonPicture",
-      loadTransparent: true,
+      loadTransparent: false,
     } as Picture,
     pictureEnterprise: { Ссылка: "Картинка1", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
     enterpriseExpected: { Ссылка: "Картинка1", ПрозрачныйФон: "Ложь" } as PictureEnterprise,
