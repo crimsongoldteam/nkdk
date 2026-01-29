@@ -253,7 +253,6 @@
 				<RadioButtonField name="ВсеЗначения" id="24">
 					<ChoiceList>
 						<xr:Item>
-							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation>
@@ -388,7 +387,6 @@
 				<RadioButtonField name="ФиксированноеЗначения" id="43">
 					<ChoiceList>
 						<xr:Item>
-							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation>
