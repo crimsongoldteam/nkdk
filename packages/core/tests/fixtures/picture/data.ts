@@ -42,7 +42,6 @@ export const pictureTestCases: readonly PictureTestCase[] = [
     pictureEnterprise: "Picture.png" as PictureEnterprise,
     enterpriseExpected: "Picture.png" as PictureEnterprise,
     fixture: "picture/absolute.xml",
-    enterpriseImport: false,
   },
   {
     name: "absolute picture with transparent",
@@ -63,6 +62,5 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       ПрозрачныйПиксель: { x: 10, y: 15 },
     } as PictureEnterprise,
     fixture: "picture/absoluteWithTransparent.xml",
-    enterpriseImport: false,
   },
 ] as const

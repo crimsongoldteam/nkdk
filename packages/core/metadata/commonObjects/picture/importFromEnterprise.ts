@@ -17,10 +17,11 @@ function tryImportStandardPicture(context: ConfigurationContext, ref: string): S
 
 function createPicture(
   ref: string | SE.PictureLib,
-  type: "StandardPicture" | "CommonPicture",
-  loadTransparent: boolean
+  type: "StandardPicture" | "CommonPicture" | "AbsolutePicture",
+  loadTransparent: boolean,
+  transparentPixel?: { x: number; y: number }
 ): Picture {
-  return { ref, type, loadTransparent }
+  return { ref, type, loadTransparent, transparentPixel }
 }
 
 export const importPictureFromEnterprise = (
@@ -29,20 +30,34 @@ export const importPictureFromEnterprise = (
 ): Picture | undefined => {
   if (!data) return undefined
 
-  let ref: string
-  let loadTransparent = true
+  let ref: string | SE.PictureLibEnterprise
+  let loadTransparent: boolean
+  let transparentPixel: { x: number; y: number } | undefined
 
   if (isPictureEnterpriseExtended(data)) {
-    ref = data.Ссылка as string
+    ref = data.Ссылка
     loadTransparent = importBooleanFromEnterprise(context, data.ПрозрачныйФон)!
+    transparentPixel = data.ПрозрачныйПиксель
   } else {
-    ref = data as string
+    ref = data
+    // First check if it's a standard picture to determine default loadTransparent
+    const isStandard = tryImportStandardPicture(context, ref as string) !== undefined
+    loadTransparent = isStandard ? true : false
   }
 
-  const standardPicture = tryImportStandardPicture(context, ref)
+  const standardPicture = tryImportStandardPicture(context, ref as string)
   if (standardPicture) {
-    return createPicture(standardPicture, "StandardPicture", loadTransparent)
+    return createPicture(standardPicture, "StandardPicture", loadTransparent, transparentPixel)
   }
 
-  return createPicture(ref, "CommonPicture", loadTransparent)
+  // Determine if it's absolute or common picture
+  // Absolute pictures typically have file extensions
+  const isAbsolute = typeof ref === "string" && /\.\w+$/.test(ref)
+
+  return createPicture(
+    ref as string,
+    isAbsolute ? "AbsolutePicture" : "CommonPicture",
+    loadTransparent,
+    transparentPixel
+  )
 }

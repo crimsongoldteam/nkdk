@@ -169,11 +169,38 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     name: "with common picture",
     element: {
       name: "ИмяПоля",
-      picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: true },
+      picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: false },
       elementType: FormElementType.PictureDecoration,
     },
     structured: {
       strings: ["@Предупреждение32 {ИмяПоля}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without picture",
+    element: {
+      name: "ИмяПоля",
+      elementType: FormElementType.PictureDecoration,
+    },
+    structured: {
+      strings: ["@{ИмяПоля}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "with absolute picture",
+    element: {
+      name: "ИмяПоля",
+      elementType: FormElementType.PictureDecoration,
+      picture: {
+        type: "AbsolutePicture",
+        ref: "Picture.png",
+        loadTransparent: true,
+      },
+    },
+    structured: {
+      strings: ["@{ИмяПоля}"],
       haveSimpleHorizontalGroup: false,
     },
   },
