@@ -19,6 +19,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 import { exportSingleSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
 import { exportSingleSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
 import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/exportToEnterprise"
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
@@ -146,7 +147,7 @@ export const exportTableToEnterprise = (
   )
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
-  const rowsPicture = exportBooleanToEnterprise(context, data.rowsPicture)
+  const rowsPicture = exportPictureToEnterprise(context, data.rowsPicture)
   if (rowsPicture !== undefined) result.КартинкаСтрок = rowsPicture
 
   const commandSet = exportCommandSetToEnterprise(context, data.commandSet)

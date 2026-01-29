@@ -21,6 +21,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 import { importSingleSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
 import { importSingleSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
 import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
+import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -256,7 +257,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const rowsPicture = importBooleanFromEnterprise(context, data.КартинкаСтрок)
+  const rowsPicture = importPictureFromEnterprise(context, data.КартинкаСтрок)
   if (rowsPicture !== undefined) result.rowsPicture = rowsPicture
 
   const commandSet = importCommandSetFromEnterprise(context, data.Команда)
@@ -371,11 +372,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (searchControlLocation !== undefined) result.searchControlLocation = searchControlLocation
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }

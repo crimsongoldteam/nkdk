@@ -150,7 +150,11 @@ export const fullTable: RequiredFieldsElement<Table> = {
   rowInputMode: "EndOfWindow",
   rowPictureDataPath: "Объект.Картинка",
   rowSelectionMode: "Row",
-  rowsPicture: true,
+  rowsPicture: {
+    ref: "Print",
+    type: "StandardPicture",
+    loadTransparent: true,
+  },
   searchControl: {
     elementType: "SearchControlAddition",
     childItems: [],
@@ -297,7 +301,7 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   ИзменятьПорядокСтрок: "Истина",
   ИзменятьСоставСтрок: "Истина",
   ИспользованиеТекущейСтроки: "Авто",
-  КартинкаСтрок: "Истина",
+  КартинкаСтрок: "Печать",
   Команда: ["WriteAndClose", "Copy", "Delete"],
   КоманднаяПанель: {
     ГоризонтальноеПоложение: "Центр",

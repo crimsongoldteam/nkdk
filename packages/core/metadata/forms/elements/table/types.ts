@@ -7,6 +7,7 @@ import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/form
 import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { TableChildItems, TableChildItemsXML } from "../../collections/childItems/types"
@@ -79,7 +80,7 @@ export interface Table {
   rowInputMode?: SE.TableRowInputMode
   rowPictureDataPath?: string
   rowSelectionMode?: SE.TableRowSelectionMode
-  rowsPicture?: boolean
+  rowsPicture?: Picture
   searchControl?: SingleSearchControlAddition
   searchControlLocation?: SE.SearchControlLocation
   searchOnInput?: SE.SearchInTableOnInput
@@ -200,7 +201,7 @@ export interface TableXML extends BaseElementXML {
   RowInputMode?: SE.TableRowInputMode
   RowPictureDataPath?: string
   RowSelectionMode?: SE.TableRowSelectionMode
-  RowsPicture?: boolean
+  RowsPicture?: PictureXML
   SearchControlAddition: SearchControlAdditionXML
   SearchControlLocation?: SE.SearchControlLocation
   SearchOnInput?: SE.SearchInTableOnInput
@@ -269,7 +270,7 @@ export interface TablePartialEnterprise {
   ИзменятьПорядокСтрок?: StringboolEnterprise
   ИзменятьСоставСтрок?: StringboolEnterprise
   ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseEnterprise
-  КартинкаСтрок?: StringboolEnterprise
+  КартинкаСтрок?: PictureEnterprise
   Команда?: CommandSetEnterprise
   КоманднаяПанель?: AutoCommandBarEnterprise
   КонтекстноеМеню?: ContextMenuEnterprise

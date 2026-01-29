@@ -1,6 +1,7 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
@@ -159,7 +160,8 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.RowSelectionMode !== undefined) result.rowSelectionMode = xml.RowSelectionMode
 
-  if (xml.RowsPicture !== undefined) result.rowsPicture = xml.RowsPicture
+  const rowsPicture = importPictureFromXML(context, xml.RowsPicture)
+  if (rowsPicture !== undefined) result.rowsPicture = rowsPicture
 
   const searchControl = importSingleSearchControlAdditionFromXML(context, xml.SearchControlAddition)
   if (searchControl !== undefined) result.searchControl = searchControl

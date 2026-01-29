@@ -147,7 +147,10 @@
 	<RowInputMode>EndOfWindow</RowInputMode>
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
-	<RowsPicture>true</RowsPicture>
+	<RowsPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</RowsPicture>
 	<SearchControlAddition name="ТаблицаУправлениеПоиском" id="19" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>

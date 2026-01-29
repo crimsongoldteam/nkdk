@@ -1,6 +1,7 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
@@ -127,7 +128,10 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.rowInputMode !== undefined) result.RowInputMode = data.rowInputMode
   if (data.rowPictureDataPath !== undefined) result.RowPictureDataPath = data.rowPictureDataPath
   if (data.rowSelectionMode !== undefined) result.RowSelectionMode = data.rowSelectionMode
-  if (data.rowsPicture !== undefined) result.RowsPicture = data.rowsPicture
+
+  const rowsPicture = exportPictureToXML(context, data.rowsPicture)
+  if (rowsPicture !== undefined) result.RowsPicture = rowsPicture
+
   if (searchControl !== undefined) result.SearchControlAddition = searchControl
   if (data.searchControlLocation !== undefined) result.SearchControlLocation = data.searchControlLocation
   if (data.searchOnInput !== undefined) result.SearchOnInput = data.searchOnInput
