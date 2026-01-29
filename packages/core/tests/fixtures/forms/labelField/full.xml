@@ -58,10 +58,10 @@
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
 	<Height>200</Height>
+	<Hiperlink>true</Hiperlink>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
-	<Hyperlink>true</Hyperlink>
 	<MarkNegatives>true</MarkNegatives>
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>

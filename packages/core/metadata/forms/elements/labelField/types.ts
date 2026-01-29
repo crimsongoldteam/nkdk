@@ -141,7 +141,7 @@ export interface LabelFieldXML extends BaseElementXML {
   Format?: I8nTextXML
   Height?: number
   HorizontalStretch?: boolean
-  Hyperlink?: boolean
+  Hiperlink?: boolean
   MarkNegatives?: boolean
   MaxHeight?: number
   MaxWidth?: number
