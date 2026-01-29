@@ -7,7 +7,10 @@ import {
   importFormattedI8nTextFromEnterprise,
 } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
-import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
+import {
+  importPictureCombinedFromEnterprise,
+  importPictureFromEnterprise,
+} from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
@@ -82,6 +85,9 @@ export function importPictureDecorationTypedFromEnterprise<To extends PictureDec
   const title = importFormattedI8nTextFromEnterprise(context, data.Заголовок, data.ФорматированныйЗаголовок)
   if (title !== undefined) result.title = title
 
+  const picture = importPictureFromEnterprise(context, data.Картинка)
+  if (picture !== undefined) result.picture = picture
+
   return result as To
 }
 
@@ -103,6 +109,9 @@ export function importPictureDecorationPartialFromEnterprise<To extends PictureD
     data?.ФорматированныйЗаголовок
   )
   if (title !== undefined) result.title = title
+
+  const picture = importPictureCombinedFromEnterprise(context, source.picture, data?.Картинка)
+  if (picture !== undefined) result.picture = picture
 
   return result
 }
@@ -204,8 +213,8 @@ const importPictureDecorationPropsFromEnterprise = (
   const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink
 
-  const picture = importPictureFromEnterprise(context, data.Картинка)
-  if (picture !== undefined) result.picture = picture
+  // const picture = importPictureFromEnterprise(context, data.Картинка)
+  // if (picture !== undefined) result.picture = picture
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
 

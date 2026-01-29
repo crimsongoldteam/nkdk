@@ -219,7 +219,7 @@ export const Picture = createToken({
   name: "Picture",
   pattern: /@[a-zA-Zа-яА-ЯёЁ0-9]*[ \t]*/,
   label: "@Picture",
-  categories: excludeTokens(Button),
+  categories: excludeTokens(Button, LabelContent),
 })
 
 export const Dots = createToken({

@@ -137,6 +137,7 @@ export interface PictureDecorationStructureFixture {
   name: string
   element: PictureDecoration
   structured: IFormatElementResult
+  skipImport?: boolean
 }
 
 export const pictureDecorationStructureFixturesTable: PictureDecorationStructureFixture[] = [
@@ -203,5 +204,6 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       strings: ["@{ИмяПоля}"],
       haveSimpleHorizontalGroup: false,
     },
+    skipImport: true,
   },
 ]

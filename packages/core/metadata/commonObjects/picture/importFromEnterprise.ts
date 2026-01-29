@@ -4,24 +4,27 @@ import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
 import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
 
-function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEnterpriseExtended {
-  return typeof data !== "string"
-}
+export const importPictureCombinedFromEnterprise = (
+  context: ConfigurationContext,
+  picture: Picture | undefined,
+  yaml: PictureEnterprise | undefined
+): Picture | undefined => {
+  if (picture === undefined && yaml === undefined) return undefined
 
-function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
-  if (ref in SE.PictureLibFromEnterprise) {
-    return importSystemEnumerationFromEnterprise(context, ref, SE.PictureLibFromEnterprise)
+  if (yaml === undefined) {
+    return picture
   }
-  return undefined
-}
 
-function createPicture(
-  ref: string | SE.PictureLib,
-  type: "StandardPicture" | "CommonPicture" | "AbsolutePicture",
-  loadTransparent: boolean,
-  transparentPixel?: { x: number; y: number }
-): Picture {
-  return { ref, type, loadTransparent, transparentPixel }
+  const yamlPicture = importPictureFromEnterprise(context, yaml)!
+
+  if (picture === undefined) {
+    return yamlPicture
+  }
+
+  return {
+    ...picture,
+    ...yamlPicture,
+  }
 }
 
 export const importPictureFromEnterprise = (
@@ -60,4 +63,24 @@ export const importPictureFromEnterprise = (
     loadTransparent,
     transparentPixel
   )
+}
+
+function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEnterpriseExtended {
+  return typeof data !== "string"
+}
+
+function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
+  if (ref in SE.PictureLibFromEnterprise) {
+    return importSystemEnumerationFromEnterprise(context, ref, SE.PictureLibFromEnterprise)
+  }
+  return undefined
+}
+
+function createPicture(
+  ref: string | SE.PictureLib,
+  type: "StandardPicture" | "CommonPicture" | "AbsolutePicture",
+  loadTransparent: boolean,
+  transparentPixel?: { x: number; y: number }
+): Picture {
+  return { ref, type, loadTransparent, transparentPixel }
 }

@@ -1,7 +1,7 @@
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
 import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import type { Picture } from "~/metadata/commonObjects/picture/types"
+import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
@@ -82,27 +82,21 @@ export class Visitor extends BaseVisitor {
     const pictureToken = ctx.Picture?.[0] as IToken | undefined
     const pictureRef = pictureToken?.image?.replace(/^@/, "").trim() || ""
 
-    // Определяем тип картинки (по умолчанию CommonPicture, если не стандартная)
-    // Для упрощения считаем, что если ссылка начинается с определенных префиксов, это стандартная картинка
-    // В реальности это должно проверяться через системные перечисления
-    const pictureType: "StandardPicture" | "CommonPicture" = "CommonPicture"
+    const picture = importPictureFromEnterprise(context, pictureRef)
 
-    const picture: Picture = {
-      ref: pictureRef,
-      type: pictureType,
-      loadTransparent: true,
-    }
+    const titleText = joinTokens(ctx.LabelContent as IToken[])
+    const name = this.visit(ctx.properties as CstNode[], context)
 
-    // Извлекаем имя элемента из LabelContent или properties
-    const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
-    const name = this.visit(ctx.properties as CstNode[], context) || labelContent || pictureRef
+    const title = this.createTitle(titleText, context.defaultLanguage)
 
-    return {
+    const result = {
       elementType: FormElementType.PictureDecoration,
       name: name || "",
       picture: picture,
-      id: undefined,
+      title: title ? { items: title.items, formatted: false } : undefined,
     } as PictureDecoration
+
+    return result
   }
   // #endregion
 
