@@ -64,7 +64,7 @@ export interface ButtonXML extends BaseElementXML {
   ExtendedTooltip: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
   LocationInCommandBar?: SE.ButtonLocationInCommandBar
   MaxHeight?: number

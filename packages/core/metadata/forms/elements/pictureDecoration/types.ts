@@ -72,7 +72,7 @@ export interface PictureDecorationXML extends BaseElementXML {
   ExtendedTooltip: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
@@ -84,7 +84,7 @@ export interface PictureDecorationXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormDecorationType
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

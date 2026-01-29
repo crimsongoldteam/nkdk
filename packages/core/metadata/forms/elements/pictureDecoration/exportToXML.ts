@@ -1,6 +1,7 @@
 import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportFormattedI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/formattedI8nText/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
@@ -13,7 +14,6 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportFormattedI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/formattedI8nText/exportToXML"
 
 export function exportPictureDecorationToXML<From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
@@ -45,7 +45,7 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   if (data.height !== undefined) result.Height = data.height
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
@@ -70,7 +70,7 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   if (data.type !== undefined) result.Type = data.type
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 

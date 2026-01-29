@@ -155,7 +155,7 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
 
-  if (data.autoShowClearButton !== undefined) result.AutoShowClearButton = data.autoShowClearButton
+  if (data.autoShowClearButton !== undefined) result.AutoShowClearButtonMode = data.autoShowClearButton
 
   if (data.autoShowOpenButton !== undefined) result.AutoShowOpenButton = data.autoShowOpenButton
 

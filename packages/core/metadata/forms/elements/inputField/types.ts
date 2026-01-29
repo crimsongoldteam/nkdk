@@ -181,7 +181,7 @@ export interface InputFieldXML extends BaseElementXML {
   AutoMarkIncomplete?: boolean
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
-  AutoShowClearButton?: SE.AutoShowClearButtonMode
+  AutoShowClearButtonMode?: SE.AutoShowClearButtonMode
   AutoShowOpenButton?: SE.AutoShowOpenButtonMode
   AvailableTypes?: TypeDescriptionXML
   BackColor?: ColorXML

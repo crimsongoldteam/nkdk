@@ -152,7 +152,7 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  if (xml.AutoShowClearButton !== undefined) result.autoShowClearButton = xml.AutoShowClearButton
+  if (xml.AutoShowClearButtonMode !== undefined) result.autoShowClearButton = xml.AutoShowClearButtonMode
 
   if (xml.AutoShowOpenButton !== undefined) result.autoShowOpenButton = xml.AutoShowOpenButton
 
