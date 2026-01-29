@@ -19,7 +19,7 @@ export const exportPictureToXML = (
   result["xr:LoadTransparent"] = picture.loadTransparent
 
   if (picture.transparentPixel && picture.loadTransparent) {
-    result["xr:TransparentPixel"] = picture.transparentPixel
+    result["xr:TransparentPixel"] = { _x: picture.transparentPixel.x, _y: picture.transparentPixel.y }
   }
 
   return result

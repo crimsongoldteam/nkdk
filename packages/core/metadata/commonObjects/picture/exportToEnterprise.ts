@@ -1,7 +1,8 @@
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
-import { type Picture, type PictureEnterprise } from "./types"
+import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
+import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } from "./types"
 
 export function exportPictureToEnterprise(
   context: ConfigurationContext,
@@ -10,8 +11,6 @@ export function exportPictureToEnterprise(
   if (!picture) return undefined
 
   let ref: PictureEnterprise | undefined
-
-  const defaultLoadTransparent = picture.type === "StandardPicture"
 
   if (picture.type === "StandardPicture") {
     const result = exportSystemEnumerationToEnterprise(context, picture.ref, SE.PictureLibToEnterprise)
@@ -23,11 +22,27 @@ export function exportPictureToEnterprise(
     ref = picture.ref
   }
 
-  if (picture.loadTransparent !== defaultLoadTransparent) {
-    return {
-      Ссылка: ref,
-      ПрозрачныйФон: "Ложь",
+  // Default values based on picture type
+  const defaultLoadTransparent = picture.type === "StandardPicture" ? true : false
+  const hasCustomLoadTransparent = picture.loadTransparent !== defaultLoadTransparent
+  const hasTransparentPixel = !!picture.transparentPixel
+
+  if (hasCustomLoadTransparent || hasTransparentPixel) {
+    const result: PictureEnterpriseExtended = { Ссылка: ref }
+    
+    if (hasCustomLoadTransparent) {
+      result.ПрозрачныйФон = exportBooleanToEnterprise(context, picture.loadTransparent)
     }
+    
+    if (hasTransparentPixel) {
+      result.ПрозрачныйПиксель = picture.transparentPixel
+      // For pictures with transparent pixel, even if loadTransparent matches default, we need to include it
+      if (result.ПрозрачныйФон === undefined) {
+        result.ПрозрачныйФон = exportBooleanToEnterprise(context, picture.loadTransparent)
+      }
+    }
+    
+    return result
   }
 
   return ref

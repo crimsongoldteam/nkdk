@@ -10,11 +10,19 @@ export const importPictureFromXML = (
 
   const loadTransparent = importBooleanFromXML(context, xml["xr:LoadTransparent"])!
 
+  const transparentPixel = xml["xr:TransparentPixel"]
+    ? {
+        x: Number.parseInt(String(xml["xr:TransparentPixel"]._x)),
+        y: Number.parseInt(String(xml["xr:TransparentPixel"]._y)),
+      }
+    : undefined
+
   if (xml["xr:Abs"]) {
     return {
       ref: xml["xr:Abs"],
       type: "AbsolutePicture",
       loadTransparent,
+      transparentPixel,
     }
   }
 
@@ -23,5 +31,6 @@ export const importPictureFromXML = (
     ref,
     type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",
     loadTransparent,
+    transparentPixel,
   }
 }

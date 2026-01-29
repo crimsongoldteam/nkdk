@@ -6,8 +6,8 @@ export interface PictureXML {
   "xr:Abs"?: string
   "xr:LoadTransparent": boolean
   "xr:TransparentPixel"?: {
-    x: number
-    y: number
+    _x: string | number
+    _y: string | number
   }
 }
 

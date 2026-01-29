@@ -54,10 +54,14 @@ export const pictureTestCases: readonly PictureTestCase[] = [
     } as Picture,
     pictureEnterprise: {
       Ссылка: "Picture.png",
-      ПрозрачныйФон: "Ложь",
+      ПрозрачныйФон: "Истина",
       ПрозрачныйПиксель: { x: 10, y: 15 },
     } as PictureEnterprise,
-    enterpriseExpected: "Picture.png" as PictureEnterprise,
+    enterpriseExpected: {
+      Ссылка: "Picture.png",
+      ПрозрачныйФон: "Истина",
+      ПрозрачныйПиксель: { x: 10, y: 15 },
+    } as PictureEnterprise,
     fixture: "picture/absoluteWithTransparent.xml",
     enterpriseImport: false,
   },
