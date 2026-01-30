@@ -128,6 +128,9 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (group !== undefined) result.group = group
 
+  const customizable = importBooleanFromEnterprise(context, data.РазрешитьИзменятьФорму)
+  if (customizable !== undefined) result.customizable = customizable
+
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 

@@ -145,6 +145,10 @@ export const importClientApplicationFormFromXML = (
     result.conversationsRepresentation = xml.ConversationsRepresentation
   }
 
+  if (xml.Customizable !== undefined) {
+    result.customizable = xml.Customizable
+  }
+
   if (xml.EnterKeyBehavior !== undefined) {
     result.enterKeyBehavior = xml.EnterKeyBehavior
   }

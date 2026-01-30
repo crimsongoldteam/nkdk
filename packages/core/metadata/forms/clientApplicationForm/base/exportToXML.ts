@@ -105,6 +105,10 @@ export const exportClientApplicationFormToXML = (
     result.ConversationsRepresentation = data.conversationsRepresentation
   }
 
+  if (data.customizable !== undefined) {
+    result.Customizable = data.customizable
+  }
+
   if (data.enabled !== undefined) {
     result.Enabled = data.enabled
   }

@@ -8024,17 +8024,17 @@ export type VerticalAlign = keyof typeof VerticalAlignToEnterprise
 export type VerticalAlignEnterprise = keyof typeof VerticalAlignFromEnterprise
 
 export const VerticalFormScrollToEnterprise = {
-  Auto: "Авто",
-  Use: "Использовать",
-  UseWithoutStretch: "ИспользоватьБезРастягивания",
-  UseIfNecessary: "ИспользоватьПриНеобходимости",
+  auto: "Авто",
+  use: "Использовать",
+  useWithoutStretch: "ИспользоватьБезРастягивания",
+  useIfNecessary: "ИспользоватьПриНеобходимости",
 } as const
 
 export const VerticalFormScrollFromEnterprise = {
-  Авто: "Auto",
-  Использовать: "Use",
-  ИспользоватьБезРастягивания: "UseWithoutStretch",
-  ИспользоватьПриНеобходимости: "UseIfNecessary",
+  Авто: "auto",
+  Использовать: "use",
+  ИспользоватьБезРастягивания: "useWithoutStretch",
+  ИспользоватьПриНеобходимости: "useIfNecessary",
 } as const
 
 export type VerticalFormScroll = keyof typeof VerticalFormScrollToEnterprise

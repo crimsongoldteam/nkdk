@@ -146,6 +146,9 @@ export const exportClientApplicationFormToEnterprise = (
   const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
+  const customizable = exportBooleanToEnterprise(context, data.customizable)
+  if (customizable !== undefined) result.РазрешитьИзменятьФорму = customizable
+
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
