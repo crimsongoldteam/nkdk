@@ -260,6 +260,9 @@ const importUsualGroupPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
+  const collapsed = importBooleanFromEnterprise(context, data.Свернута)
+  if (collapsed !== undefined) result.collapsed = collapsed
+
   return result
 }
 

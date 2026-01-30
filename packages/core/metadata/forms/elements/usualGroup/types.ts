@@ -140,6 +140,7 @@ export interface UsualGroupPartialEnterprise {
   Поведение?: SE.UsualGroupBehaviorEnterprise
   ПутьКДаннымЗаголовка?: string
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
+  Свернута?: StringboolEnterprise
   Формат?: I8nTextEnterprise
   ЦветФона?: ColorEnterprise
   ЦветФонаЗаголовкаСкрытогоОтображения?: ColorEnterprise
