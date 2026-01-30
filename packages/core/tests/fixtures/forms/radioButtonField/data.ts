@@ -95,6 +95,7 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
 }
 
 export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnterprise = {
+  Заголовок: "Поле переключателя",
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

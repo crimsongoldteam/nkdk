@@ -22,6 +22,9 @@ export const buildXml = (parsedData: any, addHeader = true): string => {
     const outputXml = builder.build(parsedData)
     const trimmedOutput = outputXml.trimStart()
     if (addHeader) {
+      if (trimmedOutput.startsWith("<?xml")) {
+        return trimmedOutput
+      }
       return '<?xml version="1.0" encoding="UTF-8"?>\n' + trimmedOutput
     }
     return trimmedOutput.trimEnd()
