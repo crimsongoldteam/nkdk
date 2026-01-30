@@ -358,3 +358,45 @@ export const withFunctionalOptionsFormAttributeEnterprise: FormAttributesEnterpr
 }
 
 //#endregion
+
+//#region additional column
+
+export const withAdditionalColumnFormAttribute: FormAttributes = [
+  {
+    name: "Объект",
+    mainAttribute: true,
+    valueType: { type: ["CatalogObject.КакойТоСправочник"] },
+    title: { items: { ru: "" } },
+    additionalColumns: [
+      {
+        table: "Объект.КакаяТоТаблица",
+        columns: [
+          {
+            name: "КолонкаТаблицы",
+            id: "2",
+            title: { items: { ru: "Описание колонки" } },
+            type: { type: ["string"] },
+          },
+        ],
+      },
+    ],
+  },
+]
+
+export const withAdditionalColumnFormAttributeEnterprise: FormAttributesEnterprise = {
+  Объект: {
+    Заголовок: "",
+    Тип: "СправочникСсылка.КакойТоСправочник",
+    ОсновнойРеквизит: "Истина",
+    ДополнительныеКолонки: {
+      КакаяТоТаблица: {
+        КолонкаТаблицы: {
+          Заголовок: "Описание колонки",
+          Тип: "Строка",
+        },
+      },
+    },
+  },
+}
+
+//#endregion
