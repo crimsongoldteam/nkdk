@@ -42,6 +42,7 @@
 		<ExcludedCommand>WriteAndClose</ExcludedCommand>
 	</CommandSet>
 	<ConversationsRepresentation>Show</ConversationsRepresentation>
+	<Customizable>false</Customizable>
 	<Enabled>true</Enabled>
 	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
 	<Events>
@@ -100,7 +101,7 @@
 		</v8:item>
 	</Title>
 	<UsedFormServer>Main</UsedFormServer>
-	<VerticalScroll>Use</VerticalScroll>
+	<VerticalScroll>useIfNecessary</VerticalScroll>
 	<VerticalSpacing>Single</VerticalSpacing>
 	<Width>800</Width>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>

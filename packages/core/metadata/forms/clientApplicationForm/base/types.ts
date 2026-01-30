@@ -54,6 +54,7 @@ export interface ClientApplicationForm {
   closeOnChoice?: boolean
   closeOnOwnerClose?: boolean
   collapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  customizable?: boolean
   commandBarLocation?: SE.FormCommandBarLabelLocation
   commandSet?: CommandSet
   commands: Command[]
@@ -123,6 +124,7 @@ export interface ClientApplicationFormXML {
   CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
   CommandBarLocation?: SE.FormCommandBarLabelLocation
   ConversationsRepresentation?: SE.FormConversationsRepresentation
+  Customizable?: boolean
   Enabled?: boolean
   EnterKeyBehavior?: SE.EnterKeyBehaviorType
   WindowOpeningMode?: SE.FormWindowOpeningMode
@@ -185,6 +187,7 @@ export interface ClientApplicationFormEnterprise {
   МодальныйРежим?: StringboolEnterprise
   Модифицированность?: StringboolEnterprise
   // НавигационнаяСсылка?: string
+  РазрешитьИзменятьФорму?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
   ОтображатьКнопкуЗакрытия?: StringboolEnterprise
   ОтображениеОбсуждений?: SE.FormConversationsRepresentationEnterprise
