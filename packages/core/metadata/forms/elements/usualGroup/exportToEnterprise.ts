@@ -247,6 +247,9 @@ const exportUsualGroupPropsToEnterprise = (
   const throughAlign = exportSystemEnumerationToEnterprise(context, data.throughAlign, SE.ThroughAlignToEnterprise)
   if (throughAlign !== undefined) result.СквозноеВыравнивание = throughAlign
 
+  const collapsed = exportBooleanToEnterprise(context, data.collapsed)
+  if (collapsed !== undefined) result.Свернута = collapsed
+
   const format = exportI8nTextToEnterprise(context, data.format)
   if (format !== undefined) result.Формат = format
 
