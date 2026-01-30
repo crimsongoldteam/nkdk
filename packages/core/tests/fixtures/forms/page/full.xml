@@ -19,8 +19,9 @@
 		</v8:item>
 	</Format>
 	<Group>Vertical</Group>
-	<Height>200</Height>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<Height>200</Height>
 	<HorizontalSpacing>Single</HorizontalSpacing>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
@@ -55,7 +56,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalScrollOnReduceSize>true</VerticalScrollOnReduceSize>
 	<VerticalSpacing>Single</VerticalSpacing>
 	<VerticalStretch>true</VerticalStretch>

@@ -11,9 +11,9 @@
 	<DefaultItem>true</DefaultItem>
 	<DimensionItemHyperlink>false</DimensionItemHyperlink>
 	<EditMode>EnterOnInput</EditMode>
+	<Enabled>true</Enabled>
 	<EnableDrag>false</EnableDrag>
 	<EnableStartDrag>false</EnableStartDrag>
-	<Enabled>true</Enabled>
 	<Events>
 		<Event name="BeforeCollapseDimensionItem">ПроцедураСворачиванияЭлемента</Event>
 		<Event name="BeforeCreate">ПроцедураСозданияЭлемента</Event>
@@ -64,6 +64,7 @@
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -111,7 +112,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>false</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

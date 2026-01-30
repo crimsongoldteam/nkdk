@@ -4,8 +4,9 @@
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="ВсплывающееОкноРасширеннаяПодсказка" id="2"/>
-	<Height>200</Height>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
 	<Representation>Text</Representation>
@@ -32,7 +33,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

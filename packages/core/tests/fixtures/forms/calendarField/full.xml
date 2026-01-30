@@ -16,9 +16,9 @@
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
+	<Enabled>true</Enabled>
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
-	<Enabled>true</Enabled>
 	<EndOfRepresentationPeriod>2024-12-31</EndOfRepresentationPeriod>
 	<Events>
 		<Event name="Drag">ПроцедураПеретаскивания</Event>
@@ -56,6 +56,7 @@
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -106,7 +107,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

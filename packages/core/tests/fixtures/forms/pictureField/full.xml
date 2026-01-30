@@ -14,9 +14,9 @@
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
+	<Enabled>true</Enabled>
 	<EnableDrag>false</EnableDrag>
 	<EnableStartDrag>false</EnableStartDrag>
-	<Enabled>true</Enabled>
 	<Events>
 		<Event name="Click">ПроцедураНажатие</Event>
 		<Event name="Drag">ПроцедураПеретаскивание</Event>
@@ -51,6 +51,8 @@
 		</v8:item>
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -58,7 +60,6 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>false</HorizontalStretch>
 	<Hyperlink>false</Hyperlink>
 	<MaxHeight>500</MaxHeight>
@@ -107,7 +108,6 @@
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</ValuesPicture>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>false</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

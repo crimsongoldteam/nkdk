@@ -1,6 +1,6 @@
 import { XMLBuilder } from "fast-xml-parser"
 
-export const buildXml = (parsedData: any): string => {
+export const buildXml = (parsedData: any, addHeader = true): string => {
   if (parsedData === null || parsedData === undefined) {
     return ""
   }
@@ -21,11 +21,10 @@ export const buildXml = (parsedData: any): string => {
   try {
     const outputXml = builder.build(parsedData)
     const trimmedOutput = outputXml.trimStart()
-    if (trimmedOutput === "") return ""
-    if (!trimmedOutput.startsWith("<?xml")) {
+    if (addHeader) {
       return '<?xml version="1.0" encoding="UTF-8"?>\n' + trimmedOutput
     }
-    return outputXml.trimEnd()
+    return trimmedOutput.trimEnd()
   } catch (error) {
     console.error("Error building XML:", error)
     return ""

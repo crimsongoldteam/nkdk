@@ -1,14 +1,19 @@
 <UsualGroup name="ОбычнаяГруппа" id="1" DisplayImportance="High">
-	<AssociatedAssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedAssociatedTableElementId>
+	<AssociatedTableElementId xsi:type="xs:string">ИспользуемаяТаблица</AssociatedTableElementId>
 	<BackColor>web:White</BackColor>
-	<Behavior>Auto</Behavior>
-	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
-	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
-	<CollapsedRepresentationTitle>Свернуто</CollapsedRepresentationTitle>
-	<ControlRepresentation>TitleHyperlink</ControlRepresentation>
+	<Behavior>Collapsible</Behavior>
+	<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>
+	<Collapsed>true</Collapsed>
+	<CollapsedRepresentationTitle>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок свернутого отображения</v8:content>
+		</v8:item>
+	</CollapsedRepresentationTitle>
+	<ControlRepresentation>Picture</ControlRepresentation>
 	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
-	<Enabled>true</Enabled>
+	<Enabled>false</Enabled>
 	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="2">
 		<Title formatted="false">
 			<v8:item>
@@ -20,24 +25,22 @@
 	<Format>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Формат</v8:content>
+			<v8:content>БЛ=Выключено</v8:content>
 		</v8:item>
 	</Format>
 	<Group>Vertical</Group>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
-	<HiddenRepresentationTitleBackColor>web:Gray</HiddenRepresentationTitleBackColor>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<HiddenStateTitleBackColor>web:Gold</HiddenStateTitleBackColor>
+	<HorizontalAlign>Center</HorizontalAlign>
 	<HorizontalSpacing>Single</HorizontalSpacing>
 	<HorizontalStretch>true</HorizontalStretch>
-	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
-	<ReadOnly>false</ReadOnly>
+	<ReadOnly>true</ReadOnly>
 	<Representation>NormalSeparation</Representation>
-	<Shortcut>Ctrl+S</Shortcut>
-	<ShowLeftMargin>true</ShowLeftMargin>
-	<ShowTitle>true</ShowTitle>
-	<SlaveItemsWidth>Auto</SlaveItemsWidth>
+	<Shortcut>Shift+F</Shortcut>
+	<ShowLeftMargin>false</ShowLeftMargin>
+	<ShowTitle>false</ShowTitle>
 	<ThroughAlign>DontUse</ThroughAlign>
 	<Title>
 		<v8:item>
@@ -45,7 +48,7 @@
 			<v8:content>Обычная группа</v8:content>
 		</v8:item>
 	</Title>
-	<TitleDataPath>Объект.Заголовок</TitleDataPath>
+	<TitleDataPath>ТекстовыйРеквизит</TitleDataPath>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<TitleTextColor>web:Black</TitleTextColor>
 	<ToolTip>
@@ -55,16 +58,14 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
 	<United>false</United>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<VerticalAlign>Bottom</VerticalAlign>
 	<VerticalSpacing>Single</VerticalSpacing>
 	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
+	<Visible>false</Visible>
 	<Width>300</Width>
 </UsualGroup>

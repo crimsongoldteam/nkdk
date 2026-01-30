@@ -126,6 +126,8 @@
 			<v8:content>Формат отображения</v8:content>
 		</v8:item>
 	</Format>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -134,7 +136,6 @@
 	<Height>100</Height>
 	<HeightControlVariant>UseContentHeight</HeightControlVariant>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
 	<InputHint>
@@ -156,7 +157,6 @@
 	<MultipleValuePictureShape>Circle</MultipleValuePictureShape>
 	<MultipleValuePictureSize>Large</MultipleValuePictureSize>
 	<MultipleValuePresentationDataPath>Объект.Presentation</MultipleValuePresentationDataPath>
-	<MultipleValueValueDataPath>Объект.Value</MultipleValueValueDataPath>
 	<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
 	<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
@@ -165,6 +165,7 @@
 		<xr:LoadTransparent>false</xr:LoadTransparent>
 	</MultipleValuesPicture>
 	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
+	<MultipleValueValueDataPath>Объект.Value</MultipleValueValueDataPath>
 	<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
 	<OpenButton>true</OpenButton>
 	<PasswordMode>true</PasswordMode>
@@ -217,7 +218,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

@@ -24,6 +24,8 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
     ...baseFields,
   } as ColumnGroupXML
 
+  const childItems = exportChildItemsToXML(context, data.childItems)
+
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
@@ -87,7 +89,6 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   return sortObject(result) as ToXMLType<From>

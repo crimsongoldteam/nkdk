@@ -16,6 +16,7 @@
 		</Title>
 	</ExtendedTooltip>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
@@ -41,7 +42,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

@@ -14,9 +14,9 @@
 	<DrawingSelectionShowMode>Auto</DrawingSelectionShowMode>
 	<Edit>true</Edit>
 	<EditMode>EnterOnInput</EditMode>
+	<Enabled>true</Enabled>
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
-	<Enabled>true</Enabled>
 	<Events>
 		<Event name="AdditionalDetailProcessing">ПроцедураПриОбработкеДополнительнойРасшифровки</Event>
 		<Event name="AfterWrite">ПроцедураПриЗавершенииЗаписи</Event>
@@ -57,6 +57,8 @@
 		</v8:item>
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -64,7 +66,6 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalScrollBar>AutoUse</HorizontalScrollBar>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxHeight>500</MaxHeight>
@@ -116,7 +117,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>
 	<ViewScalingMode>Auto</ViewScalingMode>

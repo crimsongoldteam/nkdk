@@ -22,14 +22,14 @@
 	<ChildItems>
 		<ColumnGroup name="ТаблицаГруппа1" id="3">
 			<ChildItems>
-				<InputField name="ТаблицаПолеВвода" id="5">
-					<ContextMenu name="ТаблицаПолеВводаКонтекстноеМеню" id="6"/>
+				<InputField name="ТаблицаПолеВвода" id="4">
+					<ContextMenu name="ТаблицаПолеВводаКонтекстноеМеню" id="5"/>
 					<DataPath>Таблица.ПолеВвода</DataPath>
 					<EditMode>EnterOnInput</EditMode>
-					<ExtendedTooltip name="ТаблицаПолеВводаРасширеннаяПодсказка" id="7"/>
+					<ExtendedTooltip name="ТаблицаПолеВводаРасширеннаяПодсказка" id="6"/>
 				</InputField>
 			</ChildItems>
-			<ExtendedTooltip name="ТаблицаГруппа1РасширеннаяПодсказка" id="4"/>
+			<ExtendedTooltip name="ТаблицаГруппа1РасширеннаяПодсказка" id="7"/>
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
@@ -124,6 +124,7 @@
 	<Footer>true</Footer>
 	<FooterHeight>30</FooterHeight>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Header>true</Header>
 	<HeaderHeight>30</HeaderHeight>
 	<Height>400</Height>
@@ -160,6 +161,7 @@
 		<Enabled>true</Enabled>
 		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="21"/>
 		<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -177,7 +179,6 @@
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
 		</UserVisible>
-		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Visible>true</Visible>
 	</SearchControlAddition>
 	<SearchControlLocation>Auto</SearchControlLocation>
@@ -191,6 +192,7 @@
 		<Enabled>true</Enabled>
 		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="24"/>
 		<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -208,7 +210,6 @@
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
 		</UserVisible>
-		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Visible>true</Visible>
 	</SearchStringAddition>
 	<SearchStringLocation>Auto</SearchStringLocation>
@@ -241,7 +242,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalLines>true</VerticalLines>
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>

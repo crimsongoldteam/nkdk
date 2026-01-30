@@ -51,7 +51,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font
 
-  if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
+  // if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
 
   if (data.height !== undefined) result.Height = data.height
 

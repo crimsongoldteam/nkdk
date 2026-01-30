@@ -11,10 +11,10 @@
 	<EnableStartDrag>true</EnableStartDrag>
 	<Events>
 		<Event name="Click">ПроцедураПриНажатии</Event>
-		<Event name="DragStart">ПроцедураПриНачалеПеретаскивания</Event>
-		<Event name="DragEnd">ПроцедураПриОкончанииПеретаскивания</Event>
 		<Event name="Drag">ПроцедураПриПеретаскивании</Event>
 		<Event name="DragCheck">ПроцедураПриПроверкеПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураПриОкончанииПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураПриНачалеПеретаскивания</Event>
 	</Events>
 	<ExtendedTooltip name="ДекорацияКартинкиРасширеннаяПодсказка" id="3">
 		<Title formatted="false">

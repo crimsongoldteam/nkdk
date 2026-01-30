@@ -78,12 +78,12 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
-    context,
-    data.Вид,
-    SE.FormGroupTypeFromEnterprise
-  )
-  if (type !== undefined) result.type = type
+  // const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
+  //   context,
+  //   data.Вид,
+  //   SE.FormGroupTypeFromEnterprise
+  // )
+  // if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, data.Видимость)
   if (visible !== undefined) result.visible = visible
@@ -139,20 +139,6 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const groupVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
-    context,
-    data.ВертикальноеВыравниваниеГруппы,
-    SE.ItemVerticalAlignFromEnterprise
-  )
-  if (groupVerticalAlign !== undefined) result.groupVerticalAlign = groupVerticalAlign
-
-  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
-    context,
-    data.ВертикальноеПоложение,
-    SE.ItemVerticalAlignFromEnterprise
-  )
-  if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
-
   const childItemsVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеПодчиненных,
@@ -173,13 +159,6 @@ const importUsualGroupPropsFromEnterprise = (
     SE.ItemsAndTitlesAlignVariantFromEnterprise
   )
   if (itemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = itemsAndTitlesAlign
-
-  const groupHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
-    context,
-    data.ГоризонтальноеВыравниваниеГруппы,
-    SE.ItemHorizontalLocationFromEnterprise
-  )
-  if (groupHorizontalAlign !== undefined) result.groupHorizontalAlign = groupHorizontalAlign
 
   const childItemsHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
@@ -202,8 +181,8 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (group !== undefined) result.group = group
 
-  if (data.ЗаголовокСвернутогоОтображения !== undefined)
-    result.collapsedRepresentationTitle = data.ЗаголовокСвернутогоОтображения
+  const collapsedRepresentationTitle = importI8nTextFromEnterprise(context, data.ЗаголовокСвернутогоОтображения)
+  if (collapsedRepresentationTitle !== undefined) result.collapsedRepresentationTitle = collapsedRepresentationTitle
 
   const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,
@@ -244,11 +223,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (behavior !== undefined) result.behavior = behavior
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -275,12 +250,12 @@ const importUsualGroupPropsFromEnterprise = (
   if (hiddenRepresentationTitleBackColor !== undefined)
     result.hiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
 
-  const slaveItemsWidth = importSystemEnumerationFromEnterprise<SE.ChildFormItemsWidth>(
-    context,
-    data.ШиринаПодчиненныхЭлементов,
-    SE.ChildFormItemsWidthFromEnterprise
-  )
-  if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
+  // const slaveItemsWidth = importSystemEnumerationFromEnterprise<SE.ChildFormItemsWidth>(
+  //   context,
+  //   data.ШиринаПодчиненныхЭлементов,
+  //   SE.ChildFormItemsWidthFromEnterprise
+  // )
+  // if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
 
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip

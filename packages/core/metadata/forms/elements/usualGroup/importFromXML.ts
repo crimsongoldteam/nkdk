@@ -27,9 +27,6 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
-  // const associatedTable = importTableFromXML(context, xml.AssociatedTable)
-  // if (associatedTable !== undefined) result.associatedTable = associatedTable
-
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
@@ -58,8 +55,6 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
-  if (xml.Type !== undefined) result.type = xml.Type
-
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
@@ -73,12 +68,12 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   if (xml.Behavior !== undefined) result.behavior = xml.Behavior
 
-  if (xml.ChildItemsHorizontalAlign !== undefined) result.childItemsHorizontalAlign = xml.ChildItemsHorizontalAlign
+  if (xml.HorizontalAlign !== undefined) result.childItemsHorizontalAlign = xml.HorizontalAlign
 
-  if (xml.ChildItemsVerticalAlign !== undefined) result.childItemsVerticalAlign = xml.ChildItemsVerticalAlign
+  if (xml.VerticalAlign !== undefined) result.childItemsVerticalAlign = xml.VerticalAlign
 
-  if (xml.CollapsedRepresentationTitle !== undefined)
-    result.collapsedRepresentationTitle = xml.CollapsedRepresentationTitle
+  const collapsedRepresentationTitle = importI8nTextFromXML(context, xml.CollapsedRepresentationTitle)
+  if (collapsedRepresentationTitle !== undefined) result.collapsedRepresentationTitle = collapsedRepresentationTitle
 
   if (xml.ControlRepresentation !== undefined) result.controlRepresentation = xml.ControlRepresentation
 
@@ -94,17 +89,13 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   if (xml.Group !== undefined) result.group = xml.Group
 
-  if (xml.GroupHorizontalAlign !== undefined) result.groupHorizontalAlign = xml.GroupHorizontalAlign
-
-  if (xml.GroupVerticalAlign !== undefined) result.groupVerticalAlign = xml.GroupVerticalAlign
-
-  const hiddenRepresentationTitleBackColor = importColorFromXML(context, xml.HiddenRepresentationTitleBackColor)
+  const hiddenRepresentationTitleBackColor = importColorFromXML(context, xml.HiddenStateTitleBackColor)
   if (hiddenRepresentationTitleBackColor !== undefined)
     result.hiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
 
   if (xml.HorizontalSpacing !== undefined) result.horizontalSpacing = xml.HorizontalSpacing
 
-  if (xml.ItemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = xml.ItemsAndTitlesAlign
+  if (xml.ChildrenAlign !== undefined) result.itemsAndTitlesAlign = xml.ChildrenAlign
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
 
@@ -112,7 +103,7 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   if (xml.ShowTitle !== undefined) result.showTitle = xml.ShowTitle
 
-  if (xml.SlaveItemsWidth !== undefined) result.slaveItemsWidth = xml.SlaveItemsWidth
+  // if (xml.SlaveItemsWidth !== undefined) result.slaveItemsWidth = xml.SlaveItemsWidth
 
   if (xml.ThroughAlign !== undefined) result.throughAlign = xml.ThroughAlign
 
@@ -123,12 +114,12 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
-
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
-  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedAssociatedTableElementId, "string")
+  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
+
+  if (xml.Collapsed !== undefined) result.collapsed = xml.Collapsed
 
   return result as To
 }

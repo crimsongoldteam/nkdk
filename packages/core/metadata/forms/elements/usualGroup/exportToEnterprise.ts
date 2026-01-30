@@ -85,8 +85,8 @@ const exportUsualGroupPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
-  if (type !== undefined) result.Вид = type
+  // const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  // if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
   if (visible !== undefined) result.Видимость = visible
@@ -142,19 +142,19 @@ const exportUsualGroupPropsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const groupVerticalAlign = exportSystemEnumerationToEnterprise(
-    context,
-    data.groupVerticalAlign,
-    SE.ItemVerticalAlignToEnterprise
-  )
-  if (groupVerticalAlign !== undefined) result.ВертикальноеВыравниваниеГруппы = groupVerticalAlign
+  // const groupVerticalAlign = exportSystemEnumerationToEnterprise(
+  //   context,
+  //   data.groupVerticalAlign,
+  //   SE.ItemVerticalAlignToEnterprise
+  // )
+  // if (groupVerticalAlign !== undefined) result.ВертикальноеВыравниваниеГруппы = groupVerticalAlign
 
-  const verticalAlign = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalAlign,
-    SE.ItemVerticalAlignToEnterprise
-  )
-  if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
+  // const verticalAlign = exportSystemEnumerationToEnterprise(
+  //   context,
+  //   data.verticalAlign,
+  //   SE.ItemVerticalAlignToEnterprise
+  // )
+  // if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
   const childItemsVerticalAlign = exportSystemEnumerationToEnterprise(
     context,
@@ -177,12 +177,12 @@ const exportUsualGroupPropsToEnterprise = (
   )
   if (itemsAndTitlesAlign !== undefined) result.ВыравниваниеЭлементовИЗаголовков = itemsAndTitlesAlign
 
-  const groupHorizontalAlign = exportSystemEnumerationToEnterprise(
-    context,
-    data.groupHorizontalAlign,
-    SE.ItemHorizontalLocationToEnterprise
-  )
-  if (groupHorizontalAlign !== undefined) result.ГоризонтальноеВыравниваниеГруппы = groupHorizontalAlign
+  // const groupHorizontalAlign = exportSystemEnumerationToEnterprise(
+  //   context,
+  //   data.groupHorizontalAlign,
+  //   SE.ItemHorizontalLocationToEnterprise
+  // )
+  // if (groupHorizontalAlign !== undefined) result.ГоризонтальноеВыравниваниеГруппы = groupHorizontalAlign
 
   const childItemsHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
@@ -201,9 +201,8 @@ const exportUsualGroupPropsToEnterprise = (
   const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
-  if (data.collapsedRepresentationTitle !== undefined)
-    result.ЗаголовокСвернутогоОтображения = data.collapsedRepresentationTitle
-
+  const collapsedRepresentationTitle = exportI8nTextToEnterprise(context, data.collapsedRepresentationTitle)
+  if (collapsedRepresentationTitle !== undefined) result.ЗаголовокСвернутогоОтображения = collapsedRepresentationTitle
   const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
@@ -258,12 +257,12 @@ const exportUsualGroupPropsToEnterprise = (
   if (hiddenRepresentationTitleBackColor !== undefined)
     result.ЦветФонаЗаголовкаСкрытогоОтображения = hiddenRepresentationTitleBackColor
 
-  const slaveItemsWidth = exportSystemEnumerationToEnterprise(
-    context,
-    data.slaveItemsWidth,
-    SE.ChildFormItemsWidthToEnterprise
-  )
-  if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
+  // const slaveItemsWidth = exportSystemEnumerationToEnterprise(
+  //   context,
+  //   data.slaveItemsWidth,
+  //   SE.ChildFormItemsWidthToEnterprise
+  // )
+  // if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
 
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip

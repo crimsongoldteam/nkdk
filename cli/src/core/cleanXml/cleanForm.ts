@@ -95,3 +95,17 @@ export const cleanForm = (xmlContent: string): string => {
   const processedData = transform(parsedData)
   return buildXml(processedData).trimEnd()
 }
+
+export const cleanFormFixture = (xmlContent: string): string => {
+  const transform = pipe(
+    (data) => removeEmptyNodes(formContext, data),
+    (data) => removeTablePeriod(formContext, data),
+    (data) => sortData(formContext, data, false),
+    (data) => sortEvents(formContext, data),
+    (data) => setFormElementId(formContext, data)
+  )
+
+  const parsedData = parseXml(xmlContent)
+  const processedData = transform(parsedData)
+  return buildXml(processedData, false).trimEnd()
+}

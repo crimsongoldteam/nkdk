@@ -40,6 +40,8 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
+
   if (data.height !== undefined) result.Height = data.height
 
   if (data.horizontalAlign !== undefined) result.HorizontalLocation = data.horizontalAlign
@@ -68,8 +70,6 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
-
-  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 

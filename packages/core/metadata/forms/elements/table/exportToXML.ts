@@ -104,12 +104,13 @@ export function exportTableToXML<From extends Table | undefined>(
   if (font !== undefined) result.Font = font
   if (data.footer !== undefined) result.Footer = data.footer
   if (data.footerHeight !== undefined) result.FooterHeight = data.footerHeight
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
   if (data.header !== undefined) result.Header = data.header
   if (data.headerHeight !== undefined) result.HeaderHeight = data.headerHeight
   if (data.height !== undefined) result.Height = data.height
   if (data.heightControlVariant !== undefined) result.HeightControlVariant = data.heightControlVariant
   if (data.heightInTableRows !== undefined) result.HeightInTableRows = data.heightInTableRows
-  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
   if (data.horizontalLines !== undefined) result.HorizontalLines = data.horizontalLines
   if (data.horizontalScrollBar !== undefined) result.HorizontalScrollBar = data.horizontalScrollBar
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
@@ -153,7 +154,6 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.useAlternationRowColor !== undefined) result.UseAlternationRowColor = data.useAlternationRowColor
   if (data.userSettingsGroup !== undefined) result.UserSettingsGroup = data.userSettingsGroup
   if (userVisible !== undefined) result.UserVisible = userVisible
-  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
   if (data.verticalLines !== undefined) result.VerticalLines = data.verticalLines
   if (data.verticalScrollBar !== undefined) result.VerticalScrollBar = data.verticalScrollBar
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch

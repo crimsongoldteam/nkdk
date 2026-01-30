@@ -44,6 +44,8 @@
 		</v8:item>
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -51,7 +53,6 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
@@ -94,7 +95,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

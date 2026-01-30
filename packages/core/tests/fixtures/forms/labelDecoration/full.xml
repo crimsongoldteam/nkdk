@@ -23,10 +23,10 @@
 		</Title>
 	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<Hyperlink>true</Hyperlink>
 	<MaxHeight>500</MaxHeight>
@@ -54,7 +54,6 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

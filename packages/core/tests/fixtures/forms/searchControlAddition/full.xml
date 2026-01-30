@@ -16,6 +16,7 @@
 		<Enabled>true</Enabled>
 		<Font ref="style:NormalTextFont" kind="StyleItem"/>
 		<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Height>200</Height>
 		<HorizontalStretch>true</HorizontalStretch>
 		<MaxHeight>500</MaxHeight>
@@ -41,13 +42,13 @@
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
 		</UserVisible>
-		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<VerticalStretch>true</VerticalStretch>
 		<Visible>true</Visible>
 		<Width>300</Width>
 	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxWidth>400</MaxWidth>
 	<TextColor>web:Black</TextColor>
@@ -68,7 +69,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Visible>true</Visible>
 	<Width>300</Width>
 </SearchControlAddition>

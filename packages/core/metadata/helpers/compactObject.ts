@@ -1,6 +1,10 @@
 export const sortObject = <T extends Record<string, any>>(obj: T): T => {
   const keys = Object.keys(obj)
-  const regularKeys = keys.filter((key) => !key.startsWith("_")).sort()
+  const regularKeys = keys
+    .filter((key) => !key.startsWith("_"))
+    .sort((a, b) => {
+      return a.localeCompare(b, "ru")
+    })
   const underscoreKeys = keys.filter((key) => key.startsWith("_"))
   const sortedKeys = [...regularKeys, ...underscoreKeys]
   const result: Record<string, any> = {}

@@ -19,6 +19,7 @@
 	</ExtendedTooltip>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<TextColor>web:Black</TextColor>
 	<Title>
@@ -38,7 +39,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Visible>true</Visible>
 	<Width>300</Width>
 </SearchStringAddition>

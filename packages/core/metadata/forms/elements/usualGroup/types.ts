@@ -24,7 +24,6 @@ export interface UsualGroup {
   titleTextColor?: Color
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
   userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
@@ -35,35 +34,34 @@ export interface UsualGroup {
   behavior?: SE.UsualGroupBehavior
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
   childItemsVerticalAlign?: SE.ItemVerticalAlign
-  collapsedRepresentationTitle?: string
+  collapsedRepresentationTitle?: I8nText
+  collapsed?: boolean
   controlRepresentation?: SE.UsualGroupControlRepresentation
   currentRowUse?: SE.CurrentRowUse
   displayImportance?: SE.DisplayImportance
   extendedTooltip?: ExtendedTooltip
   format?: I8nText
   group?: SE.ChildFormItemsGroup
-  groupHorizontalAlign?: SE.ItemHorizontalLocation
-  groupVerticalAlign?: SE.ItemVerticalAlign
   hiddenRepresentationTitleBackColor?: Color
   horizontalSpacing?: SE.FormItemSpacing
   itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
   representation?: SE.UsualGroupRepresentation
   showLeftMargin?: boolean
   showTitle?: boolean
-  slaveItemsWidth?: SE.ChildFormItemsWidth
+  // slaveItemsWidth?: SE.ChildFormItemsWidth // depricated in 8.3.7
   throughAlign?: SE.ThroughAlign
   titleDataPath?: string
   united?: boolean
-  verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
   childItems: GroupChildItem[]
 }
 
 export interface UsualGroupXML extends BaseElementXML {
+  AssociatedTableElementId: MetadataValueXML
   EnableContentChange?: boolean
   Enabled?: boolean
   Height?: number
-  // GroupHorizontalAlign?: SE.ItemHorizontalLocation
+  HorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
@@ -72,18 +70,14 @@ export interface UsualGroupXML extends BaseElementXML {
   TitleTextColor?: ColorXML
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormGroupType
   UserVisible?: UserVisibleXML
-  // GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  AssociatedAssociatedTableElementId?: MetadataValueXML
   BackColor?: ColorXML
   Behavior?: SE.UsualGroupBehavior
-  ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  ChildItemsVerticalAlign?: SE.ItemVerticalAlign
-  CollapsedRepresentationTitle?: string
+  Collapsed: boolean
+  CollapsedRepresentationTitle?: I8nTextXML
   ControlRepresentation?: SE.UsualGroupControlRepresentation
   CurrentRowUse?: SE.CurrentRowUse
   _DisplayImportance?: SE.DisplayImportance
@@ -92,9 +86,9 @@ export interface UsualGroupXML extends BaseElementXML {
   Group?: SE.ChildFormItemsGroup
   GroupHorizontalAlign?: SE.ItemHorizontalLocation
   GroupVerticalAlign?: SE.ItemVerticalAlign
-  HiddenRepresentationTitleBackColor?: ColorXML
+  HiddenStateTitleBackColor?: ColorXML
   HorizontalSpacing?: SE.FormItemSpacing
-  ItemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+  ChildrenAlign?: SE.ItemsAndTitlesAlignVariant
   Representation?: SE.UsualGroupRepresentation
   ShowLeftMargin?: boolean
   ShowTitle?: boolean
@@ -130,16 +124,13 @@ export interface UsualGroupPartialEnterprise {
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
   ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
   ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
-  ГоризонтальноеВыравниваниеГруппы?: SE.ItemHorizontalLocationEnterprise
   ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
   ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
   Группировка?: SE.ChildFormItemsGroupEnterprise
-  ЗаголовокСвернутогоОтображения?: string
+  ЗаголовокСвернутогоОтображения?: I8nTextEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   Объединенная?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise

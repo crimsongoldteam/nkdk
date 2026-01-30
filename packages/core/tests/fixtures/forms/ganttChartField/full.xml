@@ -46,6 +46,7 @@
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -96,7 +97,6 @@
 	</UserVisible>
 	<ValuesSelectionMode>Single</ValuesSelectionMode>
 	<VerticalAlign>Top</VerticalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalLines>true</VerticalLines>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>

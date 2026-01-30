@@ -30,7 +30,7 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const table = exportMetadataSimpleValueToXML(context, data.table, "string")
-  if (table !== undefined) result.AssociatedAssociatedTableElementId = table
+  if (table !== undefined) result.AssociatedTableElementId = table
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
@@ -60,8 +60,6 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
-  if (data.type !== undefined) result.Type = data.type
-
   if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
@@ -75,12 +73,12 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.behavior !== undefined) result.Behavior = data.behavior
 
-  if (data.childItemsHorizontalAlign !== undefined) result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
+  if (data.childItemsHorizontalAlign !== undefined) result.HorizontalAlign = data.childItemsHorizontalAlign
 
-  if (data.childItemsVerticalAlign !== undefined) result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
+  if (data.childItemsVerticalAlign !== undefined) result.VerticalAlign = data.childItemsVerticalAlign
 
-  if (data.collapsedRepresentationTitle !== undefined)
-    result.CollapsedRepresentationTitle = data.collapsedRepresentationTitle
+  const collapsedRepresentationTitle = exportI8nTextToXML(context, data.collapsedRepresentationTitle)
+  if (collapsedRepresentationTitle !== undefined) result.CollapsedRepresentationTitle = collapsedRepresentationTitle
 
   if (data.controlRepresentation !== undefined) result.ControlRepresentation = data.controlRepresentation
 
@@ -93,25 +91,23 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.group !== undefined) result.Group = data.group
 
-  if (data.groupHorizontalAlign !== undefined) result.GroupHorizontalAlign = data.groupHorizontalAlign
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
-  if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   const hiddenRepresentationTitleBackColor = exportColorToXML(context, data.hiddenRepresentationTitleBackColor)
   if (hiddenRepresentationTitleBackColor !== undefined)
-    result.HiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
+    result.HiddenStateTitleBackColor = hiddenRepresentationTitleBackColor
 
   if (data.horizontalSpacing !== undefined) result.HorizontalSpacing = data.horizontalSpacing
 
-  if (data.itemsAndTitlesAlign !== undefined) result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
+  if (data.itemsAndTitlesAlign !== undefined) result.ChildrenAlign = data.itemsAndTitlesAlign
 
   if (data.representation !== undefined) result.Representation = data.representation
 
   if (data.showLeftMargin !== undefined) result.ShowLeftMargin = data.showLeftMargin
 
   if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
-
-  if (data.slaveItemsWidth !== undefined) result.SlaveItemsWidth = data.slaveItemsWidth
 
   if (data.throughAlign !== undefined) result.ThroughAlign = data.throughAlign
 
@@ -122,9 +118,9 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
-
   if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
+
+  if (data.collapsed !== undefined) result.Collapsed = data.collapsed
 
   return sortObject(result) as ToXMLType<From>
 }

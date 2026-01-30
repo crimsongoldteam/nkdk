@@ -41,6 +41,7 @@
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12"/>
 	<GroupHorizontalAlign>Center</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
 	<HorizontalLocation>Left</HorizontalLocation>
 	<HorizontalStretch>true</HorizontalStretch>
@@ -66,7 +67,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
