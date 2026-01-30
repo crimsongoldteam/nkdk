@@ -111,9 +111,66 @@ export const systemFullFontEnterprise: FontEnterprise = {
 // #endregion
 
 interface FontEnterpriseFixture {
+  name: string
   xml: string
   font: Font
   enterprise: FontEnterprise
 }
 
-export const fontEnterpriseFixtures: FontEnterpriseFixture[] = []
+export const fontEnterpriseFixtures: FontEnterpriseFixture[] = [
+  {
+    name: "faceName",
+    xml: `<Font faceName="Academy Engraved LET" kind="Absolute"/>`,
+    font: normalMinimalFont,
+    enterprise: normalMinimalFontEnterprise,
+  },
+  {
+    name: "system minimal",
+    xml: `<Font ref="sys:ANSIFixedFont" kind="WindowsFont"/>`,
+    font: systemMinimalFont,
+    enterprise: systemMinimalFontEnterprise,
+  },
+  {
+    name: "style minimal",
+    xml: `<Font ref="style:ExtraLargeTextFont" kind="StyleItem"/>`,
+    font: styleMinimalFont,
+    enterprise: styleMinimalFontEnterprise,
+  },
+  {
+    name: "style full",
+    xml: `<Font ref="style:LargeTextFont" faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="StyleItem" scale="200"/>`,
+    font: styleFullFont,
+    enterprise: styleFullFontEnterprise,
+  },
+  {
+    name: "normal full",
+    xml: `<Font faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="Absolute" scale="200"/>`,
+    font: normalFullFont,
+    enterprise: normalFullFontEnterprise,
+  },
+  {
+    name: "system full",
+    xml: `<Font ref="sys:SystemFont" faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont" scale="200"/>`,
+    font: systemFullFont,
+    enterprise: systemFullFontEnterprise,
+  },
+  {
+    name: "WindowsFont without faceName",
+    xml: `<Font ref="sys:DefaultGUIFont" faceName="" bold="true" italic="false" underline="false" strikeout="false" kind="WindowsFont"/>`,
+    font: {
+      ref: "DefaultGUIFont",
+      kind: "WindowsFont",
+      bold: true,
+      italic: false,
+      underline: false,
+      strikeout: false,
+    },
+    enterprise: {
+      Вид: "ШрифтДиалоговИМеню",
+      Полужирный: "Истина",
+      Наклонный: "Ложь",
+      Подчеркивание: "Ложь",
+      Зачеркивание: "Ложь",
+    },
+  },
+]
