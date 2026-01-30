@@ -29,8 +29,8 @@ export const sortEvents = (context: CleanContext, parsedData: any): any => {
       const tagB = Object.keys(b).find((k) => k !== ":@")
 
       if (tagA === "Event" && tagB === "Event") {
-        const nameA = a[":@"]?.name || ""
-        const nameB = b[":@"]?.name || ""
+        const nameA = a[":@"]?.["@_name"] || ""
+        const nameB = b[":@"]?.["@_name"] || ""
         return nameA.localeCompare(nameB, "ru")
       }
       return 0
