@@ -22,8 +22,9 @@ export const exportFontToEnterprise = (
 
     const result: FontFullEnterprise = {
       Вид: kind,
-      Имя: font.faceName || "",
     }
+
+    if (font.faceName) result.Имя = font.faceName
 
     if (font.height !== undefined) result.Размер = font.height
 

@@ -156,7 +156,7 @@ export const fontEnterpriseFixtures: FontEnterpriseFixture[] = [
   },
   {
     name: "WindowsFont without faceName",
-    xml: `<Font ref="sys:DefaultGUIFont" faceName="" bold="true" italic="false" underline="false" strikeout="false" kind="WindowsFont"/>`,
+    xml: `<Font ref="sys:DefaultGUIFont" bold="true" italic="false" underline="false" strikeout="false" kind="WindowsFont"/>`,
     font: {
       ref: "DefaultGUIFont",
       kind: "WindowsFont",
