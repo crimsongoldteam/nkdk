@@ -6,6 +6,7 @@ import {
   multipleFormAttributes,
   tableWithColumnsFormAttribute,
   treeWithColumnFormAttribute,
+  withAdditionalColumnFormAttribute,
   withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
@@ -82,6 +83,14 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(treeWithColumnFormAttribute)
+  })
+
+  it("should import with additional column", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/additionalColumn.xml")
+
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(withAdditionalColumnFormAttribute)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {

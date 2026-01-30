@@ -6,6 +6,7 @@ import {
   multipleFormAttributes,
   tableWithColumnsFormAttribute,
   treeWithColumnFormAttribute,
+  withAdditionalColumnFormAttribute,
   withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
@@ -96,6 +97,17 @@ describe("exportFormAttributesToXML", () => {
     mockСontext.context = {}
 
     const xmlData = exportFormAttributesToXML(mockСontext, treeWithColumnFormAttribute)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export with additional column", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/additionalColumn.xml")
+    mockСontext.context = {}
+
+    const xmlData = exportFormAttributesToXML(mockСontext, withAdditionalColumnFormAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

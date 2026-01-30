@@ -23,6 +23,11 @@ import {
   FunctionalOptionsXML,
 } from "../functionalOptionsProperty/types"
 
+export interface FormAttributeAdditionalColumn {
+  table: string
+  columns: FormAttributeColumn[]
+}
+
 export interface FormAttribute {
   name: string
   title: I8nText
@@ -34,6 +39,7 @@ export interface FormAttribute {
   fillCheck?: FillChecking
   settings?: TypeDescription | DynamicList
   columns?: FormAttributeColumn[]
+  additionalColumns?: FormAttributeAdditionalColumn[]
   functionalOptions?: FunctionalOptions
   fieldsList?: FieldsList
   save?: FieldsList
@@ -67,6 +73,11 @@ export interface FormAttributeColumnXML {
   FunctionalOptions?: FunctionalOptionsXML
 }
 
+export interface FormAttributeAdditionalColumnXML {
+  _table: string
+  Column: FormAttributeColumnXML | FormAttributeColumnXML[]
+}
+
 export interface FormAttributeXML {
   _name: string
   _id: string
@@ -80,6 +91,7 @@ export interface FormAttributeXML {
   Edit?: UserVisibleXML
   Columns?: {
     Column: FormAttributeColumnXML | FormAttributeColumnXML[]
+    AdditionalColumns?: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[]
   }
   FunctionalOptions?: FunctionalOptionsXML
   UseAlways?: FieldsListXML
@@ -103,6 +115,10 @@ export interface FormAttributeColumnEnterprise {
   ФункциональныеОпции?: FunctionalOptionsEnterprise
 }
 
+export interface FormAttributeAdditionalColumnEnterprise {
+  [tableName: string]: Record<string, FormAttributeColumnEnterprise>
+}
+
 export interface FormAttributeEnterprise {
   Заголовок?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise
@@ -115,6 +131,7 @@ export interface FormAttributeEnterprise {
   [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
   [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
   Колонки?: Record<string, FormAttributeColumnEnterprise>
+  ДополнительныеКолонки?: Record<string, Record<string, FormAttributeColumnEnterprise>>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
   ИспользоватьВсегда?: FieldsListEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise

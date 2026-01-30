@@ -9,6 +9,7 @@ import { importFieldsListFromXML } from "../fieldsList/importFromXML"
 import { importFunctionalOptionsFromXML } from "../functionalOptionsProperty/importFromXML"
 import {
   FormAttribute,
+  FormAttributeAdditionalColumn,
   FormAttributeColumn,
   FormAttributeColumnXML,
   FormAttributes,
@@ -66,6 +67,9 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
 
   if (props.Columns !== undefined) {
     result.columns = importFormAttributeColumnsFromXML(context, props.Columns.Column)
+    if (props.Columns.AdditionalColumns !== undefined) {
+      result.additionalColumns = importFormAttributeAdditionalColumnsFromXML(context, props.Columns.AdditionalColumns)
+    }
   }
 
   const functionalOptions = importFunctionalOptionsFromXML(context, props.FunctionalOptions)
@@ -119,4 +123,18 @@ const importFormAttributeColumnsFromXML = (
 
     return column
   })
+}
+
+const importFormAttributeAdditionalColumnsFromXML = (
+  context: ConfigurationContext,
+  xml: { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] } | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[] | undefined
+): FormAttributeAdditionalColumn[] | undefined => {
+  if (!xml) return undefined
+
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((item) => ({
+    table: item._table,
+    columns: importFormAttributeColumnsFromXML(context, item.Column)!,
+  }))
 }

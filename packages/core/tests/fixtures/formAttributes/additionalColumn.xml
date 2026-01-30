@@ -1,6 +1,6 @@
 <Attribute name="Объект" id="1">
 	<Columns>
-		<AdditionalColumns table="Объект.КакаяТоТаблица">
+		<AdditionalColumns table="КакаяТоТаблица">
 			<Column name="КолонкаТаблицы" id="2">
 				<Title>
 					<v8:item>
@@ -20,6 +20,10 @@
 	</Columns>
 	<MainAttribute>true</MainAttribute>
 	<Type>
-		<v8:Type>cfg:CatalogObject.КакойТоСправочник</v8:Type>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:Length>0</v8:Length>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+		</v8:StringQualifiers>
 	</Type>
 </Attribute>

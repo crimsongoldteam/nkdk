@@ -10,6 +10,7 @@ import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8
 import { TypeDescription } from "../typeDescription/types"
 import {
   FormAttribute,
+  FormAttributeAdditionalColumn,
   FormAttributeColumn,
   FormAttributeColumnXML,
   FormAttributes,
@@ -40,6 +41,14 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
     result.Columns = {
       Column: exportFormAttributeColumnsToXML(context, mergedData.columns),
     }
+  }
+
+  if (mergedData.additionalColumns && mergedData.additionalColumns.length > 0) {
+    const additionalColumnsXML = exportFormAttributeAdditionalColumnsToXML(context, mergedData.additionalColumns)
+    if (!result.Columns) {
+      result.Columns = { Column: [] }
+    }
+    result.Columns.AdditionalColumns = additionalColumnsXML
   }
 
   const edit = exportUserVisibleToXML(context, mergedData.edit)
@@ -148,4 +157,14 @@ const exportFormAttributeColumnsToXML = (
   })
 
   return result.length === 1 ? result[0] : result
+}
+
+const exportFormAttributeAdditionalColumnsToXML = (
+  context: ConfigurationContext,
+  additionalColumns: FormAttributeAdditionalColumn[]
+) => {
+  return additionalColumns.map((additionalColumn) => ({
+    _table: additionalColumn.table,
+    Column: exportFormAttributeColumnsToXML(context, additionalColumn.columns),
+  }))
 }

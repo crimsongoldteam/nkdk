@@ -2,6 +2,7 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportDynamicListToEnterprise } from "~/metadata/commonObjects/dynamicList/exportToEnterprise"
 import {
   FormAttribute,
+  FormAttributeAdditionalColumn,
   FormAttributeColumn,
   FormAttributeColumnEnterprise,
   FormAttributeEnterprise,
@@ -102,6 +103,10 @@ const exportFormAttributeToEnterprise = (
     result.Колонки = exportFormAttributeColumnsToEnterprise(context, data.columns)
   }
 
+  if (data.additionalColumns && data.additionalColumns.length > 0) {
+    result.ДополнительныеКолонки = exportFormAttributeAdditionalColumnsToEnterprise(context, data.additionalColumns)
+  }
+
   const functionalOptions = exportFunctionalOptionsToEnterprise(context, data.functionalOptions)
   if (functionalOptions) {
     result.ФункциональныеОпции = functionalOptions
@@ -172,6 +177,18 @@ const exportFormAttributeColumnToEnterprise = (
   return result
 }
 
+const exportFormAttributeAdditionalColumnsToEnterprise = (
+  context: ConfigurationContext,
+  additionalColumns: FormAttributeAdditionalColumn[]
+): Record<string, Record<string, FormAttributeColumnEnterprise>> => {
+  return Object.fromEntries(
+    additionalColumns.map((additionalColumn) => [
+      additionalColumn.table.split(".").pop()!,
+      exportFormAttributeColumnsToEnterprise(context, additionalColumn.columns),
+    ])
+  )
+}
+
 /**
  * Вычисляет заголовок для экспорта в enterprise с учетом mainAttribute.
  * Если mainAttribute = true:
@@ -207,12 +224,13 @@ const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undef
   if (title !== undefined) return false
   if (data.settings !== undefined) return false
   if (data.columns !== undefined && data.columns.length > 0) return false
+  if (data.additionalColumns !== undefined && data.additionalColumns.length > 0) return false
   if (data.functionalOptions !== undefined && data.functionalOptions.length > 0) return false
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(
       ([key, value]) =>
         value !== undefined &&
-        !["name", "id", "valueType", "title", "settings", "columns", "functionalOptions"].includes(key)
+        !["name", "id", "valueType", "title", "settings", "columns", "additionalColumns", "functionalOptions"].includes(key)
     )
   )
   return Object.keys(filteredData).length === 0

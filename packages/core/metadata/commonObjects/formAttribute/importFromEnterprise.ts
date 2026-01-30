@@ -1,6 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import {
   FormAttribute,
+  FormAttributeAdditionalColumn,
   FormAttributeColumn,
   FormAttributeColumnEnterprise,
   FormAttributeEnterprise,
@@ -95,6 +96,10 @@ const importFormAttributeFromEnterprise = (
     result.columns = importFormAttributeColumnsFromEnterprise(context, data.Колонки)
   }
 
+  if (data.ДополнительныеКолонки) {
+    result.additionalColumns = importFormAttributeAdditionalColumnsFromEnterprise(context, data.ДополнительныеКолонки)
+  }
+
   const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
   if (functionalOptions) result.functionalOptions = functionalOptions
 
@@ -159,6 +164,16 @@ const importFormAttributeColumnFromEnterprise = (
   if (functionalOptions) column.functionalOptions = functionalOptions
 
   return column
+}
+
+const importFormAttributeAdditionalColumnsFromEnterprise = (
+  context: ConfigurationContext,
+  data: Record<string, Record<string, FormAttributeColumnEnterprise>>
+): FormAttributeAdditionalColumn[] => {
+  return Object.entries(data).map(([tableName, columns]) => ({
+    table: tableName,
+    columns: importFormAttributeColumnsFromEnterprise(context, columns),
+  }))
 }
 
 /**

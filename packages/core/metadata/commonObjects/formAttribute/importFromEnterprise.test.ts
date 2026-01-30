@@ -10,6 +10,8 @@ import {
   minimalFormAttributesEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
+  withAdditionalColumnFormAttribute,
+  withAdditionalColumnFormAttributeEnterprise,
   withDynamicListFormAttribute,
   withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
@@ -107,5 +109,20 @@ describe("importFormAttributesFromEnterprise", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, withFunctionalOptionsFormAttributeEnterprise)
 
     expect(result).toEqual(withFunctionalOptionsFormAttribute)
+  })
+
+  it("should import with additional column", () => {
+    const result = importFormAttributesFromEnterprise(mockСontext, withAdditionalColumnFormAttributeEnterprise)
+
+    // Reset IDs for comparison since Enterprise doesn't provide them
+    const expected = withAdditionalColumnFormAttribute.map((attr) => ({
+      ...attr,
+      additionalColumns: attr.additionalColumns?.map((ac) => ({
+        ...ac,
+        columns: ac.columns.map((col) => ({ ...col, id: "" })),
+      })),
+    }))
+
+    expect(result).toEqual(expected)
   })
 })

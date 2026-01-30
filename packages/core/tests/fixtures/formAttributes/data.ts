@@ -365,11 +365,11 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
   {
     name: "Объект",
     mainAttribute: true,
-    valueType: { type: ["CatalogObject.КакойТоСправочник"] },
+    valueType: { type: ["string"] },
     title: { items: { ru: "" } },
     additionalColumns: [
       {
-        table: "Объект.КакаяТоТаблица",
+        table: "КакаяТоТаблица",
         columns: [
           {
             name: "КолонкаТаблицы",
@@ -385,8 +385,7 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
 
 export const withAdditionalColumnFormAttributeEnterprise: FormAttributesEnterprise = {
   Объект: {
-    Заголовок: "",
-    Тип: "СправочникСсылка.КакойТоСправочник",
+    Тип: "Строка",
     ОсновнойРеквизит: "Истина",
     ДополнительныеКолонки: {
       КакаяТоТаблица: {

@@ -8,6 +8,8 @@ import {
   mainAttributeTitleEqualsNameEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
+  withAdditionalColumnFormAttribute,
+  withAdditionalColumnFormAttributeEnterprise,
   withDynamicListFormAttribute,
   withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
@@ -80,5 +82,11 @@ describe("exportFormAttributesToEnterprise", () => {
     const result = exportFormAttributesToEnterprise(mockСontext, withFunctionalOptionsFormAttribute)
 
     expect(result).toEqual(withFunctionalOptionsFormAttributeEnterprise)
+  })
+
+  it("should export with additional column", () => {
+    const result = exportFormAttributesToEnterprise(mockСontext, withAdditionalColumnFormAttribute)
+
+    expect(result).toEqual(withAdditionalColumnFormAttributeEnterprise)
   })
 })
