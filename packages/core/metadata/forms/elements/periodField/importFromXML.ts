@@ -76,7 +76,7 @@ export function importPeriodFieldFromXML<To extends PeriodField | undefined>(
 
   if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
 
@@ -122,7 +122,7 @@ export function importPeriodFieldFromXML<To extends PeriodField | undefined>(
 
   if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 

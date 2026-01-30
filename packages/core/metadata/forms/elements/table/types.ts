@@ -183,7 +183,7 @@ export interface TableXML extends BaseElementXML {
   Height?: number
   HeightControlVariant?: SE.TableHeightControlVariant
   HeightInTableRows?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalLines?: boolean
   HorizontalScrollBar?: SE.ScrollBarUse
   HorizontalStretch?: boolean
@@ -220,7 +220,7 @@ export interface TableXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   UseAlternationRowColor?: boolean
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalLines?: boolean
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean

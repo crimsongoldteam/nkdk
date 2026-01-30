@@ -2,6 +2,7 @@ import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
@@ -14,7 +15,6 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 
 export function exportPictureFieldToXML<From extends PictureField | undefined>(
   context: ConfigurationContext,
@@ -72,7 +72,7 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
 
   if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
 
@@ -118,7 +118,7 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.visible !== undefined) result.Visible = data.visible
 

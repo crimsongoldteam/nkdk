@@ -6,9 +6,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportCommandBarToXML<From extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -69,7 +69,7 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 

@@ -50,7 +50,7 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.height !== undefined) result.Height = data.height
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.horizontalSpacing !== undefined) result.HorizontalSpacing = data.horizontalSpacing
 
@@ -94,7 +94,7 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalScrollOnReduceSize !== undefined) result.VerticalScrollOnReduceSize = data.verticalScrollOnReduceSize
 

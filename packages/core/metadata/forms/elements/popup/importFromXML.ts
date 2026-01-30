@@ -7,9 +7,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { Popup } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
-import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 export function importPopupFromXML<To extends Popup | undefined>(
   context: ConfigurationContext,
   xml: ToXMLType<To> | undefined
@@ -35,7 +35,7 @@ export function importPopupFromXML<To extends Popup | undefined>(
 
   if (xml.Height !== undefined) result.height = xml.Height
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 
@@ -59,7 +59,7 @@ export function importPopupFromXML<To extends Popup | undefined>(
 
   if (xml.Type !== undefined) result.type = xml.Type
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 

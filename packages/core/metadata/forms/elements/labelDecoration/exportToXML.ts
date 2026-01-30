@@ -1,6 +1,7 @@
 import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportFormattedI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/formattedI8nText/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -12,7 +13,6 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportFormattedI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/formattedI8nText/exportToXML"
 
 export function exportLabelDecorationToXML<From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
@@ -57,7 +57,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
@@ -91,7 +91,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 

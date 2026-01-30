@@ -43,11 +43,11 @@ export interface SearchStringAdditionXML extends BaseElementXML {
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
   ExtendedTooltip: ExtendedTooltipXML
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   Visible?: boolean
   BackColor?: ColorXML
   BorderColor?: ColorXML

@@ -60,7 +60,7 @@ export interface CommandBarXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormGroupType
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

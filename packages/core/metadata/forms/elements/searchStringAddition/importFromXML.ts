@@ -52,7 +52,7 @@ export const importSingleSearchStringAdditionFromXML = (
   const extendedToolTip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
@@ -65,7 +65,7 @@ export const importSingleSearchStringAdditionFromXML = (
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 

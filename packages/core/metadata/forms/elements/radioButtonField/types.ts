@@ -110,7 +110,7 @@ export interface RadioButtonFieldXML extends BaseElementXML {
   HeaderHorizontalAlign?: SE.ItemHorizontalLocation
   HeaderPicture?: PictureXML
   HorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   ReadOnly?: boolean
   Shortcut?: string
   ShowInFooter?: boolean
@@ -129,7 +129,7 @@ export interface RadioButtonFieldXML extends BaseElementXML {
   TypeRestriction?: TypeDescriptionXML
   UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation

@@ -83,7 +83,7 @@ export interface ButtonXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormButtonType
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

@@ -46,7 +46,7 @@ export interface ColumnGroupXML extends BaseElementXML {
   EnableContentChange?: boolean
   Enabled?: boolean
   Height?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
@@ -58,7 +58,7 @@ export interface ColumnGroupXML extends BaseElementXML {
   Type?: SE.FormGroupType
   ExtendedTooltip: ExtendedTooltipXML
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

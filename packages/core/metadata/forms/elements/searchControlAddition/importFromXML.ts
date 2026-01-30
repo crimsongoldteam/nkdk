@@ -21,7 +21,10 @@ export function importSearchControlAdditionFromXML<To extends SearchControlAddit
 ): To {
   if (xml === undefined) return undefined as To
 
-  const props = importSearchControlAdditionPropsFromXML(context, xml) ?? { elementType: "SearchControlAddition", childItems: [] }
+  const props = importSearchControlAdditionPropsFromXML(context, xml) ?? {
+    elementType: "SearchControlAddition",
+    childItems: [],
+  }
 
   const result: SearchControlAddition = {
     name: xml._name,
@@ -64,7 +67,7 @@ export const importSearchControlAdditionPropsFromXML = (
   const extendedToolTip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
@@ -77,7 +80,7 @@ export const importSearchControlAdditionPropsFromXML = (
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 

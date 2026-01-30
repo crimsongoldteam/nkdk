@@ -8,9 +8,9 @@ import { ColumnGroup, ColumnGroupXML } from "~/metadata/forms/elements/columnGro
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
@@ -30,7 +30,7 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
 
   if (data.height !== undefined) result.Height = data.height
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
@@ -56,7 +56,7 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
 
   result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 

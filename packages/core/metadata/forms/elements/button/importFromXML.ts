@@ -97,7 +97,7 @@ export function importButtonFromXML<To extends Button | undefined>(
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 

@@ -91,7 +91,7 @@ const exportSearchStringAdditionPropsToXML = (
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
+  if (element.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = element.horizontalAlignInGroup
 
   const title = exportI8nTextToXML(context, element.title)
   if (title !== undefined) result.Title = title
@@ -104,7 +104,7 @@ const exportSearchStringAdditionPropsToXML = (
   const userVisible = exportUserVisibleToXML(context, element.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (element.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = element.verticalAlignInGroup
+  if (element.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = element.verticalAlignInGroup
 
   if (element.visible !== undefined) result.Visible = element.visible
 

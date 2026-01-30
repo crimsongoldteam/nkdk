@@ -65,7 +65,7 @@ export interface LabelDecorationXML extends BaseElementXML {
   ExtendedTooltip: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
@@ -77,14 +77,14 @@ export interface LabelDecorationXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormDecorationType
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
   BackColor?: ColorXML
   Border?: BorderXML
   BorderColor?: ColorXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
+  // GroupVerticalAlign?: SE.ItemVerticalAlign
   HorizontalAlign?: SE.ItemHorizontalLocation
   Hyperlink?: boolean
   TitleHeight?: number

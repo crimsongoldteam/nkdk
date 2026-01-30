@@ -115,7 +115,7 @@ export interface GraphicalSchemaFieldXML extends BaseElementXML {
   HeaderHorizontalAlign?: SE.ItemHorizontalLocation
   HeaderPicture?: PictureXML
   HorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   ReadOnly?: boolean
   Shortcut?: string
   ShowInFooter?: boolean
@@ -133,7 +133,7 @@ export interface GraphicalSchemaFieldXML extends BaseElementXML {
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
   VerticalAlign?: SE.ItemVerticalAlign
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation

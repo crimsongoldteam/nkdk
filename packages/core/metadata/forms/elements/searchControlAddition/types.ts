@@ -60,12 +60,12 @@ export interface SearchControlAdditionXML extends BaseElementXML {
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
   ExtendedTooltip: ExtendedTooltipXML
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   Visible?: boolean
 }
 

@@ -55,7 +55,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.Type !== undefined) result.type = xml.Type
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 

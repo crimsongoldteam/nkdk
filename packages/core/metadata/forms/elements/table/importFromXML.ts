@@ -122,7 +122,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.HeightInTableRows !== undefined) result.heightInTableRows = xml.HeightInTableRows
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   if (xml.HorizontalLines !== undefined) result.horizontalLines = xml.HorizontalLines
 
@@ -211,7 +211,7 @@ export function importTableFromXML<To extends Table | undefined>(
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.VerticalLines !== undefined) result.verticalLines = xml.VerticalLines
 

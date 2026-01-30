@@ -74,7 +74,7 @@ export function exportFormattedDocumentFieldToXML<From extends FormattedDocument
 
   if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
 
@@ -120,7 +120,7 @@ export function exportFormattedDocumentFieldToXML<From extends FormattedDocument
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.visible !== undefined) result.Visible = data.visible
 

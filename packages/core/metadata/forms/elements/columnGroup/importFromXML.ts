@@ -31,7 +31,7 @@ export function importColumnGroupFromXML<To extends ColumnGroup | undefined>(
 
   if (xml.Height !== undefined) result.height = xml.Height
 
-  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 
@@ -58,7 +58,7 @@ export function importColumnGroupFromXML<To extends ColumnGroup | undefined>(
   const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 

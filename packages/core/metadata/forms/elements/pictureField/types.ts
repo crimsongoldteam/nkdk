@@ -3,6 +3,7 @@ import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/bo
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
@@ -15,7 +16,6 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface PictureField {
   elementType: "PictureField"
@@ -116,7 +116,7 @@ export interface PictureFieldXML extends BaseElementXML {
   HeaderHorizontalAlign?: SE.ItemHorizontalLocation
   HeaderPicture?: PictureXML
   HorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   ReadOnly?: boolean
   Shortcut?: string
   ShowInFooter?: boolean
@@ -134,7 +134,7 @@ export interface PictureFieldXML extends BaseElementXML {
   TypeRestriction?: TypeDescriptionXML
   UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation

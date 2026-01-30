@@ -43,7 +43,7 @@ export interface ButtonGroupXML extends BaseElementXML {
   EnableContentChange?: boolean
   Enabled?: boolean
   Height?: number
-  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
@@ -54,7 +54,7 @@ export interface ButtonGroupXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormGroupType
   UserVisible?: UserVisibleXML
-  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  GroupVerticalAlign?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

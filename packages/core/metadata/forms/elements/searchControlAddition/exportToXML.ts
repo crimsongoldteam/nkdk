@@ -12,10 +12,10 @@ import {
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getSearchControlAdditionName } from "./helper"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 
 export function exportSearchControlAdditionToXML<From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
@@ -79,7 +79,7 @@ const exportSearchControlAdditionPropsToXML = (
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
+  if (element.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = element.horizontalAlignInGroup
 
   const title = exportI8nTextToXML(context, element.title)
   if (title !== undefined) result.Title = title
@@ -92,7 +92,7 @@ const exportSearchControlAdditionPropsToXML = (
   const userVisible = exportUserVisibleToXML(context, element.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (element.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = element.verticalAlignInGroup
+  if (element.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = element.verticalAlignInGroup
 
   if (element.visible !== undefined) result.Visible = element.visible
 

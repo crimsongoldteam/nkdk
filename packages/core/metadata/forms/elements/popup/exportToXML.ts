@@ -40,7 +40,7 @@ export function exportPopupToXML<From extends Popup | undefined>(
 
   if (data.height !== undefined) result.Height = data.height
 
-  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
 
@@ -76,7 +76,7 @@ export function exportPopupToXML<From extends Popup | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 

@@ -38,7 +38,7 @@ export const exportExtendedTooltipToXML = (
   if (extendendTooltip.height !== undefined) result.Height = extendendTooltip.height
 
   if (extendendTooltip.horizontalAlignInGroup !== undefined)
-    result.HorizontalAlignInGroup = extendendTooltip.horizontalAlignInGroup
+    result.GroupHorizontalAlign = extendendTooltip.horizontalAlignInGroup
 
   if (extendendTooltip.horizontalStretch !== undefined) result.HorizontalStretch = extendendTooltip.horizontalStretch
 
@@ -68,7 +68,7 @@ export const exportExtendedTooltipToXML = (
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (extendendTooltip.verticalAlignInGroup !== undefined)
-    result.VerticalAlignInGroup = extendendTooltip.verticalAlignInGroup
+    result.GroupVerticalAlign = extendendTooltip.verticalAlignInGroup
 
   if (extendendTooltip.verticalStretch !== undefined) result.VerticalStretch = extendendTooltip.verticalStretch
 
