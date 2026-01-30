@@ -4,6 +4,7 @@
 	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
 	<FixingInTable>None</FixingInTable>
 	<Group>Horizontal</Group>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
 	<HeaderFormat>Формат</HeaderFormat>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
@@ -12,7 +13,6 @@
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
 	<Height>200</Height>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
@@ -39,7 +39,7 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

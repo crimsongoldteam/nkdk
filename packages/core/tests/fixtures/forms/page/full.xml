@@ -20,7 +20,7 @@
 	</Format>
 	<Group>Vertical</Group>
 	<Height>200</Height>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalSpacing>Single</HorizontalSpacing>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
@@ -55,7 +55,7 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalScrollOnReduceSize>true</VerticalScrollOnReduceSize>
 	<VerticalSpacing>Single</VerticalSpacing>
 	<VerticalStretch>true</VerticalStretch>

@@ -15,8 +15,8 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<Height>200</Height>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
 	<Representation>Compact</Representation>
@@ -41,7 +41,7 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

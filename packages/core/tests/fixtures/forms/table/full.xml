@@ -123,12 +123,12 @@
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Footer>true</Footer>
 	<FooterHeight>30</FooterHeight>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<Header>true</Header>
 	<HeaderHeight>30</HeaderHeight>
 	<Height>400</Height>
 	<HeightControlVariant>Auto</HeightControlVariant>
 	<HeightInTableRows>10</HeightInTableRows>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalLines>true</HorizontalLines>
 	<HorizontalScrollBar>AutoUse</HorizontalScrollBar>
 	<HorizontalStretch>true</HorizontalStretch>
@@ -159,7 +159,7 @@
 		<ContextMenu name="ТаблицаУправлениеПоискомКонтекстноеМеню" id="20"/>
 		<Enabled>true</Enabled>
 		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="21"/>
-		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+		<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -177,7 +177,7 @@
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
 		</UserVisible>
-		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Visible>true</Visible>
 	</SearchControlAddition>
 	<SearchControlLocation>Auto</SearchControlLocation>
@@ -190,7 +190,7 @@
 		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="23"/>
 		<Enabled>true</Enabled>
 		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="24"/>
-		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+		<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -208,7 +208,7 @@
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
 		</UserVisible>
-		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+		<GroupVerticalAlign>Top</GroupVerticalAlign>
 		<Visible>true</Visible>
 	</SearchStringAddition>
 	<SearchStringLocation>Auto</SearchStringLocation>
@@ -241,7 +241,7 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalLines>true</VerticalLines>
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>

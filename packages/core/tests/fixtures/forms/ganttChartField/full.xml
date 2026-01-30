@@ -45,6 +45,7 @@
 		</v8:item>
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -52,7 +53,6 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalLines>true</HorizontalLines>
 	<HorizontalStretch>true</HorizontalStretch>
 	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
@@ -96,7 +96,7 @@
 	</UserVisible>
 	<ValuesSelectionMode>Single</ValuesSelectionMode>
 	<VerticalAlign>Top</VerticalAlign>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalLines>true</VerticalLines>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>

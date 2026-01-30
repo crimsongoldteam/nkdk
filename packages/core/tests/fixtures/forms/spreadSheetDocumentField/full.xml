@@ -64,7 +64,7 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalScrollBar>AutoUse</HorizontalScrollBar>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxHeight>500</MaxHeight>
@@ -116,7 +116,7 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>
 	<ViewScalingMode>Auto</ViewScalingMode>

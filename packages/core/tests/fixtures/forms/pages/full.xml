@@ -8,7 +8,7 @@
 	</Events>
 	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="2"/>
 	<Height>200</Height>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<PagesRepresentation>Auto</PagesRepresentation>
 	<ReadOnly>false</ReadOnly>
@@ -33,7 +33,7 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

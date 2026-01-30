@@ -10,7 +10,7 @@
 	<AutoMarkIncomplete>true</AutoMarkIncomplete>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
-	<AutoShowClearButton>Always</AutoShowClearButton>
+	<AutoShowClearButtonMode>Always</AutoShowClearButtonMode>
 	<AutoShowOpenButton>FilledOnly</AutoShowOpenButton>
 	<AvailableTypes>
 		<v8:Type>cfg:DocumentRef.КакойТоДокумент</v8:Type>
@@ -134,7 +134,7 @@
 	<Height>100</Height>
 	<HeightControlVariant>UseContentHeight</HeightControlVariant>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
 	<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
 	<InputHint>
@@ -217,7 +217,7 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

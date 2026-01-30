@@ -58,7 +58,7 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<HorizontalStretch>false</HorizontalStretch>
 	<Hyperlink>false</Hyperlink>
 	<MaxHeight>500</MaxHeight>
@@ -107,7 +107,7 @@
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</ValuesPicture>
 	<VerticalAlign>Top</VerticalAlign>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>false</VerticalStretch>
 	<Visible>true</Visible>
 	<WarningOnEdit>

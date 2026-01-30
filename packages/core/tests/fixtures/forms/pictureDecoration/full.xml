@@ -26,8 +26,9 @@
 	</ExtendedTooltip>
 	<FileDragMode>AsFile</FileDragMode>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<Hyperlink>false</Hyperlink>
 	<MaxHeight>500</MaxHeight>
@@ -60,7 +61,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>

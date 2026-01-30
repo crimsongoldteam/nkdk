@@ -11,8 +11,8 @@
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="2"/>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<Height>30</Height>
-	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<LocationInCommandBar>Auto</LocationInCommandBar>
 	<MaxHeight>100</MaxHeight>
@@ -42,7 +42,7 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>150</Width>
