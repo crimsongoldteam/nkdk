@@ -22,9 +22,9 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { DynamicList } from "../dynamicList/types"
+import { exportFieldsListToEnterprise } from "../fieldsList/exportToEnterprise"
 import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
-import { exportFieldsListToEnterprise } from "../FieldsList/exportToEnterprise"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,

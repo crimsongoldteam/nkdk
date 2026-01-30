@@ -5,8 +5,8 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importDynamicListFromXML } from "../dynamicList/importFromXML"
 import { DynamicListXML } from "../dynamicList/types"
+import { importFieldsListFromXML } from "../fieldsList/importFromXML"
 import { importFunctionalOptionsFromXML } from "../functionalOptionsProperty/importFromXML"
-import { importFieldsListFromXML } from "../FieldsList/importFromXML"
 import {
   FormAttribute,
   FormAttributeColumn,

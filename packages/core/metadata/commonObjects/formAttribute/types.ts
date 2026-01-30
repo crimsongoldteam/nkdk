@@ -16,7 +16,7 @@ import {
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 import { StringboolEnterprise } from "../boolean/types"
 import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
-import { FieldsList, FieldsListEnterprise, FieldsListXML } from "../FieldsList/types"
+import { FieldsList, FieldsListEnterprise, FieldsListXML } from "../fieldsList/types"
 import {
   FunctionalOptions,
   FunctionalOptionsEnterprise,

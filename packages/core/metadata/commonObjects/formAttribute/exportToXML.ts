@@ -4,7 +4,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { DynamicList } from "../dynamicList/types"
-import { exportFieldsListToXML } from "../FieldsList/exportToXML"
+import { exportFieldsListToXML } from "../fieldsList/exportToXML"
 import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
 import { TypeDescription } from "../typeDescription/types"

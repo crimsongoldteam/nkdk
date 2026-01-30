@@ -16,10 +16,10 @@ import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadat
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import { FillChecking, FillCheckingFromEnterprise } from "~/metadata/systemEnumerations/types"
 import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
+import { importFieldsListFromEnterprise } from "../fieldsList/importFromEnterprise"
 import { importFunctionalOptionsFromEnterprise } from "../functionalOptionsProperty/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "../i8nText/types"
-import { importFieldsListFromEnterprise } from "../FieldsList/importFromEnterprise"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,

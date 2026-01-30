@@ -1,4 +1,4 @@
-import { FieldsList, FieldsListEnterprise } from "~/metadata/commonObjects/FieldsList/types"
+import { FieldsList, FieldsListEnterprise } from "~/metadata/commonObjects/fieldsList/types"
 
 export const fullFieldsList: FieldsList = ["Список.РеквизитДопУпорядочивания", "Список.Ссылка"]
 
