@@ -109,3 +109,11 @@ export const systemFullFontEnterprise: FontEnterprise = {
 }
 
 // #endregion
+
+interface FontEnterpriseFixture {
+  xml: string
+  font: Font
+  enterprise: FontEnterprise
+}
+
+export const fontEnterpriseFixtures: FontEnterpriseFixture[] = []
