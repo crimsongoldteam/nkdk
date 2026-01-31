@@ -8,7 +8,7 @@ export const exportSystemEnumerationToPreview = (
 ): SystemEnumerationPreview | undefined => {
   if (!value) return undefined
   return {
-    type: enumerationName,
-    value: value,
+    Type: enumerationName,
+    Value: value,
   }
 }
