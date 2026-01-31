@@ -6,8 +6,12 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../../commonObjects/formParameter/types"
 import { GroupChilItemPartialEnterprise, GroupChildItem, GroupChildItemXML } from "../../collections/childItems/types"
-import { CommandInterface, CommandInterfaceEnterprise, CommandInterfaceXML } from "../../commonObjects/commandInterface/types"
 import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
+import {
+  CommandInterface,
+  CommandInterfaceEnterprise,
+  CommandInterfaceXML,
+} from "../../commonObjects/commandInterface/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
 import { EventsXML } from "../../events/types"
 
@@ -278,4 +282,15 @@ export interface FormMetadataXML {
       }
     }
   }
+}
+
+export interface ClientApplicationFormPreview {
+  attributes: PreviewAttribute[]
+  childItems: []
+}
+
+interface PreviewAttribute {
+  name: string
+  type: string
+  childItems: PreviewAttribute[]
 }

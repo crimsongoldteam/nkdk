@@ -1,6 +1,6 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/metadata/commonObjects/choiceList/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
@@ -25,6 +25,7 @@ import {
 import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -442,5 +443,125 @@ export interface InputFieldTypedEnterprise extends InputFieldPartialEnterprise {
   Тип: "ПолеВвода"
 }
 
-// Для обратной совместимости
-export type InputFieldEnterprise = InputFieldPartialEnterprise
+export interface InputFieldPreview {
+  elementType: "InputField"
+  name: string
+  allowInputEmptyMultipleValues?: boolean
+  allowMultipleValuesDuplicates?: boolean
+  autoCapitalizationOnTextInput?: SystemEnumerationPreview
+  autoChoiceIncomplete?: boolean
+  autoCorrectionOnTextInput?: SystemEnumerationPreview
+  autoFillHint?: SystemEnumerationPreview
+  autoMarkIncomplete?: boolean
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  autoShowClearButton?: SystemEnumerationPreview
+  autoShowOpenButton?: SystemEnumerationPreview
+  availableTypes?: TypeDescription
+  backColor?: ColorPreview
+  borderColor?: ColorPreview
+  choiceButton?: boolean
+  choiceButtonPicture?: Picture
+  choiceButtonRepresentation?: SystemEnumerationPreview
+  choiceFoldersAndItems?: SystemEnumerationPreview
+  choiceForm?: string
+  choiceHistoryOnInput?: SystemEnumerationPreview
+  choiceList?: ChoiceList
+  choiceListButton?: boolean
+  choiceListHeight?: number
+  choiceParameterLinks?: ChoiceParameterLinks
+  choiceParameters?: ChoiceParameters
+  chooseType?: boolean
+  clearButton?: boolean
+  createButton?: boolean
+  dropListButton?: boolean
+  dropListWidth?: number
+  editFormat?: string
+  editText?: string
+  editTextUpdate?: SystemEnumerationPreview
+  extendedEdit?: boolean
+  font?: Font
+  format?: string
+  height?: number
+  heightControlVariant?: SystemEnumerationPreview
+  horizontalStretch?: boolean
+  incompleteChoiceMode?: SystemEnumerationPreview
+  inputHint?: string
+  listChoiceMode?: boolean
+  markIncomplete?: boolean
+  markNegatives?: boolean
+  mask?: string
+  maxHeight?: number
+  maxValue?: number
+  maxWidth?: number
+  minValue?: number
+  multiLine?: boolean
+  multipleValuePictureDataPath?: string
+  multipleValuePictureShape?: SystemEnumerationPreview
+  multipleValuePictureSize?: SystemEnumerationPreview
+  multipleValuePresentationDataPath?: string
+  multipleValuesBackColor?: ColorPreview
+  multipleValuesExtendedEdit?: boolean
+  multipleValuesFont?: Font
+  multipleValuesHyperlink?: boolean
+  multipleValuesPicture?: Picture
+  multipleValuesTextColor?: ColorPreview
+  multipleValueValueDataPath?: string
+  onScreenKeyboardReturnKeyText?: SystemEnumerationPreview
+  openButton?: boolean
+  passwordMode?: boolean
+  quickChoice?: boolean
+  selectedText?: string
+  showCheckBoxesInDropListWhenInputMultipleValues?: boolean
+  specialTextInputMode?: SystemEnumerationPreview
+  spellCheckingOnTextInput?: SystemEnumerationPreview
+  spinButton?: boolean
+  textColor?: ColorPreview
+  textEdit?: boolean
+  typeDomainEnabled?: boolean
+  typeLink?: TypeLink
+  verticalStretch?: boolean
+  width?: number
+  wrap?: boolean
+  autoCellHeight?: boolean
+  cellHyperlink?: boolean
+  // contextMenu?: ContextMenu
+  dataPath?: string
+  defaultItem?: boolean
+  displayImportance?: SystemEnumerationPreview
+  editMode?: SystemEnumerationPreview
+  enabled?: boolean
+  // extendedTooltip?: ExtendedTooltip
+  fixingInTable?: SystemEnumerationPreview
+  footerBackColor?: ColorPreview
+  footerDataPath?: string
+  footerFont?: Font
+  footerHorizontalAlign?: SystemEnumerationPreview
+  footerPicture?: Picture
+  footerText?: string
+  footerTextColor?: ColorPreview
+  headerHorizontalAlign?: SystemEnumerationPreview
+  headerPicture?: Picture
+  horizontalAlign?: SystemEnumerationPreview
+  horizontalAlignInGroup?: SystemEnumerationPreview
+  readOnly?: boolean
+  shortcut?: string
+  showInFooter?: boolean
+  showInHeader?: boolean
+  skipOnInput?: boolean
+  table?: string
+  title?: I8nText
+  titleBackColor?: ColorPreview
+  titleFont?: Font
+  titleHeight?: number
+  titleLocation?: SystemEnumerationPreview
+  titleTextColor?: ColorPreview
+  toolTip?: I8nText
+  toolTipRepresentation?: SystemEnumerationPreview
+  typeRestriction?: TypeDescription
+  verticalAlign?: SystemEnumerationPreview
+  verticalAlignInGroup?: SystemEnumerationPreview
+  visible?: boolean
+  warningOnEdit?: I8nText
+  warningOnEditRepresentation?: SystemEnumerationPreview
+}

@@ -20,3 +20,8 @@ export const ColorTypeToPrefix: Record<"StyleItem" | "WindowsColor" | "WebColor"
   WindowsColor: "win",
   WebColor: "web",
 } as const
+
+export interface ColorPreview {
+  type: string
+  value: string
+}

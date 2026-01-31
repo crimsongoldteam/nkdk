@@ -13046,3 +13046,8 @@ export type StatePresentation = keyof typeof StatePresentationToEnterprise
 export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise
 
 // #endregion StatePresentation
+
+export interface SystemEnumerationPreview {
+  type: string
+  value: string
+}

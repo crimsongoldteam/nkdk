@@ -133,3 +133,43 @@ export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
 export interface ButtonTypedEnterprise extends ButtonPartialEnterprise {
   Тип: "Кнопка"
 }
+
+// export interface ButtonPreview {
+//   name: string
+//   type: "Button"
+//   autoMaxHeight?: boolean
+//   autoMaxWidth?: boolean
+//   backColor?: ColorPreview
+//   borderColor?: ColorPreview
+//   commandName?: string
+//   commandUniqueness?: boolean
+//   dataPath?: string
+//   defaultButton?: boolean
+//   defaultItem?: boolean
+//   displayImportance?: SE.DisplayImportance
+//   enabled?: boolean
+//   extendedTooltip?: ExtendedTooltip
+//   font?: FontPreview
+//   height?: number
+//   horizontalAlignInGroup?: SE.ItemHorizontalLocation
+//   horizontalStretch?: boolean
+//   locationInCommandBar?: SE.ButtonLocationInCommandBar
+//   maxHeight?: number
+//   maxWidth?: number
+//   onlyInAllActions?: boolean
+//   picture?: PicturePreview
+//   pictureLocation?: SE.FormButtonPictureLocation
+//   representation?: SE.ButtonRepresentation
+//   shape?: SE.ButtonShape
+//   shapeRepresentation?: SE.ButtonShapeRepresentation
+//   shortcut?: string
+//   skipOnInput?: boolean
+//   textColor?: ColorPreview
+//   title?: I8nText
+//   titleHeight?: number
+//   toolTipRepresentation?: SE.ToolTipRepresentation
+//   verticalAlignInGroup?: SE.ItemVerticalAlign
+//   verticalStretch?: boolean
+//   visible?: boolean
+//   width?: number
+// }
