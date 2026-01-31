@@ -4,19 +4,27 @@ import { exportPictureToPreview } from "./exportToPreview"
 
 describe("exportPictureToPreview", () => {
   it("should return undefined when value is undefined", () => {
-    const result = exportPictureToPreview(mockСontext, undefined, "StandardPicture")
+    const result = exportPictureToPreview(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should return undefined when value is empty string", () => {
-    const result = exportPictureToPreview(mockСontext, "", "StandardPicture")
+  it("should return undefined when ref is empty string", () => {
+    const result = exportPictureToPreview(mockСontext, {
+      ref: "",
+      type: "StandardPicture",
+      loadTransparent: false,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should return PictureEnterprisePreview when value is provided for StandardPicture", () => {
-    const result = exportPictureToPreview(mockСontext, "StandardPicture.MyPicture", "StandardPicture")
+    const result = exportPictureToPreview(mockСontext, {
+      ref: "StandardPicture.MyPicture",
+      type: "StandardPicture",
+      loadTransparent: false,
+    })
 
     expect(result).toEqual({
       type: "StandardPicture",
@@ -25,7 +33,11 @@ describe("exportPictureToPreview", () => {
   })
 
   it("should return PictureEnterprisePreview when value is provided for CommonPicture", () => {
-    const result = exportPictureToPreview(mockСontext, "CommonPicture.MyPicture", "CommonPicture")
+    const result = exportPictureToPreview(mockСontext, {
+      ref: "CommonPicture.MyPicture",
+      type: "CommonPicture",
+      loadTransparent: false,
+    })
 
     expect(result).toEqual({
       type: "CommonPicture",
@@ -34,11 +46,15 @@ describe("exportPictureToPreview", () => {
   })
 
   it("should return PictureEnterprisePreview when value is provided for AbsolutePicture", () => {
-    const result = exportPictureToPreview(mockСontext, "/path/to/picture.png", "AbsolutePicture")
+    const result = exportPictureToPreview(mockСontext, {
+      ref: "Picture.png",
+      type: "AbsolutePicture",
+      loadTransparent: false,
+    })
 
     expect(result).toEqual({
       type: "AbsolutePicture",
-      value: "/path/to/picture.png",
+      value: "Picture.png",
     })
   })
 })
