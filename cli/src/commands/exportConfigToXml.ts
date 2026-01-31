@@ -1,5 +1,5 @@
-import { exportCatalogsFromDirectory } from "../core/export/exportCatalog.js"
-import { exportFormsFromDirectory } from "../core/export/exportForm.js"
+import { exportCatalogsFromDirectory } from "../core/export/exportCatalog"
+import { exportFormsFromDirectory } from "../core/export/exportForm"
 
 export const exportConfigToXML = (inputPath: string, outputPath: string) => {
   exportCatalogsFromDirectory(inputPath, outputPath)

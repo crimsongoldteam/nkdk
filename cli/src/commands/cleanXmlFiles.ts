@@ -1,8 +1,8 @@
 import * as cliProgress from "cli-progress"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { cleanForm, cleanFormFixture } from "../core/cleanXml/cleanForm.js"
-import { cleanMetadata } from "../core/cleanXml/cleanMetadata.js"
+import { cleanForm, cleanFormFixture } from "../core/cleanXml/cleanForm"
+import { cleanMetadata } from "../core/cleanXml/cleanMetadata"
 
 function isDirectory(path: string): boolean {
   try {
