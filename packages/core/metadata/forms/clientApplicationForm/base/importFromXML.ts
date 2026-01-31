@@ -5,6 +5,7 @@ import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
+import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"
 import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
 import { importEventsFromXML } from "../../events/importFromXML"
@@ -38,6 +39,11 @@ export const importClientApplicationFormFromXML = (
   const commandSet = importCommandSetFromXML(context, xml.CommandSet)
   if (commandSet !== undefined) {
     result.commandSet = commandSet
+  }
+
+  const commandInterface = importCommandInterfaceFromXML(context, xml.CommandInterface)
+  if (commandInterface !== undefined) {
+    result.commandInterface = commandInterface
   }
 
   if (xml.AutoTitle !== undefined) {

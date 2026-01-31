@@ -43,14 +43,14 @@
 	</CommandSet>
 	<CommandInterface>
 		<CommandBar>
-		<Item>
-			<Command>Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn</Command>
-			<Type>Auto</Type>
-			<Index>0</Index>
-			<DefaultVisible>false</DefaultVisible>
-		</Item>
-	</CommandBar>
-</CommandInterface>
+			<Item>
+				<Command>Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn</Command>
+				<Type>Auto</Type>
+				<Index>0</Index>
+				<DefaultVisible>false</DefaultVisible>
+			</Item>
+		</CommandBar>
+	</CommandInterface>
 	<ConversationsRepresentation>Show</ConversationsRepresentation>
 	<Customizable>false</Customizable>
 	<Enabled>true</Enabled>

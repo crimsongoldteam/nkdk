@@ -8,6 +8,7 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
+import { exportCommandInterfaceToXML } from "../../commonObjects/commandInterface/exportToXML"
 import { exportCommandsToXML } from "../../commands/exportToXML"
 import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
@@ -99,6 +100,11 @@ export const exportClientApplicationFormToXML = (
   const commandSet = exportCommandSetToXML(context, data.commandSet)
   if (commandSet !== undefined) {
     result.CommandSet = commandSet
+  }
+
+  const commandInterface = exportCommandInterfaceToXML(context, data.commandInterface)
+  if (commandInterface !== undefined) {
+    result.CommandInterface = commandInterface
   }
 
   if (data.conversationsRepresentation !== undefined) {

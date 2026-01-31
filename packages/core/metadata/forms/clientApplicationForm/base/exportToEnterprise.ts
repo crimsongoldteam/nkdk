@@ -12,6 +12,7 @@ import {
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportCommandInterfaceToEnterprise } from "../../commonObjects/commandInterface/exportToEnterprise"
 import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
@@ -163,6 +164,9 @@ export const exportClientApplicationFormToEnterprise = (
 
   const usedFormServer = exportSystemEnumerationToEnterprise(context, data.usedFormServer, SE.UsedServerToEnterprise)
   if (usedFormServer !== undefined) result.ИспользуемыйСерверФормы = usedFormServer
+
+  const commandInterface = exportCommandInterfaceToEnterprise(context, data.commandInterface)
+  if (commandInterface !== undefined) result.ИнтерфейсКоманды = commandInterface
 
   if (data.purposeUseKey !== undefined) result.КлючНазначенияИспользования = data.purposeUseKey
 

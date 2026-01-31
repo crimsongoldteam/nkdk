@@ -6,6 +6,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../../commonObjects/formParameter/types"
 import { GroupChilItemPartialEnterprise, GroupChildItem, GroupChildItemXML } from "../../collections/childItems/types"
+import { CommandInterface, CommandInterfaceEnterprise, CommandInterfaceXML } from "../../commonObjects/commandInterface/types"
 import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
 import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
 import { EventsXML } from "../../events/types"
@@ -48,6 +49,7 @@ export interface ClientApplicationForm {
   autoTitle?: boolean
   autoURL?: boolean
   childItems: GroupChildItem[]
+  commandInterface?: CommandInterface
   parameters?: FormParameters
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
   childItemsVerticalAlign?: SE.ItemVerticalAlign
@@ -123,6 +125,7 @@ export interface ClientApplicationFormXML {
   CloseOnOwnerClose?: boolean
   CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
   CommandBarLocation?: SE.FormCommandBarLabelLocation
+  CommandInterface?: CommandInterfaceXML
   ConversationsRepresentation?: SE.FormConversationsRepresentation
   Customizable?: boolean
   Enabled?: boolean
@@ -180,6 +183,7 @@ export interface ClientApplicationFormEnterprise {
   ЗакрыватьПриВыборе?: StringboolEnterprise
   ЗакрыватьПриЗакрытииВладельца?: StringboolEnterprise
   ИспользуемыйСерверФормы?: SE.UsedServerEnterprise
+  ИнтерфейсКоманды?: CommandInterfaceEnterprise
   КлючНазначенияИспользования?: string
   КлючСохраненияПоложенияОкна?: string
   КоманднаяПанель?: AutoCommandBarEnterprise

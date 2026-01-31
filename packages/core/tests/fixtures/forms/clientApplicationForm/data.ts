@@ -1,8 +1,20 @@
+import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+
+const fullCommandInterface: CommandInterface = {
+  NavigationPanel: [],
+  CommandBar: [
+    {
+      command: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
+      type: "Auto",
+      defaultVisible: false,
+    },
+  ],
+}
 
 export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   parameters: [
@@ -22,6 +34,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     horizontalAlign: "Left",
     childItems: [],
   },
+  commandInterface: fullCommandInterface,
   attributes: [
     {
       name: "Объект",
@@ -128,6 +141,15 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
   ЗакрыватьПриВыборе: "Истина",
   ЗакрыватьПриЗакрытииВладельца: "Ложь",
   ИспользуемыйСерверФормы: "Основной",
+  ИнтерфейсКоманды: {
+    КоманднаяПанель: [
+      {
+        Команда: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
+        Тип: "Auto",
+        Автовидимость: "Ложь",
+      },
+    ],
+  },
   КлючНазначенияИспользования: "PurposeKey",
   КлючСохраненияПоложенияОкна: "WindowOptionsKey",
   КоманднаяПанель: {

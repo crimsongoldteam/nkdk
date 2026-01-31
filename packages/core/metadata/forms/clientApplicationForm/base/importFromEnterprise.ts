@@ -13,6 +13,7 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
+import { importCommandInterfaceFromEnterprise } from "../../commonObjects/commandInterface/importFromEnterprise"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
@@ -150,6 +151,9 @@ export const importClientApplicationFormFromEnterprise = (
     SE.UsedServerFromEnterprise
   )
   if (usedFormServer !== undefined) result.usedFormServer = usedFormServer
+
+  const commandInterface = importCommandInterfaceFromEnterprise(context, data.ИнтерфейсКоманды)
+  if (commandInterface !== undefined) result.commandInterface = commandInterface
 
   if (data.КлючНазначенияИспользования !== undefined) result.purposeUseKey = data.КлючНазначенияИспользования
 
