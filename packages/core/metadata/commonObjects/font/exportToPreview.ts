@@ -6,14 +6,18 @@ export const exportFontToPreview = (
   font: Font | undefined
 ): FontPreview | undefined => {
   if (!font) return undefined
-  return {
+
+  const result: FontPreview = {
     type: "Font",
-    name: font.faceName,
-    scale: font.scale,
-    height: font.height,
-    bold: font.bold,
-    italic: font.italic,
-    underline: font.underline,
-    strikeout: font.strikeout,
   }
+
+  if (font.faceName !== undefined) result.name = font.faceName
+  if (font.scale !== undefined) result.scale = font.scale
+  if (font.height !== undefined) result.height = font.height
+  if (font.bold !== undefined) result.bold = font.bold
+  if (font.italic !== undefined) result.italic = font.italic
+  if (font.underline !== undefined) result.underline = font.underline
+  if (font.strikeout !== undefined) result.strikeout = font.strikeout
+
+  return result
 }

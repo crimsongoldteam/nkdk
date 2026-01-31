@@ -1,14 +1,13 @@
 import { ConfigurationContext } from "../../context/types"
-import { ColorPreview } from "./types"
+import { Color, ColorPreview } from "./types"
 
 export const exportColorToPreview = (
   _context: ConfigurationContext,
-  value: string | undefined,
-  colorType: string
+  color: Color | undefined
 ): ColorPreview | undefined => {
-  if (!value) return undefined
+  if (!color) return undefined
   return {
-    type: colorType,
-    value: value,
+    type: color.type,
+    value: color.value,
   }
 }

@@ -1,14 +1,13 @@
 import { ConfigurationContext } from "../../context/types"
-import { PictureEnterprisePreview } from "./types"
+import { Picture, PictureEnterprisePreview } from "./types"
 
 export const exportPictureToPreview = (
   _context: ConfigurationContext,
-  value: string | undefined,
-  pictureType: "StandardPicture" | "CommonPicture" | "AbsolutePicture"
+  picture: Picture | undefined
 ): PictureEnterprisePreview | undefined => {
-  if (!value) return undefined
+  if (!picture) return undefined
   return {
-    type: pictureType,
-    value: value,
+    type: picture.type,
+    value: picture.ref,
   }
 }
