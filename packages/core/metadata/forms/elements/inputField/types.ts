@@ -4,7 +4,7 @@ import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commo
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PicturePreview, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
@@ -461,16 +461,16 @@ export interface InputFieldPreview {
   backColor?: ColorPreview
   borderColor?: ColorPreview
   choiceButton?: boolean
-  choiceButtonPicture?: Picture
+  choiceButtonPicture?: PicturePreview
   choiceButtonRepresentation?: SystemEnumerationPreview
   choiceFoldersAndItems?: SystemEnumerationPreview
   choiceForm?: string
   choiceHistoryOnInput?: SystemEnumerationPreview
-  choiceList?: ChoiceList
+  // choiceList?: ChoiceList
   choiceListButton?: boolean
   choiceListHeight?: number
-  choiceParameterLinks?: ChoiceParameterLinks
-  choiceParameters?: ChoiceParameters
+  // choiceParameterLinks?: ChoiceParameterLinks
+  // choiceParameters?: ChoiceParameters
   chooseType?: boolean
   clearButton?: boolean
   createButton?: boolean
@@ -519,7 +519,7 @@ export interface InputFieldPreview {
   textColor?: ColorPreview
   textEdit?: boolean
   typeDomainEnabled?: boolean
-  typeLink?: TypeLink
+  // typeLink?: TypeLink
   verticalStretch?: boolean
   width?: number
   wrap?: boolean
@@ -541,7 +541,7 @@ export interface InputFieldPreview {
   footerText?: string
   footerTextColor?: ColorPreview
   headerHorizontalAlign?: SystemEnumerationPreview
-  headerPicture?: Picture
+  headerPicture?: PicturePreview
   horizontalAlign?: SystemEnumerationPreview
   horizontalAlignInGroup?: SystemEnumerationPreview
   readOnly?: boolean
@@ -549,19 +549,19 @@ export interface InputFieldPreview {
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
-  table?: string
-  title?: I8nText
+  // table?: string
+  title?: string
   titleBackColor?: ColorPreview
   titleFont?: Font
   titleHeight?: number
   titleLocation?: SystemEnumerationPreview
   titleTextColor?: ColorPreview
-  toolTip?: I8nText
+  toolTip?: string
   toolTipRepresentation?: SystemEnumerationPreview
-  typeRestriction?: TypeDescription
+  // typeRestriction?: TypeDescription
   verticalAlign?: SystemEnumerationPreview
   verticalAlignInGroup?: SystemEnumerationPreview
   visible?: boolean
-  warningOnEdit?: I8nText
+  warningOnEdit?: string
   warningOnEditRepresentation?: SystemEnumerationPreview
 }

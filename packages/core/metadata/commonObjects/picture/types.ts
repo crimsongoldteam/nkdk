@@ -30,3 +30,10 @@ export interface PictureEnterpriseExtended {
 }
 
 export type PictureEnterprise = PictureEnterpriseRef | PictureEnterpriseExtended
+
+export interface PictureEnterprisePreview {
+  type: "StandardPicture" | "CommonPicture" | "AbsolutePicture"
+  value: string
+}
+
+export type PicturePreview = PictureEnterprisePreview
