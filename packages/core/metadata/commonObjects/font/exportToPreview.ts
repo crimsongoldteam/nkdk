@@ -8,16 +8,16 @@ export const exportFontToPreview = (
   if (!font) return undefined
 
   const result: FontPreview = {
-    type: "Font",
+    Type: "Font",
   }
 
-  if (font.faceName !== undefined) result.name = font.faceName
-  if (font.scale !== undefined) result.scale = font.scale
-  if (font.height !== undefined) result.height = font.height
-  if (font.bold !== undefined) result.bold = font.bold
-  if (font.italic !== undefined) result.italic = font.italic
-  if (font.underline !== undefined) result.underline = font.underline
-  if (font.strikeout !== undefined) result.strikeout = font.strikeout
+  if (font.faceName !== undefined) result.Name = font.faceName
+  if (font.scale !== undefined) result.Scale = font.scale
+  if (font.height !== undefined) result.Height = font.height
+  if (font.bold !== undefined) result.Bold = font.bold
+  if (font.italic !== undefined) result.Italic = font.italic
+  if (font.underline !== undefined) result.Underline = font.underline
+  if (font.strikeout !== undefined) result.Strikeout = font.strikeout
 
   return result
 }

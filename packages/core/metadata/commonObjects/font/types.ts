@@ -60,12 +60,12 @@ export type FontCompactEnterprise = string
 export type FontEnterprise = FontFullEnterprise | FontCompactEnterprise
 
 export interface FontPreview {
-  type: "Font"
-  name?: string
-  scale?: number
-  height?: number
-  bold?: boolean
-  italic?: boolean
-  underline?: boolean
-  strikeout?: boolean
+  Type: "Font"
+  Name?: string
+  Scale?: number
+  Height?: number
+  Bold?: boolean
+  Italic?: boolean
+  Underline?: boolean
+  Strikeout?: boolean
 }
