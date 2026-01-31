@@ -1,7 +1,7 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontPreview, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PicturePreview, PictureXML } from "~/metadata/commonObjects/picture/types"
@@ -480,7 +480,7 @@ export interface InputFieldPreview {
   editText?: string
   editTextUpdate?: SystemEnumerationPreview
   extendedEdit?: boolean
-  font?: Font
+  font?: FontPreview
   format?: string
   height?: number
   heightControlVariant?: SystemEnumerationPreview
@@ -502,9 +502,9 @@ export interface InputFieldPreview {
   multipleValuePresentationDataPath?: string
   multipleValuesBackColor?: ColorPreview
   multipleValuesExtendedEdit?: boolean
-  multipleValuesFont?: Font
+  multipleValuesFont?: FontPreview
   multipleValuesHyperlink?: boolean
-  multipleValuesPicture?: Picture
+  multipleValuesPicture?: PicturePreview
   multipleValuesTextColor?: ColorPreview
   multipleValueValueDataPath?: string
   onScreenKeyboardReturnKeyText?: SystemEnumerationPreview
@@ -537,7 +537,7 @@ export interface InputFieldPreview {
   footerDataPath?: string
   footerFont?: Font
   footerHorizontalAlign?: SystemEnumerationPreview
-  footerPicture?: Picture
+  footerPicture?: PicturePreview
   footerText?: string
   footerTextColor?: ColorPreview
   headerHorizontalAlign?: SystemEnumerationPreview
@@ -545,14 +545,14 @@ export interface InputFieldPreview {
   horizontalAlign?: SystemEnumerationPreview
   horizontalAlignInGroup?: SystemEnumerationPreview
   readOnly?: boolean
-  shortcut?: string
+  // shortcut?: string
   showInFooter?: boolean
   showInHeader?: boolean
   skipOnInput?: boolean
   // table?: string
   title?: string
   titleBackColor?: ColorPreview
-  titleFont?: Font
+  titleFont?: FontPreview
   titleHeight?: number
   titleLocation?: SystemEnumerationPreview
   titleTextColor?: ColorPreview
