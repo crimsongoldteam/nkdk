@@ -1,6 +1,7 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
@@ -285,12 +286,16 @@ export interface FormMetadataXML {
 }
 
 export interface ClientApplicationFormPreview {
-  attributes: PreviewAttribute[]
+  attributes: PreviewAttributes
   childItems: []
 }
 
-interface PreviewAttribute {
+export interface PreviewAttribute {
   name: string
-  type: string
-  childItems: PreviewAttribute[]
+  dataPath: string
+  title?: string
+  type?: TypeDescription
+  childItems?: PreviewAttributes
 }
+
+export type PreviewAttributes = Record<string, PreviewAttribute>

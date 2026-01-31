@@ -4,6 +4,7 @@ import { exportI8nTextToPreview } from "~/metadata/commonObjects/i8nText/exportT
 import { exportPictureToPreview } from "~/metadata/commonObjects/picture/exportToPreview"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
+import { getAttributeName } from "../../preview/getAttributeName"
 import { InputField, InputFieldPreview } from "./types"
 
 export const exportInputFieldToPreview = (context: ConfigurationContext, element: InputField): InputFieldPreview => {
@@ -160,8 +161,8 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
 
   if (element.multiLine !== undefined) result.MultiLine = element.multiLine
 
-  if (element.multipleValuePictureDataPath !== undefined)
-    result.MultipleValuePictureDataPath = element.multipleValuePictureDataPath
+  const multipleValuePictureDataPath = getAttributeName(context, element.multipleValuePictureDataPath)
+  if (multipleValuePictureDataPath !== undefined) result.MultipleValuePictureDataPath = multipleValuePictureDataPath
 
   const multipleValuePictureShape = exportSystemEnumerationToPreview(
     context,
@@ -177,8 +178,9 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   )
   if (multipleValuePictureSize !== undefined) result.MultipleValuePictureSize = multipleValuePictureSize
 
-  if (element.multipleValuePresentationDataPath !== undefined)
-    result.MultipleValuePresentationDataPath = element.multipleValuePresentationDataPath
+  const multipleValuePresentationDataPath = getAttributeName(context, element.multipleValuePresentationDataPath)
+  if (multipleValuePresentationDataPath !== undefined)
+    result.MultipleValuePresentationDataPath = multipleValuePresentationDataPath
 
   const multipleValuesBackColor = exportColorToPreview(context, element.multipleValuesBackColor)
   if (multipleValuesBackColor !== undefined) result.MultipleValuesBackColor = multipleValuesBackColor
@@ -197,8 +199,8 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   const multipleValuesTextColor = exportColorToPreview(context, element.multipleValuesTextColor)
   if (multipleValuesTextColor !== undefined) result.MultipleValuesTextColor = multipleValuesTextColor
 
-  if (element.multipleValueValueDataPath !== undefined)
-    result.MultipleValueValueDataPath = element.multipleValueValueDataPath
+  const multipleValueValueDataPath = getAttributeName(context, element.multipleValueValueDataPath)
+  if (multipleValueValueDataPath !== undefined) result.MultipleValueValueDataPath = multipleValueValueDataPath
 
   const onScreenKeyboardReturnKeyText = exportSystemEnumerationToPreview(
     context,
@@ -251,7 +253,8 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
 
   if (element.cellHyperlink !== undefined) result.CellHyperlink = element.cellHyperlink
 
-  if (element.dataPath !== undefined) result.DataPath = element.dataPath
+  const dataPath = getAttributeName(context, element.dataPath)
+  if (dataPath !== undefined) result.DataPath = dataPath
 
   if (element.defaultItem !== undefined) result.DefaultItem = element.defaultItem
 
@@ -269,7 +272,8 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   const footerBackColor = exportColorToPreview(context, element.footerBackColor)
   if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
 
-  if (element.footerDataPath !== undefined) result.FooterDataPath = element.footerDataPath
+  const footerDataPath = getAttributeName(context, element.footerDataPath)
+  if (footerDataPath !== undefined) result.FooterDataPath = footerDataPath
 
   const footerFont = exportFontToPreview(context, element.footerFont)
   if (footerFont !== undefined) result.FooterFont = footerFont

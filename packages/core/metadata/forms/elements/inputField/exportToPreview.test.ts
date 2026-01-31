@@ -5,7 +5,15 @@ import { exportInputFieldToPreview } from "./exportToPreview"
 
 describe("exportInputFieldToPreview", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportInputFieldToPreview(mockСontext, fullInputField)
+    const context = {
+      ...mockСontext,
+      preview: {
+        prefix: "prefix_",
+        attributes: {},
+      },
+    }
+
+    const result = exportInputFieldToPreview(context, fullInputField)
 
     expect(result).toEqual(fullInputFieldPreview)
   })
