@@ -13,10 +13,6 @@ export const fullCommandInterface: CommandInterface = {
       type: "Auto",
       commandGroup: "FormNavigationPanelGoTo",
       defaultVisible: false,
-      visible: {
-        common: false,
-        values: [],
-      },
     },
     {
       command: "Catalog.ПримерСправочник.Command.КомандаСправоник",
@@ -27,7 +23,7 @@ export const fullCommandInterface: CommandInterface = {
         common: true,
         values: [
           {
-            name: "Role.Администратор",
+            name: "Администратор",
             value: true,
           },
         ],
@@ -39,10 +35,6 @@ export const fullCommandInterface: CommandInterface = {
       command: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
       type: "Auto",
       defaultVisible: false,
-      visible: {
-        common: false,
-        values: [],
-      },
     },
   ],
 }
@@ -53,21 +45,21 @@ export const fullCommandInterfaceEnterprise: CommandInterfaceEnterprise = {
       Команда: "Catalog.ПодчиненныйСправочник.StandardCommand.OpenByValue",
       Тип: "Auto",
       ГруппаКоманд: "ПанельНавигацииФормыПерейти",
-      Автовидимость: true,
+      Автовидимость: "Истина",
     },
     {
       Команда: "Catalog.ПримерСправочник.Command.КомандаСправочник2",
       Тип: "Auto",
       ГруппаКоманд: "ПанельНавигацииФормыПерейти",
-      Автовидимость: false,
+      Автовидимость: "Ложь",
     },
     {
       Команда: "Catalog.ПримерСправочник.Command.КомандаСправоник",
       Тип: "Auto",
       ГруппаКоманд: "ПанельНавигацииФормыПерейти",
-      Автовидимость: false,
+      Автовидимость: "Ложь",
       РазрешитьИспользование: {
-        "Role.Администратор": "Истина",
+        "Администратор": "Истина",
       },
     },
   ],
@@ -75,7 +67,7 @@ export const fullCommandInterfaceEnterprise: CommandInterfaceEnterprise = {
     {
       Команда: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
       Тип: "Auto",
-      Автовидимость: false,
+      Автовидимость: "Ложь",
     },
   ],
 }

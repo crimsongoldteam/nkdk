@@ -1,9 +1,5 @@
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleKeysEnterprise,
-  UserVisibleXML,
-} from "~/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 //#region inner
@@ -13,7 +9,7 @@ export interface CommandInterface {
   CommandBar: CommandInterfaceItems
 }
 
-interface CommandInterfaceItem {
+export interface CommandInterfaceItem {
   command: string
   type?: string
   commandGroup?: SE.StandardCommandsGroup
@@ -34,7 +30,7 @@ export interface CommandInterfaceXML {
   }
 }
 
-interface CommandInterfaceItemXML {
+export interface CommandInterfaceItemXML {
   Command: string
   Type: string
   CommandGroup?: SE.StandardCommandsGroup
@@ -58,9 +54,9 @@ export interface CommandInterfaceItemEnterprise {
   Команда: string
   Тип?: string
   ГруппаКоманд?: SE.StandardCommandsGroupEnterprise
-  Автовидимость: boolean
-  [UserVisibleKeysEnterprise.Allow]?: UserVisibleEnterprise
-  [UserVisibleKeysEnterprise.Deny]?: UserVisibleEnterprise
+  Автовидимость: StringboolEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
 }
 
 type CommandInterfaceItemsEnterprise = CommandInterfaceItemEnterprise[]
