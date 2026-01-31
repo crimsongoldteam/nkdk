@@ -1,4 +1,4 @@
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
 
 export interface ColorTestCase {
   name: string
@@ -58,5 +58,33 @@ export const colorTestCases: readonly ColorTestCase[] = [
     colorEnterprise: "ЭлементСтиля.ПоясняющийТекст" as ColorEnterprise,
     enterpriseExpected: "ЭлементСтиля.ПоясняющийТекст" as ColorEnterprise,
     fixture: "color/customStyle.xml",
+  },
+] as const
+export interface ColorPreviewTestCase {
+  name: string
+  color: Color | undefined
+  expected: ColorPreview | undefined
+}
+
+export const colorPreviewTestCases: readonly ColorPreviewTestCase[] = [
+  {
+    name: "undefined color returns undefined",
+    color: undefined,
+    expected: undefined,
+  },
+  {
+    name: "WebColor with hex value",
+    color: { type: "WebColor" as const, value: "#FF0000" },
+    expected: { type: "WebColor", value: "#FF0000" },
+  },
+  {
+    name: "WindowsColor with system color name",
+    color: { type: "WindowsColor" as const, value: "ActiveBorder" },
+    expected: { type: "WindowsColor", value: "ActiveBorder" },
+  },
+  {
+    name: "StyleItem with style item name",
+    color: { type: "StyleItem" as const, value: "MyStyleItem" },
+    expected: { type: "StyleItem", value: "MyStyleItem" },
   },
 ] as const
