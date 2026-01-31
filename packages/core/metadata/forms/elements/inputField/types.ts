@@ -535,7 +535,7 @@ export interface InputFieldPreview {
   fixingInTable?: SystemEnumerationPreview
   footerBackColor?: ColorPreview
   footerDataPath?: string
-  footerFont?: Font
+  footerFont?: FontPreview
   footerHorizontalAlign?: SystemEnumerationPreview
   footerPicture?: PicturePreview
   footerText?: string
