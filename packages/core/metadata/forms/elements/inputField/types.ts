@@ -457,7 +457,7 @@ export interface InputFieldPreview {
   autoMaxWidth?: boolean
   autoShowClearButton?: SystemEnumerationPreview
   autoShowOpenButton?: SystemEnumerationPreview
-  availableTypes?: TypeDescription
+  // availableTypes?: TypeDescription
   backColor?: ColorPreview
   borderColor?: ColorPreview
   choiceButton?: boolean
