@@ -5,8 +5,8 @@ import { getAttributeName } from "./getAttributeName"
 
 describe("getAttributeName", () => {
   it.each(getAttributeNameFixtures)(
-    "should return $expected when dataPath is $dataPath",
-    ({ attributes, dataPath, expected }: GetAttributeNameFixture) => {
+    "should $name",
+    ({ attributes, dataPath, expectedDataPath, expectedAttributes }: GetAttributeNameFixture) => {
       const context = {
         ...mockСontext,
         preview: {
@@ -15,7 +15,8 @@ describe("getAttributeName", () => {
         },
       }
       const result = getAttributeName(context, dataPath)
-      expect(result).toEqual(expected)
+      expect(result).toEqual(expectedDataPath)
+      expect(context.preview?.attributes).toEqual(expectedAttributes)
     }
   )
 })
