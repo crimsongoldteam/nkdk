@@ -22,3 +22,9 @@ export interface BorderEnterprise {
   Ширина?: number
   ТипРамки?: SE.ControlBorderTypeEnterprise
 }
+
+export interface BorderPreview {
+  type: "border"
+  width?: number
+  borderType?: string
+}

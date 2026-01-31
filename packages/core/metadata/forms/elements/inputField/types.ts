@@ -444,124 +444,124 @@ export interface InputFieldTypedEnterprise extends InputFieldPartialEnterprise {
 }
 
 export interface InputFieldPreview {
-  elementType: "InputField"
-  name: string
-  allowInputEmptyMultipleValues?: boolean
-  allowMultipleValuesDuplicates?: boolean
-  autoCapitalizationOnTextInput?: SystemEnumerationPreview
-  autoChoiceIncomplete?: boolean
-  autoCorrectionOnTextInput?: SystemEnumerationPreview
-  autoFillHint?: SystemEnumerationPreview
-  autoMarkIncomplete?: boolean
-  autoMaxHeight?: boolean
-  autoMaxWidth?: boolean
-  autoShowClearButton?: SystemEnumerationPreview
-  autoShowOpenButton?: SystemEnumerationPreview
-  // availableTypes?: TypeDescription
-  backColor?: ColorPreview
-  borderColor?: ColorPreview
-  choiceButton?: boolean
-  choiceButtonPicture?: PicturePreview
-  choiceButtonRepresentation?: SystemEnumerationPreview
-  choiceFoldersAndItems?: SystemEnumerationPreview
-  choiceForm?: string
-  choiceHistoryOnInput?: SystemEnumerationPreview
-  // choiceList?: ChoiceList
-  choiceListButton?: boolean
-  choiceListHeight?: number
-  // choiceParameterLinks?: ChoiceParameterLinks
-  // choiceParameters?: ChoiceParameters
-  chooseType?: boolean
-  clearButton?: boolean
-  createButton?: boolean
-  dropListButton?: boolean
-  dropListWidth?: number
-  editFormat?: string
-  editText?: string
-  editTextUpdate?: SystemEnumerationPreview
-  extendedEdit?: boolean
-  font?: FontPreview
-  format?: string
-  height?: number
-  heightControlVariant?: SystemEnumerationPreview
-  horizontalStretch?: boolean
-  incompleteChoiceMode?: SystemEnumerationPreview
-  inputHint?: string
-  listChoiceMode?: boolean
-  markIncomplete?: boolean
-  markNegatives?: boolean
-  mask?: string
-  maxHeight?: number
-  maxValue?: number
-  maxWidth?: number
-  minValue?: number
-  multiLine?: boolean
-  multipleValuePictureDataPath?: string
-  multipleValuePictureShape?: SystemEnumerationPreview
-  multipleValuePictureSize?: SystemEnumerationPreview
-  multipleValuePresentationDataPath?: string
-  multipleValuesBackColor?: ColorPreview
-  multipleValuesExtendedEdit?: boolean
-  multipleValuesFont?: FontPreview
-  multipleValuesHyperlink?: boolean
-  multipleValuesPicture?: PicturePreview
-  multipleValuesTextColor?: ColorPreview
-  multipleValueValueDataPath?: string
-  onScreenKeyboardReturnKeyText?: SystemEnumerationPreview
-  openButton?: boolean
-  passwordMode?: boolean
-  quickChoice?: boolean
-  selectedText?: string
-  showCheckBoxesInDropListWhenInputMultipleValues?: boolean
-  specialTextInputMode?: SystemEnumerationPreview
-  spellCheckingOnTextInput?: SystemEnumerationPreview
-  spinButton?: boolean
-  textColor?: ColorPreview
-  textEdit?: boolean
-  typeDomainEnabled?: boolean
-  // typeLink?: TypeLink
-  verticalStretch?: boolean
-  width?: number
-  wrap?: boolean
-  autoCellHeight?: boolean
-  cellHyperlink?: boolean
-  // contextMenu?: ContextMenu
-  dataPath?: string
-  defaultItem?: boolean
-  displayImportance?: SystemEnumerationPreview
-  editMode?: SystemEnumerationPreview
-  enabled?: boolean
-  // extendedTooltip?: ExtendedTooltip
-  fixingInTable?: SystemEnumerationPreview
-  footerBackColor?: ColorPreview
-  footerDataPath?: string
-  footerFont?: FontPreview
-  footerHorizontalAlign?: SystemEnumerationPreview
-  footerPicture?: PicturePreview
-  footerText?: string
-  footerTextColor?: ColorPreview
-  headerHorizontalAlign?: SystemEnumerationPreview
-  headerPicture?: PicturePreview
-  horizontalAlign?: SystemEnumerationPreview
-  horizontalAlignInGroup?: SystemEnumerationPreview
-  readOnly?: boolean
-  // shortcut?: string
-  showInFooter?: boolean
-  showInHeader?: boolean
-  skipOnInput?: boolean
-  // table?: string
-  title?: string
-  titleBackColor?: ColorPreview
-  titleFont?: FontPreview
-  titleHeight?: number
-  titleLocation?: SystemEnumerationPreview
-  titleTextColor?: ColorPreview
-  toolTip?: string
-  toolTipRepresentation?: SystemEnumerationPreview
-  // typeRestriction?: TypeDescription
-  verticalAlign?: SystemEnumerationPreview
-  verticalAlignInGroup?: SystemEnumerationPreview
-  visible?: boolean
-  warningOnEdit?: string
-  warningOnEditRepresentation?: SystemEnumerationPreview
+  ElementType: "InputField"
+  Name: string
+  AllowInputEmptyMultipleValues?: boolean
+  AllowMultipleValuesDuplicates?: boolean
+  AutoCapitalizationOnTextInput?: SystemEnumerationPreview
+  AutoChoiceIncomplete?: boolean
+  AutoCorrectionOnTextInput?: SystemEnumerationPreview
+  AutoFillHint?: SystemEnumerationPreview
+  AutoMarkIncomplete?: boolean
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  AutoShowClearButton?: SystemEnumerationPreview
+  AutoShowOpenButton?: SystemEnumerationPreview
+  // AvailableTypes?: TypeDescription
+  BackColor?: ColorPreview
+  BorderColor?: ColorPreview
+  ChoiceButton?: boolean
+  ChoiceButtonPicture?: PicturePreview
+  ChoiceButtonRepresentation?: SystemEnumerationPreview
+  ChoiceFoldersAndItems?: SystemEnumerationPreview
+  ChoiceForm?: string
+  ChoiceHistoryOnInput?: SystemEnumerationPreview
+  // ChoiceList?: ChoiceList
+  ChoiceListButton?: boolean
+  ChoiceListHeight?: number
+  // ChoiceParameterLinks?: ChoiceParameterLinks
+  // ChoiceParameters?: ChoiceParameters
+  ChooseType?: boolean
+  ClearButton?: boolean
+  CreateButton?: boolean
+  DropListButton?: boolean
+  DropListWidth?: number
+  EditFormat?: string
+  EditText?: string
+  EditTextUpdate?: SystemEnumerationPreview
+  ExtendedEdit?: boolean
+  Font?: FontPreview
+  Format?: string
+  Height?: number
+  HeightControlVariant?: SystemEnumerationPreview
+  HorizontalStretch?: boolean
+  IncompleteChoiceMode?: SystemEnumerationPreview
+  InputHint?: string
+  ListChoiceMode?: boolean
+  MarkIncomplete?: boolean
+  MarkNegatives?: boolean
+  Mask?: string
+  MaxHeight?: number
+  MaxValue?: number
+  MaxWidth?: number
+  MinValue?: number
+  MultiLine?: boolean
+  MultipleValuePictureDataPath?: string
+  MultipleValuePictureShape?: SystemEnumerationPreview
+  MultipleValuePictureSize?: SystemEnumerationPreview
+  MultipleValuePresentationDataPath?: string
+  MultipleValuesBackColor?: ColorPreview
+  MultipleValuesExtendedEdit?: boolean
+  MultipleValuesFont?: FontPreview
+  MultipleValuesHyperlink?: boolean
+  MultipleValuesPicture?: PicturePreview
+  MultipleValuesTextColor?: ColorPreview
+  MultipleValueValueDataPath?: string
+  OnScreenKeyboardReturnKeyText?: SystemEnumerationPreview
+  OpenButton?: boolean
+  PasswordMode?: boolean
+  QuickChoice?: boolean
+  SelectedText?: string
+  ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
+  SpecialTextInputMode?: SystemEnumerationPreview
+  SpellCheckingOnTextInput?: SystemEnumerationPreview
+  SpinButton?: boolean
+  TextColor?: ColorPreview
+  TextEdit?: boolean
+  TypeDomainEnabled?: boolean
+  // TypeLink?: TypeLink
+  VerticalStretch?: boolean
+  Width?: number
+  Wrap?: boolean
+  AutoCellHeight?: boolean
+  CellHyperlink?: boolean
+  // ContextMenu?: ContextMenu
+  DataPath?: string
+  DefaultItem?: boolean
+  DisplayImportance?: SystemEnumerationPreview
+  EditMode?: SystemEnumerationPreview
+  Enabled?: boolean
+  // ExtendedTooltip?: ExtendedTooltip
+  FixingInTable?: SystemEnumerationPreview
+  FooterBackColor?: ColorPreview
+  FooterDataPath?: string
+  FooterFont?: FontPreview
+  FooterHorizontalAlign?: SystemEnumerationPreview
+  FooterPicture?: PicturePreview
+  FooterText?: string
+  FooterTextColor?: ColorPreview
+  HeaderHorizontalAlign?: SystemEnumerationPreview
+  HeaderPicture?: PicturePreview
+  HorizontalAlign?: SystemEnumerationPreview
+  HorizontalAlignInGroup?: SystemEnumerationPreview
+  ReadOnly?: boolean
+  // Shortcut?: string
+  ShowInFooter?: boolean
+  ShowInHeader?: boolean
+  SkipOnInput?: boolean
+  // Table?: string
+  Title?: string
+  TitleBackColor?: ColorPreview
+  TitleFont?: FontPreview
+  TitleHeight?: number
+  TitleLocation?: SystemEnumerationPreview
+  TitleTextColor?: ColorPreview
+  ToolTip?: string
+  ToolTipRepresentation?: SystemEnumerationPreview
+  // TypeRestriction?: TypeDescription
+  VerticalAlign?: SystemEnumerationPreview
+  VerticalAlignInGroup?: SystemEnumerationPreview
+  Visible?: boolean
+  WarningOnEdit?: string
+  WarningOnEditRepresentation?: SystemEnumerationPreview
 }
