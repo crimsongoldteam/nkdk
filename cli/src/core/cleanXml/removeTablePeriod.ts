@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 export const removeTablePeriod = (context: CleanContext, parsedData: any): any => {
   if (parsedData === null || parsedData === undefined) {

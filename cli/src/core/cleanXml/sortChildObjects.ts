@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 /**
  * Извлекает текстовое значение из объекта с fast-xml-parser структурой

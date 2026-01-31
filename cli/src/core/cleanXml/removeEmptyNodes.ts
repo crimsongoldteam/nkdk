@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 /**
  * Удаляет пустые ноды из объекта.

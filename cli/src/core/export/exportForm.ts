@@ -9,7 +9,7 @@ import {
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { CatalogFormEnterprise } from "~/metadata/forms/index.js"
+import { CatalogFormEnterprise } from "~/metadata/forms/index"
 
 /**
  * Экспортирует форму из Enterprise формата в XML

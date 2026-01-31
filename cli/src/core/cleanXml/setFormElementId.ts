@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 export const setFormElementId = (context: CleanContext, parsedData: any): any => {
   return process(parsedData, { id: 1 })

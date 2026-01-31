@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 const TARGET_UUID = "11111111-1111-4111-8111-111111111111"
 
@@ -47,7 +47,10 @@ const process = (data: any, params: { id: number }): any => {
   if (shouldReplaceUuid(tagName)) {
     const children = data[tagName]
     // Если дети - пустой массив или массив с текстовым узлом, заменяем на TARGET_UUID
-    if (Array.isArray(children) && (children.length === 0 || (children.length === 1 && children[0]["#text"] !== undefined))) {
+    if (
+      Array.isArray(children) &&
+      (children.length === 0 || (children.length === 1 && children[0]["#text"] !== undefined))
+    ) {
       return {
         ...data,
         [tagName]: [{ "#text": TARGET_UUID }],

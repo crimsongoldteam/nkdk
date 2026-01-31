@@ -1,12 +1,12 @@
-import { addNamespaces } from "./addNamespaces.js"
-import { buildXml } from "./buildXml.js"
-import { parseXml } from "./parseXml.js"
-import { removeEmptyNodes } from "./removeEmptyNodes.js"
-import { removeTablePeriod } from "./removeTablePeriod.js"
-import { setFormElementId } from "./setFormElementId.js"
-import { sortData } from "./sortData.js"
-import { sortEvents } from "./sortEvents.js"
-import { CleanContext } from "./types.js"
+import { addNamespaces } from "./addNamespaces"
+import { buildXml } from "./buildXml"
+import { parseXml } from "./parseXml"
+import { removeEmptyNodes } from "./removeEmptyNodes"
+import { removeTablePeriod } from "./removeTablePeriod"
+import { setFormElementId } from "./setFormElementId"
+import { sortData } from "./sortData"
+import { sortEvents } from "./sortEvents"
+import { CleanContext } from "./types"
 
 const formContext: CleanContext = {
   namespaces: {

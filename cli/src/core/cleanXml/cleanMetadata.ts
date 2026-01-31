@@ -1,11 +1,11 @@
-import { addNamespaces } from "./addNamespaces.js"
-import { buildXml } from "./buildXml.js"
-import { parseXml } from "./parseXml.js"
-import { removeEmptyNodes } from "./removeEmptyNodes.js"
-import { setUUID } from "./setUUID.js"
-import { sortChildObjects } from "./sortChildObjects.js"
-import { sortData } from "./sortData.js"
-import { CleanContext } from "./types.js"
+import { addNamespaces } from "./addNamespaces"
+import { buildXml } from "./buildXml"
+import { parseXml } from "./parseXml"
+import { removeEmptyNodes } from "./removeEmptyNodes"
+import { setUUID } from "./setUUID"
+import { sortChildObjects } from "./sortChildObjects"
+import { sortData } from "./sortData"
+import { CleanContext } from "./types"
 
 const metadataContext: CleanContext = {
   namespaces: {

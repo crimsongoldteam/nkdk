@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 export const sortEvents = (context: CleanContext, parsedData: any): any => {
   if (parsedData === null || parsedData === undefined) {
@@ -6,9 +6,7 @@ export const sortEvents = (context: CleanContext, parsedData: any): any => {
   }
 
   if (Array.isArray(parsedData)) {
-    return parsedData
-      .map((item) => sortEvents(context, item))
-      .filter((item) => item !== undefined)
+    return parsedData.map((item) => sortEvents(context, item)).filter((item) => item !== undefined)
   }
 
   if (typeof parsedData !== "object") {

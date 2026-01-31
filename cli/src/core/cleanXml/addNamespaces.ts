@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 export const addNamespaces = (context: CleanContext, parsedData: any): any => {
   if (!Array.isArray(parsedData)) {
@@ -11,10 +11,13 @@ export const addNamespaces = (context: CleanContext, parsedData: any): any => {
     return keys.some((k) => !k.startsWith("?") && k !== ":@")
   })
 
-  const prefixedNamespaced = Object.entries(context.namespaces).reduce((acc, [prefix, uri]) => {
-    acc[`@_${prefix}`] = uri
-    return acc
-  }, {} as Record<string, string>)
+  const prefixedNamespaced = Object.entries(context.namespaces).reduce(
+    (acc, [prefix, uri]) => {
+      acc[`@_${prefix}`] = uri
+      return acc
+    },
+    {} as Record<string, string>
+  )
 
   if (rootElement) {
     // Инициализируем атрибуты, если их нет

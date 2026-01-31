@@ -9,7 +9,7 @@ import {
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { basename, dirname, join, relative } from "path"
-import { importForms } from "./importForm.js"
+import { importForms } from "./importForm"
 
 export const importCatalog = (inputPath: string, outputPath: string): void => {
   const context = {

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { Command } from "commander"
-import { cleanFormFixturesXmlFiles, cleanXmlFiles } from "./commands/cleanXmlFiles.js"
-import { exportConfigToXML } from "./commands/exportConfigToXml.js"
-import { importConfigFromXml } from "./commands/importConfigFromXml.js"
+import { cleanFormFixturesXmlFiles, cleanXmlFiles } from "./commands/cleanXmlFiles"
+import { exportConfigToXML } from "./commands/exportConfigToXml"
+import { importConfigFromXml } from "./commands/importConfigFromXml"
 
 const program = new Command()
 

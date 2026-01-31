@@ -1,4 +1,4 @@
-import type { CleanContext } from "./types.js"
+import type { CleanContext } from "./types"
 
 export const sortData = (context: CleanContext, parsedData: any, isInsideSortableTag: boolean): any => {
   if (parsedData === null || parsedData === undefined) {

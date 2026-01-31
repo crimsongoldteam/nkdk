@@ -9,7 +9,7 @@ import {
 import console from "console"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { CatalogFormXML } from "~/metadata/forms/index.js"
+import { CatalogFormXML } from "~/metadata/forms/index"
 
 /**
  * Ищет все XML файлы в каталоге inputPath/Forms и создает для каждого пустой файл Form.yaml
