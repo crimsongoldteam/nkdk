@@ -26,12 +26,12 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
     },
   },
   {
-    name: "return dataPath if attribute already exists",
+    name: "return dataPath with number if attribute already exists",
     attributes: {
       ОбъектTest: { name: "p_ОбъектTest", title: "Test title", dataPath: "p_ОбъектTest", type: { type: ["String"] } },
     },
     dataPath: "Объект.Test",
-    expectedDataPath: "Test",
+    expectedDataPath: "p_ОбъектTest1",
     expectedAttributes: {
       ОбъектTest: { name: "p_ОбъектTest", title: "Test title", dataPath: "p_ОбъектTest", type: { type: ["String"] } },
       "Объект.Test": { name: "p_ОбъектTest1", title: "Test", dataPath: "p_ОбъектTest1", type: { type: ["String"] } },

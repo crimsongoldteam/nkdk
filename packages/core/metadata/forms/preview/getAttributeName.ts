@@ -12,9 +12,6 @@ export const getAttributeName = (
   const nameWithoutDot = dataPath.replace(".", "")
   const title = dataPath.split(".").pop() ?? dataPath
 
-  // Проверяем существующий атрибут по точному совпадению
-  const existingAttribute = preview.attributes[dataPath] ?? preview.attributes[nameWithoutDot]
-
   // Формируем имя атрибута
   let name = preview.prefix + nameWithoutDot
 
@@ -34,11 +31,6 @@ export const getAttributeName = (
   }
 
   preview.attributes[dataPath] = attribute
-
-  // Если атрибут уже существовал (без точки), возвращаем часть после точки
-  if (existingAttribute) {
-    return title
-  }
 
   return name
 }
