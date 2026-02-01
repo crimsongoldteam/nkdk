@@ -85,7 +85,7 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   )
   if (choiceFoldersAndItems !== undefined) result.ChoiceFoldersAndItems = choiceFoldersAndItems
 
-  if (element.choiceForm !== undefined) result.ChoiceForm = element.choiceForm
+  // if (element.choiceForm !== undefined) result.ChoiceForm = element.choiceForm
 
   const choiceHistoryOnInput = exportSystemEnumerationToPreview(
     context,
@@ -111,7 +111,7 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   const editFormat = exportI8nTextToPreview(context, element.editFormat)
   if (editFormat !== undefined) result.EditFormat = editFormat
 
-  if (element.editText !== undefined) result.EditText = element.editText
+  // if (element.editText !== undefined) result.EditText = element.editText
 
   const editTextUpdate = exportSystemEnumerationToPreview(context, element.editTextUpdate, "EditTextUpdate")
   if (editTextUpdate !== undefined) result.EditTextUpdate = editTextUpdate
@@ -217,7 +217,7 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
 
   if (element.quickChoice !== undefined) result.QuickChoice = element.quickChoice
 
-  if (element.selectedText !== undefined) result.SelectedText = element.selectedText
+  // if (element.selectedText !== undefined) result.SelectedText = element.selectedText
 
   if (element.showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
     result.ShowCheckBoxesInDropListWhenInputMultipleValues = element.showCheckBoxesInDropListWhenInputMultipleValues

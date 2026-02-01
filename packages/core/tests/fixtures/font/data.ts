@@ -1,4 +1,4 @@
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
 
 // #region normalMinimalFont
 
@@ -115,6 +115,7 @@ interface FontEnterpriseFixture {
   xml: string
   font: Font
   enterprise: FontEnterprise
+  preview: FontPreview
 }
 
 export const fontEnterpriseFixtures: FontEnterpriseFixture[] = [

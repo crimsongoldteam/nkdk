@@ -285,7 +285,7 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.quickChoice !== undefined) result.QuickChoice = data.quickChoice
 
-  if (data.selectedText !== undefined) result.SelectedText = data.selectedText
+  // if (data.selectedText !== undefined) result.SelectedText = data.selectedText
 
   if (data.showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
     result.ShowCheckBoxesInDropListWhenInputMultipleValues = data.showCheckBoxesInDropListWhenInputMultipleValues

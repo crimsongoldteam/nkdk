@@ -282,7 +282,7 @@ export function importInputFieldFromXML<To extends InputField | undefined>(
 
   if (xml.QuickChoice !== undefined) result.quickChoice = xml.QuickChoice
 
-  if (xml.SelectedText !== undefined) result.selectedText = xml.SelectedText
+  // if (xml.SelectedText !== undefined) result.selectedText = xml.SelectedText
 
   if (xml.ShowCheckBoxesInDropListWhenInputMultipleValues !== undefined)
     result.showCheckBoxesInDropListWhenInputMultipleValues = xml.ShowCheckBoxesInDropListWhenInputMultipleValues

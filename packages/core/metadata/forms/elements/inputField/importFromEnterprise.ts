@@ -194,11 +194,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -321,7 +317,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (choiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = choiceFoldersAndItems
 
-  if (data.ВыделенныйТекст !== undefined) result.selectedText = data.ВыделенныйТекст
+  // if (data.ВыделенныйТекст !== undefined) result.selectedText = data.ВыделенныйТекст
 
   const markNegatives = importBooleanFromEnterprise(context, data.ВыделятьОтрицательные)
   if (markNegatives !== undefined) result.markNegatives = markNegatives

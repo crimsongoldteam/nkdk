@@ -33,7 +33,6 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-
 export function exportInputFieldTypedToEnterprise<From extends InputField | undefined>(
   context: ConfigurationContext,
   data: From
@@ -308,7 +307,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
 
-  if (data.selectedText !== undefined) result.ВыделенныйТекст = data.selectedText
+  // if (data.selectedText !== undefined) result.ВыделенныйТекст = data.selectedText
 
   const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
   if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
@@ -407,7 +406,6 @@ const exportInputFieldPropsToEnterprise = (
 
   const inputHint = exportI8nTextToEnterprise(context, data.inputHint)
   if (inputHint !== undefined) result.ПодсказкаВвода = inputHint
-
 
   const spellCheckingOnTextInput = exportSystemEnumerationToEnterprise(
     context,
