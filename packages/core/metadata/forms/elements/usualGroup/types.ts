@@ -6,7 +6,12 @@ import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
-import { GroupChildItem, GroupChildItemsXML, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
+import {
+  GroupChildItems,
+  GroupChildItemsPreview,
+  GroupChildItemsXML,
+  GroupChilItemPartialEnterprise,
+} from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
@@ -54,7 +59,7 @@ export interface UsualGroup {
   titleDataPath?: string
   united?: boolean
   verticalSpacing?: SE.FormItemSpacing
-  childItems: GroupChildItem[]
+  childItems: GroupChildItems
 }
 
 export interface UsualGroupXML extends BaseElementXML {
@@ -190,4 +195,5 @@ export interface UsualGroupPreview {
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
+  ChildItems: GroupChildItemsPreview
 }

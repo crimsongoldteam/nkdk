@@ -89,6 +89,7 @@ import {
 import {
   LabelField,
   LabelFieldPartialEnterprise,
+  LabelFieldPreview,
   LabelFieldTypedEnterprise,
   LabelFieldXML,
 } from "../forms/elements/labelField/types"
@@ -268,6 +269,7 @@ export type TypeRules<T> = T extends Button
                               : T extends LabelField
                                 ? {
                                     XML: LabelFieldXML
+                                    Preview: LabelFieldPreview
                                     PartialEnterprise: LabelFieldPartialEnterprise
                                     TypedEnterprise: LabelFieldTypedEnterprise
                                   }

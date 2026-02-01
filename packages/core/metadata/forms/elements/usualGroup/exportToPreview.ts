@@ -5,6 +5,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
+import { exportChildItemsToPreview } from "../../collections/childItems/exportToPreview"
 import { UsualGroup, UsualGroupPreview } from "./types"
 
 export const exportUsualGroupToPreview = (context: ConfigurationContext, element: UsualGroup): UsualGroupPreview => {
@@ -72,11 +73,7 @@ export const exportUsualGroupToPreview = (context: ConfigurationContext, element
   }
 
   if (element.horizontalAlignInGroup !== undefined) {
-    const horizontalAlign = exportSystemEnumerationToPreview(
-      context,
-      element.horizontalAlignInGroup,
-      "HorizontalAlign"
-    )
+    const horizontalAlign = exportSystemEnumerationToPreview(context, element.horizontalAlignInGroup, "HorizontalAlign")
     if (horizontalAlign !== undefined) result.HorizontalAlign = horizontalAlign
   }
 
@@ -160,6 +157,8 @@ export const exportUsualGroupToPreview = (context: ConfigurationContext, element
   if (element.visible !== undefined) result.Visible = element.visible
 
   if (element.width !== undefined) result.Width = element.width
+
+  result.ChildItems = exportChildItemsToPreview(context, element.childItems)
 
   return result
 }

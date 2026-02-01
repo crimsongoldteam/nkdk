@@ -1,4 +1,9 @@
-import { ToPartialEnterpriseType, ToTypedEnterpriseType, ToXMLType } from "~/metadata/metadataFactory/types"
+import {
+  ToPartialEnterpriseType,
+  ToPreviewType,
+  ToTypedEnterpriseType,
+  ToXMLType,
+} from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
@@ -119,6 +124,8 @@ export type GroupChildItemXML = Record<GroupChildItem["elementType"], ToXMLType<
 export type GroupChildItemsXML = GroupChildItemXML | GroupChildItemXML[]
 
 export type GroupChilItemPartialEnterprise = Record<string, ToPartialEnterpriseType<GroupChildItem>>
+
+export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>
 
 // #endregion
 

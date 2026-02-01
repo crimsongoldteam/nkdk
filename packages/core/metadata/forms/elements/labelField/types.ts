@@ -1,10 +1,10 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { Border, BorderEnterprise, BorderPreview, BorderXML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontPreview, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PicturePreview, PictureXML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
@@ -15,6 +15,7 @@ import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface LabelField {
@@ -222,6 +223,65 @@ export interface LabelFieldPartialEnterprise {
 
 export interface LabelFieldTypedEnterprise extends LabelFieldPartialEnterprise {
   Тип: "ПолеНадписи"
+}
+
+export interface LabelFieldPreview {
+  ElementType: "FormField"
+  Name: string
+  Type: SystemEnumerationPreview
+  AutoCellHeight?: boolean
+  CellHyperlink?: boolean
+  DataPath?: string
+  DefaultItem?: boolean
+  DisplayImportance?: SystemEnumerationPreview
+  EditMode?: SystemEnumerationPreview
+  Enabled?: boolean
+  FixingInTable?: SystemEnumerationPreview
+  FooterBackColor?: ColorPreview
+  FooterDataPath?: string
+  FooterFont?: FontPreview
+  FooterHorizontalAlign?: SystemEnumerationPreview
+  FooterPicture?: PicturePreview
+  FooterText?: string
+  FooterTextColor?: ColorPreview
+  HeaderHorizontalAlign?: SystemEnumerationPreview
+  HeaderPicture?: PicturePreview
+  HorizontalAlign?: SystemEnumerationPreview
+  HorizontalAlignInGroup?: SystemEnumerationPreview
+  ReadOnly?: boolean
+  ShowInFooter?: boolean
+  ShowInHeader?: boolean
+  SkipOnInput?: boolean
+  Title?: string
+  TitleBackColor?: ColorPreview
+  TitleFont?: FontPreview
+  TitleHeight?: number
+  TitleLocation?: SystemEnumerationPreview
+  TitleTextColor?: ColorPreview
+  ToolTip?: string
+  ToolTipRepresentation?: SystemEnumerationPreview
+  VerticalAlign?: SystemEnumerationPreview
+  VerticalAlignInGroup?: SystemEnumerationPreview
+  Visible?: boolean
+  WarningOnEdit?: string
+  WarningOnEditRepresentation?: SystemEnumerationPreview
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  BackColor?: ColorPreview
+  Border?: BorderPreview
+  BorderColor?: ColorPreview
+  Font?: FontPreview
+  Format?: string
+  Height?: number
+  HorizontalStretch?: boolean
+  Hyperlink?: boolean
+  MarkNegatives?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  PasswordMode?: boolean
+  TextColor?: ColorPreview
+  VerticalStretch?: boolean
+  Width?: number
 }
 
 // Для обратной совместимости
