@@ -22,6 +22,12 @@ export type ToTypedEnterpriseType<T> = T extends undefined
     ? TypeRules<NonNullable<T>>["TypedEnterprise"]
     : never
 
+export type ToPreviewType<T> = T extends undefined
+  ? undefined
+  : "Preview" extends keyof TypeRules<NonNullable<T>>
+    ? TypeRules<NonNullable<T>>["Preview"]
+    : never
+
 // // #endregion
 
 // #region functions
@@ -65,6 +71,11 @@ export type ExportToStructureContentFn = <From extends BaseElement>(
   data: From
 ) => IFormatElementResult
 
+export type ExportToPreviewFn = <From extends BaseElement>(
+  context: ConfigurationContext,
+  data: From
+) => NonNullable<ToPreviewType<From>>
+
 // #endregion
 
 type fnPairs =
@@ -76,6 +87,7 @@ type fnPairs =
   | ["ImportTypedFromEnterprise", ImportTypedFromEnterpriseFn]
   | ["ExportToStructure", ExportToStructureFn]
   | ["ExportToStructureContent", ExportToStructureContentFn]
+  | ["ExportToPreview", ExportToPreviewFn]
 
 export type ItemOperationType = fnPairs extends infer T ? (T extends [infer Op, any] ? Op : never) : never
 

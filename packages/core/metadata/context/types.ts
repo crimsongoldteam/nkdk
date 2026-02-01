@@ -1,4 +1,4 @@
-import { PreviewAttribute } from "../forms/clientApplicationForm/base/types"
+import { PreviewAttributeMapItem } from "../forms/clientApplicationForm/base/types"
 import { AllChildItemsPartialEnterprise } from "../forms/collections/childItems/types"
 
 export interface ConfigurationContext {
@@ -8,6 +8,6 @@ export interface ConfigurationContext {
   allElements?: AllChildItemsPartialEnterprise
   preview?: {
     prefix: string
-    attributes: Record<string, PreviewAttribute>
+    attributes: Record<string, PreviewAttributeMapItem>
   }
 }

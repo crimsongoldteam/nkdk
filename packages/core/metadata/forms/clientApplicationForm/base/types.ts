@@ -286,16 +286,26 @@ export interface FormMetadataXML {
 }
 
 export interface ClientApplicationFormPreview {
+  prefix: string
   attributes: PreviewAttributes
-  childItems: []
+  childItems: any
 }
 
 export interface PreviewAttribute {
+  Name: string
+  Path: string
+  Title?: string
+  Type: TypeDescription
+}
+
+export type PreviewAttributes = PreviewAttribute[]
+
+export interface PreviewAttributeMapItem {
   name: string
   dataPath: string
   title?: string
-  type?: TypeDescription
-  childItems?: PreviewAttributes
+  type: TypeDescription
+  childItems?: PreviewAttributesMap
 }
 
-export type PreviewAttributes = Record<string, PreviewAttribute>
+export type PreviewAttributesMap = Record<string, PreviewAttributeMapItem>

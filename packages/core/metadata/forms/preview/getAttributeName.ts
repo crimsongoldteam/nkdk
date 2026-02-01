@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PreviewAttribute } from "../clientApplicationForm/base/types"
+import { PreviewAttributeMapItem } from "../clientApplicationForm/base/types"
 
 export const getAttributeName = (
   context: ConfigurationContext,
@@ -52,7 +52,7 @@ export const getAttributeName = (
     counter++
   }
 
-  const attribute: PreviewAttribute = {
+  const attribute: PreviewAttributeMapItem = {
     name: name,
     title: title,
     dataPath: attributeDataPath,

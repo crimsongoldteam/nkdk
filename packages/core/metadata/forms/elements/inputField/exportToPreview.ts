@@ -3,6 +3,8 @@ import { exportFontToPreview } from "~/metadata/commonObjects/font/exportToPrevi
 import { exportI8nTextToPreview } from "~/metadata/commonObjects/i8nText/exportToPreview"
 import { exportPictureToPreview } from "~/metadata/commonObjects/picture/exportToPreview"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
 import { getAttributeName } from "../../preview/getAttributeName"
 import { InputField, InputFieldPreview } from "./types"
@@ -369,3 +371,5 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
 
   return result
 }
+
+registerMetadata("ExportToPreview", "InputField", exportInputFieldToPreview as ExportToPreviewFn)

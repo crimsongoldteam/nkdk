@@ -13048,6 +13048,6 @@ export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnte
 // #endregion StatePresentation
 
 export interface SystemEnumerationPreview {
-  Type: string
+  Type: "SystemEnumeration"
   Value: string
 }

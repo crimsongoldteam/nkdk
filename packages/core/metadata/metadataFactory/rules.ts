@@ -76,6 +76,7 @@ import {
 import {
   InputField,
   InputFieldPartialEnterprise,
+  InputFieldPreview,
   InputFieldTypedEnterprise,
   InputFieldXML,
 } from "../forms/elements/inputField/types"
@@ -253,6 +254,7 @@ export type TypeRules<T> = T extends Button
                           : T extends InputField
                             ? {
                                 XML: InputFieldXML
+                                Preview: InputFieldPreview
                                 PartialEnterprise: InputFieldPartialEnterprise
                                 TypedEnterprise: InputFieldTypedEnterprise
                               }
