@@ -20,36 +20,21 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
     name: "return dataPath if attribute doesn't exists",
     attributes: {},
     dataPath: "Test",
-    expectedDataPath: "prefixTest",
+    expectedDataPath: "p_Test",
     expectedAttributes: {
-      Test: { name: "prefixTest", title: "Test", dataPath: "prefixTest", type: { type: ["String"] } },
+      Test: { name: "p_Test", title: "Test", dataPath: "p_Test", type: { type: ["String"] } },
     },
   },
   {
     name: "return dataPath if attribute already exists",
     attributes: {
-      ОбъектTest: {
-        name: "prefixОбъектTest",
-        title: "Test title",
-        dataPath: "prefixОбъектTest",
-        type: { type: ["String"] },
-      },
+      ОбъектTest: { name: "p_ОбъектTest", title: "Test title", dataPath: "p_ОбъектTest", type: { type: ["String"] } },
     },
     dataPath: "Объект.Test",
     expectedDataPath: "Test",
     expectedAttributes: {
-      ОбъектTest: {
-        name: "prefixОбъектTest",
-        title: "Test title",
-        dataPath: "prefixОбъектTest",
-        type: { type: ["String"] },
-      },
-      "Объект.Test": {
-        name: "prefixОбъектTest1",
-        title: "Test",
-        dataPath: "prefixОбъектTest1",
-        type: { type: ["String"] },
-      },
+      ОбъектTest: { name: "p_ОбъектTest", title: "Test title", dataPath: "p_ОбъектTest", type: { type: ["String"] } },
+      "Объект.Test": { name: "p_ОбъектTest1", title: "Test", dataPath: "p_ОбъектTest1", type: { type: ["String"] } },
     },
   },
 ]

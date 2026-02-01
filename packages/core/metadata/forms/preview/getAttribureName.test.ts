@@ -11,7 +11,7 @@ describe("getAttributeName", () => {
         ...mockСontext,
         preview: {
           attributes: attributes,
-          prefix: "prefix",
+          prefix: "p_",
         },
       }
       const result = getAttributeName(context, dataPath)
