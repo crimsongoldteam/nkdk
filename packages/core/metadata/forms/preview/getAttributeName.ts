@@ -56,7 +56,7 @@ export const getAttributeName = (
     name: name,
     title: title,
     dataPath: attributeDataPath,
-    type: { type: ["String"] },
+    type: { Type: ["String"] },
   }
 
   preview.attributes[dataPath.toLowerCase()] = attribute

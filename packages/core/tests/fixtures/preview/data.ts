@@ -23,31 +23,31 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
     dataPath: "Test",
     expectedDataPath: "p_Test",
     expectedAttributes: {
-      test: { name: "p_Test", title: "Test", dataPath: "p_Test", type: { type: ["String"] } },
+      test: { name: "p_Test", title: "Test", dataPath: "p_Test", type: { Type: ["string"] } },
     },
   },
   {
     name: "return dataPath with number if attribute already exists",
     attributes: {
-      objecttest: { name: "p_ObjectTest", title: "Test title", dataPath: "p_ObjectTest", type: { type: ["String"] } },
+      objecttest: { name: "p_ObjectTest", title: "Test title", dataPath: "p_ObjectTest", type: { Type: ["string"] } },
       "obj.ecttest": {
         name: "p_ObjectTest1",
         title: "Test title",
         dataPath: "p_ObjectTest1",
-        type: { type: ["String"] },
+        type: { Type: ["string"] },
       },
     },
     dataPath: "Object.Test",
     expectedDataPath: "p_ObjectTest2",
     expectedAttributes: {
-      objecttest: { name: "p_ObjectTest", title: "Test title", dataPath: "p_ObjectTest", type: { type: ["String"] } },
+      objecttest: { name: "p_ObjectTest", title: "Test title", dataPath: "p_ObjectTest", type: { Type: ["string"] } },
       "obj.ecttest": {
         name: "p_ObjectTest1",
         title: "Test title",
         dataPath: "p_ObjectTest1",
-        type: { type: ["String"] },
+        type: { Type: ["string"] },
       },
-      "object.test": { name: "p_ObjectTest2", title: "Test", dataPath: "p_ObjectTest2", type: { type: ["String"] } },
+      "object.test": { name: "p_ObjectTest2", title: "Test", dataPath: "p_ObjectTest2", type: { Type: ["string"] } },
     },
   },
   {
@@ -57,20 +57,20 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
     dataPath: "Table.Test",
     expectedDataPath: "p_Table.Test",
     expectedAttributes: {
-      "table.test": { name: "Test", title: "Test", dataPath: "p_Table.Test", type: { type: ["String"] } },
+      "table.test": { name: "Test", title: "Test", dataPath: "p_Table.Test", type: { Type: ["string"] } },
     },
   },
   {
     name: "return dataPath for object table",
     attributes: {
-      "object.table": { name: "p_ObjectTable1", dataPath: "p_ObjectTable1", type: { type: ["Table"] } },
+      "object.table": { name: "p_ObjectTable1", dataPath: "p_ObjectTable1", type: { Type: ["Table"] } },
     },
     tableDataPath: "Object.Table",
     dataPath: "Object.Table.Test",
     expectedDataPath: "p_ObjectTable1.Test",
     expectedAttributes: {
-      "object.table": { name: "p_ObjectTable1", dataPath: "p_ObjectTable1", type: { type: ["Table"] } },
-      "object.table.test": { name: "Test", title: "Test", dataPath: "p_ObjectTable1.Test", type: { type: ["String"] } },
+      "object.table": { name: "p_ObjectTable1", dataPath: "p_ObjectTable1", type: { Type: ["Table"] } },
+      "object.table.test": { name: "Test", title: "Test", dataPath: "p_ObjectTable1.Test", type: { Type: ["string"] } },
     },
   },
 ]

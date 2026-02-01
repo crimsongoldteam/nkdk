@@ -1,7 +1,7 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
@@ -295,7 +295,7 @@ export interface PreviewAttribute {
   Name: string
   Path: string
   Title?: string
-  Type: TypeDescription
+  Type: TypeDescriptionPreview
 }
 
 export type PreviewAttributes = PreviewAttribute[]
@@ -304,7 +304,7 @@ export interface PreviewAttributeMapItem {
   name: string
   dataPath: string
   title?: string
-  type: TypeDescription
+  type: TypeDescriptionPreview
   childItems?: PreviewAttributesMap
 }
 
