@@ -311,7 +311,6 @@ export interface InputFieldPartialEnterprise {
   ВариантУправленияВысотой?: SE.ItemHeightControlVariantEnterprise
   ВыбиратьТип?: StringboolEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsEnterprise
-  ВыделенныйТекст?: string
   ВыделятьОтрицательные?: StringboolEnterprise
   Высота?: number
   ВысотаСпискаВыбора?: number
@@ -444,8 +443,9 @@ export interface InputFieldTypedEnterprise extends InputFieldPartialEnterprise {
 }
 
 export interface InputFieldPreview {
-  ElementType: "InputField"
+  ElementType: "FormField"
   Name: string
+  Type: SystemEnumerationPreview
   AllowInputEmptyMultipleValues?: boolean
   AllowMultipleValuesDuplicates?: boolean
   AutoCapitalizationOnTextInput?: SystemEnumerationPreview

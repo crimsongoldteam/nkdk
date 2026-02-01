@@ -171,7 +171,6 @@
 	<PasswordMode>true</PasswordMode>
 	<QuickChoice>true</QuickChoice>
 	<ReadOnly>false</ReadOnly>
-	<SelectedText>Выделенный текст</SelectedText>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowCheckBoxesInDropListWhenInputMultipleValues>true</ShowCheckBoxesInDropListWhenInputMultipleValues>
 	<ShowInFooter>true</ShowInFooter>

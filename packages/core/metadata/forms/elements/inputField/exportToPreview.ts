@@ -11,8 +11,9 @@ import { InputField, InputFieldPreview } from "./types"
 
 export const exportInputFieldToPreview = (context: ConfigurationContext, element: InputField): InputFieldPreview => {
   const result: InputFieldPreview = {
-    ElementType: "InputField",
+    ElementType: "FormField",
     Name: element.name,
+    Type: exportSystemEnumerationToPreview(context, "InputField", "FormFieldType")!,
   }
 
   if (element.allowInputEmptyMultipleValues !== undefined)
@@ -263,7 +264,7 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   const displayImportance = exportSystemEnumerationToPreview(context, element.displayImportance, "DisplayImportance")
   if (displayImportance !== undefined) result.DisplayImportance = displayImportance
 
-  const editMode = exportSystemEnumerationToPreview(context, element.editMode, "EditMode")
+  const editMode = exportSystemEnumerationToPreview(context, element.editMode, "ColumnEditMode")
   if (editMode !== undefined) result.EditMode = editMode
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
@@ -335,7 +336,7 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
 
   if (element.titleHeight !== undefined) result.TitleHeight = element.titleHeight
 
-  const titleLocation = exportSystemEnumerationToPreview(context, element.titleLocation, "TitleLocation")
+  const titleLocation = exportSystemEnumerationToPreview(context, element.titleLocation, "FormItemTitleLocation")
   if (titleLocation !== undefined) result.TitleLocation = titleLocation
 
   const titleTextColor = exportColorToPreview(context, element.titleTextColor)
