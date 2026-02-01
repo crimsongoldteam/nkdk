@@ -5,6 +5,7 @@ export interface TypeDescriptionRule {
   prefix: string
   namespace?: string
   modifier?: TypeModifier
+  ignoreInPreview?: boolean
 }
 
 export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
@@ -273,66 +274,79 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "Справочник",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   CatalogObject: {
     enterprise: "СправочникОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   DocumentRef: {
     enterprise: "Документ",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   DocumentObject: {
     enterprise: "ДокументОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   EnumRef: {
     enterprise: "Перечисление",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   DefinedType: {
     enterprise: "ОпределяемыйТип",
     prefix: "cfg",
     modifier: "typeset",
+    ignoreInPreview: true,
   },
   Characteristic: {
     enterprise: "Характеристика",
     prefix: "cfg",
     modifier: "typeset",
+    ignoreInPreview: true,
   },
   ExchangePlanRef: {
     enterprise: "ПланОбмена",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ExchangePlanObject: {
     enterprise: "ПланОбменаОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   BusinessProcessRoutePointRef: {
     enterprise: "ТочкаМаршрутаБизнесПроцесса",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   BusinessProcessRoutePointObject: {
     enterprise: "ТочкаМаршрутаБизнесПроцессаОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   BusinessProcessRef: {
     enterprise: "БизнесПроцесс",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   BusinessProcessObject: {
     enterprise: "БизнесПроцессОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   AnyIBRef: {
     enterprise: "ЛюбаяСсылка",
@@ -343,75 +357,90 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "ПланВидовРасчета",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ChartOfCalculationTypesObject: {
     enterprise: "ПланВидовРасчетаОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   TaskRef: {
     enterprise: "Задача",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   TaskObject: {
     enterprise: "ЗадачаОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ChartOfCharacteristicTypesRef: {
     enterprise: "ПланВидовХарактеристик",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ChartOfCharacteristicTypesObject: {
     enterprise: "ПланВидовХарактеристикОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ChartOfAccountsRef: {
     enterprise: "ПланСчетов",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ChartOfAccountObject: {
     enterprise: "ПланСчетовОбъект",
     prefix: "cfg",
     modifier: "complex",
+    ignoreInPreview: true,
   },
   ReportObject: {
     enterprise: "ОтчетОбъект",
     prefix: "cfg",
     modifier: "alwaysType",
+    ignoreInPreview: true,
   },
   DataProcessorObject: {
     enterprise: "ОбработкаОбъект",
     prefix: "cfg",
     modifier: "alwaysType",
+    ignoreInPreview: true,
   },
   ConstantsSet: {
     enterprise: "КонстантыНабор",
     prefix: "cfg",
+    ignoreInPreview: true,
   },
   InformationRegisterRecordSet: {
     enterprise: "РегистрСведенийНаборЗаписей",
     prefix: "cfg",
     modifier: "alwaysType",
+    ignoreInPreview: true,
   },
   InformationRegisterRecordManager: {
     enterprise: "РегистрСведенийМенеджерЗаписи",
     prefix: "cfg",
     modifier: "alwaysType",
+    ignoreInPreview: true,
   },
   AccountingRegisterRecordSet: {
     enterprise: "РегистрБухгалтерииНаборЗаписей",
     prefix: "cfg",
     modifier: "alwaysType",
+    ignoreInPreview: true,
   },
   AccountingRegisterRecordManager: {
     enterprise: "РегистрБухгалтерииМенеджерЗаписи",
     prefix: "cfg",
     modifier: "alwaysType",
+    ignoreInPreview: true,
   },
 } as const
 
