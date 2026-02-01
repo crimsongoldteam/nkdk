@@ -22,7 +22,9 @@ describe("exportClientApplicationFormToPreview", () => {
 
     const preview = exportClientApplicationFormToPreview(context, form)
 
-    expect(preview).toEqual({
+    const text = JSON.stringify(preview, null, 2)
+
+    expect(text).toEqual({
       attributes: [],
       childItems: [],
     })

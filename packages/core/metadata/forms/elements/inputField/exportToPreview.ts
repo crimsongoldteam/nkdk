@@ -129,7 +129,7 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   const heightControlVariant = exportSystemEnumerationToPreview(
     context,
     element.heightControlVariant,
-    "HeightControlVariant"
+    "ItemHeightControlVariant"
   )
   if (heightControlVariant !== undefined) result.HeightControlVariant = heightControlVariant
 
@@ -169,14 +169,14 @@ export const exportInputFieldToPreview = (context: ConfigurationContext, element
   const multipleValuePictureShape = exportSystemEnumerationToPreview(
     context,
     element.multipleValuePictureShape,
-    "MultipleValuePictureShape"
+    "InputFieldMultipleValuePictureShape"
   )
   if (multipleValuePictureShape !== undefined) result.MultipleValuePictureShape = multipleValuePictureShape
 
   const multipleValuePictureSize = exportSystemEnumerationToPreview(
     context,
     element.multipleValuePictureSize,
-    "MultipleValuePictureSize"
+    "InputFieldMultipleValuePictureSize"
   )
   if (multipleValuePictureSize !== undefined) result.MultipleValuePictureSize = multipleValuePictureSize
 

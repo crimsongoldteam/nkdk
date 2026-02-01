@@ -97,7 +97,7 @@ export interface InputField {
   openButton?: boolean
   passwordMode?: boolean
   quickChoice?: boolean
-  selectedText?: string
+  // selectedText?: string
   showCheckBoxesInDropListWhenInputMultipleValues?: boolean
   specialTextInputMode?: SE.SpecialTextInputMode
   spellCheckingOnTextInput?: SE.SpellCheckingOnTextInput
@@ -464,7 +464,7 @@ export interface InputFieldPreview {
   ChoiceButtonPicture?: PicturePreview
   ChoiceButtonRepresentation?: SystemEnumerationPreview
   ChoiceFoldersAndItems?: SystemEnumerationPreview
-  ChoiceForm?: string
+  // ChoiceForm?: string
   ChoiceHistoryOnInput?: SystemEnumerationPreview
   // ChoiceList?: ChoiceList
   ChoiceListButton?: boolean
@@ -477,7 +477,7 @@ export interface InputFieldPreview {
   DropListButton?: boolean
   DropListWidth?: number
   EditFormat?: string
-  EditText?: string
+  // EditText?: string
   EditTextUpdate?: SystemEnumerationPreview
   ExtendedEdit?: boolean
   Font?: FontPreview

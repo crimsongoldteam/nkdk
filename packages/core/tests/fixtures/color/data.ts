@@ -75,16 +75,16 @@ export const colorPreviewTestCases: readonly ColorPreviewTestCase[] = [
   {
     name: "WebColor with hex value",
     color: { type: "WebColor" as const, value: "#FF0000" },
-    expected: { type: "WebColor", value: "#FF0000" },
+    expected: { Type: "AbsoluteColor", Red: "255", Green: "0", Blue: "0" },
   },
   {
     name: "WindowsColor with system color name",
     color: { type: "WindowsColor" as const, value: "ActiveBorder" },
-    expected: { type: "WindowsColor", value: "ActiveBorder" },
+    expected: { type: "Color", Value: "WindowsColors.ActiveBorder" },
   },
   {
     name: "StyleItem with style item name",
     color: { type: "StyleItem" as const, value: "MyStyleItem" },
-    expected: { type: "StyleItem", value: "MyStyleItem" },
+    expected: { type: "Color", Value: "StyleItems.MyStyleItem" },
   },
 ] as const

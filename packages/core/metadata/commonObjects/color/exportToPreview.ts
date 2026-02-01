@@ -6,8 +6,9 @@ export const exportColorToPreview = (
   color: Color | undefined
 ): ColorPreview | undefined => {
   if (!color) return undefined
+
   return {
-    type: color.type,
-    value: color.value,
+    Type: color.type,
+    Value: color.value,
   }
 }
