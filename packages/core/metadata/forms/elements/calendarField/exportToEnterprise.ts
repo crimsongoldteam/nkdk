@@ -93,7 +93,7 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
-    data.verticalAlign,
+    data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
@@ -108,7 +108,7 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
-    data.horizontalAlign,
+    data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
@@ -155,9 +155,6 @@ const exportCalendarFieldPropsToEnterprise = (
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToEnterprise(context, data.editMode, SE.ColumnEditModeToEnterprise)
-  if (editMode !== undefined) result.РежимРедактирования = editMode
-
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
   const readOnly = exportBooleanToEnterprise(context, data.readOnly)
@@ -165,9 +162,6 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
-
-  const titleBackColor = exportColorToEnterprise(context, data.titleBackColor)
-  if (titleBackColor !== undefined) result.ЦветФонаЗаголовка = titleBackColor
 
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
@@ -238,6 +232,14 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
+
+  const onMainServerUnavalableBehavior = exportSystemEnumerationToEnterprise(
+    context,
+    data.onMainServerUnavalableBehavior,
+    SE.OnMainServerUnavalableBehaviorToEnterprise
+  )
+  if (onMainServerUnavalableBehavior !== undefined)
+    result.ПоведениеПриНедоступностиОсновногоСервера = onMainServerUnavalableBehavior
 
   const events = exportEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events

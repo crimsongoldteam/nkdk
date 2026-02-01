@@ -12,6 +12,7 @@ export const exportUsualGroupToPreview = (context: ConfigurationContext, element
   const result: UsualGroupPreview = {
     ElementType: "FormGroup",
     Name: element.name,
+    ChildItems: [],
   }
 
   if (element.backColor !== undefined) {

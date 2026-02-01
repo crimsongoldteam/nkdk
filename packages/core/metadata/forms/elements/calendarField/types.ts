@@ -4,8 +4,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { TypeDescriptionEnterprise, TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -44,7 +43,7 @@ export interface CalendarField extends NamedElement {
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
   extendedTooltip?: ExtendedTooltip
-  horizontalAlign?: SE.ItemHorizontalLocation
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
   readOnly?: boolean
   shortcut?: string
   skipOnInput?: boolean
@@ -56,10 +55,11 @@ export interface CalendarField extends NamedElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   userVisible?: UserVisible
-  verticalAlign?: SE.ItemVerticalAlign
+  verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
   warningOnEdit?: I8nText
   warningOnEditRepresentation?: SE.WarningOnEditRepresentation
+  onMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
   events?: {
     onChange?: string
     selection?: string
@@ -103,17 +103,6 @@ export interface CalendarFieldXML extends BaseElementXML {
   EditMode?: SE.ColumnEditMode
   Enabled?: boolean
   ExtendedTooltip: ExtendedTooltipXML
-  FixingInTable?: SE.FixingInTable
-  FooterBackColor?: ColorXML
-  FooterDataPath?: string
-  FooterFont?: FontXML
-  FooterHorizontalAlign?: SE.ItemHorizontalLocation
-  FooterPicture?: PictureXML
-  FooterText?: I8nTextXML
-  FooterTextColor?: ColorXML
-  HeaderHorizontalAlign?: SE.ItemHorizontalLocation
-  HeaderPicture?: PictureXML
-  HorizontalAlign?: SE.ItemHorizontalLocation
   GroupHorizontalAlign?: SE.ItemHorizontalLocation
   ReadOnly?: boolean
   Shortcut?: string
@@ -132,80 +121,62 @@ export interface CalendarFieldXML extends BaseElementXML {
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
   UserVisible?: UserVisibleXML
-  VerticalAlign?: SE.ItemVerticalAlign
   GroupVerticalAlign?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
+  OnMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
   Events?: EventsXML
 }
 
 export interface CalendarFieldPartialEnterprise {
+  АвтоВысотаЯчейки?: StringboolEnterprise
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
+  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  Видимость?: StringboolEnterprise
   Высота?: number
   ВысотаВМесяцах?: number
+  ВысотаЗаголовка?: number
+  ГиперссылкаЯчейки?: StringboolEnterprise
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
   КонецПериодаОтображения?: string
+  КонтекстноеМеню?: ContextMenuEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   НачалоПериодаОтображения?: string
   ОтображатьПанельМесяцев?: StringboolEnterprise
   ОтображатьТекущуюДату?: StringboolEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
   ПеремещениеПоКалендарю?: StringboolEnterprise
+  Подсказка?: I8nTextEnterprise
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
+  ПредупреждениеПриРедактировании?: I8nTextEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   Рамка?: BorderEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   РежимВыделения?: SE.DateSelectionModeEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоПросмотр?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
   Ширина?: number
   ШиринаВМесяцах?: number
   Шрифт?: FontEnterprise
-  АвтоВысотаЯчейки?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormFieldTypeEnterprise
-  Видимость?: StringboolEnterprise
-  ВысотаЗаголовка?: number
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КартинкаПодвала?: PictureEnterprise
-  КартинкаШапки?: PictureEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОграничениеТипа?: TypeDescriptionEnterprise
-  ОтображатьВПодвале?: StringboolEnterprise
-  ОтображатьВШапке?: StringboolEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
-  ПутьКДанным?: string
-  ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РежимРедактирования?: SE.ColumnEditModeEnterprise
-  СочетаниеКлавиш?: string
-  Таблица?: string
-  ТекстПодвала?: I8nTextEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветТекстаПодвала?: ColorEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
-  ЦветФонаПодвала?: ColorEnterprise
   ШрифтЗаголовка?: FontEnterprise
-  ШрифтПодвала?: FontEnterprise
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

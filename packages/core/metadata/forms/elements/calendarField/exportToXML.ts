@@ -36,11 +36,9 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
 
-  if (data.editMode !== undefined) result.EditMode = data.editMode
-
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
+  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
 
@@ -50,9 +48,6 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
-
-  const titleBackColor = exportColorToXML(context, data.titleBackColor)
-  if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
 
   const titleFont = exportFontToXML(context, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
@@ -72,7 +67,7 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.visible !== undefined) result.Visible = data.visible
 
@@ -115,6 +110,9 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
   if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
 
   if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.onMainServerUnavalableBehavior !== undefined)
+    result.OnMainServerUnavalableBehavior = data.onMainServerUnavalableBehavior
 
   if (data.selectionMode !== undefined) result.SelectionMode = data.selectionMode
 

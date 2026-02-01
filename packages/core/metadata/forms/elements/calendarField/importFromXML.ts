@@ -37,14 +37,12 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
-  if (xml.EditMode !== undefined) result.editMode = xml.EditMode
-
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
   const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
+  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
 
@@ -54,9 +52,6 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
-
-  const titleBackColor = importColorFromXML(context, xml.TitleBackColor)
-  if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
   const titleFont = importFontFromXML(context, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
@@ -76,7 +71,7 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
+  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
@@ -112,6 +107,9 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   const font = importFontFromXML(context, xml.Font)
   if (font !== undefined) result.font = font
+
+  if (xml.OnMainServerUnavalableBehavior !== undefined)
+    result.onMainServerUnavalableBehavior = xml.OnMainServerUnavalableBehavior
 
   if (xml.Height !== undefined) result.height = xml.Height
 

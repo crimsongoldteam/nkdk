@@ -2,8 +2,8 @@ import { InputField } from "~/metadata/forms/elements/inputField/types"
 import {
   UsualGroup,
   UsualGroupPartialEnterprise,
-  UsualGroupTypedEnterprise,
   UsualGroupPreview,
+  UsualGroupTypedEnterprise,
 } from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -157,6 +157,7 @@ export const fullUsualGroupPreview: Required<UsualGroupPreview> = {
   VerticalStretch: true,
   Visible: false,
   Width: 300,
+  ChildItems: [],
 }
 
 export const minimalUsualGroup: UsualGroup = {

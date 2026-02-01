@@ -14,7 +14,6 @@
 	</ContextMenu>
 	<DataPath>ДатаРеквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EditMode>EnterOnInput</EditMode>
 	<Enabled>false</Enabled>
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
@@ -42,7 +41,6 @@
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>4</Height>
 	<HeightInMonths>3</HeightInMonths>
-	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalStretch>false</HorizontalStretch>
 	<MaxHeight>5</MaxHeight>
 	<MaxWidth>4</MaxWidth>
@@ -74,7 +72,6 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalAlign>Top</VerticalAlign>
 	<VerticalStretch>false</VerticalStretch>
 	<Visible>false</Visible>
 	<WarningOnEdit>

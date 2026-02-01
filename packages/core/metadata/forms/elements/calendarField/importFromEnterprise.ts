@@ -90,7 +90,7 @@ const importCalendarFieldPropsFromEnterprise = (
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
-  if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
+  if (verticalAlign !== undefined) result.verticalAlignInGroup = verticalAlign
 
   const visible = importBooleanFromEnterprise(context, data.Видимость)
   if (visible !== undefined) result.visible = visible
@@ -105,7 +105,7 @@ const importCalendarFieldPropsFromEnterprise = (
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
-  if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
+  if (horizontalAlign !== undefined) result.horizontalAlignInGroup = horizontalAlign
 
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
@@ -153,13 +153,6 @@ const importCalendarFieldPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const editMode = importSystemEnumerationFromEnterprise<SE.ColumnEditMode>(
-    context,
-    data.РежимРедактирования,
-    SE.ColumnEditModeFromEnterprise
-  )
-  if (editMode !== undefined) result.editMode = editMode
-
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
@@ -167,9 +160,6 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
-
-  const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
-  if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
   const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
@@ -235,6 +225,14 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
+
+  const onMainServerUnavalableBehavior = importSystemEnumerationFromEnterprise<SE.OnMainServerUnavalableBehavior>(
+    context,
+    data.ПоведениеПриНедоступностиОсновногоСервера,
+    SE.OnMainServerUnavalableBehaviorFromEnterprise
+  )
+  if (onMainServerUnavalableBehavior !== undefined)
+    result.onMainServerUnavalableBehavior = onMainServerUnavalableBehavior
 
   return result
 }
