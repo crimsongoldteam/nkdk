@@ -61,6 +61,7 @@ export type FontEnterprise = FontFullEnterprise | FontCompactEnterprise
 
 export interface FontPreview {
   Type: "Font"
+  Value?: string
   Name?: string
   Scale?: number
   Height?: number
