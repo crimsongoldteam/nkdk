@@ -496,3 +496,31 @@ export interface TypeDescription {
 }
 
 export type TypeDescriptionEnterprise = string | string[]
+
+//#region Preview
+
+export interface TypeDescriptionPreviewStringQualifiers {
+  Length: number
+  AllowedLength: "Variable" | "Fixed"
+}
+
+export interface TypeDescriptionPreviewNumberQualifiers {
+  Digits: number
+  FractionDigits: number
+  AllowedSign: "Any" | "Nonnegative"
+}
+
+export interface TypeDescriptionPreviewDateQualifiers {
+  DateFractions?: "Date" | "Time" | "DateTime"
+}
+
+export type TypeDescriptionPreviewType = string
+
+export interface TypeDescriptionPreview {
+  Type: TypeDescriptionPreviewType[]
+  StringQualifiers?: TypeDescriptionPreviewStringQualifiers
+  NumberQualifiers?: TypeDescriptionPreviewNumberQualifiers
+  DateQualifiers?: TypeDescriptionPreviewDateQualifiers
+}
+
+//#endregion
