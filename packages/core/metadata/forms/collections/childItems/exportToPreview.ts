@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { AllChildItem } from "./types"
 import { ToPreviewType } from "~/metadata/metadataFactory/types"
+import { AllChildItem } from "./types"
 
 export const exportChildItemsToPreview = <From extends AllChildItem>(
   context: ConfigurationContext,

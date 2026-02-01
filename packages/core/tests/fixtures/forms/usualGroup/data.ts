@@ -3,6 +3,7 @@ import {
   UsualGroup,
   UsualGroupPartialEnterprise,
   UsualGroupTypedEnterprise,
+  UsualGroupPreview,
 } from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -117,6 +118,45 @@ export const fullUsualGroupTypedEnterprise: UsualGroupTypedEnterprise = {
   ...fullUsualGroupPartialEnterprise,
   Тип: "Группа",
   Заголовок: "Обычная группа",
+}
+
+export const fullUsualGroupPreview: Required<UsualGroupPreview> = {
+  ElementType: "FormGroup",
+  Name: "ОбычнаяГруппа",
+  BackColor: { Type: "Color", Value: "WebColors.White" },
+  Behavior: { Type: "SystemEnumeration", Value: "UsualGroupBehavior.Collapsible" },
+  Collapsed: true,
+  CollapsedRepresentationTitle: "Заголовок свернутого отображения",
+  ControlRepresentation: { Type: "SystemEnumeration", Value: "UsualGroupControlRepresentation.Picture" },
+  CurrentRowUse: { Type: "SystemEnumeration", Value: "CurrentRowUse.DontUse" },
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
+  EnableContentChange: true,
+  Enabled: false,
+  Format: "БЛ=Выключено",
+  Group: { Type: "SystemEnumeration", Value: "ChildFormItemsGroup.Vertical" },
+  Height: 200,
+  HiddenRepresentationTitleBackColor: { Type: "Color", Value: "WebColors.Gold" },
+  HorizontalAlign: { Type: "SystemEnumeration", Value: "HorizontalAlign.Left" },
+  HorizontalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
+  HorizontalStretch: true,
+  ItemsAndTitlesAlign: { Type: "SystemEnumeration", Value: "ItemsAndTitlesAlignVariant.ItemsLeftTitlesLeft" },
+  ReadOnly: true,
+  Representation: { Type: "SystemEnumeration", Value: "UsualGroupRepresentation.NormalSeparation" },
+  ShowLeftMargin: false,
+  ShowTitle: false,
+  ThroughAlign: { Type: "SystemEnumeration", Value: "ThroughAlign.DontUse" },
+  Title: "Обычная группа",
+  TitleDataPath: "ТекстовыйРеквизит",
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
+  United: false,
+  VerticalAlign: { Type: "SystemEnumeration", Value: "VerticalAlign.Top" },
+  VerticalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
+  VerticalStretch: true,
+  Visible: false,
+  Width: 300,
 }
 
 export const minimalUsualGroup: UsualGroup = {

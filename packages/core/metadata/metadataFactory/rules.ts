@@ -169,6 +169,7 @@ import {
 import {
   UsualGroup,
   UsualGroupPartialEnterprise,
+  UsualGroupPreview,
   UsualGroupTypedEnterprise,
   UsualGroupXML,
 } from "../forms/elements/usualGroup/types"
@@ -368,6 +369,7 @@ export type TypeRules<T> = T extends Button
                                                                       XML: UsualGroupXML
                                                                       PartialEnterprise: UsualGroupPartialEnterprise
                                                                       TypedEnterprise: UsualGroupTypedEnterprise
+                                                                      Preview: UsualGroupPreview
                                                                     }
                                                                   : T extends ContextMenu
                                                                     ? {
