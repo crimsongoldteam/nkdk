@@ -8,6 +8,6 @@ export const exportPictureToPreview = (
   if (!picture || !picture.ref) return undefined
   return {
     type: picture.type,
-    value: picture.ref,
+    Value: picture.ref,
   }
 }
