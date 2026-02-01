@@ -4,23 +4,23 @@ import { parseElement } from "~/metadata/forms/collections/childItems/parser/ele
 import { tokenize } from "~/metadata/forms/collections/childItems/parser/tokenizer/tokenizer"
 import { parseTree } from "~/metadata/forms/collections/childItems/parser/treeParser/treeParser"
 import { pictureDecorationStructureFixturesTable } from "~/tests/fixtures/forms/pictureDecoration/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 
 describe("importPictureDecorationFromStructure", () => {
   it.each(pictureDecorationStructureFixturesTable.filter((tc) => !tc.skipImport))(
     "should import picture decoration $name",
     ({ element: input, structured: structured }) => {
-      const result = importPictureDecorationFromStructure(mockСontext, structured.strings)
+      const result = importPictureDecorationFromStructure(mockContext, structured.strings)
 
       expect(result).toEqual(input)
     }
   )
 })
 
-const importPictureDecorationFromStructure = (mockСontext: ConfigurationContext, mock: string[]) => {
+const importPictureDecorationFromStructure = (mockContext: ConfigurationContext, mock: string[]) => {
   const tokens = tokenize(mock[0])
 
-  const treeNodes = parseTree(mockСontext, tokens)
+  const treeNodes = parseTree(mockContext, tokens)
 
-  return parseElement(mockСontext, treeNodes[0])
+  return parseElement(mockContext, treeNodes[0])
 }

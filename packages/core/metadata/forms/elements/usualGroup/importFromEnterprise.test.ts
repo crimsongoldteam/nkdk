@@ -6,25 +6,25 @@ import {
   minimalUsualGroup,
   minimalUsualGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importUsualGroupPartialFromEnterprise, importUsualGroupTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importUsualGroupFromEnterprise", () => {
   describe("importUsualGroupTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importUsualGroupTypedFromEnterprise(mockСontext, undefined, "ОбычнаяГруппа")
+      const result = importUsualGroupTypedFromEnterprise(mockContext, undefined, "ОбычнаяГруппа")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importUsualGroupTypedFromEnterprise(mockСontext, fullUsualGroupTypedEnterprise, "ОбычнаяГруппа")
+      const result = importUsualGroupTypedFromEnterprise(mockContext, fullUsualGroupTypedEnterprise, "ОбычнаяГруппа")
 
       expect(result).toEqual(fullUsualGroup)
     })
 
     it("should import minimal", () => {
-      const result = importUsualGroupTypedFromEnterprise(mockСontext, minimalUsualGroupTypedEnterprise, "ОбычнаяГруппа")
+      const result = importUsualGroupTypedFromEnterprise(mockContext, minimalUsualGroupTypedEnterprise, "ОбычнаяГруппа")
 
       expect(result).toEqual(minimalUsualGroup)
     })
@@ -32,13 +32,13 @@ describe("importUsualGroupFromEnterprise", () => {
 
   describe("importUsualGroupPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importUsualGroupPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importUsualGroupPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
-      const result = importUsualGroupPartialFromEnterprise(mockСontext, fullUsualGroup, fullUsualGroupPartialEnterprise)
+      const result = importUsualGroupPartialFromEnterprise(mockContext, fullUsualGroup, fullUsualGroupPartialEnterprise)
 
       expect(result).toEqual(fullUsualGroup)
     })

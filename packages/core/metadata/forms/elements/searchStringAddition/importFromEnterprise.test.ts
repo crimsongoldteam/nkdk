@@ -7,7 +7,7 @@ import {
   minimalSearchStringAddition,
   sourceSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importSearchStringAdditionPartialFromEnterprise,
   importSingleSearchStringAdditionFromEnterprise,
@@ -17,7 +17,7 @@ describe("importFromEnterprise", () => {
   describe("importSingleSearchStringAdditionFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importSingleSearchStringAdditionFromEnterprise(
-        mockСontext,
+        mockContext,
         fullSingleSearchStringAdditionEnterprise
       )
 
@@ -25,7 +25,7 @@ describe("importFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importSingleSearchStringAdditionFromEnterprise(mockСontext, {})
+      const result = importSingleSearchStringAdditionFromEnterprise(mockContext, {})
 
       expect(result).toBeUndefined()
     })
@@ -34,7 +34,7 @@ describe("importFromEnterprise", () => {
   describe("importSearchStringAdditionPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importSearchStringAdditionPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         sourceSearchStringAddition,
         fullSearchStringAdditionEnterprise
       )
@@ -43,7 +43,7 @@ describe("importFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importSearchStringAdditionPartialFromEnterprise(mockСontext, sourceSearchStringAddition, {})
+      const result = importSearchStringAdditionPartialFromEnterprise(mockContext, sourceSearchStringAddition, {})
 
       expect(result).toEqual(minimalSearchStringAddition)
     })

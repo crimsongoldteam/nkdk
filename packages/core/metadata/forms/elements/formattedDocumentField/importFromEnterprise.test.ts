@@ -7,7 +7,7 @@ import {
   minimalFormattedDocumentFieldPartialEnterprise,
   minimalFormattedDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importFormattedDocumentFieldPartialFromEnterprise,
   importFormattedDocumentFieldTypedFromEnterprise,
@@ -17,7 +17,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
   describe("importFormattedDocumentFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importFormattedDocumentFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         undefined,
         "ПолеФорматированногоДокумента"
       )
@@ -27,7 +27,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
 
     it("should import all fields from Enterprise", () => {
       const result = importFormattedDocumentFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullFormattedDocumentFieldTypedEnterprise,
         "ПолеФорматированногоДокумента"
       )
@@ -37,7 +37,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importFormattedDocumentFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalFormattedDocumentFieldTypedEnterprise,
         "ПолеФорматированногоДокумента"
       )
@@ -48,14 +48,14 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
 
   describe("importFormattedDocumentFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importFormattedDocumentFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importFormattedDocumentFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importFormattedDocumentFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullFormattedDocumentField,
         fullFormattedDocumentFieldPartialEnterprise
       )
@@ -65,7 +65,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importFormattedDocumentFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalFormattedDocumentField,
         minimalFormattedDocumentFieldPartialEnterprise
       )

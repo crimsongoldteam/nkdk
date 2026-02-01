@@ -7,23 +7,20 @@ import {
   minimalPlannerFieldPartialEnterprise,
   minimalPlannerFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/plannerField/data"
-import { mockСontext } from "~/tests/mockContext"
-import {
-  importPlannerFieldPartialFromEnterprise,
-  importPlannerFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { importPlannerFieldPartialFromEnterprise, importPlannerFieldTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importPlannerFieldFromEnterprise", () => {
   describe("importPlannerFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPlannerFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПланировщика")
+      const result = importPlannerFieldTypedFromEnterprise(mockContext, undefined, "ПолеПланировщика")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importPlannerFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullPlannerFieldTypedEnterprise,
         "ПолеПланировщика"
       )
@@ -33,7 +30,7 @@ describe("importPlannerFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importPlannerFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalPlannerFieldTypedEnterprise,
         "ПолеПланировщика"
       )
@@ -44,14 +41,14 @@ describe("importPlannerFieldFromEnterprise", () => {
 
   describe("importPlannerFieldPartialFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importPlannerFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+      const result = importPlannerFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importPlannerFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullPlannerField,
         fullPlannerFieldPartialEnterprise
       )
@@ -61,7 +58,7 @@ describe("importPlannerFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importPlannerFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalPlannerField,
         minimalPlannerFieldPartialEnterprise
       )

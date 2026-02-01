@@ -7,14 +7,14 @@ import {
   fullCommandBarPartialEnterprise,
   sourceCommandBar,
 } from "~/tests/fixtures/forms/commandBar/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importCommandBarPartialFromEnterprise } from "./importFromEnterprise"
 
 describe("importCommandBarFromEnterprise", () => {
   describe("importCommandBarPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const context: ConfigurationContext = {
-        ...mockСontext,
+        ...mockContext,
         allElements: fullCommandBarAllItems,
       }
       const result = importCommandBarPartialFromEnterprise(context, sourceCommandBar, fullCommandBarPartialEnterprise)

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { pictureTestCases } from "~/tests/fixtures/picture/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importPictureFromEnterprise } from "./importFromEnterprise"
 
 describe("importPictureFromEnterprise", () => {
   describe("importPictureFromEnterprise", () => {
     it("should return undefined for undefined input", () => {
-      const result = importPictureFromEnterprise(mockСontext, undefined)
+      const result = importPictureFromEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })
@@ -14,7 +14,7 @@ describe("importPictureFromEnterprise", () => {
     it.each(pictureTestCases.filter((tc) => tc.fixture && tc.enterpriseImport !== false))(
       "should import $name from Enterprise",
       ({ pictureEnterprise, picture }) => {
-        const result = importPictureFromEnterprise(mockСontext, pictureEnterprise)
+        const result = importPictureFromEnterprise(mockContext, pictureEnterprise)
 
         expect(result).toEqual(picture)
       }
@@ -22,7 +22,7 @@ describe("importPictureFromEnterprise", () => {
   })
   // describe("importPictureCombinedFromEnterprise", () => {
   //   it("should return undefined for undefined input", () => {
-  //     const result = importPictureCombinedFromEnterprise(mockСontext, undefined, undefined)
+  //     const result = importPictureCombinedFromEnterprise(mockContext, undefined, undefined)
 
   //     expect(result).toBeUndefined()
   //   })
@@ -30,7 +30,7 @@ describe("importPictureFromEnterprise", () => {
   //   it.each(pictureTestCases.filter((tc) => tc.fixture && tc.enterpriseImport !== false))(
   //     "should import $name from Enterprise",
   //     ({ pictureEnterprise, picture }) => {
-  //       const result = importPictureCombinedFromEnterprise(mockСontext, pictureEnterprise)
+  //       const result = importPictureCombinedFromEnterprise(mockContext, pictureEnterprise)
 
   //       expect(result).toEqual(picture)
   //     }

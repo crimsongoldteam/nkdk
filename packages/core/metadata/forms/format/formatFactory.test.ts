@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { FormElementType } from "../../metadataFactory/types"
 import { NamedElement } from "../elements/baseElement/types"
 import { clearFormatRegistry, formatElement, registerFormat } from "./formatFactory"
@@ -18,5 +18,5 @@ it("should register a format function", () => {
 
   registerFormat(mockFormat, mockCheck)
 
-  expect(formatElement(mockСontext, mockData)).toEqual(["test"])
+  expect(formatElement(mockContext, mockData)).toEqual(["test"])
 })

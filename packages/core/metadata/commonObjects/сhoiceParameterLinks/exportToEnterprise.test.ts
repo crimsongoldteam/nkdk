@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportChoiceParameterLinksToEnterprise } from "./exportToEnterprise"
 import { ChoiceParameterLinks } from "./types"
 
@@ -13,7 +13,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, mock)
+    const result = exportChoiceParameterLinksToEnterprise(mockContext, mock)
     expect(result).toEqual(
       "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
     )
@@ -33,7 +33,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, mock)
+    const result = exportChoiceParameterLinksToEnterprise(mockContext, mock)
     expect(result).toEqual(
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
     )
@@ -48,7 +48,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, mock)
+    const result = exportChoiceParameterLinksToEnterprise(mockContext, mock)
     expect(result).toEqual("Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)")
   })
 })

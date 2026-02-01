@@ -6,7 +6,7 @@ import {
   minimalLabelDecoration,
   minimalLabelDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importLabelDecorationPartialFromEnterprise,
   importLabelDecorationTypedFromEnterprise,
@@ -15,14 +15,14 @@ import {
 describe("importLabelDecorationFromEnterprise", () => {
   describe("importLabelDecorationTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importLabelDecorationTypedFromEnterprise(mockСontext, undefined, "Надпись")
+      const result = importLabelDecorationTypedFromEnterprise(mockContext, undefined, "Надпись")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importLabelDecorationTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullLabelDecorationTypedEnterprise,
         "Заголовок"
       )
@@ -32,7 +32,7 @@ describe("importLabelDecorationFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importLabelDecorationTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalLabelDecorationTypedEnterprise,
         "Заголовок"
       )
@@ -43,14 +43,14 @@ describe("importLabelDecorationFromEnterprise", () => {
 
   describe("importLabelDecorationPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importLabelDecorationPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importLabelDecorationPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importLabelDecorationPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullLabelDecoration,
         fullLabelDecorationPartialEnterprise
       )

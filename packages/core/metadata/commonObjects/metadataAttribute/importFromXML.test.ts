@@ -5,21 +5,21 @@ import {
   multipleMetadataAttributes,
   withMinValueMetadataAttribute,
 } from "~/tests/fixtures/metadataAttribute/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataAttributesFromXML } from "./importFromXML"
 import { MetadataAttributeXML } from "./types"
 
 describe("importMetadataAttributeFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importMetadataAttributesFromXML(mockСontext, undefined)
+    const result = importMetadataAttributesFromXML(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/full.xml")
 
-    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockContext, xmlData.Attribute)
 
     expect(result).toEqual(fullMetadataAttributes)
   })
@@ -27,7 +27,7 @@ describe("importMetadataAttributeFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/minimal.xml")
 
-    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockContext, xmlData.Attribute)
 
     expect(result).toEqual(minimalMetadataAttributes)
   })
@@ -35,7 +35,7 @@ describe("importMetadataAttributeFromXML", () => {
   it("should import defaults", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/defaults.xml")
 
-    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockContext, xmlData.Attribute)
 
     expect(result).toEqual(minimalMetadataAttributes)
   })
@@ -43,7 +43,7 @@ describe("importMetadataAttributeFromXML", () => {
   it("should import multiple attributes", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML[] }>("metadataAttribute/multiple.xml")
 
-    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockContext, xmlData.Attribute)
 
     expect(result).toEqual(multipleMetadataAttributes)
   })
@@ -51,7 +51,7 @@ describe("importMetadataAttributeFromXML", () => {
   it("should import with min value", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/withMinValue.xml")
 
-    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockContext, xmlData.Attribute)
 
     expect(result).toEqual(withMinValueMetadataAttribute)
   })

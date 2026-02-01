@@ -1,24 +1,21 @@
 import { describe, expect, it } from "vitest"
 import { pictureTestCases } from "~/tests/fixtures/picture/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportPictureToEnterprise } from "./exportToEnterprise"
 import { Picture } from "./types"
 
 describe("exportPictureToEnterprise", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportPictureToEnterprise(mockСontext, undefined)
+    const result = exportPictureToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it.each(pictureTestCases)(
-    "should export $name to Enterprise",
-    ({ picture, enterpriseExpected }) => {
-      const result = exportPictureToEnterprise(mockСontext, picture)
+  it.each(pictureTestCases)("should export $name to Enterprise", ({ picture, enterpriseExpected }) => {
+    const result = exportPictureToEnterprise(mockContext, picture)
 
-      expect(result).toEqual(enterpriseExpected)
-    }
-  )
+    expect(result).toEqual(enterpriseExpected)
+  })
 
   it("should throw error when standard picture is not found", () => {
     const invalidStandardPicture = {
@@ -28,7 +25,7 @@ describe("exportPictureToEnterprise", () => {
     } as Picture
 
     expect(() => {
-      exportPictureToEnterprise(mockСontext, invalidStandardPicture)
+      exportPictureToEnterprise(mockContext, invalidStandardPicture)
     }).toThrowError()
   })
 })

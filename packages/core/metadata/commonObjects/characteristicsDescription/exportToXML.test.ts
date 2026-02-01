@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { multipleCharacteristics } from "~/tests/fixtures/characteristicsDescription/multiple"
 import { singleCharacteristic } from "~/tests/fixtures/characteristicsDescription/single"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportCharacteristicsDescriptionsToXML } from "./exportToXML"
@@ -12,7 +12,7 @@ describe("exportCharacteristicsDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("characteristicsDescription/simple.xml")
 
-    const result = exportCharacteristicsDescriptionsToXML(mockСontext, mockData)
+    const result = exportCharacteristicsDescriptionsToXML(mockContext, mockData)
     const xmlString = xmlExport({ Characteristics: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -23,7 +23,7 @@ describe("exportCharacteristicsDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("characteristicsDescription/multiple.xml")
 
-    const result = exportCharacteristicsDescriptionsToXML(mockСontext, mockData)
+    const result = exportCharacteristicsDescriptionsToXML(mockContext, mockData)
     const xmlString = xmlExport({ Characteristics: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

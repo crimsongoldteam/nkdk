@@ -7,7 +7,7 @@ import {
   minimalDendrogramFieldPartialEnterprise,
   minimalDendrogramFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/dendrogramField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importDendrogramFieldPartialFromEnterprise,
   importDendrogramFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importDendrogramFieldFromEnterprise", () => {
   describe("importDendrogramFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importDendrogramFieldTypedFromEnterprise(mockСontext, undefined, "ПолеДендрограммы")
+      const result = importDendrogramFieldTypedFromEnterprise(mockContext, undefined, "ПолеДендрограммы")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importDendrogramFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullDendrogramFieldTypedEnterprise,
         "ПолеДендрограммы"
       )
@@ -33,7 +33,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importDendrogramFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalDendrogramFieldTypedEnterprise,
         "ПолеДендрограммы"
       )
@@ -44,14 +44,14 @@ describe("importDendrogramFieldFromEnterprise", () => {
 
   describe("importDendrogramFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importDendrogramFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importDendrogramFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importDendrogramFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullDendrogramField,
         fullDendrogramFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importDendrogramFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalDendrogramField,
         minimalDendrogramFieldPartialEnterprise
       )

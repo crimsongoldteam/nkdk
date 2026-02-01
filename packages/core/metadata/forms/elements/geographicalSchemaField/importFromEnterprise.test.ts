@@ -7,7 +7,7 @@ import {
   minimalGeographicalSchemaFieldPartialEnterprise,
   minimalGeographicalSchemaFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importGeographicalSchemaFieldPartialFromEnterprise,
   importGeographicalSchemaFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importGeographicalSchemaFieldFromEnterprise", () => {
   describe("importGeographicalSchemaFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importGeographicalSchemaFieldTypedFromEnterprise(mockСontext, undefined, "ПолеГеографическойСхемы")
+      const result = importGeographicalSchemaFieldTypedFromEnterprise(mockContext, undefined, "ПолеГеографическойСхемы")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importGeographicalSchemaFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullGeographicalSchemaFieldTypedEnterprise,
         "ПолеГеографическойСхемы"
       )
@@ -33,7 +33,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importGeographicalSchemaFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalGeographicalSchemaFieldTypedEnterprise,
         "ПолеГеографическойСхемы"
       )
@@ -44,14 +44,14 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
 
   describe("importGeographicalSchemaFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importGeographicalSchemaFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importGeographicalSchemaFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importGeographicalSchemaFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullGeographicalSchemaField,
         fullGeographicalSchemaFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importGeographicalSchemaFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalGeographicalSchemaField,
         minimalGeographicalSchemaFieldPartialEnterprise
       )

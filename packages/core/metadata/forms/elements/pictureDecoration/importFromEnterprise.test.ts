@@ -6,7 +6,7 @@ import {
   minimalPictureDecoration,
   minimalPictureDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importPictureDecorationPartialFromEnterprise,
   importPictureDecorationTypedFromEnterprise,
@@ -15,14 +15,14 @@ import {
 describe("importPictureDecorationFromEnterprise", () => {
   describe("importPictureDecorationTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importPictureDecorationTypedFromEnterprise(mockСontext, undefined, "ДекорацияКартинки")
+      const result = importPictureDecorationTypedFromEnterprise(mockContext, undefined, "ДекорацияКартинки")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importPictureDecorationTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullPictureDecorationTypedEnterprise,
         "ДекорацияКартинки"
       )
@@ -32,7 +32,7 @@ describe("importPictureDecorationFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importPictureDecorationTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalPictureDecorationTypedEnterprise,
         "ДекорацияКартинки"
       )
@@ -43,14 +43,14 @@ describe("importPictureDecorationFromEnterprise", () => {
 
   describe("importPictureDecorationPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importPictureDecorationPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importPictureDecorationPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importPictureDecorationPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullPictureDecoration,
         fullPictureDecorationPartialEnterprise
       )

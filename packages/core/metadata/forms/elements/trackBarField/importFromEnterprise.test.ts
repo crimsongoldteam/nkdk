@@ -6,7 +6,7 @@ import {
   minimalTrackBarField,
   minimalTrackBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importTrackBarFieldPartialFromEnterprise,
   importTrackBarFieldTypedFromEnterprise,
@@ -15,14 +15,14 @@ import {
 describe("importTrackBarFieldFromEnterprise", () => {
   describe("importTrackBarFieldTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importTrackBarFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПолосыПрокрутки")
+      const result = importTrackBarFieldTypedFromEnterprise(mockContext, undefined, "ПолеПолосыПрокрутки")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importTrackBarFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullTrackBarFieldTypedEnterprise,
         "ПолеПолосыПрокрутки"
       )
@@ -32,7 +32,7 @@ describe("importTrackBarFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importTrackBarFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalTrackBarFieldTypedEnterprise,
         "ПолеПолосыПрокрутки"
       )
@@ -43,14 +43,14 @@ describe("importTrackBarFieldFromEnterprise", () => {
 
   describe("importTrackBarFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importTrackBarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importTrackBarFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importTrackBarFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullTrackBarField,
         fullTrackBarFieldPartialEnterprise
       )

@@ -7,29 +7,29 @@ import {
   twoItemsChoiceList,
   twoItemsChoiceListEnterprise,
 } from "~/tests/fixtures/choiceList/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importChoiceListFromEnterprise } from "./importFromEnterprise"
 
 describe("importChoiceListFromEnterprise", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceListFromEnterprise(mockСontext, undefined)
+    const result = importChoiceListFromEnterprise(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import one item choice list", () => {
-    const result = importChoiceListFromEnterprise(mockСontext, oneItemChoiceListEnterprise)
+    const result = importChoiceListFromEnterprise(mockContext, oneItemChoiceListEnterprise)
 
     expect(result).toEqual(oneItemChoiceList)
   })
 
   it("should import two items choice list", () => {
-    const result = importChoiceListFromEnterprise(mockСontext, twoItemsChoiceListEnterprise)
+    const result = importChoiceListFromEnterprise(mockContext, twoItemsChoiceListEnterprise)
 
     expect(result).toEqual(twoItemsChoiceList)
   })
 
   it("should import empty value choice list", () => {
-    const result = importChoiceListFromEnterprise(mockСontext, emptyValueChoiceListEnterprise)
+    const result = importChoiceListFromEnterprise(mockContext, emptyValueChoiceListEnterprise)
 
     expect(result).toEqual(emptyValueChoiceList)
   })

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataCatalogToXML, MetadataCatalogContext } from "./exportToXML"
@@ -10,7 +10,7 @@ vi.mock("uuid", () => ({
 }))
 
 const mockMetadataCatalogContext: MetadataCatalogContext = {
-  ...mockСontext,
+  ...mockContext,
   context: {
     forms: [],
     templates: [],

@@ -4,9 +4,9 @@ import {
   fullGraphicalSchemaFieldPartialEnterprise,
   fullGraphicalSchemaFieldTypedEnterprise,
   minimalGraphicalSchemaField,
-  minimalGraphicalSchemaFieldPartialEnterprise
+  minimalGraphicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   exportGraphicalSchemaFieldPartialToEnterprise,
   exportGraphicalSchemaFieldTypedToEnterprise,
@@ -15,13 +15,13 @@ import {
 describe("exportGraphicalSchemaFieldToEnterprise", () => {
   describe("exportGraphicalSchemaFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockСontext, fullGraphicalSchemaField)
+      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, fullGraphicalSchemaField)
 
       expect(result).toEqual(fullGraphicalSchemaFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockСontext, minimalGraphicalSchemaField)
+      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, minimalGraphicalSchemaField)
 
       expect(result).toEqual(minimalGraphicalSchemaFieldPartialEnterprise)
     })
@@ -29,13 +29,13 @@ describe("exportGraphicalSchemaFieldToEnterprise", () => {
 
   describe("exportGraphicalSchemaFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockСontext, fullGraphicalSchemaField)
+      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, fullGraphicalSchemaField)
 
       expect(result).toEqual(fullGraphicalSchemaFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockСontext, undefined)
+      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })

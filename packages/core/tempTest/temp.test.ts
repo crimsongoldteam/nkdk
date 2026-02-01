@@ -34,7 +34,7 @@ const configurationContext = {
 }
 
 // const mockMetadataCatalogContext = {
-//   ...mockСontext,
+//   ...mockContext,
 //   context: {
 //     forms: [
 //       "ФормаЭлемента",
@@ -98,12 +98,12 @@ describe.skip("DO test", () => {
   })
   // it("should import metadata catalog from XML", () => {
   //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
-  //   const xmlData = importMetadataCatalogFromXML(mockСontext, importedXml.MetaDataObject)
-  //   const exportedEnterprise = exportMetadataCatalogToEnterprise(mockСontext, xmlData)
+  //   const xmlData = importMetadataCatalogFromXML(mockContext, importedXml.MetaDataObject)
+  //   const exportedEnterprise = exportMetadataCatalogToEnterprise(mockContext, xmlData)
   //   const yamlString = exportToYAML(exportedEnterprise!)
   //   writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
   //   const importedYAML = importFromYAML<MetadataCatalogEnterprise>(yamlString)
-  //   const newData = importMetadataCatalogFromEnterprise(mockСontext, importedYAML, "Номенклатура")
+  //   const newData = importMetadataCatalogFromEnterprise(mockContext, importedYAML, "Номенклатура")
   //   const newXml = exportMetadataCatalogToXML(mockMetadataCatalogContext, newData)
   //   const newXmlString = xmlExport({ MetaDataObject: newXml })
   //   writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")

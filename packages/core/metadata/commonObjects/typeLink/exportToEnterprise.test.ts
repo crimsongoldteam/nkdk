@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportTypeLinkToEnterprise } from "./exportToEnterprise"
 import { TypeLink } from "./types"
 
@@ -9,7 +9,7 @@ describe("exportTypeLinkToEnterprise", () => {
       dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
       linkItem: 0,
     }
-    const result = exportTypeLinkToEnterprise(mockСontext, typeLink)
+    const result = exportTypeLinkToEnterprise(mockContext, typeLink)
 
     expect(result).toEqual("Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит")
   })
@@ -19,7 +19,7 @@ describe("exportTypeLinkToEnterprise", () => {
       dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
       linkItem: 1,
     }
-    const result = exportTypeLinkToEnterprise(mockСontext, typeLink)
+    const result = exportTypeLinkToEnterprise(mockContext, typeLink)
 
     expect(result).toEqual("Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит(1)")
   })

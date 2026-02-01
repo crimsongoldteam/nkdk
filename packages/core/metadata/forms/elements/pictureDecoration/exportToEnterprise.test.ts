@@ -7,7 +7,7 @@ import {
   minimalPictureDecorationPartialEnterprise,
   minimalPictureDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   exportPictureDecorationPartialToEnterprise,
   exportPictureDecorationTypedToEnterprise,
@@ -15,13 +15,13 @@ import {
 
 describe("exportPictureDecorationPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportPictureDecorationPartialToEnterprise(mockСontext, fullPictureDecoration)
+    const result = exportPictureDecorationPartialToEnterprise(mockContext, fullPictureDecoration)
 
     expect(result).toEqual(fullPictureDecorationPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportPictureDecorationPartialToEnterprise(mockСontext, minimalPictureDecoration)
+    const result = exportPictureDecorationPartialToEnterprise(mockContext, minimalPictureDecoration)
 
     expect(result).toEqual(minimalPictureDecorationPartialEnterprise)
   })
@@ -29,19 +29,19 @@ describe("exportPictureDecorationPartialToEnterprise", () => {
 
 describe("exportPictureDecorationTypedToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportPictureDecorationTypedToEnterprise(mockСontext, fullPictureDecoration)
+    const result = exportPictureDecorationTypedToEnterprise(mockContext, fullPictureDecoration)
 
     expect(result).toEqual(fullPictureDecorationTypedEnterprise)
   })
 
   it("should return undefined when data is undefined", () => {
-    const result = exportPictureDecorationTypedToEnterprise(mockСontext, undefined)
+    const result = exportPictureDecorationTypedToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export minimal", () => {
-    const result = exportPictureDecorationTypedToEnterprise(mockСontext, minimalPictureDecoration)
+    const result = exportPictureDecorationTypedToEnterprise(mockContext, minimalPictureDecoration)
 
     expect(result).toEqual(minimalPictureDecorationTypedEnterprise)
   })

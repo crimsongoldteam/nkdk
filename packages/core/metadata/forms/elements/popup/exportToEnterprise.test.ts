@@ -7,21 +7,18 @@ import {
   minimalPopupPartialEnterprise,
   minimalPopupTypedEnterprise,
 } from "~/tests/fixtures/forms/popup/data"
-import { mockСontext } from "~/tests/mockContext"
-import {
-  exportPopupPartialToEnterprise,
-  exportPopupTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportPopupPartialToEnterprise, exportPopupTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPopupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportPopupPartialToEnterprise(mockСontext, fullPopup)
+    const result = exportPopupPartialToEnterprise(mockContext, fullPopup)
 
     expect(result).toEqual(fullPopupPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportPopupPartialToEnterprise(mockСontext, minimalPopup)
+    const result = exportPopupPartialToEnterprise(mockContext, minimalPopup)
 
     expect(result).toEqual(minimalPopupPartialEnterprise)
   })
@@ -29,22 +26,20 @@ describe("exportPopupPartialToEnterprise", () => {
 
 describe("exportPopupTypedToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportPopupTypedToEnterprise(mockСontext, undefined)
+    const result = exportPopupTypedToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportPopupTypedToEnterprise(mockСontext, fullPopup)
+    const result = exportPopupTypedToEnterprise(mockContext, fullPopup)
 
     expect(result).toEqual(fullPopupTypedEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportPopupTypedToEnterprise(mockСontext, minimalPopup)
+    const result = exportPopupTypedToEnterprise(mockContext, minimalPopup)
 
     expect(result).toEqual(minimalPopupTypedEnterprise)
   })
 })
-
-

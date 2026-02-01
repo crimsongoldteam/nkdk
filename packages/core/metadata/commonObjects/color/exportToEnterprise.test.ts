@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
 import { colorTestCases } from "~/tests/fixtures/color/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportColorToEnterprise } from "./exportToEnterprise"
 
 describe("exportColorToEnterprise", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportColorToEnterprise(mockСontext, undefined)
+    const result = exportColorToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it.each(colorTestCases)("should export $name to Enterprise", ({ color, enterpriseExpected }) => {
-    const result = exportColorToEnterprise(mockСontext, color)
+    const result = exportColorToEnterprise(mockContext, color)
 
     expect(result).toEqual(enterpriseExpected)
   })

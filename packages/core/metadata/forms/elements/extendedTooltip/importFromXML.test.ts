@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importExtendedTooltipFromXML } from "./importFromXML"
 import { ExtendedTooltipXML } from "./types"
 
 describe("importExtendedTooltipFromXML", () => {
   // it("should return undefined when data is undefined", () => {
-  //   const result = importExtendedTooltipFromXML(mockСontext, undefined)
+  //   const result = importExtendedTooltipFromXML(mockContext, undefined)
 
   //   expect(result).toBeUndefined()
   // })
@@ -15,7 +15,7 @@ describe("importExtendedTooltipFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/full.xml")
 
-    const result = importExtendedTooltipFromXML(mockСontext, xmlData.ExtendedTooltip)
+    const result = importExtendedTooltipFromXML(mockContext, xmlData.ExtendedTooltip)
 
     expect(result).toEqual(fullExtendedTooltip)
   })
@@ -23,7 +23,7 @@ describe("importExtendedTooltipFromXML", () => {
   it("should import minimal to undefined", () => {
     const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/defaults.xml")
 
-    const result = importExtendedTooltipFromXML(mockСontext, xmlData.ExtendedTooltip)
+    const result = importExtendedTooltipFromXML(mockContext, xmlData.ExtendedTooltip)
 
     expect(result).toBeUndefined()
   })

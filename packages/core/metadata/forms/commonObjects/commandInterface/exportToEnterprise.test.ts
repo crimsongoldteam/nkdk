@@ -1,20 +1,17 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullCommandInterface,
-  fullCommandInterfaceEnterprise,
-} from "~/tests/fixtures/commandInterface/data"
-import { mockСontext } from "~/tests/mockContext"
+import { fullCommandInterface, fullCommandInterfaceEnterprise } from "~/tests/fixtures/commandInterface/data"
+import { mockContext } from "~/tests/mockContext"
 import { exportCommandInterfaceToEnterprise } from "./exportToEnterprise"
 
 describe("exportCommandInterfaceToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportCommandInterfaceToEnterprise(mockСontext, undefined)
+    const result = exportCommandInterfaceToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when data is empty", () => {
-    const result = exportCommandInterfaceToEnterprise(mockСontext, {
+    const result = exportCommandInterfaceToEnterprise(mockContext, {
       NavigationPanel: [],
       CommandBar: [],
     })
@@ -23,7 +20,7 @@ describe("exportCommandInterfaceToEnterprise", () => {
   })
 
   it("should export full command interface", () => {
-    const result = exportCommandInterfaceToEnterprise(mockСontext, fullCommandInterface)
+    const result = exportCommandInterfaceToEnterprise(mockContext, fullCommandInterface)
 
     expect(result).toEqual(fullCommandInterfaceEnterprise)
   })

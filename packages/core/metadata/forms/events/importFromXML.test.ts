@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { multipleEvents, singleEvent } from "~/tests/fixtures/forms/events/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importEventsFromXML } from "./importFromXML"
 import { EventsXML } from "./types"
 
 describe("importEventsFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importEventsFromXML(mockСontext, undefined)
+    const result = importEventsFromXML(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importEventsFromXML", () => {
   it("should import single event", () => {
     const xml = readAndParseXMLFile<{ Events: EventsXML }>("forms/events/single.xml")
 
-    const result = importEventsFromXML(mockСontext, xml.Events)
+    const result = importEventsFromXML(mockContext, xml.Events)
 
     expect(result).toEqual(singleEvent)
   })
@@ -23,7 +23,7 @@ describe("importEventsFromXML", () => {
   it("should import multiple events", () => {
     const xml = readAndParseXMLFile<{ Events: EventsXML }>("forms/events/multiple.xml")
 
-    const result = importEventsFromXML(mockСontext, xml.Events)
+    const result = importEventsFromXML(mockContext, xml.Events)
 
     expect(result).toEqual(multipleEvents)
   })

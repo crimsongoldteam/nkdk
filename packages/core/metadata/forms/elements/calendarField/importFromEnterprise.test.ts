@@ -7,7 +7,7 @@ import {
   minimalCalendarFieldPartialEnterprise,
   minimalCalendarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importCalendarFieldPartialFromEnterprise,
   importCalendarFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importCalendarFieldFromEnterprise", () => {
   describe("importCalendarFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importCalendarFieldTypedFromEnterprise(mockСontext, undefined, "ПолеКалендаря")
+      const result = importCalendarFieldTypedFromEnterprise(mockContext, undefined, "ПолеКалендаря")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importCalendarFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullCalendarFieldTypedEnterprise,
         "ПолеКалендаря"
       )
@@ -33,7 +33,7 @@ describe("importCalendarFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importCalendarFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalCalendarFieldTypedEnterprise,
         "ПолеКалендаря"
       )
@@ -44,14 +44,14 @@ describe("importCalendarFieldFromEnterprise", () => {
 
   describe("importCalendarFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importCalendarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importCalendarFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importCalendarFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullCalendarField,
         fullCalendarFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importCalendarFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importCalendarFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalCalendarField,
         minimalCalendarFieldPartialEnterprise
       )

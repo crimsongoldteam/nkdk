@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "../../../tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportUserVisibleToEnterprise } from "./exportToEnterprise"
 import { UserVisible, UserVisibleKeysEnterprise } from "./types"
 
@@ -20,7 +20,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockСontext, use, {
+    const result = exportUserVisibleToEnterprise(mockContext, use, {
       allow: UserVisibleKeysEnterprise.Allow,
       deny: UserVisibleKeysEnterprise.Deny,
     })
@@ -44,7 +44,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockСontext, use, {
+    const result = exportUserVisibleToEnterprise(mockContext, use, {
       allow: UserVisibleKeysEnterprise.Allow,
       deny: UserVisibleKeysEnterprise.Deny,
     })

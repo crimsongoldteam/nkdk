@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { GetAttributeNameFixture, getAttributeNameFixtures } from "~/tests/fixtures/preview/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { getAttributeName } from "./getAttributeName"
 
 describe("getAttributeName", () => {
@@ -8,7 +8,7 @@ describe("getAttributeName", () => {
     "should $name",
     ({ attributes, tableDataPath, dataPath, expectedDataPath, expectedAttributes }: GetAttributeNameFixture) => {
       const context = {
-        ...mockСontext,
+        ...mockContext,
         preview: {
           attributes: attributes,
           prefix: "p_",

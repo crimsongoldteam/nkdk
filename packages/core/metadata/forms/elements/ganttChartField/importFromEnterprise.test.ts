@@ -7,7 +7,7 @@ import {
   minimalGanttChartFieldPartialEnterprise,
   minimalGanttChartFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/ganttChartField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importGanttChartFieldPartialFromEnterprise,
   importGanttChartFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importGanttChartFieldFromEnterprise", () => {
   describe("importGanttChartFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importGanttChartFieldTypedFromEnterprise(mockСontext, undefined, "ПолеДиаграммыГанта")
+      const result = importGanttChartFieldTypedFromEnterprise(mockContext, undefined, "ПолеДиаграммыГанта")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importGanttChartFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullGanttChartFieldTypedEnterprise,
         "ПолеДиаграммыГанта"
       )
@@ -33,7 +33,7 @@ describe("importGanttChartFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importGanttChartFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalGanttChartFieldTypedEnterprise,
         "ПолеДиаграммыГанта"
       )
@@ -44,14 +44,14 @@ describe("importGanttChartFieldFromEnterprise", () => {
 
   describe("importGanttChartFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importGanttChartFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importGanttChartFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importGanttChartFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullGanttChartField,
         fullGanttChartFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importGanttChartFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importGanttChartFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalGanttChartField,
         minimalGanttChartFieldPartialEnterprise
       )

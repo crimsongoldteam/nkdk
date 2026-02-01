@@ -1,6 +1,6 @@
 import { beforeEach } from "vitest"
-import { mockСontext } from "./mockContext"
+import { mockContext } from "./mockContext"
 
 beforeEach(() => {
-  mockСontext.context = {}
+  mockContext.context = {}
 })

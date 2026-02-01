@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { addDefaultLanguageNameToSynonym, extractDifferentSynonymPart } from "./synonymHelpers"
 
 describe("extractDifferentSynonymParts", () => {
   it("should return undefined when synonym is equal to name", () => {
-    const result = extractDifferentSynonymPart(mockСontext, { items: { ru: "Тестовый реквизит" } }, "ТестовыйРеквизит")
+    const result = extractDifferentSynonymPart(mockContext, { items: { ru: "Тестовый реквизит" } }, "ТестовыйРеквизит")
     expect(result).toBeUndefined()
   })
 
   it("should return synonym part when synonym is not equal to name in different language", () => {
-    const result = extractDifferentSynonymPart(mockСontext, { items: { ru: "Другой реквизит" } }, "ТестовыйРеквизит")
+    const result = extractDifferentSynonymPart(mockContext, { items: { ru: "Другой реквизит" } }, "ТестовыйРеквизит")
     expect(result).toEqual({ items: { ru: "Другой реквизит" } })
   })
 
   it("should extract only default language synonym part", () => {
     const result = extractDifferentSynonymPart(
-      mockСontext,
+      mockContext,
       { items: { ru: "Тестовый реквизит", en: "Тестовый реквизит" } },
       "ТестовыйРеквизит"
     )
@@ -24,7 +24,7 @@ describe("extractDifferentSynonymParts", () => {
 
   it("should return synonym part when synonym is not equal to name in same language", () => {
     const result = extractDifferentSynonymPart(
-      mockСontext,
+      mockContext,
       { items: { ru: "Тестовый реквизит", en: "Test attribute" } },
       "ТестовыйРеквизит"
     )
@@ -34,17 +34,17 @@ describe("extractDifferentSynonymParts", () => {
 
 describe("addDefaultLanguageNameToSynonym", () => {
   it("should add default language to single language synonym", () => {
-    const result = addDefaultLanguageNameToSynonym(mockСontext, undefined, "ТестовыйРеквизит")
+    const result = addDefaultLanguageNameToSynonym(mockContext, undefined, "ТестовыйРеквизит")
     expect(result).toEqual({ items: { ru: "Тестовый реквизит" } })
   })
 
   it("should add default language to multilanguage synonym", () => {
-    const result = addDefaultLanguageNameToSynonym(mockСontext, { items: { en: "Test attribute" } }, "ТестовыйРеквизит")
+    const result = addDefaultLanguageNameToSynonym(mockContext, { items: { en: "Test attribute" } }, "ТестовыйРеквизит")
     expect(result).toEqual({ items: { ru: "Тестовый реквизит", en: "Test attribute" } })
   })
 
   it("should not replace existing synonym", () => {
-    const result = addDefaultLanguageNameToSynonym(mockСontext, { items: { ru: "Тестовый реквизит" } }, "ИмяРеквизита")
+    const result = addDefaultLanguageNameToSynonym(mockContext, { items: { ru: "Тестовый реквизит" } }, "ИмяРеквизита")
     expect(result).toEqual({ items: { ru: "Тестовый реквизит" } })
   })
 })

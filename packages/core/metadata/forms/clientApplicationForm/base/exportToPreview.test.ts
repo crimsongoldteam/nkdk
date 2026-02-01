@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToPreview"
 import { fullInputField } from "~/tests/fixtures/forms/inputField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportClientApplicationFormToPreview } from "./exportToPreview"
 import { ClientApplicationForm } from "./types"
 
@@ -13,7 +13,7 @@ describe("exportClientApplicationFormToPreview", () => {
     }
 
     const context = {
-      ...mockСontext,
+      ...mockContext,
       preview: {
         attributes: {},
         prefix: "p_",

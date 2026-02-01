@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { fullCalendarField, minimalCalendarField } from "~/tests/fixtures/forms/calendarField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportCalendarFieldToXML } from "./exportToXML"
 
 describe("exportCalendarFieldToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportCalendarFieldToXML(mockСontext, undefined)
+    const result = exportCalendarFieldToXML(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/calendarField/full.xml")
-    const xmlData = exportCalendarFieldToXML(mockСontext, fullCalendarField)
+    const xmlData = exportCalendarFieldToXML(mockContext, fullCalendarField)
 
     const result = xmlExport({ CalendarField: xmlData }, false)
 
@@ -23,7 +23,7 @@ describe("exportCalendarFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/calendarField/minimal.xml")
-    const xmlData = exportCalendarFieldToXML(mockСontext, minimalCalendarField)
+    const xmlData = exportCalendarFieldToXML(mockContext, minimalCalendarField)
 
     const result = xmlExport({ CalendarField: xmlData }, false)
 

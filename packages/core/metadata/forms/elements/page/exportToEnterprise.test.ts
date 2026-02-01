@@ -6,18 +6,18 @@ import {
   minimalPage,
   minimalPagePartialEnterprise,
 } from "~/tests/fixtures/forms/page/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportPagePartialToEnterprise, exportPageTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPagePartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportPagePartialToEnterprise(mockСontext, fullPage)
+    const result = exportPagePartialToEnterprise(mockContext, fullPage)
 
     expect(result).toEqual(fullPagePartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportPagePartialToEnterprise(mockСontext, minimalPage)
+    const result = exportPagePartialToEnterprise(mockContext, minimalPage)
 
     expect(result).toEqual(minimalPagePartialEnterprise)
   })
@@ -25,13 +25,13 @@ describe("exportPagePartialToEnterprise", () => {
 
 describe("exportPageTypedToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportPageTypedToEnterprise(mockСontext, fullPage)
+    const result = exportPageTypedToEnterprise(mockContext, fullPage)
 
     expect(result).toEqual(fullPageTypedEnterprise)
   })
 
   it("should return undefined when data is undefined", () => {
-    const result = exportPageTypedToEnterprise(mockСontext, undefined)
+    const result = exportPageTypedToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })

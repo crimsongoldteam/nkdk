@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportMetadataValueToEnterprise } from "./exportToEnterprise"
 import { MetadataValue } from "./types"
 
@@ -10,7 +10,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: "Текстовое значение",
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual('"Текстовое значение"')
   })
@@ -21,7 +21,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: true,
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual("Истина")
   })
@@ -32,7 +32,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: 10,
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual(10)
   })
@@ -43,7 +43,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: 0,
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual(0)
   })
@@ -54,7 +54,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: "2025-12-24T12:00:00",
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual("24.12.2025 12:00:00")
   })
@@ -65,7 +65,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual("Перечисление.ВидыДоговоров.СПоставщиком")
   })
@@ -76,7 +76,7 @@ describe("exportMetadataValueToEnterprise", () => {
       value: "Catalog.Пользователи.EmptyRef",
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual("Справочник.Пользователи.ПустаяСсылка")
   })
@@ -96,7 +96,7 @@ describe("exportMetadataValueToEnterprise", () => {
       ],
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual(["Перечисление.ТипыСчетов.КосвенныеЗатраты", "Перечисление.ТипыСчетов.Расходы"])
   })
@@ -111,7 +111,7 @@ describe("exportMetadataValueToEnterprise", () => {
       },
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual('"ФЛ"(Физическое лицо)')
   })
@@ -126,7 +126,7 @@ describe("exportMetadataValueToEnterprise", () => {
       },
     }
 
-    const result = exportMetadataValueToEnterprise(mockСontext, data)
+    const result = exportMetadataValueToEnterprise(mockContext, data)
 
     expect(result).toEqual({
       Представление: { ru: "Физическое лицо", en: "Physical person" },
@@ -140,7 +140,7 @@ describe("exportMetadataValueToEnterprise", () => {
   //       value: "PlatformApplication",
   //     }
 
-  //     const result = exportMetadataValueToEnterprise(mockСontext, data)
+  //     const result = exportMetadataValueToEnterprise(mockContext, data)
 
   //     expect(result).toEqual({
   //       Тип: "ApplicationUsePurpose",
@@ -149,7 +149,7 @@ describe("exportMetadataValueToEnterprise", () => {
   //   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportMetadataValueToEnterprise(mockСontext, undefined)
+    const result = exportMetadataValueToEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })

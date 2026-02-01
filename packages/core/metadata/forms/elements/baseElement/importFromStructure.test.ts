@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { parseElement } from "../../collections/childItems/parser/elementsParser/parse"
 import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
 import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
@@ -10,8 +10,8 @@ describe("import other field from structure", () => {
     const structure = "?ПолеПереключателя {ИмяПоля}"
 
     const tokens = tokenize(structure)
-    const treeNodes = parseTree(mockСontext, tokens)
-    const result = parseElement(mockСontext, treeNodes[0])
+    const treeNodes = parseTree(mockContext, tokens)
+    const result = parseElement(mockContext, treeNodes[0])
 
     expect(result).toEqual({
       elementType: FormElementType.RadioButtonField,

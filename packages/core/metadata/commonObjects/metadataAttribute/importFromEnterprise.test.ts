@@ -9,35 +9,35 @@ import {
   shortMultilanguageMetadataAttribute,
   shortMultilanguageMetadataAttributeEnterprise,
 } from "~/tests/fixtures/metadataAttribute/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importMetadataAttributesFromEnterprise } from "./importFromEnterprise"
 
 describe("importMetadataAttributeFromEnterprise", () => {
   it("shouldreturn undefined when data is undefined", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, undefined)
+    const result = importMetadataAttributesFromEnterprise(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, fullMetadataAttributesEnterprise)
+    const result = importMetadataAttributesFromEnterprise(mockContext, fullMetadataAttributesEnterprise)
 
     expect(result).toEqual(fullMetadataAttributes)
   })
 
   it("should import minimal", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, minimalMetadataAttributesEnterprise)
+    const result = importMetadataAttributesFromEnterprise(mockContext, minimalMetadataAttributesEnterprise)
 
     expect(result).toEqual(minimalMetadataAttributes)
   })
 
   it("should import with short format", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, shortMetadataAttributeEnterprise)
+    const result = importMetadataAttributesFromEnterprise(mockContext, shortMetadataAttributeEnterprise)
 
     expect(result).toEqual(shortMetadataAttribute)
   })
 
   it("should import short multilanguage format", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, shortMultilanguageMetadataAttributeEnterprise)
+    const result = importMetadataAttributesFromEnterprise(mockContext, shortMultilanguageMetadataAttributeEnterprise)
 
     expect(result).toEqual(shortMultilanguageMetadataAttribute)
   })

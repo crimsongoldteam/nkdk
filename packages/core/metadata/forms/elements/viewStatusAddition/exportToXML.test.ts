@@ -5,7 +5,7 @@ import {
   minimalViewStatusAddition,
   parentElement,
 } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportViewStatusAdditionToXML } from "./exportToXML"
@@ -14,7 +14,7 @@ describe("exportViewStatusAdditionToXML", () => {
   it("should return all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/full.xml")
 
-    const xmlData = exportViewStatusAdditionToXML(mockСontext, fullViewStatusAddition, parentElement)
+    const xmlData = exportViewStatusAdditionToXML(mockContext, fullViewStatusAddition, parentElement)
 
     const result = xmlExport({ ViewStatusAddition: xmlData }, false)
 
@@ -24,7 +24,7 @@ describe("exportViewStatusAdditionToXML", () => {
   it("should return default when data is undefined", () => {
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/minimal.xml")
 
-    const xmlData = exportViewStatusAdditionToXML(mockСontext, undefined, parentElement)
+    const xmlData = exportViewStatusAdditionToXML(mockContext, undefined, parentElement)
 
     const result = xmlExport({ ViewStatusAddition: xmlData }, false)
 
@@ -33,7 +33,7 @@ describe("exportViewStatusAdditionToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/minimal.xml")
-    const xmlData = exportViewStatusAdditionToXML(mockСontext, minimalViewStatusAddition, parentElement)
+    const xmlData = exportViewStatusAdditionToXML(mockContext, minimalViewStatusAddition, parentElement)
 
     const result = xmlExport({ ViewStatusAddition: xmlData }, false)
 

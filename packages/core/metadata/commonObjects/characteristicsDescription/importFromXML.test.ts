@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { multipleCharacteristics } from "~/tests/fixtures/characteristicsDescription/multiple"
 import { singleCharacteristic } from "~/tests/fixtures/characteristicsDescription/single"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCharacteristicsDescriptionsFromXML } from "./importFromXML"
 import { CharacteristicsDescriptionsXML } from "./types"
@@ -13,7 +13,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
     )
 
     const expectedResult = singleCharacteristic
-    const result = importCharacteristicsDescriptionsFromXML(mockСontext, xmlData.Characteristics)
+    const result = importCharacteristicsDescriptionsFromXML(mockContext, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
 
@@ -23,7 +23,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
     )
 
     const expectedResult = multipleCharacteristics
-    const result = importCharacteristicsDescriptionsFromXML(mockСontext, xmlData.Characteristics)
+    const result = importCharacteristicsDescriptionsFromXML(mockContext, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
 })

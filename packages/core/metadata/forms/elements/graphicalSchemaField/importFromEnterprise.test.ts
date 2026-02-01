@@ -7,7 +7,7 @@ import {
   minimalGraphicalSchemaFieldPartialEnterprise,
   minimalGraphicalSchemaFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importGraphicalSchemaFieldPartialFromEnterprise,
   importGraphicalSchemaFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importGraphicalSchemaFieldFromEnterprise", () => {
   describe("importGraphicalSchemaFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importGraphicalSchemaFieldTypedFromEnterprise(mockСontext, undefined, "ПолеГрафическойСхемы")
+      const result = importGraphicalSchemaFieldTypedFromEnterprise(mockContext, undefined, "ПолеГрафическойСхемы")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importGraphicalSchemaFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullGraphicalSchemaFieldTypedEnterprise,
         "ПолеГрафическойСхемы"
       )
@@ -33,7 +33,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importGraphicalSchemaFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalGraphicalSchemaFieldTypedEnterprise,
         "ПолеГрафическойСхемы"
       )
@@ -44,14 +44,14 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
 
   describe("importGraphicalSchemaFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importGraphicalSchemaFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importGraphicalSchemaFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importGraphicalSchemaFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullGraphicalSchemaField,
         fullGraphicalSchemaFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importGraphicalSchemaFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalGraphicalSchemaField,
         minimalGraphicalSchemaFieldPartialEnterprise
       )

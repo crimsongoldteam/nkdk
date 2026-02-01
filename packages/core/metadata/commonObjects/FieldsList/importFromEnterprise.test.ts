@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { fullFieldsList, fullFieldsListEnterprise } from "~/tests/fixtures/fieldsList/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importFieldsListFromEnterprise } from "./importFromEnterprise"
 
 describe("importFieldsListFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importFieldsListFromEnterprise(mockСontext, undefined)
+    const result = importFieldsListFromEnterprise(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importFieldsListFromEnterprise(mockСontext, fullFieldsListEnterprise)
+    const result = importFieldsListFromEnterprise(mockContext, fullFieldsListEnterprise)
 
     expect(result).toEqual(fullFieldsList)
   })

@@ -5,7 +5,7 @@ import {
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importSearchStringAdditionFromXML, importSingleSearchStringAdditionFromXML } from "./importFromXML"
 import { SearchStringAdditionXML } from "./types"
@@ -17,7 +17,7 @@ describe("importSearchStringAdditionFromXML", () => {
         "forms/searchStringAddition/fullSingle.xml"
       )
 
-      const result = importSingleSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+      const result = importSingleSearchStringAdditionFromXML(mockContext, xmlData.SearchStringAddition)
 
       expect(result).toEqual(fullSingleSearchStringAddition)
     })
@@ -27,7 +27,7 @@ describe("importSearchStringAdditionFromXML", () => {
         "forms/searchStringAddition/minimalSingle.xml"
       )
 
-      const result = importSingleSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+      const result = importSingleSearchStringAdditionFromXML(mockContext, xmlData.SearchStringAddition)
 
       expect(result).toBeUndefined()
     })
@@ -38,7 +38,7 @@ describe("importSearchStringAdditionFromXML", () => {
         "forms/searchStringAddition/full.xml"
       )
 
-      const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+      const result = importSearchStringAdditionFromXML(mockContext, xmlData.SearchStringAddition)
 
       expect(result).toEqual(fullSearchStringAddition)
     })
@@ -48,7 +48,7 @@ describe("importSearchStringAdditionFromXML", () => {
         "forms/searchStringAddition/minimal.xml"
       )
 
-      const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
+      const result = importSearchStringAdditionFromXML(mockContext, xmlData.SearchStringAddition)
 
       expect(result).toEqual(minimalSearchStringAddition)
     })

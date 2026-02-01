@@ -7,7 +7,7 @@ import {
   minimalSearchControlAddition,
   minimalSingleSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   exportSearchControlAdditionPartialToEnterprise,
   exportSingleSearchControlAdditionToEnterprise,
@@ -16,13 +16,13 @@ import {
 describe("exportToEnterprise", () => {
   describe("exportSingleSearchControlAdditionToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSingleSearchControlAdditionToEnterprise(mockСontext, fullSingleSearchControlAddition)
+      const result = exportSingleSearchControlAdditionToEnterprise(mockContext, fullSingleSearchControlAddition)
 
       expect(result).toEqual(fullSingleSearchControlAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSingleSearchControlAdditionToEnterprise(mockСontext, minimalSingleSearchControlAddition)
+      const result = exportSingleSearchControlAdditionToEnterprise(mockContext, minimalSingleSearchControlAddition)
 
       expect(result).toBeUndefined()
     })
@@ -30,16 +30,15 @@ describe("exportToEnterprise", () => {
 
   describe("exportSearchControlAdditionPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSearchControlAdditionPartialToEnterprise(mockСontext, fullSearchControlAddition)
+      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, fullSearchControlAddition)
 
       expect(result).toEqual(fullSearchControlAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSearchControlAdditionPartialToEnterprise(mockСontext, minimalSearchControlAddition)
+      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, minimalSearchControlAddition)
 
       expect(result).toBeUndefined()
     })
   })
 })
-

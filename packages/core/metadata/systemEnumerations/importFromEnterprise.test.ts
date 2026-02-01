@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importSystemEnumerationFromEnterprise } from "./importFromEnterprise"
 
 describe("importSystemEnumerationFromEnterprise", () => {
@@ -8,13 +8,13 @@ describe("importSystemEnumerationFromEnterprise", () => {
     const mockValue = "Вертикальная"
     const expectedResult = "Vertical"
 
-    const result = importSystemEnumerationFromEnterprise(mockСontext, mockValue, SE.ChildFormItemsGroupFromEnterprise)
+    const result = importSystemEnumerationFromEnterprise(mockContext, mockValue, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(result).toBe(expectedResult)
   })
 
   it("should return undefined when value is undefined", () => {
-    const result = importSystemEnumerationFromEnterprise(mockСontext, undefined, SE.ChildFormItemsGroupFromEnterprise)
+    const result = importSystemEnumerationFromEnterprise(mockContext, undefined, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(result).toBeUndefined()
   })

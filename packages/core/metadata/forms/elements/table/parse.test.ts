@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
 import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
@@ -36,7 +36,7 @@ describe("parse Table", () => {
 const parseTable = (mock: string) => {
   const tokens = tokenize(mock)
 
-  const node = parseTree(mockСontext, tokens)
+  const node = parseTree(mockContext, tokens)
 
-  return parseElement(mockСontext, node[0])
+  return parseElement(mockContext, node[0])
 }

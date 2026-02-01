@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "../../../tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToPreview } from "./exportToPreview"
 import { TypeDescription } from "./types"
 
 describe("exportTypeDescriptionToPreview", () => {
   it("should return undefined when typeDescription is undefined", () => {
-    const result = exportTypeDescriptionToPreview(mockСontext, undefined)
+    const result = exportTypeDescriptionToPreview(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
@@ -13,7 +13,7 @@ describe("exportTypeDescriptionToPreview", () => {
     const typeDescription: TypeDescription = {
       type: ["string"],
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({ Type: ["string"] })
   })
 
@@ -21,7 +21,7 @@ describe("exportTypeDescriptionToPreview", () => {
     const typeDescription: TypeDescription = {
       type: ["string", "decimal", "boolean", "dateTime"],
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({ Type: ["string", "decimal", "boolean", "dateTime"] })
   })
 
@@ -29,7 +29,7 @@ describe("exportTypeDescriptionToPreview", () => {
     const typeDescription: TypeDescription = {
       type: ["CatalogRef", "DocumentRef"],
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toBeUndefined()
   })
 
@@ -37,7 +37,7 @@ describe("exportTypeDescriptionToPreview", () => {
     const typeDescription: TypeDescription = {
       type: ["CatalogRef", "string"],
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({ Type: ["string"] })
   })
 
@@ -49,7 +49,7 @@ describe("exportTypeDescriptionToPreview", () => {
         allowedLength: "Variable",
       },
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({
       Type: ["string"],
       StringQualifiers: {
@@ -68,7 +68,7 @@ describe("exportTypeDescriptionToPreview", () => {
         allowedSign: "Any",
       },
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({
       Type: ["decimal"],
       NumberQualifiers: {
@@ -86,7 +86,7 @@ describe("exportTypeDescriptionToPreview", () => {
         dateFractions: "Date",
       },
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({
       Type: ["date"],
       DateQualifiers: {
@@ -111,7 +111,7 @@ describe("exportTypeDescriptionToPreview", () => {
         dateFractions: "DateTime",
       },
     }
-    const result = exportTypeDescriptionToPreview(mockСontext, typeDescription)
+    const result = exportTypeDescriptionToPreview(mockContext, typeDescription)
     expect(result).toEqual({
       Type: ["string", "decimal", "date"],
       StringQualifiers: {

@@ -7,7 +7,7 @@ import {
   minimalProgressBarFieldPartialEnterprise,
   minimalProgressBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/progressBarField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importProgressBarFieldPartialFromEnterprise,
   importProgressBarFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importProgressBarFieldFromEnterprise", () => {
   describe("importProgressBarFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importProgressBarFieldTypedFromEnterprise(mockСontext, undefined, "ПолеИндикатора")
+      const result = importProgressBarFieldTypedFromEnterprise(mockContext, undefined, "ПолеИндикатора")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importProgressBarFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullProgressBarFieldTypedEnterprise,
         "ПолеИндикатора"
       )
@@ -33,7 +33,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importProgressBarFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalProgressBarFieldTypedEnterprise,
         "ПолеИндикатора"
       )
@@ -44,14 +44,14 @@ describe("importProgressBarFieldFromEnterprise", () => {
 
   describe("importProgressBarFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importProgressBarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importProgressBarFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importProgressBarFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullProgressBarField,
         fullProgressBarFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importProgressBarFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalProgressBarField,
         minimalProgressBarFieldPartialEnterprise
       )

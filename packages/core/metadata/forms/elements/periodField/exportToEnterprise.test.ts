@@ -6,19 +6,19 @@ import {
   minimalPeriodField,
   minimalPeriodFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportPeriodFieldPartialToEnterprise, exportPeriodFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPeriodFieldToEnterprise", () => {
   describe("exportPeriodFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportPeriodFieldPartialToEnterprise(mockСontext, fullPeriodField)
+      const result = exportPeriodFieldPartialToEnterprise(mockContext, fullPeriodField)
 
       expect(result).toEqual(fullPeriodFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportPeriodFieldPartialToEnterprise(mockСontext, minimalPeriodField)
+      const result = exportPeriodFieldPartialToEnterprise(mockContext, minimalPeriodField)
 
       expect(result).toEqual(minimalPeriodFieldPartialEnterprise)
     })
@@ -26,13 +26,13 @@ describe("exportPeriodFieldToEnterprise", () => {
 
   describe("exportPeriodFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportPeriodFieldTypedToEnterprise(mockСontext, fullPeriodField)
+      const result = exportPeriodFieldTypedToEnterprise(mockContext, fullPeriodField)
 
       expect(result).toEqual(fullPeriodFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportPeriodFieldTypedToEnterprise(mockСontext, undefined)
+      const result = exportPeriodFieldTypedToEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })

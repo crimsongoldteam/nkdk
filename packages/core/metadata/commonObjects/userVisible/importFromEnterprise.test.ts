@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "../../../tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { importUserVisibleFromEnterprise } from "./importFromEnterprise"
 
 describe("importUserVisibleFromEnterprise", () => {
@@ -9,7 +9,7 @@ describe("importUserVisibleFromEnterprise", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = importUserVisibleFromEnterprise(mockСontext, mock, undefined)
+    const result = importUserVisibleFromEnterprise(mockContext, mock, undefined)
 
     expect(result).toEqual({
       common: true,
@@ -25,7 +25,7 @@ describe("importUserVisibleFromEnterprise", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = importUserVisibleFromEnterprise(mockСontext, undefined, mock)
+    const result = importUserVisibleFromEnterprise(mockContext, undefined, mock)
 
     expect(result).toEqual({
       common: false,

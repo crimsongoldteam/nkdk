@@ -4,23 +4,23 @@ import {
   fullMetadataCommandsEnterprise,
   minimalMetadataCommands,
 } from "~/tests/fixtures/metadataCommand/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportMetadataCommandsToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataCommandToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportMetadataCommandsToEnterprise(mockСontext, undefined)
+    const result = exportMetadataCommandsToEnterprise(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const result = exportMetadataCommandsToEnterprise(mockСontext, fullMetadataCommands)
+    const result = exportMetadataCommandsToEnterprise(mockContext, fullMetadataCommands)
 
     expect(result).toEqual(fullMetadataCommandsEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportMetadataCommandsToEnterprise(mockСontext, minimalMetadataCommands)
+    const result = exportMetadataCommandsToEnterprise(mockContext, minimalMetadataCommands)
 
     expect(result).toEqual({
       Глоссарий: {

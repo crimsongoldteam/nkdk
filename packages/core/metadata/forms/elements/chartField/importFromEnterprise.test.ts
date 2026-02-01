@@ -7,25 +7,25 @@ import {
   minimalChartFieldPartialEnterprise,
   minimalChartFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/chartField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importChartFieldPartialFromEnterprise, importChartFieldTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importChartFieldFromEnterprise", () => {
   describe("importChartFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importChartFieldTypedFromEnterprise(mockСontext, undefined, "ПолеДиаграммы")
+      const result = importChartFieldTypedFromEnterprise(mockContext, undefined, "ПолеДиаграммы")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importChartFieldTypedFromEnterprise(mockСontext, fullChartFieldTypedEnterprise, "ПолеДиаграммы")
+      const result = importChartFieldTypedFromEnterprise(mockContext, fullChartFieldTypedEnterprise, "ПолеДиаграммы")
 
       expect(result).toEqual(fullChartField)
     })
 
     it("should import minimal", () => {
-      const result = importChartFieldTypedFromEnterprise(mockСontext, minimalChartFieldTypedEnterprise, "ПолеДиаграммы")
+      const result = importChartFieldTypedFromEnterprise(mockContext, minimalChartFieldTypedEnterprise, "ПолеДиаграммы")
 
       expect(result).toEqual(minimalChartField)
     })
@@ -33,20 +33,20 @@ describe("importChartFieldFromEnterprise", () => {
 
   describe("importChartFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importChartFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importChartFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
-      const result = importChartFieldPartialFromEnterprise(mockСontext, fullChartField, fullChartFieldPartialEnterprise)
+      const result = importChartFieldPartialFromEnterprise(mockContext, fullChartField, fullChartFieldPartialEnterprise)
 
       expect(result).toEqual(fullChartField)
     })
 
     it("should import minimal", () => {
       const result = importChartFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalChartField,
         minimalChartFieldPartialEnterprise
       )

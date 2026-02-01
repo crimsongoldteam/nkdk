@@ -6,19 +6,19 @@ import {
   minimalPlannerField,
   minimalPlannerFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/plannerField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportPlannerFieldPartialToEnterprise, exportPlannerFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPlannerFieldToEnterprise", () => {
   describe("exportPlannerFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportPlannerFieldPartialToEnterprise(mockСontext, fullPlannerField)
+      const result = exportPlannerFieldPartialToEnterprise(mockContext, fullPlannerField)
 
       expect(result).toEqual(fullPlannerFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportPlannerFieldPartialToEnterprise(mockСontext, minimalPlannerField)
+      const result = exportPlannerFieldPartialToEnterprise(mockContext, minimalPlannerField)
 
       expect(result).toEqual(minimalPlannerFieldPartialEnterprise)
     })
@@ -26,13 +26,13 @@ describe("exportPlannerFieldToEnterprise", () => {
 
   describe("exportPlannerFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportPlannerFieldTypedToEnterprise(mockСontext, fullPlannerField)
+      const result = exportPlannerFieldTypedToEnterprise(mockContext, fullPlannerField)
 
       expect(result).toEqual(fullPlannerFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportPlannerFieldTypedToEnterprise(mockСontext, undefined)
+      const result = exportPlannerFieldTypedToEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })

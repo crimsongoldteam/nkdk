@@ -6,7 +6,7 @@ import {
   minimalFormattedDocumentField,
   minimalFormattedDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   exportFormattedDocumentFieldPartialToEnterprise,
   exportFormattedDocumentFieldTypedToEnterprise,
@@ -15,13 +15,13 @@ import {
 describe("exportFormattedDocumentFieldToEnterprise", () => {
   describe("exportFormattedDocumentFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportFormattedDocumentFieldPartialToEnterprise(mockСontext, fullFormattedDocumentField)
+      const result = exportFormattedDocumentFieldPartialToEnterprise(mockContext, fullFormattedDocumentField)
 
       expect(result).toEqual(fullFormattedDocumentFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportFormattedDocumentFieldPartialToEnterprise(mockСontext, minimalFormattedDocumentField)
+      const result = exportFormattedDocumentFieldPartialToEnterprise(mockContext, minimalFormattedDocumentField)
 
       expect(result).toEqual(minimalFormattedDocumentFieldPartialEnterprise)
     })
@@ -29,13 +29,13 @@ describe("exportFormattedDocumentFieldToEnterprise", () => {
 
   describe("exportFormattedDocumentFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportFormattedDocumentFieldTypedToEnterprise(mockСontext, fullFormattedDocumentField)
+      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, fullFormattedDocumentField)
 
       expect(result).toEqual(fullFormattedDocumentFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportFormattedDocumentFieldTypedToEnterprise(mockСontext, undefined)
+      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })

@@ -7,36 +7,25 @@ import {
   minimalPeriodFieldPartialEnterprise,
   minimalPeriodFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
-import { mockСontext } from "~/tests/mockContext"
-import {
-  importPeriodFieldPartialFromEnterprise,
-  importPeriodFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { importPeriodFieldPartialFromEnterprise, importPeriodFieldTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importPeriodFieldFromEnterprise", () => {
   describe("importPeriodFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPeriodFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПериода")
+      const result = importPeriodFieldTypedFromEnterprise(mockContext, undefined, "ПолеПериода")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPeriodFieldTypedFromEnterprise(
-        mockСontext,
-        fullPeriodFieldTypedEnterprise,
-        "ПолеПериода"
-      )
+      const result = importPeriodFieldTypedFromEnterprise(mockContext, fullPeriodFieldTypedEnterprise, "ПолеПериода")
 
       expect(result).toEqual(fullPeriodField)
     })
 
     it("should import minimal", () => {
-      const result = importPeriodFieldTypedFromEnterprise(
-        mockСontext,
-        minimalPeriodFieldTypedEnterprise,
-        "ПолеПериода"
-      )
+      const result = importPeriodFieldTypedFromEnterprise(mockContext, minimalPeriodFieldTypedEnterprise, "ПолеПериода")
 
       expect(result).toEqual(minimalPeriodField)
     })
@@ -44,14 +33,14 @@ describe("importPeriodFieldFromEnterprise", () => {
 
   describe("importPeriodFieldPartialFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importPeriodFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+      const result = importPeriodFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importPeriodFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullPeriodField,
         fullPeriodFieldPartialEnterprise
       )
@@ -61,7 +50,7 @@ describe("importPeriodFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importPeriodFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalPeriodField,
         minimalPeriodFieldPartialEnterprise
       )

@@ -6,7 +6,7 @@ import {
   minimalGeographicalSchemaField,
   minimalGeographicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   exportGeographicalSchemaFieldPartialToEnterprise,
   exportGeographicalSchemaFieldTypedToEnterprise,
@@ -15,13 +15,13 @@ import {
 describe("exportGeographicalSchemaFieldToEnterprise", () => {
   describe("exportGeographicalSchemaFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockСontext, fullGeographicalSchemaField)
+      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockContext, fullGeographicalSchemaField)
 
       expect(result).toEqual(fullGeographicalSchemaFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockСontext, minimalGeographicalSchemaField)
+      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockContext, minimalGeographicalSchemaField)
 
       expect(result).toEqual(minimalGeographicalSchemaFieldPartialEnterprise)
     })
@@ -29,13 +29,13 @@ describe("exportGeographicalSchemaFieldToEnterprise", () => {
 
   describe("exportGeographicalSchemaFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockСontext, fullGeographicalSchemaField)
+      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, fullGeographicalSchemaField)
 
       expect(result).toEqual(fullGeographicalSchemaFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockСontext, undefined)
+      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })

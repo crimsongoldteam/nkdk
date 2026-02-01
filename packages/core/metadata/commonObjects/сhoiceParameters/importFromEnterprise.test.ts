@@ -18,60 +18,60 @@ import {
   withoutValueChoiceParameter,
   withoutValueChoiceParametersEnterprise,
 } from "~/tests/fixtures/choiceParameters/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importChoiceParametersFromEnterprise } from "./importFromEnterprise"
 
 describe("importChoiceParametersFromEnterprise", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, undefined)
+    const result = importChoiceParametersFromEnterprise(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should import single choice parameter from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, singleChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, singleChoiceParametersEnterprise)
 
     expect(result).toEqual(singleChoiceParameter)
   })
 
   it("should import multiple choice parameters from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, multipleChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, multipleChoiceParametersEnterprise)
 
     expect(result).toEqual(multipleChoiceParameters)
   })
 
   it("should import choice parameters with enum value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, enumChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, enumChoiceParametersEnterprise)
 
     expect(result).toEqual(enumChoiceParameter)
   })
 
   it("should import choice parameters with string value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, stringChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, stringChoiceParametersEnterprise)
 
     expect(result).toEqual(stringChoiceParameter)
   })
 
   it("should import choice parameters with fixedArray value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, fixedArrayChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, fixedArrayChoiceParametersEnterprise)
 
     expect(result).toEqual(fixedArrayChoiceParameter)
   })
 
   it("should import choice parameters with nil value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, nilChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, nilChoiceParametersEnterprise)
 
     expect(result).toEqual(nilChoiceParameters)
   })
 
   it("should import choice parameters without value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, withoutValueChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, withoutValueChoiceParametersEnterprise)
 
     expect(result).toEqual(withoutValueChoiceParameter)
   })
 
   it("should import choice parameters without one value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockСontext, withoutOneValueChoiceParametersEnterprise)
+    const result = importChoiceParametersFromEnterprise(mockContext, withoutOneValueChoiceParametersEnterprise)
 
     expect(result).toEqual(withoutOneValueChoiceParameter)
   })

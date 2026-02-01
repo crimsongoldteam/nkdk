@@ -7,13 +7,13 @@ import {
   minimalAutoCommandBar,
   sourceAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importAutoCommandBarFromEnterprise } from "./importFromEnterprise"
 
 describe("importAutoCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const context = {
-      ...mockСontext,
+      ...mockContext,
       allElements: fullAutoCommandBarAllItems,
     }
 
@@ -23,7 +23,7 @@ describe("importAutoCommandBarFromEnterprise", () => {
   })
 
   it("should import minimal", () => {
-    const result = importAutoCommandBarFromEnterprise(mockСontext, undefined, {})
+    const result = importAutoCommandBarFromEnterprise(mockContext, undefined, {})
 
     expect(result).toEqual(minimalAutoCommandBar)
   })

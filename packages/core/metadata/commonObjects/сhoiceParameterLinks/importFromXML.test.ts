@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest"
 import { multipleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/multiple"
 import { singleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/single"
 import { withStringDataPathChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChoiceParameterLinksFromXML } from "./importFromXML"
 import { ChoiceParameterLinksXML } from "./types"
 
 describe("importChoiceParameterLinksFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParameterLinksFromXML(mockСontext, undefined)
+    const result = importChoiceParameterLinksFromXML(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -20,7 +20,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     )
     const expectedResult = singleChoiceParameterLinks
 
-    const result = importChoiceParameterLinksFromXML(mockСontext, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockContext, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
@@ -31,7 +31,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     )
     const expectedResult = multipleChoiceParameterLinks
 
-    const result = importChoiceParameterLinksFromXML(mockСontext, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockContext, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
@@ -42,7 +42,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     )
     const expectedResult = withStringDataPathChoiceParameterLinks
 
-    const result = importChoiceParameterLinksFromXML(mockСontext, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockContext, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportOtherElementToStructure } from "./exportToStructure"
 import { NamedElement } from "./types"
@@ -13,7 +13,7 @@ describe("formatOtherElement", () => {
 
     const expectedResult = ["?ПолеВвода {ИмяПоля}"]
 
-    const result = exportOtherElementToStructure(mockСontext, element)
+    const result = exportOtherElementToStructure(mockContext, element)
 
     expect(result.strings).toEqual(expectedResult)
   })

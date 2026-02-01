@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   exportFormattedI8nTextDefaultToEnterprise,
   exportFormattedI8nTextOtherToEnterprise,
@@ -11,7 +11,7 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextToEnterprise(mockСontext, fixture.text, "Title", "FormattedTitle")
+        const result = exportFormattedI8nTextToEnterprise(mockContext, fixture.text, "Title", "FormattedTitle")
 
         if (fixture.text?.formatted) {
           expect(result).toEqual({ FormattedTitle: fixture.enterpriseFormattedText })
@@ -26,7 +26,7 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextDefaultToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export default: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextDefaultToEnterprise(mockСontext, fixture.text)
+        const result = exportFormattedI8nTextDefaultToEnterprise(mockContext, fixture.text)
 
         expect(result).toEqual(fixture.enterpriseDefaultLanguage)
       })
@@ -36,14 +36,14 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextOtherToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export other: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextOtherToEnterprise(mockСontext, fixture.text, "Title", "FormattedTitle")
+        const result = exportFormattedI8nTextOtherToEnterprise(mockContext, fixture.text, "Title", "FormattedTitle")
 
         if (!fixture.text) {
           expect(result).toEqual({})
           return
         }
 
-        const defaultLanguage = mockСontext.defaultLanguage
+        const defaultLanguage = mockContext.defaultLanguage
         const otherItems = Object.fromEntries(
           Object.entries(fixture.text.items).filter(([lang]) => lang !== defaultLanguage)
         )

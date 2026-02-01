@@ -7,7 +7,7 @@ import {
   minimalSpreadSheetDocumentFieldPartialEnterprise,
   minimalSpreadSheetDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importSpreadSheetDocumentFieldPartialFromEnterprise,
   importSpreadSheetDocumentFieldTypedFromEnterprise,
@@ -17,7 +17,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
   describe("importSpreadSheetDocumentFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         undefined,
         "ПолеТабличногоДокумента"
       )
@@ -27,7 +27,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
 
     it("should import all fields from Enterprise", () => {
       const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullSpreadSheetDocumentFieldTypedEnterprise,
         "ПолеТабличногоДокумента"
       )
@@ -37,7 +37,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalSpreadSheetDocumentFieldTypedEnterprise,
         "ПолеТабличногоДокумента"
       )
@@ -48,14 +48,14 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
 
   describe("importSpreadSheetDocumentFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importSpreadSheetDocumentFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importSpreadSheetDocumentFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullSpreadSheetDocumentField,
         fullSpreadSheetDocumentFieldPartialEnterprise
       )
@@ -65,7 +65,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalSpreadSheetDocumentField,
         minimalSpreadSheetDocumentFieldPartialEnterprise
       )

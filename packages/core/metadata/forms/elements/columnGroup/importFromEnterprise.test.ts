@@ -6,26 +6,26 @@ import {
   minimalColumnGroup,
   minimalColumnGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/columnGroup/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importColumnGroupPartialFromEnterprise, importColumnGroupTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importColumnGroupFromEnterprise", () => {
   describe("importColumnGroupTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importColumnGroupTypedFromEnterprise(mockСontext, undefined, "ГруппаКолонок")
+      const result = importColumnGroupTypedFromEnterprise(mockContext, undefined, "ГруппаКолонок")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importColumnGroupTypedFromEnterprise(mockСontext, fullColumnGroupTypedEnterprise, "ГруппаКолонок")
+      const result = importColumnGroupTypedFromEnterprise(mockContext, fullColumnGroupTypedEnterprise, "ГруппаКолонок")
 
       expect(result).toEqual(fullColumnGroup)
     })
 
     it("should import minimal", () => {
       const result = importColumnGroupTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalColumnGroupTypedEnterprise,
         "ГруппаКолонок"
       )
@@ -36,14 +36,14 @@ describe("importColumnGroupFromEnterprise", () => {
 
   describe("importColumnGroupPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importColumnGroupPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importColumnGroupPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importColumnGroupPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullColumnGroup,
         fullColumnGroupPartialEnterprise
       )

@@ -7,7 +7,7 @@ import {
   minimalRadioButtonFieldPartialEnterprise,
   minimalRadioButtonFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/radioButtonField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import {
   importRadioButtonFieldPartialFromEnterprise,
   importRadioButtonFieldTypedFromEnterprise,
@@ -16,14 +16,14 @@ import {
 describe("importRadioButtonFieldFromEnterprise", () => {
   describe("importRadioButtonFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importRadioButtonFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПереключателя")
+      const result = importRadioButtonFieldTypedFromEnterprise(mockContext, undefined, "ПолеПереключателя")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
       const result = importRadioButtonFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         fullRadioButtonFieldTypedEnterprise,
         "ПолеПереключателя"
       )
@@ -33,7 +33,7 @@ describe("importRadioButtonFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importRadioButtonFieldTypedFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalRadioButtonFieldTypedEnterprise,
         "ПолеПереключателя"
       )
@@ -44,14 +44,14 @@ describe("importRadioButtonFieldFromEnterprise", () => {
 
   describe("importRadioButtonFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importRadioButtonFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    //   const result = importRadioButtonFieldPartialFromEnterprise(mockContext, undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
       const result = importRadioButtonFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         fullRadioButtonField,
         fullRadioButtonFieldPartialEnterprise
       )
@@ -61,7 +61,7 @@ describe("importRadioButtonFieldFromEnterprise", () => {
 
     it("should import minimal", () => {
       const result = importRadioButtonFieldPartialFromEnterprise(
-        mockСontext,
+        mockContext,
         minimalRadioButtonField,
         minimalRadioButtonFieldPartialEnterprise
       )

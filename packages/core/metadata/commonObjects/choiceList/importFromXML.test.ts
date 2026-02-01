@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { emptyValueChoiceList, oneItemChoiceList, twoItemsChoiceList } from "~/tests/fixtures/choiceList/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChoiceListFromXML } from "./importFromXML"
 import { ChoiceListXML } from "./types"
 
 describe("importChoiceListFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceListFromXML(mockСontext, undefined)
+    const result = importChoiceListFromXML(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
@@ -15,7 +15,7 @@ describe("importChoiceListFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ChoiceList: ChoiceListXML }>("choiceList/oneItem.xml") as {
       ChoiceList: ChoiceListXML
     }
-    const result = importChoiceListFromXML(mockСontext, xmlData.ChoiceList)
+    const result = importChoiceListFromXML(mockContext, xmlData.ChoiceList)
     expect(result).toEqual(oneItemChoiceList)
   })
 
@@ -23,7 +23,7 @@ describe("importChoiceListFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ChoiceList: ChoiceListXML }>("choiceList/twoItems.xml") as {
       ChoiceList: ChoiceListXML
     }
-    const result = importChoiceListFromXML(mockСontext, xmlData.ChoiceList)
+    const result = importChoiceListFromXML(mockContext, xmlData.ChoiceList)
     expect(result).toEqual(twoItemsChoiceList)
   })
 
@@ -31,7 +31,7 @@ describe("importChoiceListFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ChoiceList: ChoiceListXML }>("choiceList/empty.xml") as {
       ChoiceList: ChoiceListXML
     }
-    const result = importChoiceListFromXML(mockСontext, xmlData.ChoiceList)
+    const result = importChoiceListFromXML(mockContext, xmlData.ChoiceList)
     expect(result).toEqual(emptyValueChoiceList)
   })
 })

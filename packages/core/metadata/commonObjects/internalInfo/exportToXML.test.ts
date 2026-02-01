@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportInternalInfoToXML } from "./exportToXML"
@@ -8,7 +8,7 @@ describe("exportInternalInfoToXML", () => {
   it("should export single", () => {
     const expectedResult = readXMLFileAsString("internalInfo/single.xml")
 
-    const result = exportInternalInfoToXML(mockСontext, [
+    const result = exportInternalInfoToXML(mockContext, [
       {
         name: "CatalogTabularSection.Лиды.Контакты",
         category: "TabularSection",
@@ -23,7 +23,7 @@ describe("exportInternalInfoToXML", () => {
   it("should export multiple", () => {
     const expectedResult = readXMLFileAsString("internalInfo/multiple.xml")
 
-    const result = exportInternalInfoToXML(mockСontext, [
+    const result = exportInternalInfoToXML(mockContext, [
       {
         name: "CatalogTabularSection.Лиды.Контакты",
         category: "TabularSection",

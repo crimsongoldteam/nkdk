@@ -6,19 +6,19 @@ import {
   minimalInputField,
   minimalInputFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportInputFieldPartialToEnterprise, exportInputFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportInputFieldToEnterprise", () => {
   describe("exportInputFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportInputFieldPartialToEnterprise(mockСontext, fullInputField)
+      const result = exportInputFieldPartialToEnterprise(mockContext, fullInputField)
 
       expect(result).toEqual(fullInputFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportInputFieldPartialToEnterprise(mockСontext, minimalInputField)
+      const result = exportInputFieldPartialToEnterprise(mockContext, minimalInputField)
 
       expect(result).toEqual(minimalInputFieldPartialEnterprise)
     })
@@ -26,13 +26,13 @@ describe("exportInputFieldToEnterprise", () => {
 
   describe("exportInputFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportInputFieldTypedToEnterprise(mockСontext, fullInputField)
+      const result = exportInputFieldTypedToEnterprise(mockContext, fullInputField)
 
       expect(result).toEqual(fullInputFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportInputFieldTypedToEnterprise(mockСontext, undefined)
+      const result = exportInputFieldTypedToEnterprise(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })

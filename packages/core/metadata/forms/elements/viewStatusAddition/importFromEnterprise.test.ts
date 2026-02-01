@@ -3,18 +3,18 @@ import {
   fullViewStatusAddition,
   fullViewStatusAdditionEnterprise,
 } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importViewStatusAdditionFromEnterprise } from "./importFromEnterprise"
 
 describe("importViewStatusAdditionFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importViewStatusAdditionFromEnterprise(mockСontext, fullViewStatusAdditionEnterprise)
+    const result = importViewStatusAdditionFromEnterprise(mockContext, fullViewStatusAdditionEnterprise)
 
     expect(result).toEqual(fullViewStatusAddition)
   })
 
   it("should import minimal", () => {
-    const result = importViewStatusAdditionFromEnterprise(mockСontext, {})
+    const result = importViewStatusAdditionFromEnterprise(mockContext, {})
 
     expect(result).toEqual({})
   })

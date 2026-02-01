@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { fullInputField, fullInputFieldPreview } from "~/tests/fixtures/forms/inputField/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportInputFieldToPreview } from "./exportToPreview"
 
 describe("exportInputFieldToPreview", () => {
   it("should export all fields to Enterprise", () => {
     const context = {
-      ...mockСontext,
+      ...mockContext,
       preview: {
         prefix: "prefix_",
         attributes: {},

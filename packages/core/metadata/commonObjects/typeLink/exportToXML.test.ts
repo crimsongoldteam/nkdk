@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportTypeLinkToXML, exportTypeLinkWithXSITypeToXML } from "./exportToXML"
@@ -14,14 +14,14 @@ describe("exportTypeLinkToXML", () => {
 
     const expectedResult = readXMLFileAsString("typeLink/simple.xml").trimEnd()
 
-    const result = { TypeLink: exportTypeLinkToXML(mockСontext, mockTypeLink) }
+    const result = { TypeLink: exportTypeLinkToXML(mockContext, mockTypeLink) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportTypeLinkToXML(mockСontext, undefined)
+    const result = exportTypeLinkToXML(mockContext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -36,7 +36,7 @@ describe("exportTypeLinkWithXSITypeToXML", () => {
 
     const expectedResult = readXMLFileAsString("typeLink/withXSIType.xml").trimEnd()
 
-    const result = { TypeLink: exportTypeLinkWithXSITypeToXML(mockСontext, mockTypeLink) }
+    const result = { TypeLink: exportTypeLinkWithXSITypeToXML(mockContext, mockTypeLink) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)

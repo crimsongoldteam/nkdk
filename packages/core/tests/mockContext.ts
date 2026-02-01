@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../metadata/context/types"
 
-export const mockСontext: ConfigurationContext = {
+export const mockContext: ConfigurationContext = {
   defaultLanguage: "ru",
   testMode: true,
 }

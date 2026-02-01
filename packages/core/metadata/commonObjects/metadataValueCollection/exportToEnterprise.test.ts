@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest"
 import { multiple, multipleEnterprise, single, singleEnterprise } from "~/tests/fixtures/metadataValueCollection/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportMetadataValueCollectionToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataValueCollectionToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportMetadataValueCollectionToEnterprise(mockСontext, undefined)
+    const result = exportMetadataValueCollectionToEnterprise(mockContext, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when data is empty array", () => {
-    const result = exportMetadataValueCollectionToEnterprise(mockСontext, [])
+    const result = exportMetadataValueCollectionToEnterprise(mockContext, [])
     expect(result).toBeUndefined()
   })
 
   it("should export with single value", () => {
-    const result = exportMetadataValueCollectionToEnterprise(mockСontext, single)
+    const result = exportMetadataValueCollectionToEnterprise(mockContext, single)
 
     expect(result).toEqual(singleEnterprise)
   })
 
   it("should export with multiple values", () => {
-    const result = exportMetadataValueCollectionToEnterprise(mockСontext, multiple)
+    const result = exportMetadataValueCollectionToEnterprise(mockContext, multiple)
 
     expect(result).toEqual(multipleEnterprise)
   })

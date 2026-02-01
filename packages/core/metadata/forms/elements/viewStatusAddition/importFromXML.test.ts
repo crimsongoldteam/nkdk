@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromXML"
 import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { mockСontext } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importViewStatusAdditionFromXML } from "./importFromXML"
 import { ViewStatusAdditionXML } from "./types"
@@ -12,7 +12,7 @@ describe("importViewStatusAdditionFromXML", () => {
       "forms/viewStatusAddition/full.xml"
     )
 
-    const result = importViewStatusAdditionFromXML(mockСontext, xmlData.ViewStatusAddition)
+    const result = importViewStatusAdditionFromXML(mockContext, xmlData.ViewStatusAddition)
 
     expect(result).toEqual(fullViewStatusAddition)
   })
@@ -22,7 +22,7 @@ describe("importViewStatusAdditionFromXML", () => {
       "forms/viewStatusAddition/minimal.xml"
     )
 
-    const result = importViewStatusAdditionFromXML(mockСontext, xmlData.ViewStatusAddition)
+    const result = importViewStatusAdditionFromXML(mockContext, xmlData.ViewStatusAddition)
 
     expect(result).toBeUndefined()
   })
