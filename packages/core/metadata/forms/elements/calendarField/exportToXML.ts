@@ -2,9 +2,6 @@ import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "~/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
-import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
-import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
@@ -43,48 +40,13 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
-
-  const footerBackColor = exportColorToXML(context, data.footerBackColor)
-  if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
-
-  if (data.footerDataPath !== undefined) result.FooterDataPath = data.footerDataPath
-
-  const footerFont = exportFontToXML(context, data.footerFont)
-  if (footerFont !== undefined) result.FooterFont = footerFont
-
-  if (data.footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = data.footerHorizontalAlign
-
-  const footerPicture = exportPictureToXML(context, data.footerPicture)
-  if (footerPicture !== undefined) result.FooterPicture = footerPicture
-
-  const footerText = exportI8nTextToXML(context, data.footerText)
-  if (footerText !== undefined) result.FooterText = footerText
-
-  const footerTextColor = exportColorToXML(context, data.footerTextColor)
-  if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
-
-  if (data.headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = data.headerHorizontalAlign
-
-  const headerPicture = exportPictureToXML(context, data.headerPicture)
-  if (headerPicture !== undefined) result.HeaderPicture = headerPicture
-
   if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
-
-  if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
 
   if (data.shortcut !== undefined) result.Shortcut = data.shortcut
 
-  if (data.showInFooter !== undefined) result.ShowInFooter = data.showInFooter
-
-  if (data.showInHeader !== undefined) result.ShowInHeader = data.showInHeader
-
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
-
-  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
-  if (table !== undefined) result.AssociatedTableElementId = table
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
@@ -107,17 +69,10 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
-  if (data.type !== undefined) result.Type = data.type
-
-  const typeRestriction = exportTypeDescriptionToXML(context, data.typeRestriction)
-  if (typeRestriction !== undefined) result.TypeRestriction = typeRestriction
-
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
-
-  if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.visible !== undefined) result.Visible = data.visible
 

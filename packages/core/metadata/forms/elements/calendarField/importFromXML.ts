@@ -2,9 +2,6 @@ import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromX
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
-import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
-import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
-import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
@@ -47,48 +44,13 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
   const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  if (xml.FixingInTable !== undefined) result.fixingInTable = xml.FixingInTable
-
-  const footerBackColor = importColorFromXML(context, xml.FooterBackColor)
-  if (footerBackColor !== undefined) result.footerBackColor = footerBackColor
-
-  if (xml.FooterDataPath !== undefined) result.footerDataPath = xml.FooterDataPath
-
-  const footerFont = importFontFromXML(context, xml.FooterFont)
-  if (footerFont !== undefined) result.footerFont = footerFont
-
-  if (xml.FooterHorizontalAlign !== undefined) result.footerHorizontalAlign = xml.FooterHorizontalAlign
-
-  const footerPicture = importPictureFromXML(context, xml.FooterPicture)
-  if (footerPicture !== undefined) result.footerPicture = footerPicture
-
-  const footerText = importI8nTextFromXML(context, xml.FooterText)
-  if (footerText !== undefined) result.footerText = footerText
-
-  const footerTextColor = importColorFromXML(context, xml.FooterTextColor)
-  if (footerTextColor !== undefined) result.footerTextColor = footerTextColor
-
-  if (xml.HeaderHorizontalAlign !== undefined) result.headerHorizontalAlign = xml.HeaderHorizontalAlign
-
-  const headerPicture = importPictureFromXML(context, xml.HeaderPicture)
-  if (headerPicture !== undefined) result.headerPicture = headerPicture
-
   if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
-
-  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
   if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
 
-  if (xml.ShowInFooter !== undefined) result.showInFooter = xml.ShowInFooter
-
-  if (xml.ShowInHeader !== undefined) result.showInHeader = xml.ShowInHeader
-
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
-
-  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
-  if (table !== undefined) result.table = table
 
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
@@ -111,17 +73,10 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
-  if (xml.Type !== undefined) result.type = xml.Type
-
-  const typeRestriction = importTypeDescriptionFromXML(context, xml.TypeRestriction)
-  if (typeRestriction !== undefined) result.typeRestriction = typeRestriction
-
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
-
-  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 

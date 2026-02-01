@@ -6,8 +6,6 @@ import {
   importI8nTextCombinedFromEnterprise,
   importI8nTextFromEnterprise,
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
-import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
-import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
@@ -43,8 +41,6 @@ export function importCalendarFieldTypedFromEnterprise<To extends CalendarField 
     name,
   }
 
-  if (data.Таблица !== undefined) result.table = data.Таблица
-
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
@@ -61,8 +57,6 @@ export function importCalendarFieldPartialFromEnterprise<To extends CalendarFiel
     ...source,
     ...props,
   }
-
-  if (data?.Таблица !== undefined) result.table = data.Таблица
 
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
@@ -98,20 +92,6 @@ const importCalendarFieldPropsFromEnterprise = (
   )
   if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
-    context,
-    data.ВертикальноеПоложениеВГруппе,
-    SE.ItemVerticalAlignFromEnterprise
-  )
-  if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
-
-  const type = importSystemEnumerationFromEnterprise<SE.FormFieldType>(
-    context,
-    data.Вид,
-    SE.FormFieldTypeFromEnterprise
-  )
-  if (type !== undefined) result.type = type
-
   const visible = importBooleanFromEnterprise(context, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
@@ -127,47 +107,11 @@ const importCalendarFieldPropsFromEnterprise = (
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
-    context,
-    data.ГоризонтальноеПоложениеВГруппе,
-    SE.ItemHorizontalLocationFromEnterprise
-  )
-  if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
-
-  const footerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
-    context,
-    data.ГоризонтальноеПоложениеВПодвале,
-    SE.ItemHorizontalLocationFromEnterprise
-  )
-  if (footerHorizontalAlign !== undefined) result.footerHorizontalAlign = footerHorizontalAlign
-
-  const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
-    context,
-    data.ГоризонтальноеПоложениеВШапке,
-    SE.ItemHorizontalLocationFromEnterprise
-  )
-  if (headerHorizontalAlign !== undefined) result.headerHorizontalAlign = headerHorizontalAlign
-
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const footerPicture = importPictureFromEnterprise(context, data.КартинкаПодвала)
-  if (footerPicture !== undefined) result.footerPicture = footerPicture
-
-  const headerPicture = importPictureFromEnterprise(context, data.КартинкаШапки)
-  if (headerPicture !== undefined) result.headerPicture = headerPicture
-
   const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
-
-  const typeRestriction = importTypeDescriptionFromEnterprise(context, data.ОграничениеТипа)
-  if (typeRestriction !== undefined) result.typeRestriction = typeRestriction
-
-  const showInFooter = importBooleanFromEnterprise(context, data.ОтображатьВПодвале)
-  if (showInFooter !== undefined) result.showInFooter = showInFooter
-
-  const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
-  if (showInHeader !== undefined) result.showInHeader = showInHeader
 
   const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
@@ -193,11 +137,7 @@ const importCalendarFieldPropsFromEnterprise = (
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -209,8 +149,6 @@ const importCalendarFieldPropsFromEnterprise = (
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
   if (data.ПутьКДанным !== undefined) result.dataPath = data.ПутьКДанным
-
-  if (data.ПутьКДаннымПодвала !== undefined) result.footerDataPath = data.ПутьКДаннымПодвала
 
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
@@ -224,36 +162,17 @@ const importCalendarFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
-  if (footerText !== undefined) result.footerText = footerText
-
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
-
-  const fixingInTable = importSystemEnumerationFromEnterprise<SE.FixingInTable>(
-    context,
-    data.ФиксацияВТаблице,
-    SE.FixingInTableFromEnterprise
-  )
-  if (fixingInTable !== undefined) result.fixingInTable = fixingInTable
 
   const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const footerTextColor = importColorFromEnterprise(context, data.ЦветТекстаПодвала)
-  if (footerTextColor !== undefined) result.footerTextColor = footerTextColor
-
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  const footerBackColor = importColorFromEnterprise(context, data.ЦветФонаПодвала)
-  if (footerBackColor !== undefined) result.footerBackColor = footerBackColor
-
   const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
-
-  const footerFont = importFontFromEnterprise(context, data.ШрифтПодвала)
-  if (footerFont !== undefined) result.footerFont = footerFont
 
   const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
