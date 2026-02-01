@@ -15,8 +15,6 @@ export default defineConfig({
     globals: true,
     watch: false,
     setupFiles: [resolve(__dirname, "./tests/setupTests.ts")],
-  },
-  resolve: {
     alias: {
       "~": resolve(__dirname, "./"),
     },
