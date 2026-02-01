@@ -511,7 +511,7 @@ export interface InputFieldPreview {
   OpenButton?: boolean
   PasswordMode?: boolean
   QuickChoice?: boolean
-  SelectedText?: string
+  // SelectedText?: string
   ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
   SpecialTextInputMode?: SystemEnumerationPreview
   SpellCheckingOnTextInput?: SystemEnumerationPreview

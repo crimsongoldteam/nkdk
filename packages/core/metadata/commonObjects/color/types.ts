@@ -22,6 +22,9 @@ export const ColorTypeToPrefix: Record<"StyleItem" | "WindowsColor" | "WebColor"
 } as const
 
 export interface ColorPreview {
-  Type: "Color"
-  Value: string
+  Type: "Color" | "AbsoluteColor"
+  Value?: string
+  Red?: number
+  Green?: number
+  Blue?: number
 }

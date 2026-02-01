@@ -78,13 +78,13 @@ export const colorPreviewTestCases: readonly ColorPreviewTestCase[] = [
     expected: { Type: "AbsoluteColor", Red: "255", Green: "0", Blue: "0" },
   },
   {
-    name: "WindowsColor with system color name",
+    name: "WindowsColor",
     color: { type: "WindowsColor" as const, value: "ActiveBorder" },
-    expected: { type: "Color", Value: "WindowsColors.ActiveBorder" },
+    expected: { Type: "Color" as const, Value: "WindowsColors.ActiveBorder" },
   },
   {
-    name: "StyleItem with style item name",
+    name: "StyleItem",
     color: { type: "StyleItem" as const, value: "MyStyleItem" },
-    expected: { type: "Color", Value: "StyleItems.MyStyleItem" },
+    expected: { Type: "Color" as const, Value: "StyleItems.MyStyleItem" },
   },
 ] as const

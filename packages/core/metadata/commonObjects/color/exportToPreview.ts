@@ -7,8 +7,14 @@ export const exportColorToPreview = (
 ): ColorPreview | undefined => {
   if (!color) return undefined
 
+  const prefix = color.type === "WebColor" 
+    ? "WebColors" 
+    : color.type === "WindowsColor" 
+      ? "WindowsColors" 
+      : "StyleItems"
+
   return {
-    Type: color.type,
-    Value: color.value,
+    Type: "Color",
+    Value: `${prefix}.${color.value}`,
   }
 }
