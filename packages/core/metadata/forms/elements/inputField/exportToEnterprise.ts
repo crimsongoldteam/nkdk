@@ -307,8 +307,6 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
 
-  // if (data.selectedText !== undefined) result.ВыделенныйТекст = data.selectedText
-
   const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
   if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
 
