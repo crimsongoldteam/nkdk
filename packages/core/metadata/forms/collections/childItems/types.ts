@@ -125,7 +125,7 @@ export type GroupChildItemsXML = GroupChildItemXML | GroupChildItemXML[]
 
 export type GroupChilItemPartialEnterprise = Record<string, ToPartialEnterpriseType<GroupChildItem>>
 
-export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>
+export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
 
 // #endregion
 
