@@ -21,10 +21,16 @@ export const ColorTypeToPrefix: Record<"StyleItem" | "WindowsColor" | "WebColor"
   WebColor: "web",
 } as const
 
-export interface ColorPreview {
-  Type: "Color" | "AbsoluteColor"
-  Value?: string
-  Red?: number
-  Green?: number
-  Blue?: number
+export interface PredefiedColorPreview {
+  Type: "Color"
+  Value: string
 }
+
+export interface AbsoluteColorPreview {
+  Type: "AbsoluteColor"
+  Red: number
+  Green: number
+  Blue: number
+}
+
+export type ColorPreview = PredefiedColorPreview | AbsoluteColorPreview

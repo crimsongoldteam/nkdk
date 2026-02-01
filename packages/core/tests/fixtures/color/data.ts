@@ -75,7 +75,7 @@ export const colorPreviewTestCases: readonly ColorPreviewTestCase[] = [
   {
     name: "WebColor with hex value",
     color: { type: "WebColor" as const, value: "#FF0000" },
-    expected: { Type: "AbsoluteColor", Red: "255", Green: "0", Blue: "0" },
+    expected: { Type: "AbsoluteColor", Red: 255, Green: 0, Blue: 0 },
   },
   {
     name: "WindowsColor",
