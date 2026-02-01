@@ -293,7 +293,7 @@ export interface ClientApplicationFormPreview {
 
 export interface PreviewAttribute {
   Name: string
-  Path: string
+  Path?: string
   Title?: string
   Type: TypeDescriptionPreview
 }
@@ -302,7 +302,7 @@ export type PreviewAttributes = PreviewAttribute[]
 
 export interface PreviewAttributeMapItem {
   name: string
-  dataPath: string
+  parentPath?: string
   title?: string
   type: TypeDescriptionPreview
   childItems?: PreviewAttributesMap

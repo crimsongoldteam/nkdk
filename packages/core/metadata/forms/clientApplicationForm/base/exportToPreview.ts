@@ -27,7 +27,7 @@ const getAttributesFromMap = (map: PreviewAttributesMap): PreviewAttributes => {
     const item = map[key]
     const attribute: PreviewAttribute = {
       Name: item.name,
-      Path: item.dataPath,
+      Path: item.parentPath,
       Title: item.title,
       Type: item.type,
     }

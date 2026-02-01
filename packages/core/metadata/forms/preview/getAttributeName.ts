@@ -16,18 +16,19 @@ export const getAttributeName = (
   // Формируем имя атрибута
   let name: string
   let attributeDataPath: string
+  let existingTableAttribute: [string, PreviewAttributeMapItem] | undefined
 
   if (tableDataPath) {
     // Для табличных данных ищем существующий атрибут по tableDataPath
     const tableDataPathLower = tableDataPath.toLowerCase()
-    const existingTableAttribute = Object.entries(preview.attributes).find(
+    existingTableAttribute = Object.entries(preview.attributes).find(
       ([key]) => key.toLowerCase() === tableDataPathLower
     )
 
     if (existingTableAttribute) {
       // Используем dataPath существующего атрибута таблицы
       name = title
-      attributeDataPath = existingTableAttribute[1].dataPath + "." + name
+      attributeDataPath = existingTableAttribute[1].parentPath + "." + name
     } else {
       // Для табличных данных имя атрибута - это только последняя часть dataPath
       name = title
@@ -55,8 +56,14 @@ export const getAttributeName = (
   const attribute: PreviewAttributeMapItem = {
     name: name,
     title: title,
-    dataPath: attributeDataPath,
-    type: { Type: ["String"] },
+    type: { Type: ["string"] },
+  }
+
+  // Добавляем parentPath только для табличных данных
+  if (tableDataPath) {
+    attribute.parentPath = existingTableAttribute
+      ? existingTableAttribute[1].parentPath
+      : preview.prefix + tableDataPath
   }
 
   preview.attributes[dataPath.toLowerCase()] = attribute
