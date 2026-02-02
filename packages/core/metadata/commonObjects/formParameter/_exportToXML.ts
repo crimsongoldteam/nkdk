@@ -16,7 +16,11 @@ export const _exportFormParametersToXML = (
   return result
 }
 
-const _exportFormParameterToXML = (context: ConfigurationContext, _rule: PropertyRule, parameter: FormParameter): FormParameterXML => {
+const _exportFormParameterToXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule,
+  parameter: FormParameter
+): FormParameterXML => {
   const result: FormParameterXML = {
     _name: parameter.name,
     Type: _exportTypeDescriptionToXML(context, _rule, parameter.type)!,

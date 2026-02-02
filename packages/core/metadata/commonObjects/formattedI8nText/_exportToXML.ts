@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { _exportI8nTextToXML } from "../i8nText/_exportToXML"
 import { FormattedI8nText, FormattedI8nTextXML } from "./types"
 

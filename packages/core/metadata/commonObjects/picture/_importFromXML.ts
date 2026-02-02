@@ -1,0 +1,38 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { ConfigurationContext } from "../../context/types"
+import { importBooleanFromXML } from "../boolean/importFromXML"
+import { Picture, PictureXML } from "./types"
+
+export const _importPictureFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule,
+  xml: PictureXML | undefined
+): Picture | undefined => {
+  if (!xml) return undefined
+
+  const loadTransparent = importBooleanFromXML(context, xml["xr:LoadTransparent"])!
+
+  const transparentPixel = xml["xr:TransparentPixel"]
+    ? {
+        x: Number.parseInt(String(xml["xr:TransparentPixel"]._x)),
+        y: Number.parseInt(String(xml["xr:TransparentPixel"]._y)),
+      }
+    : undefined
+
+  if (xml["xr:Abs"]) {
+    return {
+      ref: xml["xr:Abs"],
+      type: "AbsolutePicture",
+      loadTransparent,
+      transparentPixel,
+    }
+  }
+
+  const [type, ref] = xml["xr:Ref"]!.split(".")
+  return {
+    ref,
+    type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",
+    loadTransparent,
+    transparentPixel,
+  }
+}
