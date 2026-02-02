@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportAutoCommandBarToEnterprise = (
@@ -14,14 +14,14 @@ export const exportAutoCommandBarToEnterprise = (
   // const autofill = exportBooleanToEnterprise(context, data.autofill)
   // if (data.autofill == false) result.Автозаполнение = autofill
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise(
+  const horizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise

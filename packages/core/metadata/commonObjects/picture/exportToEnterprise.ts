@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } from "./types"
@@ -13,7 +13,7 @@ export function exportPictureToEnterprise(
   let ref: PictureEnterprise | undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToEnterprise(context, picture.ref, SE.PictureLibToEnterprise)
+    const result = exportSystemEnumerationToYAML(context, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 
@@ -29,11 +29,11 @@ export function exportPictureToEnterprise(
 
   if (hasCustomLoadTransparent || hasTransparentPixel) {
     const result: PictureEnterpriseExtended = { Ссылка: ref }
-    
+
     if (hasCustomLoadTransparent) {
       result.ПрозрачныйФон = exportBooleanToEnterprise(context, picture.loadTransparent)
     }
-    
+
     if (hasTransparentPixel) {
       result.ПрозрачныйПиксель = picture.transparentPixel
       // For pictures with transparent pixel, even if loadTransparent matches default, we need to include it
@@ -41,7 +41,7 @@ export function exportPictureToEnterprise(
         result.ПрозрачныйФон = exportBooleanToEnterprise(context, picture.loadTransparent)
       }
     }
-    
+
     return result
   }
 

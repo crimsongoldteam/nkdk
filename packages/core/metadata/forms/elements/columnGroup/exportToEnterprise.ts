@@ -22,7 +22,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
@@ -69,14 +69,14 @@ const exportColumnGroupPropsToEnterprise = (
 ): ColumnGroupPartialEnterprise => {
   const result: ColumnGroupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -84,7 +84,7 @@ const exportColumnGroupPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -94,7 +94,7 @@ const exportColumnGroupPropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -129,14 +129,14 @@ const exportColumnGroupPropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
+  const headerHorizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.headerHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (headerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВШапке = headerHorizontalAlign
 
-  const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ColumnsGroupToEnterprise)
+  const group = exportSystemEnumerationToYAML(context, data.group, SE.ColumnsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const headerPicture = exportPictureToEnterprise(context, data.headerPicture)
@@ -158,7 +158,7 @@ const exportColumnGroupPropsToEnterprise = (
 
   if (data.headerDataPath !== undefined) result.ПутьКДаннымШапки = data.headerDataPath
 
-  const fixingInTable = exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise)
+  const fixingInTable = exportSystemEnumerationToYAML(context, data.fixingInTable, SE.FixingInTableToEnterprise)
   if (fixingInTable !== undefined) result.ФиксацияВТаблице = fixingInTable
 
   if (data.headerFormat !== undefined) result.ФорматШапки = data.headerFormat

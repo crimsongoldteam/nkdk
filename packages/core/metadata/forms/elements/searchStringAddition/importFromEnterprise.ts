@@ -12,7 +12,7 @@ import {
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
@@ -59,14 +59,14 @@ export const importSearchStringAdditionPropsFromEnterprise = (
     elementType: "SearchStringAddition",
   }
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
@@ -76,7 +76,7 @@ export const importSearchStringAdditionPropsFromEnterprise = (
   const visible = importBooleanFromEnterprise(context, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
@@ -89,7 +89,7 @@ export const importSearchStringAdditionPropsFromEnterprise = (
   const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
@@ -102,11 +102,7 @@ export const importSearchStringAdditionPropsFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }

@@ -19,7 +19,7 @@ import {
   UserVisibleKeysEnterprise,
 } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { DynamicList } from "../dynamicList/types"
@@ -63,7 +63,7 @@ const exportFormAttributeToEnterprise = (
   const storedData = exportBooleanToEnterprise(context, data.storedData)
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
-  const fillCheck = exportSystemEnumerationToEnterprise<FillCheckingEnterprise>(
+  const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
     context,
     data.fillCheck,
     FillCheckingToEnterprise
@@ -146,7 +146,7 @@ const exportFormAttributeColumnToEnterprise = (
   const type = exportTypeDescriptionToEnterprise(context, column.type)
   if (type) result.Тип = type
 
-  const fillCheck = exportSystemEnumerationToEnterprise<FillCheckingEnterprise>(
+  const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
     context,
     column.fillCheck,
     FillCheckingToEnterprise
@@ -230,7 +230,9 @@ const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undef
     Object.entries(data).filter(
       ([key, value]) =>
         value !== undefined &&
-        !["name", "id", "valueType", "title", "settings", "columns", "additionalColumns", "functionalOptions"].includes(key)
+        !["name", "id", "valueType", "title", "settings", "columns", "additionalColumns", "functionalOptions"].includes(
+          key
+        )
     )
   )
   return Object.keys(filteredData).length === 0

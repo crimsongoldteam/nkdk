@@ -9,8 +9,8 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { exportExtendedTooltipToEnterprise } from "~/metadata/forms/elements/extendedTooltip/exportToEnterprise"
+import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
@@ -19,7 +19,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export function exportPageTypedToEnterprise<From extends Page | undefined>(
@@ -62,14 +62,14 @@ export function exportPagePartialToEnterprise<From extends Page | undefined>(
 export const exportPagePropsToEnterprise = (context: ConfigurationContext, data: Page): PagePartialEnterprise => {
   const result: PagePartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -77,7 +77,7 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -87,7 +87,7 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -130,7 +130,7 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
@@ -140,49 +140,41 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   const verticalScrollOnReduceSize = exportBooleanToEnterprise(context, data.verticalScrollOnReduceSize)
   if (verticalScrollOnReduceSize !== undefined) result.ВертикальнаяПрокруткаПриСжатии = verticalScrollOnReduceSize
 
-  const verticalAlign = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalAlign,
-    SE.ItemVerticalAlignToEnterprise
-  )
+  const verticalAlign = exportSystemEnumerationToYAML(context, data.verticalAlign, SE.ItemVerticalAlignToEnterprise)
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const childItemsVerticalAlign = exportSystemEnumerationToEnterprise(
+  const childItemsVerticalAlign = exportSystemEnumerationToYAML(
     context,
     data.childItemsVerticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
   if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
 
-  const verticalSpacing = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalSpacing,
-    SE.FormItemSpacingToEnterprise
-  )
+  const verticalSpacing = exportSystemEnumerationToYAML(context, data.verticalSpacing, SE.FormItemSpacingToEnterprise)
   if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
 
-  const itemsAndTitlesAlign = exportSystemEnumerationToEnterprise(
+  const itemsAndTitlesAlign = exportSystemEnumerationToYAML(
     context,
     data.itemsAndTitlesAlign,
     SE.ItemsAndTitlesAlignVariantToEnterprise
   )
   if (itemsAndTitlesAlign !== undefined) result.ВыравниваниеЭлементовИЗаголовков = itemsAndTitlesAlign
 
-  const childItemsHorizontalAlign = exportSystemEnumerationToEnterprise(
+  const childItemsHorizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.childItemsHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
 
-  const horizontalSpacing = exportSystemEnumerationToEnterprise(
+  const horizontalSpacing = exportSystemEnumerationToYAML(
     context,
     data.horizontalSpacing,
     SE.FormItemSpacingToEnterprise
   )
   if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
 
-  const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise)
+  const group = exportSystemEnumerationToYAML(context, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const picture = exportPictureToEnterprise(context, data.picture)
@@ -202,7 +194,7 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   const backColor = exportColorToEnterprise(context, data.backColor)
   if (backColor !== undefined) result.ЦветФона = backColor
 
-  const slaveItemsWidth = exportSystemEnumerationToEnterprise(
+  const slaveItemsWidth = exportSystemEnumerationToYAML(
     context,
     data.slaveItemsWidth,
     SE.ChildFormItemsWidthToEnterprise
@@ -212,9 +204,5 @@ export const exportPagePropsToEnterprise = (context: ConfigurationContext, data:
   return result
 }
 
-registerMetadata(
-  "ExportPartialToEnterprise",
-  "Page",
-  exportPagePartialToEnterprise as ExportPartialToEnterpriseFn
-)
+registerMetadata("ExportPartialToEnterprise", "Page", exportPagePartialToEnterprise as ExportPartialToEnterpriseFn)
 registerMetadata("ExportTypedToEnterprise", "Page", exportPageTypedToEnterprise as ExportTypedToEnterpriseFn)

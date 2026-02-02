@@ -22,7 +22,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
@@ -80,32 +80,28 @@ const importLabelFieldPropsFromEnterprise = (
   const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormFieldType>(
-    context,
-    data.Вид,
-    SE.FormFieldTypeFromEnterprise
-  )
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, data.Видимость)
@@ -116,28 +112,28 @@ const importLabelFieldPropsFromEnterprise = (
   const cellHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
-  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const footerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (footerHorizontalAlign !== undefined) result.footerHorizontalAlign = footerHorizontalAlign
 
-  const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
@@ -165,14 +161,14 @@ const importLabelFieldPropsFromEnterprise = (
   const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const warningOnEditRepresentation = importSystemEnumerationFromEnterprise<SE.WarningOnEditRepresentation>(
+  const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
@@ -182,7 +178,7 @@ const importLabelFieldPropsFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
@@ -202,7 +198,7 @@ const importLabelFieldPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const editMode = importSystemEnumerationFromEnterprise<SE.ColumnEditMode>(
+  const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
     context,
     data.РежимРедактирования,
     SE.ColumnEditModeFromEnterprise
@@ -219,7 +215,7 @@ const importLabelFieldPropsFromEnterprise = (
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const fixingInTable = importSystemEnumerationFromEnterprise<SE.FixingInTable>(
+  const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
@@ -262,11 +258,7 @@ const importLabelFieldPropsFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }

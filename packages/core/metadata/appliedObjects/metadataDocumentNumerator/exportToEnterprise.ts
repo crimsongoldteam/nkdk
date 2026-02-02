@@ -5,7 +5,7 @@ import {
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
@@ -16,7 +16,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
 
   return {
     ДлинаНомера: data.numberLength,
-    ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
+    ДопустимаяДлинаНомера: exportSystemEnumerationToYAML(
       context,
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise
@@ -24,17 +24,13 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
     Имя: data.name,
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(context, data.checkUnique),
-    ПериодичностьНомера: exportSystemEnumerationToEnterprise(
+    ПериодичностьНомера: exportSystemEnumerationToYAML(
       context,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
-      context,
-      data.objectBelonging,
-      SE.ObjectBelongingToEnterprise
-    ),
+    ПринадлежностьОбъекта: exportSystemEnumerationToYAML(context, data.objectBelonging, SE.ObjectBelongingToEnterprise),
     Синоним: exportI8nTextToEnterprise(context, data.synonym),
-    ТипНомера: exportSystemEnumerationToEnterprise(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
+    ТипНомера: exportSystemEnumerationToYAML(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
   }
 }

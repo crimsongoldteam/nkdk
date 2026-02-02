@@ -16,7 +16,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
@@ -88,7 +88,7 @@ const importButtonPropsFromEnterprise = (
   const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
@@ -106,7 +106,7 @@ const importButtonPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
@@ -116,7 +116,7 @@ const importButtonPropsFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const locationInCommandBar = importSystemEnumerationFromEnterprise<SE.ButtonLocationInCommandBar>(
+  const locationInCommandBar = importSystemEnumerationFromYAML<SE.ButtonLocationInCommandBar>(
     context,
     data.ПоложениеВКоманднойПанели,
     SE.ButtonLocationInCommandBarFromEnterprise
@@ -133,28 +133,24 @@ const importButtonPropsFromEnterprise = (
   const picture = importPictureFromEnterprise(context, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
-  const pictureLocation = importSystemEnumerationFromEnterprise<SE.FormButtonPictureLocation>(
+  const pictureLocation = importSystemEnumerationFromYAML<SE.FormButtonPictureLocation>(
     context,
     data.ПоложениеКартинки,
     SE.FormButtonPictureLocationFromEnterprise
   )
   if (pictureLocation !== undefined) result.pictureLocation = pictureLocation
 
-  const representation = importSystemEnumerationFromEnterprise<SE.ButtonRepresentation>(
+  const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
     context,
     data.Отображение,
     SE.ButtonRepresentationFromEnterprise
   )
   if (representation !== undefined) result.representation = representation
 
-  const shape = importSystemEnumerationFromEnterprise<SE.ButtonShape>(
-    context,
-    data.Фигура,
-    SE.ButtonShapeFromEnterprise
-  )
+  const shape = importSystemEnumerationFromYAML<SE.ButtonShape>(context, data.Фигура, SE.ButtonShapeFromEnterprise)
   if (shape !== undefined) result.shape = shape
 
-  const shapeRepresentation = importSystemEnumerationFromEnterprise<SE.ButtonShapeRepresentation>(
+  const shapeRepresentation = importSystemEnumerationFromYAML<SE.ButtonShapeRepresentation>(
     context,
     data.ОтображениеФигуры,
     SE.ButtonShapeRepresentationFromEnterprise
@@ -174,30 +170,22 @@ const importButtonPropsFromEnterprise = (
 
   if (data.ВысотаЗаголовка !== undefined) result.titleHeight = data.ВысотаЗаголовка
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormButtonType>(
-    context,
-    data.Вид,
-    SE.FormButtonTypeFromEnterprise
-  )
+  const type = importSystemEnumerationFromYAML<SE.FormButtonType>(context, data.Вид, SE.FormButtonTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise

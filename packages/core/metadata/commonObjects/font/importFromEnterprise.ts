@@ -1,4 +1,4 @@
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
@@ -13,11 +13,7 @@ export const importFontFromEnterprise = (
   // Если данные - строка (компактный формат)
   if (typeof data === "string") {
     // Проверяем, является ли это Enterprise значением ref
-    const styleFontRef = importSystemEnumerationFromEnterprise<SE.StyleFonts>(
-      _context,
-      data,
-      SE.StyleFontsFromEnterprise
-    )
+    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(_context, data, SE.StyleFontsFromEnterprise)
     if (styleFontRef) {
       return {
         ref: styleFontRef,
@@ -25,7 +21,7 @@ export const importFontFromEnterprise = (
       }
     }
 
-    const windowsFontRef = importSystemEnumerationFromEnterprise<SE.WindowsFonts>(
+    const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
       _context,
       data,
       SE.WindowsFontsFromEnterprise
@@ -50,7 +46,7 @@ export const importFontFromEnterprise = (
 
   // Конвертируем Вид в ref и kind
   if (fullData.Вид !== undefined) {
-    const styleFontRef = importSystemEnumerationFromEnterprise<SE.StyleFonts>(
+    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(
       _context,
       fullData.Вид,
       SE.StyleFontsFromEnterprise
@@ -59,7 +55,7 @@ export const importFontFromEnterprise = (
       result.ref = styleFontRef
       result.kind = "StyleItem"
     } else {
-      const windowsFontRef = importSystemEnumerationFromEnterprise<SE.WindowsFonts>(
+      const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
         _context,
         fullData.Вид,
         SE.WindowsFontsFromEnterprise

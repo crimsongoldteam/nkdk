@@ -14,7 +14,7 @@ import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/type
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
@@ -46,11 +46,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}
 
-  const quickChoice = exportSystemEnumerationToEnterprise(
-    context,
-    data.quickChoice,
-    SE.UseQuickChoiceToEnterprise
-  )
+  const quickChoice = exportSystemEnumerationToYAML(context, data.quickChoice, SE.UseQuickChoiceToEnterprise)
   if (quickChoice) result.БыстрыйВыбор = quickChoice
 
   const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
@@ -62,18 +58,14 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const fillValue = exportMetadataValueToEnterprise(context, data.fillValue)
   if (fillValue) result.ЗначениеЗаполнения = fillValue
 
-  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
+  const choiceHistoryOnInput = exportSystemEnumerationToYAML(
     context,
     data.choiceHistoryOnInput,
     SE.ChoiceHistoryOnInputToEnterprise
   )
   if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToEnterprise(
-    context,
-    data.dataHistory,
-    SE.DataHistoryUseToEnterprise
-  )
+  const dataHistory = exportSystemEnumerationToYAML(context, data.dataHistory, SE.DataHistoryUseToEnterprise)
   if (dataHistory) result.ИсторияДанных = dataHistory
 
   if (data.comment) result.Комментарий = data.comment
@@ -90,18 +82,10 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
-  const fullTextSearch = exportSystemEnumerationToEnterprise(
-    context,
-    data.fullTextSearch,
-    SE.UseFullTextSearchToEnterprise
-  )
+  const fullTextSearch = exportSystemEnumerationToYAML(context, data.fullTextSearch, SE.UseFullTextSearchToEnterprise)
   if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToEnterprise(
-    context,
-    data.fillChecking,
-    SE.FillCheckingToEnterprise
-  )
+  const fillChecking = exportSystemEnumerationToYAML(context, data.fillChecking, SE.FillCheckingToEnterprise)
   if (fillChecking) result.ПроверкаЗаполнения = fillChecking
 
   const extendedEdit = exportBooleanToEnterprise(context, data.extendedEdit)
@@ -110,7 +94,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const passwordMode = exportBooleanToEnterprise(context, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const typeReductionMode = exportSystemEnumerationToEnterprise(
+  const typeReductionMode = exportSystemEnumerationToYAML(
     context,
     data.typeReductionMode,
     SE.TypeReductionModeToEnterprise
@@ -126,11 +110,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const synonym = exportI8nTextToEnterprise(context, data.synonym)
   if (synonym) result.Синоним = synonym
 
-  const createOnInput = exportSystemEnumerationToEnterprise(
-    context,
-    data.createOnInput,
-    SE.CreateOnInputToEnterprise
-  )
+  const createOnInput = exportSystemEnumerationToYAML(context, data.createOnInput, SE.CreateOnInputToEnterprise)
   if (createOnInput) result.СозданиеПриВводе = createOnInput
 
   const type = exportTypeDescriptionToEnterprise(context, data.type)

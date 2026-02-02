@@ -1,7 +1,7 @@
 import { NamedElement } from "../baseElement/types"
 import { CalendarField } from "./types"
 
-interface PropertyRule {
+export interface PropertyRule {
   yaml: string
   yamlAlt?: string
   type: string
@@ -10,12 +10,12 @@ interface PropertyRule {
   enterprise?: boolean
 }
 
-interface ElementRules<T extends NamedElement> {
+export interface ElementRule<T extends NamedElement> {
   properties?: Partial<Record<Capitalize<Extract<keyof T, string>>, PropertyRule>>
   events?: Record<string, string>
 }
 
-export const CalendarFieldRules: ElementRules<CalendarField> = {
+export const CalendarFieldRules: ElementRule<CalendarField> = {
   properties: {
     AutoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean", enterprise: true },
     AutoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", enterprise: true },

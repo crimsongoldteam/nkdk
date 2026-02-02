@@ -22,7 +22,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
@@ -78,14 +78,14 @@ const importCalendarFieldPropsFromEnterprise = (
   const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
@@ -100,7 +100,7 @@ const importCalendarFieldPropsFromEnterprise = (
   const cellHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
-  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
@@ -113,14 +113,14 @@ const importCalendarFieldPropsFromEnterprise = (
   const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const warningOnEditRepresentation = importSystemEnumerationFromEnterprise<SE.WarningOnEditRepresentation>(
+  const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
@@ -130,7 +130,7 @@ const importCalendarFieldPropsFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
@@ -209,7 +209,7 @@ const importCalendarFieldPropsFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const selectionMode = importSystemEnumerationFromEnterprise<SE.DateSelectionMode>(
+  const selectionMode = importSystemEnumerationFromYAML<SE.DateSelectionMode>(
     context,
     data.РежимВыделения,
     SE.DateSelectionModeFromEnterprise
@@ -226,7 +226,7 @@ const importCalendarFieldPropsFromEnterprise = (
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const onMainServerUnavalableBehavior = importSystemEnumerationFromEnterprise<SE.OnMainServerUnavalableBehavior>(
+  const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
     context,
     data.ПоведениеПриНедоступностиОсновногоСервера,
     SE.OnMainServerUnavalableBehaviorFromEnterprise

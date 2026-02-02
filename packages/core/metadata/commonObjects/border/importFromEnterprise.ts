@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Border, BorderEnterprise } from "./types"
 
@@ -19,7 +19,7 @@ export const importBorderFromEnterprise = (
     result.width = data.Ширина
   }
 
-  const controlBorderType = importSystemEnumerationFromEnterprise<SE.ControlBorderType>(
+  const controlBorderType = importSystemEnumerationFromYAML<SE.ControlBorderType>(
     context,
     data.ТипРамки,
     SE.ControlBorderTypeFromEnterprise
@@ -30,4 +30,3 @@ export const importBorderFromEnterprise = (
 
   return Object.keys(result).length > 0 ? result : undefined
 }
-

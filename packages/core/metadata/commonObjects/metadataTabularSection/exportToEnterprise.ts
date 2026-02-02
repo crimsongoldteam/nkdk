@@ -9,7 +9,7 @@ import {
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
@@ -27,11 +27,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.lineNumberLength !== undefined) result.ДлинаНомераСтроки = data.lineNumberLength
 
-  const use = exportSystemEnumerationToEnterprise(
-    context,
-    data.use,
-    SE.AttributeUseToEnterprise
-  )
+  const use = exportSystemEnumerationToYAML(context, data.use, SE.AttributeUseToEnterprise)
   if (use !== undefined) result.Использование = use
 
   if (data.comment !== undefined) result.Комментарий = data.comment
@@ -39,18 +35,10 @@ export const exportMetadataTabularSectionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToEnterprise(
-    context,
-    data.objectBelonging,
-    SE.ObjectBelongingToEnterprise
-  )
+  const objectBelonging = exportSystemEnumerationToYAML(context, data.objectBelonging, SE.ObjectBelongingToEnterprise)
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const fillChecking = exportSystemEnumerationToEnterprise(
-    context,
-    data.fillChecking,
-    SE.FillCheckingToEnterprise
-  )
+  const fillChecking = exportSystemEnumerationToYAML(context, data.fillChecking, SE.FillCheckingToEnterprise)
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
   const standardAttributes = exportStandardAttributeDescriptionsToEnterprise(context, data.standardAttributes)

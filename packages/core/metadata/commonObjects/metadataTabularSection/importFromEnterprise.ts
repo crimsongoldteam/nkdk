@@ -10,7 +10,7 @@ import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/co
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
@@ -28,7 +28,7 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
 
-  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
+  const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
@@ -37,7 +37,7 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   if (data.ДлинаНомераСтроки !== undefined) result.lineNumberLength = data.ДлинаНомераСтроки
 
-  const use = importSystemEnumerationFromEnterprise<SE.AttributeUse>(
+  const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
     context,
     data.Использование,
     SE.AttributeUseFromEnterprise

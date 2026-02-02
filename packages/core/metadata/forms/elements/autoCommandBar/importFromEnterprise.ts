@@ -1,7 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
@@ -29,14 +29,14 @@ export const importAutoCommandBarFromEnterprise = (
   const autofill = importBooleanFromEnterprise(context, enterprise.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
-  const displayImportance = importSystemEnumerationFromEnterprise(
+  const displayImportance = importSystemEnumerationFromYAML(
     context,
     enterprise.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const horizontalAlign = importSystemEnumerationFromEnterprise(
+  const horizontalAlign = importSystemEnumerationFromYAML(
     context,
     enterprise.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise

@@ -7,7 +7,7 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | undefined>(
@@ -24,21 +24,21 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormDecorationTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormDecorationTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -46,7 +46,7 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -63,7 +63,7 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise

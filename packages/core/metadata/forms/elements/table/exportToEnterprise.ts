@@ -2,6 +2,7 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -12,14 +13,13 @@ import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/t
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportAutoCommandBarToEnterprise } from "../autoCommandBar/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { exportSingleSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
 import { exportSingleSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
 import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/exportToEnterprise"
-import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
@@ -57,28 +57,24 @@ export const exportTableToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const heightControlVariant = exportSystemEnumerationToEnterprise(
+  const heightControlVariant = exportSystemEnumerationToYAML(
     context,
     data.heightControlVariant,
     SE.TableHeightControlVariantToEnterprise
   )
   if (heightControlVariant !== undefined) result.ВариантУправленияВысотой = heightControlVariant
 
-  const verticalScrollBar = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalScrollBar,
-    SE.ScrollBarUseToEnterprise
-  )
+  const verticalScrollBar = exportSystemEnumerationToYAML(context, data.verticalScrollBar, SE.ScrollBarUseToEnterprise)
   if (verticalScrollBar !== undefined) result.ВертикальнаяПолосаПрокрутки = verticalScrollBar
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
@@ -91,7 +87,7 @@ export const exportTableToEnterprise = (
   const visible = exportBooleanToEnterprise(context, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
-  const output = exportSystemEnumerationToEnterprise(context, data.output, SE.UseOutputToEnterprise)
+  const output = exportSystemEnumerationToYAML(context, data.output, SE.UseOutputToEnterprise)
   if (output !== undefined) result.Вывод = output
 
   if (data.height !== undefined) result.Высота = data.height
@@ -104,14 +100,14 @@ export const exportTableToEnterprise = (
 
   if (data.headerHeight !== undefined) result.ВысотаШапки = data.headerHeight
 
-  const horizontalScrollBar = exportSystemEnumerationToEnterprise(
+  const horizontalScrollBar = exportSystemEnumerationToYAML(
     context,
     data.horizontalScrollBar,
     SE.ScrollBarUseToEnterprise
   )
   if (horizontalScrollBar !== undefined) result.ГоризонтальнаяПолосаПрокрутки = horizontalScrollBar
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -127,7 +123,7 @@ export const exportTableToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const refreshRequest = exportSystemEnumerationToEnterprise(
+  const refreshRequest = exportSystemEnumerationToYAML(
     context,
     data.refreshRequest,
     SE.RefreshRequestMethodToEnterprise
@@ -140,11 +136,7 @@ export const exportTableToEnterprise = (
   const changeRowSet = exportBooleanToEnterprise(context, data.changeRowSet)
   if (changeRowSet !== undefined) result.ИзменятьСоставСтрок = changeRowSet
 
-  const currentRowUse = exportSystemEnumerationToEnterprise(
-    context,
-    data.currentRowUse,
-    SE.TableCurrentRowUseToEnterprise
-  )
+  const currentRowUse = exportSystemEnumerationToYAML(context, data.currentRowUse, SE.TableCurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
   const rowsPicture = exportPictureToEnterprise(context, data.rowsPicture)
@@ -165,31 +157,19 @@ export const exportTableToEnterprise = (
   const multipleChoice = exportBooleanToEnterprise(context, data.multipleChoice)
   if (multipleChoice !== undefined) result.МножественныйВыбор = multipleChoice
 
-  const initialTreeView = exportSystemEnumerationToEnterprise(
-    context,
-    data.initialTreeView,
-    SE.InitialTreeViewToEnterprise
-  )
+  const initialTreeView = exportSystemEnumerationToYAML(context, data.initialTreeView, SE.InitialTreeViewToEnterprise)
   if (initialTreeView !== undefined) result.НачальноеОтображениеДерева = initialTreeView
 
-  const initialListView = exportSystemEnumerationToEnterprise(
-    context,
-    data.initialListView,
-    SE.InitialListViewToEnterprise
-  )
+  const initialListView = exportSystemEnumerationToYAML(context, data.initialListView, SE.InitialListViewToEnterprise)
   if (initialListView !== undefined) result.НачальноеОтображениеСписка = initialListView
 
   const markIncomplete = exportBooleanToEnterprise(context, data.markIncomplete)
   if (markIncomplete !== undefined) result.ОтметкаНезаполненного = markIncomplete
 
-  const representation = exportSystemEnumerationToEnterprise(
-    context,
-    data.representation,
-    SE.TableRepresentationToEnterprise
-  )
+  const representation = exportSystemEnumerationToYAML(context, data.representation, SE.TableRepresentationToEnterprise)
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -202,7 +182,7 @@ export const exportTableToEnterprise = (
   const searchStringAddition = exportSingleSearchStringAdditionToEnterprise(context, data.searchStringAddition)
   if (searchStringAddition !== undefined) result.ОтображениеСтрокиПоиска = searchStringAddition
 
-  const behaviorOnHorizontalCompression = exportSystemEnumerationToEnterprise(
+  const behaviorOnHorizontalCompression = exportSystemEnumerationToYAML(
     context,
     data.behaviorOnHorizontalCompression,
     SE.TableBehaviorOnHorizontalCompressionToEnterprise
@@ -219,42 +199,34 @@ export const exportTableToEnterprise = (
   // const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
   // if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
-  const searchOnInput = exportSystemEnumerationToEnterprise(
-    context,
-    data.searchOnInput,
-    SE.SearchInTableOnInputToEnterprise
-  )
+  const searchOnInput = exportSystemEnumerationToYAML(context, data.searchOnInput, SE.SearchInTableOnInputToEnterprise)
   if (searchOnInput !== undefined) result.ПоискПриВводе = searchOnInput
 
-  const titleLocation = exportSystemEnumerationToEnterprise(
-    context,
-    data.titleLocation,
-    SE.FormItemTitleLocationToEnterprise
-  )
+  const titleLocation = exportSystemEnumerationToYAML(context, data.titleLocation, SE.FormItemTitleLocationToEnterprise)
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const commandBarLocation = exportSystemEnumerationToEnterprise(
+  const commandBarLocation = exportSystemEnumerationToYAML(
     context,
     data.commandBarLocation,
     SE.FormItemCommandBarLabelLocationToEnterprise
   )
   if (commandBarLocation !== undefined) result.ПоложениеКоманднойПанели = commandBarLocation
 
-  const viewStatusLocation = exportSystemEnumerationToEnterprise(
+  const viewStatusLocation = exportSystemEnumerationToYAML(
     context,
     data.viewStatusLocation,
     SE.ViewStatusLocationToEnterprise
   )
   if (viewStatusLocation !== undefined) result.ПоложениеСостоянияПросмотра = viewStatusLocation
 
-  const searchStringLocation = exportSystemEnumerationToEnterprise(
+  const searchStringLocation = exportSystemEnumerationToYAML(
     context,
     data.searchStringLocation,
     SE.SearchStringLocationToEnterprise
   )
   if (searchStringLocation !== undefined) result.ПоложениеСтрокиПоиска = searchStringLocation
 
-  const searchControlLocation = exportSystemEnumerationToEnterprise(
+  const searchControlLocation = exportSystemEnumerationToYAML(
     context,
     data.searchControlLocation,
     SE.SearchControlLocationToEnterprise
@@ -291,20 +263,16 @@ export const exportTableToEnterprise = (
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const rowInputMode = exportSystemEnumerationToEnterprise(context, data.rowInputMode, SE.TableRowInputModeToEnterprise)
+  const rowInputMode = exportSystemEnumerationToYAML(context, data.rowInputMode, SE.TableRowInputModeToEnterprise)
   if (rowInputMode !== undefined) result.РежимВводаСтрок = rowInputMode
 
   const choiceMode = exportBooleanToEnterprise(context, data.choiceMode)
   if (choiceMode !== undefined) result.РежимВыбора = choiceMode
 
-  const selectionMode = exportSystemEnumerationToEnterprise(
-    context,
-    data.selectionMode,
-    SE.TableSelectionModeToEnterprise
-  )
+  const selectionMode = exportSystemEnumerationToYAML(context, data.selectionMode, SE.TableSelectionModeToEnterprise)
   if (selectionMode !== undefined) result.РежимВыделения = selectionMode
 
-  const rowSelectionMode = exportSystemEnumerationToEnterprise(
+  const rowSelectionMode = exportSystemEnumerationToYAML(
     context,
     data.rowSelectionMode,
     SE.TableRowSelectionModeToEnterprise
@@ -313,7 +281,7 @@ export const exportTableToEnterprise = (
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const fileDragMode = exportSystemEnumerationToEnterprise(context, data.fileDragMode, SE.FileDragModeToEnterprise)
+  const fileDragMode = exportSystemEnumerationToYAML(context, data.fileDragMode, SE.FileDragModeToEnterprise)
   if (fileDragMode !== undefined) result.СпособПеретаскиванияФайлов = fileDragMode
 
   const readOnly = exportBooleanToEnterprise(context, data.readOnly)
@@ -357,7 +325,7 @@ export const exportTableToEnterprise = (
   const restoreCurrentRow = exportBooleanToEnterprise(context, data.restoreCurrentRow)
   if (restoreCurrentRow !== undefined) result.ВосстанавливатьТекущуюСтроку = restoreCurrentRow
 
-  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise(
+  const choiceFoldersAndItems = exportSystemEnumerationToYAML(
     context,
     data.choiceFoldersAndItems,
     SE.FoldersAndItemsUseToEnterprise
@@ -367,7 +335,7 @@ export const exportTableToEnterprise = (
   const additionalCreateParameters = exportBooleanToEnterprise(context, data.additionalCreateParameters)
   if (additionalCreateParameters !== undefined) result.ДополнительныеПараметрыСоздания = additionalCreateParameters
 
-  const updateOnDataChange = exportSystemEnumerationToEnterprise(
+  const updateOnDataChange = exportSystemEnumerationToYAML(
     context,
     data.updateOnDataChange,
     SE.UpdateOnDataChangeToEnterprise

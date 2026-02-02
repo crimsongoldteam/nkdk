@@ -15,7 +15,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
@@ -69,18 +69,14 @@ const importPagesPropsFromEnterprise = (
 
   if (data === undefined) return result
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
-    context,
-    data.Вид,
-    SE.FormGroupTypeFromEnterprise
-  )
+  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, data.Видимость)
@@ -88,7 +84,7 @@ const importPagesPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
@@ -98,7 +94,7 @@ const importPagesPropsFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
@@ -133,30 +129,26 @@ const importPagesPropsFromEnterprise = (
   const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
+  const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
     context,
     data.ИспользованиеТекущейСтроки,
     SE.CurrentRowUseFromEnterprise
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const pagesRepresentation = importSystemEnumerationFromEnterprise<SE.FormPagesRepresentation>(
+  const pagesRepresentation = importSystemEnumerationFromYAML<SE.FormPagesRepresentation>(
     context,
     data.ОтображениеСтраниц,
     SE.FormPagesRepresentationFromEnterprise
   )
   if (pagesRepresentation !== undefined) result.pagesRepresentation = pagesRepresentation
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const currentPagesState = importSystemEnumerationFromEnterprise<SE.FormPagesState>(
+  const currentPagesState = importSystemEnumerationFromYAML<SE.FormPagesState>(
     context,
     data.ТекущееСостояниеСтраниц,
     SE.FormPagesStateFromEnterprise

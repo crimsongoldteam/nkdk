@@ -1,10 +1,10 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { isHasContent } from "./helper"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { isHasContent } from "./helper"
 
 export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>(
   context: ConfigurationContext,
@@ -16,7 +16,7 @@ export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>
 
   const result: ContextMenuEnterprise = {}
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise

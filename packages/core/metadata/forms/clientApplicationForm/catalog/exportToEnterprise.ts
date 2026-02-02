@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportClientApplicationFormToEnterprise } from "../base/exportToEnterprise"
 import { CatalogForm, CatalogFormEnterprise, CatalogFormEvents } from "./types"
@@ -46,7 +46,7 @@ export const exportCatalogFormToEnterprise = (
   const choiceAvailable = exportBooleanToEnterprise(context, data.choiceAvailable)
   if (choiceAvailable !== undefined) result.ВыборДоступен = choiceAvailable
 
-  const useForFoldersAndItems = exportSystemEnumerationToEnterprise(
+  const useForFoldersAndItems = exportSystemEnumerationToYAML(
     context,
     data.useForFoldersAndItems,
     SE.FoldersAndItemsUseToEnterprise
@@ -56,7 +56,7 @@ export const exportCatalogFormToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const choiceMode = exportSystemEnumerationToEnterprise(context, data.choiceMode, SE.ChoiceModeToEnterprise)
+  const choiceMode = exportSystemEnumerationToYAML(context, data.choiceMode, SE.ChoiceModeToEnterprise)
   if (choiceMode !== undefined) result.РежимВыбора = choiceMode
 
   const catalogEvents = exportCatalogFormEventsToEnterprise(context, data.events)

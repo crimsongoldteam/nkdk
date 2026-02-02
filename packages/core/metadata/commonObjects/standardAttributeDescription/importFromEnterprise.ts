@@ -13,7 +13,7 @@ import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChoiceParametersFromEnterprise } from "../сhoiceParameters/importFromEnterprise"
 import { getDefaults } from "./defaults"
@@ -44,7 +44,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
     name: StandartAttributeNameFromEnterprise(name),
   }
 
-  const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(
+  const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
     context,
     data.БыстрыйВыбор,
     SE.UseQuickChoiceFromEnterprise
@@ -60,14 +60,14 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const fillValue = importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения)
   if (fillValue) result.fillValue = fillValue
 
-  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
   )
   if (choiceHistoryOnInput) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
+  const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
     data.ИсторияДанных,
     SE.DataHistoryUseFromEnterprise
@@ -88,14 +88,14 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip) result.toolTip = toolTip
 
-  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
+  const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
   )
   if (fullTextSearch) result.fullTextSearch = fullTextSearch
 
-  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
+  const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
@@ -108,7 +108,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const passwordMode = importBooleanFromEnterprise(context, data.РежимПароля)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
-  const typeReductionMode = importSystemEnumerationFromEnterprise<SE.TypeReductionMode>(
+  const typeReductionMode = importSystemEnumerationFromYAML<SE.TypeReductionMode>(
     context,
     data.РежимСокращенияТипа,
     SE.TypeReductionModeFromEnterprise
@@ -124,7 +124,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const synonym = importI8nTextFromEnterprise(context, data.Синоним)
   if (synonym) result.synonym = synonym
 
-  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
+  const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
     data.СозданиеПриВводе,
     SE.CreateOnInputFromEnterprise

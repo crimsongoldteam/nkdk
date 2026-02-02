@@ -5,7 +5,7 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -21,7 +21,7 @@ export const exportViewStatusAdditionToEnterprise = (
   const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise(
+  const horizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
@@ -59,7 +59,7 @@ export const exportViewStatusAdditionToEnterprise = (
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
@@ -72,7 +72,7 @@ export const exportViewStatusAdditionToEnterprise = (
   const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise

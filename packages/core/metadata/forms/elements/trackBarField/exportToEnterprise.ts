@@ -23,7 +23,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -77,28 +77,24 @@ function exportTrackBarFieldPropsToEnterprise(
   const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalAlign,
-    SE.ItemVerticalAlignToEnterprise
-  )
+  const verticalAlign = exportSystemEnumerationToYAML(context, data.verticalAlign, SE.ItemVerticalAlignToEnterprise)
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormFieldTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormFieldTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -109,28 +105,28 @@ function exportTrackBarFieldPropsToEnterprise(
   const cellHyperlink = exportBooleanToEnterprise(context, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise(
+  const horizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const footerHorizontalAlign = exportSystemEnumerationToEnterprise(
+  const footerHorizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.footerHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (footerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВПодвале = footerHorizontalAlign
 
-  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
+  const headerHorizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.headerHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
@@ -158,14 +154,14 @@ function exportTrackBarFieldPropsToEnterprise(
   const showInHeader = exportBooleanToEnterprise(context, data.showInHeader)
   if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const warningOnEditRepresentation = exportSystemEnumerationToEnterprise(
+  const warningOnEditRepresentation = exportSystemEnumerationToYAML(
     context,
     data.warningOnEditRepresentation,
     SE.WarningOnEditRepresentationToEnterprise
@@ -176,11 +172,7 @@ function exportTrackBarFieldPropsToEnterprise(
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToEnterprise(
-    context,
-    data.titleLocation,
-    SE.FormItemTitleLocationToEnterprise
-  )
+  const titleLocation = exportSystemEnumerationToYAML(context, data.titleLocation, SE.FormItemTitleLocationToEnterprise)
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
   const userVisibleFormField = exportUserVisibleToEnterprise(context, data.userVisible, {
@@ -204,7 +196,7 @@ function exportTrackBarFieldPropsToEnterprise(
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToEnterprise(context, data.editMode, SE.ColumnEditModeToEnterprise)
+  const editMode = exportSystemEnumerationToYAML(context, data.editMode, SE.ColumnEditModeToEnterprise)
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
@@ -217,7 +209,7 @@ function exportTrackBarFieldPropsToEnterprise(
   const readOnly = exportBooleanToEnterprise(context, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const fixingInTable = exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise)
+  const fixingInTable = exportSystemEnumerationToYAML(context, data.fixingInTable, SE.FixingInTableToEnterprise)
   if (fixingInTable !== undefined) result.ФиксацияВТаблице = fixingInTable
 
   const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
@@ -256,10 +248,10 @@ function exportTrackBarFieldPropsToEnterprise(
 
   if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
 
-  const orientation = exportSystemEnumerationToEnterprise(context, data.orientation, SE.FormItemOrientationToEnterprise)
+  const orientation = exportSystemEnumerationToYAML(context, data.orientation, SE.FormItemOrientationToEnterprise)
   if (orientation !== undefined) result.Ориентация = orientation
 
-  const markingAppearance = exportSystemEnumerationToEnterprise(
+  const markingAppearance = exportSystemEnumerationToYAML(
     context,
     data.markingAppearance,
     SE.TrackBarMarkingAppearanceToEnterprise

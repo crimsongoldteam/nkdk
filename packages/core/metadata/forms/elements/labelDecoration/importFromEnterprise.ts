@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 const importLabelDecorationEventsFromEnterprise = (
@@ -102,21 +102,21 @@ const importLabelDecorationPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormDecorationType>(
+  const type = importSystemEnumerationFromYAML<SE.FormDecorationType>(
     context,
     data.Вид,
     SE.FormDecorationTypeFromEnterprise
@@ -128,7 +128,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
@@ -145,7 +145,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
@@ -177,14 +177,14 @@ const importLabelDecorationPropsFromEnterprise = (
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const groupVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const groupVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеВыравниваниеГруппы,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (groupVerticalAlign !== undefined) result.groupVerticalAlign = groupVerticalAlign
 
-  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
@@ -196,18 +196,14 @@ const importLabelDecorationPropsFromEnterprise = (
   const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink
 
-  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const userVisible = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }

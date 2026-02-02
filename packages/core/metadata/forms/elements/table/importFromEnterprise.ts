@@ -2,6 +2,7 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/importFromEnterprise"
@@ -13,7 +14,7 @@ import {
   ImportPartialFromEnterpriseFn,
   ToPartialEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
@@ -21,7 +22,6 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 import { importSingleSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
 import { importSingleSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
 import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
-import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -167,28 +167,28 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const heightControlVariant = importSystemEnumerationFromEnterprise<SE.TableHeightControlVariant>(
+  const heightControlVariant = importSystemEnumerationFromYAML<SE.TableHeightControlVariant>(
     context,
     data.ВариантУправленияВысотой,
     SE.TableHeightControlVariantFromEnterprise
   )
   if (heightControlVariant !== undefined) result.heightControlVariant = heightControlVariant
 
-  const verticalScrollBar = importSystemEnumerationFromEnterprise<SE.ScrollBarUse>(
+  const verticalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
     context,
     data.ВертикальнаяПолосаПрокрутки,
     SE.ScrollBarUseFromEnterprise
   )
   if (verticalScrollBar !== undefined) result.verticalScrollBar = verticalScrollBar
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
@@ -201,7 +201,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const visible = importBooleanFromEnterprise(context, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
+  const output = importSystemEnumerationFromYAML<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -214,14 +214,14 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   if (data.ВысотаШапки !== undefined) result.headerHeight = data.ВысотаШапки
 
-  const horizontalScrollBar = importSystemEnumerationFromEnterprise<SE.ScrollBarUse>(
+  const horizontalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
     context,
     data.ГоризонтальнаяПолосаПрокрутки,
     SE.ScrollBarUseFromEnterprise
   )
   if (horizontalScrollBar !== undefined) result.horizontalScrollBar = horizontalScrollBar
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
@@ -237,7 +237,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const refreshRequest = importSystemEnumerationFromEnterprise<SE.RefreshRequestMethod>(
+  const refreshRequest = importSystemEnumerationFromYAML<SE.RefreshRequestMethod>(
     context,
     data.ЗапросОбновления,
     SE.RefreshRequestMethodFromEnterprise
@@ -250,7 +250,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const changeRowSet = importBooleanFromEnterprise(context, data.ИзменятьСоставСтрок)
   if (changeRowSet !== undefined) result.changeRowSet = changeRowSet
 
-  const currentRowUse = importSystemEnumerationFromEnterprise<SE.TableCurrentRowUse>(
+  const currentRowUse = importSystemEnumerationFromYAML<SE.TableCurrentRowUse>(
     context,
     data.ИспользованиеТекущейСтроки,
     SE.TableCurrentRowUseFromEnterprise
@@ -276,14 +276,14 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const multipleChoice = importBooleanFromEnterprise(context, data.МножественныйВыбор)
   if (multipleChoice !== undefined) result.multipleChoice = multipleChoice
 
-  const initialTreeView = importSystemEnumerationFromEnterprise<SE.InitialTreeView>(
+  const initialTreeView = importSystemEnumerationFromYAML<SE.InitialTreeView>(
     context,
     data.НачальноеОтображениеДерева,
     SE.InitialTreeViewFromEnterprise
   )
   if (initialTreeView !== undefined) result.initialTreeView = initialTreeView
 
-  const initialListView = importSystemEnumerationFromEnterprise<SE.InitialListView>(
+  const initialListView = importSystemEnumerationFromYAML<SE.InitialListView>(
     context,
     data.НачальноеОтображениеСписка,
     SE.InitialListViewFromEnterprise
@@ -293,14 +293,14 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const markIncomplete = importBooleanFromEnterprise(context, data.ОтметкаНезаполненного)
   if (markIncomplete !== undefined) result.markIncomplete = markIncomplete
 
-  const representation = importSystemEnumerationFromEnterprise<SE.TableRepresentation>(
+  const representation = importSystemEnumerationFromYAML<SE.TableRepresentation>(
     context,
     data.Отображение,
     SE.TableRepresentationFromEnterprise
   )
   if (representation !== undefined) result.representation = representation
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
@@ -313,12 +313,11 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const searchStringAddition = importSingleSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
-  const behaviorOnHorizontalCompression =
-    importSystemEnumerationFromEnterprise<SE.TableBehaviorOnHorizontalCompression>(
-      context,
-      data.ПоведениеПриСжатииПоГоризонтали,
-      SE.TableBehaviorOnHorizontalCompressionFromEnterprise
-    )
+  const behaviorOnHorizontalCompression = importSystemEnumerationFromYAML<SE.TableBehaviorOnHorizontalCompression>(
+    context,
+    data.ПоведениеПриСжатииПоГоризонтали,
+    SE.TableBehaviorOnHorizontalCompressionFromEnterprise
+  )
   if (behaviorOnHorizontalCompression !== undefined)
     result.behaviorOnHorizontalCompression = behaviorOnHorizontalCompression
 
@@ -330,42 +329,42 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   result.childItems = importChildItemsPartialFromEnterprise(context, source.childItems)
 
-  const searchOnInput = importSystemEnumerationFromEnterprise<SE.SearchInTableOnInput>(
+  const searchOnInput = importSystemEnumerationFromYAML<SE.SearchInTableOnInput>(
     context,
     data.ПоискПриВводе,
     SE.SearchInTableOnInputFromEnterprise
   )
   if (searchOnInput !== undefined) result.searchOnInput = searchOnInput
 
-  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const commandBarLocation = importSystemEnumerationFromEnterprise<SE.FormItemCommandBarLabelLocation>(
+  const commandBarLocation = importSystemEnumerationFromYAML<SE.FormItemCommandBarLabelLocation>(
     context,
     data.ПоложениеКоманднойПанели,
     SE.FormItemCommandBarLabelLocationFromEnterprise
   )
   if (commandBarLocation !== undefined) result.commandBarLocation = commandBarLocation
 
-  const viewStatusLocation = importSystemEnumerationFromEnterprise<SE.ViewStatusLocation>(
+  const viewStatusLocation = importSystemEnumerationFromYAML<SE.ViewStatusLocation>(
     context,
     data.ПоложениеСостоянияПросмотра,
     SE.ViewStatusLocationFromEnterprise
   )
   if (viewStatusLocation !== undefined) result.viewStatusLocation = viewStatusLocation
 
-  const searchStringLocation = importSystemEnumerationFromEnterprise<SE.SearchStringLocation>(
+  const searchStringLocation = importSystemEnumerationFromYAML<SE.SearchStringLocation>(
     context,
     data.ПоложениеСтрокиПоиска,
     SE.SearchStringLocationFromEnterprise
   )
   if (searchStringLocation !== undefined) result.searchStringLocation = searchStringLocation
 
-  const searchControlLocation = importSystemEnumerationFromEnterprise<SE.SearchControlLocation>(
+  const searchControlLocation = importSystemEnumerationFromYAML<SE.SearchControlLocation>(
     context,
     data.ПоложениеУправленияПоиском,
     SE.SearchControlLocationFromEnterprise
@@ -399,7 +398,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const rowInputMode = importSystemEnumerationFromEnterprise<SE.TableRowInputMode>(
+  const rowInputMode = importSystemEnumerationFromYAML<SE.TableRowInputMode>(
     context,
     data.РежимВводаСтрок,
     SE.TableRowInputModeFromEnterprise
@@ -409,14 +408,14 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const choiceMode = importBooleanFromEnterprise(context, data.РежимВыбора)
   if (choiceMode !== undefined) result.choiceMode = choiceMode
 
-  const selectionMode = importSystemEnumerationFromEnterprise<SE.TableSelectionMode>(
+  const selectionMode = importSystemEnumerationFromYAML<SE.TableSelectionMode>(
     context,
     data.РежимВыделения,
     SE.TableSelectionModeFromEnterprise
   )
   if (selectionMode !== undefined) result.selectionMode = selectionMode
 
-  const rowSelectionMode = importSystemEnumerationFromEnterprise<SE.TableRowSelectionMode>(
+  const rowSelectionMode = importSystemEnumerationFromYAML<SE.TableRowSelectionMode>(
     context,
     data.РежимВыделенияСтроки,
     SE.TableRowSelectionModeFromEnterprise
@@ -425,7 +424,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const fileDragMode = importSystemEnumerationFromEnterprise<SE.FileDragMode>(
+  const fileDragMode = importSystemEnumerationFromYAML<SE.FileDragMode>(
     context,
     data.СпособПеретаскиванияФайлов,
     SE.FileDragModeFromEnterprise
@@ -473,7 +472,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const restoreCurrentRow = importBooleanFromEnterprise(context, data.ВосстанавливатьТекущуюСтроку)
   if (restoreCurrentRow !== undefined) result.restoreCurrentRow = restoreCurrentRow
 
-  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
+  const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
     data.ВыборГруппИЭлементов,
     SE.FoldersAndItemsUseFromEnterprise
@@ -483,7 +482,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const additionalCreateParameters = importBooleanFromEnterprise(context, data.ДополнительныеПараметрыСоздания)
   if (additionalCreateParameters !== undefined) result.additionalCreateParameters = additionalCreateParameters
 
-  const updateOnDataChange = importSystemEnumerationFromEnterprise<SE.UpdateOnDataChange>(
+  const updateOnDataChange = importSystemEnumerationFromYAML<SE.UpdateOnDataChange>(
     context,
     data.ОбновлениеПриИзмененииДанных,
     SE.UpdateOnDataChangeFromEnterprise

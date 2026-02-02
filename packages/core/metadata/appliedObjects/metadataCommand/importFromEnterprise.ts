@@ -12,7 +12,7 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metadataRef/importFromEnterprise"
 import { getDefaults } from "./defaults"
@@ -27,7 +27,7 @@ export const importMetadataCommandFromEnterprise = (
   if (typeof data === "string") {
     let group: SE.StandardCommandsGroup | string
     if (data in SE.StandardCommandsGroupFromEnterprise) {
-      group = importSystemEnumerationFromEnterprise(context, data, SE.StandardCommandsGroupFromEnterprise)!
+      group = importSystemEnumerationFromYAML(context, data, SE.StandardCommandsGroupFromEnterprise)!
     } else {
       group = importMetadataItemLinkFromEnterprise(context, data)!
     }
@@ -43,7 +43,7 @@ export const importMetadataCommandFromEnterprise = (
 
   let group: SE.StandardCommandsGroup | string
   if (typeof fullData.Группа === "string" && fullData.Группа in SE.StandardCommandsGroupFromEnterprise) {
-    group = importSystemEnumerationFromEnterprise(context, fullData.Группа, SE.StandardCommandsGroupFromEnterprise)!
+    group = importSystemEnumerationFromYAML(context, fullData.Группа, SE.StandardCommandsGroupFromEnterprise)!
   } else {
     group = importMetadataItemLinkFromEnterprise(context, fullData.Группа)!
   }
@@ -64,14 +64,14 @@ export const importMetadataCommandFromEnterprise = (
   const modifiesData = importBooleanFromEnterprise(context, fullData.ИзменяетДанные)
   if (modifiesData !== undefined) result.modifiesData = modifiesData
 
-  const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
+  const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
     context,
     fullData.ПринадлежностьОбъекта,
     SE.ObjectBelongingFromEnterprise
   )
   if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const parameterUseMode = importSystemEnumerationFromEnterprise<SE.CommandParameterUseMode>(
+  const parameterUseMode = importSystemEnumerationFromYAML<SE.CommandParameterUseMode>(
     context,
     fullData.РежимИспользованияПараметра,
     SE.CommandParameterUseModeFromEnterprise
@@ -81,7 +81,7 @@ export const importMetadataCommandFromEnterprise = (
   const picture = importPictureFromEnterprise(context, fullData.Картинка)
   if (picture !== undefined) result.picture = picture
 
-  const representation = importSystemEnumerationFromEnterprise<SE.ButtonRepresentation>(
+  const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
     context,
     fullData.Отображение,
     SE.ButtonRepresentationFromEnterprise
@@ -93,7 +93,7 @@ export const importMetadataCommandFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, fullData.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const onMainServerUnavalableBehavior = importSystemEnumerationFromEnterprise<SE.OnMainServerUnavalableBehavior>(
+  const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
     context,
     fullData.ПоведениеПриНедоступностиОсновногоСервера,
     SE.OnMainServerUnavalableBehaviorFromEnterprise

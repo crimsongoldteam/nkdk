@@ -21,10 +21,10 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportButtonGroupTypedToEnterprise = <From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -69,14 +69,14 @@ const exportButtonGroupPropsToEnterprise = (
 ): ButtonGroupPartialEnterprise => {
   const result: ButtonGroupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -84,7 +84,7 @@ const exportButtonGroupPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -94,7 +94,7 @@ const exportButtonGroupPropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -131,7 +131,7 @@ const exportButtonGroupPropsToEnterprise = (
 
   if (data.commandSource !== undefined) result.ИсточникКоманд = data.commandSource
 
-  const representation = exportSystemEnumerationToEnterprise(
+  const representation = exportSystemEnumerationToYAML(
     context,
     data.representation,
     SE.ButtonGroupRepresentationToEnterprise

@@ -23,7 +23,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -93,21 +93,21 @@ const exportLabelDecorationPropsToEnterprise = (
   const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormDecorationTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormDecorationTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -115,7 +115,7 @@ const exportLabelDecorationPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -132,7 +132,7 @@ const exportLabelDecorationPropsToEnterprise = (
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -164,18 +164,14 @@ const exportLabelDecorationPropsToEnterprise = (
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  const verticalAlignGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignGroup = exportSystemEnumerationToYAML(
     context,
     data.groupVerticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignGroup !== undefined) result.ВертикальноеВыравниваниеГруппы = verticalAlignGroup
 
-  const verticalAlign = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalAlign,
-    SE.ItemVerticalAlignToEnterprise
-  )
+  const verticalAlign = exportSystemEnumerationToYAML(context, data.verticalAlign, SE.ItemVerticalAlignToEnterprise)
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
   if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
@@ -183,7 +179,7 @@ const exportLabelDecorationPropsToEnterprise = (
   const hyperlink = exportBooleanToEnterprise(context, data.hyperlink)
   if (hyperlink !== undefined) result.Гиперссылка = hyperlink
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise(
+  const horizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise

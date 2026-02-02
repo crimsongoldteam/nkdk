@@ -23,7 +23,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
@@ -78,7 +78,7 @@ const exportUsualGroupPropsToEnterprise = (
 ): UsualGroupPartialEnterprise => {
   const result: UsualGroupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
@@ -93,7 +93,7 @@ const exportUsualGroupPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -103,7 +103,7 @@ const exportUsualGroupPropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -135,7 +135,7 @@ const exportUsualGroupPropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
@@ -156,21 +156,17 @@ const exportUsualGroupPropsToEnterprise = (
   // )
   // if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const childItemsVerticalAlign = exportSystemEnumerationToEnterprise(
+  const childItemsVerticalAlign = exportSystemEnumerationToYAML(
     context,
     data.childItemsVerticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
   if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
 
-  const verticalSpacing = exportSystemEnumerationToEnterprise(
-    context,
-    data.verticalSpacing,
-    SE.FormItemSpacingToEnterprise
-  )
+  const verticalSpacing = exportSystemEnumerationToYAML(context, data.verticalSpacing, SE.FormItemSpacingToEnterprise)
   if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
 
-  const itemsAndTitlesAlign = exportSystemEnumerationToEnterprise(
+  const itemsAndTitlesAlign = exportSystemEnumerationToYAML(
     context,
     data.itemsAndTitlesAlign,
     SE.ItemsAndTitlesAlignVariantToEnterprise
@@ -184,26 +180,26 @@ const exportUsualGroupPropsToEnterprise = (
   // )
   // if (groupHorizontalAlign !== undefined) result.ГоризонтальноеВыравниваниеГруппы = groupHorizontalAlign
 
-  const childItemsHorizontalAlign = exportSystemEnumerationToEnterprise(
+  const childItemsHorizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.childItemsHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
 
-  const horizontalSpacing = exportSystemEnumerationToEnterprise(
+  const horizontalSpacing = exportSystemEnumerationToYAML(
     context,
     data.horizontalSpacing,
     SE.FormItemSpacingToEnterprise
   )
   if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
 
-  const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise)
+  const group = exportSystemEnumerationToYAML(context, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const collapsedRepresentationTitle = exportI8nTextToEnterprise(context, data.collapsedRepresentationTitle)
   if (collapsedRepresentationTitle !== undefined) result.ЗаголовокСвернутогоОтображения = collapsedRepresentationTitle
-  const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
+  const currentRowUse = exportSystemEnumerationToYAML(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
   if (data.table !== undefined) result.Таблица = data.table
@@ -217,21 +213,21 @@ const exportUsualGroupPropsToEnterprise = (
   const showLeftMargin = exportBooleanToEnterprise(context, data.showLeftMargin)
   if (showLeftMargin !== undefined) result.ОтображатьОтступСлева = showLeftMargin
 
-  const representation = exportSystemEnumerationToEnterprise(
+  const representation = exportSystemEnumerationToYAML(
     context,
     data.representation,
     SE.UsualGroupRepresentationToEnterprise
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const controlRepresentation = exportSystemEnumerationToEnterprise(
+  const controlRepresentation = exportSystemEnumerationToYAML(
     context,
     data.controlRepresentation,
     SE.UsualGroupControlRepresentationToEnterprise
   )
   if (controlRepresentation !== undefined) result.ОтображениеУправления = controlRepresentation
 
-  const behavior = exportSystemEnumerationToEnterprise(context, data.behavior, SE.UsualGroupBehaviorToEnterprise)
+  const behavior = exportSystemEnumerationToYAML(context, data.behavior, SE.UsualGroupBehaviorToEnterprise)
   if (behavior !== undefined) result.Поведение = behavior
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
@@ -244,7 +240,7 @@ const exportUsualGroupPropsToEnterprise = (
 
   if (data.titleDataPath !== undefined) result.ПутьКДаннымЗаголовка = data.titleDataPath
 
-  const throughAlign = exportSystemEnumerationToEnterprise(context, data.throughAlign, SE.ThroughAlignToEnterprise)
+  const throughAlign = exportSystemEnumerationToYAML(context, data.throughAlign, SE.ThroughAlignToEnterprise)
   if (throughAlign !== undefined) result.СквозноеВыравнивание = throughAlign
 
   const collapsed = exportBooleanToEnterprise(context, data.collapsed)

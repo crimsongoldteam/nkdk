@@ -1,4 +1,4 @@
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
@@ -56,8 +56,8 @@ const convertRefToEnterprise = (
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToEnterprise(context, ref, SE.StyleFontsToEnterprise)
+    return exportSystemEnumerationToYAML(context, ref, SE.StyleFontsToEnterprise)
   }
 
-  return exportSystemEnumerationToEnterprise(context, ref, SE.WindowsFontsToEnterprise)
+  return exportSystemEnumerationToYAML(context, ref, SE.WindowsFontsToEnterprise)
 }

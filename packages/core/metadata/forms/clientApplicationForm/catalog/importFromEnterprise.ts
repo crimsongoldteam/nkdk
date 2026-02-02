@@ -1,11 +1,11 @@
-import { ConfigurationContext } from "~/metadata/context/types"
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importClientApplicationFormFromEnterprise } from "../base/importFromEnterprise"
 import { CatalogForm, CatalogFormEnterprise, CatalogFormEvents } from "./types"
-import { ChildItemsStructureResult } from "../../collections/childItems/types"
 
 const catalogFormEnterpriseEventNameMapping: Record<string, keyof CatalogFormEvents> = {
   ВыборЗначения: "valueChoice",
@@ -44,7 +44,7 @@ export const importCatalogFormFromEnterprise = (
   const choiceAvailable = importBooleanFromEnterprise(context, data.ВыборДоступен)
   if (choiceAvailable !== undefined) result.choiceAvailable = choiceAvailable
 
-  const useForFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
+  const useForFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
     data.ИспользованиеДляГруппИЭлементов,
     SE.FoldersAndItemsUseFromEnterprise
@@ -54,7 +54,7 @@ export const importCatalogFormFromEnterprise = (
   const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
-  const choiceMode = importSystemEnumerationFromEnterprise<SE.ChoiceMode>(
+  const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(
     context,
     data.РежимВыбора,
     SE.ChoiceModeFromEnterprise

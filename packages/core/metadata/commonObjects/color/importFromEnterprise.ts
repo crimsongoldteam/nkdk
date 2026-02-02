@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color, ColorEnterprise } from "./types"
 
@@ -19,7 +19,7 @@ export const importColorFromEnterprise = (
   }
 
   // Проверяем, является ли это стандартным цветом из стиля
-  const styleColor = importSystemEnumerationFromEnterprise<SE.StyleColors>(_context, data, SE.StyleColorsFromEnterprise)
+  const styleColor = importSystemEnumerationFromYAML<SE.StyleColors>(_context, data, SE.StyleColorsFromEnterprise)
   if (styleColor) {
     return {
       type: "StyleItem",
@@ -28,11 +28,7 @@ export const importColorFromEnterprise = (
   }
 
   // Проверяем, является ли это Windows цветом
-  const windowsColor = importSystemEnumerationFromEnterprise<SE.WindowsColors>(
-    _context,
-    data,
-    SE.WindowsColorsFromEnterprise
-  )
+  const windowsColor = importSystemEnumerationFromYAML<SE.WindowsColors>(_context, data, SE.WindowsColorsFromEnterprise)
   if (windowsColor) {
     return {
       type: "WindowsColor",
@@ -41,7 +37,7 @@ export const importColorFromEnterprise = (
   }
 
   // Проверяем, является ли это Web цветом
-  const webColor = importSystemEnumerationFromEnterprise<SE.WebColors>(_context, data, SE.WebColorsFromEnterprise)
+  const webColor = importSystemEnumerationFromYAML<SE.WebColors>(_context, data, SE.WebColorsFromEnterprise)
   if (webColor) {
     return {
       type: "WebColor",

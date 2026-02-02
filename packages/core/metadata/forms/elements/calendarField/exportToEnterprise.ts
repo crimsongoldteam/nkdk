@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -84,14 +84,14 @@ const exportCalendarFieldPropsToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToEnterprise(
+  const verticalAlign = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
@@ -106,7 +106,7 @@ const exportCalendarFieldPropsToEnterprise = (
   const cellHyperlink = exportBooleanToEnterprise(context, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise(
+  const horizontalAlign = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -119,14 +119,14 @@ const exportCalendarFieldPropsToEnterprise = (
   const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const warningOnEditRepresentation = exportSystemEnumerationToEnterprise(
+  const warningOnEditRepresentation = exportSystemEnumerationToYAML(
     context,
     data.warningOnEditRepresentation,
     SE.WarningOnEditRepresentationToEnterprise
@@ -137,11 +137,7 @@ const exportCalendarFieldPropsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToEnterprise(
-    context,
-    data.titleLocation,
-    SE.FormItemTitleLocationToEnterprise
-  )
+  const titleLocation = exportSystemEnumerationToYAML(context, data.titleLocation, SE.FormItemTitleLocationToEnterprise)
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
   const warningOnEdit = exportI8nTextToEnterprise(context, data.warningOnEdit)
@@ -216,11 +212,7 @@ const exportCalendarFieldPropsToEnterprise = (
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const selectionMode = exportSystemEnumerationToEnterprise(
-    context,
-    data.selectionMode,
-    SE.DateSelectionModeToEnterprise
-  )
+  const selectionMode = exportSystemEnumerationToYAML(context, data.selectionMode, SE.DateSelectionModeToEnterprise)
   if (selectionMode !== undefined) result.РежимВыделения = selectionMode
 
   const borderColor = exportColorToEnterprise(context, data.borderColor)
@@ -233,7 +225,7 @@ const exportCalendarFieldPropsToEnterprise = (
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  const onMainServerUnavalableBehavior = exportSystemEnumerationToEnterprise(
+  const onMainServerUnavalableBehavior = exportSystemEnumerationToYAML(
     context,
     data.onMainServerUnavalableBehavior,
     SE.OnMainServerUnavalableBehaviorToEnterprise

@@ -17,7 +17,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "./types"
@@ -67,21 +67,21 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
   const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormButtonTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormButtonTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -91,7 +91,7 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -113,35 +113,35 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const representation = exportSystemEnumerationToEnterprise(
+  const representation = exportSystemEnumerationToYAML(
     context,
     data.representation,
     SE.ButtonRepresentationToEnterprise
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const shapeRepresentation = exportSystemEnumerationToEnterprise(
+  const shapeRepresentation = exportSystemEnumerationToYAML(
     context,
     data.shapeRepresentation,
     SE.ButtonShapeRepresentationToEnterprise
   )
   if (shapeRepresentation !== undefined) result.ОтображениеФигуры = shapeRepresentation
 
-  const locationInCommandBar = exportSystemEnumerationToEnterprise(
+  const locationInCommandBar = exportSystemEnumerationToYAML(
     context,
     data.locationInCommandBar,
     SE.ButtonLocationInCommandBarToEnterprise
   )
   if (locationInCommandBar !== undefined) result.ПоложениеВКоманднойПанели = locationInCommandBar
 
-  const pictureLocation = exportSystemEnumerationToEnterprise(
+  const pictureLocation = exportSystemEnumerationToYAML(
     context,
     data.pictureLocation,
     SE.FormButtonPictureLocationToEnterprise
@@ -178,7 +178,7 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
   const commandUniqueness = exportBooleanToEnterprise(context, data.commandUniqueness)
   if (commandUniqueness !== undefined) result.УникальностьКоманды = commandUniqueness
 
-  const shape = exportSystemEnumerationToEnterprise(context, data.shape, SE.ButtonShapeToEnterprise)
+  const shape = exportSystemEnumerationToYAML(context, data.shape, SE.ButtonShapeToEnterprise)
   if (shape !== undefined) result.Фигура = shape
 
   const borderColor = exportColorToEnterprise(context, data.borderColor)

@@ -14,7 +14,7 @@ import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commo
 import { ConfigurationContext } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import { FillChecking, FillCheckingFromEnterprise } from "~/metadata/systemEnumerations/types"
 import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
 import { importFieldsListFromEnterprise } from "../fieldsList/importFromEnterprise"
@@ -63,7 +63,7 @@ const importFormAttributeFromEnterprise = (
   const storedData = importBooleanFromEnterprise(context, data.СохраняемыеДанные)
   if (storedData !== undefined) result.storedData = storedData
 
-  const fillCheck = importSystemEnumerationFromEnterprise<FillChecking>(
+  const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
     context,
     data.ПроверкаЗаполнения,
     FillCheckingFromEnterprise
@@ -135,7 +135,7 @@ const importFormAttributeColumnFromEnterprise = (
   const type = importTypeDescriptionFromEnterprise(context, data.Тип)
   if (type) column.type = type
 
-  const fillCheck = importSystemEnumerationFromEnterprise<FillChecking>(
+  const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
     context,
     data.ПроверкаЗаполнения,
     FillCheckingFromEnterprise

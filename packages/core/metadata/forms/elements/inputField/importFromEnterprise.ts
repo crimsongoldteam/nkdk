@@ -27,7 +27,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
@@ -85,32 +85,28 @@ const importInputFieldPropsFromEnterprise = (
   const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormFieldType>(
-    context,
-    data.Вид,
-    SE.FormFieldTypeFromEnterprise
-  )
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, data.Видимость)
@@ -121,28 +117,28 @@ const importInputFieldPropsFromEnterprise = (
   const cellHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
-  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const footerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
   if (footerHorizontalAlign !== undefined) result.footerHorizontalAlign = footerHorizontalAlign
 
-  const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
@@ -170,14 +166,14 @@ const importInputFieldPropsFromEnterprise = (
   const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const warningOnEditRepresentation = importSystemEnumerationFromEnterprise<SE.WarningOnEditRepresentation>(
+  const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
@@ -187,7 +183,7 @@ const importInputFieldPropsFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
@@ -212,7 +208,7 @@ const importInputFieldPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const editMode = importSystemEnumerationFromEnterprise<SE.ColumnEditMode>(
+  const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
     context,
     data.РежимРедактирования,
     SE.ColumnEditModeFromEnterprise
@@ -229,7 +225,7 @@ const importInputFieldPropsFromEnterprise = (
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const fixingInTable = importSystemEnumerationFromEnterprise<SE.FixingInTable>(
+  const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
@@ -257,14 +253,14 @@ const importInputFieldPropsFromEnterprise = (
   const autoChoiceIncomplete = importBooleanFromEnterprise(context, data.АвтоВыборНезаполненного)
   if (autoChoiceIncomplete !== undefined) result.autoChoiceIncomplete = autoChoiceIncomplete
 
-  const autoCapitalizationOnTextInput = importSystemEnumerationFromEnterprise<SE.AutoCapitalizationOnTextInput>(
+  const autoCapitalizationOnTextInput = importSystemEnumerationFromYAML<SE.AutoCapitalizationOnTextInput>(
     context,
     data.АвтоИзменениеРегистраПриВводеТекста,
     SE.AutoCapitalizationOnTextInputFromEnterprise
   )
   if (autoCapitalizationOnTextInput !== undefined) result.autoCapitalizationOnTextInput = autoCapitalizationOnTextInput
 
-  const autoCorrectionOnTextInput = importSystemEnumerationFromEnterprise<SE.AutoCorrectionOnTextInput>(
+  const autoCorrectionOnTextInput = importSystemEnumerationFromYAML<SE.AutoCorrectionOnTextInput>(
     context,
     data.АвтоИсправлениеПриВводеТекста,
     SE.AutoCorrectionOnTextInputFromEnterprise
@@ -280,14 +276,14 @@ const importInputFieldPropsFromEnterprise = (
   const autoMarkIncomplete = importBooleanFromEnterprise(context, data.АвтоОтметкаНезаполненного)
   if (autoMarkIncomplete !== undefined) result.autoMarkIncomplete = autoMarkIncomplete
 
-  const autoShowOpenButton = importSystemEnumerationFromEnterprise<SE.AutoShowOpenButtonMode>(
+  const autoShowOpenButton = importSystemEnumerationFromYAML<SE.AutoShowOpenButtonMode>(
     context,
     data.АвтоОтображениеКнопкиОткрытия,
     SE.AutoShowOpenButtonModeFromEnterprise
   )
   if (autoShowOpenButton !== undefined) result.autoShowOpenButton = autoShowOpenButton
 
-  const autoShowClearButton = importSystemEnumerationFromEnterprise<SE.AutoShowClearButtonMode>(
+  const autoShowClearButton = importSystemEnumerationFromYAML<SE.AutoShowClearButtonMode>(
     context,
     data.АвтоОтображениеКнопкиОчистки,
     SE.AutoShowClearButtonModeFromEnterprise
@@ -300,7 +296,7 @@ const importInputFieldPropsFromEnterprise = (
   const quickChoice = importBooleanFromEnterprise(context, data.БыстрыйВыбор)
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
-  const heightControlVariant = importSystemEnumerationFromEnterprise<SE.ItemHeightControlVariant>(
+  const heightControlVariant = importSystemEnumerationFromYAML<SE.ItemHeightControlVariant>(
     context,
     data.ВариантУправленияВысотой,
     SE.ItemHeightControlVariantFromEnterprise
@@ -310,7 +306,7 @@ const importInputFieldPropsFromEnterprise = (
   const chooseType = importBooleanFromEnterprise(context, data.ВыбиратьТип)
   if (chooseType !== undefined) result.chooseType = chooseType
 
-  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItems>(
+  const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItems>(
     context,
     data.ВыборГруппИЭлементов,
     SE.FoldersAndItemsFromEnterprise
@@ -332,7 +328,7 @@ const importInputFieldPropsFromEnterprise = (
   const availableTypes = importTypeDescriptionFromEnterprise(context, data.ДоступныеТипы)
   if (availableTypes !== undefined) result.availableTypes = availableTypes
 
-  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
@@ -379,7 +375,7 @@ const importInputFieldPropsFromEnterprise = (
   const multiLine = importBooleanFromEnterprise(context, data.МногострочныйРежим)
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const editTextUpdate = importSystemEnumerationFromEnterprise<SE.EditTextUpdate>(
+  const editTextUpdate = importSystemEnumerationFromYAML<SE.EditTextUpdate>(
     context,
     data.ОбновлениеТекстаРедактирования,
     SE.EditTextUpdateFromEnterprise
@@ -396,7 +392,7 @@ const importInputFieldPropsFromEnterprise = (
   if (showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
     result.showCheckBoxesInDropListWhenInputMultipleValues = showCheckBoxesInDropListWhenInputMultipleValues
 
-  const choiceButtonRepresentation = importSystemEnumerationFromEnterprise<SE.ChoiceButtonRepresentation>(
+  const choiceButtonRepresentation = importSystemEnumerationFromYAML<SE.ChoiceButtonRepresentation>(
     context,
     data.ОтображениеКнопкиВыбора,
     SE.ChoiceButtonRepresentationFromEnterprise
@@ -406,7 +402,7 @@ const importInputFieldPropsFromEnterprise = (
   const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
-  const autoFillHint = importSystemEnumerationFromEnterprise<SE.InputFieldAutofillHint>(
+  const autoFillHint = importSystemEnumerationFromYAML<SE.InputFieldAutofillHint>(
     context,
     data.ПодсказкаАвтозаполнения,
     SE.InputFieldAutofillHintFromEnterprise
@@ -416,7 +412,7 @@ const importInputFieldPropsFromEnterprise = (
   const inputHint = importI8nTextFromEnterprise(context, data.ПодсказкаВвода)
   if (inputHint !== undefined) result.inputHint = inputHint
 
-  const spellCheckingOnTextInput = importSystemEnumerationFromEnterprise<SE.SpellCheckingOnTextInput>(
+  const spellCheckingOnTextInput = importSystemEnumerationFromYAML<SE.SpellCheckingOnTextInput>(
     context,
     data.ПроверкаПравописанияПриВводеТекста,
     SE.SpellCheckingOnTextInputFromEnterprise
@@ -432,7 +428,7 @@ const importInputFieldPropsFromEnterprise = (
   if (data.ПутьКДаннымПредставленияМножественногоЗначения !== undefined)
     result.multipleValuePresentationDataPath = data.ПутьКДаннымПредставленияМножественногоЗначения
 
-  const multipleValuePictureSize = importSystemEnumerationFromEnterprise<SE.InputFieldMultipleValuePictureSize>(
+  const multipleValuePictureSize = importSystemEnumerationFromYAML<SE.InputFieldMultipleValuePictureSize>(
     context,
     data.РазмерКартинкиМножественногоЗначения,
     SE.InputFieldMultipleValuePictureSizeFromEnterprise
@@ -475,7 +471,7 @@ const importInputFieldPropsFromEnterprise = (
   const listChoiceMode = importBooleanFromEnterprise(context, data.РежимВыбораИзСписка)
   if (listChoiceMode !== undefined) result.listChoiceMode = listChoiceMode
 
-  const incompleteChoiceMode = importSystemEnumerationFromEnterprise<SE.IncompleteChoiceMode>(
+  const incompleteChoiceMode = importSystemEnumerationFromYAML<SE.IncompleteChoiceMode>(
     context,
     data.РежимВыбораНезаполненного,
     SE.IncompleteChoiceModeFromEnterprise
@@ -491,7 +487,7 @@ const importInputFieldPropsFromEnterprise = (
   const typeLink = importTypeLinkFromEnterprise(context, data.СвязьПоТипу)
   if (typeLink !== undefined) result.typeLink = typeLink
 
-  const specialTextInputMode = importSystemEnumerationFromEnterprise<SE.SpecialTextInputMode>(
+  const specialTextInputMode = importSystemEnumerationFromYAML<SE.SpecialTextInputMode>(
     context,
     data.СпециальныйРежимВводаТекста,
     SE.SpecialTextInputModeFromEnterprise
@@ -501,7 +497,7 @@ const importInputFieldPropsFromEnterprise = (
   const choiceList = importChoiceListFromEnterprise(context, data.СписокВыбора)
   if (choiceList !== undefined) result.choiceList = choiceList
 
-  const onScreenKeyboardReturnKeyText = importSystemEnumerationFromEnterprise<SE.OnScreenKeyboardReturnKeyText>(
+  const onScreenKeyboardReturnKeyText = importSystemEnumerationFromYAML<SE.OnScreenKeyboardReturnKeyText>(
     context,
     data.ТекстКнопкиВводаЭкраннойКлавиатуры,
     SE.OnScreenKeyboardReturnKeyTextFromEnterprise
@@ -510,7 +506,7 @@ const importInputFieldPropsFromEnterprise = (
 
   if (data.ТекстРедактирования !== undefined) result.editText = data.ТекстРедактирования
 
-  const multipleValuePictureShape = importSystemEnumerationFromEnterprise<SE.InputFieldMultipleValuePictureShape>(
+  const multipleValuePictureShape = importSystemEnumerationFromYAML<SE.InputFieldMultipleValuePictureShape>(
     context,
     data.ФигураКартинкиМножественногоЗначения,
     SE.InputFieldMultipleValuePictureShapeFromEnterprise

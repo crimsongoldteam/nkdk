@@ -12,7 +12,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
@@ -56,14 +56,14 @@ const importMetadataAttributeFromEnterprise = (
     synonym,
   }
 
-  const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(
+  const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
     context,
     data.БыстрыйВыбор,
     SE.UseQuickChoiceFromEnterprise
   )
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
-  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
+  const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
     data.ВыборГруппИЭлементов,
     SE.FoldersAndItemsUseFromEnterprise
@@ -79,35 +79,31 @@ const importMetadataAttributeFromEnterprise = (
   const fillValue = importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения)
   if (fillValue !== undefined) result.fillValue = fillValue
 
-  const indexing = importSystemEnumerationFromEnterprise<SE.Indexing>(
-    context,
-    data.Индексирование,
-    SE.IndexingFromEnterprise
-  )
+  const indexing = importSystemEnumerationFromYAML<SE.Indexing>(context, data.Индексирование, SE.IndexingFromEnterprise)
   if (indexing !== undefined) result.indexing = indexing
 
-  const use = importSystemEnumerationFromEnterprise<SE.AttributeUse>(
+  const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
     context,
     data.Использование,
     SE.AttributeUseFromEnterprise
   )
   if (use !== undefined) result.use = use
 
-  const binaryDataStorageLocationUse = importSystemEnumerationFromEnterprise<SE.BinaryDataStorageLocationUse>(
+  const binaryDataStorageLocationUse = importSystemEnumerationFromYAML<SE.BinaryDataStorageLocationUse>(
     context,
     data.ИспользованиеХраненияВХранилищеДвоичныхДанных,
     SE.BinaryDataStorageLocationUseFromEnterprise
   )
   if (binaryDataStorageLocationUse !== undefined) result.binaryDataStorageLocationUse = binaryDataStorageLocationUse
 
-  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
   )
   if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
+  const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
     data.ИсторияДанных,
     SE.DataHistoryUseFromEnterprise
@@ -138,7 +134,7 @@ const importMetadataAttributeFromEnterprise = (
   if (binaryDataStorageLocationUseField !== undefined)
     result.binaryDataStorageLocationUseField = binaryDataStorageLocationUseField
 
-  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
+  const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
@@ -152,7 +148,7 @@ const importMetadataAttributeFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
+  const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
@@ -171,7 +167,7 @@ const importMetadataAttributeFromEnterprise = (
   const linkByType = importTypeLinkFromEnterprise(context, data.СвязьПоТипу)
   if (linkByType !== undefined) result.linkByType = linkByType
 
-  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
+  const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
     data.СозданиеПриВводе,
     SE.CreateOnInputFromEnterprise

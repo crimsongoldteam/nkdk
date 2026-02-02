@@ -19,7 +19,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
@@ -63,14 +63,14 @@ export const exportPopupPartialToEnterprise = <From extends Popup | undefined>(
 const exportPopupPropsToEnterprise = (context: ConfigurationContext, data: Popup): PopupPartialEnterprise => {
   const result: PopupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -78,7 +78,7 @@ const exportPopupPropsToEnterprise = (context: ConfigurationContext, data: Popup
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -88,7 +88,7 @@ const exportPopupPropsToEnterprise = (context: ConfigurationContext, data: Popup
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
@@ -134,21 +134,21 @@ const exportPopupPropsToEnterprise = (context: ConfigurationContext, data: Popup
   const picture = exportPictureToEnterprise(context, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const representation = exportSystemEnumerationToEnterprise(
+  const representation = exportSystemEnumerationToYAML(
     context,
     data.representation,
     SE.ButtonRepresentationToEnterprise
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const shapeRepresentation = exportSystemEnumerationToEnterprise(
+  const shapeRepresentation = exportSystemEnumerationToYAML(
     context,
     data.shapeRepresentation,
     SE.ButtonShapeRepresentationToEnterprise
   )
   if (shapeRepresentation !== undefined) result.ОтображениеФигуры = shapeRepresentation
 
-  const shape = exportSystemEnumerationToEnterprise(context, data.shape, SE.ButtonShapeToEnterprise)
+  const shape = exportSystemEnumerationToYAML(context, data.shape, SE.ButtonShapeToEnterprise)
   if (shape !== undefined) result.Фигура = shape
 
   const borderColor = exportColorToEnterprise(context, data.borderColor)

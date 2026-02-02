@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../context/types"
 
-export const importSystemEnumerationFromEnterprise = <T extends string>(
+export const importSystemEnumerationFromYAML = <T extends string>(
   _context: ConfigurationContext,
   value: string | undefined,
   enumeration: Record<string, T>

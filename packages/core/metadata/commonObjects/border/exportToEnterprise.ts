@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Border, BorderEnterprise } from "./types"
 
@@ -12,6 +12,6 @@ export const exportBorderToEnterprise = (
   return {
     Имя: data.ref,
     Ширина: data.width,
-    ТипРамки: exportSystemEnumerationToEnterprise(context, data.controlBorderType, SE.ControlBorderTypeToEnterprise),
+    ТипРамки: exportSystemEnumerationToYAML(context, data.controlBorderType, SE.ControlBorderTypeToEnterprise),
   }
 }

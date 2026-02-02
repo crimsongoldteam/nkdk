@@ -1,7 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
@@ -15,7 +15,7 @@ export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise 
     childItems: [],
   }
 
-  const displayImportance = importSystemEnumerationFromEnterprise(
+  const displayImportance = importSystemEnumerationFromYAML(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise

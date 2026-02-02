@@ -12,7 +12,7 @@ import { importPredefinedItemsFromEnterprise } from "~/metadata/commonObjects/pr
 import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
@@ -35,7 +35,7 @@ export const importMetadataCatalogFromEnterprise = (
   const hierarchical = importBooleanFromEnterprise(context, data.Иерархический)
   if (hierarchical !== undefined) result.hierarchical = hierarchical
 
-  const hierarchyType = importSystemEnumerationFromEnterprise<SE.HierarchyType>(
+  const hierarchyType = importSystemEnumerationFromYAML<SE.HierarchyType>(
     context,
     data.ВидИерархии,
     SE.HierarchyTypeFromEnterprise
@@ -88,14 +88,14 @@ export const importMetadataCatalogFromEnterprise = (
   const additionalIndexes = importAdditionalIndexesFromEnterprise(context, data.ДополнительныеИндексы)
   if (additionalIndexes !== undefined) result.additionalIndexes = additionalIndexes
 
-  const codeAllowedLength = importSystemEnumerationFromEnterprise<SE.AllowedLength>(
+  const codeAllowedLength = importSystemEnumerationFromYAML<SE.AllowedLength>(
     context,
     data.ДопустимаяДлинаКода,
     SE.AllowedLengthFromEnterprise
   )
   if (codeAllowedLength !== undefined) result.codeAllowedLength = codeAllowedLength
 
-  const subordinationUse = importSystemEnumerationFromEnterprise<SE.SubordinationUse>(
+  const subordinationUse = importSystemEnumerationFromYAML<SE.SubordinationUse>(
     context,
     data.ИспользованиеПодчинения,
     SE.SubordinationUseFromEnterprise
@@ -105,14 +105,14 @@ export const importMetadataCatalogFromEnterprise = (
   const useStandardCommands = importBooleanFromEnterprise(context, data.ИспользоватьСтандартныеКоманды)
   if (useStandardCommands !== undefined) result.useStandardCommands = useStandardCommands
 
-  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
   )
   if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
+  const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
     data.ИсторияДанных,
     SE.DataHistoryUseFromEnterprise
@@ -124,7 +124,7 @@ export const importMetadataCatalogFromEnterprise = (
   const checkUnique = importBooleanFromEnterprise(context, data.КонтрольУникальности)
   if (checkUnique !== undefined) result.checkUnique = checkUnique
 
-  const predefinedDataUpdate = importSystemEnumerationFromEnterprise<SE.PredefinedDataUpdate>(
+  const predefinedDataUpdate = importSystemEnumerationFromYAML<SE.PredefinedDataUpdate>(
     context,
     data.ОбновлениеПредопределенныхДанных,
     SE.PredefinedDataUpdateFromEnterprise
@@ -152,21 +152,21 @@ export const importMetadataCatalogFromEnterprise = (
 
   if (data.ОсновнаяФормаСписка !== undefined) result.defaultListForm = data.ОсновнаяФормаСписка
 
-  const defaultPresentation = importSystemEnumerationFromEnterprise<SE.CatalogMainPresentation>(
+  const defaultPresentation = importSystemEnumerationFromYAML<SE.CatalogMainPresentation>(
     context,
     data.ОсновноеПредставление,
     SE.CatalogMainPresentationFromEnterprise
   )
   if (defaultPresentation !== undefined) result.defaultPresentation = defaultPresentation
 
-  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
+  const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
   )
   if (fullTextSearch !== undefined) result.fullTextSearch = fullTextSearch
 
-  const fullTextSearchOnInputByString = importSystemEnumerationFromEnterprise<SE.FullTextSearchOnInputByString>(
+  const fullTextSearchOnInputByString = importSystemEnumerationFromYAML<SE.FullTextSearchOnInputByString>(
     context,
     data.ПолнотекстовыйПоискПриВводеПоСтроке,
     SE.FullTextSearchOnInputByStringFromEnterprise
@@ -188,7 +188,7 @@ export const importMetadataCatalogFromEnterprise = (
   const listPresentation = importI8nTextFromEnterprise(context, data.ПредставлениеСписка)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
-  const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
+  const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
     context,
     data.ПринадлежностьОбъекта,
     SE.ObjectBelongingFromEnterprise
@@ -201,7 +201,7 @@ export const importMetadataCatalogFromEnterprise = (
   const extendedListPresentation = importI8nTextFromEnterprise(context, data.РасширенноеПредставлениеСписка)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const choiceDataGetModeOnInputByString = importSystemEnumerationFromEnterprise<SE.ChoiceDataGetModeOnInputByString>(
+  const choiceDataGetModeOnInputByString = importSystemEnumerationFromYAML<SE.ChoiceDataGetModeOnInputByString>(
     context,
     data.РежимПолученияДанныхВыбораПриВводеПоСтроке,
     SE.ChoiceDataGetModeOnInputByStringFromEnterprise
@@ -209,35 +209,35 @@ export const importMetadataCatalogFromEnterprise = (
   if (choiceDataGetModeOnInputByString !== undefined)
     result.choiceDataGetModeOnInputByString = choiceDataGetModeOnInputByString
 
-  const dataLockControlMode = importSystemEnumerationFromEnterprise<SE.DefaultDataLockControlMode>(
+  const dataLockControlMode = importSystemEnumerationFromYAML<SE.DefaultDataLockControlMode>(
     context,
     data.РежимУправленияБлокировкойДанных,
     SE.DefaultDataLockControlModeFromEnterprise
   )
   if (dataLockControlMode !== undefined) result.dataLockControlMode = dataLockControlMode
 
-  const codeSeries = importSystemEnumerationFromEnterprise<SE.CatalogCodesSeries>(
+  const codeSeries = importSystemEnumerationFromYAML<SE.CatalogCodesSeries>(
     context,
     data.СерииКодов,
     SE.CatalogCodesSeriesFromEnterprise
   )
   if (codeSeries !== undefined) result.codeSeries = codeSeries
 
-  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
+  const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
     data.СозданиеПриВводе,
     SE.CreateOnInputFromEnterprise
   )
   if (createOnInput !== undefined) result.createOnInput = createOnInput
 
-  const choiceMode = importSystemEnumerationFromEnterprise<SE.ChoiceMode>(
+  const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(
     context,
     data.СпособВыбора,
     SE.ChoiceModeFromEnterprise
   )
   if (choiceMode !== undefined) result.choiceMode = choiceMode
 
-  const searchStringModeOnInputByString = importSystemEnumerationFromEnterprise<SE.SearchStringModeOnInputByString>(
+  const searchStringModeOnInputByString = importSystemEnumerationFromYAML<SE.SearchStringModeOnInputByString>(
     context,
     data.СпособПоискаСтрокиПриВводеПоСтроке,
     SE.SearchStringModeOnInputByStringFromEnterprise
@@ -245,7 +245,7 @@ export const importMetadataCatalogFromEnterprise = (
   if (searchStringModeOnInputByString !== undefined)
     result.searchStringModeOnInputByString = searchStringModeOnInputByString
 
-  const editType = importSystemEnumerationFromEnterprise<SE.EditType>(
+  const editType = importSystemEnumerationFromYAML<SE.EditType>(
     context,
     data.СпособРедактирования,
     SE.EditTypeFromEnterprise
@@ -255,7 +255,7 @@ export const importMetadataCatalogFromEnterprise = (
   const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(context, data.СтандартныеРеквизиты)
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
-  const codeType = importSystemEnumerationFromEnterprise<SE.CatalogCodeType>(
+  const codeType = importSystemEnumerationFromYAML<SE.CatalogCodeType>(
     context,
     data.ТипКода,
     SE.CatalogCodeTypeFromEnterprise

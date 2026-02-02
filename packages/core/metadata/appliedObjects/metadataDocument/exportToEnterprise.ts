@@ -11,7 +11,7 @@ import { exportMetadataItemLinksToEnterprise } from "~/metadata/commonObjects/me
 import { exportMetadataTabularSectionsToEnterprise } from "~/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentToEnterprise = (
@@ -35,28 +35,28 @@ export const exportMetadataDocumentToEnterprise = (
     ДополнительнаяФормаОбъекта: data.auxiliaryObjectForm,
     ДополнительнаяФормаСписка: data.auxiliaryListForm,
     ДополнительныеИндексы: exportAdditionalIndexesToEnterprise(context, data.additionalIndexes),
-    ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
+    ДопустимаяДлинаНомера: exportSystemEnumerationToYAML(
       context,
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise
     ),
-    ЗаписьДвиженийПриПроведении: exportSystemEnumerationToEnterprise(
+    ЗаписьДвиженийПриПроведении: exportSystemEnumerationToYAML(
       context,
       data.actionsWritingOnPost,
       SE.RegisterRecordsWritingOnPostToEnterprise
     ),
-    ЗаполнениеПоследовательностей: exportSystemEnumerationToEnterprise(
+    ЗаполнениеПоследовательностей: exportSystemEnumerationToYAML(
       context,
       data.sequenceFilling,
       SE.SequenceFillingToEnterprise
     ),
     ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(context, data.useStandardCommands),
-    ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
+    ИсторияВыбораПриВводе: exportSystemEnumerationToYAML(
       context,
       data.choiceHistoryOnInput,
       SE.ChoiceHistoryOnInputToEnterprise
     ),
-    ИсторияДанных: exportSystemEnumerationToEnterprise(context, data.dataHistory, SE.DataHistoryUseToEnterprise),
+    ИсторияДанных: exportSystemEnumerationToYAML(context, data.dataHistory, SE.DataHistoryUseToEnterprise),
     Команды: exportMetadataCommandsToEnterprise(context, data.commands),
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(context, data.checkUnique),
@@ -65,25 +65,17 @@ export const exportMetadataDocumentToEnterprise = (
       context,
       data.updateDataHistoryImmediatelyAfterWrite
     ),
-    ОперативноеПроведение: exportSystemEnumerationToEnterprise(
-      context,
-      data.realTimePosting,
-      SE.RealTimePostingToEnterprise
-    ),
+    ОперативноеПроведение: exportSystemEnumerationToYAML(context, data.realTimePosting, SE.RealTimePostingToEnterprise),
     ОсновнаяФормаДляВыбора: data.defaultChoiceForm,
     ОсновнаяФормаОбъекта: data.defaultObjectForm,
     ОсновнаяФормаСписка: data.defaultListForm,
-    ПериодичностьНомера: exportSystemEnumerationToEnterprise(
+    ПериодичностьНомера: exportSystemEnumerationToYAML(
       context,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),
-    ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
-      context,
-      data.fullTextSearch,
-      SE.UseFullTextSearchToEnterprise
-    ),
-    ПолнотекстовыйПоискПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
+    ПолнотекстовыйПоиск: exportSystemEnumerationToYAML(context, data.fullTextSearch, SE.UseFullTextSearchToEnterprise),
+    ПолнотекстовыйПоискПриВводеПоСтроке: exportSystemEnumerationToYAML(
       context,
       data.fullTextSearchOnInputByString,
       SE.FullTextSearchOnInputByStringToEnterprise
@@ -94,36 +86,32 @@ export const exportMetadataDocumentToEnterprise = (
     ПредставлениеСписка: exportI8nTextToEnterprise(context, data.listPresentation),
     ПривилегированныйРежимПриОтменеПроведения: exportBooleanToEnterprise(context, data.privilegedUnpostingMode),
     ПривилегированныйРежимПриПроведении: exportBooleanToEnterprise(context, data.privilegedPostingMode),
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
-      context,
-      data.objectBelonging,
-      SE.ObjectBelongingToEnterprise
-    ),
-    Проведение: exportSystemEnumerationToEnterprise(context, data.posting, SE.PostingToEnterprise),
+    ПринадлежностьОбъекта: exportSystemEnumerationToYAML(context, data.objectBelonging, SE.ObjectBelongingToEnterprise),
+    Проведение: exportSystemEnumerationToYAML(context, data.posting, SE.PostingToEnterprise),
     РасширенноеПредставлениеОбъекта: exportI8nTextToEnterprise(context, data.extendedObjectPresentation),
     РасширенноеПредставлениеСписка: exportI8nTextToEnterprise(context, data.extendedListPresentation),
-    РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
+    РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToYAML(
       context,
       data.choiceDataGetModeOnInputByString,
       SE.ChoiceDataGetModeOnInputByStringToEnterprise
     ),
-    РежимУправленияБлокировкойДанных: exportSystemEnumerationToEnterprise(
+    РежимУправленияБлокировкойДанных: exportSystemEnumerationToYAML(
       context,
       data.dataLockControlMode,
       SE.DefaultDataLockControlModeToEnterprise
     ),
     Реквизиты: exportMetadataAttributesToEnterprise(context, data.attributes),
     Синоним: exportI8nTextToEnterprise(context, data.synonym),
-    СозданиеПриВводе: exportSystemEnumerationToEnterprise(context, data.createOnInput, SE.CreateOnInputToEnterprise),
-    СпособПоискаСтрокиПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
+    СозданиеПриВводе: exportSystemEnumerationToYAML(context, data.createOnInput, SE.CreateOnInputToEnterprise),
+    СпособПоискаСтрокиПриВводеПоСтроке: exportSystemEnumerationToYAML(
       context,
       data.searchStringModeOnInputByString,
       SE.SearchStringModeOnInputByStringToEnterprise
     ),
     СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(context, data.standardAttributes),
     ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(context, data.tabularSections),
-    ТипНомера: exportSystemEnumerationToEnterprise(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
-    УдалениеДвижений: exportSystemEnumerationToEnterprise(
+    ТипНомера: exportSystemEnumerationToYAML(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
+    УдалениеДвижений: exportSystemEnumerationToYAML(
       context,
       data.registerRecordsDeletion,
       SE.RegisterRecordsDeletionToEnterprise
