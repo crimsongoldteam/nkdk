@@ -3,9 +3,9 @@ import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "../systemEnumerations/exportToEnterprise"
 import { exportSystemEnumerationToPreview } from "../systemEnumerations/exportToPreview"
 import { importSystemEnumerationFromYAML } from "../systemEnumerations/importFromEnterprise"
-import { exportBooleanToEnterprise } from "./boolean/exportToEnterprise"
-import { importBooleanFromEnterprise } from "./boolean/importFromEnterprise"
+import { exportBooleanToYAML } from "./boolean/exportToYAML"
 import { importBooleanFromXML } from "./boolean/importFromXML"
+import { importBooleanFromYAML } from "./boolean/importFromYAML"
 import { exportBorderToEnterprise } from "./border/exportToEnterprise"
 import { exportBorderToXML } from "./border/exportToXML"
 import { importBorderFromEnterprise } from "./border/importFromEnterprise"
@@ -89,18 +89,18 @@ interface TypeRule {
     data: any | undefined,
     ...args: any[]
   ) => any | undefined
-  exportToXML?: (context: ConfigurationContext, data: any, ...args: any[]) => any
-  importFromYAML?: (context: ConfigurationContext, data: any, ...args: any[]) => any
-  exportToYAML?: (context: ConfigurationContext, data: any, ...args: any[]) => any
-  exportToPreview?: (context: ConfigurationContext, data: any, ...args: any[]) => any
+  exportToXML?: (context: ConfigurationContext, data: any, rule?: PropertyRule) => any
+  importFromYAML?: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
+  exportToYAML?: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
+  exportToPreview?: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
 }
 
 export const TypeRules: Record<string, TypeRule[]> = {
   boolean: [
     {
       importFromXML: importBooleanFromXML,
-      importFromYAML: importBooleanFromEnterprise,
-      exportToYAML: exportBooleanToEnterprise,
+      importFromYAML: importBooleanFromYAML,
+      exportToYAML: exportBooleanToYAML,
     },
   ],
   Border: [

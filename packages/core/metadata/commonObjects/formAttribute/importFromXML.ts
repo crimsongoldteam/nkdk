@@ -2,7 +2,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importOldBooleanFromXML } from "../boolean/_importFromXML"
 import { importDynamicListFromXML } from "../dynamicList/importFromXML"
 import { DynamicListXML } from "../dynamicList/types"
 import { importFieldsListFromXML } from "../fieldsList/importFromXML"
@@ -39,10 +39,10 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const valueType = importTypeDescriptionFromXML(context, props.Type)!
   result.valueType = valueType
 
-  const mainAttribute = importBooleanFromXML(context, props.MainAttribute)
+  const mainAttribute = importOldBooleanFromXML(context, props.MainAttribute)
   if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
 
-  const storedData = importBooleanFromXML(context, props.SavedData)
+  const storedData = importOldBooleanFromXML(context, props.SavedData)
   if (storedData !== undefined) result.storedData = storedData
 
   if (props.FillCheck !== undefined) result.fillCheck = props.FillCheck
@@ -127,7 +127,10 @@ const importFormAttributeColumnsFromXML = (
 
 const importFormAttributeAdditionalColumnsFromXML = (
   context: ConfigurationContext,
-  xml: { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] } | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[] | undefined
+  xml:
+    | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }
+    | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[]
+    | undefined
 ): FormAttributeAdditionalColumn[] | undefined => {
   if (!xml) return undefined
 

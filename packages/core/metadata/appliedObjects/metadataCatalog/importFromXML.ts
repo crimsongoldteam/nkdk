@@ -7,7 +7,7 @@ import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/m
 import { importMetadataValueCollectionFromXML } from "~/metadata/commonObjects/metadataValueCollection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
+import { importOldBooleanFromXML } from "../../commonObjects/boolean/_importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { removeDefaults } from "../../helpers/compactObject"
 import { getDefaults } from "./defaults"
@@ -26,7 +26,7 @@ export const importMetadataCatalogFromXML = (
 
   if (childObjects?.Attribute) result.attributes = importMetadataAttributesFromXML(context, childObjects.Attribute)
 
-  const autonumbering = importBooleanFromXML(context, props.Autonumbering)
+  const autonumbering = importOldBooleanFromXML(context, props.Autonumbering)
   if (autonumbering !== undefined) result.autonumbering = autonumbering
 
   if (props.AuxiliaryChoiceForm !== undefined) result.auxiliaryChoiceForm = props.AuxiliaryChoiceForm
@@ -41,7 +41,7 @@ export const importMetadataCatalogFromXML = (
   const characteristics = importCharacteristicsDescriptionsFromXML(context, props.Characteristics)
   if (characteristics) result.characteristics = characteristics
 
-  const checkUnique = importBooleanFromXML(context, props.CheckUnique)
+  const checkUnique = importOldBooleanFromXML(context, props.CheckUnique)
   if (checkUnique !== undefined) result.checkUnique = checkUnique
 
   if (props.ChoiceDataGetModeOnInputByString !== undefined)
@@ -83,19 +83,19 @@ export const importMetadataCatalogFromXML = (
   const extendedObjectPresentation = importI8nTextFromXML(context, props.ExtendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
-  const foldersOnTop = importBooleanFromXML(context, props.FoldersOnTop)
+  const foldersOnTop = importOldBooleanFromXML(context, props.FoldersOnTop)
   if (foldersOnTop !== undefined) result.foldersOnTop = foldersOnTop
 
   if (props.FullTextSearch !== undefined) result.fullTextSearch = props.FullTextSearch
   if (props.FullTextSearchOnInputByString !== undefined)
     result.fullTextSearchOnInputByString = props.FullTextSearchOnInputByString
 
-  const hierarchical = importBooleanFromXML(context, props.Hierarchical)
+  const hierarchical = importOldBooleanFromXML(context, props.Hierarchical)
   if (hierarchical !== undefined) result.hierarchical = hierarchical
 
   if (props.HierarchyType !== undefined) result.hierarchyType = props.HierarchyType
 
-  const includeHelpInContents = importBooleanFromXML(context, props.IncludeHelpInContents)
+  const includeHelpInContents = importOldBooleanFromXML(context, props.IncludeHelpInContents)
   if (includeHelpInContents !== undefined) result.includeHelpInContents = includeHelpInContents
 
   const inputByString = importMetadataFieldsFromXML(context, props.InputByString)
@@ -103,7 +103,7 @@ export const importMetadataCatalogFromXML = (
 
   if (props.LevelCount !== undefined) result.levelCount = props.LevelCount
 
-  const limitLevelCount = importBooleanFromXML(context, props.LimitLevelCount)
+  const limitLevelCount = importOldBooleanFromXML(context, props.LimitLevelCount)
   if (limitLevelCount !== undefined) result.limitLevelCount = limitLevelCount
 
   const listPresentation = importI8nTextFromXML(context, props.ListPresentation)
@@ -117,7 +117,7 @@ export const importMetadataCatalogFromXML = (
 
   if (props.PredefinedDataUpdate !== undefined) result.predefinedDataUpdate = props.PredefinedDataUpdate
 
-  const quickChoice = importBooleanFromXML(context, props.QuickChoice)
+  const quickChoice = importOldBooleanFromXML(context, props.QuickChoice)
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
   if (props.SearchStringModeOnInputByString !== undefined)
@@ -134,14 +134,14 @@ export const importMetadataCatalogFromXML = (
   if (childObjects?.TabularSection)
     result.tabularSections = importMetadataTabularSectionsFromXML(context, childObjects.TabularSection)
 
-  const updateDataHistoryImmediatelyAfterWrite = importBooleanFromXML(
+  const updateDataHistoryImmediatelyAfterWrite = importOldBooleanFromXML(
     context,
     props.UpdateDataHistoryImmediatelyAfterWrite
   )
   if (updateDataHistoryImmediatelyAfterWrite !== undefined)
     result.updateDataHistoryImmediatelyAfterWrite = updateDataHistoryImmediatelyAfterWrite
 
-  const useStandardCommands = importBooleanFromXML(context, props.UseStandardCommands)
+  const useStandardCommands = importOldBooleanFromXML(context, props.UseStandardCommands)
   if (useStandardCommands !== undefined) result.useStandardCommands = useStandardCommands
 
   const defaults = getDefaults(result, context)

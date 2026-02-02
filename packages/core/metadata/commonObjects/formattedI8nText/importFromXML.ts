@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importOldBooleanFromXML } from "../boolean/_importFromXML"
 import { importI8nTextFromXML } from "../i8nText/importFromXML"
 import { FormattedI8nText, FormattedI8nTextXML } from "./types"
 
@@ -13,7 +13,7 @@ export const importFormattedI8nTextFromXML = (
 
   if (resultI8nText === undefined) return undefined
 
-  const formatted = importBooleanFromXML(context, xml._formatted) ?? false
+  const formatted = importOldBooleanFromXML(context, xml._formatted) ?? false
 
   return {
     formatted: formatted,

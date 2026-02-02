@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importOldBooleanFromXML } from "../boolean/_importFromXML"
 import { Picture, PictureXML } from "./types"
 
 export const importPictureFromXML = (
@@ -8,7 +8,7 @@ export const importPictureFromXML = (
 ): Picture | undefined => {
   if (!xml) return undefined
 
-  const loadTransparent = importBooleanFromXML(context, xml["xr:LoadTransparent"])!
+  const loadTransparent = importOldBooleanFromXML(context, xml["xr:LoadTransparent"])!
 
   const transparentPixel = xml["xr:TransparentPixel"]
     ? {
