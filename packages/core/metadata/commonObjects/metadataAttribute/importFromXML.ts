@@ -11,7 +11,7 @@ import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importF
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importOldBooleanFromXML } from "../boolean/_importFromXML.ts"
+import { importBooleanFromXML } from "../boolean/importFromXML.ts"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML.ts"
 import { getDefaultsAttribute } from "./defaults"
@@ -38,7 +38,7 @@ const importMetadataAttributeFromXML = (
   if (props.BinaryDataStorageLocationUse !== undefined)
     result.binaryDataStorageLocationUse = props.BinaryDataStorageLocationUse
 
-  const binaryDataStorageLocationUseField = importOldBooleanFromXML(context, props.BinaryDataStorageLocationUseField)
+  const binaryDataStorageLocationUseField = importBooleanFromXML(context, props.BinaryDataStorageLocationUseField)
   if (binaryDataStorageLocationUseField !== undefined)
     result.binaryDataStorageLocationUseField = binaryDataStorageLocationUseField
 
@@ -63,12 +63,12 @@ const importMetadataAttributeFromXML = (
   const editFormat = importI8nTextFromXML(context, props.EditFormat)
   if (editFormat) result.editFormat = editFormat
 
-  const extendedEdit = importOldBooleanFromXML(context, props.ExtendedEdit)
+  const extendedEdit = importBooleanFromXML(context, props.ExtendedEdit)
   if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
 
   if (props.FillChecking !== undefined) result.fillChecking = props.FillChecking
 
-  const fillFromFillingValue = importOldBooleanFromXML(context, props.FillFromFillingValue)
+  const fillFromFillingValue = importBooleanFromXML(context, props.FillFromFillingValue)
   if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
 
   const fillValue = importMetadataValueFromXML(context, props.FillValue)
@@ -84,7 +84,7 @@ const importMetadataAttributeFromXML = (
   const linkByType = importTypeLinkFromXML(context, props.LinkByType)
   if (linkByType) result.linkByType = linkByType
 
-  const markNegatives = importOldBooleanFromXML(context, props.MarkNegatives)
+  const markNegatives = importBooleanFromXML(context, props.MarkNegatives)
   if (markNegatives !== undefined) result.markNegatives = markNegatives
 
   if (props.Mask !== undefined) result.mask = String(props.Mask)
@@ -95,12 +95,12 @@ const importMetadataAttributeFromXML = (
   const minValue = importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined
   if (minValue !== undefined) result.minValue = minValue
 
-  const multiLine = importOldBooleanFromXML(context, props.MultiLine)
+  const multiLine = importBooleanFromXML(context, props.MultiLine)
   if (multiLine !== undefined) result.multiLine = multiLine
 
   result.name = props.Name!
 
-  const passwordMode = importOldBooleanFromXML(context, props.PasswordMode)
+  const passwordMode = importBooleanFromXML(context, props.PasswordMode)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
   if (props.QuickChoice !== undefined) result.quickChoice = props.QuickChoice

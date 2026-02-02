@@ -3,8 +3,8 @@ import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "../systemEnumerations/exportToEnterprise"
 import { exportSystemEnumerationToPreview } from "../systemEnumerations/exportToPreview"
 import { importSystemEnumerationFromYAML } from "../systemEnumerations/importFromEnterprise"
+import { _importBooleanFromXML } from "./boolean/_importFromXML"
 import { exportBooleanToYAML } from "./boolean/exportToYAML"
-import { importBooleanFromXML } from "./boolean/importFromXML"
 import { exportBorderToXML } from "./border/exportToXML"
 import { exportBorderToYAML } from "./border/exportToYAML"
 import { importBorderFromXML } from "./border/importFromXML"
@@ -96,7 +96,7 @@ interface TypeRule {
 export const TypeRules: Record<string, TypeRule[]> = {
   boolean: [
     {
-      importFromXML: importBooleanFromXML,
+      importFromXML: _importBooleanFromXML,
       importFromYAML: exportBooleanFromYAML,
       exportToYAML: exportBooleanToYAML,
     },

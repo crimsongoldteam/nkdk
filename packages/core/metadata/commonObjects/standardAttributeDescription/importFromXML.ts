@@ -11,7 +11,7 @@ import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importF
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importOldBooleanFromXML } from "../boolean/_importFromXML"
+import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML"
 import { getDefaults } from "./defaults"
 
@@ -64,7 +64,7 @@ const importStandardAttributeDescriptionFromXML = (
   const editFormat = importI8nTextFromXML(context, xml["xr:EditFormat"])
   if (editFormat) result.editFormat = editFormat
 
-  const extendedEdit = importOldBooleanFromXML(context, xml["xr:ExtendedEdit"])
+  const extendedEdit = importBooleanFromXML(context, xml["xr:ExtendedEdit"])
   if (extendedEdit) result.extendedEdit = extendedEdit
 
   if (xml["xr:FillChecking"] !== undefined) result.fillChecking = xml["xr:FillChecking"]
@@ -86,10 +86,10 @@ const importStandardAttributeDescriptionFromXML = (
   if (xml["xr:MaxValue"] !== undefined) result.maxValue = xml["xr:MaxValue"]
   if (xml["xr:MinValue"] !== undefined) result.minValue = xml["xr:MinValue"]
 
-  const multiLine = importOldBooleanFromXML(context, xml["xr:MultiLine"])
+  const multiLine = importBooleanFromXML(context, xml["xr:MultiLine"])
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const passwordMode = importOldBooleanFromXML(context, xml["xr:PasswordMode"])
+  const passwordMode = importBooleanFromXML(context, xml["xr:PasswordMode"])
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
   if (xml["xr:QuickChoice"] !== undefined) result.quickChoice = xml["xr:QuickChoice"]

@@ -2,7 +2,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importOldBooleanFromXML } from "../boolean/_importFromXML"
+import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importDynamicListFromXML } from "../dynamicList/importFromXML"
 import { DynamicListXML } from "../dynamicList/types"
 import { importFieldsListFromXML } from "../fieldsList/importFromXML"
@@ -39,10 +39,10 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
   const valueType = importTypeDescriptionFromXML(context, props.Type)!
   result.valueType = valueType
 
-  const mainAttribute = importOldBooleanFromXML(context, props.MainAttribute)
+  const mainAttribute = importBooleanFromXML(context, props.MainAttribute)
   if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
 
-  const storedData = importOldBooleanFromXML(context, props.SavedData)
+  const storedData = importBooleanFromXML(context, props.SavedData)
   if (storedData !== undefined) result.storedData = storedData
 
   if (props.FillCheck !== undefined) result.fillCheck = props.FillCheck

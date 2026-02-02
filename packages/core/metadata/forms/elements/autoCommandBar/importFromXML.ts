@@ -1,4 +1,4 @@
-import { importOldBooleanFromXML } from "~/metadata/commonObjects/boolean/_importFromXML"
+import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
@@ -9,7 +9,7 @@ export const importAutoCommandBarFromXML = (
   context: ConfigurationContext,
   xml: AutoCommandBarXML
 ): AutoCommandBar | undefined => {
-  const autofill = importOldBooleanFromXML(context, xml.Autofill) ?? true
+  const autofill = importBooleanFromXML(context, xml.Autofill) ?? true
   const childItems = importChildItemsFromXML<CommandBarChildItem>(context, xml.ChildItems)
 
   const result: AutoCommandBar = {

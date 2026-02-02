@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { importOldBooleanFromXML } from "../boolean/_importFromXML"
+import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importI8nTextFromXML } from "../i8nText/importFromXML"
 import {
   MetadataFixedArrayValueXML,
@@ -145,7 +145,7 @@ export const importMetadataBooleanValueFromXML = (
 ): boolean | undefined => {
   if (value === undefined) return undefined
   if (typeof value === "boolean") return value
-  return importOldBooleanFromXML(context, value as "true" | "false")!
+  return importBooleanFromXML(context, value as "true" | "false")!
 }
 
 export const importMetadataRefValueFromXML = (
