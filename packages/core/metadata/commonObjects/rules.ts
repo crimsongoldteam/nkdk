@@ -5,82 +5,80 @@ import { exportSystemEnumerationToPreview } from "../systemEnumerations/exportTo
 import { importSystemEnumerationFromYAML } from "../systemEnumerations/importFromEnterprise"
 import { exportBooleanToYAML } from "./boolean/exportToYAML"
 import { importBooleanFromXML } from "./boolean/importFromXML"
-import { importBooleanFromYAML } from "./boolean/importFromYAML"
-import { exportBorderToYAML } from "./border/exportToYAML"
 import { exportBorderToXML } from "./border/exportToXML"
-import { importBorderFromEnterprise } from "./border/importFromEnterprise"
+import { exportBorderToYAML } from "./border/exportToYAML"
 import { importBorderFromXML } from "./border/importFromXML"
-import { exportColorToYAML } from "./color/exportToYAML"
+import { importBorderFromYAML } from "./border/importFromYAML"
 import { exportColorToXML } from "./color/exportToXML"
-import { importColorFromEnterprise } from "./color/importFromEnterprise"
+import { exportColorToYAML } from "./color/exportToYAML"
 import { importColorFromXML } from "./color/importFromXML"
-import { exportDynamicListToYAML } from "./dynamicList/exportToYAML"
+import { importColorFromYAML } from "./color/importFromYAML"
 import { exportDynamicListToXML } from "./dynamicList/exportToXML"
-import { exportFieldsListToYAML } from "./fieldsList/exportToYAML"
+import { exportDynamicListToYAML } from "./dynamicList/exportToYAML"
 import { exportFieldsListToXML } from "./fieldsList/exportToXML"
-import { importFieldsListFromEnterprise } from "./fieldsList/importFromEnterprise"
+import { exportFieldsListToYAML } from "./fieldsList/exportToYAML"
 import { importFieldsListFromXML } from "./fieldsList/importFromXML"
-import { exportFontToYAML } from "./font/exportToYAML"
+import { exportFontToEnterprise } from "./font/exportToEnterprise"
 import { exportFontToPreview } from "./font/exportToPreview"
 import { exportFontToXML } from "./font/exportToXML"
-import { importFontFromEnterprise } from "./font/importFromEnterprise"
 import { importFontFromXML } from "./font/importFromXML"
-import { exportFormattedI8nTextToYAML } from "./formattedI8nText/exportToYAML"
+import { importFontFromYAML } from "./font/importFromYAML"
 import { exportFormattedI8nTextToXML } from "./formattedI8nText/exportToXML"
-import { importFormattedI8nTextFromEnterprise } from "./formattedI8nText/importFromEnterprise"
+import { exportFormattedI8nTextToYAML } from "./formattedI8nText/exportToYAML"
 import { importFormattedI8nTextFromXML } from "./formattedI8nText/importFromXML"
-import { exportFormParametersToYAML } from "./formParameter/exportToYAML"
+import { importFormattedI8nTextFromYAML } from "./formattedI8nText/importFromYAML"
 import { exportFormParametersToXML } from "./formParameter/exportToXML"
-import { importFormParametersFromEnterprise } from "./formParameter/importFromEnterprise"
+import { exportFormParametersToYAML } from "./formParameter/exportToYAML"
 import { importFormParametersFromXML } from "./formParameter/importFromXML"
-import { exportFunctionalOptionsToYAML } from "./functionalOptionsProperty/exportToYAML"
+import { importFormParametersFromYAML } from "./formParameter/importFromYAML"
 import { exportFunctionalOptionsToXML } from "./functionalOptionsProperty/exportToXML"
-import { importFunctionalOptionsFromEnterprise } from "./functionalOptionsProperty/importFromEnterprise"
+import { exportFunctionalOptionsToYAML } from "./functionalOptionsProperty/exportToYAML"
 import { importFunctionalOptionsFromXML } from "./functionalOptionsProperty/importFromXML"
-import { exportI8nTextToYAML } from "./i8nText/exportToYAML"
+import { importFunctionalOptionsFromYAML } from "./functionalOptionsProperty/importFromYAML"
+import { exportI8nTextToEnterprise } from "./i8nText/exportToEnterprise"
 import { exportI8nTextToPreview } from "./i8nText/exportToPreview"
 import { exportI8nTextToXML } from "./i8nText/exportToXML"
-import { importI8nTextFromEnterprise } from "./i8nText/importFromEnterprise"
 import { importI8nTextFromXML } from "./i8nText/importFromXML"
-import { exportIndexFieldToYAML } from "./indexField/exportToYAML"
+import { importI8nTextFromYAML } from "./i8nText/importFromYAML"
 import { exportIndexFieldToXML } from "./indexField/exportToXML"
-import { importIndexFieldFromEnterprise } from "./indexField/importFromEnterprise"
+import { exportIndexFieldToYAML } from "./indexField/exportToYAML"
 import { importIndexFieldFromXML } from "./indexField/importFromXML"
-import { exportMetadataFieldToYAML } from "./metadataField/exportToYAML"
+import { importIndexFieldFromYAML } from "./indexField/importFromYAML"
 import { exportMetadataFieldToXML } from "./metadataField/exportToXML"
-import { importMetadataFieldFromEnterprise } from "./metadataField/importFromEnterprise"
+import { exportMetadataFieldToYAML } from "./metadataField/exportToYAML"
 import { importMetadataFieldFromXML } from "./metadataField/importFromXML"
-import { exportMetadataValueToYAML } from "./metadataValue/exportToYAML"
+import { importMetadataFieldFromYAML } from "./metadataField/importFromYAML"
 import { exportMetadataValueToXML } from "./metadataValue/exportToXML"
-import { importMetadataValueFromEnterprise } from "./metadataValue/importFromEnterprise"
+import { exportMetadataValueToYAML } from "./metadataValue/exportToYAML"
 import { importMetadataValueFromXML } from "./metadataValue/importFromXML"
+import { importMetadataValueFromYAML } from "./metadataValue/importFromYAML"
 import { exportMetadataValueCollectionToXML } from "./metadataValueCollection/exportToXML"
-import { importMetadataValueCollectionFromEnterprise } from "./metadataValueCollection/importFromEnterprise"
 import { importMetadataValueCollectionFromXML } from "./metadataValueCollection/importFromXML"
-import { exportPictureToYAML } from "./picture/exportToYAML"
+import { importMetadataValueCollectionFromYAML } from "./metadataValueCollection/importFromYAML"
 import { exportPictureToXML } from "./picture/exportToXML"
-import { exportPredefinedToYAML } from "./predifined/exportToYAML"
+import { exportPictureToYAML } from "./picture/exportToYAML"
 import { exportPredefinedToXML } from "./predifined/exportToXML"
-import { importPredefinedFromEnterprise } from "./predifined/importFromEnterprise"
+import { exportPredefinedToYAML } from "./predifined/exportToYAML"
 import { importPredefinedFromXML } from "./predifined/importFromXML"
-import { exportTypeDescriptionToYAML } from "./typeDescription/exportToYAML"
+import { importPredefinedFromYAML } from "./predifined/importFromYAML"
 import { exportTypeDescriptionToXML } from "./typeDescription/exportToXML"
-import { exportTypeLinkToYAML } from "./typeLink/exportToYAML"
+import { exportTypeDescriptionToYAML } from "./typeDescription/exportToYAML"
 import { exportTypeLinkToXML } from "./typeLink/exportToXML"
-import { importTypeLinkFromEnterprise } from "./typeLink/importFromEnterprise"
+import { exportTypeLinkToYAML } from "./typeLink/exportToYAML"
 import { importTypeLinkFromXML } from "./typeLink/importFromXML"
-import { exportUsePurposesToYAML } from "./usePurposes/exportToYAML"
+import { importTypeLinkFromYAML } from "./typeLink/importFromYAML"
 import { exportUsePurposesToXML } from "./usePurposes/exportToXML"
-import { importUsePurposesFromEnterprise } from "./usePurposes/importFromEnterprise"
+import { exportUsePurposesToYAML } from "./usePurposes/exportToYAML"
 import { importUsePurposesFromXML } from "./usePurposes/importFromXML"
-import { exportUserVisibleToYAML } from "./userVisible/exportToYAML"
+import { importUsePurposesFromYAML } from "./usePurposes/importFromYAML"
 import { exportUserVisibleToXML } from "./userVisible/exportToXML"
-import { importUserVisibleFromEnterprise } from "./userVisible/importFromEnterprise"
+import { exportUserVisibleToYAML } from "./userVisible/exportToYAML"
 import { importUserVisibleFromXML } from "./userVisible/importFromXML"
-import { exportChoiceParametersToYAML } from "./сhoiceParameters/exportToYAML"
+import { importUserVisibleFromYAML } from "./userVisible/importFromYAML"
 import { exportChoiceParametersToXML } from "./сhoiceParameters/exportToXML"
-import { importChoiceParametersFromEnterprise } from "./сhoiceParameters/importFromEnterprise"
+import { exportChoiceParametersToYAML } from "./сhoiceParameters/exportToYAML"
 import { importChoiceParametersFromXML } from "./сhoiceParameters/importFromXML"
+import { importChoiceParametersFromYAML } from "./сhoiceParameters/importFromYAML"
 
 interface TypeRule {
   importFromXML?: (
@@ -99,14 +97,14 @@ export const TypeRules: Record<string, TypeRule[]> = {
   boolean: [
     {
       importFromXML: importBooleanFromXML,
-      importFromYAML: importBooleanFromYAML,
+      importFromYAML: exportBooleanFromYAML,
       exportToYAML: exportBooleanToYAML,
     },
   ],
   Border: [
     {
       importFromXML: importBorderFromXML,
-      importFromYAML: importBorderFromEnterprise,
+      importFromYAML: importBorderFromYAML,
       exportToXML: exportBorderToXML,
       exportToYAML: exportBorderToYAML,
     },
@@ -114,7 +112,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   Color: [
     {
       importFromXML: importColorFromXML,
-      importFromYAML: importColorFromEnterprise,
+      importFromYAML: importColorFromYAML,
       exportToXML: exportColorToXML,
       exportToYAML: exportColorToYAML,
     },
@@ -128,7 +126,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   FieldsList: [
     {
       importFromXML: importFieldsListFromXML,
-      importFromYAML: importFieldsListFromEnterprise,
+      importFromYAML: exportFieldsListFromYAML,
       exportToXML: exportFieldsListToXML,
       exportToYAML: exportFieldsListToYAML,
     },
@@ -136,7 +134,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   Font: [
     {
       importFromXML: importFontFromXML,
-      importFromYAML: importFontFromEnterprise,
+      importFromYAML: importFontFromYAML,
       exportToXML: exportFontToXML,
       exportToYAML: exportFontToEnterprise,
       exportToPreview: exportFontToPreview,
@@ -145,7 +143,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   FormattedI8nText: [
     {
       importFromXML: importFormattedI8nTextFromXML,
-      importFromYAML: importFormattedI8nTextFromEnterprise,
+      importFromYAML: importFormattedI8nTextFromYAML,
       exportToXML: exportFormattedI8nTextToXML,
       exportToYAML: exportFormattedI8nTextToYAML,
     },
@@ -153,7 +151,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   FormParameter: [
     {
       importFromXML: importFormParametersFromXML,
-      importFromYAML: importFormParametersFromEnterprise,
+      importFromYAML: importFormParametersFromYAML,
       exportToXML: exportFormParametersToXML,
       exportToYAML: exportFormParametersToYAML,
     },
@@ -161,7 +159,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   FunctionalOptionsProperty: [
     {
       importFromXML: importFunctionalOptionsFromXML,
-      importFromYAML: importFunctionalOptionsFromEnterprise,
+      importFromYAML: importFunctionalOptionsFromYAML,
       exportToXML: exportFunctionalOptionsToXML,
       exportToYAML: exportFunctionalOptionsToYAML,
     },
@@ -169,7 +167,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   I8nText: [
     {
       importFromXML: importI8nTextFromXML,
-      importFromYAML: importI8nTextFromEnterprise,
+      importFromYAML: importI8nTextFromYAML,
       exportToXML: exportI8nTextToXML,
       exportToYAML: exportI8nTextToEnterprise,
       exportToPreview: exportI8nTextToPreview,
@@ -178,7 +176,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   IndexField: [
     {
       importFromXML: importIndexFieldFromXML,
-      importFromYAML: importIndexFieldFromEnterprise,
+      importFromYAML: importIndexFieldFromYAML,
       exportToXML: exportIndexFieldToXML,
       exportToYAML: exportIndexFieldToYAML,
     },
@@ -186,7 +184,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   MetadataField: [
     {
       importFromXML: importMetadataFieldFromXML,
-      importFromYAML: importMetadataFieldFromEnterprise,
+      importFromYAML: importMetadataFieldFromYAML,
       exportToXML: exportMetadataFieldToXML,
       exportToYAML: exportMetadataFieldToYAML,
     },
@@ -194,7 +192,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   MetadataValue: [
     {
       importFromXML: importMetadataValueFromXML,
-      importFromYAML: importMetadataValueFromEnterprise,
+      importFromYAML: importMetadataValueFromYAML,
       exportToXML: exportMetadataValueToXML,
       exportToYAML: exportMetadataValueToYAML,
     },
@@ -202,7 +200,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   MetadataValueCollection: [
     {
       importFromXML: importMetadataValueCollectionFromXML,
-      importFromYAML: importMetadataValueCollectionFromEnterprise,
+      importFromYAML: importMetadataValueCollectionFromYAML,
       exportToXML: exportMetadataValueCollectionToXML,
     },
   ],
@@ -215,7 +213,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   Predefined: [
     {
       importFromXML: importPredefinedFromXML,
-      importFromYAML: importPredefinedFromEnterprise,
+      importFromYAML: importPredefinedFromYAML,
       exportToXML: exportPredefinedToXML,
       exportToYAML: exportPredefinedToYAML,
     },
@@ -223,7 +221,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   TypeLink: [
     {
       importFromXML: importTypeLinkFromXML,
-      importFromYAML: importTypeLinkFromEnterprise,
+      importFromYAML: importTypeLinkFromYAML,
       exportToXML: exportTypeLinkToXML,
       exportToYAML: exportTypeLinkToYAML,
     },
@@ -237,7 +235,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   UsePurposes: [
     {
       importFromXML: importUsePurposesFromXML,
-      importFromYAML: importUsePurposesFromEnterprise,
+      importFromYAML: importUsePurposesFromYAML,
       exportToXML: exportUsePurposesToXML,
       exportToYAML: exportUsePurposesToYAML,
     },
@@ -245,7 +243,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   UserVisible: [
     {
       importFromXML: importUserVisibleFromXML,
-      importFromYAML: importUserVisibleFromEnterprise,
+      importFromYAML: importUserVisibleFromYAML,
       exportToXML: exportUserVisibleToXML,
       exportToYAML: exportUserVisibleToYAML,
     },
@@ -253,7 +251,7 @@ export const TypeRules: Record<string, TypeRule[]> = {
   ChoiceParameters: [
     {
       importFromXML: importChoiceParametersFromXML,
-      importFromYAML: importChoiceParametersFromEnterprise,
+      importFromYAML: importChoiceParametersFromYAML,
       exportToXML: exportChoiceParametersToXML,
       exportToYAML: exportChoiceParametersToYAML,
     },
