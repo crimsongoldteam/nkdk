@@ -2,6 +2,7 @@ import { defaults } from "~/metadata/appliedObjects/metadataCatalog"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { DynamicList } from "../dynamicList/types"
 import { exportFieldsListToXML } from "../fieldsList/exportToXML"
@@ -17,7 +18,6 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
@@ -81,7 +81,7 @@ const exportFormAttributeToXML = (
     result.Settings = settings
   }
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, mergedData.title)
   if (title) result.Title = title
 
   const type = exportTypeDescriptionToXML(context, undefined, mergedData.valueType)

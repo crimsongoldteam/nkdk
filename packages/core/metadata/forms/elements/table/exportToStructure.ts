@@ -7,19 +7,16 @@ import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"
+import { PropertyRule } from "../calendarField/rules"
 import { Table } from "./types"
 
 const V_BAR = t.VBar.LABEL as string
 
-const formatTableColumn = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  column: NamedElement
-): string => {
+const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
   // Пробуем использовать ExportToStructureContent для всех элементов
   const exportContentFunction = getOperationFunction("ExportToStructureContent", column.elementType)
   if (exportContentFunction) {
-    const result = exportContentFunction(context, column) as IFormatElementResult
+    const result = exportContentFunction(context, rule, column) as IFormatElementResult
     return result.strings[0] || formatElementName(column)
   }
 
@@ -65,10 +62,10 @@ export const exportTableToStructure: FormatElementFunction = (
     haveSimpleHorizontalGroup: false,
   }
 
-  const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToStructure(context, undefined, table.autoCommandBar)
   result.strings.push(...autoCommandBar.strings)
 
-  const tableContent = exportTableContentToStructure(context, table)
+  const tableContent = exportTableContentToStructure(context, undefined, table)
   result.strings.push(...tableContent.strings)
 
   return result

@@ -118,7 +118,7 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
-  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+  const table = importMetadataValueFromXMLAsPrimitive(context, undefined, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
   if (xml.Collapsed !== undefined) result.collapsed = xml.Collapsed

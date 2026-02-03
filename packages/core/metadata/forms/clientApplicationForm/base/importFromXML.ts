@@ -8,13 +8,12 @@ import { importChildItemsFromXML } from "../../collections/childItems/importFrom
 import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"
 import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
-import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   xml: ClientApplicationFormXML,
   xmlMetadata: FormMetadataXML
 ): ClientApplicationForm => {

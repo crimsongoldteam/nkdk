@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FunctionalOptions, FunctionalOptionsEnterprise } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportFunctionalOptionsToEnterprise = (
   _context: ConfigurationContext,

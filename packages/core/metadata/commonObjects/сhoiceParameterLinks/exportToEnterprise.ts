@@ -12,7 +12,7 @@ export const exportChoiceParameterLinksToEnterprise = (
 
   const result = []
   for (const link of data) {
-    const dataPath = exportMetadataFieldToEnterprise(_context, link.dataPath)
+    const dataPath = exportMetadataFieldToEnterprise(_context, undefined, link.dataPath)
     const valueChangeParam = link.valueChange === "DontChange" ? ", НеИзменять" : ""
     result.push(`${link.name}(${dataPath}${valueChangeParam})`)
   }

@@ -3,6 +3,7 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName } from "../../format/helpers"
+import { PropertyRule } from "../calendarField/rules"
 import { Popup } from "./types"
 
 export function exportPopupContentToStructure(
@@ -17,7 +18,7 @@ export function exportPopupContentToStructure(
   }
 }
 
-const formatContent = (context: ConfigurationContext, _rule: PropertyRule | undefined, element: Popup): string => {
+const formatContent = (context: ConfigurationContext, element: Popup): string => {
   return formatElementTitleAndName(context, element)
 }
 

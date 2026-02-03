@@ -54,7 +54,7 @@ const importFormAttributeFromEnterprise = (
   const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
 
   const mainAttribute = importBooleanFromEnterprise(context, undefined, data.ОсновнойРеквизит)
-  const title = computeTitleForImport(context, undefined, data.Заголовок, name, mainAttribute)
+  const title = computeTitleForImport(context, data.Заголовок, name, mainAttribute)
 
   const result: FormAttribute = {
     name,

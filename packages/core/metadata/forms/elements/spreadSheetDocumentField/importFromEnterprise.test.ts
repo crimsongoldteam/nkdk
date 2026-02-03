@@ -7,7 +7,7 @@ import {
   minimalSpreadSheetDocumentFieldPartialEnterprise,
   minimalSpreadSheetDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importSpreadSheetDocumentFieldPartialFromEnterprise,
   importSpreadSheetDocumentFieldTypedFromEnterprise,

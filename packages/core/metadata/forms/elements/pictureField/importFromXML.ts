@@ -90,7 +90,7 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
   if (xml.AssociatedTableElementId !== undefined) {
-    const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+    const table = importMetadataValueFromXMLAsPrimitive(context, undefined, xml.AssociatedTableElementId, "string")
     result.table = table ?? ""
   }
 

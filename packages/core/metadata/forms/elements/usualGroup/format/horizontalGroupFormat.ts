@@ -6,16 +6,11 @@ import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { NamedElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
-import { PropertyRule } from "../../calendarField/rules"
 
 const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
 
-export const formatHorizontalGroup = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  element: UsualGroup
-): IFormatElementResult => {
+export const formatHorizontalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   const prefix =
     element.group === undefined || element.group === "HorizontalIfPossible"
       ? horizontalIfPossibleGroupPrefix
@@ -31,11 +26,7 @@ export const formatHorizontalGroup = (
   return result
 }
 
-const getVerticalItems = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  element: UsualGroup
-): string[][] => {
+const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): string[][] => {
   let result: string[][] = []
 
   if (!element.childItems) return result
@@ -44,9 +35,9 @@ const getVerticalItems = (
     const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
     let formattedItem: IFormatElementResult
     if (!exportFunction) {
-      formattedItem = exportOtherElementToStructure(context, item as NamedElement)
+      formattedItem = exportOtherElementToStructure(context, undefined, item as NamedElement)
     } else {
-      formattedItem = exportFunction(context, item) as IFormatElementResult
+      formattedItem = exportFunction(context, undefined, item) as IFormatElementResult
     }
     result.push(addSimpleIndent(formattedItem.strings))
   }

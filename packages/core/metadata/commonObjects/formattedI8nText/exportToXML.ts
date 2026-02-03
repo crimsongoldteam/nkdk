@@ -11,7 +11,7 @@ export const exportFormattedI8nTextToXMLWithDefaultLanguage = (
 ): FormattedI8nTextXML | undefined => {
   if (!data) return undefined
 
-  if (isEmptyI8nText(context, undefined, data) && !data.formatted) {
+  if (isEmptyI8nText(context, data) && !data.formatted) {
     return undefined
   }
 

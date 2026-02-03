@@ -14,7 +14,12 @@ describe("importSystemEnumerationFromEnterprise", () => {
   })
 
   it("should return undefined when value is undefined", () => {
-    const result = importSystemEnumerationFromYAML(mockContext, undefined, SE.ChildFormItemsGroupFromEnterprise)
+    const result = importSystemEnumerationFromYAML(
+      mockContext,
+      mockValue,
+      undefined,
+      SE.ChildFormItemsGroupFromEnterprise
+    )
 
     expect(result).toBeUndefined()
   })

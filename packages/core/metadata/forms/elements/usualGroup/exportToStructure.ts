@@ -9,6 +9,7 @@ import { formatOneLineGroup } from "./format/oneLineGroupFormat"
 import { formatVerticalGroup } from "./format/verticalGroupFormat"
 import { isOneLineGroup, isVerticalGroup } from "./helpers"
 import { UsualGroup } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportUsualGroupToStructure: FormatElementFunction = (
   context: ConfigurationContext,

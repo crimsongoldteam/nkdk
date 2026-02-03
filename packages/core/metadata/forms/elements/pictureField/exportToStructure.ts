@@ -4,6 +4,7 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
+import { PropertyRule } from "../calendarField/rules"
 import { PictureField } from "./types"
 
 const AT_SYMBOL = "@"
@@ -23,10 +24,10 @@ export const exportPictureFieldContentToStructure = (
 
 export const exportPictureFieldToStructure = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   element: PictureField
 ): IFormatElementResult => {
-  return exportPictureFieldContentToStructure(_context, element)
+  return exportPictureFieldContentToStructure(_context, rule, element)
 }
 
 registerMetadata(

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportI8nTextToPreview } from "./exportToPreview"
 
 describe("exportI8nTextToPreview", () => {

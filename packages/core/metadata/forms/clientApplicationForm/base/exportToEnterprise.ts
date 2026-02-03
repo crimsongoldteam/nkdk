@@ -69,7 +69,6 @@ const exportClientApplicationFormEventsToEnterprise = (
 
 export const exportClientApplicationFormToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormEnterprise | undefined => {
   if (!data) return undefined

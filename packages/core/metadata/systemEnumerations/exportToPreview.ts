@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "../context/types"
+import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { SystemEnumerationPreview } from "./types"
 
 export const exportSystemEnumerationToPreview = (

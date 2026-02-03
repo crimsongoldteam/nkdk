@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fontEnterpriseFixtures } from "~/tests/fixtures/font/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportFontToPreview } from "./exportToPreview"
 
 describe("exportFontToPreview", () => {

@@ -42,7 +42,7 @@ export const exportMetadataCommandToEnterprise = (
     group = exportMetadataItemLinkToEnterprise(context, undefined, data.group)
   }
 
-  const filteredSynonym = extractDifferentSynonymPart(context, undefined, data.synonym, data.name)
+  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
   const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {

@@ -8,7 +8,7 @@ describe("exportLabelFieldToStructure", () => {
     it.each(labelFieldStructureFixturesTable)(
       "should export label field $name",
       ({ element: label, structured: expected }) => {
-        const result = exportLabelFieldToStructure(mockContext, label)
+        const result = exportLabelFieldToStructure(mockContext, undefined, label)
 
         expect(result.strings).toEqual(expected.strings)
       }
@@ -19,7 +19,7 @@ describe("exportLabelFieldToStructure", () => {
     it.each(labelFieldStructureFixturesTable)(
       "should export label field $name",
       ({ element: label, content: content }) => {
-        const result = exportLabelFieldContentToStructure(mockContext, label)
+        const result = exportLabelFieldContentToStructure(mockContext, undefined, label)
 
         expect(result.strings).toEqual(content.strings)
       }

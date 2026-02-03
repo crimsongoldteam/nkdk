@@ -19,7 +19,7 @@ describe("exportFormattedI8nTextToXML", () => {
   describe("exportFormattedI8nTextToXMLWithDefaultLanguage", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextToXMLWithDefaultLanguage(mockContext, fixture.text)
+        const result = exportFormattedI8nTextToXMLWithDefaultLanguage(mockContext, mockRule, fixture.text)
         const xml = result ? xmlExport({ Title: result }, false) : undefined
         expect(xml).toEqual(fixture.xml)
       })

@@ -7,6 +7,7 @@ import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/t
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { addSimpleIndent } from "../../format/wrap/addIndents"
+import { PropertyRule } from "../calendarField/rules"
 import { Pages } from "./types"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
@@ -26,7 +27,7 @@ export const exportPagesToStructure = (
   const header = getHeader(pagesElement)
   result.strings.push(header)
 
-  const childResult = exportChildItemsToStructure(context, childItems)
+  const childResult = exportChildItemsToStructure(context, undefined, childItems)
 
   const indentedStrings = addSimpleIndent(childResult.strings)
 

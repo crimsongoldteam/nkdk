@@ -77,6 +77,7 @@ const importPopupPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     enterprise.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -84,6 +85,7 @@ const importPopupPropsFromEnterprise = (
 
   const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
     context,
+    undefined,
     enterprise.Вид,
     SE.FormGroupTypeFromEnterprise
   )
@@ -96,6 +98,7 @@ const importPopupPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     enterprise.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -106,6 +109,7 @@ const importPopupPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     enterprise.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -116,6 +120,7 @@ const importPopupPropsFromEnterprise = (
 
   const userVisible = importUserVisibleFromEnterprise(
     context,
+    undefined,
     enterprise.РазрешитьИспользование,
     enterprise.ЗапретитьИспользование
   )
@@ -153,6 +158,7 @@ const importPopupPropsFromEnterprise = (
 
   const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
     context,
+    undefined,
     enterprise.Отображение,
     SE.ButtonRepresentationFromEnterprise
   )
@@ -160,6 +166,7 @@ const importPopupPropsFromEnterprise = (
 
   const shapeRepresentation = importSystemEnumerationFromYAML<SE.ButtonShapeRepresentation>(
     context,
+    undefined,
     enterprise.ОтображениеФигуры,
     SE.ButtonShapeRepresentationFromEnterprise
   )
@@ -167,6 +174,7 @@ const importPopupPropsFromEnterprise = (
 
   const shape = importSystemEnumerationFromYAML<SE.ButtonShape>(
     context,
+    undefined,
     enterprise.Фигура,
     SE.ButtonShapeFromEnterprise
   )

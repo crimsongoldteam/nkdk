@@ -22,7 +22,7 @@ describe("exportPageToStructure", () => {
     const expectedResult = `/{Страница1}
   {Элемент1}: `
 
-    const result = exportPageToStructure(mockContext, mockElement)
+    const result = exportPageToStructure(mockContext, undefined, mockElement)
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
 })

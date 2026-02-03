@@ -20,10 +20,10 @@ export const _importFontFromXML = (
   if (xml._faceName) result.faceName = xml._faceName
   result.kind = xml._kind as SE.FontType
   if (xml._height !== undefined) result.height = Number(xml._height)
-  if (xml._bold !== undefined) result.bold = importBooleanFromXML(_context, xml._bold)
-  if (xml._italic !== undefined) result.italic = importBooleanFromXML(_context, xml._italic)
-  if (xml._underline !== undefined) result.underline = importBooleanFromXML(_context, xml._underline)
-  if (xml._strikeout !== undefined) result.strikeout = importBooleanFromXML(_context, xml._strikeout)
+  if (xml._bold !== undefined) result.bold = importBooleanFromXML(_context, undefined, xml._bold)
+  if (xml._italic !== undefined) result.italic = importBooleanFromXML(_context, undefined, xml._italic)
+  if (xml._underline !== undefined) result.underline = importBooleanFromXML(_context, undefined, xml._underline)
+  if (xml._strikeout !== undefined) result.strikeout = importBooleanFromXML(_context, undefined, xml._strikeout)
   if (xml._scale !== undefined) result.scale = Number(xml._scale)
 
   return result as Font

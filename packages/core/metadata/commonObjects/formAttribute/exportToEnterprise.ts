@@ -47,7 +47,7 @@ const exportFormAttributeToEnterprise = (
 ): FormAttributeEnterprise | TypeDescriptionEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, undefined, data.valueType)
 
-  const filteredTitle = data.title ? extractDifferentSynonymPart(context, undefined, data.title, data.name) : undefined
+  const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
   const title = computeTitleForExport(context, undefined, data, filteredTitle)
 
   if (canUseShortFormat(data, title)) {
@@ -158,6 +158,7 @@ const exportFormAttributeColumnToEnterprise = (
 
   const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
     context,
+    undefined,
     column.fillCheck,
     FillCheckingToEnterprise
   )

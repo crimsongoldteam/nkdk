@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importFormattedI8nTextCombinedFromEnterprise,
   importFormattedI8nTextFromEnterprise,

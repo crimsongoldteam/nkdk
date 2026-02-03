@@ -30,6 +30,7 @@ export const importFontFromYAML = (
 
     const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
       _context,
+      undefined,
       data,
       SE.WindowsFontsFromEnterprise
     )
@@ -55,6 +56,7 @@ export const importFontFromYAML = (
   if (fullData.Вид !== undefined) {
     const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(
       _context,
+      undefined,
       fullData.Вид,
       SE.StyleFontsFromEnterprise
     )
@@ -64,6 +66,7 @@ export const importFontFromYAML = (
     } else {
       const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
         _context,
+        undefined,
         fullData.Вид,
         SE.WindowsFontsFromEnterprise
       )

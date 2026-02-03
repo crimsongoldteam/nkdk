@@ -6,8 +6,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
 import { exportChildItemsToPreview } from "../../collections/childItems/exportToPreview"
-import { UsualGroup, UsualGroupPreview } from "./types"
 import { PropertyRule } from "../calendarField/rules"
+import { UsualGroup, UsualGroupPreview } from "./types"
 
 export const exportUsualGroupToPreview = (
   context: ConfigurationContext,
@@ -44,6 +44,7 @@ export const exportUsualGroupToPreview = (
   if (element.controlRepresentation !== undefined) {
     const controlRepresentation = exportSystemEnumerationToPreview(
       context,
+      undefined,
       element.controlRepresentation,
       "UsualGroupControlRepresentation"
     )
@@ -116,6 +117,7 @@ export const exportUsualGroupToPreview = (
   if (element.itemsAndTitlesAlign !== undefined) {
     const itemsAndTitlesAlign = exportSystemEnumerationToPreview(
       context,
+      undefined,
       element.itemsAndTitlesAlign,
       "ItemsAndTitlesAlignVariant"
     )
@@ -168,6 +170,7 @@ export const exportUsualGroupToPreview = (
   if (element.toolTipRepresentation !== undefined) {
     const toolTipRepresentation = exportSystemEnumerationToPreview(
       context,
+      undefined,
       element.toolTipRepresentation,
       "ToolTipRepresentation"
     )

@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
 import { IFormatElementResult } from "../../format/types"
+import { PropertyRule } from "../calendarField/rules"
 import { AutoCommandBar } from "./types"
 
 export const exportAutoCommandBarToStructure = (
@@ -10,7 +11,7 @@ export const exportAutoCommandBarToStructure = (
 ): IFormatElementResult => {
   if (!element) return { strings: [], haveSimpleHorizontalGroup: false }
 
-  const content = exportAutoCommandBarContentToStructure(context, element)
+  const content = exportAutoCommandBarContentToStructure(context, undefined, element)
 
   return {
     strings: [content],
@@ -23,7 +24,7 @@ export const exportAutoCommandBarContentToStructure = (
   _rule: PropertyRule | undefined,
   element: AutoCommandBar
 ): string => {
-  const buttonStrings = exportCommandBarItemsToStructure(context, element.childItems)
+  const buttonStrings = exportCommandBarItemsToStructure(context, undefined, element.childItems)
   const autofill = element.autofill !== false
 
   return formatCommandBarContent(buttonStrings, autofill)

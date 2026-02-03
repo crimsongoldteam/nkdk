@@ -19,6 +19,7 @@ describe("exportSearchControlAdditionToXML", () => {
 
       const xmlData = exportSingleSearchControlAdditionToXML(
         mockContext,
+        mockRule,
         fullSingleSearchControlAddition,
         parentElement
       )
@@ -42,6 +43,7 @@ describe("exportSearchControlAdditionToXML", () => {
       const expectedResult = readXMLFileAsString("forms/searchControlAddition/minimalSingle.xml")
       const xmlData = exportSingleSearchControlAdditionToXML(
         mockContext,
+        mockRule,
         minimalSingleSearchControlAddition,
         parentElement
       )

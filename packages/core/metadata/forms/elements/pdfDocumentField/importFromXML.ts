@@ -90,7 +90,7 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
   if (xml.AssociatedTableElementId !== undefined)
-    result.table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+    result.table = importMetadataValueFromXMLAsPrimitive(context, undefined, xml.AssociatedTableElementId, "string")
 
   const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title

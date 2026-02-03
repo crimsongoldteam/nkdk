@@ -17,7 +17,6 @@ import { importCommandsFromEnterprise } from "../../commands/importFromEnterpris
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importCommandInterfaceFromEnterprise } from "../../commonObjects/commandInterface/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
-import { PropertyRule } from "../../elements/calendarField/rules"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",
@@ -50,7 +49,6 @@ const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof Clie
 
 export const importClientApplicationFormFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: ClientApplicationFormEnterprise,
   structure: ChildItemsStructureResult
 ): ClientApplicationForm => {
@@ -171,6 +169,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const autoCommandBar = importAutoCommandBarFromEnterprise(
     itemsContext,
+    undefined,
     structure.autoCommandBar,
     data.КоманднаяПанель
   )

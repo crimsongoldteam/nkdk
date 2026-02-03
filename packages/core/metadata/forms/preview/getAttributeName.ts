@@ -3,7 +3,6 @@ import { PreviewAttributeMapItem } from "../clientApplicationForm/base/types"
 
 export const getAttributeName = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   dataPath?: string,
   tableDataPath?: string
 ): string | undefined => {

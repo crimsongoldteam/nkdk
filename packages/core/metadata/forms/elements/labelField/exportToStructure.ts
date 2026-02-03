@@ -6,6 +6,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { LabelField } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 const TILDE = t.Tilde.LABEL as string
 const COLON = t.Colon.LABEL as string

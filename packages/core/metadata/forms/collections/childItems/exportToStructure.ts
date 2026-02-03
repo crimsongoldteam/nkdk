@@ -2,11 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
 
 export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   items: From[]
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
@@ -45,8 +46,8 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
 
     const text = exportFunction
-      ? (exportFunction(context, item) as IFormatElementResult)
-      : exportOtherElementToStructure(context, item)
+      ? (exportFunction(context, rule, item) as IFormatElementResult)
+      : exportOtherElementToStructure(context, rule, item)
 
     result.strings.push(...text.strings)
     result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup

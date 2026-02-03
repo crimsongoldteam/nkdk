@@ -32,16 +32,16 @@ export const exportFontToEnterprise = (
 
     if (font.scale !== undefined) result.Масштаб = font.scale
 
-    const italicValue = exportBooleanToEnterprise(_context, font.italic)
+    const italicValue = exportBooleanToEnterprise(_context, undefined, font.italic)
     if (italicValue !== undefined) result.Наклонный = italicValue
 
-    const underlineValue = exportBooleanToEnterprise(_context, font.underline)
+    const underlineValue = exportBooleanToEnterprise(_context, undefined, font.underline)
     if (underlineValue !== undefined) result.Подчеркивание = underlineValue
 
-    const boldValue = exportBooleanToEnterprise(_context, font.bold)
+    const boldValue = exportBooleanToEnterprise(_context, undefined, font.bold)
     if (boldValue !== undefined) result.Полужирный = boldValue
 
-    const strikeoutValue = exportBooleanToEnterprise(_context, font.strikeout)
+    const strikeoutValue = exportBooleanToEnterprise(_context, undefined, font.strikeout)
     if (strikeoutValue !== undefined) result.Зачеркивание = strikeoutValue
 
     return result
@@ -52,7 +52,6 @@ export const exportFontToEnterprise = (
 
 const convertRefToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   ref: SE.StyleFonts | SE.WindowsFonts | undefined,
   kind: SE.FontType
 ): SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise | undefined => {

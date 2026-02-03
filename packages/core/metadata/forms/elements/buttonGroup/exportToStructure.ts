@@ -4,6 +4,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { ButtonGroup } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportButtonGroupContentToStructure(
   context: ConfigurationContext,
@@ -17,11 +18,7 @@ export function exportButtonGroupContentToStructure(
   }
 }
 
-const formatContent = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  element: ButtonGroup
-): string => {
+const formatContent = (context: ConfigurationContext, element: ButtonGroup): string => {
   return formatElementTitleAndName(context, element)
 }
 
