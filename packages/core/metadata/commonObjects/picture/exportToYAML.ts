@@ -33,14 +33,14 @@ export function exportPictureToYAML(
     const result: PictureEnterpriseExtended = { Ссылка: ref }
 
     if (hasCustomLoadTransparent) {
-      result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, _rule, picture.loadTransparent)
+      result.ПрозрачныйФон = exportBooleanToYAML(context, _rule, picture.loadTransparent)
     }
 
     if (hasTransparentPixel) {
       result.ПрозрачныйПиксель = picture.transparentPixel
       // For pictures with transparent pixel, even if loadTransparent matches default, we need to include it
       if (result.ПрозрачныйФон === undefined) {
-        result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, _rule, picture.loadTransparent)
+        result.ПрозрачныйФон = exportBooleanToYAML(context, _rule, picture.loadTransparent)
       }
     }
 

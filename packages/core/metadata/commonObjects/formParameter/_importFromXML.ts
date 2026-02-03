@@ -13,7 +13,7 @@ export const _importFormParametersFromXML = (
   }
 
   const items = Array.isArray(xml) ? xml : [xml]
-  return items.map((item) => _importFormParameterFromXML(context, undefined, _rule, item))
+  return items.map((item) => _importFormParameterFromXML(context, _rule, item))
 }
 
 const _importFormParameterFromXML = (
@@ -23,7 +23,7 @@ const _importFormParameterFromXML = (
 ): FormParameter => {
   const result: FormParameter = {
     name: xml._name,
-    type: _importTypeDescriptionFromXML(context, undefined, _rule, xml.Type)!,
+    type: _importTypeDescriptionFromXML(context, _rule, xml.Type)!,
   }
 
   if (xml.KeyParameter !== undefined) {

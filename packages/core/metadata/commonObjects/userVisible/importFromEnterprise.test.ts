@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "../../../tests/mockContext"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importUserVisibleFromEnterprise } from "./importFromEnterprise"
 
 describe("importUserVisibleFromEnterprise", () => {

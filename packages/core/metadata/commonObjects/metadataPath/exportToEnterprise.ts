@@ -1,4 +1,5 @@
 import { Context } from "vm"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { convertPath } from "./helper"
 import { MetadataFieldsRulesToEnterprise, MetadataValuesRulesToEnterprise } from "./types"
 
@@ -6,12 +7,17 @@ import { MetadataFieldsRulesToEnterprise, MetadataValuesRulesToEnterprise } from
 //   return convertPath(MetadataTypesRulesToEnterprise, name)
 // }
 
-export const exportMetadataFieldStringToEnterprise = (_context: Context, name: string): string | undefined => {
+export const exportMetadataFieldStringToEnterprise = (
+  _context: Context,
+  _rule: PropertyRule | undefined,
+  name: string
+): string | undefined => {
   return convertPath(MetadataFieldsRulesToEnterprise, name)
 }
 
 export const exportMetadataValueStringToEnterprise = (
   _context: Context,
+  _rule: PropertyRule | undefined,
   name: string | undefined
 ): string | undefined => {
   if (!name) return undefined

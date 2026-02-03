@@ -10,7 +10,5 @@ export const exportChoiceParametersToYAML = (
 ): ChoiceParametersEnterprise | undefined => {
   if (!data) return undefined
 
-  return Object.fromEntries(
-    data.map((param) => [param.name, exportMetadataValueToYAML(context, undefined, _rule, param.value)])
-  )
+  return Object.fromEntries(data.map((param) => [param.name, exportMetadataValueToYAML(context, _rule, param.value)]))
 }

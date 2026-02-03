@@ -175,7 +175,6 @@ const exportUsualGroupPropsToEnterprise = (
   const verticalSpacing = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalSpacing,
     SE.FormItemSpacingToEnterprise
   )
@@ -219,7 +218,6 @@ const exportUsualGroupPropsToEnterprise = (
   if (collapsedRepresentationTitle !== undefined) result.ЗаголовокСвернутогоОтображения = collapsedRepresentationTitle
   const currentRowUse = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.currentRowUse,
     SE.CurrentRowUseToEnterprise

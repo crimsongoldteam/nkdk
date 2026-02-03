@@ -7,6 +7,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
 import { getAttributeName } from "../../preview/getAttributeName"
+import { PropertyRule } from "../calendarField/rules"
 import { InputField, InputFieldPreview } from "./types"
 
 export const exportInputFieldToPreview = (
@@ -17,7 +18,7 @@ export const exportInputFieldToPreview = (
   const result: InputFieldPreview = {
     ElementType: "FormField",
     Name: element.name,
-    Type: exportSystemEnumerationToPreview(context, "InputField", "FormFieldType")!,
+    Type: exportSystemEnumerationToPreview(context, undefined, "InputField", "FormFieldType")!,
   }
 
   if (element.allowInputEmptyMultipleValues !== undefined)
@@ -28,6 +29,7 @@ export const exportInputFieldToPreview = (
 
   const autoCapitalizationOnTextInput = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.autoCapitalizationOnTextInput,
     "AutoCapitalizationOnTextInput"
   )
@@ -37,12 +39,18 @@ export const exportInputFieldToPreview = (
 
   const autoCorrectionOnTextInput = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.autoCorrectionOnTextInput,
     "AutoCorrectionOnTextInput"
   )
   if (autoCorrectionOnTextInput !== undefined) result.AutoCorrectionOnTextInput = autoCorrectionOnTextInput
 
-  const autoFillHint = exportSystemEnumerationToPreview(context, element.autoFillHint, "InputFieldAutofillHint")
+  const autoFillHint = exportSystemEnumerationToPreview(
+    context,
+    undefined,
+    element.autoFillHint,
+    "InputFieldAutofillHint"
+  )
   if (autoFillHint !== undefined) result.AutoFillHint = autoFillHint
 
   if (element.autoMarkIncomplete !== undefined) result.AutoMarkIncomplete = element.autoMarkIncomplete
@@ -53,6 +61,7 @@ export const exportInputFieldToPreview = (
 
   const autoShowClearButton = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.autoShowClearButton,
     "AutoShowClearButtonMode"
   )
@@ -60,24 +69,26 @@ export const exportInputFieldToPreview = (
 
   const autoShowOpenButton = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.autoShowOpenButton,
     "AutoShowOpenButtonMode"
   )
   if (autoShowOpenButton !== undefined) result.AutoShowOpenButton = autoShowOpenButton
 
-  const backColor = exportColorToPreview(context, element.backColor)
+  const backColor = exportColorToPreview(context, undefined, element.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const borderColor = exportColorToPreview(context, element.borderColor)
+  const borderColor = exportColorToPreview(context, undefined, element.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (element.choiceButton !== undefined) result.ChoiceButton = element.choiceButton
 
-  const choiceButtonPicture = exportPictureToPreview(context, element.choiceButtonPicture)
+  const choiceButtonPicture = exportPictureToPreview(context, undefined, element.choiceButtonPicture)
   if (choiceButtonPicture !== undefined) result.ChoiceButtonPicture = choiceButtonPicture
 
   const choiceButtonRepresentation = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.choiceButtonRepresentation,
     "ChoiceButtonRepresentation"
   )
@@ -85,6 +96,7 @@ export const exportInputFieldToPreview = (
 
   const choiceFoldersAndItems = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.choiceFoldersAndItems,
     "FoldersAndItems"
   )
@@ -94,6 +106,7 @@ export const exportInputFieldToPreview = (
 
   const choiceHistoryOnInput = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.choiceHistoryOnInput,
     "ChoiceHistoryOnInput"
   )
@@ -113,26 +126,27 @@ export const exportInputFieldToPreview = (
 
   if (element.dropListWidth !== undefined) result.DropListWidth = element.dropListWidth
 
-  const editFormat = exportI8nTextToPreview(context, element.editFormat)
+  const editFormat = exportI8nTextToPreview(context, undefined, element.editFormat)
   if (editFormat !== undefined) result.EditFormat = editFormat
 
   // if (element.editText !== undefined) result.EditText = element.editText
 
-  const editTextUpdate = exportSystemEnumerationToPreview(context, element.editTextUpdate, "EditTextUpdate")
+  const editTextUpdate = exportSystemEnumerationToPreview(context, undefined, element.editTextUpdate, "EditTextUpdate")
   if (editTextUpdate !== undefined) result.EditTextUpdate = editTextUpdate
 
   if (element.extendedEdit !== undefined) result.ExtendedEdit = element.extendedEdit
 
-  const font = exportFontToPreview(context, element.font)
+  const font = exportFontToPreview(context, undefined, element.font)
   if (font !== undefined) result.Font = font
 
-  const format = exportI8nTextToPreview(context, element.format)
+  const format = exportI8nTextToPreview(context, undefined, element.format)
   if (format !== undefined) result.Format = format
 
   if (element.height !== undefined) result.Height = element.height
 
   const heightControlVariant = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.heightControlVariant,
     "ItemHeightControlVariant"
   )
@@ -142,12 +156,13 @@ export const exportInputFieldToPreview = (
 
   const incompleteChoiceMode = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.incompleteChoiceMode,
     "IncompleteChoiceMode"
   )
   if (incompleteChoiceMode !== undefined) result.IncompleteChoiceMode = incompleteChoiceMode
 
-  const inputHint = exportI8nTextToPreview(context, element.inputHint)
+  const inputHint = exportI8nTextToPreview(context, undefined, element.inputHint)
   if (inputHint !== undefined) result.InputHint = inputHint
 
   if (element.listChoiceMode !== undefined) result.ListChoiceMode = element.listChoiceMode
@@ -173,6 +188,7 @@ export const exportInputFieldToPreview = (
 
   const multipleValuePictureShape = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.multipleValuePictureShape,
     "InputFieldMultipleValuePictureShape"
   )
@@ -180,6 +196,7 @@ export const exportInputFieldToPreview = (
 
   const multipleValuePictureSize = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.multipleValuePictureSize,
     "InputFieldMultipleValuePictureSize"
   )
@@ -189,21 +206,21 @@ export const exportInputFieldToPreview = (
   if (multipleValuePresentationDataPath !== undefined)
     result.MultipleValuePresentationDataPath = multipleValuePresentationDataPath
 
-  const multipleValuesBackColor = exportColorToPreview(context, element.multipleValuesBackColor)
+  const multipleValuesBackColor = exportColorToPreview(context, undefined, element.multipleValuesBackColor)
   if (multipleValuesBackColor !== undefined) result.MultipleValuesBackColor = multipleValuesBackColor
 
   if (element.multipleValuesExtendedEdit !== undefined)
     result.MultipleValuesExtendedEdit = element.multipleValuesExtendedEdit
 
-  const multipleValuesFont = exportFontToPreview(context, element.multipleValuesFont)
+  const multipleValuesFont = exportFontToPreview(context, undefined, element.multipleValuesFont)
   if (multipleValuesFont !== undefined) result.MultipleValuesFont = multipleValuesFont
 
   if (element.multipleValuesHyperlink !== undefined) result.MultipleValuesHyperlink = element.multipleValuesHyperlink
 
-  const multipleValuesPicture = exportPictureToPreview(context, element.multipleValuesPicture)
+  const multipleValuesPicture = exportPictureToPreview(context, undefined, element.multipleValuesPicture)
   if (multipleValuesPicture !== undefined) result.MultipleValuesPicture = multipleValuesPicture
 
-  const multipleValuesTextColor = exportColorToPreview(context, element.multipleValuesTextColor)
+  const multipleValuesTextColor = exportColorToPreview(context, undefined, element.multipleValuesTextColor)
   if (multipleValuesTextColor !== undefined) result.MultipleValuesTextColor = multipleValuesTextColor
 
   const multipleValueValueDataPath = getAttributeName(context, element.multipleValueValueDataPath)
@@ -211,6 +228,7 @@ export const exportInputFieldToPreview = (
 
   const onScreenKeyboardReturnKeyText = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.onScreenKeyboardReturnKeyText,
     "OnScreenKeyboardReturnKeyText"
   )
@@ -229,6 +247,7 @@ export const exportInputFieldToPreview = (
 
   const specialTextInputMode = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.specialTextInputMode,
     "SpecialTextInputMode"
   )
@@ -236,6 +255,7 @@ export const exportInputFieldToPreview = (
 
   const spellCheckingOnTextInput = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.spellCheckingOnTextInput,
     "SpellCheckingOnTextInput"
   )
@@ -243,7 +263,7 @@ export const exportInputFieldToPreview = (
 
   if (element.spinButton !== undefined) result.SpinButton = element.spinButton
 
-  const textColor = exportColorToPreview(context, element.textColor)
+  const textColor = exportColorToPreview(context, undefined, element.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
   if (element.textEdit !== undefined) result.TextEdit = element.textEdit
@@ -265,57 +285,70 @@ export const exportInputFieldToPreview = (
 
   if (element.defaultItem !== undefined) result.DefaultItem = element.defaultItem
 
-  const displayImportance = exportSystemEnumerationToPreview(context, element.displayImportance, "DisplayImportance")
+  const displayImportance = exportSystemEnumerationToPreview(
+    context,
+    undefined,
+    element.displayImportance,
+    "DisplayImportance"
+  )
   if (displayImportance !== undefined) result.DisplayImportance = displayImportance
 
-  const editMode = exportSystemEnumerationToPreview(context, element.editMode, "ColumnEditMode")
+  const editMode = exportSystemEnumerationToPreview(context, undefined, element.editMode, "ColumnEditMode")
   if (editMode !== undefined) result.EditMode = editMode
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  const fixingInTable = exportSystemEnumerationToPreview(context, element.fixingInTable, "FixingInTable")
+  const fixingInTable = exportSystemEnumerationToPreview(context, undefined, element.fixingInTable, "FixingInTable")
   if (fixingInTable !== undefined) result.FixingInTable = fixingInTable
 
-  const footerBackColor = exportColorToPreview(context, element.footerBackColor)
+  const footerBackColor = exportColorToPreview(context, undefined, element.footerBackColor)
   if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
 
   const footerDataPath = getAttributeName(context, element.footerDataPath)
   if (footerDataPath !== undefined) result.FooterDataPath = footerDataPath
 
-  const footerFont = exportFontToPreview(context, element.footerFont)
+  const footerFont = exportFontToPreview(context, undefined, element.footerFont)
   if (footerFont !== undefined) result.FooterFont = footerFont
 
   const footerHorizontalAlign = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.footerHorizontalAlign,
     "HorizontalAlign"
   )
   if (footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = footerHorizontalAlign
 
-  const footerPicture = exportPictureToPreview(context, element.footerPicture)
+  const footerPicture = exportPictureToPreview(context, undefined, element.footerPicture)
   if (footerPicture !== undefined) result.FooterPicture = footerPicture
 
-  const footerText = exportI8nTextToPreview(context, element.footerText)
+  const footerText = exportI8nTextToPreview(context, undefined, element.footerText)
   if (footerText !== undefined) result.FooterText = footerText
 
-  const footerTextColor = exportColorToPreview(context, element.footerTextColor)
+  const footerTextColor = exportColorToPreview(context, undefined, element.footerTextColor)
   if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
 
   const headerHorizontalAlign = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.headerHorizontalAlign,
     "HorizontalAlign"
   )
   if (headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = headerHorizontalAlign
 
-  const headerPicture = exportPictureToPreview(context, element.headerPicture)
+  const headerPicture = exportPictureToPreview(context, undefined, element.headerPicture)
   if (headerPicture !== undefined) result.HeaderPicture = headerPicture
 
-  const horizontalAlign = exportSystemEnumerationToPreview(context, element.horizontalAlign, "HorizontalAlign")
+  const horizontalAlign = exportSystemEnumerationToPreview(
+    context,
+    undefined,
+    element.horizontalAlign,
+    "HorizontalAlign"
+  )
   if (horizontalAlign !== undefined) result.HorizontalAlign = horizontalAlign
 
   const horizontalAlignInGroup = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.horizontalAlignInGroup,
     "HorizontalAlign"
   )
@@ -329,46 +362,58 @@ export const exportInputFieldToPreview = (
 
   if (element.skipOnInput !== undefined) result.SkipOnInput = element.skipOnInput
 
-  const title = exportI8nTextToPreview(context, element.title)
+  const title = exportI8nTextToPreview(context, undefined, element.title)
   if (title !== undefined) result.Title = title
 
-  const titleBackColor = exportColorToPreview(context, element.titleBackColor)
+  const titleBackColor = exportColorToPreview(context, undefined, element.titleBackColor)
   if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
 
-  const titleFont = exportFontToPreview(context, element.titleFont)
+  const titleFont = exportFontToPreview(context, undefined, element.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
   if (element.titleHeight !== undefined) result.TitleHeight = element.titleHeight
 
-  const titleLocation = exportSystemEnumerationToPreview(context, element.titleLocation, "FormItemTitleLocation")
+  const titleLocation = exportSystemEnumerationToPreview(
+    context,
+    undefined,
+    element.titleLocation,
+    "FormItemTitleLocation"
+  )
   if (titleLocation !== undefined) result.TitleLocation = titleLocation
 
-  const titleTextColor = exportColorToPreview(context, element.titleTextColor)
+  const titleTextColor = exportColorToPreview(context, undefined, element.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToPreview(context, element.toolTip)
+  const toolTip = exportI8nTextToPreview(context, undefined, element.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   const toolTipRepresentation = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.toolTipRepresentation,
     "ToolTipRepresentation"
   )
   if (toolTipRepresentation !== undefined) result.ToolTipRepresentation = toolTipRepresentation
 
-  const verticalAlign = exportSystemEnumerationToPreview(context, element.verticalAlign, "VerticalAlign")
+  const verticalAlign = exportSystemEnumerationToPreview(context, undefined, element.verticalAlign, "VerticalAlign")
   if (verticalAlign !== undefined) result.VerticalAlign = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToPreview(context, element.verticalAlignInGroup, "VerticalAlign")
+  const verticalAlignInGroup = exportSystemEnumerationToPreview(
+    context,
+    undefined,
+    element.verticalAlignInGroup,
+    "VerticalAlign"
+  )
   if (verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = verticalAlignInGroup
 
   if (element.visible !== undefined) result.Visible = element.visible
 
-  const warningOnEdit = exportI8nTextToPreview(context, element.warningOnEdit)
+  const warningOnEdit = exportI8nTextToPreview(context, undefined, element.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
   const warningOnEditRepresentation = exportSystemEnumerationToPreview(
     context,
+    undefined,
     element.warningOnEditRepresentation,
     "WarningOnEditRepresentation"
   )

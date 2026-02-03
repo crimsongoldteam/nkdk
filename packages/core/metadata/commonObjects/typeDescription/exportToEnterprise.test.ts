@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { typeFixturesTable } from "../../../tests/fixtures/typeDescription/data"
-import { mockContext } from "../../../tests/mockContext"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
 
 describe("exportTypeDescriptionToEnterprise", () => {

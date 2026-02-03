@@ -21,7 +21,6 @@ describe("importUsualGroupFromEnterprise", () => {
       const result = importUsualGroupTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullUsualGroupTypedEnterprise,
         "ОбычнаяГруппа"
       )
@@ -32,7 +31,6 @@ describe("importUsualGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importUsualGroupTypedFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         minimalUsualGroupTypedEnterprise,
         "ОбычнаяГруппа"
@@ -52,7 +50,6 @@ describe("importUsualGroupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importUsualGroupPartialFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         fullUsualGroup,
         fullUsualGroupPartialEnterprise

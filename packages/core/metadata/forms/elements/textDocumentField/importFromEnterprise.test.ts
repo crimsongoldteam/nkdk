@@ -19,7 +19,6 @@ describe("importTextDocumentFieldFromEnterprise", () => {
       const result = importTextDocumentFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         undefined,
         "ПолеТекстовогоДокумента"
       )

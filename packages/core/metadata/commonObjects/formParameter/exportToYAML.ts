@@ -16,7 +16,7 @@ export const exportFormParametersToYAML = (
 
   for (const parameter of parameters) {
     const enterpriseParameter: FormParameterEnterprise = {
-      Тип: exportTypeDescriptionToYAML(context, undefined, _rule, parameter.type)!,
+      Тип: exportTypeDescriptionToYAML(context, _rule, parameter.type)!,
     }
 
     if (parameter.keyParameter !== undefined) {

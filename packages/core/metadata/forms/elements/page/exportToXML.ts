@@ -73,7 +73,7 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.slaveItemsWidth !== undefined) result.SlaveItemsWidth = data.slaveItemsWidth
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
   if (data.titleDataPath !== undefined) result.TitleDataPath = data.titleDataPath

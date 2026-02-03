@@ -11,9 +11,9 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { PropertyRule } from "../calendarField/rules"
 
 export function exportLabelDecorationToXML<From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
@@ -76,7 +76,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
   const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportFormattedI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportFormattedI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight

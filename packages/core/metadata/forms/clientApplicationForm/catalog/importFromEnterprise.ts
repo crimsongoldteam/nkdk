@@ -4,9 +4,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { importClientApplicationFormFromEnterprise } from "../base/importFromEnterprise"
 import { CatalogForm, CatalogFormEnterprise, CatalogFormEvents } from "./types"
-import { PropertyRule } from "../../elements/calendarField/rules"
 
 const catalogFormEnterpriseEventNameMapping: Record<string, keyof CatalogFormEvents> = {
   ВыборЗначения: "valueChoice",
@@ -48,6 +48,7 @@ export const importCatalogFormFromEnterprise = (
 
   const useForFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
+    undefined,
     data.ИспользованиеДляГруппИЭлементов,
     SE.FoldersAndItemsUseFromEnterprise
   )
@@ -58,6 +59,7 @@ export const importCatalogFormFromEnterprise = (
 
   const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(
     context,
+    undefined,
     data.РежимВыбора,
     SE.ChoiceModeFromEnterprise
   )

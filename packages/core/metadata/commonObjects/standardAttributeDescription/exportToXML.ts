@@ -11,9 +11,9 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: ConfigurationContext,
@@ -35,7 +35,7 @@ const exportStandardAttributeDescriptionToXML = (
   _rule: PropertyRule | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionXML => {
-  const defaults = getDefaults(context, data)
+  const defaults = getDefaults(context, undefined, data)
   const mergedData = { ...defaults, ...data }
 
   const result: StandardAttributeDescriptionXML = {

@@ -5,7 +5,7 @@ import { exportPictureToPreview } from "./exportToPreview"
 
 describe("exportPictureToPreview", () => {
   it.each(pictureTestCases)("should import $name from Enterprise", ({ picture, preview }) => {
-    const result = exportPictureToPreview(mockContext, picture)
+    const result = exportPictureToPreview(mockContext, mockRule, picture)
 
     expect(result).toEqual(preview)
   })

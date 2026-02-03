@@ -22,7 +22,6 @@ describe("importChartFieldFromEnterprise", () => {
       const result = importChartFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullChartFieldTypedEnterprise,
         "ПолеДиаграммы"
       )
@@ -33,7 +32,6 @@ describe("importChartFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importChartFieldTypedFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         minimalChartFieldTypedEnterprise,
         "ПолеДиаграммы"
@@ -53,7 +51,6 @@ describe("importChartFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importChartFieldPartialFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         fullChartField,
         fullChartFieldPartialEnterprise

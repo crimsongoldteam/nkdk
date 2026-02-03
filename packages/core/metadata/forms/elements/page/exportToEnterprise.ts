@@ -154,7 +154,6 @@ export const exportPagePropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -170,7 +169,6 @@ export const exportPagePropsToEnterprise = (
 
   const verticalSpacing = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.verticalSpacing,
     SE.FormItemSpacingToEnterprise

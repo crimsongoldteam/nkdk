@@ -93,7 +93,6 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -194,7 +193,6 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -229,7 +227,6 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise
   )
@@ -261,7 +258,6 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
 
   const verticalScrollBar = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.verticalScrollBar,
     SE.ScrollBarUseToEnterprise
@@ -338,7 +334,6 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
 
   const viewScalingMode = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.viewScalingMode,
     SE.ViewScalingModeToEnterprise

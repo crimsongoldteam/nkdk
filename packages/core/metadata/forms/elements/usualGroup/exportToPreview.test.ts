@@ -13,7 +13,7 @@ describe("exportUsualGroupToPreview", () => {
       },
     }
 
-    const result = exportUsualGroupToPreview(context, fullUsualGroup)
+    const result = exportUsualGroupToPreview(context, undefined, fullUsualGroup)
 
     expect(result).toEqual(fullUsualGroupPreview)
   })

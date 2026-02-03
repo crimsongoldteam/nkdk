@@ -13,7 +13,7 @@ export const exportUserVisibleToYAML = <AllowKey extends string, DenyKey extends
 
   const values: UserVisibleEnterprise = {}
   userVisible.values.forEach((item) => {
-    values[item.name] = exportBooleanToYAML(context, undefined, _rule, item.value)!
+    values[item.name] = exportBooleanToYAML(context, _rule, item.value)!
   })
 
   const key = userVisible.common ? keys.allow : keys.deny

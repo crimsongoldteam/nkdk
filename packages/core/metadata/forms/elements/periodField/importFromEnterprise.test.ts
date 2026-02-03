@@ -22,7 +22,6 @@ describe("importPeriodFieldFromEnterprise", () => {
       const result = importPeriodFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullPeriodFieldTypedEnterprise,
         "ПолеПериода"
       )
@@ -33,7 +32,6 @@ describe("importPeriodFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importPeriodFieldTypedFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         minimalPeriodFieldTypedEnterprise,
         "ПолеПериода"

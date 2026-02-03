@@ -7,12 +7,12 @@ import {
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
 import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/exportToXML"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
@@ -29,7 +29,7 @@ export const exportMetadataTabularSectionToXML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
-  const defaults = getDefaults(context, data)
+  const defaults = getDefaults(context, undefined, data)
   const mergedData = mergeIgnoringUndefined(data, defaults)
 
   const parentName = (context.context as { parentName?: string }).parentName ?? ""

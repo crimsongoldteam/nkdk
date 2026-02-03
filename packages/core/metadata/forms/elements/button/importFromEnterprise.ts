@@ -18,8 +18,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export function importButtonTypedFromEnterprise<To extends Button | undefined>(
   context: ConfigurationContext,
@@ -94,6 +94,7 @@ const importButtonPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -112,6 +113,7 @@ const importButtonPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -122,6 +124,7 @@ const importButtonPropsFromEnterprise = (
 
   const locationInCommandBar = importSystemEnumerationFromYAML<SE.ButtonLocationInCommandBar>(
     context,
+    undefined,
     data.ПоложениеВКоманднойПанели,
     SE.ButtonLocationInCommandBarFromEnterprise
   )
@@ -139,6 +142,7 @@ const importButtonPropsFromEnterprise = (
 
   const pictureLocation = importSystemEnumerationFromYAML<SE.FormButtonPictureLocation>(
     context,
+    undefined,
     data.ПоложениеКартинки,
     SE.FormButtonPictureLocationFromEnterprise
   )
@@ -146,16 +150,23 @@ const importButtonPropsFromEnterprise = (
 
   const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
     context,
+    undefined,
     data.Отображение,
     SE.ButtonRepresentationFromEnterprise
   )
   if (representation !== undefined) result.representation = representation
 
-  const shape = importSystemEnumerationFromYAML<SE.ButtonShape>(context, data.Фигура, SE.ButtonShapeFromEnterprise)
+  const shape = importSystemEnumerationFromYAML<SE.ButtonShape>(
+    context,
+    undefined,
+    data.Фигура,
+    SE.ButtonShapeFromEnterprise
+  )
   if (shape !== undefined) result.shape = shape
 
   const shapeRepresentation = importSystemEnumerationFromYAML<SE.ButtonShapeRepresentation>(
     context,
+    undefined,
     data.ОтображениеФигуры,
     SE.ButtonShapeRepresentationFromEnterprise
   )
@@ -176,12 +187,18 @@ const importButtonPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const type = importSystemEnumerationFromYAML<SE.FormButtonType>(context, data.Вид, SE.FormButtonTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormButtonType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormButtonTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const userVisible = importUserVisibleFromEnterprise(
@@ -196,6 +213,7 @@ const importButtonPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )

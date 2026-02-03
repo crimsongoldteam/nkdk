@@ -169,7 +169,6 @@ const exportColumnGroupPropsToEnterprise = (
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise
   )

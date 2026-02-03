@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { BaseElementXML } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportElementPropsToXML = (
   context: ConfigurationContext,

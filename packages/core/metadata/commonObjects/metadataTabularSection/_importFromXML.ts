@@ -22,9 +22,7 @@ export const _importMetadataTabularSectionsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map(
-    (value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, undefined, rule, value)!
-  )
+  return items.map((value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, rule, value)!)
 }
 
 const importMetadataTabularSectionFromXML = (

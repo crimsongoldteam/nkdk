@@ -26,9 +26,9 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 
 const importPictureDecorationEventsFromEnterprise = (
   data:
@@ -136,6 +136,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -143,6 +144,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -150,6 +152,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const type = importSystemEnumerationFromYAML<SE.FormDecorationType>(
     context,
+    undefined,
     data.Вид,
     SE.FormDecorationTypeFromEnterprise
   )
@@ -162,6 +165,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -179,6 +183,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -232,6 +237,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const pictureSize = importSystemEnumerationFromYAML<SE.PictureSize>(
     context,
+    undefined,
     data.РазмерКартинки,
     SE.PictureSizeFromEnterprise
   )
@@ -248,6 +254,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   const fileDragMode = importSystemEnumerationFromYAML<SE.FileDragMode>(
     context,
+    undefined,
     data.СпособПеретаскиванияФайлов,
     SE.FileDragModeFromEnterprise
   )

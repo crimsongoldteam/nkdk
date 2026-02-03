@@ -7,7 +7,7 @@ import {
   minimalFormattedDocumentFieldPartialEnterprise,
   minimalFormattedDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importFormattedDocumentFieldPartialFromEnterprise,
   importFormattedDocumentFieldTypedFromEnterprise,

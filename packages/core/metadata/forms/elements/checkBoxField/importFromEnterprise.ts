@@ -23,9 +23,9 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 
 export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField | undefined>(
   context: ConfigurationContext,
@@ -86,6 +86,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -93,6 +94,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -100,12 +102,18 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormFieldTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -118,6 +126,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -125,6 +134,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -132,6 +142,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -139,6 +150,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -167,6 +179,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -174,6 +187,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
+    undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
   )
@@ -184,6 +198,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -214,6 +229,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
     context,
+    undefined,
     data.РежимРедактирования,
     SE.ColumnEditModeFromEnterprise
   )
@@ -231,6 +247,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
+    undefined,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
   )
@@ -256,6 +273,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   const checkBoxType = importSystemEnumerationFromYAML<SE.CheckBoxType>(
     context,
+    undefined,
     data.ВидФлажка,
     SE.CheckBoxTypeFromEnterprise
   )

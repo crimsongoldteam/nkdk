@@ -23,9 +23,9 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 
 export function importGraphicalSchemaFieldTypedFromEnterprise<To extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
@@ -85,6 +85,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -92,6 +93,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -99,12 +101,18 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormFieldTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -117,6 +125,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -124,6 +133,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -131,6 +141,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -138,6 +149,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -166,6 +178,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -173,6 +186,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
+    undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
   )
@@ -183,6 +197,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -213,6 +228,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
     context,
+    undefined,
     data.РежимРедактирования,
     SE.ColumnEditModeFromEnterprise
   )
@@ -230,6 +246,7 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
+    undefined,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
   )
@@ -259,7 +276,12 @@ const importGraphicalSchemaFieldPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const output = importSystemEnumerationFromYAML<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
+  const output = importSystemEnumerationFromYAML<SE.UseOutput>(
+    context,
+    undefined,
+    data.Вывод,
+    SE.UseOutputFromEnterprise
+  )
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота

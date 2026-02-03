@@ -1,4 +1,3 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataAttribute } from "./types"
 
@@ -36,7 +35,6 @@ const defaultsTabularSectionAttribute = {
 
 export const getDefaultsAttribute = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   _data: MetadataAttribute
 ): Required<Pick<MetadataAttribute, keyof typeof defaultsAttribute>> => {
   return defaultsAttribute
@@ -44,7 +42,6 @@ export const getDefaultsAttribute = (
 
 export const getDefaultsTabularSectionAttribute = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   _data: MetadataAttribute
 ): Required<Pick<MetadataAttribute, keyof typeof defaultsTabularSectionAttribute>> => {
   return defaultsTabularSectionAttribute

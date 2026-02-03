@@ -7,8 +7,8 @@ import {
 import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
   context: ConfigurationContext,
@@ -42,6 +42,7 @@ export const exportCharacteristicsDescriptionToEnterprise = (
   if (data.multipleValuesUseField) {
     result.ПолеИспользованияМножественныхЗначений = exportMetadataFieldToEnterprise(
       context,
+      undefined,
       data.multipleValuesUseField
     )
   }

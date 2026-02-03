@@ -21,12 +21,7 @@ export const _exportMetadataValueToXML = (
   const xmlType = MetadataValueTypeToXML[data.type]
 
   if (data.type === "fixedArray") {
-    return _exportFixedArrayValueToXML(
-      context,
-      undefined,
-      _rule,
-      data as Extract<MetadataValue, { type: "fixedArray" }>
-    )
+    return _exportFixedArrayValueToXML(context, _rule, data as Extract<MetadataValue, { type: "fixedArray" }>)
   }
 
   if (data.type === "formChoiceListDesTimeValue") {
@@ -45,7 +40,7 @@ const _exportFixedArrayValueToXML = (
   _rule: PropertyRule | undefined,
   data: Extract<MetadataValue, { type: "fixedArray" }>
 ): MetadataFixedArrayValueXML => {
-  const values = data.value.map((v) => _exportMetadataValueToXML(context, undefined, _rule, v)!)
+  const values = data.value.map((v) => _exportMetadataValueToXML(context, _rule, v)!)
   return {
     "_xsi:type": "v8:FixedArray",
     "v8:Value": values.length === 1 ? values[0] : values,
@@ -57,7 +52,7 @@ export const _exportFormChoiceListValueToXML = (
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueXML => {
-  const value = _exportMetadataValueToXML(context, undefined, _rule, data.value)
+  const value = _exportMetadataValueToXML(context, _rule, data.value)
 
   // Если значение undefined, создаем объект с xsi:nil="true"
   const valueXML: MetadataValueXML =
@@ -68,7 +63,7 @@ export const _exportFormChoiceListValueToXML = (
 
   return {
     "_xsi:type": "FormChoiceListDesTimeValue",
-    Presentation: _exportI8nTextToXML(context, undefined, _rule, data.presentation),
+    Presentation: _exportI8nTextToXML(context, _rule, data.presentation),
     Value: valueXML,
   } as MetadataFormChoiceListValueXML
 }

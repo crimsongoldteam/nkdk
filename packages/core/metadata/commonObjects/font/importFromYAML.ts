@@ -15,7 +15,12 @@ export const importFontFromYAML = (
   // Если данные - строка (компактный формат)
   if (typeof data === "string") {
     // Проверяем, является ли это Enterprise значением ref
-    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(_context, data, SE.StyleFontsFromEnterprise)
+    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(
+      _context,
+      undefined,
+      data,
+      SE.StyleFontsFromEnterprise
+    )
     if (styleFontRef) {
       return {
         ref: styleFontRef,

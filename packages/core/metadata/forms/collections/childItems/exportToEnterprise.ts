@@ -1,11 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
 
 export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: From[] | undefined
 ): Record<string, ToTypedEnterpriseType<From>> | undefined => {
   if (!data || data.length === 0) return undefined
@@ -15,7 +16,7 @@ export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (fn == undefined)
       throw new Error(`ExportTypedToEnterprise function not found for element type: ${item.elementType}`)
-    const resultItem = fn(context, item)
+    const resultItem = fn(context, rule, item)
     result[item.name] = resultItem as ToTypedEnterpriseType<From>
   }
 
@@ -24,7 +25,7 @@ export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
 
 export const exportPartialChildItemsToEnterprise = <From extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: From[] | undefined
 ): Record<string, ToPartialEnterpriseType<From>> | undefined => {
   if (!data || data.length === 0) return undefined
@@ -34,7 +35,7 @@ export const exportPartialChildItemsToEnterprise = <From extends AllChildItem>(
     const fn = getOperationFunction("ExportPartialToEnterprise", item.elementType)
     if (fn == undefined)
       throw new Error(`ExportPartialToEnterprise function not found for element type: ${item.elementType}`)
-    const resultItem = fn(context, item)
+    const resultItem = fn(context, rule, item)
     result[item.name] = resultItem as ToPartialEnterpriseType<From>
   }
 

@@ -20,6 +20,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
     ДлинаНомера: data.numberLength,
     ДопустимаяДлинаНомера: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise
     ),
@@ -28,6 +29,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
     КонтрольУникальности: exportBooleanToEnterprise(context, undefined, data.checkUnique),
     ПериодичностьНомера: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),

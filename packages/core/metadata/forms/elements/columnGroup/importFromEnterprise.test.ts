@@ -21,7 +21,6 @@ describe("importColumnGroupFromEnterprise", () => {
       const result = importColumnGroupTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullColumnGroupTypedEnterprise,
         "ГруппаКолонок"
       )

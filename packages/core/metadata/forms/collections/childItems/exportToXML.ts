@@ -2,6 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { AllChildItem } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportChildItemsToXML = <From extends AllChildItem>(
   context: ConfigurationContext,

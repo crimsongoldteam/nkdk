@@ -6,6 +6,7 @@ import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { NamedElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
+import { PropertyRule } from "../../calendarField/rules"
 
 const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"

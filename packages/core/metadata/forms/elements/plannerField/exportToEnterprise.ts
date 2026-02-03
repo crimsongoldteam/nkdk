@@ -93,7 +93,6 @@ const exportPlannerFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -194,7 +193,6 @@ const exportPlannerFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -236,7 +234,6 @@ const exportPlannerFieldPropsToEnterprise = (
 
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise

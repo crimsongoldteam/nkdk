@@ -12,7 +12,7 @@ export const exportColorToEnterprise = <T extends Color | undefined>(
   if (!color) return undefined
 
   if (color.type === "StyleItem") {
-    const standardColor = exportSystemEnumerationToYAML(_context, color.value, SE.StyleColorsToEnterprise)
+    const standardColor = exportSystemEnumerationToYAML(_context, undefined, color.value, SE.StyleColorsToEnterprise)
     if (standardColor) {
       return standardColor
     }
@@ -21,11 +21,11 @@ export const exportColorToEnterprise = <T extends Color | undefined>(
   }
 
   if (color.type === "WindowsColor") {
-    return exportSystemEnumerationToYAML(_context, color.value, SE.WindowsColorsToEnterprise)
+    return exportSystemEnumerationToYAML(_context, undefined, color.value, SE.WindowsColorsToEnterprise)
   }
 
   if (color.type === "WebColor") {
-    return exportSystemEnumerationToYAML(_context, color.value, SE.WebColorsToEnterprise)
+    return exportSystemEnumerationToYAML(_context, undefined, color.value, SE.WebColorsToEnterprise)
   }
 
   return color.value

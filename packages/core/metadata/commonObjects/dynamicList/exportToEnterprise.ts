@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DynamicList, DynamicListEnterprise } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportDynamicListToEnterprise = (
   _context: ConfigurationContext,

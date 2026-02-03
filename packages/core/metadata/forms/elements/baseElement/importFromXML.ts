@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importBaseElementFromXML(
   _context: ConfigurationContext,

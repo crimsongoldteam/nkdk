@@ -14,7 +14,7 @@ describe("getAttributeName", () => {
           prefix: "p_",
         },
       }
-      const result = getAttributeName(context, dataPath, tableDataPath)
+      const result = getAttributeName(context, undefined, dataPath, tableDataPath)
       expect(result).toEqual(expectedDataPath)
       expect(context.preview?.attributes).toEqual(expectedAttributes)
     }

@@ -4,13 +4,13 @@ import { exportSystemEnumerationToPreview } from "./exportToPreview"
 
 describe("exportSystemEnumerationToPreview", () => {
   it("should return undefined when value is undefined", () => {
-    const result = exportSystemEnumerationToPreview(mockContext, undefined, "TestEnum")
+    const result = exportSystemEnumerationToPreview(mockContext, mockRule, undefined, "TestEnum")
 
     expect(result).toBeUndefined()
   })
 
   it("should return SystemEnumerationPreview with correct type and value", () => {
-    const result = exportSystemEnumerationToPreview(mockContext, "Auto", "DynamicListSearchStringViewMode")
+    const result = exportSystemEnumerationToPreview(mockContext, mockRule, "Auto", "DynamicListSearchStringViewMode")
 
     expect(result).toEqual({
       Type: "SystemEnumeration",

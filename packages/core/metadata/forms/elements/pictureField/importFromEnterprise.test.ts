@@ -22,7 +22,6 @@ describe("importPictureFieldFromEnterprise", () => {
       const result = importPictureFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullPictureFieldTypedEnterprise,
         "ПолеКартинки"
       )

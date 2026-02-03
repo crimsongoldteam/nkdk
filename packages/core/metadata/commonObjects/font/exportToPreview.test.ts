@@ -5,7 +5,7 @@ import { exportFontToPreview } from "./exportToPreview"
 
 describe("exportFontToPreview", () => {
   it.each(fontEnterpriseFixtures)("should export $name font to Preview", ({ font, preview }) => {
-    const result = exportFontToPreview(mockContext, font)
+    const result = exportFontToPreview(mockContext, mockRule, font)
 
     expect(result).toEqual(preview)
   })

@@ -22,7 +22,6 @@ describe("importInputFieldFromEnterprise", () => {
       const result = importInputFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullInputFieldTypedEnterprise,
         "ПолеВвода"
       )
@@ -33,7 +32,6 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importInputFieldTypedFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         minimalInputFieldTypedEnterprise,
         "ПолеВвода"
@@ -53,7 +51,6 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importInputFieldPartialFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         fullInputField,
         fullInputFieldPartialEnterprise

@@ -10,7 +10,7 @@ export const exportMetadataFieldsToYAML = (
 ): MetadataFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataFieldToYAML(context, undefined, _rule, item)!)
+  return data.map((item) => exportMetadataFieldToYAML(context, _rule, item)!)
 }
 
 export const exportMetadataFieldToYAML = (
@@ -20,5 +20,5 @@ export const exportMetadataFieldToYAML = (
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return exportMetadataFieldStringToYAML(context, undefined, _rule, data)
+  return exportMetadataFieldStringToYAML(context, _rule, data)
 }

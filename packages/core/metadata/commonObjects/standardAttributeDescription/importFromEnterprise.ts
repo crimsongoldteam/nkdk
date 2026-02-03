@@ -12,12 +12,12 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChoiceParametersFromEnterprise } from "../сhoiceParameters/importFromEnterprise"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
   context: ConfigurationContext,
@@ -49,6 +49,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
     context,
+    undefined,
     data.БыстрыйВыбор,
     SE.UseQuickChoiceFromEnterprise
   )
@@ -65,6 +66,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
+    undefined,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
   )
@@ -72,6 +74,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
+    undefined,
     data.ИсторияДанных,
     SE.DataHistoryUseFromEnterprise
   )
@@ -93,6 +96,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
+    undefined,
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
   )
@@ -100,6 +104,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
+    undefined,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
   )
@@ -113,6 +118,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const typeReductionMode = importSystemEnumerationFromYAML<SE.TypeReductionMode>(
     context,
+    undefined,
     data.РежимСокращенияТипа,
     SE.TypeReductionModeFromEnterprise
   )
@@ -129,6 +135,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
+    undefined,
     data.СозданиеПриВводе,
     SE.CreateOnInputFromEnterprise
   )

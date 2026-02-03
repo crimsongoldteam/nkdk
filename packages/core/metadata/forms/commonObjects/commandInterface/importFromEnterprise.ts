@@ -3,13 +3,13 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { StandardCommandsGroupFromEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import {
   CommandInterface,
   CommandInterfaceEnterprise,
   CommandInterfaceItem,
   CommandInterfaceItemEnterprise,
 } from "./types"
-import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const importCommandInterfaceFromEnterprise = (
   context: ConfigurationContext,
@@ -55,6 +55,7 @@ const importCommandInterfaceItemFromEnterprise = (
 
   const visible = importUserVisibleFromEnterprise(
     context,
+    undefined,
     item[UserVisibleKeysEnterprise.Allow],
     item[UserVisibleKeysEnterprise.Deny]
   )

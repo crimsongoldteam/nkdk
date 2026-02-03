@@ -20,5 +20,5 @@ export const exportMetadataFieldToEnterprise = (
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return exportMetadataFieldToEnterprisePath(context, data)
+  return exportMetadataFieldToEnterprisePath(context, undefined, data)
 }

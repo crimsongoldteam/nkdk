@@ -107,7 +107,6 @@ export const exportClientApplicationFormToEnterprise = (
   const verticalScroll = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalScroll,
     SE.VerticalFormScrollToEnterprise
   )
@@ -123,7 +122,6 @@ export const exportClientApplicationFormToEnterprise = (
 
   const verticalSpacing = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.verticalSpacing,
     SE.FormItemSpacingToEnterprise
@@ -176,7 +174,6 @@ export const exportClientApplicationFormToEnterprise = (
 
   const usedFormServer = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.usedFormServer,
     SE.UsedServerToEnterprise

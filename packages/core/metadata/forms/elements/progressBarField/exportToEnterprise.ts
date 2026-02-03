@@ -93,7 +93,6 @@ const exportProgressBarFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -194,7 +193,6 @@ const exportProgressBarFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -237,7 +235,6 @@ const exportProgressBarFieldPropsToEnterprise = (
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise
   )
@@ -279,7 +276,6 @@ const exportProgressBarFieldPropsToEnterprise = (
 
   const orientation = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.orientation,
     SE.FormItemOrientationToEnterprise

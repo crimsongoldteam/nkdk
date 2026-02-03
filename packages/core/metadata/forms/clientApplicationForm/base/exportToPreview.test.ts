@@ -20,7 +20,7 @@ describe("exportClientApplicationFormToPreview", () => {
       },
     }
 
-    const preview = exportClientApplicationFormToPreview(context, form)
+    const preview = exportClientApplicationFormToPreview(context, undefined, form)
 
     const text = JSON.stringify(preview, null, 2)
 

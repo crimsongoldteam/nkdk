@@ -48,7 +48,6 @@ describe("importFromEnterprise", () => {
       const result = importSearchStringAdditionPartialFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         sourceSearchStringAddition,
         {}
       )

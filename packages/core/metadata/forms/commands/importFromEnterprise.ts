@@ -40,6 +40,7 @@ const importCommandFromEnterprise = (
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
     context,
+    undefined,
     data.ИспользованиеТекущейСтроки,
     SE.CurrentRowUseFromEnterprise
   )

@@ -16,7 +16,7 @@ export const _exportMetadataValueCollectionToXML = (
       type: "objectRef",
       value: item,
     }
-    return _exportMetadataValueToXML(context, undefined, _rule, metadataValue)! as MetadataSimpleValueXML
+    return _exportMetadataValueToXML(context, _rule, metadataValue)! as MetadataSimpleValueXML
   })
 
   return {

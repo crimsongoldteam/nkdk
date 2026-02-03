@@ -19,5 +19,5 @@ export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): bo
 export const isEmptyFormattedI8nText = (context: ConfigurationContext, data: FormattedI8nText): boolean => {
   if (data.formatted) return false
 
-  return isEmptyI8nText(context, data)
+  return isEmptyI8nText(context, undefined, data)
 }

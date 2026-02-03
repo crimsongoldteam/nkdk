@@ -19,7 +19,6 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
       const result = importGraphicalSchemaFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         undefined,
         "ПолеГрафическойСхемы"
       )

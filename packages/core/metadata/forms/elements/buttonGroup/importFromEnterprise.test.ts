@@ -22,7 +22,6 @@ describe("importButtonGroupFromEnterprise", () => {
       const result = importButtonGroupTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullButtonGroupTypedEnterprise,
         "ГруппаКнопок"
       )

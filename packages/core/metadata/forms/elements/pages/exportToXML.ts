@@ -10,8 +10,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportPagesToXML<From extends Pages | undefined>(
   context: ConfigurationContext,
@@ -54,7 +54,7 @@ export function exportPagesToXML<From extends Pages | undefined>(
 
   if (data.shortcut !== undefined) result.Shortcut = data.shortcut
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
   const titleFont = exportFontToXML(context, undefined, data.titleFont)

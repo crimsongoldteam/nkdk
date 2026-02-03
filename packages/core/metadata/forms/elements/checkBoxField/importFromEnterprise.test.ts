@@ -25,7 +25,6 @@ describe("importCheckBoxFieldFromEnterprise", () => {
       const result = importCheckBoxFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullCheckBoxFieldTypedEnterprise,
         "Флажок"
       )
@@ -36,7 +35,6 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importCheckBoxFieldTypedFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         minimalCheckBoxFieldTypedEnterprise,
         "Флажок"

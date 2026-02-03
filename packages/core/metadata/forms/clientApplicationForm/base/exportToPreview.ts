@@ -7,13 +7,14 @@ import {
   PreviewAttributes,
   PreviewAttributesMap,
 } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportClientApplicationFormToPreview = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   form: ClientApplicationForm
 ): ClientApplicationFormPreview => {
-  const childItems = exportChildItemsToPreview(context, form.childItems)
+  const childItems = exportChildItemsToPreview(context, undefined, form.childItems)
 
   return {
     prefix: context.preview!.prefix!,

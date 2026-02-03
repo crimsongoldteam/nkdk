@@ -9,8 +9,8 @@ import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportButtonToXML<From extends Button | undefined>(
   context: ConfigurationContext,
@@ -87,7 +87,7 @@ export function exportButtonToXML<From extends Button | undefined>(
   const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight

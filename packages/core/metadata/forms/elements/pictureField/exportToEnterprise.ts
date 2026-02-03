@@ -94,7 +94,6 @@ const exportPictureFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -195,7 +194,6 @@ const exportPictureFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -237,7 +235,6 @@ const exportPictureFieldPropsToEnterprise = (
 
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise

@@ -29,6 +29,7 @@ export const exportMetadataDocumentToEnterprise = (
     ВключатьСправкуВСодержание: exportBooleanToEnterprise(context, undefined, data.includeHelpInContents),
     ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: exportBooleanToEnterprise(
       context,
+      undefined,
       data.executeAfterWriteDataHistoryVersionProcessing
     ),
     Движения: exportMetadataItemLinksToEnterprise(context, undefined, data.registerRecords),
@@ -39,22 +40,26 @@ export const exportMetadataDocumentToEnterprise = (
     ДополнительныеИндексы: exportAdditionalIndexesToEnterprise(context, undefined, data.additionalIndexes),
     ДопустимаяДлинаНомера: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise
     ),
     ЗаписьДвиженийПриПроведении: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.actionsWritingOnPost,
       SE.RegisterRecordsWritingOnPostToEnterprise
     ),
     ЗаполнениеПоследовательностей: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.sequenceFilling,
       SE.SequenceFillingToEnterprise
     ),
     ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(context, undefined, data.useStandardCommands),
     ИсторияВыбораПриВводе: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.choiceHistoryOnInput,
       SE.ChoiceHistoryOnInputToEnterprise
     ),
@@ -65,6 +70,7 @@ export const exportMetadataDocumentToEnterprise = (
     Нумератор: exportMetadataDocumentNumeratorToEnterprise(context, undefined, data.numerator),
     ОбновлятьИсториюДанныхСразуПослеЗаписи: exportBooleanToEnterprise(
       context,
+      undefined,
       data.updateDataHistoryImmediatelyAfterWrite
     ),
     ОперативноеПроведение: exportSystemEnumerationToYAML(
@@ -78,6 +84,7 @@ export const exportMetadataDocumentToEnterprise = (
     ОсновнаяФормаСписка: data.defaultListForm,
     ПериодичностьНомера: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),
@@ -89,6 +96,7 @@ export const exportMetadataDocumentToEnterprise = (
     ),
     ПолнотекстовыйПоискПриВводеПоСтроке: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.fullTextSearchOnInputByString,
       SE.FullTextSearchOnInputByStringToEnterprise
     ),
@@ -113,11 +121,13 @@ export const exportMetadataDocumentToEnterprise = (
     РасширенноеПредставлениеСписка: exportI8nTextToEnterprise(context, undefined, data.extendedListPresentation),
     РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.choiceDataGetModeOnInputByString,
       SE.ChoiceDataGetModeOnInputByStringToEnterprise
     ),
     РежимУправленияБлокировкойДанных: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.dataLockControlMode,
       SE.DefaultDataLockControlModeToEnterprise
     ),
@@ -131,6 +141,7 @@ export const exportMetadataDocumentToEnterprise = (
     ),
     СпособПоискаСтрокиПриВводеПоСтроке: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.searchStringModeOnInputByString,
       SE.SearchStringModeOnInputByStringToEnterprise
     ),
@@ -139,6 +150,7 @@ export const exportMetadataDocumentToEnterprise = (
     ТипНомера: exportSystemEnumerationToYAML(context, undefined, data.numberType, SE.DocumentNumberTypeToEnterprise),
     УдалениеДвижений: exportSystemEnumerationToYAML(
       context,
+      undefined,
       data.registerRecordsDeletion,
       SE.RegisterRecordsDeletionToEnterprise
     ),

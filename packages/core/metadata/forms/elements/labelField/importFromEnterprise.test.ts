@@ -22,7 +22,6 @@ describe("importLabelFieldFromEnterprise", () => {
       const result = importLabelFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         fullLabelFieldTypedEnterprise,
         "ПолеНадписи"
       )
@@ -33,7 +32,6 @@ describe("importLabelFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importLabelFieldTypedFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         minimalLabelFieldTypedEnterprise,
         "ПолеНадписи"
@@ -53,7 +51,6 @@ describe("importLabelFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importLabelFieldPartialFromEnterprise(
         mockContext,
-        mockRule,
         mockRule,
         fullLabelField,
         fullLabelFieldPartialEnterprise

@@ -7,6 +7,7 @@ import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
 import { exportChildItemsToPreview } from "../../collections/childItems/exportToPreview"
 import { UsualGroup, UsualGroupPreview } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportUsualGroupToPreview = (
   context: ConfigurationContext,
@@ -20,19 +21,23 @@ export const exportUsualGroupToPreview = (
   }
 
   if (element.backColor !== undefined) {
-    const backColor = exportColorToPreview(context, element.backColor)
+    const backColor = exportColorToPreview(context, undefined, element.backColor)
     if (backColor !== undefined) result.BackColor = backColor
   }
 
   if (element.behavior !== undefined) {
-    const behavior = exportSystemEnumerationToPreview(context, element.behavior, "UsualGroupBehavior")
+    const behavior = exportSystemEnumerationToPreview(context, undefined, element.behavior, "UsualGroupBehavior")
     if (behavior !== undefined) result.Behavior = behavior
   }
 
   if (element.collapsed !== undefined) result.Collapsed = element.collapsed
 
   if (element.collapsedRepresentationTitle !== undefined) {
-    const collapsedRepresentationTitle = exportI8nTextToPreview(context, element.collapsedRepresentationTitle)
+    const collapsedRepresentationTitle = exportI8nTextToPreview(
+      context,
+      undefined,
+      element.collapsedRepresentationTitle
+    )
     if (collapsedRepresentationTitle !== undefined) result.CollapsedRepresentationTitle = collapsedRepresentationTitle
   }
 
@@ -46,12 +51,17 @@ export const exportUsualGroupToPreview = (
   }
 
   if (element.currentRowUse !== undefined) {
-    const currentRowUse = exportSystemEnumerationToPreview(context, element.currentRowUse, "CurrentRowUse")
+    const currentRowUse = exportSystemEnumerationToPreview(context, undefined, element.currentRowUse, "CurrentRowUse")
     if (currentRowUse !== undefined) result.CurrentRowUse = currentRowUse
   }
 
   if (element.displayImportance !== undefined) {
-    const displayImportance = exportSystemEnumerationToPreview(context, element.displayImportance, "DisplayImportance")
+    const displayImportance = exportSystemEnumerationToPreview(
+      context,
+      undefined,
+      element.displayImportance,
+      "DisplayImportance"
+    )
     if (displayImportance !== undefined) result.DisplayImportance = displayImportance
   }
 
@@ -60,30 +70,44 @@ export const exportUsualGroupToPreview = (
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
   if (element.format !== undefined) {
-    const format = exportI8nTextToPreview(context, element.format)
+    const format = exportI8nTextToPreview(context, undefined, element.format)
     if (format !== undefined) result.Format = format
   }
 
   if (element.group !== undefined) {
-    const group = exportSystemEnumerationToPreview(context, element.group, "ChildFormItemsGroup")
+    const group = exportSystemEnumerationToPreview(context, undefined, element.group, "ChildFormItemsGroup")
     if (group !== undefined) result.Group = group
   }
 
   if (element.height !== undefined) result.Height = element.height
 
   if (element.hiddenRepresentationTitleBackColor !== undefined) {
-    const hiddenRepresentationTitleBackColor = exportColorToPreview(context, element.hiddenRepresentationTitleBackColor)
+    const hiddenRepresentationTitleBackColor = exportColorToPreview(
+      context,
+      undefined,
+      element.hiddenRepresentationTitleBackColor
+    )
     if (hiddenRepresentationTitleBackColor !== undefined)
       result.HiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
   }
 
   if (element.horizontalAlignInGroup !== undefined) {
-    const horizontalAlign = exportSystemEnumerationToPreview(context, element.horizontalAlignInGroup, "HorizontalAlign")
+    const horizontalAlign = exportSystemEnumerationToPreview(
+      context,
+      undefined,
+      element.horizontalAlignInGroup,
+      "HorizontalAlign"
+    )
     if (horizontalAlign !== undefined) result.HorizontalAlign = horizontalAlign
   }
 
   if (element.horizontalSpacing !== undefined) {
-    const horizontalSpacing = exportSystemEnumerationToPreview(context, element.horizontalSpacing, "FormItemSpacing")
+    const horizontalSpacing = exportSystemEnumerationToPreview(
+      context,
+      undefined,
+      element.horizontalSpacing,
+      "FormItemSpacing"
+    )
     if (horizontalSpacing !== undefined) result.HorizontalSpacing = horizontalSpacing
   }
 
@@ -101,7 +125,12 @@ export const exportUsualGroupToPreview = (
   if (element.readOnly !== undefined) result.ReadOnly = element.readOnly
 
   if (element.representation !== undefined) {
-    const representation = exportSystemEnumerationToPreview(context, element.representation, "UsualGroupRepresentation")
+    const representation = exportSystemEnumerationToPreview(
+      context,
+      undefined,
+      element.representation,
+      "UsualGroupRepresentation"
+    )
     if (representation !== undefined) result.Representation = representation
   }
 
@@ -110,29 +139,29 @@ export const exportUsualGroupToPreview = (
   if (element.showTitle !== undefined) result.ShowTitle = element.showTitle
 
   if (element.throughAlign !== undefined) {
-    const throughAlign = exportSystemEnumerationToPreview(context, element.throughAlign, "ThroughAlign")
+    const throughAlign = exportSystemEnumerationToPreview(context, undefined, element.throughAlign, "ThroughAlign")
     if (throughAlign !== undefined) result.ThroughAlign = throughAlign
   }
 
   if (element.title !== undefined) {
-    const title = exportI8nTextToPreview(context, element.title)
+    const title = exportI8nTextToPreview(context, undefined, element.title)
     if (title !== undefined) result.Title = title
   }
 
   if (element.titleDataPath !== undefined) result.TitleDataPath = element.titleDataPath
 
   if (element.titleFont !== undefined) {
-    const titleFont = exportFontToPreview(context, element.titleFont)
+    const titleFont = exportFontToPreview(context, undefined, element.titleFont)
     if (titleFont !== undefined) result.TitleFont = titleFont
   }
 
   if (element.titleTextColor !== undefined) {
-    const titleTextColor = exportColorToPreview(context, element.titleTextColor)
+    const titleTextColor = exportColorToPreview(context, undefined, element.titleTextColor)
     if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
   }
 
   if (element.toolTip !== undefined) {
-    const toolTip = exportI8nTextToPreview(context, element.toolTip)
+    const toolTip = exportI8nTextToPreview(context, undefined, element.toolTip)
     if (toolTip !== undefined) result.ToolTip = toolTip
   }
 
@@ -148,12 +177,22 @@ export const exportUsualGroupToPreview = (
   if (element.united !== undefined) result.United = element.united
 
   if (element.verticalAlignInGroup !== undefined) {
-    const verticalAlign = exportSystemEnumerationToPreview(context, element.verticalAlignInGroup, "VerticalAlign")
+    const verticalAlign = exportSystemEnumerationToPreview(
+      context,
+      undefined,
+      element.verticalAlignInGroup,
+      "VerticalAlign"
+    )
     if (verticalAlign !== undefined) result.VerticalAlign = verticalAlign
   }
 
   if (element.verticalSpacing !== undefined) {
-    const verticalSpacing = exportSystemEnumerationToPreview(context, element.verticalSpacing, "FormItemSpacing")
+    const verticalSpacing = exportSystemEnumerationToPreview(
+      context,
+      undefined,
+      element.verticalSpacing,
+      "FormItemSpacing"
+    )
     if (verticalSpacing !== undefined) result.VerticalSpacing = verticalSpacing
   }
 
@@ -163,7 +202,7 @@ export const exportUsualGroupToPreview = (
 
   if (element.width !== undefined) result.Width = element.width
 
-  result.ChildItems = exportChildItemsToPreview(context, element.childItems)
+  result.ChildItems = exportChildItemsToPreview(context, undefined, element.childItems)
 
   return result
 }

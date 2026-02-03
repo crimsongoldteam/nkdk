@@ -108,6 +108,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -115,6 +116,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -122,6 +124,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const type = importSystemEnumerationFromYAML<SE.FormDecorationType>(
     context,
+    undefined,
     data.Вид,
     SE.FormDecorationTypeFromEnterprise
   )
@@ -134,6 +137,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -151,6 +155,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -183,6 +188,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const groupVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеВыравниваниеГруппы,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -190,6 +196,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -202,6 +209,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )

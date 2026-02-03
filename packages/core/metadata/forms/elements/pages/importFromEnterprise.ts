@@ -17,8 +17,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
   context: ConfigurationContext,
@@ -75,12 +75,18 @@ const importPagesPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormGroupTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -90,6 +96,7 @@ const importPagesPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -100,6 +107,7 @@ const importPagesPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -135,6 +143,7 @@ const importPagesPropsFromEnterprise = (
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
     context,
+    undefined,
     data.ИспользованиеТекущейСтроки,
     SE.CurrentRowUseFromEnterprise
   )
@@ -142,6 +151,7 @@ const importPagesPropsFromEnterprise = (
 
   const pagesRepresentation = importSystemEnumerationFromYAML<SE.FormPagesRepresentation>(
     context,
+    undefined,
     data.ОтображениеСтраниц,
     SE.FormPagesRepresentationFromEnterprise
   )
@@ -159,6 +169,7 @@ const importPagesPropsFromEnterprise = (
 
   const currentPagesState = importSystemEnumerationFromYAML<SE.FormPagesState>(
     context,
+    undefined,
     data.ТекущееСостояниеСтраниц,
     SE.FormPagesStateFromEnterprise
   )

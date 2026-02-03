@@ -92,7 +92,6 @@ function exportTrackBarFieldPropsToEnterprise(
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -193,7 +192,6 @@ function exportTrackBarFieldPropsToEnterprise(
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -235,7 +233,6 @@ function exportTrackBarFieldPropsToEnterprise(
 
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise
@@ -280,7 +277,6 @@ function exportTrackBarFieldPropsToEnterprise(
 
   const orientation = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.orientation,
     SE.FormItemOrientationToEnterprise

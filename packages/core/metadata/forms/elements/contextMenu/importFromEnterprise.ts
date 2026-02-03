@@ -19,6 +19,7 @@ export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise 
 
   const displayImportance = importSystemEnumerationFromYAML(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )

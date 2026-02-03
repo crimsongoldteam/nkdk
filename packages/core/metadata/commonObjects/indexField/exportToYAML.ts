@@ -19,5 +19,5 @@ export const exportIndexFieldsToYAML = (
 ): IndexFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportIndexFieldToYAML(context, undefined, _rule, item)!)
+  return data.map((item) => exportIndexFieldToYAML(context, _rule, item)!)
 }

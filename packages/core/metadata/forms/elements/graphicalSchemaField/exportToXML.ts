@@ -13,8 +13,8 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportGraphicalSchemaFieldToXML<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
@@ -88,7 +88,7 @@ export function exportGraphicalSchemaFieldToXML<From extends GraphicalSchemaFiel
   const table = exportMetadataSimpleValueToXML(context, undefined, data.table, "string")
   if (table !== undefined) result.AssociatedTableElementId = table
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
   const titleBackColor = exportColorToXML(context, undefined, data.titleBackColor)

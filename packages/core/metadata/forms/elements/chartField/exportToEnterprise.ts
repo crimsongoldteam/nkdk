@@ -100,7 +100,6 @@ const exportChartFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -201,7 +200,6 @@ const exportChartFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -235,7 +233,6 @@ const exportChartFieldPropsToEnterprise = (
 
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise

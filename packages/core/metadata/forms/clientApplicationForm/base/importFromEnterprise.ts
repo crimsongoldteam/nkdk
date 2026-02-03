@@ -72,6 +72,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const autoSaveDataInSettings = importSystemEnumerationFromYAML<SE.AutoSaveFormDataInSettings>(
     context,
+    undefined,
     data.АвтоматическоеСохранениеДанныхВНастройках,
     SE.AutoSaveFormDataInSettingsFromEnterprise
   )
@@ -82,6 +83,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const verticalScroll = importSystemEnumerationFromYAML<SE.VerticalFormScroll>(
     context,
+    undefined,
     data.ВертикальнаяПрокрутка,
     SE.VerticalFormScrollFromEnterprise
   )
@@ -89,6 +91,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const childItemsVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеПодчиненных,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -96,6 +99,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const verticalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
     context,
+    undefined,
     data.ВертикальныйИнтервал,
     SE.FormItemSpacingFromEnterprise
   )
@@ -103,6 +107,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const itemsAndTitlesAlign = importSystemEnumerationFromYAML<SE.ItemsAndTitlesAlignVariant>(
     context,
+    undefined,
     data.ВыравниваниеЭлементовИЗаголовков,
     SE.ItemsAndTitlesAlignVariantFromEnterprise
   )
@@ -112,6 +117,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const childItemsHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеПодчиненных,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -119,6 +125,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const horizontalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
     context,
+    undefined,
     data.ГоризонтальныйИнтервал,
     SE.FormItemSpacingFromEnterprise
   )
@@ -126,6 +133,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const group = importSystemEnumerationFromYAML<SE.ChildFormItemsGroup>(
     context,
+    undefined,
     data.Группировка,
     SE.ChildFormItemsGroupFromEnterprise
   )
@@ -148,6 +156,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const usedFormServer = importSystemEnumerationFromYAML<SE.UsedServer>(
     context,
+    undefined,
     data.ИспользуемыйСерверФормы,
     SE.UsedServerFromEnterprise
   )
@@ -183,6 +192,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const conversationsRepresentation = importSystemEnumerationFromYAML<SE.FormConversationsRepresentation>(
     context,
+    undefined,
     data.ОтображениеОбсуждений,
     SE.FormConversationsRepresentationFromEnterprise
   )
@@ -190,6 +200,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const enterKeyBehavior = importSystemEnumerationFromYAML<SE.EnterKeyBehaviorType>(
     context,
+    undefined,
     data.ПоведениеКлавишиEnter,
     SE.EnterKeyBehaviorTypeFromEnterprise
   )
@@ -197,6 +208,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const commandBarLocation = importSystemEnumerationFromYAML<SE.FormCommandBarLabelLocation>(
     context,
+    undefined,
     data.ПоложениеКоманднойПанели,
     SE.FormCommandBarLabelLocationFromEnterprise
   )
@@ -207,6 +219,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const formWindowOpeningMode = importSystemEnumerationFromYAML<SE.FormWindowOpeningMode>(
     context,
+    undefined,
     data.РежимОткрытияОкнаФормы,
     SE.FormWindowOpeningModeFromEnterprise
   )
@@ -214,6 +227,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const collapseItemsByImportance = importSystemEnumerationFromYAML<SE.CollapseFormItemsByImportance>(
     context,
+    undefined,
     data.СворачиваниеЭлементовПоВажности,
     SE.CollapseFormItemsByImportanceFromEnterprise
   )
@@ -221,6 +235,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const saveDataInSettings = importSystemEnumerationFromYAML<SE.SaveFormDataInSettings>(
     context,
+    undefined,
     data.СохранениеДанныхВНастройках,
     SE.SaveFormDataInSettingsFromEnterprise
   )
@@ -228,6 +243,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const savedInSettingsDataModified = importBooleanFromEnterprise(
     context,
+    undefined,
     data.СохраняемыеВНастройкахДанныеМодифицированы
   )
   if (savedInSettingsDataModified !== undefined) result.savedInSettingsDataModified = savedInSettingsDataModified
@@ -239,6 +255,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   const slaveItemsWidth = importSystemEnumerationFromYAML<SE.ChildFormItemsWidth>(
     context,
+    undefined,
     data.ШиринаПодчиненныхЭлементов,
     SE.ChildFormItemsWidthFromEnterprise
   )
@@ -267,7 +284,7 @@ export const importClientApplicationFormFromEnterprise = (
   const usePurposes = importUsePurposesFromEnterprise(context, undefined, data.НазначенияИспользования)
   if (usePurposes !== undefined) result.usePurposes = usePurposes
 
-  result.childItems = importChildItemsPartialFromEnterprise(itemsContext, structure.childItems)
+  result.childItems = importChildItemsPartialFromEnterprise(itemsContext, undefined, structure.childItems)
 
   return result
 }

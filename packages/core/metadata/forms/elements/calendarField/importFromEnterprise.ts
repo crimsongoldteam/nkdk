@@ -84,6 +84,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -91,6 +92,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -106,6 +108,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -119,6 +122,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -126,6 +130,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
+    undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
   )
@@ -136,6 +141,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -220,6 +226,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const selectionMode = importSystemEnumerationFromYAML<SE.DateSelectionMode>(
     context,
+    undefined,
     data.РежимВыделения,
     SE.DateSelectionModeFromEnterprise
   )
@@ -237,6 +244,7 @@ const importCalendarFieldPropsFromEnterprise = (
 
   const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
     context,
+    undefined,
     data.ПоведениеПриНедоступностиОсновногоСервера,
     SE.OnMainServerUnavalableBehaviorFromEnterprise
   )

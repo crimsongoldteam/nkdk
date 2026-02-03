@@ -19,7 +19,6 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
       const result = importGeographicalSchemaFieldTypedFromEnterprise(
         mockContext,
         mockRule,
-        mockRule,
         undefined,
         "ПолеГеографическойСхемы"
       )

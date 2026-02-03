@@ -15,10 +15,10 @@ import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metada
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { isHasContent } from "./helper"
-import { PropertyRule } from "../calendarField/rules"
 
 export const importSearchControlAdditionPartialFromEnterprise = <To extends SearchControlAddition>(
   context: ConfigurationContext,
@@ -67,6 +67,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -74,6 +75,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -84,6 +86,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -97,6 +100,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )

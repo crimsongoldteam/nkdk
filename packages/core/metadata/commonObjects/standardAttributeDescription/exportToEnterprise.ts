@@ -89,7 +89,6 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const fullTextSearch = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.fullTextSearch,
     SE.UseFullTextSearchToEnterprise
   )
@@ -123,7 +122,6 @@ const exportStandardAttributeDescriptionToEnterprise = (
 
   const createOnInput = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.createOnInput,
     SE.CreateOnInputToEnterprise

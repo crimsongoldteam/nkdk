@@ -78,7 +78,6 @@ export const exportTableToEnterprise = (
   const verticalScrollBar = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalScrollBar,
     SE.ScrollBarUseToEnterprise
   )
@@ -153,7 +152,6 @@ export const exportTableToEnterprise = (
   const currentRowUse = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.currentRowUse,
     SE.TableCurrentRowUseToEnterprise
   )
@@ -180,7 +178,6 @@ export const exportTableToEnterprise = (
   const initialTreeView = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.initialTreeView,
     SE.InitialTreeViewToEnterprise
   )
@@ -188,7 +185,6 @@ export const exportTableToEnterprise = (
 
   const initialListView = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.initialListView,
     SE.InitialListViewToEnterprise
@@ -200,7 +196,6 @@ export const exportTableToEnterprise = (
 
   const representation = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.representation,
     SE.TableRepresentationToEnterprise
@@ -246,7 +241,6 @@ export const exportTableToEnterprise = (
   const searchOnInput = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.searchOnInput,
     SE.SearchInTableOnInputToEnterprise
   )
@@ -254,7 +248,6 @@ export const exportTableToEnterprise = (
 
   const titleLocation = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
@@ -326,7 +319,6 @@ export const exportTableToEnterprise = (
   const rowInputMode = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.rowInputMode,
     SE.TableRowInputModeToEnterprise
   )
@@ -337,7 +329,6 @@ export const exportTableToEnterprise = (
 
   const selectionMode = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.selectionMode,
     SE.TableSelectionModeToEnterprise

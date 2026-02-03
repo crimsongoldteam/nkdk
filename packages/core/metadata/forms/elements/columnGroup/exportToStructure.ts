@@ -6,6 +6,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { ColumnGroup } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 const HASH = t.Hash.LABEL as string
 

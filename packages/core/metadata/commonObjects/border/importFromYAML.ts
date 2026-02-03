@@ -23,6 +23,7 @@ export const importBorderFromYAML = (
 
   const controlBorderType = importSystemEnumerationFromYAML<SE.ControlBorderType>(
     context,
+    undefined,
     data.ТипРамки,
     SE.ControlBorderTypeFromEnterprise
   )

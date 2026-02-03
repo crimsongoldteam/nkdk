@@ -13,7 +13,7 @@ describe("exportLabelFieldToPreview", () => {
       },
     }
 
-    const result = exportLabelFieldToPreview(context, fullLabelField)
+    const result = exportLabelFieldToPreview(context, undefined, fullLabelField)
 
     expect(result).toEqual(fullLabelFieldPreview)
   })

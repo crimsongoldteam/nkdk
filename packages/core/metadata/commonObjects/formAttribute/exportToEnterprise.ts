@@ -19,6 +19,7 @@ import {
   UserVisibleKeysEnterprise,
 } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
@@ -26,7 +27,6 @@ import { DynamicList } from "../dynamicList/types"
 import { exportFieldsListToEnterprise } from "../fieldsList/exportToEnterprise"
 import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,
@@ -47,8 +47,8 @@ const exportFormAttributeToEnterprise = (
 ): FormAttributeEnterprise | TypeDescriptionEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, undefined, data.valueType)
 
-  const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
-  const title = computeTitleForExport(context, data, filteredTitle)
+  const filteredTitle = data.title ? extractDifferentSynonymPart(context, undefined, data.title, data.name) : undefined
+  const title = computeTitleForExport(context, undefined, data, filteredTitle)
 
   if (canUseShortFormat(data, title)) {
     return type!
@@ -68,6 +68,7 @@ const exportFormAttributeToEnterprise = (
 
   const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
     context,
+    undefined,
     data.fillCheck,
     FillCheckingToEnterprise
   )

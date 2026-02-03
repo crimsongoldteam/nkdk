@@ -33,6 +33,7 @@ export const importAutoCommandBarFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML(
     context,
+    undefined,
     enterprise.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -40,6 +41,7 @@ export const importAutoCommandBarFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML(
     context,
+    undefined,
     enterprise.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )

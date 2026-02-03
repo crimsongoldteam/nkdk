@@ -5,5 +5,5 @@ import { FormattedI8nText } from "./types"
 export const isEmptyFormattedI8nText = (context: ConfigurationContext, data: FormattedI8nText): boolean => {
   if (data.formatted) return false
 
-  return isEmptyI8nText(context, data)
+  return isEmptyI8nText(context, undefined, data)
 }

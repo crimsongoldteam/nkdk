@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FunctionalOptions, FunctionalOptionsXML } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importFunctionalOptionsFromXML = (
   _context: ConfigurationContext,

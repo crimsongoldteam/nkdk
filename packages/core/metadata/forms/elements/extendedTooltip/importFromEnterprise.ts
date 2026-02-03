@@ -27,6 +27,7 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -34,6 +35,7 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -41,6 +43,7 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
 
   const type = importSystemEnumerationFromYAML<SE.FormDecorationType>(
     context,
+    undefined,
     data.Вид,
     SE.FormDecorationTypeFromEnterprise
   )
@@ -53,6 +56,7 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -70,6 +74,7 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )

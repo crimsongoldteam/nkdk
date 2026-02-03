@@ -19,5 +19,5 @@ export const _importIndexFieldsFromXML = (
 ): IndexFields | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value) => _importIndexFieldFromXML(context, undefined, _rule, value)!)
+  return xml.map((value) => _importIndexFieldFromXML(context, _rule, value)!)
 }

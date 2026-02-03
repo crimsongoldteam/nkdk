@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "../../../tests/mockContext"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportUserVisibleToEnterprise } from "./exportToEnterprise"
 import { UserVisible, UserVisibleKeysEnterprise } from "./types"
 

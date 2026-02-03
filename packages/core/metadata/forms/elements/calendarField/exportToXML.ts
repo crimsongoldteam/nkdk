@@ -48,7 +48,7 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
   const titleFont = exportFontToXML(context, undefined, data.titleFont)

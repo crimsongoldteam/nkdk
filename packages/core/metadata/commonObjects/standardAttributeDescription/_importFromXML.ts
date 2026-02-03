@@ -31,7 +31,7 @@ export const _importStandardAttributeDescriptionsFromXML = (
   const result: StandardAttributeDescriptions = []
 
   for (const value of items) {
-    const item = importStandardAttributeDescriptionFromXML(context, undefined, rule, value)
+    const item = importStandardAttributeDescriptionFromXML(context, rule, value)
     if (item) {
       result.push(item)
     }

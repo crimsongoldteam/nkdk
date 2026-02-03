@@ -2,11 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { exportAutoCommandBarToStructure } from "../../elements/autoCommandBar/exportToStructure"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToStructure = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   element: ClientApplicationForm
 ): IFormatElementResult => {
   const childItems = element.childItems ?? []
@@ -15,10 +16,10 @@ export const exportClientApplicationFormToStructure = (
     haveSimpleHorizontalGroup: false,
   }
 
-  const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToStructure(context, rule, element.autoCommandBar)
   result.strings.push(...autoCommandBar.strings)
 
-  const itemsResult = exportChildItemsToStructure(context, childItems)
+  const itemsResult = exportChildItemsToStructure(context, rule, childItems)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 

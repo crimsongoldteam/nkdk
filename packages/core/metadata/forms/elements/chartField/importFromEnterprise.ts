@@ -25,8 +25,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export function importChartFieldTypedFromEnterprise<To extends ChartField | undefined>(
   context: ConfigurationContext,
@@ -87,6 +87,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -94,6 +95,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -101,12 +103,18 @@ const importChartFieldPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormFieldTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -119,6 +127,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -126,6 +135,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -133,6 +143,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -140,6 +151,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -168,6 +180,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -175,6 +188,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
+    undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
   )
@@ -185,6 +199,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -215,6 +230,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
     context,
+    undefined,
     data.РежимРедактирования,
     SE.ColumnEditModeFromEnterprise
   )
@@ -232,6 +248,7 @@ const importChartFieldPropsFromEnterprise = (
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
+    undefined,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
   )

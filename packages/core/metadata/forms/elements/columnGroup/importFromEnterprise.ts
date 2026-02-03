@@ -23,8 +23,8 @@ import {
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -80,12 +80,18 @@ const importColumnGroupPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormGroupTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -95,6 +101,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -105,6 +112,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -140,6 +148,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -147,6 +156,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   const group = importSystemEnumerationFromYAML<SE.ColumnsGroup>(
     context,
+    undefined,
     data.Группировка,
     SE.ColumnsGroupFromEnterprise
   )
@@ -175,6 +185,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
+    undefined,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
   )

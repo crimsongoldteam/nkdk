@@ -25,7 +25,7 @@ export const _importMetadataFieldsFromXML = (
 
   const items = Array.isArray(fields) ? fields : [fields]
 
-  const result = items.map((value) => _importMetadataFieldFromXML(context, undefined, _rule, value)!)
+  const result = items.map((value) => _importMetadataFieldFromXML(context, _rule, value)!)
 
   return result
 }

@@ -29,6 +29,7 @@ export const exportMetadataValueToXML = (
   if (data.type === "formChoiceListDesTimeValue") {
     return exportFormChoiceListValueToXML(
       context,
+      undefined,
       data as Extract<MetadataValue, { type: "formChoiceListDesTimeValue" }>
     )
   }
@@ -59,7 +60,7 @@ export const exportMetadataSimpleValueToXML = (
     value,
   } as MetadataSimpleValue
 
-  return exportMetadataValueToXML(_context, data) as MetadataSimpleValueXML
+  return exportMetadataValueToXML(_context, undefined, data) as MetadataSimpleValueXML
 }
 
 const exportFixedArrayValueToXML = (

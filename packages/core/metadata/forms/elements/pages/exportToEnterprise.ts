@@ -134,7 +134,6 @@ const exportPagesPropsToEnterprise = (
   const currentRowUse = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.currentRowUse,
     SE.CurrentRowUseToEnterprise
   )

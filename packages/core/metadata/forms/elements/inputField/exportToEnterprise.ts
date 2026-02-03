@@ -97,7 +97,6 @@ const exportInputFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -198,7 +197,6 @@ const exportInputFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -240,7 +238,6 @@ const exportInputFieldPropsToEnterprise = (
 
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise
@@ -399,7 +396,6 @@ const exportInputFieldPropsToEnterprise = (
   const editTextUpdate = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.editTextUpdate,
     SE.EditTextUpdateToEnterprise
   )
@@ -410,6 +406,7 @@ const exportInputFieldPropsToEnterprise = (
 
   const showCheckBoxesInDropListWhenInputMultipleValues = exportBooleanToEnterprise(
     context,
+    undefined,
     data.showCheckBoxesInDropListWhenInputMultipleValues
   )
   if (showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
@@ -429,7 +426,6 @@ const exportInputFieldPropsToEnterprise = (
 
   const autoFillHint = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.autoFillHint,
     SE.InputFieldAutofillHintToEnterprise

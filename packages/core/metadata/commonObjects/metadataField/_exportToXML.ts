@@ -22,6 +22,6 @@ export const _exportMetadataFieldsToXML = (
   const items = Array.isArray(data) ? data : [data]
 
   return {
-    "xr:Field": items.map((value) => _exportMetadataFieldToXML(context, undefined, _rule, value)!),
+    "xr:Field": items.map((value) => _exportMetadataFieldToXML(context, _rule, value)!),
   }
 }

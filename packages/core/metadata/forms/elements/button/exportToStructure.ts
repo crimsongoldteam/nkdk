@@ -4,6 +4,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
+import { PropertyRule } from "../calendarField/rules"
 import { Button } from "./types"
 
 export function exportButtonToStructure(
@@ -30,7 +31,7 @@ export function exportButtonContentToStructure(
   }
 }
 
-const formatContent = (context: ConfigurationContext, _rule: PropertyRule | undefined, element: Button): string => {
+const formatContent = (context: ConfigurationContext, element: Button): string => {
   return formatElementTitleAndName(context, element)
 }
 

@@ -8,12 +8,12 @@ import {
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataTabularSectionFromEnterprise = (
   context: ConfigurationContext,
@@ -36,6 +36,7 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
+    undefined,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
   )
@@ -45,6 +46,7 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
     context,
+    undefined,
     data.Использование,
     SE.AttributeUseFromEnterprise
   )

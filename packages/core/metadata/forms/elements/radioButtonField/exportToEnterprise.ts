@@ -91,7 +91,6 @@ const exportRadioButtonFieldPropsToEnterprise = (
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -192,7 +191,6 @@ const exportRadioButtonFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -235,7 +233,6 @@ const exportRadioButtonFieldPropsToEnterprise = (
   const fixingInTable = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.fixingInTable,
     SE.FixingInTableToEnterprise
   )
@@ -261,7 +258,6 @@ const exportRadioButtonFieldPropsToEnterprise = (
 
   const radioButtonType = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.radioButtonType,
     SE.RadioButtonTypeToEnterprise

@@ -10,7 +10,7 @@ export const exportTypeLinkToYAML = (
 ): TypeLinkEnterprise | undefined => {
   if (!data) return undefined
 
-  const dataPathEnterprise = exportMetadataFieldToYAML(context, undefined, _rule, data.dataPath)
+  const dataPathEnterprise = exportMetadataFieldToYAML(context, _rule, data.dataPath)
   if (!dataPathEnterprise) return undefined
 
   // Добавляем linkItem в скобках, если он не равен 0

@@ -14,6 +14,11 @@ export const exportBorderToYAML = (
   return {
     Имя: data.ref,
     Ширина: data.width,
-    ТипРамки: exportSystemEnumerationToYAML(_context, data.controlBorderType, SE.ControlBorderTypeToEnterprise),
+    ТипРамки: exportSystemEnumerationToYAML(
+      _context,
+      undefined,
+      data.controlBorderType,
+      SE.ControlBorderTypeToEnterprise
+    ),
   }
 }

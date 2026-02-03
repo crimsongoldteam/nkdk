@@ -52,7 +52,6 @@ export const exportFontToYAML = (
 
 const convertRefToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   ref: SE.StyleFonts | SE.WindowsFonts | undefined,
   kind: SE.FontType
 ): SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise | undefined => {

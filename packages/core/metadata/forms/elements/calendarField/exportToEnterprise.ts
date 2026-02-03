@@ -149,7 +149,6 @@ const exportCalendarFieldPropsToEnterprise = (
   const titleLocation = exportSystemEnumerationToYAML(
     context,
     undefined,
-    undefined,
     data.titleLocation,
     SE.FormItemTitleLocationToEnterprise
   )
@@ -229,7 +228,6 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const selectionMode = exportSystemEnumerationToYAML(
     context,
-    undefined,
     undefined,
     data.selectionMode,
     SE.DateSelectionModeToEnterprise

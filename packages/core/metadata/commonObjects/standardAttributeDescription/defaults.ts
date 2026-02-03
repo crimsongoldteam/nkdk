@@ -1,4 +1,3 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { StandardAttributeDescription } from "./types"
 
@@ -19,7 +18,6 @@ const defaults = {
 
 export const getDefaults = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   _data: StandardAttributeDescription
 ): Required<Pick<StandardAttributeDescription, keyof typeof defaults>> => {
   return defaults

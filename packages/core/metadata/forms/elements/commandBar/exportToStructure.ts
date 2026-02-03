@@ -5,13 +5,14 @@ import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
 import { formatElementName } from "../../format/helpers"
 import { CommandBar } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportCommandBarToStructure = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   element: CommandBar
 ): IFormatElementResult => {
-  const content = exportCommandBarContentToStructure(context, element)
+  const content = exportCommandBarContentToStructure(context, _rule, element)
   const resultString = `${content} ${formatElementName(element)}`
 
   return {

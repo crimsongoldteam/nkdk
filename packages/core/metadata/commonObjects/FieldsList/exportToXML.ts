@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FieldsList, FieldsListXML } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportFieldsListToXML = (
   _context: ConfigurationContext,

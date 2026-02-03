@@ -9,6 +9,7 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise.ts"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
@@ -18,7 +19,6 @@ import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
 import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
 import { getDefaultsAttribute } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 
 export const importMetadataAttributesFromEnterprise = (
   context: ConfigurationContext,
@@ -65,6 +65,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
     context,
+    undefined,
     data.БыстрыйВыбор,
     SE.UseQuickChoiceFromEnterprise
   )
@@ -72,6 +73,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
+    undefined,
     data.ВыборГруппИЭлементов,
     SE.FoldersAndItemsUseFromEnterprise
   )
@@ -86,11 +88,17 @@ const importMetadataAttributeFromEnterprise = (
   const fillValue = importMetadataValueFromEnterprise(context, undefined, data.ЗначениеЗаполнения)
   if (fillValue !== undefined) result.fillValue = fillValue
 
-  const indexing = importSystemEnumerationFromYAML<SE.Indexing>(context, data.Индексирование, SE.IndexingFromEnterprise)
+  const indexing = importSystemEnumerationFromYAML<SE.Indexing>(
+    context,
+    undefined,
+    data.Индексирование,
+    SE.IndexingFromEnterprise
+  )
   if (indexing !== undefined) result.indexing = indexing
 
   const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
     context,
+    undefined,
     data.Использование,
     SE.AttributeUseFromEnterprise
   )
@@ -98,6 +106,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const binaryDataStorageLocationUse = importSystemEnumerationFromYAML<SE.BinaryDataStorageLocationUse>(
     context,
+    undefined,
     data.ИспользованиеХраненияВХранилищеДвоичныхДанных,
     SE.BinaryDataStorageLocationUseFromEnterprise
   )
@@ -105,6 +114,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
+    undefined,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
   )
@@ -112,6 +122,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
+    undefined,
     data.ИсторияДанных,
     SE.DataHistoryUseFromEnterprise
   )
@@ -136,6 +147,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const binaryDataStorageLocationUseField = importBooleanFromEnterprise(
     context,
+    undefined,
     data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных
   )
   if (binaryDataStorageLocationUseField !== undefined)
@@ -143,6 +155,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
+    undefined,
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
   )
@@ -157,6 +170,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
+    undefined,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
   )
@@ -176,6 +190,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
+    undefined,
     data.СозданиеПриВводе,
     SE.CreateOnInputFromEnterprise
   )

@@ -24,5 +24,5 @@ export const _importPredefinedItemsFromXML = (
 ): PredefinedItems | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => _importPredefinedFromXML(context, undefined, _rule, value)!)
+  return data.map((value) => _importPredefinedFromXML(context, _rule, value)!)
 }

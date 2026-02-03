@@ -23,9 +23,9 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 
 export function importSpreadSheetDocumentFieldTypedFromEnterprise<To extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
@@ -104,6 +104,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -111,6 +112,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -118,12 +120,18 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormFieldTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -136,6 +144,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -143,6 +152,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -150,6 +160,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -157,6 +168,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -185,6 +197,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -192,6 +205,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
     context,
+    undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
   )
@@ -202,6 +216,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -232,6 +247,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
     context,
+    undefined,
     data.РежимРедактирования,
     SE.ColumnEditModeFromEnterprise
   )
@@ -247,6 +263,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
     context,
+    undefined,
     data.ФиксацияВТаблице,
     SE.FixingInTableFromEnterprise
   )
@@ -278,18 +295,25 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const verticalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
     context,
+    undefined,
     data.ВертикальнаяПолосаПрокрутки,
     SE.ScrollBarUseFromEnterprise
   )
   if (verticalScrollBar !== undefined) result.verticalScrollBar = verticalScrollBar
 
-  const output = importSystemEnumerationFromYAML<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
+  const output = importSystemEnumerationFromYAML<SE.UseOutput>(
+    context,
+    undefined,
+    data.Вывод,
+    SE.UseOutputFromEnterprise
+  )
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота
 
   const horizontalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
     context,
+    undefined,
     data.ГоризонтальнаяПолосаПрокрутки,
     SE.ScrollBarUseFromEnterprise
   )
@@ -321,6 +345,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const statePresentation = importSystemEnumerationFromYAML<SE.StatePresentation>(
     context,
+    undefined,
     data.ОтображениеСостояния,
     SE.StatePresentationFromEnterprise
   )
@@ -343,6 +368,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const viewScalingMode = importSystemEnumerationFromYAML<SE.ViewScalingMode>(
     context,
+    undefined,
     data.РежимМасштабированияПросмотра,
     SE.ViewScalingModeFromEnterprise
   )
@@ -350,6 +376,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const selectionShowMode = importSystemEnumerationFromYAML<SE.SelectionShowMode>(
     context,
+    undefined,
     data.РежимОтображенияВыделения,
     SE.SelectionShowModeFromEnterprise
   )
@@ -357,6 +384,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const drawingSelectionShowMode = importSystemEnumerationFromYAML<SE.DrawingSelectionShowMode>(
     context,
+    undefined,
     data.РежимОтображенияВыделенияРисунков,
     SE.DrawingSelectionShowModeFromEnterprise
   )
@@ -364,6 +392,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   const pointerType = importSystemEnumerationFromYAML<SE.SpreadsheetDocumentPointerType>(
     context,
+    undefined,
     data.ТипКурсоров,
     SE.SpreadsheetDocumentPointerTypeFromEnterprise
   )

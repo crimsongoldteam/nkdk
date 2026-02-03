@@ -18,11 +18,11 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { importSingleSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
 import { importSingleSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
 import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -180,6 +180,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -187,6 +188,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const heightControlVariant = importSystemEnumerationFromYAML<SE.TableHeightControlVariant>(
     context,
+    undefined,
     data.ВариантУправленияВысотой,
     SE.TableHeightControlVariantFromEnterprise
   )
@@ -194,6 +196,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const verticalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
     context,
+    undefined,
     data.ВертикальнаяПолосаПрокрутки,
     SE.ScrollBarUseFromEnterprise
   )
@@ -201,6 +204,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -212,7 +216,12 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  const output = importSystemEnumerationFromYAML<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
+  const output = importSystemEnumerationFromYAML<SE.UseOutput>(
+    context,
+    undefined,
+    data.Вывод,
+    SE.UseOutputFromEnterprise
+  )
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -227,6 +236,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const horizontalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
     context,
+    undefined,
     data.ГоризонтальнаяПолосаПрокрутки,
     SE.ScrollBarUseFromEnterprise
   )
@@ -234,6 +244,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -250,6 +261,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const refreshRequest = importSystemEnumerationFromYAML<SE.RefreshRequestMethod>(
     context,
+    undefined,
     data.ЗапросОбновления,
     SE.RefreshRequestMethodFromEnterprise
   )
@@ -263,6 +275,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.TableCurrentRowUse>(
     context,
+    undefined,
     data.ИспользованиеТекущейСтроки,
     SE.TableCurrentRowUseFromEnterprise
   )
@@ -289,6 +302,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const initialTreeView = importSystemEnumerationFromYAML<SE.InitialTreeView>(
     context,
+    undefined,
     data.НачальноеОтображениеДерева,
     SE.InitialTreeViewFromEnterprise
   )
@@ -296,6 +310,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const initialListView = importSystemEnumerationFromYAML<SE.InitialListView>(
     context,
+    undefined,
     data.НачальноеОтображениеСписка,
     SE.InitialListViewFromEnterprise
   )
@@ -306,6 +321,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const representation = importSystemEnumerationFromYAML<SE.TableRepresentation>(
     context,
+    undefined,
     data.Отображение,
     SE.TableRepresentationFromEnterprise
   )
@@ -313,6 +329,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -334,6 +351,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const behaviorOnHorizontalCompression = importSystemEnumerationFromYAML<SE.TableBehaviorOnHorizontalCompression>(
     context,
+    undefined,
     data.ПоведениеПриСжатииПоГоризонтали,
     SE.TableBehaviorOnHorizontalCompressionFromEnterprise
   )
@@ -350,6 +368,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const searchOnInput = importSystemEnumerationFromYAML<SE.SearchInTableOnInput>(
     context,
+    undefined,
     data.ПоискПриВводе,
     SE.SearchInTableOnInputFromEnterprise
   )
@@ -357,6 +376,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -364,6 +384,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const commandBarLocation = importSystemEnumerationFromYAML<SE.FormItemCommandBarLabelLocation>(
     context,
+    undefined,
     data.ПоложениеКоманднойПанели,
     SE.FormItemCommandBarLabelLocationFromEnterprise
   )
@@ -371,6 +392,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const viewStatusLocation = importSystemEnumerationFromYAML<SE.ViewStatusLocation>(
     context,
+    undefined,
     data.ПоложениеСостоянияПросмотра,
     SE.ViewStatusLocationFromEnterprise
   )
@@ -378,6 +400,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const searchStringLocation = importSystemEnumerationFromYAML<SE.SearchStringLocation>(
     context,
+    undefined,
     data.ПоложениеСтрокиПоиска,
     SE.SearchStringLocationFromEnterprise
   )
@@ -385,6 +408,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const searchControlLocation = importSystemEnumerationFromYAML<SE.SearchControlLocation>(
     context,
+    undefined,
     data.ПоложениеУправленияПоиском,
     SE.SearchControlLocationFromEnterprise
   )
@@ -424,6 +448,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const rowInputMode = importSystemEnumerationFromYAML<SE.TableRowInputMode>(
     context,
+    undefined,
     data.РежимВводаСтрок,
     SE.TableRowInputModeFromEnterprise
   )
@@ -434,6 +459,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const selectionMode = importSystemEnumerationFromYAML<SE.TableSelectionMode>(
     context,
+    undefined,
     data.РежимВыделения,
     SE.TableSelectionModeFromEnterprise
   )
@@ -441,6 +467,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const rowSelectionMode = importSystemEnumerationFromYAML<SE.TableRowSelectionMode>(
     context,
+    undefined,
     data.РежимВыделенияСтроки,
     SE.TableRowSelectionModeFromEnterprise
   )
@@ -450,6 +477,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const fileDragMode = importSystemEnumerationFromYAML<SE.FileDragMode>(
     context,
+    undefined,
     data.СпособПеретаскиванияФайлов,
     SE.FileDragModeFromEnterprise
   )
@@ -498,6 +526,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
+    undefined,
     data.ВыборГруппИЭлементов,
     SE.FoldersAndItemsUseFromEnterprise
   )
@@ -512,6 +541,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const updateOnDataChange = importSystemEnumerationFromYAML<SE.UpdateOnDataChange>(
     context,
+    undefined,
     data.ОбновлениеПриИзмененииДанных,
     SE.UpdateOnDataChangeFromEnterprise
   )
@@ -527,6 +557,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   const allowGettingCurrentRowURL = importBooleanFromEnterprise(
     context,
+    undefined,
     data.РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки
   )
   if (allowGettingCurrentRowURL !== undefined) result.allowGettingCurrentRowURL = allowGettingCurrentRowURL

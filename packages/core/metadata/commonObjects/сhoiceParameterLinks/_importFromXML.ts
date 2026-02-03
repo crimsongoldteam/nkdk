@@ -30,7 +30,6 @@ export const _importChoiceParameterLinksFromXML = (
 
 const extractDataPath = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   dataPath: MetadataSimpleValueXML | string | undefined
 ): string | undefined => {
   if (!dataPath) return undefined

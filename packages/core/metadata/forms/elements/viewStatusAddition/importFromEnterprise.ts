@@ -7,9 +7,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 
 export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAdditionEnterprise | undefined>(
   context: ConfigurationContext,
@@ -25,6 +25,7 @@ export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAd
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -63,6 +64,7 @@ export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAd
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -76,6 +78,7 @@ export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAd
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )

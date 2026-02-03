@@ -77,6 +77,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -96,6 +97,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -106,6 +108,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -138,6 +141,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -145,6 +149,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const childItemsVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеПодчиненных,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -152,6 +157,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const verticalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
     context,
+    undefined,
     data.ВертикальныйИнтервал,
     SE.FormItemSpacingFromEnterprise
   )
@@ -159,6 +165,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const itemsAndTitlesAlign = importSystemEnumerationFromYAML<SE.ItemsAndTitlesAlignVariant>(
     context,
+    undefined,
     data.ВыравниваниеЭлементовИЗаголовков,
     SE.ItemsAndTitlesAlignVariantFromEnterprise
   )
@@ -166,6 +173,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const childItemsHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеПодчиненных,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -173,6 +181,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const horizontalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
     context,
+    undefined,
     data.ГоризонтальныйИнтервал,
     SE.FormItemSpacingFromEnterprise
   )
@@ -180,6 +189,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const group = importSystemEnumerationFromYAML<SE.ChildFormItemsGroup>(
     context,
+    undefined,
     data.Группировка,
     SE.ChildFormItemsGroupFromEnterprise
   )
@@ -194,6 +204,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
     context,
+    undefined,
     data.ИспользованиеТекущейСтроки,
     SE.CurrentRowUseFromEnterprise
   )
@@ -212,6 +223,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const representation = importSystemEnumerationFromYAML<SE.UsualGroupRepresentation>(
     context,
+    undefined,
     data.Отображение,
     SE.UsualGroupRepresentationFromEnterprise
   )
@@ -219,6 +231,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const controlRepresentation = importSystemEnumerationFromYAML<SE.UsualGroupControlRepresentation>(
     context,
+    undefined,
     data.ОтображениеУправления,
     SE.UsualGroupControlRepresentationFromEnterprise
   )
@@ -226,6 +239,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const behavior = importSystemEnumerationFromYAML<SE.UsualGroupBehavior>(
     context,
+    undefined,
     data.Поведение,
     SE.UsualGroupBehaviorFromEnterprise
   )
@@ -245,6 +259,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const throughAlign = importSystemEnumerationFromYAML<SE.ThroughAlign>(
     context,
+    undefined,
     data.СквозноеВыравнивание,
     SE.ThroughAlignFromEnterprise
   )
@@ -258,6 +273,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   const hiddenRepresentationTitleBackColor = importColorFromEnterprise(
     context,
+    undefined,
     data.ЦветФонаЗаголовкаСкрытогоОтображения
   )
   if (hiddenRepresentationTitleBackColor !== undefined)

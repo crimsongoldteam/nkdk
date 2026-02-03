@@ -10,13 +10,13 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metadataRef/importFromEnterprise"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataCommandFromEnterprise = (
   context: ConfigurationContext,
@@ -29,7 +29,7 @@ export const importMetadataCommandFromEnterprise = (
   if (typeof data === "string") {
     let group: SE.StandardCommandsGroup | string
     if (data in SE.StandardCommandsGroupFromEnterprise) {
-      group = importSystemEnumerationFromYAML(context, data, SE.StandardCommandsGroupFromEnterprise)!
+      group = importSystemEnumerationFromYAML(context, undefined, data, SE.StandardCommandsGroupFromEnterprise)!
     } else {
       group = importMetadataItemLinkFromEnterprise(context, undefined, data)!
     }
@@ -45,7 +45,12 @@ export const importMetadataCommandFromEnterprise = (
 
   let group: SE.StandardCommandsGroup | string
   if (typeof fullData.Группа === "string" && fullData.Группа in SE.StandardCommandsGroupFromEnterprise) {
-    group = importSystemEnumerationFromYAML(context, fullData.Группа, SE.StandardCommandsGroupFromEnterprise)!
+    group = importSystemEnumerationFromYAML(
+      context,
+      undefined,
+      fullData.Группа,
+      SE.StandardCommandsGroupFromEnterprise
+    )!
   } else {
     group = importMetadataItemLinkFromEnterprise(context, undefined, fullData.Группа)!
   }
@@ -72,6 +77,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
     context,
+    undefined,
     fullData.ПринадлежностьОбъекта,
     SE.ObjectBelongingFromEnterprise
   )
@@ -79,6 +85,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const parameterUseMode = importSystemEnumerationFromYAML<SE.CommandParameterUseMode>(
     context,
+    undefined,
     fullData.РежимИспользованияПараметра,
     SE.CommandParameterUseModeFromEnterprise
   )
@@ -89,6 +96,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
     context,
+    undefined,
     fullData.Отображение,
     SE.ButtonRepresentationFromEnterprise
   )
@@ -101,6 +109,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
     context,
+    undefined,
     fullData.ПоведениеПриНедоступностиОсновногоСервера,
     SE.OnMainServerUnavalableBehaviorFromEnterprise
   )

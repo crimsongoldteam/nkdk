@@ -35,12 +35,18 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormGroupTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -50,6 +56,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -60,6 +67,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -97,6 +105,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -104,6 +113,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )

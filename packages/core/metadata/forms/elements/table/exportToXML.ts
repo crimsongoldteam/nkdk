@@ -13,11 +13,11 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSingleSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
-import { PropertyRule } from "../calendarField/rules"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
@@ -57,7 +57,7 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const textColor = exportColorToXML(context, undefined, data.textColor)
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
+  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
 
   const titleFont = exportFontToXML(context, undefined, data.titleFont)
 

@@ -23,9 +23,9 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
 export function importTrackBarFieldTypedFromEnterprise<To extends TrackBarField | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -87,6 +87,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
     context,
+    undefined,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
@@ -94,6 +95,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложение,
     SE.ItemVerticalAlignFromEnterprise
   )
@@ -101,12 +103,18 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
     context,
+    undefined,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
+  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+    context,
+    undefined,
+    data.Вид,
+    SE.FormFieldTypeFromEnterprise
+  )
   if (type !== undefined) result.type = type
 
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
@@ -119,6 +127,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложение,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -126,6 +135,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -133,6 +143,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВПодвале,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -140,6 +151,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
     context,
+    undefined,
     data.ГоризонтальноеПоложениеВШапке,
     SE.ItemHorizontalLocationFromEnterprise
   )
@@ -168,6 +180,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const toolTipRepresentation = importSystemEnumerationFromYAML(
     context,
+    undefined,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
@@ -175,6 +188,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const warningOnEditRepresentation = importSystemEnumerationFromYAML(
     context,
+    undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
     SE.WarningOnEditRepresentationFromEnterprise
   )
@@ -185,6 +199,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const titleLocation = importSystemEnumerationFromYAML(
     context,
+    undefined,
     data.ПоложениеЗаголовка,
     SE.FormItemTitleLocationFromEnterprise
   )
@@ -213,7 +228,12 @@ const importTrackBarFieldPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const editMode = importSystemEnumerationFromYAML(context, data.РежимРедактирования, SE.ColumnEditModeFromEnterprise)
+  const editMode = importSystemEnumerationFromYAML(
+    context,
+    undefined,
+    data.РежимРедактирования,
+    SE.ColumnEditModeFromEnterprise
+  )
   if (editMode !== undefined) result.editMode = editMode
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
@@ -226,7 +246,12 @@ const importTrackBarFieldPropsFromEnterprise = (
   const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const fixingInTable = importSystemEnumerationFromYAML(context, data.ФиксацияВТаблице, SE.FixingInTableFromEnterprise)
+  const fixingInTable = importSystemEnumerationFromYAML(
+    context,
+    undefined,
+    data.ФиксацияВТаблице,
+    SE.FixingInTableFromEnterprise
+  )
   if (fixingInTable !== undefined) result.fixingInTable = fixingInTable
 
   const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
@@ -267,6 +292,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const orientation = importSystemEnumerationFromYAML<SE.FormItemOrientation>(
     context,
+    undefined,
     data.Ориентация,
     SE.FormItemOrientationFromEnterprise
   )
@@ -274,6 +300,7 @@ const importTrackBarFieldPropsFromEnterprise = (
 
   const markingAppearance = importSystemEnumerationFromYAML<SE.TrackBarMarkingAppearance>(
     context,
+    undefined,
     data.ОтображениеРазметки,
     SE.TrackBarMarkingAppearanceFromEnterprise
   )

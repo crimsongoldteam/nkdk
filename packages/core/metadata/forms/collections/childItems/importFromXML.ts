@@ -1,11 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
 
 export const importChildItemsFromXML = <From extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   xml: Record<From["elementType"], ToXMLType<From>>[] | Record<From["elementType"], ToXMLType<From>> | undefined
 ): From[] => {
   if (!xml) return []
@@ -18,6 +19,6 @@ export const importChildItemsFromXML = <From extends AllChildItem>(
     if (!importFunction) throw new Error(`ImportFromXML function not found for element type: ${elementType}`)
 
     const itemResult = (item as Record<string, any>)[elementType]
-    return importFunction(context, itemResult)! as From
+    return importFunction(context, rule, itemResult)! as From
   })
 }

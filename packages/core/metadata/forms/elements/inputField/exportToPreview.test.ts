@@ -13,7 +13,7 @@ describe("exportInputFieldToPreview", () => {
       },
     }
 
-    const result = exportInputFieldToPreview(context, fullInputField)
+    const result = exportInputFieldToPreview(context, undefined, fullInputField)
 
     expect(result).toEqual(fullInputFieldPreview)
   })

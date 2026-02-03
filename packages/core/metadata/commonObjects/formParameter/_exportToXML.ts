@@ -12,7 +12,7 @@ export const _exportFormParametersToXML = (
     return undefined
   }
 
-  const result = parameters.map((parameter) => _exportFormParameterToXML(context, undefined, _rule, parameter))
+  const result = parameters.map((parameter) => _exportFormParameterToXML(context, _rule, parameter))
   return result
 }
 
@@ -23,7 +23,7 @@ const _exportFormParameterToXML = (
 ): FormParameterXML => {
   const result: FormParameterXML = {
     _name: parameter.name,
-    Type: _exportTypeDescriptionToXML(context, undefined, _rule, parameter.type)!,
+    Type: _exportTypeDescriptionToXML(context, _rule, parameter.type)!,
   }
 
   if (parameter.keyParameter !== undefined) {

@@ -21,7 +21,12 @@ export const importColorFromYAML = (
   }
 
   // Проверяем, является ли это стандартным цветом из стиля
-  const styleColor = importSystemEnumerationFromYAML<SE.StyleColors>(_context, data, SE.StyleColorsFromEnterprise)
+  const styleColor = importSystemEnumerationFromYAML<SE.StyleColors>(
+    _context,
+    undefined,
+    data,
+    SE.StyleColorsFromEnterprise
+  )
   if (styleColor) {
     return {
       type: "StyleItem",
@@ -30,7 +35,12 @@ export const importColorFromYAML = (
   }
 
   // Проверяем, является ли это Windows цветом
-  const windowsColor = importSystemEnumerationFromYAML<SE.WindowsColors>(_context, data, SE.WindowsColorsFromEnterprise)
+  const windowsColor = importSystemEnumerationFromYAML<SE.WindowsColors>(
+    _context,
+    undefined,
+    data,
+    SE.WindowsColorsFromEnterprise
+  )
   if (windowsColor) {
     return {
       type: "WindowsColor",
@@ -39,7 +49,7 @@ export const importColorFromYAML = (
   }
 
   // Проверяем, является ли это Web цветом
-  const webColor = importSystemEnumerationFromYAML<SE.WebColors>(_context, data, SE.WebColorsFromEnterprise)
+  const webColor = importSystemEnumerationFromYAML<SE.WebColors>(_context, undefined, data, SE.WebColorsFromEnterprise)
   if (webColor) {
     return {
       type: "WebColor",
