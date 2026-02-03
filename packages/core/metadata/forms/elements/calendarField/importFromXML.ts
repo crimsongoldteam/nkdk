@@ -1,17 +1,10 @@
-import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromXML"
-import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
-import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
-import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { TypeRules } from "~/metadata/commonObjects/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
-import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
-import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { PropertyRule } from "./rules"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { CalendarFieldRules, PropertyRule } from "./rules"
 
 export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
   context: ConfigurationContext,
@@ -25,115 +18,126 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
     ...baseFields,
     elementType: "CalendarField",
   }
+  for ([key, value] of xml) {
+    rule = CalendarFieldRules.properties[key]
+    if (rule === undefined) throw Error("property not found")
 
-  if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
+    const typeRule = TypeRules[rule.type]
+  }
 
-  if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
+  // const result: CalendarField = {
+  //   ...baseFields,
+  //   elementType: "CalendarField",
+  // }
 
-  const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
-  if (contextMenu !== undefined) result.contextMenu = contextMenu
+  // if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
 
-  if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
+  // if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
 
-  if (xml.DefaultItem !== undefined) result.defaultItem = xml.DefaultItem
+  // const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
+  // if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+  // if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
 
-  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+  // if (xml.DefaultItem !== undefined) result.defaultItem = xml.DefaultItem
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
-  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+  // if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
-  if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
+  // if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
+  // const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
+  // if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
+  // if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
-  if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
+  // if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
 
-  const title = importI8nTextFromXML(context, undefined, xml.Title)
-  if (title !== undefined) result.title = title
+  // if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
 
-  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
-  if (titleFont !== undefined) result.titleFont = titleFont
+  // if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
+  // const title = importI8nTextFromXML(context, undefined, xml.Title)
+  // if (title !== undefined) result.title = title
 
-  if (xml.TitleLocation !== undefined) result.titleLocation = xml.TitleLocation
+  // const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
+  // if (titleFont !== undefined) result.titleFont = titleFont
 
-  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
-  if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
+  // if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
 
-  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
-  if (toolTip !== undefined) result.toolTip = toolTip
+  // if (xml.TitleLocation !== undefined) result.titleLocation = xml.TitleLocation
 
-  if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
+  // const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
+  // if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
+  // const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
+  // if (toolTip !== undefined) result.toolTip = toolTip
 
-  if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
+  // if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
-  if (xml.Visible !== undefined) result.visible = xml.Visible
+  // const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
+  // if (userVisible !== undefined) result.userVisible = userVisible
 
-  const warningOnEdit = importI8nTextFromXML(context, undefined, xml.WarningOnEdit)
-  if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
+  // if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
-  if (xml.WarningOnEditRepresentation !== undefined)
-    result.warningOnEditRepresentation = xml.WarningOnEditRepresentation
+  // if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  const events = importEventsFromXML(context, undefined, xml.Events)
-  if (events !== undefined) result.events = events
+  // const warningOnEdit = importI8nTextFromXML(context, undefined, xml.WarningOnEdit)
+  // if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
-  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+  // if (xml.WarningOnEditRepresentation !== undefined)
+  //   result.warningOnEditRepresentation = xml.WarningOnEditRepresentation
 
-  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+  // const events = importEventsFromXML(context, undefined, xml.Events)
+  // if (events !== undefined) result.events = events
 
-  if (xml.BeginOfRepresentationPeriod !== undefined)
-    result.beginOfRepresentationPeriod = xml.BeginOfRepresentationPeriod
+  // if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
 
-  const border = importBorderFromXML(context, undefined, xml.Border)
-  if (border !== undefined) result.border = border
+  // if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
-  if (borderColor !== undefined) result.borderColor = borderColor
+  // if (xml.BeginOfRepresentationPeriod !== undefined)
+  //   result.beginOfRepresentationPeriod = xml.BeginOfRepresentationPeriod
 
-  if (xml.CalendarNavigation !== undefined) result.calendarNavigation = xml.CalendarNavigation
+  // const border = importBorderFromXML(context, undefined, xml.Border)
+  // if (border !== undefined) result.border = border
 
-  if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
+  // const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
+  // if (borderColor !== undefined) result.borderColor = borderColor
 
-  if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
+  // if (xml.CalendarNavigation !== undefined) result.calendarNavigation = xml.CalendarNavigation
 
-  if (xml.EndOfRepresentationPeriod !== undefined) result.endOfRepresentationPeriod = xml.EndOfRepresentationPeriod
+  // if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
 
-  const font = importFontFromXML(context, undefined, xml.Font)
-  if (font !== undefined) result.font = font
+  // if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
 
-  if (xml.OnMainServerUnavalableBehavior !== undefined)
-    result.onMainServerUnavalableBehavior = xml.OnMainServerUnavalableBehavior
+  // if (xml.EndOfRepresentationPeriod !== undefined) result.endOfRepresentationPeriod = xml.EndOfRepresentationPeriod
 
-  if (xml.Height !== undefined) result.height = xml.Height
+  // const font = importFontFromXML(context, undefined, xml.Font)
+  // if (font !== undefined) result.font = font
 
-  if (xml.HeightInMonths !== undefined) result.heightInMonths = xml.HeightInMonths
+  // if (xml.OnMainServerUnavalableBehavior !== undefined)
+  //   result.onMainServerUnavalableBehavior = xml.OnMainServerUnavalableBehavior
 
-  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+  // if (xml.Height !== undefined) result.height = xml.Height
 
-  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+  // if (xml.HeightInMonths !== undefined) result.heightInMonths = xml.HeightInMonths
 
-  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+  // if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 
-  if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode
+  // if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
 
-  if (xml.ShowCurrentDate !== undefined) result.showCurrentDate = xml.ShowCurrentDate
+  // if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
 
-  if (xml.ShowMonthsPanel !== undefined) result.showMonthsPanel = xml.ShowMonthsPanel
+  // if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode
 
-  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+  // if (xml.ShowCurrentDate !== undefined) result.showCurrentDate = xml.ShowCurrentDate
 
-  if (xml.Width !== undefined) result.width = xml.Width
+  // if (xml.ShowMonthsPanel !== undefined) result.showMonthsPanel = xml.ShowMonthsPanel
 
-  if (xml.WidthInMonths !== undefined) result.widthInMonths = xml.WidthInMonths
+  // if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  // if (xml.Width !== undefined) result.width = xml.Width
+
+  // if (xml.WidthInMonths !== undefined) result.widthInMonths = xml.WidthInMonths
 
   return result as To
 }

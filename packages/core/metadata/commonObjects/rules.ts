@@ -78,8 +78,8 @@
 
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
+import { exportBooleanToEnterprise } from "./boolean/exportToEnterprise"
 import { importBooleanFromXML } from "./boolean/importFromXML"
-import { exportBooleanToYAML } from "./boolean/exportToYAML"
 
 export interface TypeRule {
   importFromXML?: (
@@ -97,170 +97,170 @@ export const TypeRules: Record<string, TypeRule[]> = {
   boolean: [
     {
       importFromXML: importBooleanFromXML,
-      importFromYAML: exportBooleanFromYAML,
-      exportToYAML: exportBooleanToYAML,
+      exportToYAML: exportBooleanToEnterprise,
+      importFromYAML: exportBooleanToEnterprise,
     },
   ],
-//   Border: [
-//     {
-//       importFromXML: _importBorderFromXML,
-//       importFromYAML: importBorderFromYAML,
-//       exportToXML: _exportBorderToXML,
-//       exportToYAML: exportBorderToYAML,
-//     },
-//   ],
-//   Color: [
-//     {
-//       importFromXML: _importColorFromXML,
-//       importFromYAML: importColorFromYAML,
-//       exportToXML: _exportColorToXML,
-//       exportToYAML: exportColorToYAML,
-//     },
-//   ],
-//   DynamicList: [
-//     {
-//       exportToXML: _exportDynamicListToXML,
-//       exportToYAML: exportDynamicListToYAML,
-//     },
-//   ],
-//   FieldsList: [
-//     {
-//       importFromXML: _importFieldsListFromXML,
-//       importFromYAML: exportFieldsListFromYAML,
-//       exportToXML: _exportFieldsListToXML,
-//       exportToYAML: exportFieldsListToYAML,
-//     },
-//   ],
-//   Font: [
-//     {
-//       importFromXML: _importFontFromXML,
-//       importFromYAML: importFontFromYAML,
-//       exportToXML: _exportFontToXML,
-//       exportToYAML: exportFontToEnterprise,
-//       exportToPreview: exportFontToPreview,
-//     },
-//   ],
-//   FormattedI8nText: [
-//     {
-//       importFromXML: _importFormattedI8nTextFromXML,
-//       importFromYAML: importFormattedI8nTextFromYAML,
-//       exportToXML: exportFormattedI8nTextToXML,
-//       exportToYAML: exportFormattedI8nTextToYAML,
-//     },
-//   ],
-//   FormParameter: [
-//     {
-//       importFromXML: _importFormParametersFromXML,
-//       importFromYAML: importFormParametersFromYAML,
-//       exportToXML: _exportFormParametersToXML,
-//       exportToYAML: exportFormParametersToYAML,
-//     },
-//   ],
-//   FunctionalOptionsProperty: [
-//     {
-//       importFromXML: _importFunctionalOptionsFromXML,
-//       importFromYAML: importFunctionalOptionsFromYAML,
-//       exportToXML: _exportFunctionalOptionsToXML,
-//       exportToYAML: exportFunctionalOptionsToYAML,
-//     },
-//   ],
-//   I8nText: [
-//     {
-//       importFromXML: _importI8nTextFromXML,
-//       importFromYAML: importI8nTextFromYAML,
-//       exportToXML: _exportI8nTextToXML,
-//       exportToYAML: exportI8nTextToEnterprise,
-//       exportToPreview: exportI8nTextToPreview,
-//     },
-//   ],
-//   IndexField: [
-//     {
-//       importFromXML: _importIndexFieldFromXML,
-//       importFromYAML: importIndexFieldFromYAML,
-//       exportToXML: _exportIndexFieldToXML,
-//       exportToYAML: exportIndexFieldToYAML,
-//     },
-//   ],
-//   MetadataField: [
-//     {
-//       importFromXML: _importMetadataFieldFromXML,
-//       importFromYAML: importMetadataFieldFromYAML,
-//       exportToXML: _exportMetadataFieldToXML,
-//       exportToYAML: exportMetadataFieldToYAML,
-//     },
-//   ],
-//   MetadataValue: [
-//     {
-//       importFromXML: importMetadataValueFromXML,
-//       importFromYAML: importMetadataValueFromYAML,
-//       exportToXML: _exportMetadataValueToXML,
-//       exportToYAML: exportMetadataValueToYAML,
-//     },
-//   ],
-//   MetadataValueCollection: [
-//     {
-//       importFromXML: _importMetadataValueCollectionFromXML,
-//       importFromYAML: importMetadataValueCollectionFromYAML,
-//       exportToXML: _exportMetadataValueCollectionToXML,
-//     },
-//   ],
-//   Picture: [
-//     {
-//       exportToXML: _exportPictureToXML,
-//       exportToYAML: exportPictureToYAML,
-//     },
-//   ],
-//   Predefined: [
-//     {
-//       importFromXML: _importPredefinedFromXML,
-//       importFromYAML: importPredefinedFromYAML,
-//       exportToXML: _exportPredefinedToXML,
-//       exportToYAML: exportPredefinedToYAML,
-//     },
-//   ],
-//   TypeLink: [
-//     {
-//       importFromXML: _importTypeLinkFromXML,
-//       importFromYAML: importTypeLinkFromYAML,
-//       exportToXML: _exportTypeLinkToXML,
-//       exportToYAML: exportTypeLinkToYAML,
-//     },
-//   ],
-//   TypeDescription: [
-//     {
-//       exportToXML: _exportTypeDescriptionToXML,
-//       exportToYAML: exportTypeDescriptionToYAML,
-//     },
-//   ],
-//   UsePurposes: [
-//     {
-//       importFromXML: _importUsePurposesFromXML,
-//       importFromYAML: importUsePurposesFromYAML,
-//       exportToXML: _exportUsePurposesToXML,
-//       exportToYAML: exportUsePurposesToYAML,
-//     },
-//   ],
-//   UserVisible: [
-//     {
-//       importFromXML: _importUserVisibleFromXML,
-//       importFromYAML: importUserVisibleFromYAML,
-//       exportToXML: _exportUserVisibleToXML,
-//       exportToYAML: exportUserVisibleToYAML,
-//     },
-//   ],
-//   ChoiceParameters: [
-//     {
-//       importFromXML: _importChoiceParametersFromXML,
-//       importFromYAML: importChoiceParametersFromYAML,
-//       exportToXML: _exportChoiceParametersToXML,
-//       exportToYAML: exportChoiceParametersToYAML,
-//     },
-//   ],
-//   SystemEnumeration: [
-//     {
-//       importFromYAML: importSystemEnumerationFromYAML,
-//       exportToYAML: exportSystemEnumerationToYAML,
-//       exportToPreview: exportSystemEnumerationToPreview,
-//     },
-//   ],
-// }
+  //   Border: [
+  //     {
+  //       importFromXML: _importBorderFromXML,
+  //       importFromYAML: importBorderFromYAML,
+  //       exportToXML: _exportBorderToXML,
+  //       exportToYAML: exportBorderToYAML,
+  //     },
+  //   ],
+  //   Color: [
+  //     {
+  //       importFromXML: _importColorFromXML,
+  //       importFromYAML: importColorFromYAML,
+  //       exportToXML: _exportColorToXML,
+  //       exportToYAML: exportColorToYAML,
+  //     },
+  //   ],
+  //   DynamicList: [
+  //     {
+  //       exportToXML: _exportDynamicListToXML,
+  //       exportToYAML: exportDynamicListToYAML,
+  //     },
+  //   ],
+  //   FieldsList: [
+  //     {
+  //       importFromXML: _importFieldsListFromXML,
+  //       importFromYAML: exportFieldsListFromYAML,
+  //       exportToXML: _exportFieldsListToXML,
+  //       exportToYAML: exportFieldsListToYAML,
+  //     },
+  //   ],
+  //   Font: [
+  //     {
+  //       importFromXML: _importFontFromXML,
+  //       importFromYAML: importFontFromYAML,
+  //       exportToXML: _exportFontToXML,
+  //       exportToYAML: exportFontToEnterprise,
+  //       exportToPreview: exportFontToPreview,
+  //     },
+  //   ],
+  //   FormattedI8nText: [
+  //     {
+  //       importFromXML: _importFormattedI8nTextFromXML,
+  //       importFromYAML: importFormattedI8nTextFromYAML,
+  //       exportToXML: exportFormattedI8nTextToXML,
+  //       exportToYAML: exportFormattedI8nTextToYAML,
+  //     },
+  //   ],
+  //   FormParameter: [
+  //     {
+  //       importFromXML: _importFormParametersFromXML,
+  //       importFromYAML: importFormParametersFromYAML,
+  //       exportToXML: _exportFormParametersToXML,
+  //       exportToYAML: exportFormParametersToYAML,
+  //     },
+  //   ],
+  //   FunctionalOptionsProperty: [
+  //     {
+  //       importFromXML: _importFunctionalOptionsFromXML,
+  //       importFromYAML: importFunctionalOptionsFromYAML,
+  //       exportToXML: _exportFunctionalOptionsToXML,
+  //       exportToYAML: exportFunctionalOptionsToYAML,
+  //     },
+  //   ],
+  //   I8nText: [
+  //     {
+  //       importFromXML: _importI8nTextFromXML,
+  //       importFromYAML: importI8nTextFromYAML,
+  //       exportToXML: _exportI8nTextToXML,
+  //       exportToYAML: exportI8nTextToEnterprise,
+  //       exportToPreview: exportI8nTextToPreview,
+  //     },
+  //   ],
+  //   IndexField: [
+  //     {
+  //       importFromXML: _importIndexFieldFromXML,
+  //       importFromYAML: importIndexFieldFromYAML,
+  //       exportToXML: _exportIndexFieldToXML,
+  //       exportToYAML: exportIndexFieldToYAML,
+  //     },
+  //   ],
+  //   MetadataField: [
+  //     {
+  //       importFromXML: _importMetadataFieldFromXML,
+  //       importFromYAML: importMetadataFieldFromYAML,
+  //       exportToXML: _exportMetadataFieldToXML,
+  //       exportToYAML: exportMetadataFieldToYAML,
+  //     },
+  //   ],
+  //   MetadataValue: [
+  //     {
+  //       importFromXML: importMetadataValueFromXML,
+  //       importFromYAML: importMetadataValueFromYAML,
+  //       exportToXML: _exportMetadataValueToXML,
+  //       exportToYAML: exportMetadataValueToYAML,
+  //     },
+  //   ],
+  //   MetadataValueCollection: [
+  //     {
+  //       importFromXML: _importMetadataValueCollectionFromXML,
+  //       importFromYAML: importMetadataValueCollectionFromYAML,
+  //       exportToXML: _exportMetadataValueCollectionToXML,
+  //     },
+  //   ],
+  //   Picture: [
+  //     {
+  //       exportToXML: _exportPictureToXML,
+  //       exportToYAML: exportPictureToYAML,
+  //     },
+  //   ],
+  //   Predefined: [
+  //     {
+  //       importFromXML: _importPredefinedFromXML,
+  //       importFromYAML: importPredefinedFromYAML,
+  //       exportToXML: _exportPredefinedToXML,
+  //       exportToYAML: exportPredefinedToYAML,
+  //     },
+  //   ],
+  //   TypeLink: [
+  //     {
+  //       importFromXML: _importTypeLinkFromXML,
+  //       importFromYAML: importTypeLinkFromYAML,
+  //       exportToXML: _exportTypeLinkToXML,
+  //       exportToYAML: exportTypeLinkToYAML,
+  //     },
+  //   ],
+  //   TypeDescription: [
+  //     {
+  //       exportToXML: _exportTypeDescriptionToXML,
+  //       exportToYAML: exportTypeDescriptionToYAML,
+  //     },
+  //   ],
+  //   UsePurposes: [
+  //     {
+  //       importFromXML: _importUsePurposesFromXML,
+  //       importFromYAML: importUsePurposesFromYAML,
+  //       exportToXML: _exportUsePurposesToXML,
+  //       exportToYAML: exportUsePurposesToYAML,
+  //     },
+  //   ],
+  //   UserVisible: [
+  //     {
+  //       importFromXML: _importUserVisibleFromXML,
+  //       importFromYAML: importUserVisibleFromYAML,
+  //       exportToXML: _exportUserVisibleToXML,
+  //       exportToYAML: exportUserVisibleToYAML,
+  //     },
+  //   ],
+  //   ChoiceParameters: [
+  //     {
+  //       importFromXML: _importChoiceParametersFromXML,
+  //       importFromYAML: importChoiceParametersFromYAML,
+  //       exportToXML: _exportChoiceParametersToXML,
+  //       exportToYAML: exportChoiceParametersToYAML,
+  //     },
+  //   ],
+  //   SystemEnumeration: [
+  //     {
+  //       importFromYAML: importSystemEnumerationFromYAML,
+  //       exportToYAML: exportSystemEnumerationToYAML,
+  //       exportToPreview: exportSystemEnumerationToPreview,
+  //     },
+  //   ],
+}
