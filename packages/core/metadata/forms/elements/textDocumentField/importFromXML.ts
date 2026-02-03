@@ -89,7 +89,7 @@ export function importTextDocumentFieldFromXML<To extends TextDocumentField | un
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+  const table = importMetadataValueFromXMLAsPrimitive(context, undefined, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
   const title = importI8nTextFromXML(context, undefined, xml.Title)

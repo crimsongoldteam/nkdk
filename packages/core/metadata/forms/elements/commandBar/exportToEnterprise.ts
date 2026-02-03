@@ -16,7 +16,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 // export const exportCommandBarTypedToEnterprise = <From extends CommandBar | undefined>(
 //   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+//_rule: PropertyRule | undefined,
 //   data: From
 // ): ToTypedEnterpriseType<From> => {
 //   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -65,7 +65,8 @@ const exportCommandBarPropsToEnterprise = (
   }
 
   const verticalAlignInGroup = exportSystemEnumerationToYAML(
-    context, undefined,
+    context,
+    undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
@@ -80,7 +81,8 @@ const exportCommandBarPropsToEnterprise = (
   if (data.height !== undefined) result.Высота = data.height
 
   const horizontalAlignInGroup = exportSystemEnumerationToYAML(
-    context, undefined,
+    context,
+    undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
@@ -90,7 +92,8 @@ const exportCommandBarPropsToEnterprise = (
   if (enabled !== undefined) result.Доступность = enabled
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
-    context, undefined,
+    context,
+    undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
@@ -127,14 +130,16 @@ const exportCommandBarPropsToEnterprise = (
   if (autofill !== undefined) result.Автозаполнение = autofill
 
   const displayImportance = exportSystemEnumerationToYAML(
-    context, undefined,
+    context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
   const horizontalAlign = exportSystemEnumerationToYAML(
-    context, undefined,
+    context,
+    undefined,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )

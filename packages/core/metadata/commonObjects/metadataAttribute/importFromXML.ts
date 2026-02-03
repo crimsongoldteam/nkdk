@@ -10,12 +10,12 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML.ts"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML.ts"
 import { getDefaultsAttribute } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 
 export const importMetadataAttributesFromXML = (
   context: ConfigurationContext,
@@ -96,10 +96,14 @@ const importMetadataAttributeFromXML = (
 
   if (props.Mask !== undefined) result.mask = String(props.Mask)
 
-  const maxValue = importMetadataValueFromXMLAsPrimitive(context, props.MaxValue, "decimal") as number | undefined
+  const maxValue = importMetadataValueFromXMLAsPrimitive(context, undefined, props.MaxValue, "decimal") as
+    | number
+    | undefined
   if (maxValue !== undefined) result.maxValue = maxValue
 
-  const minValue = importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined
+  const minValue = importMetadataValueFromXMLAsPrimitive(context, undefined, props.MinValue, "decimal") as
+    | number
+    | undefined
   if (minValue !== undefined) result.minValue = minValue
 
   const multiLine = importBooleanFromXML(context, undefined, props.MultiLine)

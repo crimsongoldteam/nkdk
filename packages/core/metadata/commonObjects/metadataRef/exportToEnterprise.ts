@@ -20,5 +20,5 @@ export const exportMetadataItemLinksToEnterprise = (
 ): MetadataItemLinksEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataItemLinkToEnterprise(_context, item)!)
+  return data.map((item) => exportMetadataItemLinkToEnterprise(_context, undefined, item)!)
 }

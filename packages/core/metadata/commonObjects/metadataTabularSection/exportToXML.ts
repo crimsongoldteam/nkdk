@@ -29,7 +29,7 @@ export const exportMetadataTabularSectionToXML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
-  const defaults = getDefaults(context, undefined, data)
+  const defaults = getDefaults(context, data)
   const mergedData = mergeIgnoringUndefined(data, defaults)
 
   const parentName = (context.context as { parentName?: string }).parentName ?? ""
@@ -67,7 +67,7 @@ export const exportMetadataTabularSectionToXML = (
 
   const result: MetadataTabularSectionXML = {
     _uuid: getUUID(context),
-    InternalInfo: exportInternalInfoToXML(context, undefined, [
+    InternalInfo: exportInternalInfoToXML(context, [
       { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
       { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
     ]),

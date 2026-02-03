@@ -5,8 +5,8 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
-import { ColumnGroup } from "./types"
 import { PropertyRule } from "../calendarField/rules"
+import { ColumnGroup } from "./types"
 
 const HASH = t.Hash.LABEL as string
 
@@ -25,10 +25,10 @@ export const exportColumnGroupContentToStructure = (
 
 export const exportColumnGroupToStructure = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   element: ColumnGroup
 ): IFormatElementResult => {
-  return exportColumnGroupContentToStructure(_context, element)
+  return exportColumnGroupContentToStructure(_context, rule, element)
 }
 
 registerMetadata(

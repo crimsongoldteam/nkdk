@@ -1,6 +1,6 @@
 import { format } from "date-fns"
-import { Context as VMContext } from "vm"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { exportMetadataValueStringToEnterprise as exportMetadataPathValueToEnterprise } from "../metadataPath/exportToEnterprise"
 import {
@@ -17,7 +17,6 @@ import {
   MetadataValue,
   MetadataValueEnterprise,
 } from "./types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataValueToEnterprise = (
   context: ConfigurationContext,
@@ -32,8 +31,8 @@ export const exportMetadataValueToEnterprise = (
   if (data.type === "decimal") return exportDecimalValueToEnterprise(data)
   if (data.type === "dateTime") return exportDateTimeValueToEnterprise(data)
   if (data.type === "boolean") return exportBooleanValueToEnterprise(context, undefined, data)
-  if (data.type === "ref") return exportRefValueToEnterprise(data)
-  if (data.type === "objectRef") return exportObjectRefValueToEnterprise(data)
+  if (data.type === "ref") return exportRefValueToEnterprise(context, data)
+  if (data.type === "objectRef") return exportObjectRefValueToEnterprise(context, data)
   // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToEnterprise(data)
   throw new Error(`Invalid type ${JSON.stringify(data)}`)
 }
@@ -63,12 +62,15 @@ const exportBooleanValueToEnterprise = (
   return exportBooleanToEnterprise(context, undefined, data.value)!
 }
 
-const exportRefValueToEnterprise = (data: MetadataRefValue): MetadataValueEnterprise => {
-  return exportMedatataRefToEnterprise(data.value)
+const exportRefValueToEnterprise = (context: ConfigurationContext, data: MetadataRefValue): MetadataValueEnterprise => {
+  return exportMedatataRefToEnterprise(context, data.value)
 }
 
-const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): MetadataValueEnterprise => {
-  return exportMedatataRefToEnterprise(data.value)
+const exportObjectRefValueToEnterprise = (
+  context: ConfigurationContext,
+  data: MetadataObjectRefValue
+): MetadataValueEnterprise => {
+  return exportMedatataRefToEnterprise(context, data.value)
 }
 
 const exportFixedArrayValueToEnterprise = (
@@ -110,8 +112,8 @@ export const exportFormChoiceListValueToEnterprise = (
   return `${valueResult}(${presentation})`
 }
 
-export const exportMedatataRefToEnterprise = (value: string): string => {
-  const result = exportMetadataPathValueToEnterprise({} as VMContext, value)
+export const exportMedatataRefToEnterprise = (context: ConfigurationContext, value: string): string => {
+  const result = exportMetadataPathValueToEnterprise(context, undefined, value)
   if (!result) throw new Error(`Invalid type for ref: ${value}`)
   return result
 }

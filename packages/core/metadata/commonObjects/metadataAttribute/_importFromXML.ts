@@ -96,10 +96,14 @@ const importMetadataAttributeFromXML = (
 
   if (props.Mask !== undefined) result.mask = String(props.Mask)
 
-  const maxValue = importMetadataValueFromXMLAsPrimitive(context, props.MaxValue, "decimal") as number | undefined
+  const maxValue = importMetadataValueFromXMLAsPrimitive(context, undefined, props.MaxValue, "decimal") as
+    | number
+    | undefined
   if (maxValue !== undefined) result.maxValue = maxValue
 
-  const minValue = importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined
+  const minValue = importMetadataValueFromXMLAsPrimitive(context, undefined, props.MinValue, "decimal") as
+    | number
+    | undefined
   if (minValue !== undefined) result.minValue = minValue
 
   const multiLine = importBooleanFromXML(context, undefined, props.MultiLine)

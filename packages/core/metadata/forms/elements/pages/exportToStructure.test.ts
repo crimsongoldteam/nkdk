@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToStructure"
-import { mockContext, mockRule, mockRule } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { InputField } from "../inputField/types"
 import { Page } from "../page/types"

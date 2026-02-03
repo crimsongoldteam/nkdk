@@ -35,7 +35,7 @@ const exportStandardAttributeDescriptionToXML = (
   _rule: PropertyRule | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionXML => {
-  const defaults = getDefaults(context, undefined, data)
+  const defaults = getDefaults(context, data)
   const mergedData = { ...defaults, ...data }
 
   const result: StandardAttributeDescriptionXML = {

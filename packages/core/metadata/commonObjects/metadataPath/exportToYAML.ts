@@ -1,16 +1,20 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { Context } from "vm"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { convertPath } from "./helper"
 import { MetadataFieldsRulesToEnterprise, MetadataValuesRulesToEnterprise } from "./types"
 
-export const exportMetadataFieldStringToYAML = (_context: Context, _rule: PropertyRule, name: string): string | undefined => {
+export const exportMetadataFieldStringToYAML = (
+  _context: Context,
+  _rule: PropertyRule | undefined,
+  name: string
+): string | undefined => {
   return convertPath(MetadataFieldsRulesToEnterprise, name)
 }
 
 export const exportMetadataValueStringToYAML = (
   _context: Context,
   _rule: PropertyRule,
-  name: string | undefined
+  name: string | undefined | undefined
 ): string | undefined => {
   if (!name) return undefined
   let processedPath = name

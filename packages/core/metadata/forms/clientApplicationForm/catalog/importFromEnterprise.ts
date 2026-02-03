@@ -41,7 +41,7 @@ export const importCatalogFormFromEnterprise = (
   data: CatalogFormEnterprise,
   structure: ChildItemsStructureResult
 ): CatalogForm => {
-  const result = importClientApplicationFormFromEnterprise(context, undefined, data, structure) as CatalogForm
+  const result = importClientApplicationFormFromEnterprise(context, data, structure) as CatalogForm
 
   const choiceAvailable = importBooleanFromEnterprise(context, undefined, data.ВыборДоступен)
   if (choiceAvailable !== undefined) result.choiceAvailable = choiceAvailable

@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { Context } from "vm"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { convertPath } from "./helper"
 import { MetadataFieldsRulesFromEnterprise, MetadataValuesRulesFromEnterprise } from "./types"
 
@@ -7,11 +7,19 @@ import { MetadataFieldsRulesFromEnterprise, MetadataValuesRulesFromEnterprise } 
 //   return convertPath(MetadataTypesRulesFromEnterprise, name)
 // }
 
-export const importMetadataFieldStringFromYAML = (_context: Context, _rule: PropertyRule, name: string): string | undefined => {
+export const importMetadataFieldStringFromYAML = (
+  _context: Context,
+  _rule: PropertyRule | undefined,
+  name: string
+): string | undefined => {
   return convertPath(MetadataFieldsRulesFromEnterprise, name)
 }
 
-export const importMetadataValueStringFromYAML = (_context: Context, _rule: PropertyRule, name: string): string | undefined => {
+export const importMetadataValueStringFromYAML = (
+  _context: Context,
+  _rule: PropertyRule | undefined,
+  name: string
+): string | undefined => {
   const convertedPath = convertPath(MetadataValuesRulesFromEnterprise, name)
 
   if (convertedPath && convertedPath.startsWith("Enum.")) {

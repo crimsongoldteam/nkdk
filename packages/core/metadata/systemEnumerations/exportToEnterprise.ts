@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "../context/types"
+import { PropertyRule } from "../forms/elements/calendarField/rules"
 
 export const exportSystemEnumerationToYAML = <T extends string>(
   _context: ConfigurationContext,

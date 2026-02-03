@@ -14,14 +14,14 @@ import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./exp
 describe("exportToXML", () => {
   describe("exportClientApplicationFormToXML", () => {
     it("should return undefined when data is undefined", () => {
-      const result = exportClientApplicationFormToXML(mockContext, mockRule, undefined)
+      const result = exportClientApplicationFormToXML(mockContext, undefined)
 
       expect(result).toBeUndefined()
     })
 
     it("should export all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/clientApplicationForm/full.xml")
-      const xmlData = exportClientApplicationFormToXML(mockContext, mockRule, fullClientApplicationForm)
+      const xmlData = exportClientApplicationFormToXML(mockContext, fullClientApplicationForm)
 
       const result = xmlExport({ Form: xmlData })
 
@@ -30,7 +30,7 @@ describe("exportToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/clientApplicationForm/minimal.xml")
-      const xmlData = exportClientApplicationFormToXML(mockContext, mockRule, minimalClientApplicationForm)
+      const xmlData = exportClientApplicationFormToXML(mockContext, minimalClientApplicationForm)
 
       const result = xmlExport({ Form: xmlData })
 

@@ -20,7 +20,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
 
-  const filteredSynonym = extractDifferentSynonymPart(context, undefined, data.synonym, data.name)
+  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
   const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
 
   const result: MetadataTabularSectionEnterprise = {}

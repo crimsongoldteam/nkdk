@@ -4,11 +4,11 @@ import { exportMedatataRefToEnterprise } from "../metadataValue/exportToEnterpri
 import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./types"
 
 export const exportMetadataValueCollectionToEnterprise = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataValueCollection | undefined
 ): MetadataValueCollectionEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
 
-  return data.map((item) => exportMedatataRefToEnterprise(item))
+  return data.map((item) => exportMedatataRefToEnterprise(context, item))
 }

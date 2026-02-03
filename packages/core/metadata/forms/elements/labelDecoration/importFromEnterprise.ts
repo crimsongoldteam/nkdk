@@ -82,6 +82,7 @@ export function importLabelDecorationPartialFromEnterprise<To extends LabelDecor
 
   const title = importFormattedI8nTextCombinedFromEnterprise(
     context,
+    undefined,
     source.title,
     data?.Заголовок,
     data?.ФорматированныйЗаголовок

@@ -15,10 +15,10 @@ export const exportMetadataFieldsToYAML = (
 
 export const exportMetadataFieldToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataField | undefined
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return exportMetadataFieldStringToYAML(context, _rule, data)
+  return exportMetadataFieldStringToYAML(context, rule, data)
 }

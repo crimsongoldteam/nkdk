@@ -11,12 +11,11 @@ import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportCommandsToXML } from "../../commands/exportToXML"
 import { exportCommandInterfaceToXML } from "../../commonObjects/commandInterface/exportToXML"
 import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/exportToXML"
-import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { PropertyRule } from "../../elements/calendarField/rules"
+import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined

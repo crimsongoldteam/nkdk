@@ -43,6 +43,7 @@ describe("exportSearchStringAdditionToXML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimalSingle.xml")
       const xmlData = exportSingleSearchStringAdditionToXML(
         mockContext,
+        mockRule,
         minimalSingleSearchStringAddition,
         parentElement
       )

@@ -10,7 +10,7 @@ export const exportI8nTextToXMLWithDefaultLanguage = (
 ): I8nTextXML | undefined => {
   if (!data) return undefined
 
-  if (isEmptyI8nText(context, undefined, data)) {
+  if (isEmptyI8nText(context, data)) {
     return undefined
   }
 

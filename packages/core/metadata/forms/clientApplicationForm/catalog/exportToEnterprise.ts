@@ -43,7 +43,7 @@ export const exportCatalogFormToEnterprise = (
 ): CatalogFormEnterprise | undefined => {
   if (!data) return undefined
 
-  const result = exportClientApplicationFormToEnterprise(context, undefined, data) as CatalogFormEnterprise
+  const result = exportClientApplicationFormToEnterprise(context, data) as CatalogFormEnterprise
   if (!result) return undefined
 
   const choiceAvailable = exportBooleanToEnterprise(context, undefined, data.choiceAvailable)

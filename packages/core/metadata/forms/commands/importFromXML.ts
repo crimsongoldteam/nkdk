@@ -31,7 +31,7 @@ function importCommandFromXML(
 
   if (xml.ModifiesSavedData !== undefined) result.modifiesSavedData = xml.ModifiesSavedData
 
-  const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
+  const table = importMetadataValueFromXMLAsPrimitive(context, undefined, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
   const use = importUserVisibleFromXML(context, undefined, xml.Use)

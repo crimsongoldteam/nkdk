@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { fullTabularSections, minimalTabularSections } from "~/tests/fixtures/metadataTabularSection/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataTabularSectionsToXML } from "./exportToXML"
@@ -20,7 +20,7 @@ describe("exportMetadataTabularSectionsToXML", () => {
   it("should export all possible properties", () => {
     const expectedXml = readXMLFileAsString("metadataTabularSection/full.xml")
 
-    const result = exportMetadataTabularSectionsToXML(mockContextWithParent, fullTabularSections)
+    const result = exportMetadataTabularSectionsToXML(mockContextWithParent, mockRule, fullTabularSections)
     const xmlString = xmlExport({ TabularSection: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -29,7 +29,7 @@ describe("exportMetadataTabularSectionsToXML", () => {
   it("should export defaults", () => {
     const expectedXml = readXMLFileAsString("metadataTabularSection/defaults.xml")
 
-    const result = exportMetadataTabularSectionsToXML(mockContextWithParent, minimalTabularSections)
+    const result = exportMetadataTabularSectionsToXML(mockContextWithParent, mockRule, minimalTabularSections)
     const xmlString = xmlExport({ TabularSection: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

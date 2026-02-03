@@ -6,7 +6,7 @@ import { exportUsualGroupToStructure } from "./exportToStructure"
 
 describe("exportUsualGroupToStructure", () => {
   it.each(usualGroupStructureFixtures)("should format $name", ({ element, structured }) => {
-    const result = exportUsualGroupToStructure(mockContext, element)
+    const result = exportUsualGroupToStructure(mockContext, undefined, element)
 
     expect(result.strings.join("\n")).toEqual(structured)
   })

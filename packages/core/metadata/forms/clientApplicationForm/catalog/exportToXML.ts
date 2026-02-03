@@ -1,9 +1,9 @@
 import { exportChoiceParametersToXML } from "~/metadata/commonObjects/сhoiceParameters/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "../base/exportToXML"
 import { CatalogForm, CatalogFormXML } from "./types"
-import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportCatalogFormToXML = (
   context: ConfigurationContext,
@@ -12,7 +12,7 @@ export const exportCatalogFormToXML = (
 ): CatalogFormXML | undefined => {
   if (!data) return undefined
 
-  const result = exportClientApplicationFormToXML(context, undefined, data) as CatalogFormXML
+  const result = exportClientApplicationFormToXML(context, data) as CatalogFormXML
   if (!result) return undefined
 
   if (data.choiceAvailable !== undefined) {

@@ -26,9 +26,9 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
       let itemResult: IFormatElementResult
       if (!exportFunction) {
-        itemResult = exportOtherElementToStructure(context, item as NamedElement)
+        itemResult = exportOtherElementToStructure(context, undefined, item as NamedElement)
       } else {
-        itemResult = exportFunction(context, item) as IFormatElementResult
+        itemResult = exportFunction(context, undefined, item) as IFormatElementResult
       }
       groupItems.push(itemResult.strings)
     }
@@ -48,11 +48,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
   return result
 }
 
-const formatGroupHeader = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  element: UsualGroup
-): string => {
+const formatGroupHeader = (context: ConfigurationContext, element: UsualGroup): string => {
   if (element.showTitle === false) {
     return formatElementName(element)
   }
