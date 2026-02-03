@@ -5,7 +5,7 @@ import { UsePurposesXML } from "./types"
 
 describe("importUsePurposesFromXML", () => {
   it("should return undefined when xml is undefined", () => {
-    const result = importUsePurposesFromXML(mockContext, undefined)
+    const result = importUsePurposesFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -18,7 +18,7 @@ describe("importUsePurposesFromXML", () => {
       },
     }
 
-    const result = importUsePurposesFromXML(mockContext, xml)
+    const result = importUsePurposesFromXML(mockContext, mockRule, xml)
 
     expect(result).toEqual(["PlatformApplication"])
   })
@@ -37,7 +37,7 @@ describe("importUsePurposesFromXML", () => {
       ],
     }
 
-    const result = importUsePurposesFromXML(mockContext, xml)
+    const result = importUsePurposesFromXML(mockContext, mockRule, xml)
 
     expect(result).toEqual(["PlatformApplication", "MobilePlatformApplication"])
   })
@@ -47,7 +47,7 @@ describe("importUsePurposesFromXML", () => {
       "v8:Value": undefined as any,
     }
 
-    const result = importUsePurposesFromXML(mockContext, xml)
+    const result = importUsePurposesFromXML(mockContext, mockRule, xml)
 
     expect(result).toBeUndefined()
   })

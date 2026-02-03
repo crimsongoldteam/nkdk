@@ -7,7 +7,7 @@ import {
   minimalTextDocumentFieldPartialEnterprise,
   minimalTextDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importTextDocumentFieldPartialFromEnterprise,
   importTextDocumentFieldTypedFromEnterprise,
@@ -16,7 +16,13 @@ import {
 describe("importTextDocumentFieldFromEnterprise", () => {
   describe("importTextDocumentFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importTextDocumentFieldTypedFromEnterprise(mockContext, undefined, "ПолеТекстовогоДокумента")
+      const result = importTextDocumentFieldTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        undefined,
+        "ПолеТекстовогоДокумента"
+      )
 
       expect(result).toBeUndefined()
     })
@@ -24,6 +30,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importTextDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullTextDocumentFieldTypedEnterprise,
         "ПолеТекстовогоДокумента"
       )
@@ -34,6 +41,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importTextDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalTextDocumentFieldTypedEnterprise,
         "ПолеТекстовогоДокумента"
       )
@@ -44,7 +52,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
 
   describe("importTextDocumentFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importTextDocumentFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importTextDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -52,6 +60,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importTextDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullTextDocumentField,
         fullTextDocumentFieldPartialEnterprise
       )
@@ -62,6 +71,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importTextDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalTextDocumentField,
         minimalTextDocumentFieldPartialEnterprise
       )

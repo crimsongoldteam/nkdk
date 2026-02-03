@@ -6,7 +6,7 @@ import { Color, ColorEnterprise } from "./types"
 
 export const importColorFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: ColorEnterprise | undefined
 ): Color | undefined => {
   if (!data) return undefined

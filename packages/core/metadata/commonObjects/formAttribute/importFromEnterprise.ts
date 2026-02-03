@@ -12,6 +12,7 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -24,22 +25,24 @@ import { I8nText, I8nTextEnterprise } from "../i8nText/types"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttributesEnterprise | undefined
 ): FormAttributes | undefined => {
   if (!data) return undefined
 
   return Object.entries(data)
-    .map(([name, value]) => importFormAttributeFromEnterprise(context, value, name))
+    .map(([name, value]) => importFormAttributeFromEnterprise(context, undefined, value, name))
     .filter((item): item is FormAttribute => item !== undefined)
 }
 
 const importFormAttributeFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttributeEnterprise | string | string[],
   name: string
 ): FormAttribute | undefined => {
   if (typeof data === "string" || Array.isArray(data)) {
-    const type = importTypeDescriptionFromEnterprise(context, data)!
+    const type = importTypeDescriptionFromEnterprise(context, undefined, data)!
 
     return {
       name,
@@ -48,9 +51,9 @@ const importFormAttributeFromEnterprise = (
     }
   }
 
-  const type = importTypeDescriptionFromEnterprise(context, data.Тип)
+  const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
 
-  const mainAttribute = importBooleanFromEnterprise(context, data.ОсновнойРеквизит)
+  const mainAttribute = importBooleanFromEnterprise(context, undefined, data.ОсновнойРеквизит)
   const title = computeTitleForImport(context, data.Заголовок, name, mainAttribute)
 
   const result: FormAttribute = {
@@ -60,11 +63,12 @@ const importFormAttributeFromEnterprise = (
   }
 
   if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
-  const storedData = importBooleanFromEnterprise(context, data.СохраняемыеДанные)
+  const storedData = importBooleanFromEnterprise(context, undefined, data.СохраняемыеДанные)
   if (storedData !== undefined) result.storedData = storedData
 
   const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
     context,
+    undefined,
     data.ПроверкаЗаполнения,
     FillCheckingFromEnterprise
   )
@@ -72,6 +76,7 @@ const importFormAttributeFromEnterprise = (
 
   const view = importUserVisibleFromEnterprise(
     context,
+    undefined,
     data[UserViewKeysEnterprise.Allow] ?? (data[UserViewKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
     data[UserViewKeysEnterprise.Deny]
   )
@@ -79,34 +84,40 @@ const importFormAttributeFromEnterprise = (
 
   const edit = importUserVisibleFromEnterprise(
     context,
+    undefined,
+
     data[UserEditKeysEnterprise.Allow] ?? (data[UserEditKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
     data[UserEditKeysEnterprise.Deny]
   )
   if (edit) result.edit = edit
 
   if (data.ДинамическийСписок !== undefined) {
-    const dynamicList = importDynamicListFromEnterprise(context, data.ДинамическийСписок)
+    const dynamicList = importDynamicListFromEnterprise(context, undefined, data.ДинамическийСписок)
     if (dynamicList !== undefined) result.settings = dynamicList
   } else {
-    const settings = importTypeDescriptionFromEnterprise(context, data.ТипЗначения)
+    const settings = importTypeDescriptionFromEnterprise(context, undefined, data.ТипЗначения)
     if (settings !== undefined) result.settings = settings
   }
 
   if (data.Колонки) {
-    result.columns = importFormAttributeColumnsFromEnterprise(context, data.Колонки)
+    result.columns = importFormAttributeColumnsFromEnterprise(context, undefined, data.Колонки)
   }
 
   if (data.ДополнительныеКолонки) {
-    result.additionalColumns = importFormAttributeAdditionalColumnsFromEnterprise(context, data.ДополнительныеКолонки)
+    result.additionalColumns = importFormAttributeAdditionalColumnsFromEnterprise(
+      context,
+      undefined,
+      data.ДополнительныеКолонки
+    )
   }
 
-  const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
+  const functionalOptions = importFunctionalOptionsFromEnterprise(context, undefined, data.ФункциональныеОпции)
   if (functionalOptions) result.functionalOptions = functionalOptions
 
-  const fieldsList = importFieldsListFromEnterprise(context, data.ИспользоватьВсегда)
+  const fieldsList = importFieldsListFromEnterprise(context, undefined, data.ИспользоватьВсегда)
   if (fieldsList) result.fieldsList = fieldsList
 
-  const save = importFieldsListFromEnterprise(context, data.Сохранение)
+  const save = importFieldsListFromEnterprise(context, undefined, data.Сохранение)
   if (save) result.save = save
 
   return result
@@ -114,13 +125,17 @@ const importFormAttributeFromEnterprise = (
 
 const importFormAttributeColumnsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: Record<string, FormAttributeColumnEnterprise>
 ): FormAttributeColumn[] => {
-  return Object.entries(data).map(([name, value]) => importFormAttributeColumnFromEnterprise(context, value, name))
+  return Object.entries(data).map(([name, value]) =>
+    importFormAttributeColumnFromEnterprise(context, undefined, value, name)
+  )
 }
 
 const importFormAttributeColumnFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttributeColumnEnterprise,
   name: string
 ): FormAttributeColumn => {
@@ -129,14 +144,15 @@ const importFormAttributeColumnFromEnterprise = (
     id: "", // Enterprise doesn't provide IDs
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title) column.title = title
 
-  const type = importTypeDescriptionFromEnterprise(context, data.Тип)
+  const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
   if (type) column.type = type
 
   const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
     context,
+    undefined,
     data.ПроверкаЗаполнения,
     FillCheckingFromEnterprise
   )
@@ -144,6 +160,8 @@ const importFormAttributeColumnFromEnterprise = (
 
   const view = importUserVisibleFromEnterprise(
     context,
+    undefined,
+
     data[UserViewKeysEnterprise.Allow],
     data[UserViewKeysEnterprise.Deny]
   )
@@ -151,16 +169,17 @@ const importFormAttributeColumnFromEnterprise = (
 
   const edit = importUserVisibleFromEnterprise(
     context,
+    undefined,
     data[UserEditKeysEnterprise.Allow],
     data[UserEditKeysEnterprise.Deny]
   )
   if (edit) column.edit = edit
 
   if (data.Колонки) {
-    column.columns = importFormAttributeColumnsFromEnterprise(context, data.Колонки)
+    column.columns = importFormAttributeColumnsFromEnterprise(context, undefined, data.Колонки)
   }
 
-  const functionalOptions = importFunctionalOptionsFromEnterprise(context, data.ФункциональныеОпции)
+  const functionalOptions = importFunctionalOptionsFromEnterprise(context, undefined, data.ФункциональныеОпции)
   if (functionalOptions) column.functionalOptions = functionalOptions
 
   return column
@@ -168,11 +187,12 @@ const importFormAttributeColumnFromEnterprise = (
 
 const importFormAttributeAdditionalColumnsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: Record<string, Record<string, FormAttributeColumnEnterprise>>
 ): FormAttributeAdditionalColumn[] => {
   return Object.entries(data).map(([tableName, columns]) => ({
     table: tableName,
-    columns: importFormAttributeColumnsFromEnterprise(context, columns),
+    columns: importFormAttributeColumnsFromEnterprise(context, undefined, columns),
   }))
 }
 
@@ -190,7 +210,7 @@ const computeTitleForImport = (
   mainAttribute: boolean | undefined
 ): I8nText => {
   const defaultLanguage = context.defaultLanguage
-  const importedTitle = importI8nTextFromEnterprise(context, titleEnterprise)
+  const importedTitle = importI8nTextFromEnterprise(context, undefined, titleEnterprise)
 
   // Если mainAttribute = true
   if (mainAttribute === true) {

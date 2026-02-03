@@ -6,7 +6,7 @@ import {
   minimalLabelDecoration,
   minimalLabelDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importLabelDecorationPartialFromEnterprise,
   importLabelDecorationTypedFromEnterprise,
@@ -15,7 +15,7 @@ import {
 describe("importLabelDecorationFromEnterprise", () => {
   describe("importLabelDecorationTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importLabelDecorationTypedFromEnterprise(mockContext, undefined, "Надпись")
+      const result = importLabelDecorationTypedFromEnterprise(mockContext, mockRule, undefined, "Надпись")
 
       expect(result).toBeUndefined()
     })
@@ -23,6 +23,7 @@ describe("importLabelDecorationFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importLabelDecorationTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullLabelDecorationTypedEnterprise,
         "Заголовок"
       )
@@ -33,6 +34,7 @@ describe("importLabelDecorationFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importLabelDecorationTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalLabelDecorationTypedEnterprise,
         "Заголовок"
       )
@@ -43,7 +45,7 @@ describe("importLabelDecorationFromEnterprise", () => {
 
   describe("importLabelDecorationPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importLabelDecorationPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importLabelDecorationPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -51,6 +53,7 @@ describe("importLabelDecorationFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importLabelDecorationPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullLabelDecoration,
         fullLabelDecorationPartialEnterprise
       )

@@ -1,9 +1,11 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromEnterprise } from "../metadataField/importFromEnterprise"
 import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const importTypeLinkFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: TypeLinkEnterprise | undefined
 ): TypeLink | undefined => {
   if (!data) return undefined
@@ -25,7 +27,7 @@ export const importTypeLinkFromEnterprise = (
   }
 
   // Преобразуем dataPath из формата Enterprise в формат XML
-  const dataPath = importMetadataFieldFromEnterprise(context, dataPathEnterprise)
+  const dataPath = importMetadataFieldFromEnterprise(context, undefined, dataPathEnterprise)
   if (!dataPath) return undefined
 
   return {

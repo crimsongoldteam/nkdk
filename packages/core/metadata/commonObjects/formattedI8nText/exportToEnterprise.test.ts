@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportFormattedI8nTextDefaultToEnterprise,
   exportFormattedI8nTextOtherToEnterprise,
@@ -11,7 +11,13 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextToEnterprise(mockContext, fixture.text, "Title", "FormattedTitle")
+        const result = exportFormattedI8nTextToEnterprise(
+          mockContext,
+          mockRule,
+          fixture.text,
+          "Title",
+          "FormattedTitle"
+        )
 
         if (fixture.text?.formatted) {
           expect(result).toEqual({ FormattedTitle: fixture.enterpriseFormattedText })
@@ -26,7 +32,7 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextDefaultToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export default: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextDefaultToEnterprise(mockContext, fixture.text)
+        const result = exportFormattedI8nTextDefaultToEnterprise(mockContext, mockRule, fixture.text)
 
         expect(result).toEqual(fixture.enterpriseDefaultLanguage)
       })
@@ -36,7 +42,13 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextOtherToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export other: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextOtherToEnterprise(mockContext, fixture.text, "Title", "FormattedTitle")
+        const result = exportFormattedI8nTextOtherToEnterprise(
+          mockContext,
+          mockRule,
+          fixture.text,
+          "Title",
+          "FormattedTitle"
+        )
 
         if (!fixture.text) {
           expect(result).toEqual({})

@@ -18,6 +18,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importFormattedDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         undefined,
         "ПолеФорматированногоДокумента"
       )
@@ -28,6 +29,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importFormattedDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullFormattedDocumentFieldTypedEnterprise,
         "ПолеФорматированногоДокумента"
       )
@@ -38,6 +40,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importFormattedDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalFormattedDocumentFieldTypedEnterprise,
         "ПолеФорматированногоДокумента"
       )
@@ -48,7 +51,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
 
   describe("importFormattedDocumentFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importFormattedDocumentFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importFormattedDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -56,6 +59,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importFormattedDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullFormattedDocumentField,
         fullFormattedDocumentFieldPartialEnterprise
       )
@@ -66,6 +70,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importFormattedDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalFormattedDocumentField,
         minimalFormattedDocumentFieldPartialEnterprise
       )

@@ -5,7 +5,7 @@ import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const importTypeLinkFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: TypeLinkEnterprise | undefined
 ): TypeLink | undefined => {
   if (!data) return undefined

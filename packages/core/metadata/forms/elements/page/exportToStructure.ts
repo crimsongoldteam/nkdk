@@ -12,6 +12,7 @@ import { Page } from "./types"
 
 export const exportPageToStructure: FormatElementFunction = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: NamedElement
 ): IFormatElementResult => {
   const pageElement = element as Page
@@ -32,7 +33,7 @@ export const exportPageToStructure: FormatElementFunction = (
   return result
 }
 
-const getHeader = (context: ConfigurationContext, element: Page): string => {
+const getHeader = (context: ConfigurationContext, _rule: PropertyRule | undefined, element: Page): string => {
   let result = t.Slash.LABEL as string
 
   result += formatElementTitleAndName(context, element)

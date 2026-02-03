@@ -6,7 +6,7 @@ import {
   minimalHtmlDocumentField,
   minimalHtmlDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/htmlDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportHTMLDocumentFieldPartialToEnterprise,
   exportHTMLDocumentFieldTypedToEnterprise,
@@ -15,13 +15,13 @@ import {
 describe("exportHTMLDocumentFieldToEnterprise", () => {
   describe("exportHTMLDocumentFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportHTMLDocumentFieldPartialToEnterprise(mockContext, fullHtmlDocumentField)
+      const result = exportHTMLDocumentFieldPartialToEnterprise(mockContext, mockRule, fullHtmlDocumentField)
 
       expect(result).toEqual(fullHtmlDocumentFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportHTMLDocumentFieldPartialToEnterprise(mockContext, minimalHtmlDocumentField)
+      const result = exportHTMLDocumentFieldPartialToEnterprise(mockContext, mockRule, minimalHtmlDocumentField)
 
       expect(result).toEqual(minimalHtmlDocumentFieldPartialEnterprise)
     })
@@ -29,13 +29,13 @@ describe("exportHTMLDocumentFieldToEnterprise", () => {
 
   describe("exportHTMLDocumentFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportHTMLDocumentFieldTypedToEnterprise(mockContext, fullHtmlDocumentField)
+      const result = exportHTMLDocumentFieldTypedToEnterprise(mockContext, mockRule, fullHtmlDocumentField)
 
       expect(result).toEqual(fullHtmlDocumentFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportHTMLDocumentFieldTypedToEnterprise(mockContext, undefined)
+      const result = exportHTMLDocumentFieldTypedToEnterprise(mockContext, mockRule, undefined)
 
       expect(result).toBeUndefined()
     })

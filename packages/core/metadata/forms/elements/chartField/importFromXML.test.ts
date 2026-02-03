@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullChartField, minimalChartField } from "~/tests/fixtures/forms/chartField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChartFieldFromXML } from "./importFromXML"
 import { ChartFieldXML } from "./types"
 
 describe("importChartFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importChartFieldFromXML(mockContext, undefined)
+    const result = importChartFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importChartFieldFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ ChartField: ChartFieldXML }>("forms/chartField/full.xml")
 
-    const result = importChartFieldFromXML(mockContext, xmlData.ChartField)
+    const result = importChartFieldFromXML(mockContext, mockRule, xmlData.ChartField)
 
     expect(result).toEqual(fullChartField)
   })
@@ -23,7 +23,7 @@ describe("importChartFieldFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ ChartField: ChartFieldXML }>("forms/chartField/minimal.xml")
 
-    const result = importChartFieldFromXML(mockContext, xmlData.ChartField)
+    const result = importChartFieldFromXML(mockContext, mockRule, xmlData.ChartField)
 
     expect(result).toEqual(minimalChartField)
   })

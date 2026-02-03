@@ -5,9 +5,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataCommandToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCommand | undefined
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
@@ -17,7 +19,7 @@ export const exportMetadataCommandToXML = (
 
   const properties: MetadataCommandXML["Properties"] = {} as MetadataCommandXML["Properties"]
 
-  const commandParameterType = exportTypeDescriptionToXML(context, mergedData.commandParameterType)
+  const commandParameterType = exportTypeDescriptionToXML(context, undefined, mergedData.commandParameterType)
   if (commandParameterType) properties.CommandParameterType = commandParameterType
 
   if (mergedData.comment !== undefined) properties.Comment = mergedData.comment
@@ -35,17 +37,17 @@ export const exportMetadataCommandToXML = (
 
   if (mergedData.parameterUseMode !== undefined) properties.ParameterUseMode = mergedData.parameterUseMode
 
-  const picture = exportPictureToXML(context, mergedData.picture)
+  const picture = exportPictureToXML(context, undefined, mergedData.picture)
   if (picture) properties.Picture = picture
 
   if (mergedData.representation !== undefined) properties.Representation = mergedData.representation
 
   if (mergedData.shortcut !== undefined) properties.Shortcut = mergedData.shortcut
 
-  const synonym = exportI8nTextToXML(context, mergedData.synonym)
+  const synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
   if (synonym !== undefined) properties.Synonym = synonym
 
-  const toolTip = exportI8nTextToXML(context, mergedData.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
   if (toolTip !== undefined) properties.ToolTip = toolTip
 
   const result: MetadataCommandXML = {
@@ -58,9 +60,10 @@ export const exportMetadataCommandToXML = (
 
 export const exportMetadataCommandsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(context, value)!)
+  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(context, undefined, value)!)
 }

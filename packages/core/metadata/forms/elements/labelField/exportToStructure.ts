@@ -12,6 +12,7 @@ const COLON = t.Colon.LABEL as string
 
 export const exportLabelFieldToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: LabelField
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
@@ -30,6 +31,7 @@ export const exportLabelFieldToStructure = (
 
 export const exportLabelFieldContentToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: LabelField
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined

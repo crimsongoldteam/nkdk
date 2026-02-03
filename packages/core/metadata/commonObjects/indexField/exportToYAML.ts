@@ -4,7 +4,7 @@ import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } 
 
 export const exportIndexFieldToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: IndexField | undefined
 ): IndexFieldEnterprise | undefined => {
   if (!data) return undefined
@@ -14,10 +14,10 @@ export const exportIndexFieldToYAML = (
 
 export const exportIndexFieldsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: IndexFields | undefined
 ): IndexFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportIndexFieldToYAML(context, _rule, item)!)
+  return data.map((item) => exportIndexFieldToYAML(context, undefined, _rule, item)!)
 }

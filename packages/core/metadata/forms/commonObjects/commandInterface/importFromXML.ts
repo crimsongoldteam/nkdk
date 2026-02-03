@@ -1,14 +1,11 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../../context/types"
-import {
-  CommandInterface,
-  CommandInterfaceItem,
-  CommandInterfaceItemXML,
-  CommandInterfaceXML,
-} from "./types"
+import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: CommandInterfaceXML | undefined
 ): CommandInterface | undefined => {
   if (!xml) return undefined
@@ -19,21 +16,17 @@ export const importCommandInterfaceFromXML = (
   }
 
   if (xml.NavigationPanel?.Item) {
-    const items = Array.isArray(xml.NavigationPanel.Item)
-      ? xml.NavigationPanel.Item
-      : [xml.NavigationPanel.Item]
+    const items = Array.isArray(xml.NavigationPanel.Item) ? xml.NavigationPanel.Item : [xml.NavigationPanel.Item]
     result.NavigationPanel = items
       .sort((a, b) => (a.Index ?? 0) - (b.Index ?? 0))
-      .map((item) => importCommandInterfaceItemFromXML(context, item))
+      .map((item) => importCommandInterfaceItemFromXML(context, undefined, item))
   }
 
   if (xml.CommandBar?.Item) {
-    const items = Array.isArray(xml.CommandBar.Item)
-      ? xml.CommandBar.Item
-      : [xml.CommandBar.Item]
+    const items = Array.isArray(xml.CommandBar.Item) ? xml.CommandBar.Item : [xml.CommandBar.Item]
     result.CommandBar = items
       .sort((a, b) => (a.Index ?? 0) - (b.Index ?? 0))
-      .map((item) => importCommandInterfaceItemFromXML(context, item))
+      .map((item) => importCommandInterfaceItemFromXML(context, undefined, item))
   }
 
   return result
@@ -41,6 +34,7 @@ export const importCommandInterfaceFromXML = (
 
 const importCommandInterfaceItemFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   item: CommandInterfaceItemXML
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {
@@ -54,7 +48,7 @@ const importCommandInterfaceItemFromXML = (
   }
 
   if (item.Visible) {
-    const visible = importUserVisibleFromXML(context, item.Visible)
+    const visible = importUserVisibleFromXML(context, undefined, item.Visible)
     if (visible) {
       result.visible = visible
     }

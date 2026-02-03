@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullGraphicalSchemaField, minimalGraphicalSchemaField } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importGraphicalSchemaFieldFromXML } from "./importFromXML"
 import { GraphicalSchemaFieldXML } from "./types"
 
 describe("importGraphicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importGraphicalSchemaFieldFromXML(mockContext, undefined)
+    const result = importGraphicalSchemaFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -17,7 +17,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
       "forms/graphicalSchemaField/full.xml"
     )
 
-    const result = importGraphicalSchemaFieldFromXML(mockContext, xmlData.GraphicalSchemaField)
+    const result = importGraphicalSchemaFieldFromXML(mockContext, mockRule, xmlData.GraphicalSchemaField)
 
     expect(result).toEqual(fullGraphicalSchemaField)
   })
@@ -27,7 +27,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
       "forms/graphicalSchemaField/minimal.xml"
     )
 
-    const result = importGraphicalSchemaFieldFromXML(mockContext, xmlData.GraphicalSchemaField)
+    const result = importGraphicalSchemaFieldFromXML(mockContext, mockRule, xmlData.GraphicalSchemaField)
 
     expect(result).toEqual(minimalGraphicalSchemaField)
   })

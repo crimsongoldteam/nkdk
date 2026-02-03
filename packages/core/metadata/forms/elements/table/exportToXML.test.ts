@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToXML"
 import { fullTable, minimalTable } from "~/tests/fixtures/forms/table/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportTableToXML } from "./exportToXML"
 
 describe("exportTableToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportTableToXML(mockContext, undefined)
+    const result = exportTableToXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/table/full.xml")
-    const xmlData = exportTableToXML(mockContext, fullTable)
+    const xmlData = exportTableToXML(mockContext, mockRule, fullTable)
 
     const result = xmlExport({ Table: xmlData }, false)
 
@@ -24,7 +24,7 @@ describe("exportTableToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/table/minimal.xml").trimEnd()
-    const xmlData = exportTableToXML(mockContext, minimalTable)
+    const xmlData = exportTableToXML(mockContext, mockRule, minimalTable)
 
     const result = xmlExport({ Table: xmlData }, false)
 

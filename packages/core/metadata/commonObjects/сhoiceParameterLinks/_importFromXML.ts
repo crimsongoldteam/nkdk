@@ -6,7 +6,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const _importChoiceParameterLinksFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: ChoiceParameterLinksXML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!xml) return undefined
@@ -30,10 +30,11 @@ export const _importChoiceParameterLinksFromXML = (
 
 const extractDataPath = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   dataPath: MetadataSimpleValueXML | string | undefined
 ): string | undefined => {
   if (!dataPath) return undefined
   if (typeof dataPath === "string") return dataPath
 
-  return importMetadataSimpleValueFromXML(context, dataPath) as string | undefined
+  return importMetadataSimpleValueFromXML(context, undefined, dataPath) as string | undefined
 }

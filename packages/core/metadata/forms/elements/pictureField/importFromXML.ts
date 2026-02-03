@@ -14,13 +14,15 @@ import { PictureField } from "~/metadata/forms/elements/pictureField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importPictureFieldFromXML<To extends PictureField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: PictureField = {
     ...baseFields,
@@ -31,7 +33,7 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
@@ -44,33 +46,33 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.FixingInTable !== undefined) result.fixingInTable = xml.FixingInTable
 
-  const footerBackColor = importColorFromXML(context, xml.FooterBackColor)
+  const footerBackColor = importColorFromXML(context, undefined, xml.FooterBackColor)
   if (footerBackColor !== undefined) result.footerBackColor = footerBackColor
 
   if (xml.FooterDataPath !== undefined) result.footerDataPath = xml.FooterDataPath
 
-  const footerFont = importFontFromXML(context, xml.FooterFont)
+  const footerFont = importFontFromXML(context, undefined, xml.FooterFont)
   if (footerFont !== undefined) result.footerFont = footerFont
 
   if (xml.FooterHorizontalAlign !== undefined) result.footerHorizontalAlign = xml.FooterHorizontalAlign
 
-  const footerPicture = importPictureFromXML(context, xml.FooterPicture)
+  const footerPicture = importPictureFromXML(context, undefined, xml.FooterPicture)
   if (footerPicture !== undefined) result.footerPicture = footerPicture
 
-  const footerText = importI8nTextFromXML(context, xml.FooterText)
+  const footerText = importI8nTextFromXML(context, undefined, xml.FooterText)
   if (footerText !== undefined) result.footerText = footerText
 
-  const footerTextColor = importColorFromXML(context, xml.FooterTextColor)
+  const footerTextColor = importColorFromXML(context, undefined, xml.FooterTextColor)
   if (footerTextColor !== undefined) result.footerTextColor = footerTextColor
 
   if (xml.HeaderHorizontalAlign !== undefined) result.headerHorizontalAlign = xml.HeaderHorizontalAlign
 
-  const headerPicture = importPictureFromXML(context, xml.HeaderPicture)
+  const headerPicture = importPictureFromXML(context, undefined, xml.HeaderPicture)
   if (headerPicture !== undefined) result.headerPicture = headerPicture
 
   if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
@@ -92,33 +94,33 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
     result.table = table ?? ""
   }
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleBackColor = importColorFromXML(context, xml.TitleBackColor)
+  const titleBackColor = importColorFromXML(context, undefined, xml.TitleBackColor)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
   if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
 
   if (xml.TitleLocation !== undefined) result.titleLocation = xml.TitleLocation
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
   if (xml.Type !== undefined) result.type = xml.Type
 
-  const typeRestriction = importTypeDescriptionFromXML(context, xml.TypeRestriction)
+  const typeRestriction = importTypeDescriptionFromXML(context, undefined, xml.TypeRestriction)
   if (typeRestriction !== undefined) result.typeRestriction = typeRestriction
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
@@ -127,23 +129,23 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  const warningOnEdit = importI8nTextFromXML(context, xml.WarningOnEdit)
+  const warningOnEdit = importI8nTextFromXML(context, undefined, xml.WarningOnEdit)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
   if (xml.WarningOnEditRepresentation !== undefined)
     result.warningOnEditRepresentation = xml.WarningOnEditRepresentation
 
-  const events = importEventsFromXML(context, xml.Events)
+  const events = importEventsFromXML(context, undefined, xml.Events)
   if (events !== undefined) result.events = events
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const border = importBorderFromXML(context, xml.Border)
+  const border = importBorderFromXML(context, undefined, xml.Border)
   if (border !== undefined) result.border = border
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
@@ -152,7 +154,7 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.FileDragMode !== undefined) result.fileDragMode = xml.FileDragMode
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.Height !== undefined) result.height = xml.Height
@@ -173,10 +175,10 @@ export function importPictureFieldFromXML<To extends PictureField | undefined>(
 
   if (xml.Scale !== undefined) result.scale = xml.Scale
 
-  const textColor = importColorFromXML(context, xml.TextColor)
+  const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const valuesPicture = importPictureFromXML(context, xml.ValuesPicture)
+  const valuesPicture = importPictureFromXML(context, undefined, xml.ValuesPicture)
   if (valuesPicture !== undefined) result.valuesPicture = valuesPicture
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch

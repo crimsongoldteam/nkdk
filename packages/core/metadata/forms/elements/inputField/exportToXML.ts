@@ -18,19 +18,21 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportInputFieldToXML<From extends InputField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: InputFieldXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
+    ContextMenu: exportContextMenuToXML(context, undefined, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data),
   }
 
   if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight
@@ -49,28 +51,28 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
 
-  const footerBackColor = exportColorToXML(context, data.footerBackColor)
+  const footerBackColor = exportColorToXML(context, undefined, data.footerBackColor)
   if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
 
   if (data.footerDataPath !== undefined) result.FooterDataPath = data.footerDataPath
 
-  const footerFont = exportFontToXML(context, data.footerFont)
+  const footerFont = exportFontToXML(context, undefined, data.footerFont)
   if (footerFont !== undefined) result.FooterFont = footerFont
 
   if (data.footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = data.footerHorizontalAlign
 
-  const footerPicture = exportPictureToXML(context, data.footerPicture)
+  const footerPicture = exportPictureToXML(context, undefined, data.footerPicture)
   if (footerPicture !== undefined) result.FooterPicture = footerPicture
 
-  const footerText = exportI8nTextToXML(context, data.footerText)
+  const footerText = exportI8nTextToXML(context, undefined, data.footerText)
   if (footerText !== undefined) result.FooterText = footerText
 
-  const footerTextColor = exportColorToXML(context, data.footerTextColor)
+  const footerTextColor = exportColorToXML(context, undefined, data.footerTextColor)
   if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
 
   if (data.headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = data.headerHorizontalAlign
 
-  const headerPicture = exportPictureToXML(context, data.headerPicture)
+  const headerPicture = exportPictureToXML(context, undefined, data.headerPicture)
   if (headerPicture !== undefined) result.HeaderPicture = headerPicture
 
   if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
@@ -90,33 +92,33 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleBackColor = exportColorToXML(context, data.titleBackColor)
+  const titleBackColor = exportColorToXML(context, undefined, data.titleBackColor)
   if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
 
   if (data.titleLocation !== undefined) result.TitleLocation = data.titleLocation
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  const table = exportMetadataSimpleValueToXML(context, undefined, data.table, "string")
   if (table !== undefined) result.AssociatedTableElementId = table
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
 
-  const typeRestriction = exportTypeDescriptionToXML(context, data.typeRestriction)
+  const typeRestriction = exportTypeDescriptionToXML(context, undefined, data.typeRestriction)
   if (typeRestriction !== undefined) result.TypeRestriction = typeRestriction
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
@@ -125,13 +127,13 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.visible !== undefined) result.Visible = data.visible
 
-  const warningOnEdit = exportI8nTextToXML(context, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToXML(context, undefined, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
   if (data.warningOnEditRepresentation !== undefined)
     result.WarningOnEditRepresentation = data.warningOnEditRepresentation
 
-  const events = exportEventsToXML(context, data.events)
+  const events = exportEventsToXML(context, undefined, data.events)
   if (events !== undefined) result.Events = events
 
   if (data.allowInputEmptyMultipleValues !== undefined)
@@ -159,18 +161,18 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.autoShowOpenButton !== undefined) result.AutoShowOpenButton = data.autoShowOpenButton
 
-  const availableTypes = exportTypeDescriptionToXML(context, data.availableTypes)
+  const availableTypes = exportTypeDescriptionToXML(context, undefined, data.availableTypes)
   if (availableTypes !== undefined) result.AvailableTypes = availableTypes
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.choiceButton !== undefined) result.ChoiceButton = data.choiceButton
 
-  const choiceButtonPicture = exportPictureToXML(context, data.choiceButtonPicture)
+  const choiceButtonPicture = exportPictureToXML(context, undefined, data.choiceButtonPicture)
   if (choiceButtonPicture !== undefined) result.ChoiceButtonPicture = choiceButtonPicture
 
   if (data.choiceButtonRepresentation !== undefined) result.ChoiceButtonRepresentation = data.choiceButtonRepresentation
@@ -181,17 +183,17 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.choiceHistoryOnInput !== undefined) result.ChoiceHistoryOnInput = data.choiceHistoryOnInput
 
-  const choiceList = exportChoiceListToXML(context, data.choiceList)
+  const choiceList = exportChoiceListToXML(context, undefined, data.choiceList)
   if (choiceList !== undefined) result.ChoiceList = choiceList
 
   if (data.choiceListButton !== undefined) result.ChoiceListButton = data.choiceListButton
 
   if (data.choiceListHeight !== undefined) result.ChoiceListHeight = data.choiceListHeight
 
-  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, data.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, undefined, data.choiceParameterLinks)
   if (choiceParameterLinks !== undefined) result.ChoiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = exportChoiceParametersToXML(context, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToXML(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ChoiceParameters = choiceParameters
 
   if (data.chooseType !== undefined) result.ChooseType = data.chooseType
@@ -204,7 +206,7 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.dropListWidth !== undefined) result.DropListWidth = data.dropListWidth
 
-  const editFormat = exportI8nTextToXML(context, data.editFormat)
+  const editFormat = exportI8nTextToXML(context, undefined, data.editFormat)
   if (editFormat !== undefined) result.EditFormat = editFormat
 
   if (data.editText !== undefined) result.EditText = data.editText
@@ -213,10 +215,10 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.extendedEdit !== undefined) result.ExtendedEdit = data.extendedEdit
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
   if (font !== undefined) result.Font = font
 
-  const format = exportI8nTextToXML(context, data.format)
+  const format = exportI8nTextToXML(context, undefined, data.format)
   if (format !== undefined) result.Format = format
 
   if (data.height !== undefined) result.Height = data.height
@@ -227,7 +229,7 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.incompleteChoiceMode !== undefined) result.IncompleteChoiceMode = data.incompleteChoiceMode
 
-  const inputHint = exportI8nTextToXML(context, data.inputHint)
+  const inputHint = exportI8nTextToXML(context, undefined, data.inputHint)
   if (inputHint !== undefined) result.InputHint = inputHint
 
   if (data.listChoiceMode !== undefined) result.ListChoiceMode = data.listChoiceMode
@@ -258,20 +260,20 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
   if (data.multipleValuePresentationDataPath !== undefined)
     result.MultipleValuePresentationDataPath = data.multipleValuePresentationDataPath
 
-  const multipleValuesBackColor = exportColorToXML(context, data.multipleValuesBackColor)
+  const multipleValuesBackColor = exportColorToXML(context, undefined, data.multipleValuesBackColor)
   if (multipleValuesBackColor !== undefined) result.MultipleValuesBackColor = multipleValuesBackColor
 
   if (data.multipleValuesExtendedEdit !== undefined) result.ExtendedEditMultipleValues = data.multipleValuesExtendedEdit
 
-  const multipleValuesFont = exportFontToXML(context, data.multipleValuesFont)
+  const multipleValuesFont = exportFontToXML(context, undefined, data.multipleValuesFont)
   if (multipleValuesFont !== undefined) result.MultipleValuesFont = multipleValuesFont
 
   if (data.multipleValuesHyperlink !== undefined) result.MultipleValuesHyperlink = data.multipleValuesHyperlink
 
-  const multipleValuesPicture = exportPictureToXML(context, data.multipleValuesPicture)
+  const multipleValuesPicture = exportPictureToXML(context, undefined, data.multipleValuesPicture)
   if (multipleValuesPicture !== undefined) result.MultipleValuesPicture = multipleValuesPicture
 
-  const multipleValuesTextColor = exportColorToXML(context, data.multipleValuesTextColor)
+  const multipleValuesTextColor = exportColorToXML(context, undefined, data.multipleValuesTextColor)
   if (multipleValuesTextColor !== undefined) result.MultipleValuesTextColor = multipleValuesTextColor
 
   if (data.multipleValueValueDataPath !== undefined) result.MultipleValueValueDataPath = data.multipleValueValueDataPath
@@ -296,14 +298,14 @@ export function exportInputFieldToXML<From extends InputField | undefined>(
 
   if (data.spinButton !== undefined) result.SpinButton = data.spinButton
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
   if (data.textEdit !== undefined) result.TextEdit = data.textEdit
 
   if (data.typeDomainEnabled !== undefined) result.TypeDomainEnabled = data.typeDomainEnabled
 
-  const typeLink = exportTypeLinkToXML(context, data.typeLink)
+  const typeLink = exportTypeLinkToXML(context, undefined, data.typeLink)
   if (typeLink !== undefined) result.TypeLink = typeLink
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch

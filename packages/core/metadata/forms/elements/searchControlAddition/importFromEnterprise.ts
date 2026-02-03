@@ -18,13 +18,15 @@ import { importChildItemsTypedFromEnterprise } from "../../collections/childItem
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { isHasContent } from "./helper"
+import { PropertyRule } from "../calendarField/rules"
 
 export const importSearchControlAdditionPartialFromEnterprise = <To extends SearchControlAddition>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To => {
-  const props = importSearchControlAdditionPropsFromEnterprise(context, data)
+  const props = importSearchControlAdditionPropsFromEnterprise(context, undefined, data)
 
   const result: To = {
     ...source,
@@ -42,9 +44,10 @@ export const importSearchControlAdditionPartialFromEnterprise = <To extends Sear
 
 export const importSingleSearchControlAdditionFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: SingleSearchControlAdditionEnterprise | undefined
 ): SingleSearchControlAddition | undefined => {
-  const props = importSearchControlAdditionPropsFromEnterprise(context, data)
+  const props = importSearchControlAdditionPropsFromEnterprise(context, undefined, data)
   if (props === undefined) return undefined
 
   return props
@@ -52,6 +55,7 @@ export const importSingleSearchControlAdditionFromEnterprise = (
 
 export const importSearchControlAdditionPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: SearchControlAdditionEnterprise | undefined
 ): SingleSearchControlAddition | undefined => {
   if (!data) return undefined
@@ -75,7 +79,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -85,10 +89,10 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -98,42 +102,47 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  result.childItems = importChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
+  result.childItems = importChildItemsTypedFromEnterprise(context, undefined, data.ПодчиненныеЭлементы)
 
-  const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedToolTip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
   if (!isHasContent(result)) return undefined

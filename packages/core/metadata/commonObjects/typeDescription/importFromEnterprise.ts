@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { getTypeFromEnterprise } from "./helper"
@@ -12,6 +13,7 @@ import {
 
 export const importTypeDescriptionFromEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: TypeDescriptionEnterprise | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {

@@ -19,23 +19,25 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "./types"
 
 export const exportButtonTypedToEnterprise = <From extends Button | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToTypedEnterpriseType<From> => {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
-  const props = exportButtonPropsToEnterprise(context, data)
+  const props = exportButtonPropsToEnterprise(context, undefined, data)
 
   const result: ButtonTypedEnterprise = {
     Тип: "Кнопка",
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -43,32 +45,38 @@ export const exportButtonTypedToEnterprise = <From extends Button | undefined>(
 
 export const exportButtonPartialToEnterprise = <From extends Button | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
-  const result = exportButtonPropsToEnterprise(context, data)
+  const result = exportButtonPropsToEnterprise(context, undefined, data)
 
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  const title = exportI8nTextOtherToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
-const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Button): ButtonPartialEnterprise => {
+const exportButtonPropsToEnterprise = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: Button
+): ButtonPartialEnterprise => {
   const result: ButtonPartialEnterprise = {}
 
-  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  const autoMaxHeight = exportBooleanToEnterprise(context, undefined, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
 
-  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
+  const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
   const displayImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
@@ -76,15 +84,16 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormButtonTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormButtonTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
-  const visible = exportBooleanToEnterprise(context, data.visible)
+  const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
   if (data.height !== undefined) result.Высота = data.height
@@ -93,20 +102,21 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
   if (data.commandName !== undefined) result.ИмяКоманды = data.commandName
 
-  const picture = exportPictureToEnterprise(context, data.picture)
+  const picture = exportPictureToEnterprise(context, undefined, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const defaultButton = exportBooleanToEnterprise(context, data.defaultButton)
+  const defaultButton = exportBooleanToEnterprise(context, undefined, data.defaultButton)
   if (defaultButton !== undefined) result.КнопкаПоУмолчанию = defaultButton
 
   if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
@@ -115,6 +125,7 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const representation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.representation,
     SE.ButtonRepresentationToEnterprise
   )
@@ -122,6 +133,7 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
@@ -129,6 +141,7 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const shapeRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.shapeRepresentation,
     SE.ButtonShapeRepresentationToEnterprise
   )
@@ -136,6 +149,7 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const locationInCommandBar = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.locationInCommandBar,
     SE.ButtonLocationInCommandBarToEnterprise
   )
@@ -143,12 +157,13 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 
   const pictureLocation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.pictureLocation,
     SE.FormButtonPictureLocationToEnterprise
   )
   if (pictureLocation !== undefined) result.ПоложениеКартинки = pictureLocation
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+  const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
@@ -156,43 +171,43 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
     Object.assign(result, userVisible)
   }
 
-  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)
   if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
 
   if (data.dataPath !== undefined) result.ПутьКДанным = data.dataPath
 
-  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  const verticalStretch = exportBooleanToEnterprise(context, undefined, data.verticalStretch)
   if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
 
-  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const onlyInAllActions = exportBooleanToEnterprise(context, data.onlyInAllActions)
+  const onlyInAllActions = exportBooleanToEnterprise(context, undefined, data.onlyInAllActions)
   if (onlyInAllActions !== undefined) result.ТолькоВоВсехДействиях = onlyInAllActions
 
-  const commandUniqueness = exportBooleanToEnterprise(context, data.commandUniqueness)
+  const commandUniqueness = exportBooleanToEnterprise(context, undefined, data.commandUniqueness)
   if (commandUniqueness !== undefined) result.УникальностьКоманды = commandUniqueness
 
-  const shape = exportSystemEnumerationToYAML(context, data.shape, SE.ButtonShapeToEnterprise)
+  const shape = exportSystemEnumerationToYAML(context, undefined, data.shape, SE.ButtonShapeToEnterprise)
   if (shape !== undefined) result.Фигура = shape
 
-  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  const borderColor = exportColorToEnterprise(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.ЦветРамки = borderColor
 
-  const textColor = exportColorToEnterprise(context, data.textColor)
+  const textColor = exportColorToEnterprise(context, undefined, data.textColor)
   if (textColor !== undefined) result.ЦветТекста = textColor
 
-  const backColor = exportColorToEnterprise(context, data.backColor)
+  const backColor = exportColorToEnterprise(context, undefined, data.backColor)
   if (backColor !== undefined) result.ЦветФона = backColor
 
   if (data.width !== undefined) result.Ширина = data.width
 
-  const font = exportFontToEnterprise(context, data.font)
+  const font = exportFontToEnterprise(context, undefined, data.font)
   if (font !== undefined) result.Шрифт = font
 
   return result

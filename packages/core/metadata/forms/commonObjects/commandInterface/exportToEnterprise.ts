@@ -9,9 +9,11 @@ import {
   CommandInterfaceItem,
   CommandInterfaceItemEnterprise,
 } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportCommandInterfaceToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CommandInterface | undefined
 ): CommandInterfaceEnterprise | undefined => {
   if (!data) return undefined
@@ -20,13 +22,13 @@ export const exportCommandInterfaceToEnterprise = (
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
     result.ПанельНавигации = data.NavigationPanel.map((item) =>
-      exportCommandInterfaceItemToEnterprise(context, item)
+      exportCommandInterfaceItemToEnterprise(context, undefined, item)
     )
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
     result.КоманднаяПанель = data.CommandBar.map((item) =>
-      exportCommandInterfaceItemToEnterprise(context, item)
+      exportCommandInterfaceItemToEnterprise(context, undefined, item)
     )
   }
 
@@ -37,12 +39,13 @@ export const exportCommandInterfaceToEnterprise = (
 
 const exportCommandInterfaceItemToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   item: CommandInterfaceItem
 ): CommandInterfaceItemEnterprise => {
   const result: CommandInterfaceItemEnterprise = {
     Команда: item.command,
     Тип: item.type,
-    Автовидимость: exportBooleanToEnterprise(context, item.defaultVisible)!,
+    Автовидимость: exportBooleanToEnterprise(context, undefined, item.defaultVisible)!,
   }
 
   if (item.commandGroup) {
@@ -50,7 +53,7 @@ const exportCommandInterfaceItemToEnterprise = (
   }
 
   if (item.visible && item.visible.values.length > 0) {
-    const visibleEnterprise = exportUserVisibleToEnterprise(context, item.visible, {
+    const visibleEnterprise = exportUserVisibleToEnterprise(context, undefined, item.visible, {
       allow: UserVisibleKeysEnterprise.Allow,
       deny: UserVisibleKeysEnterprise.Deny,
     })

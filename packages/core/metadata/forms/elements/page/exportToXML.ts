@@ -11,23 +11,25 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportPageToXML<From extends Page | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: PageXML = {
     ...baseFields,
   } as PageXML
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, undefined, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.childItemsHorizontalAlign !== undefined) result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
@@ -40,10 +42,10 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
   result.ExtendedTooltip = extendedTooltip
 
-  const format = exportI8nTextToXML(context, data.format)
+  const format = exportI8nTextToXML(context, undefined, data.format)
   if (format !== undefined) result.Format = format
 
   if (data.group !== undefined) result.Group = data.group
@@ -58,7 +60,7 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.itemsAndTitlesAlign !== undefined) result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
 
-  const picture = exportPictureToXML(context, data.picture)
+  const picture = exportPictureToXML(context, undefined, data.picture)
   if (picture !== undefined) result.Picture = picture
 
   if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
@@ -76,20 +78,20 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.titleDataPath !== undefined) result.TitleDataPath = data.titleDataPath
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign

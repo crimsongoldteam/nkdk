@@ -4,9 +4,11 @@ import {
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataDocumentNumeratorToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorXML | undefined => {
   if (!data) return undefined
@@ -29,7 +31,7 @@ export const exportMetadataDocumentNumeratorToXML = (
 
   if (data.objectBelonging !== undefined) result.ObjectBelonging = data.objectBelonging
 
-  const synonym = exportI8nTextToXML(context, data.synonym)
+  const synonym = exportI8nTextToXML(context, undefined, data.synonym)
   if (synonym !== undefined) result.Synonym = synonym
 
   return result

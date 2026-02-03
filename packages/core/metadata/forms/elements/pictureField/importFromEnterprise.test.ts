@@ -7,19 +7,25 @@ import {
   minimalPictureFieldPartialEnterprise,
   minimalPictureFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importPictureFieldPartialFromEnterprise, importPictureFieldTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importPictureFieldFromEnterprise", () => {
   describe("importPictureFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPictureFieldTypedFromEnterprise(mockContext, undefined, "ПолеКартинки")
+      const result = importPictureFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеКартинки")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPictureFieldTypedFromEnterprise(mockContext, fullPictureFieldTypedEnterprise, "ПолеКартинки")
+      const result = importPictureFieldTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        fullPictureFieldTypedEnterprise,
+        "ПолеКартинки"
+      )
 
       expect(result).toEqual(fullPictureField)
     })
@@ -27,6 +33,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importPictureFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalPictureFieldTypedEnterprise,
         "ПолеКартинки"
       )
@@ -37,7 +44,7 @@ describe("importPictureFieldFromEnterprise", () => {
 
   describe("importPictureFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importPictureFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importPictureFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -45,6 +52,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importPictureFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullPictureField,
         fullPictureFieldPartialEnterprise
       )
@@ -55,6 +63,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importPictureFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalPictureField,
         minimalPictureFieldPartialEnterprise
       )

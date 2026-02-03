@@ -12,21 +12,23 @@ import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 // export const exportCommandBarTypedToEnterprise = <From extends CommandBar | undefined>(
 //   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
 //   data: From
 // ): ToTypedEnterpriseType<From> => {
 //   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
-//   const props = exportCommandBarPropsToEnterprise(context, data)
+//   const props = exportCommandBarPropsToEnterprise(context, undefined, data)
 
 //   const result: CommandBarTypedEnterprise = {
 //     Тип: "КоманднаяПанель",
 //     ...props,
 //   }
 
-//   const title = exportI8nTextToEnterprise(context, data.title)
+//   const title = exportI8nTextToEnterprise(context, undefined, data.title)
 //   if (title !== undefined) result.Заголовок = title
 
 //   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -34,17 +36,18 @@ import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise
 
 export const exportCommandBarPartialToEnterprise = <From extends CommandBar | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
-  const props = exportCommandBarPropsToEnterprise(context, data)
+  const props = exportCommandBarPropsToEnterprise(context, undefined, data)
 
   const result: CommandBarPartialEnterprise = {
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
@@ -52,91 +55,92 @@ export const exportCommandBarPartialToEnterprise = <From extends CommandBar | un
 
 const exportCommandBarPropsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CommandBar
 ): CommandBarPartialEnterprise => {
-  const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, undefined, data)
 
   const result: CommandBarPartialEnterprise = {
     ...baseFields,
   }
 
   const verticalAlignInGroup = exportSystemEnumerationToYAML(
-    context,
+    context, undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
-  const visible = exportBooleanToEnterprise(context, data.visible)
+  const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
   if (data.height !== undefined) result.Высота = data.height
 
   const horizontalAlignInGroup = exportSystemEnumerationToYAML(
-    context,
+    context, undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
-    context,
+    context, undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const enableContentChange = exportBooleanToEnterprise(context, data.enableContentChange)
+  const enableContentChange = exportBooleanToEnterprise(context, undefined, data.enableContentChange)
   if (enableContentChange !== undefined) result.РазрешитьИзменениеСостава = enableContentChange
 
-  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  const verticalStretch = exportBooleanToEnterprise(context, undefined, data.verticalStretch)
   if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
 
-  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  const titleTextColor = exportColorToEnterprise(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
 
   if (data.width !== undefined) result.Ширина = data.width
 
   if (data.commandSource !== undefined) result.ИсточникКоманд = data.commandSource
 
-  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const autofill = exportBooleanToEnterprise(context, data.autofill)
+  const autofill = exportBooleanToEnterprise(context, undefined, data.autofill)
   if (autofill !== undefined) result.Автозаполнение = autofill
 
   const displayImportance = exportSystemEnumerationToYAML(
-    context,
+    context, undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
   const horizontalAlign = exportSystemEnumerationToYAML(
-    context,
+    context, undefined,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+  const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
@@ -144,7 +148,7 @@ const exportCommandBarPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  // const childItems = exportButtonGroupChildItemsToEnterprise(context, data.childItems)
+  // const childItems = exportButtonGroupChildItemsToEnterprise(context, undefined, data.childItems)
   // if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   return result

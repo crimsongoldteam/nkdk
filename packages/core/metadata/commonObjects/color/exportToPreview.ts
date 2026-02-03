@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Color, ColorPreview } from "./types"
 
 export const exportColorToPreview = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   color: Color | undefined
 ): ColorPreview | undefined => {
   if (!color) return undefined

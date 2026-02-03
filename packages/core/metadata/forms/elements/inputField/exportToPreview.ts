@@ -9,7 +9,11 @@ import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/
 import { getAttributeName } from "../../preview/getAttributeName"
 import { InputField, InputFieldPreview } from "./types"
 
-export const exportInputFieldToPreview = (context: ConfigurationContext, element: InputField): InputFieldPreview => {
+export const exportInputFieldToPreview = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: InputField
+): InputFieldPreview => {
   const result: InputFieldPreview = {
     ElementType: "FormField",
     Name: element.name,

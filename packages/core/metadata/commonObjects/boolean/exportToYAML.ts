@@ -4,7 +4,7 @@ import { StringboolEnterprise } from "./types"
 
 export const exportBooleanToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   value: boolean | undefined
 ): StringboolEnterprise | undefined => {
   if (value === undefined) return undefined

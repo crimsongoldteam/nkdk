@@ -3,6 +3,7 @@ import { SystemEnumerationPreview } from "./types"
 
 export const exportSystemEnumerationToPreview = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | undefined,
   enumerationName: string
 ): SystemEnumerationPreview | undefined => {

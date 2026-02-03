@@ -1,8 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 
-export function importContextMenuFromXML(context: ConfigurationContext, xml: ContextMenuXML): ContextMenu | undefined {
+export function importContextMenuFromXML(
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: ContextMenuXML
+): ContextMenu | undefined {
   if (xml === undefined) return undefined
 
   const result: ContextMenu = {
@@ -13,7 +18,7 @@ export function importContextMenuFromXML(context: ConfigurationContext, xml: Con
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (!isHasContent(result)) return undefined
 

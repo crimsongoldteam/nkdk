@@ -7,6 +7,7 @@ import { SearchStringAddition } from "./types"
 
 export function exportSearchStringAdditionContentToStructure(
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: SearchStringAddition
 ): IFormatElementResult {
   const resultString = "?ОтображениеСтрокиПоиска " + formatElementName(element)

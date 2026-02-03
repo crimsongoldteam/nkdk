@@ -39,14 +39,14 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
   }
 
   const childItems = importChildItemsFromStructure(context, childItemsStructure)
-  const formData = importCatalogFormFromEnterprise(context, enterpriseData, childItems)
+  const formData = importCatalogFormFromEnterprise(context, undefined, enterpriseData, childItems)
 
   if (!formData) {
     throw new Error("Не удалось импортировать форму из Enterprise формата")
   }
 
   // Экспортируем Form.xml
-  const formXmlData = exportCatalogFormToXML(context, formData)
+  const formXmlData = exportCatalogFormToXML(context, undefined, formData)
   if (!formXmlData) {
     throw new Error("Не удалось экспортировать форму в XML")
   }
@@ -57,7 +57,7 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
   writeFileSync(join(formOutputDir, "Form.xml"), formXmlString, "utf-8")
 
   // Экспортируем Metadata.xml
-  const formMetadataXmlData = exportFormMetadataToXML(context, formData, formName)
+  const formMetadataXmlData = exportFormMetadataToXML(context, undefined, formData, formName)
   const formMetadataXmlString = xmlExport({ MetaDataObject: formMetadataXmlData })
   writeFileSync(join(outputPath, `${formName}.xml`), formMetadataXmlString, "utf-8")
 }

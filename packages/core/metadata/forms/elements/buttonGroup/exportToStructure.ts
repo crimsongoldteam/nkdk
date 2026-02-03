@@ -7,6 +7,7 @@ import { ButtonGroup } from "./types"
 
 export function exportButtonGroupContentToStructure(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: ButtonGroup
 ): IFormatElementResult {
   const resultString = "#" + formatContent(context, element)
@@ -16,7 +17,11 @@ export function exportButtonGroupContentToStructure(
   }
 }
 
-const formatContent = (context: ConfigurationContext, element: ButtonGroup): string => {
+const formatContent = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: ButtonGroup
+): string => {
   return formatElementTitleAndName(context, element)
 }
 

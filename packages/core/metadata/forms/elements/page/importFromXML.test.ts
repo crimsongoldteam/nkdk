@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullPage, minimalPage } from "~/tests/fixtures/forms/page/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importPageFromXML } from "./importFromXML"
 import { PageXML } from "./types"
 
 describe("importPageFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPageFromXML(mockContext, undefined)
+    const result = importPageFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importPageFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ Page: PageXML }>("forms/page/full.xml")
 
-    const result = importPageFromXML(mockContext, xmlData.Page)
+    const result = importPageFromXML(mockContext, mockRule, xmlData.Page)
 
     expect(result).toEqual(fullPage)
   })
@@ -23,7 +23,7 @@ describe("importPageFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Page: PageXML }>("forms/page/minimal.xml")
 
-    const result = importPageFromXML(mockContext, xmlData.Page)
+    const result = importPageFromXML(mockContext, mockRule, xmlData.Page)
 
     expect(result).toEqual(minimalPage)
   })

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { withMultipleValuesUserVisible } from "~/tests/fixtures/userVisible/withMultipleValues"
 import { withSingleValueUserVisible } from "~/tests/fixtures/userVisible/withSingleValue"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportUserVisibleToXML } from "./exportToXML"
@@ -13,7 +13,7 @@ describe("exportUserVisibleToXML", () => {
 
     const expectedResult = readXMLFileAsString("userVisible/withMultipleValues.xml").trimEnd()
 
-    const exported = exportUserVisibleToXML(mockContext, mockUserVisible)
+    const exported = exportUserVisibleToXML(mockContext, mockRule, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -29,14 +29,14 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Common>false</xr:Common>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockContext, mockUserVisible)
+    const exported = exportUserVisibleToXML(mockContext, mockRule, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportUserVisibleToXML(mockContext, undefined)
+    const result = exportUserVisibleToXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -46,7 +46,7 @@ describe("exportUserVisibleToXML", () => {
 
     const expectedResult = readXMLFileAsString("userVisible/withSingleValue.xml").trimEnd()
 
-    const exported = exportUserVisibleToXML(mockContext, mockUserVisible)
+    const exported = exportUserVisibleToXML(mockContext, mockRule, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)

@@ -7,7 +7,7 @@ import {
   minimalCheckBoxFieldPartialEnterprise,
   minimalCheckBoxFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/checkBoxField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importCheckBoxFieldPartialFromEnterprise,
   importCheckBoxFieldTypedFromEnterprise,
@@ -16,19 +16,31 @@ import {
 describe("importCheckBoxFieldFromEnterprise", () => {
   describe("importCheckBoxFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importCheckBoxFieldTypedFromEnterprise(mockContext, undefined, "Флажок")
+      const result = importCheckBoxFieldTypedFromEnterprise(mockContext, mockRule, undefined, "Флажок")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importCheckBoxFieldTypedFromEnterprise(mockContext, fullCheckBoxFieldTypedEnterprise, "Флажок")
+      const result = importCheckBoxFieldTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        fullCheckBoxFieldTypedEnterprise,
+        "Флажок"
+      )
 
       expect(result).toEqual(fullCheckBoxField)
     })
 
     it("should import minimal", () => {
-      const result = importCheckBoxFieldTypedFromEnterprise(mockContext, minimalCheckBoxFieldTypedEnterprise, "Флажок")
+      const result = importCheckBoxFieldTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        minimalCheckBoxFieldTypedEnterprise,
+        "Флажок"
+      )
 
       expect(result).toEqual(minimalCheckBoxField)
     })
@@ -36,7 +48,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
 
   describe("importCheckBoxFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importCheckBoxFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importCheckBoxFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -44,6 +56,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importCheckBoxFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullCheckBoxField,
         fullCheckBoxFieldPartialEnterprise
       )
@@ -54,6 +67,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importCheckBoxFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalCheckBoxField,
         minimalCheckBoxFieldPartialEnterprise
       )

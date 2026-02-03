@@ -14,18 +14,20 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportPictureDecorationToXML<From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
+  const contextMenu = exportContextMenuToXML(context, undefined, data.contextMenu, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
   const result: PictureDecorationXML = {
     ...baseFields,
     ContextMenu: contextMenu,
@@ -40,7 +42,7 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
   if (font !== undefined) result.Font = font
 
   if (data.height !== undefined) result.Height = data.height
@@ -57,13 +59,13 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
   const title = exportFormattedI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
@@ -78,10 +80,10 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   if (data.width !== undefined) result.Width = data.width
 
-  const border = exportBorderToXML(context, data.border)
+  const border = exportBorderToXML(context, undefined, data.border)
   if (border !== undefined) result.Border = border
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
@@ -94,19 +96,19 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   if (data.nonselectedPictureText !== undefined) result.NonselectedPictureText = data.nonselectedPictureText
 
-  const picture = exportPictureToXML(context, data.picture)
+  const picture = exportPictureToXML(context, undefined, data.picture)
   if (picture !== undefined) result.Picture = picture
 
   if (data.pictureSize !== undefined) result.PictureSize = data.pictureSize
 
   if (data.scale !== undefined) result.Scale = data.scale
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.zoomable !== undefined) result.Zoomable = data.zoomable
 
-  const events = exportEventsToXML(context, data.events)
+  const events = exportEventsToXML(context, undefined, data.events)
   if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>

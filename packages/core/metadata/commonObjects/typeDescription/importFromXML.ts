@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined

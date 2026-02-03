@@ -2,6 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 /**
  * Imports child items partially from enterprise format, processing properties and recursively handling nested child items and command bar items.
@@ -12,6 +13,7 @@ import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } fro
  */
 export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   childItems: To[]
 ): To[] => {
   const childItemsProperties = context.allElements!
@@ -51,13 +53,14 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
  */
 export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   allProperties?: Record<string, ToTypedEnterpriseType<To>>
 ): To[] => {
   if (!allProperties) return []
 
   const result: To[] = []
   for (const [name, item] of Object.entries(allProperties)) {
-    const elementType = importFormElementTypeFromEnterprise(context, item.Тип)
+    const elementType = importFormElementTypeFromEnterprise(context, undefined, item.Тип)
     const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
     if (fn == undefined)
       throw new Error(`ImportTypedFromEnterprise function not found for element type: ${elementType}`)
@@ -69,6 +72,7 @@ export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
 
 const importChildItemProperties = <To extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   item: To,
   allProperties: AllChildItemsPartialEnterprise
 ): To => {

@@ -10,14 +10,16 @@ import { Page } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importPageFromXML<To extends Page | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
 
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: Page = {
     ...baseFields,
@@ -25,13 +27,13 @@ export function importPageFromXML<To extends Page | undefined>(
     childItems: [],
   }
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.Height !== undefined) result.height = xml.Height
@@ -44,16 +46,16 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
@@ -68,7 +70,7 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  const backColor = importColorFromXML(context, xml.BackColor)
+  const backColor = importColorFromXML(context, undefined, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
   if (xml.ChildItemsHorizontalAlign !== undefined) result.childItemsHorizontalAlign = xml.ChildItemsHorizontalAlign
@@ -77,7 +79,7 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
-  const format = importI8nTextFromXML(context, xml.Format)
+  const format = importI8nTextFromXML(context, undefined, xml.Format)
   if (format !== undefined) result.format = format
 
   if (xml.Group !== undefined) result.group = xml.Group
@@ -86,7 +88,7 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml.ItemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = xml.ItemsAndTitlesAlign
 
-  const picture = importPictureFromXML(context, xml.Picture)
+  const picture = importPictureFromXML(context, undefined, xml.Picture)
   if (picture !== undefined) result.picture = picture
 
   if (xml.ScrollOnCompress !== undefined) result.scrollOnCompress = xml.ScrollOnCompress
@@ -97,7 +99,7 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml.TitleDataPath !== undefined) result.titleDataPath = xml.TitleDataPath
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
@@ -106,7 +108,7 @@ export function importPageFromXML<To extends Page | undefined>(
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
-  // const events = importEventsFromXML(context, xml.Events)
+  // const events = importEventsFromXML(context, undefined, xml.Events)
   // if (events !== undefined) result.events = events
 
   return result as To

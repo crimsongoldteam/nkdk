@@ -65,7 +65,7 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const catalogDir = basename(catalogDirPath)
   const catalogName = catalogDir
 
-  const catalogData = importMetadataCatalogFromEnterprise(context, enterpriseData, catalogName)
+  const catalogData = importMetadataCatalogFromEnterprise(context, undefined, enterpriseData, catalogName)
 
   if (!catalogData) {
     throw new Error("Не удалось импортировать каталог из Enterprise формата")

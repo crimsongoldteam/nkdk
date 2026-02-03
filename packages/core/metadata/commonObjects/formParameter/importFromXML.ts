@@ -1,9 +1,11 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importTypeDescriptionFromXML } from "../typeDescription/importFromXML"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
 
 export const importFormParametersFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: FormParametersXML | undefined
 ): FormParameters | undefined => {
   if (xml === undefined) {
@@ -11,13 +13,17 @@ export const importFormParametersFromXML = (
   }
 
   const items = Array.isArray(xml) ? xml : [xml]
-  return items.map((item) => importFormParameterFromXML(context, item))
+  return items.map((item) => importFormParameterFromXML(context, undefined, item))
 }
 
-const importFormParameterFromXML = (context: ConfigurationContext, xml: FormParameterXML): FormParameter => {
+const importFormParameterFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: FormParameterXML
+): FormParameter => {
   const result: FormParameter = {
     name: xml._name,
-    type: importTypeDescriptionFromXML(context, xml.Type)!,
+    type: importTypeDescriptionFromXML(context, undefined, xml.Type)!,
   }
 
   if (xml.KeyParameter !== undefined) {

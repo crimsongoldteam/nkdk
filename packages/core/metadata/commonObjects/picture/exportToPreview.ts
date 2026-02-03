@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Picture, PicturePreview } from "./types"
 
 export const exportPictureToPreview = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined
 ): PicturePreview | undefined => {
   if (!picture || !picture.ref) return undefined

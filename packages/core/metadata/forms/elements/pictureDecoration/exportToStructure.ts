@@ -7,12 +7,14 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { PictureDecoration } from "./types"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportPictureDecorationToStructure: FormatElementFunction = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: PictureDecoration
 ): IFormatElementResult => {
-  const picture: PictureEnterprise | undefined = exportPictureToEnterprise(context, element.picture)
+  const picture: PictureEnterprise | undefined = exportPictureToEnterprise(context, undefined, element.picture)
 
   const pictureString = typeof picture === "string" ? picture : ""
 

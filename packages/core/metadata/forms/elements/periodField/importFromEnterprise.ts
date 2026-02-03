@@ -26,14 +26,16 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importPeriodFieldPropsFromEnterprise(context, data)
+  const props = importPeriodFieldPropsFromEnterprise(context, undefined, data)
 
   const result: PeriodField = {
     ...props,
@@ -41,7 +43,7 @@ export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | un
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -49,11 +51,12 @@ export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | un
 
 export function importPeriodFieldPartialFromEnterprise<To extends PeriodField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
   if (source === undefined) return undefined as To
-  const props = importPeriodFieldPropsFromEnterprise(context, data)
+  const props = importPeriodFieldPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
@@ -61,7 +64,7 @@ export function importPeriodFieldPartialFromEnterprise<To extends PeriodField | 
     name: source.name,
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -69,16 +72,17 @@ export function importPeriodFieldPartialFromEnterprise<To extends PeriodField | 
 
 const importPeriodFieldPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PeriodFieldTypedEnterprise | PeriodFieldPartialEnterprise | undefined
 ): Omit<Partial<PeriodField>, "elementType" | "name"> => {
   const result: Omit<Partial<PeriodField>, "elementType" | "name"> = {}
 
   if (data === undefined) return result
 
-  const autoCellHeight = importBooleanFromEnterprise(context, data.АвтоВысотаЯчейки)
+  const autoCellHeight = importBooleanFromEnterprise(context, undefined, data.АвтоВысотаЯчейки)
   if (autoCellHeight !== undefined) result.autoCellHeight = autoCellHeight
 
-  const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
+  const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -105,12 +109,12 @@ const importPeriodFieldPropsFromEnterprise = (
   const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.ВысотаЗаголовка !== undefined) result.titleHeight = data.ВысотаЗаголовка
 
-  const cellHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЯчейки)
+  const cellHyperlink = importBooleanFromEnterprise(context, undefined, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -141,25 +145,25 @@ const importPeriodFieldPropsFromEnterprise = (
   )
   if (headerHorizontalAlign !== undefined) result.headerHorizontalAlign = headerHorizontalAlign
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const footerPicture = importPictureFromEnterprise(context, data.КартинкаПодвала)
+  const footerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаПодвала)
   if (footerPicture !== undefined) result.footerPicture = footerPicture
 
-  const headerPicture = importPictureFromEnterprise(context, data.КартинкаШапки)
+  const headerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаШапки)
   if (headerPicture !== undefined) result.headerPicture = headerPicture
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const typeRestriction = importTypeDescriptionFromEnterprise(context, data.ОграничениеТипа)
+  const typeRestriction = importTypeDescriptionFromEnterprise(context, undefined, data.ОграничениеТипа)
   if (typeRestriction !== undefined) result.typeRestriction = typeRestriction
 
-  const showInFooter = importBooleanFromEnterprise(context, data.ОтображатьВПодвале)
+  const showInFooter = importBooleanFromEnterprise(context, undefined, data.ОтображатьВПодвале)
   if (showInFooter !== undefined) result.showInFooter = showInFooter
 
-  const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
+  const showInHeader = importBooleanFromEnterprise(context, undefined, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -176,7 +180,7 @@ const importPeriodFieldPropsFromEnterprise = (
   )
   if (warningOnEditRepresentation !== undefined) result.warningOnEditRepresentation = warningOnEditRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
@@ -186,22 +190,27 @@ const importPeriodFieldPropsFromEnterprise = (
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const warningOnEdit = importI8nTextFromEnterprise(context, data.ПредупреждениеПриРедактировании)
+  const warningOnEdit = importI8nTextFromEnterprise(context, undefined, data.ПредупреждениеПриРедактировании)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
   if (data.ПутьКДанным !== undefined) result.dataPath = data.ПутьКДанным
 
   if (data.ПутьКДаннымПодвала !== undefined) result.footerDataPath = data.ПутьКДаннымПодвала
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
@@ -215,10 +224,10 @@ const importPeriodFieldPropsFromEnterprise = (
 
   if (data.Таблица !== undefined) result.table = data.Таблица
 
-  const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
+  const footerText = importI8nTextFromEnterprise(context, undefined, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
@@ -228,28 +237,28 @@ const importPeriodFieldPropsFromEnterprise = (
   )
   if (fixingInTable !== undefined) result.fixingInTable = fixingInTable
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const footerTextColor = importColorFromEnterprise(context, data.ЦветТекстаПодвала)
+  const footerTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаПодвала)
   if (footerTextColor !== undefined) result.footerTextColor = footerTextColor
 
-  const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
+  const titleBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  const footerBackColor = importColorFromEnterprise(context, data.ЦветФонаПодвала)
+  const footerBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаПодвала)
   if (footerBackColor !== undefined) result.footerBackColor = footerBackColor
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const footerFont = importFontFromEnterprise(context, data.ШрифтПодвала)
+  const footerFont = importFontFromEnterprise(context, undefined, data.ШрифтПодвала)
   if (footerFont !== undefined) result.footerFont = footerFont
 
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  const autoMaxHeight = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -258,24 +267,24 @@ const importPeriodFieldPropsFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const border = importBorderFromEnterprise(context, data.Рамка)
+  const border = importBorderFromEnterprise(context, undefined, data.Рамка)
   if (border !== undefined) result.border = border
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importEventsFromEnterprise(context, data.События)
+  const events = importEventsFromEnterprise(context, undefined, data.События)
   if (events !== undefined) result.events = events
 
   return result

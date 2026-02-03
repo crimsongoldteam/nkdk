@@ -6,18 +6,18 @@ import {
   minimalLabelDecoration,
   minimalLabelDecorationPartialEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportLabelDecorationPartialToEnterprise, exportLabelDecorationTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportLabelDecorationPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportLabelDecorationPartialToEnterprise(mockContext, fullLabelDecoration)
+    const result = exportLabelDecorationPartialToEnterprise(mockContext, mockRule, fullLabelDecoration)
 
     expect(result).toEqual(fullLabelDecorationPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportLabelDecorationPartialToEnterprise(mockContext, minimalLabelDecoration)
+    const result = exportLabelDecorationPartialToEnterprise(mockContext, mockRule, minimalLabelDecoration)
 
     expect(result).toEqual(minimalLabelDecorationPartialEnterprise)
   })
@@ -25,13 +25,13 @@ describe("exportLabelDecorationPartialToEnterprise", () => {
 
 describe("exportLabelDecorationTypedToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportLabelDecorationTypedToEnterprise(mockContext, fullLabelDecoration)
+    const result = exportLabelDecorationTypedToEnterprise(mockContext, mockRule, fullLabelDecoration)
 
     expect(result).toEqual(fullLabelDecorationTypedEnterprise)
   })
 
   it("should return undefined when data is undefined", () => {
-    const result = exportLabelDecorationTypedToEnterprise(mockContext, undefined)
+    const result = exportLabelDecorationTypedToEnterprise(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

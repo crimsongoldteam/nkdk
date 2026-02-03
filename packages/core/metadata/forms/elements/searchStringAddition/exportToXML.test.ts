@@ -7,7 +7,7 @@ import {
   minimalSingleSearchStringAddition,
   parentElement,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportSearchStringAdditionToXML, exportSingleSearchStringAdditionToXML } from "./exportToXML"
@@ -17,7 +17,12 @@ describe("exportSearchStringAdditionToXML", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/fullSingle.xml")
 
-      const xmlData = exportSingleSearchStringAdditionToXML(mockContext, fullSingleSearchStringAddition, parentElement)
+      const xmlData = exportSingleSearchStringAdditionToXML(
+        mockContext,
+        mockRule,
+        fullSingleSearchStringAddition,
+        parentElement
+      )
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
@@ -27,7 +32,7 @@ describe("exportSearchStringAdditionToXML", () => {
     it("should return default when data is undefined", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimalSingle.xml")
 
-      const xmlData = exportSingleSearchStringAdditionToXML(mockContext, undefined, parentElement)
+      const xmlData = exportSingleSearchStringAdditionToXML(mockContext, mockRule, undefined, parentElement)
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
@@ -52,7 +57,7 @@ describe("exportSearchStringAdditionToXML", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml")
 
-      const xmlData = exportSearchStringAdditionToXML(mockContext, fullSearchStringAddition)
+      const xmlData = exportSearchStringAdditionToXML(mockContext, mockRule, fullSearchStringAddition)
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
@@ -61,7 +66,7 @@ describe("exportSearchStringAdditionToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
-      const xmlData = exportSearchStringAdditionToXML(mockContext, minimalSearchStringAddition)
+      const xmlData = exportSearchStringAdditionToXML(mockContext, mockRule, minimalSearchStringAddition)
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 

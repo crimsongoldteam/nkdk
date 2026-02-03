@@ -1,12 +1,12 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/importFromYAML"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { type UserVisible } from "./types"
 
 export const importUserVisibleFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   valueAllow: Record<string, StringboolEnterprise> | undefined,
   valueDeny: Record<string, StringboolEnterprise> | undefined
 ): UserVisible | undefined => {

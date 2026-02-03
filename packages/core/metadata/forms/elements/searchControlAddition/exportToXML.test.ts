@@ -7,7 +7,7 @@ import {
   minimalSingleSearchControlAddition,
   parentElement,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportSearchControlAdditionToXML, exportSingleSearchControlAdditionToXML } from "./exportToXML"
@@ -31,7 +31,7 @@ describe("exportSearchControlAdditionToXML", () => {
     it("should return default when data is undefined", () => {
       const expectedResult = readXMLFileAsString("forms/searchControlAddition/minimalSingle.xml")
 
-      const xmlData = exportSingleSearchControlAdditionToXML(mockContext, undefined, parentElement)
+      const xmlData = exportSingleSearchControlAdditionToXML(mockContext, mockRule, undefined, parentElement)
 
       const result = xmlExport({ SearchControlAddition: xmlData }, false)
 
@@ -56,7 +56,7 @@ describe("exportSearchControlAdditionToXML", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchControlAddition/full.xml")
 
-      const xmlData = exportSearchControlAdditionToXML(mockContext, fullSearchControlAddition)
+      const xmlData = exportSearchControlAdditionToXML(mockContext, mockRule, fullSearchControlAddition)
 
       const result = xmlExport({ SearchControlAddition: xmlData }, false)
 
@@ -65,7 +65,7 @@ describe("exportSearchControlAdditionToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/searchControlAddition/minimal.xml")
-      const xmlData = exportSearchControlAdditionToXML(mockContext, minimalSearchControlAddition)
+      const xmlData = exportSearchControlAdditionToXML(mockContext, mockRule, minimalSearchControlAddition)
 
       const result = xmlExport({ SearchControlAddition: xmlData }, false)
 

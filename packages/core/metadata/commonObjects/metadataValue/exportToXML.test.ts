@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataSimpleValueToXML, exportMetadataValueToXML } from "./exportToXML"
@@ -14,7 +14,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/string.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -29,7 +29,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/boolean.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -44,7 +44,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/decimal.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -61,7 +61,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/dateTime.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -76,7 +76,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/enum.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -91,7 +91,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/catalog.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -115,7 +115,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/fixedArray.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -134,7 +134,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/formChoiceListDesTimeValue.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -149,7 +149,7 @@ describe("exportMetadataValueToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataValue/metadataRef.xml")
 
-    const xmlData = exportMetadataValueToXML(mockContext, data)
+    const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ Value: xmlData }, false)
 
@@ -164,7 +164,7 @@ describe("exportMetadataValueToXML", () => {
 
   //   const expectedResult = readXMLFileAsString("metadataValue/appUsePurpose.xml")
 
-  //   const xmlData = exportMetadataValueToXML(mockContext, data)
+  //   const xmlData = exportMetadataValueToXML(mockContext, mockRule, data)
 
   //   const result = xmlExport({ Value: xmlData }, false)
 
@@ -172,7 +172,7 @@ describe("exportMetadataValueToXML", () => {
   // })
 
   it("should return undefined for undefined input", () => {
-    const result = exportMetadataValueToXML(mockContext, undefined)
+    const result = exportMetadataValueToXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -182,7 +182,7 @@ describe("export primitive values to XML", () => {
   it("should export string value to XML", () => {
     const expectedResult = readXMLFileAsString("metadataValue/numberAsString.xml")
 
-    const xmlData = exportMetadataSimpleValueToXML(mockContext, 11, "string")
+    const xmlData = exportMetadataSimpleValueToXML(mockContext, mockRule, 11, "string")
 
     const result = xmlExport({ Value: xmlData }, false)
 

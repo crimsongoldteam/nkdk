@@ -26,6 +26,7 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 
 const importLabelDecorationEventsFromEnterprise = (
   data: { Нажатие?: string; ОбработкаНавигационнойСсылки?: string } | undefined
@@ -47,12 +48,13 @@ const importLabelDecorationEventsFromEnterprise = (
 
 export function importLabelDecorationTypedFromEnterprise<To extends LabelDecoration | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importLabelDecorationPropsFromEnterprise(context, data)
+  const props = importLabelDecorationPropsFromEnterprise(context, undefined, data)
 
   const result: LabelDecoration = {
     ...props,
@@ -60,7 +62,7 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
     name,
   }
 
-  const title = importFormattedI8nTextFromEnterprise(context, data.Заголовок, data.ФорматированныйЗаголовок)
+  const title = importFormattedI8nTextFromEnterprise(context, undefined, data.Заголовок, data.ФорматированныйЗаголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -68,10 +70,11 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
 
 export function importLabelDecorationPartialFromEnterprise<To extends LabelDecoration>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importLabelDecorationPropsFromEnterprise(context, data)
+  const props = importLabelDecorationPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
@@ -90,16 +93,17 @@ export function importLabelDecorationPartialFromEnterprise<To extends LabelDecor
 
 const importLabelDecorationPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: LabelDecorationTypedEnterprise | LabelDecorationPartialEnterprise | undefined
 ): Omit<Partial<LabelDecoration>, "elementType" | "name"> => {
   const result: Omit<Partial<LabelDecoration>, "elementType" | "name"> = {}
 
   if (data === undefined) return result
 
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  const autoMaxHeight = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -123,7 +127,7 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -135,10 +139,10 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
@@ -152,29 +156,29 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
   const groupVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
@@ -193,7 +197,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   if (data.ВысотаЗаголовка !== undefined) result.titleHeight = data.ВысотаЗаголовка
 
-  const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
+  const hyperlink = importBooleanFromEnterprise(context, undefined, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -203,18 +207,23 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const border = importBorderFromEnterprise(context, data.Рамка)
+  const border = importBorderFromEnterprise(context, undefined, data.Рамка)
   if (border !== undefined) result.border = border
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
   const events = importLabelDecorationEventsFromEnterprise(data.События)

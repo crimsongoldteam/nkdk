@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -5,6 +6,7 @@ import { Color } from "./types"
 
 export const exportColorToEnterprise = <T extends Color | undefined>(
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   color: T
 ): string | undefined => {
   if (!color) return undefined

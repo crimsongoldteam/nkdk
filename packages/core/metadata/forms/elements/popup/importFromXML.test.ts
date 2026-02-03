@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullPopup, minimalPopup } from "~/tests/fixtures/forms/popup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importPopupFromXML } from "./importFromXML"
 import { PopupXML } from "./types"
 
 describe("importPopupFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPopupFromXML(mockContext, undefined)
+    const result = importPopupFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importPopupFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ Popup: PopupXML }>("forms/popup/full.xml")
 
-    const result = importPopupFromXML(mockContext, xmlData.Popup)
+    const result = importPopupFromXML(mockContext, mockRule, xmlData.Popup)
 
     expect(result).toEqual(fullPopup)
   })
@@ -23,7 +23,7 @@ describe("importPopupFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Popup: PopupXML }>("forms/popup/minimal.xml")
 
-    const result = importPopupFromXML(mockContext, xmlData.Popup)
+    const result = importPopupFromXML(mockContext, mockRule, xmlData.Popup)
 
     expect(result).toEqual(minimalPopup)
   })

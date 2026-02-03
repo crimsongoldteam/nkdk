@@ -5,7 +5,7 @@ import { FormParameterEnterprise, FormParameters, FormParametersEnterprise } fro
 
 export const exportFormParametersToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   parameters: FormParameters | undefined
 ): FormParametersEnterprise | undefined => {
   if (parameters === undefined || parameters.length === 0) {
@@ -16,7 +16,7 @@ export const exportFormParametersToYAML = (
 
   for (const parameter of parameters) {
     const enterpriseParameter: FormParameterEnterprise = {
-      Тип: exportTypeDescriptionToYAML(context, _rule, parameter.type)!,
+      Тип: exportTypeDescriptionToYAML(context, undefined, _rule, parameter.type)!,
     }
 
     if (parameter.keyParameter !== undefined) {

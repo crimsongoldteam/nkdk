@@ -4,7 +4,7 @@ import { MetadataField, MetadataFields, MetadataFieldsXML } from "./types"
 
 export const _exportMetadataFieldToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataField | undefined
 ): string | undefined => {
   if (!data) return undefined
@@ -14,7 +14,7 @@ export const _exportMetadataFieldToXML = (
 
 export const _exportMetadataFieldsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataFields | undefined
 ): MetadataFieldsXML | undefined => {
   if (!data) return undefined
@@ -22,6 +22,6 @@ export const _exportMetadataFieldsToXML = (
   const items = Array.isArray(data) ? data : [data]
 
   return {
-    "xr:Field": items.map((value) => _exportMetadataFieldToXML(context, _rule, value)!),
+    "xr:Field": items.map((value) => _exportMetadataFieldToXML(context, undefined, _rule, value)!),
   }
 }

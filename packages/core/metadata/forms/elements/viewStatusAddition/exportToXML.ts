@@ -9,9 +9,11 @@ import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getViewStatusAdditionName } from "./helper"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportViewStatusAdditionToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ViewStatusAddition | undefined,
   parentElement: { name: string }
 ): ViewStatusAdditionXML => {
@@ -19,10 +21,10 @@ export const exportViewStatusAdditionToXML = (
 
   const name = getViewStatusAdditionName(parentElement)
 
-  const baseFields = exportElementPropsToXML(context, { name })
+  const baseFields = exportElementPropsToXML(context, undefined, { name })
 
-  const contextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
-  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
+  const contextMenu = exportContextMenuToXML(context, undefined, element.contextMenu, { name })
+  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, element.extendedTooltip, { name })
 
   const result: ViewStatusAdditionXML = {
     ...baseFields,
@@ -36,19 +38,19 @@ export const exportViewStatusAdditionToXML = (
 
   if (element.autoMaxWidth !== undefined) result.AutoMaxWidth = element.autoMaxWidth
 
-  const backColor = exportColorToXML(context, element.backColor)
+  const backColor = exportColorToXML(context, undefined, element.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const border = exportBorderToXML(context, element.border)
+  const border = exportBorderToXML(context, undefined, element.border)
   if (border !== undefined) result.Border = border
 
-  const borderColor = exportColorToXML(context, element.borderColor)
+  const borderColor = exportColorToXML(context, undefined, element.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
-  const buttonsBackColor = exportColorToXML(context, element.buttonsBackColor)
+  const buttonsBackColor = exportColorToXML(context, undefined, element.buttonsBackColor)
   if (buttonsBackColor !== undefined) result.ButtonColor = buttonsBackColor
 
-  const font = exportFontToXML(context, element.font)
+  const font = exportFontToXML(context, undefined, element.font)
   if (font !== undefined) result.Font = font
 
   if (element.horizontalAlign !== undefined) result.HorizontalLocation = element.horizontalAlign
@@ -57,13 +59,13 @@ export const exportViewStatusAdditionToXML = (
 
   if (element.maxWidth !== undefined) result.MaxWidth = element.maxWidth
 
-  const textColor = exportColorToXML(context, element.textColor)
+  const textColor = exportColorToXML(context, undefined, element.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const titleFont = exportFontToXML(context, element.titleFont)
+  const titleFont = exportFontToXML(context, undefined, element.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
-  const titleTextColor = exportColorToXML(context, element.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, element.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
   if (element.width !== undefined) result.Width = element.width
@@ -72,10 +74,10 @@ export const exportViewStatusAdditionToXML = (
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  const title = exportI8nTextToXML(context, element.title)
+  const title = exportI8nTextToXML(context, undefined, element.title)
   if (title !== undefined) result.Title = title
 
-  const toolTip = exportI8nTextToXML(context, element.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, element.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (element.toolTipRepresentation !== undefined) result.ToolTipRepresentation = element.toolTipRepresentation

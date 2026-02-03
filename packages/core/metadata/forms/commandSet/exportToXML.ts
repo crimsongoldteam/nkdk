@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const exportCommandSetToXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CommandSet | undefined
 ): CommandSetXML | undefined => {
   if (!data || data.length === 0) return undefined

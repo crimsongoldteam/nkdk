@@ -1,9 +1,14 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { Font, FontXML, PrefixedFontsFromXML } from "./types"
 
-export const importFontFromXML = (_context: ConfigurationContext, xml: FontXML | undefined): Font | undefined => {
+export const importFontFromXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: FontXML | undefined
+): Font | undefined => {
   if (!xml) return undefined
 
   const result: any = {}

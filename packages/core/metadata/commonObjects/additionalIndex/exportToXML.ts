@@ -6,16 +6,18 @@ import {
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportAdditionalIndexToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndex | undefined
 ): AdditionalIndexXML | undefined => {
   if (!data) return undefined
 
   return {
-    AdditionalFields: exportIndexFieldsToXML(context, data.additionalFields),
-    IndexedFields: exportIndexFieldsToXML(context, data.indexedFields),
+    AdditionalFields: exportIndexFieldsToXML(context, undefined, data.additionalFields),
+    IndexedFields: exportIndexFieldsToXML(context, undefined, data.indexedFields),
     Name: data.name,
     Table: data.table,
   }
@@ -23,9 +25,10 @@ export const exportAdditionalIndexToXML = (
 
 export const exportAdditionalIndexesToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: AdditionalIndex) => exportAdditionalIndexToXML(context, value)!)
+  return data.map((value: AdditionalIndex) => exportAdditionalIndexToXML(context, undefined, value)!)
 }

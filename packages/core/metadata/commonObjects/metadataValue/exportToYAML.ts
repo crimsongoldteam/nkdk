@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { format } from "date-fns"
 import { Context as VMContext } from "vm"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportBooleanToYAML } from "../boolean/exportToYAML"
 import { exportMetadataValueStringToYAML } from "../metadataPath/exportToYAML"
 import {
@@ -21,17 +21,18 @@ import {
 
 export const exportMetadataValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataValue | undefined
 ): MetadataValueEnterprise | undefined => {
   if (!data) return undefined
 
-  if (data.type === "fixedArray") return exportFixedArrayValueToYAML(context, _rule, data)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToYAML(context, _rule, data)
+  if (data.type === "fixedArray") return exportFixedArrayValueToYAML(context, undefined, _rule, data)
+  if (data.type === "formChoiceListDesTimeValue")
+    return exportFormChoiceListValueToYAML(context, undefined, _rule, data)
   if (data.type === "string") return exportStringValueToYAML(data)
   if (data.type === "decimal") return exportDecimalValueToYAML(data)
   if (data.type === "dateTime") return exportDateTimeValueToYAML(data)
-  if (data.type === "boolean") return exportBooleanValueToYAML(context, _rule, data)
+  if (data.type === "boolean") return exportBooleanValueToYAML(context, undefined, _rule, data)
   if (data.type === "ref") return exportRefValueToYAML(data)
   if (data.type === "objectRef") return exportObjectRefValueToYAML(data)
   // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToYAML(data)
@@ -57,10 +58,10 @@ const exportDateTimeValueToYAML = (data: MetadataDateTimeValue): MetadataValueEn
 
 const exportBooleanValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataBooleanValue
 ): MetadataValueEnterprise => {
-  return exportBooleanToYAML(context, _rule, data.value)!
+  return exportBooleanToYAML(context, undefined, _rule, data.value)!
 }
 
 const exportRefValueToYAML = (data: MetadataRefValue): MetadataValueEnterprise => {
@@ -73,18 +74,20 @@ const exportObjectRefValueToYAML = (data: MetadataObjectRefValue): MetadataValue
 
 const exportFixedArrayValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValue
 ): MetadataValueEnterprise => {
-  return data.value.map((v) => exportMetadataValueToYAML(context, _rule, v)!) as MetadataFixedArrayValueEnterprise
+  return data.value.map(
+    (v) => exportMetadataValueToYAML(context, undefined, _rule, v)!
+  ) as MetadataFixedArrayValueEnterprise
 }
 
 export const exportFormChoiceListValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueEnterprise => {
-  const valueResult = exportMetadataValueToYAML(context, _rule, data.value)
+  const valueResult = exportMetadataValueToYAML(context, undefined, _rule, data.value)
 
   const presentationItems = data.presentation?.items
   const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
@@ -115,5 +118,5 @@ export const exportMedatataRefToYAML = (value: string): string => {
 }
 
 const exportMetadataPathValueToYAML = (context: VMContext, rule: PropertyRule, value: string): string | undefined => {
-  return exportMetadataValueStringToYAML(context, rule, value)
+  return exportMetadataValueStringToYAML(context, undefined, rule, value)
 }

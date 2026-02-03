@@ -7,19 +7,25 @@ import {
   minimalButtonGroup,
   minimalButtonGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/buttonGroup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importButtonGroupPartialFromEnterprise, importButtonGroupTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importButtonGroupFromEnterprise", () => {
   describe("importButtonGroupTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importButtonGroupTypedFromEnterprise(mockContext, undefined, "ГруппаКнопок")
+      const result = importButtonGroupTypedFromEnterprise(mockContext, mockRule, undefined, "ГруппаКнопок")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importButtonGroupTypedFromEnterprise(mockContext, fullButtonGroupTypedEnterprise, "ГруппаКнопок")
+      const result = importButtonGroupTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        fullButtonGroupTypedEnterprise,
+        "ГруппаКнопок"
+      )
 
       expect(result).toEqual(fullButtonGroup)
     })
@@ -27,6 +33,7 @@ describe("importButtonGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importButtonGroupTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalButtonGroupTypedEnterprise,
         "ГруппаКнопок"
       )
@@ -37,7 +44,7 @@ describe("importButtonGroupFromEnterprise", () => {
 
   describe("importButtonGroupPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importButtonGroupPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importButtonGroupPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -45,6 +52,7 @@ describe("importButtonGroupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importButtonGroupPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullButtonGroup,
         fullButtonGroupPartialEnterprise
       )

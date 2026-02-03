@@ -13,9 +13,11 @@ import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metada
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   structure: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -26,7 +28,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
     childItems: structure.childItems ?? [],
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, structure.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, structure.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   if (!data) return result
@@ -41,7 +43,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -53,7 +55,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -63,34 +65,34 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const enableContentChange = importBooleanFromEnterprise(context, data.РазрешитьИзменениеСостава)
+  const enableContentChange = importBooleanFromEnterprise(context, undefined, data.РазрешитьИзменениеСостава)
   if (enableContentChange !== undefined) result.enableContentChange = enableContentChange
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
   if (data.ИсточникКоманд !== undefined) result.commandSource = data.ИсточникКоманд
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
+  const autofill = importBooleanFromEnterprise(context, undefined, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -107,12 +109,17 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const childItems = importChildItemsPartialFromEnterprise(context, structure?.childItems ?? [])
+  const childItems = importChildItemsPartialFromEnterprise(context, undefined, structure?.childItems ?? [])
   if (childItems !== undefined) result.childItems = childItems
 
   return result

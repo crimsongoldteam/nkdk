@@ -1,8 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importI8nTextFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: I8nTextEnterprise | undefined
 ): I8nText | undefined => {
   if (data === undefined) return undefined
@@ -22,6 +24,7 @@ export const importI8nTextFromEnterprise = (
 
 export const importI8nTextCombinedFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   defaultLanguage: I8nText | undefined,
   otherLanguagesEnterprise: I8nTextEnterprise | undefined
 ): I8nText | undefined => {
@@ -36,7 +39,7 @@ export const importI8nTextCombinedFromEnterprise = (
   }
 
   if (otherLanguagesEnterprise !== undefined) {
-    const otherLanguages = importI8nTextFromEnterprise(context, otherLanguagesEnterprise)!
+    const otherLanguages = importI8nTextFromEnterprise(context, undefined, otherLanguagesEnterprise)!
     result.items = { ...result.items, ...otherLanguages.items }
   }
 

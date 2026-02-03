@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { exportI8nTextToXML } from "../i8nText/exportToXML"
 import {
@@ -14,6 +15,7 @@ import { MetadataPrimitiveValueType } from "./types.ts"
 
 export const exportMetadataValueToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValue | undefined
 ): MetadataValueXML | undefined => {
   if (!data) return undefined
@@ -21,7 +23,7 @@ export const exportMetadataValueToXML = (
   const xmlType = MetadataValueTypeToXML[data.type]
 
   if (data.type === "fixedArray") {
-    return exportFixedArrayValueToXML(context, data as Extract<MetadataValue, { type: "fixedArray" }>)
+    return exportFixedArrayValueToXML(context, undefined, data as Extract<MetadataValue, { type: "fixedArray" }>)
   }
 
   if (data.type === "formChoiceListDesTimeValue") {
@@ -36,15 +38,17 @@ export const exportMetadataValueToXML = (
 
 export const exportMetadataValuesToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValue[] | undefined
 ): MetadataValueXML[] | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportMetadataValueToXML(context, value)!)
+  return data.map((value) => exportMetadataValueToXML(context, undefined, value)!)
 }
 
 export const exportMetadataSimpleValueToXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | boolean | number | undefined,
   type: MetadataPrimitiveValueType
 ): MetadataSimpleValueXML | undefined => {
@@ -60,9 +64,10 @@ export const exportMetadataSimpleValueToXML = (
 
 const exportFixedArrayValueToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: Extract<MetadataValue, { type: "fixedArray" }>
 ): MetadataFixedArrayValueXML => {
-  const values = data.value.map((v) => exportMetadataValueToXML(context, v)!)
+  const values = data.value.map((v) => exportMetadataValueToXML(context, undefined, v)!)
   return {
     "_xsi:type": "v8:FixedArray",
     "v8:Value": values.length === 1 ? values[0] : values,
@@ -71,18 +76,21 @@ const exportFixedArrayValueToXML = (
 
 export const exportFormChoiceListValueToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueXML => {
-  const value = exportMetadataValueToXML(context, data.value)
-  
+  const value = exportMetadataValueToXML(context, undefined, data.value)
+
   // Если значение undefined, создаем объект с xsi:nil="true"
-  const valueXML: MetadataValueXML = value ?? ({
-    "_xsi:nil": true,
-  } as any)
-  
+  const valueXML: MetadataValueXML =
+    value ??
+    ({
+      "_xsi:nil": true,
+    } as any)
+
   return {
     "_xsi:type": "FormChoiceListDesTimeValue",
-    Presentation: exportI8nTextToXML(context, data.presentation),
+    Presentation: exportI8nTextToXML(context, undefined, data.presentation),
     Value: valueXML,
   } as MetadataFormChoiceListValueXML
 }

@@ -4,7 +4,7 @@ import { Predefined, PredefinedItems, PredefinedItemsXML, PredefinedXML } from "
 
 export const _importPredefinedFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: PredefinedXML | undefined
 ): Predefined | undefined => {
   if (!data) return undefined
@@ -19,10 +19,10 @@ export const _importPredefinedFromXML = (
 
 export const _importPredefinedItemsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: PredefinedItemsXML | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => _importPredefinedFromXML(context, _rule, value)!)
+  return data.map((value) => _importPredefinedFromXML(context, undefined, _rule, value)!)
 }

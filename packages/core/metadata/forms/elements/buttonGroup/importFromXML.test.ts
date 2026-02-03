@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromXML"
 import { fullButtonGroup, minimalButtonGroup } from "~/tests/fixtures/forms/buttonGroup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importButtonGroupFromXML } from "./importFromXML"
 import { ButtonGroupXML } from "./types"
 
 describe("importButtonGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importButtonGroupFromXML(mockContext, undefined)
+    const result = importButtonGroupFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -16,7 +16,7 @@ describe("importButtonGroupFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ ButtonGroup: ButtonGroupXML }>("forms/buttonGroup/full.xml")
 
-    const result = importButtonGroupFromXML(mockContext, xmlData.ButtonGroup)
+    const result = importButtonGroupFromXML(mockContext, mockRule, xmlData.ButtonGroup)
 
     expect(result).toEqual(fullButtonGroup)
   })
@@ -24,7 +24,7 @@ describe("importButtonGroupFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ ButtonGroup: ButtonGroupXML }>("forms/buttonGroup/minimal.xml")
 
-    const result = importButtonGroupFromXML(mockContext, xmlData.ButtonGroup)
+    const result = importButtonGroupFromXML(mockContext, mockRule, xmlData.ButtonGroup)
 
     expect(result).toEqual(minimalButtonGroup)
   })

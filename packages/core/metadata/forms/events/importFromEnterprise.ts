@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Events, EventsEnterprise } from "./types"
 
@@ -60,6 +61,7 @@ const enterpriseEventNameMapping: Record<string, string> = {
 
 export const importEventsFromEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: EventsEnterprise | undefined
 ): Events | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined

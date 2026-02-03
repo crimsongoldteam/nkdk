@@ -7,7 +7,7 @@ import {
   minimalSearchControlAddition,
   minimalSingleSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportSearchControlAdditionPartialToEnterprise,
   exportSingleSearchControlAdditionToEnterprise,
@@ -16,13 +16,21 @@ import {
 describe("exportToEnterprise", () => {
   describe("exportSingleSearchControlAdditionToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSingleSearchControlAdditionToEnterprise(mockContext, fullSingleSearchControlAddition)
+      const result = exportSingleSearchControlAdditionToEnterprise(
+        mockContext,
+        mockRule,
+        fullSingleSearchControlAddition
+      )
 
       expect(result).toEqual(fullSingleSearchControlAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSingleSearchControlAdditionToEnterprise(mockContext, minimalSingleSearchControlAddition)
+      const result = exportSingleSearchControlAdditionToEnterprise(
+        mockContext,
+        mockRule,
+        minimalSingleSearchControlAddition
+      )
 
       expect(result).toBeUndefined()
     })
@@ -30,13 +38,13 @@ describe("exportToEnterprise", () => {
 
   describe("exportSearchControlAdditionPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, fullSearchControlAddition)
+      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, mockRule, fullSearchControlAddition)
 
       expect(result).toEqual(fullSearchControlAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, minimalSearchControlAddition)
+      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, mockRule, minimalSearchControlAddition)
 
       expect(result).toBeUndefined()
     })

@@ -5,12 +5,12 @@ import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
 
 describe("exportTypeDescriptionToEnterprise", () => {
   it("should format undefined type description", () => {
-    const result = exportTypeDescriptionToEnterprise(mockContext, undefined)
+    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it.each(typeFixturesTable)("should export composite type to Enterprise: $enterprise", ({ internal, enterprise }) => {
-    const result = exportTypeDescriptionToEnterprise(mockContext, internal)
+    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, internal)
     expect(result).toEqual(enterprise)
   })
 })

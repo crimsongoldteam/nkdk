@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { fullPdfDocumentField, minimalPdfDocumentField } from "~/tests/fixtures/forms/pdfDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportPdfDocumentFieldToXML } from "./exportToXML"
 
 describe("exportPdfDocumentFieldToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportPdfDocumentFieldToXML(mockContext, undefined)
+    const result = exportPdfDocumentFieldToXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/pdfDocumentField/full.xml")
-    const xmlData = exportPdfDocumentFieldToXML(mockContext, fullPdfDocumentField)
+    const xmlData = exportPdfDocumentFieldToXML(mockContext, mockRule, fullPdfDocumentField)
 
     const result = xmlExport({ PdfDocumentField: xmlData }, false)
 
@@ -23,7 +23,7 @@ describe("exportPdfDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/pdfDocumentField/minimal.xml")
-    const xmlData = exportPdfDocumentFieldToXML(mockContext, minimalPdfDocumentField)
+    const xmlData = exportPdfDocumentFieldToXML(mockContext, mockRule, minimalPdfDocumentField)
 
     const result = xmlExport({ PdfDocumentField: xmlData }, false)
 

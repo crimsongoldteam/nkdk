@@ -6,19 +6,19 @@ import {
   minimalDendrogramField,
   minimalDendrogramFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/dendrogramField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportDendrogramFieldPartialToEnterprise, exportDendrogramFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportDendrogramFieldToEnterprise", () => {
   describe("exportDendrogramFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportDendrogramFieldPartialToEnterprise(mockContext, fullDendrogramField)
+      const result = exportDendrogramFieldPartialToEnterprise(mockContext, mockRule, fullDendrogramField)
 
       expect(result).toEqual(fullDendrogramFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportDendrogramFieldPartialToEnterprise(mockContext, minimalDendrogramField)
+      const result = exportDendrogramFieldPartialToEnterprise(mockContext, mockRule, minimalDendrogramField)
 
       expect(result).toEqual(minimalDendrogramFieldPartialEnterprise)
     })
@@ -26,13 +26,13 @@ describe("exportDendrogramFieldToEnterprise", () => {
 
   describe("exportDendrogramFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportDendrogramFieldTypedToEnterprise(mockContext, fullDendrogramField)
+      const result = exportDendrogramFieldTypedToEnterprise(mockContext, mockRule, fullDendrogramField)
 
       expect(result).toEqual(fullDendrogramFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportDendrogramFieldTypedToEnterprise(mockContext, undefined)
+      const result = exportDendrogramFieldTypedToEnterprise(mockContext, mockRule, undefined)
 
       expect(result).toBeUndefined()
     })

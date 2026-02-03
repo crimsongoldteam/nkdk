@@ -1,4 +1,5 @@
 import { format, parse } from "date-fns"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
@@ -13,16 +14,17 @@ import {
 
 export const importMetadataValueFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValueEnterprise | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
 
   if (typeof data === "object" && data !== null && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListValueFromEnterprise(context, data as MetadataFormChoiceListValueEnterprise)
+    return importFormChoiceListValueFromEnterprise(context, undefined, data as MetadataFormChoiceListValueEnterprise)
   }
 
   if (Array.isArray(data)) {
-    return importFixedArrayValueFromEnterprise(context, data)
+    return importFixedArrayValueFromEnterprise(context, undefined, data)
   }
 
   if (typeof data === "number") {
@@ -33,7 +35,7 @@ export const importMetadataValueFromEnterprise = (
   }
 
   if (typeof data === "string") {
-    return importStringValueFromEnterprise(context, data)
+    return importStringValueFromEnterprise(context, undefined, data)
   }
 
   throw new Error(`Invalid value ${JSON.stringify(data)}`)
@@ -55,7 +57,11 @@ const parseDateTime = (dateTime: string): string => {
   }
 }
 
-const importStringValueFromEnterprise = (context: ConfigurationContext, data: string): MetadataValue => {
+const importStringValueFromEnterprise = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: string
+): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
   const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
   if (formChoiceListMatch) {
@@ -123,28 +129,30 @@ const importStringValueFromEnterprise = (context: ConfigurationContext, data: st
     }
   }
 
-  return importMetadataRefFromEnterprise(context, data)
+  return importMetadataRefFromEnterprise(context, undefined, data)
 }
 
 const importFixedArrayValueFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueEnterprise
 ): MetadataValue => {
   return {
     type: "fixedArray",
-    value: data.map((v) => importMetadataValueFromEnterprise(context, v)!) as MetadataValue[],
+    value: data.map((v) => importMetadataValueFromEnterprise(context, undefined, v)!) as MetadataValue[],
   }
 }
 
 export const importFormChoiceListValueFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueEnterprise
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
     const parsed = formulaFormatParser(data)
     // Если formula пустая, значит это формат (presentation) без значения
-    const value = parsed.formula ? importMetadataValueFromEnterprise(context, parsed.formula) : undefined
-    const presentation = importI8nTextFromEnterprise(context, parsed.parameters[0])
+    const value = parsed.formula ? importMetadataValueFromEnterprise(context, undefined, parsed.formula) : undefined
+    const presentation = importI8nTextFromEnterprise(context, undefined, parsed.parameters[0])
 
     return {
       type: "formChoiceListDesTimeValue",
@@ -152,16 +160,20 @@ export const importFormChoiceListValueFromEnterprise = (
       value: value,
     }
   }
-  const value = importMetadataValueFromEnterprise(context, data.Значение)!
+  const value = importMetadataValueFromEnterprise(context, undefined, data.Значение)!
   return {
     type: "formChoiceListDesTimeValue",
-    presentation: importI8nTextFromEnterprise(context, data.Представление),
+    presentation: importI8nTextFromEnterprise(context, undefined, data.Представление),
     value: value,
   }
 }
 
-export const importMetadataRefFromEnterprise = (context: ConfigurationContext, value: string): MetadataValue => {
-  const convertedValue = importMetadataValueStringFromEnterprise(context, value)
+export const importMetadataRefFromEnterprise = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  value: string
+): MetadataValue => {
+  const convertedValue = importMetadataValueStringFromEnterprise(context, undefined, value)
   if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
 
   return {

@@ -3,14 +3,14 @@ import {
   fullFormattedDocumentField,
   minimalFormattedDocumentField,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importFormattedDocumentFieldFromXML } from "./importFromXML"
 import { FormattedDocumentFieldXML } from "./types"
 
 describe("importFormattedDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importFormattedDocumentFieldFromXML(mockContext, undefined)
+    const result = importFormattedDocumentFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -20,7 +20,7 @@ describe("importFormattedDocumentFieldFromXML", () => {
       "forms/formattedDocumentField/full.xml"
     )
 
-    const result = importFormattedDocumentFieldFromXML(mockContext, xmlData.FormattedDocumentField)
+    const result = importFormattedDocumentFieldFromXML(mockContext, mockRule, xmlData.FormattedDocumentField)
 
     expect(result).toEqual(fullFormattedDocumentField)
   })
@@ -30,7 +30,7 @@ describe("importFormattedDocumentFieldFromXML", () => {
       "forms/formattedDocumentField/minimal.xml"
     )
 
-    const result = importFormattedDocumentFieldFromXML(mockContext, xmlData.FormattedDocumentField)
+    const result = importFormattedDocumentFieldFromXML(mockContext, mockRule, xmlData.FormattedDocumentField)
 
     expect(result).toEqual(minimalFormattedDocumentField)
   })

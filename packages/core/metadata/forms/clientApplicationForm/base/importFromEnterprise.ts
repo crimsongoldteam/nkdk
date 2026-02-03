@@ -17,6 +17,7 @@ import { importCommandsFromEnterprise } from "../../commands/importFromEnterpris
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importCommandInterfaceFromEnterprise } from "../../commonObjects/commandInterface/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",
@@ -49,6 +50,7 @@ const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof Clie
 
 export const importClientApplicationFormFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ClientApplicationFormEnterprise,
   structure: ChildItemsStructureResult
 ): ClientApplicationForm => {
@@ -58,14 +60,14 @@ export const importClientApplicationFormFromEnterprise = (
   }
 
   const result: ClientApplicationForm = {
-    commands: importCommandsFromEnterprise(context, data.Команды),
+    commands: importCommandsFromEnterprise(context, undefined, data.Команды),
     childItems: [],
   }
 
-  const autoTitle = importBooleanFromEnterprise(context, data.АвтоЗаголовок)
+  const autoTitle = importBooleanFromEnterprise(context, undefined, data.АвтоЗаголовок)
   if (autoTitle !== undefined) result.autoTitle = autoTitle
 
-  const commandSet = importCommandSetFromEnterprise(context, data.СоставКоманд)
+  const commandSet = importCommandSetFromEnterprise(context, undefined, data.СоставКоманд)
   if (commandSet !== undefined) result.commandSet = commandSet
 
   const autoSaveDataInSettings = importSystemEnumerationFromYAML<SE.AutoSaveFormDataInSettings>(
@@ -75,7 +77,7 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (autoSaveDataInSettings !== undefined) result.autoSaveDataInSettings = autoSaveDataInSettings
 
-  const autoURL = importBooleanFromEnterprise(context, data.АвтоНавигационнаяСсылка)
+  const autoURL = importBooleanFromEnterprise(context, undefined, data.АвтоНавигационнаяСсылка)
   if (autoURL !== undefined) result.autoURL = autoURL
 
   const verticalScroll = importSystemEnumerationFromYAML<SE.VerticalFormScroll>(
@@ -129,19 +131,19 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (group !== undefined) result.group = group
 
-  const customizable = importBooleanFromEnterprise(context, data.РазрешитьИзменятьФорму)
+  const customizable = importBooleanFromEnterprise(context, undefined, data.РазрешитьИзменятьФорму)
   if (customizable !== undefined) result.customizable = customizable
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const closeOnChoice = importBooleanFromEnterprise(context, data.ЗакрыватьПриВыборе)
+  const closeOnChoice = importBooleanFromEnterprise(context, undefined, data.ЗакрыватьПриВыборе)
   if (closeOnChoice !== undefined) result.closeOnChoice = closeOnChoice
 
-  const closeOnOwnerClose = importBooleanFromEnterprise(context, data.ЗакрыватьПриЗакрытииВладельца)
+  const closeOnOwnerClose = importBooleanFromEnterprise(context, undefined, data.ЗакрыватьПриЗакрытииВладельца)
   if (closeOnOwnerClose !== undefined) result.closeOnOwnerClose = closeOnOwnerClose
 
   const usedFormServer = importSystemEnumerationFromYAML<SE.UsedServer>(
@@ -151,7 +153,7 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (usedFormServer !== undefined) result.usedFormServer = usedFormServer
 
-  const commandInterface = importCommandInterfaceFromEnterprise(context, data.ИнтерфейсКоманды)
+  const commandInterface = importCommandInterfaceFromEnterprise(context, undefined, data.ИнтерфейсКоманды)
   if (commandInterface !== undefined) result.commandInterface = commandInterface
 
   if (data.КлючНазначенияИспользования !== undefined) result.purposeUseKey = data.КлючНазначенияИспользования
@@ -167,16 +169,16 @@ export const importClientApplicationFormFromEnterprise = (
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
 
-  const modalMode = importBooleanFromEnterprise(context, data.МодальныйРежим)
+  const modalMode = importBooleanFromEnterprise(context, undefined, data.МодальныйРежим)
   if (modalMode !== undefined) result.modalMode = modalMode
 
-  const modified = importBooleanFromEnterprise(context, data.Модифицированность)
+  const modified = importBooleanFromEnterprise(context, undefined, data.Модифицированность)
   if (modified !== undefined) result.modified = modified
 
-  const showTitle = importBooleanFromEnterprise(context, data.ОтображатьЗаголовок)
+  const showTitle = importBooleanFromEnterprise(context, undefined, data.ОтображатьЗаголовок)
   if (showTitle !== undefined) result.showTitle = showTitle
 
-  const showCloseButton = importBooleanFromEnterprise(context, data.ОтображатьКнопкуЗакрытия)
+  const showCloseButton = importBooleanFromEnterprise(context, undefined, data.ОтображатьКнопкуЗакрытия)
   if (showCloseButton !== undefined) result.showCloseButton = showCloseButton
 
   const conversationsRepresentation = importSystemEnumerationFromYAML<SE.FormConversationsRepresentation>(
@@ -200,7 +202,7 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (commandBarLocation !== undefined) result.commandBarLocation = commandBarLocation
 
-  const autoFillCheck = importBooleanFromEnterprise(context, data.ПроверятьЗаполнениеАвтоматически)
+  const autoFillCheck = importBooleanFromEnterprise(context, undefined, data.ПроверятьЗаполнениеАвтоматически)
   if (autoFillCheck !== undefined) result.autoFillCheck = autoFillCheck
 
   const formWindowOpeningMode = importSystemEnumerationFromYAML<SE.FormWindowOpeningMode>(
@@ -230,7 +232,7 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (savedInSettingsDataModified !== undefined) result.savedInSettingsDataModified = savedInSettingsDataModified
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
   if (data.Ширина !== undefined) result.width = data.Ширина
@@ -242,27 +244,27 @@ export const importClientApplicationFormFromEnterprise = (
   )
   if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
 
-  const saveWindowSettings = importBooleanFromEnterprise(context, data.СохранятьНастройкиОкна)
+  const saveWindowSettings = importBooleanFromEnterprise(context, undefined, data.СохранятьНастройкиОкна)
   if (saveWindowSettings !== undefined) result.saveWindowSettings = saveWindowSettings
 
   const events = importClientApplicationFormEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
+  const attributes = importFormAttributesFromEnterprise(context, undefined, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  const parameters = importFormParametersFromEnterprise(context, data.Параметры)
+  const parameters = importFormParametersFromEnterprise(context, undefined, data.Параметры)
   if (parameters !== undefined) result.parameters = parameters
 
-  const synonim = importI8nTextFromEnterprise(context, data.Синоним)
+  const synonim = importI8nTextFromEnterprise(context, undefined, data.Синоним)
   if (synonim !== undefined) result.synonim = synonim
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
 
-  const includeHelpInContents = importBooleanFromEnterprise(context, data.ВключатьСправкуВСодержание)
+  const includeHelpInContents = importBooleanFromEnterprise(context, undefined, data.ВключатьСправкуВСодержание)
   if (includeHelpInContents !== undefined) result.includeHelpInContents = includeHelpInContents
 
-  const usePurposes = importUsePurposesFromEnterprise(context, data.НазначенияИспользования)
+  const usePurposes = importUsePurposesFromEnterprise(context, undefined, data.НазначенияИспользования)
   if (usePurposes !== undefined) result.usePurposes = usePurposes
 
   result.childItems = importChildItemsPartialFromEnterprise(itemsContext, structure.childItems)

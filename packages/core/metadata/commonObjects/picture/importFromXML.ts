@@ -1,14 +1,16 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { Picture, PictureXML } from "./types"
 
 export const importPictureFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: PictureXML | undefined
 ): Picture | undefined => {
   if (!xml) return undefined
 
-  const loadTransparent = importBooleanFromXML(context, xml["xr:LoadTransparent"])!
+  const loadTransparent = importBooleanFromXML(context, undefined, xml["xr:LoadTransparent"])!
 
   const transparentPixel = xml["xr:TransparentPixel"]
     ? {

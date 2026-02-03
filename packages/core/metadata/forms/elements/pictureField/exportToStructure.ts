@@ -10,6 +10,7 @@ const AT_SYMBOL = "@"
 
 export const exportPictureFieldContentToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: PictureField
 ): IFormatElementResult => {
   const resultString = AT_SYMBOL + formatElementName(element)
@@ -22,6 +23,7 @@ export const exportPictureFieldContentToStructure = (
 
 export const exportPictureFieldToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: PictureField
 ): IFormatElementResult => {
   return exportPictureFieldContentToStructure(_context, element)

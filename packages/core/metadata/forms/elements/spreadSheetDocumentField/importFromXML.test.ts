@@ -3,14 +3,14 @@ import {
   fullSpreadSheetDocumentField,
   minimalSpreadSheetDocumentField,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importSpreadSheetDocumentFieldFromXML } from "./importFromXML"
 import { SpreadSheetDocumentFieldXML } from "./types"
 
 describe("importSpreadSheetDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importSpreadSheetDocumentFieldFromXML(mockContext, undefined)
+    const result = importSpreadSheetDocumentFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -20,7 +20,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
       "forms/spreadSheetDocumentField/full.xml"
     )
 
-    const result = importSpreadSheetDocumentFieldFromXML(mockContext, xmlData.SpreadSheetDocumentField)
+    const result = importSpreadSheetDocumentFieldFromXML(mockContext, mockRule, xmlData.SpreadSheetDocumentField)
 
     expect(result).toEqual(fullSpreadSheetDocumentField)
   })
@@ -30,7 +30,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
       "forms/spreadSheetDocumentField/minimal.xml"
     )
 
-    const result = importSpreadSheetDocumentFieldFromXML(mockContext, xmlData.SpreadSheetDocumentField)
+    const result = importSpreadSheetDocumentFieldFromXML(mockContext, mockRule, xmlData.SpreadSheetDocumentField)
 
     expect(result).toEqual(minimalSpreadSheetDocumentField)
   })

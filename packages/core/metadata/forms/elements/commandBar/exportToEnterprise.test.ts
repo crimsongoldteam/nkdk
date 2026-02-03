@@ -5,18 +5,18 @@ import {
   minimalCommandBar,
   minimalCommandBarPartialEnterprise,
 } from "~/tests/fixtures/forms/commandBar/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportCommandBarPartialToEnterprise } from "./exportToEnterprise"
 
 describe("exportCommandBarPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportCommandBarPartialToEnterprise(mockContext, fullCommandBar)
+    const result = exportCommandBarPartialToEnterprise(mockContext, mockRule, fullCommandBar)
 
     expect(result).toEqual(fullCommandBarPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportCommandBarPartialToEnterprise(mockContext, minimalCommandBar)
+    const result = exportCommandBarPartialToEnterprise(mockContext, mockRule, minimalCommandBar)
 
     expect(result).toEqual(minimalCommandBarPartialEnterprise)
   })

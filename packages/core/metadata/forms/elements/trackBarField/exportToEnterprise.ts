@@ -25,23 +25,25 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
-  const props = exportTrackBarFieldPropsToEnterprise(context, data)
+  const props = exportTrackBarFieldPropsToEnterprise(context, undefined, data)
 
   const result: TrackBarFieldTypedEnterprise = {
     Тип: "ПолеПолосыПрокрутки",
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -49,17 +51,18 @@ export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField 
 
 export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
-  const props = exportTrackBarFieldPropsToEnterprise(context, data)
+  const props = exportTrackBarFieldPropsToEnterprise(context, undefined, data)
 
   const result: TrackBarFieldPartialEnterprise = {
     ...props,
   }
 
-  const title = exportI8nTextOtherToEnterprise(context, (data as TrackBarField).title)
+  const title = exportI8nTextOtherToEnterprise(context, undefined, (data as TrackBarField).title)
   if (title !== undefined) result.Заголовок = title
 
   return result as ToPartialEnterpriseType<From>
@@ -67,46 +70,56 @@ export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarFiel
 
 function exportTrackBarFieldPropsToEnterprise(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: TrackBarField
 ): TrackBarFieldPartialEnterprise {
   const result: TrackBarFieldPartialEnterprise = {}
 
-  const autoCellHeight = exportBooleanToEnterprise(context, data.autoCellHeight)
+  const autoCellHeight = exportBooleanToEnterprise(context, undefined, data.autoCellHeight)
   if (autoCellHeight !== undefined) result.АвтоВысотаЯчейки = autoCellHeight
 
-  const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
+  const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
   const displayImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToYAML(context, data.verticalAlign, SE.ItemVerticalAlignToEnterprise)
+  const verticalAlign = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.verticalAlign,
+    SE.ItemVerticalAlignToEnterprise
+  )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
   const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormFieldTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
-  const visible = exportBooleanToEnterprise(context, data.visible)
+  const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
   if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
 
-  const cellHyperlink = exportBooleanToEnterprise(context, data.cellHyperlink)
+  const cellHyperlink = exportBooleanToEnterprise(context, undefined, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
   const horizontalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
@@ -114,6 +127,7 @@ function exportTrackBarFieldPropsToEnterprise(
 
   const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
@@ -121,6 +135,7 @@ function exportTrackBarFieldPropsToEnterprise(
 
   const footerHorizontalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.footerHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
@@ -128,34 +143,36 @@ function exportTrackBarFieldPropsToEnterprise(
 
   const headerHorizontalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.headerHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (headerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВШапке = headerHorizontalAlign
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const footerPicture = exportPictureToEnterprise(context, data.footerPicture)
+  const footerPicture = exportPictureToEnterprise(context, undefined, data.footerPicture)
   if (footerPicture !== undefined) result.КартинкаПодвала = footerPicture
 
-  const headerPicture = exportPictureToEnterprise(context, data.headerPicture)
+  const headerPicture = exportPictureToEnterprise(context, undefined, data.headerPicture)
   if (headerPicture !== undefined) result.КартинкаШапки = headerPicture
 
-  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, undefined, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
-  const typeRestriction = exportTypeDescriptionToEnterprise(context, data.typeRestriction)
+  const typeRestriction = exportTypeDescriptionToEnterprise(context, undefined, data.typeRestriction)
   if (typeRestriction !== undefined) result.ОграничениеТипа = typeRestriction
 
-  const showInFooter = exportBooleanToEnterprise(context, data.showInFooter)
+  const showInFooter = exportBooleanToEnterprise(context, undefined, data.showInFooter)
   if (showInFooter !== undefined) result.ОтображатьВПодвале = showInFooter
 
-  const showInHeader = exportBooleanToEnterprise(context, data.showInHeader)
+  const showInHeader = exportBooleanToEnterprise(context, undefined, data.showInHeader)
   if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
@@ -163,19 +180,26 @@ function exportTrackBarFieldPropsToEnterprise(
 
   const warningOnEditRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.warningOnEditRepresentation,
     SE.WarningOnEditRepresentationToEnterprise
   )
   if (warningOnEditRepresentation !== undefined)
     result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToYAML(context, data.titleLocation, SE.FormItemTitleLocationToEnterprise)
+  const titleLocation = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.titleLocation,
+    SE.FormItemTitleLocationToEnterprise
+  )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const userVisibleFormField = exportUserVisibleToEnterprise(context, data.userVisible, {
+  const userVisibleFormField = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
@@ -183,57 +207,63 @@ function exportTrackBarFieldPropsToEnterprise(
     Object.assign(result, userVisibleFormField)
   }
 
-  const warningOnEdit = exportI8nTextToEnterprise(context, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToEnterprise(context, undefined, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
-  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)
   if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
 
   if (data.dataPath !== undefined) result.ПутьКДанным = data.dataPath
 
   if (data.footerDataPath !== undefined) result.ПутьКДаннымПодвала = data.footerDataPath
 
-  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToYAML(context, data.editMode, SE.ColumnEditModeToEnterprise)
+  const editMode = exportSystemEnumerationToYAML(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
   if (data.table !== undefined) result.Таблица = data.table
 
-  const footerText = exportI8nTextToEnterprise(context, data.footerText)
+  const footerText = exportI8nTextToEnterprise(context, undefined, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
 
-  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const fixingInTable = exportSystemEnumerationToYAML(context, data.fixingInTable, SE.FixingInTableToEnterprise)
+  const fixingInTable = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.fixingInTable,
+    SE.FixingInTableToEnterprise
+  )
   if (fixingInTable !== undefined) result.ФиксацияВТаблице = fixingInTable
 
-  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  const titleTextColor = exportColorToEnterprise(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
 
-  const footerTextColor = exportColorToEnterprise(context, data.footerTextColor)
+  const footerTextColor = exportColorToEnterprise(context, undefined, data.footerTextColor)
   if (footerTextColor !== undefined) result.ЦветТекстаПодвала = footerTextColor
 
-  const titleBackColor = exportColorToEnterprise(context, data.titleBackColor)
+  const titleBackColor = exportColorToEnterprise(context, undefined, data.titleBackColor)
   if (titleBackColor !== undefined) result.ЦветФонаЗаголовка = titleBackColor
 
-  const footerBackColor = exportColorToEnterprise(context, data.footerBackColor)
+  const footerBackColor = exportColorToEnterprise(context, undefined, data.footerBackColor)
   if (footerBackColor !== undefined) result.ЦветФонаПодвала = footerBackColor
 
-  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const footerFont = exportFontToEnterprise(context, data.footerFont)
+  const footerFont = exportFontToEnterprise(context, undefined, data.footerFont)
   if (footerFont !== undefined) result.ШрифтПодвала = footerFont
 
-  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  const autoMaxHeight = exportBooleanToEnterprise(context, undefined, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
 
-  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
   if (data.largeStep !== undefined) result.БольшойШаг = data.largeStep
@@ -248,20 +278,27 @@ function exportTrackBarFieldPropsToEnterprise(
 
   if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
 
-  const orientation = exportSystemEnumerationToYAML(context, data.orientation, SE.FormItemOrientationToEnterprise)
+  const orientation = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.orientation,
+    SE.FormItemOrientationToEnterprise
+  )
   if (orientation !== undefined) result.Ориентация = orientation
 
   const markingAppearance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.markingAppearance,
     SE.TrackBarMarkingAppearanceToEnterprise
   )
   if (markingAppearance !== undefined) result.ОтображениеРазметки = markingAppearance
 
-  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  const verticalStretch = exportBooleanToEnterprise(context, undefined, data.verticalStretch)
   if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
 
-  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
   if (data.step !== undefined) result.Шаг = data.step
@@ -270,7 +307,7 @@ function exportTrackBarFieldPropsToEnterprise(
 
   if (data.width !== undefined) result.Ширина = data.width
 
-  const events = exportEventsToEnterprise(context, data.events)
+  const events = exportEventsToEnterprise(context, undefined, data.events)
   if (events !== undefined) result.События = events
 
   return result

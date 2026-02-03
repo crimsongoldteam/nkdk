@@ -22,6 +22,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 import { importSingleSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
 import { importSingleSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
 import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -135,10 +136,16 @@ const importTableEventsFromEnterprise = (
 
 export function importTablePartialFromEnterprise<To extends Table>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To>
 ): To {
-  const autoCommandBar = importAutoCommandBarFromEnterprise(context, source.autoCommandBar, data.КоманднаяПанель)
+  const autoCommandBar = importAutoCommandBarFromEnterprise(
+    context,
+    undefined,
+    source.autoCommandBar,
+    data.КоманднаяПанель
+  )
 
   const result: Table = {
     ...source,
@@ -146,25 +153,29 @@ export function importTablePartialFromEnterprise<To extends Table>(
     autoCommandBar: autoCommandBar,
   }
 
-  const autoAddIncomplete = importBooleanFromEnterprise(context, data.АвтоВводНезаполненного)
+  const autoAddIncomplete = importBooleanFromEnterprise(context, undefined, data.АвтоВводНезаполненного)
   if (autoAddIncomplete !== undefined) result.autoAddIncomplete = autoAddIncomplete
 
-  const autoInsertNewRow = importBooleanFromEnterprise(context, data.АвтоВводНовойСтроки)
+  const autoInsertNewRow = importBooleanFromEnterprise(context, undefined, data.АвтоВводНовойСтроки)
   if (autoInsertNewRow !== undefined) result.autoInsertNewRow = autoInsertNewRow
 
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  const autoMaxHeight = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
-  const autoMaxHeightInTableRows = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысотаВСтрокахТаблицы)
+  const autoMaxHeightInTableRows = importBooleanFromEnterprise(
+    context,
+    undefined,
+    data.АвтоМаксимальнаяВысотаВСтрокахТаблицы
+  )
   if (autoMaxHeightInTableRows !== undefined) result.autoMaxHeightInTableRows = autoMaxHeightInTableRows
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const autoMarkIncomplete = importBooleanFromEnterprise(context, data.АвтоОтметкаНезаполненного)
+  const autoMarkIncomplete = importBooleanFromEnterprise(context, undefined, data.АвтоОтметкаНезаполненного)
   if (autoMarkIncomplete !== undefined) result.autoMarkIncomplete = autoMarkIncomplete
 
-  const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
+  const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -195,10 +206,10 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const verticalLines = importBooleanFromEnterprise(context, data.ВертикальныеЛинии)
+  const verticalLines = importBooleanFromEnterprise(context, undefined, data.ВертикальныеЛинии)
   if (verticalLines !== undefined) result.verticalLines = verticalLines
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   const output = importSystemEnumerationFromYAML<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
@@ -228,13 +239,13 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const horizontalLines = importBooleanFromEnterprise(context, data.ГоризонтальныеЛинии)
+  const horizontalLines = importBooleanFromEnterprise(context, undefined, data.ГоризонтальныеЛинии)
   if (horizontalLines !== undefined) result.horizontalLines = horizontalLines
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
   const refreshRequest = importSystemEnumerationFromYAML<SE.RefreshRequestMethod>(
@@ -244,10 +255,10 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (refreshRequest !== undefined) result.refreshRequest = refreshRequest
 
-  const changeRowOrder = importBooleanFromEnterprise(context, data.ИзменятьПорядокСтрок)
+  const changeRowOrder = importBooleanFromEnterprise(context, undefined, data.ИзменятьПорядокСтрок)
   if (changeRowOrder !== undefined) result.changeRowOrder = changeRowOrder
 
-  const changeRowSet = importBooleanFromEnterprise(context, data.ИзменятьСоставСтрок)
+  const changeRowSet = importBooleanFromEnterprise(context, undefined, data.ИзменятьСоставСтрок)
   if (changeRowSet !== undefined) result.changeRowSet = changeRowSet
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.TableCurrentRowUse>(
@@ -257,13 +268,13 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const rowsPicture = importPictureFromEnterprise(context, data.КартинкаСтрок)
+  const rowsPicture = importPictureFromEnterprise(context, undefined, data.КартинкаСтрок)
   if (rowsPicture !== undefined) result.rowsPicture = rowsPicture
 
-  const commandSet = importCommandSetFromEnterprise(context, data.Команда)
+  const commandSet = importCommandSetFromEnterprise(context, undefined, data.Команда)
   if (commandSet !== undefined) result.commandSet = commandSet
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
@@ -273,7 +284,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const multipleChoice = importBooleanFromEnterprise(context, data.МножественныйВыбор)
+  const multipleChoice = importBooleanFromEnterprise(context, undefined, data.МножественныйВыбор)
   if (multipleChoice !== undefined) result.multipleChoice = multipleChoice
 
   const initialTreeView = importSystemEnumerationFromYAML<SE.InitialTreeView>(
@@ -290,7 +301,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (initialListView !== undefined) result.initialListView = initialListView
 
-  const markIncomplete = importBooleanFromEnterprise(context, data.ОтметкаНезаполненного)
+  const markIncomplete = importBooleanFromEnterprise(context, undefined, data.ОтметкаНезаполненного)
   if (markIncomplete !== undefined) result.markIncomplete = markIncomplete
 
   const representation = importSystemEnumerationFromYAML<SE.TableRepresentation>(
@@ -307,10 +318,18 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const viewStatusAddition = importViewStatusAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра)
+  const viewStatusAddition = importViewStatusAdditionFromEnterprise(
+    context,
+    undefined,
+    data.ОтображениеСостоянияПросмотра
+  )
   if (viewStatusAddition !== undefined) result.viewStatusAddition = viewStatusAddition
 
-  const searchStringAddition = importSingleSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
+  const searchStringAddition = importSingleSearchStringAdditionFromEnterprise(
+    context,
+    undefined,
+    data.ОтображениеСтрокиПоиска
+  )
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
   const behaviorOnHorizontalCompression = importSystemEnumerationFromYAML<SE.TableBehaviorOnHorizontalCompression>(
@@ -321,13 +340,13 @@ export function importTablePartialFromEnterprise<To extends Table>(
   if (behaviorOnHorizontalCompression !== undefined)
     result.behaviorOnHorizontalCompression = behaviorOnHorizontalCompression
 
-  const footer = importBooleanFromEnterprise(context, data.Подвал)
+  const footer = importBooleanFromEnterprise(context, undefined, data.Подвал)
   if (footer !== undefined) result.footer = footer
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  result.childItems = importChildItemsPartialFromEnterprise(context, source.childItems)
+  result.childItems = importChildItemsPartialFromEnterprise(context, undefined, source.childItems)
 
   const searchOnInput = importSystemEnumerationFromYAML<SE.SearchInTableOnInput>(
     context,
@@ -371,31 +390,36 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (searchControlLocation !== undefined) result.searchControlLocation = searchControlLocation
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
   if (data.ПутьКДанным !== undefined) result.dataPath = data.ПутьКДанным
 
   if (data.ПутьКДаннымКартинкиСтроки !== undefined) result.rowPictureDataPath = data.ПутьКДаннымКартинкиСтроки
 
-  const enableStartDrag = importBooleanFromEnterprise(context, data.РазрешитьНачалоПеретаскивания)
+  const enableStartDrag = importBooleanFromEnterprise(context, undefined, data.РазрешитьНачалоПеретаскивания)
   if (enableStartDrag !== undefined) result.enableStartDrag = enableStartDrag
 
-  const enableDrag = importBooleanFromEnterprise(context, data.РазрешитьПеретаскивание)
+  const enableDrag = importBooleanFromEnterprise(context, undefined, data.РазрешитьПеретаскивание)
   if (enableDrag !== undefined) result.enableDrag = enableDrag
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const rowInputMode = importSystemEnumerationFromYAML<SE.TableRowInputMode>(
@@ -405,7 +429,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (rowInputMode !== undefined) result.rowInputMode = rowInputMode
 
-  const choiceMode = importBooleanFromEnterprise(context, data.РежимВыбора)
+  const choiceMode = importBooleanFromEnterprise(context, undefined, data.РежимВыбора)
   if (choiceMode !== undefined) result.choiceMode = choiceMode
 
   const selectionMode = importSystemEnumerationFromYAML<SE.TableSelectionMode>(
@@ -431,45 +455,45 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (fileDragMode !== undefined) result.fileDragMode = fileDragMode
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const searchControl = importSingleSearchControlAdditionFromEnterprise(context, data.УправлениеПоиском)
+  const searchControl = importSingleSearchControlAdditionFromEnterprise(context, undefined, data.УправлениеПоиском)
   if (searchControl !== undefined) result.searchControl = searchControl
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  const useAlternationRowColor = importBooleanFromEnterprise(context, data.ЧередованиеЦветовСтрок)
+  const useAlternationRowColor = importBooleanFromEnterprise(context, undefined, data.ЧередованиеЦветовСтрок)
   if (useAlternationRowColor !== undefined) result.useAlternationRowColor = useAlternationRowColor
 
-  const header = importBooleanFromEnterprise(context, data.Шапка)
+  const header = importBooleanFromEnterprise(context, undefined, data.Шапка)
   if (header !== undefined) result.header = header
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
   const events = importTableEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  const autoRefresh = importBooleanFromEnterprise(context, data.АвтоОбновление)
+  const autoRefresh = importBooleanFromEnterprise(context, undefined, data.АвтоОбновление)
   if (autoRefresh !== undefined) result.autoRefresh = autoRefresh
 
-  const restoreCurrentRow = importBooleanFromEnterprise(context, data.ВосстанавливатьТекущуюСтроку)
+  const restoreCurrentRow = importBooleanFromEnterprise(context, undefined, data.ВосстанавливатьТекущуюСтроку)
   if (restoreCurrentRow !== undefined) result.restoreCurrentRow = restoreCurrentRow
 
   const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
@@ -479,7 +503,11 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (choiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = choiceFoldersAndItems
 
-  const additionalCreateParameters = importBooleanFromEnterprise(context, data.ДополнительныеПараметрыСоздания)
+  const additionalCreateParameters = importBooleanFromEnterprise(
+    context,
+    undefined,
+    data.ДополнительныеПараметрыСоздания
+  )
   if (additionalCreateParameters !== undefined) result.additionalCreateParameters = additionalCreateParameters
 
   const updateOnDataChange = importSystemEnumerationFromYAML<SE.UpdateOnDataChange>(
@@ -489,12 +517,12 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (updateOnDataChange !== undefined) result.updateOnDataChange = updateOnDataChange
 
-  const showRoot = importBooleanFromEnterprise(context, data.ОтображатьКорень)
+  const showRoot = importBooleanFromEnterprise(context, undefined, data.ОтображатьКорень)
   if (showRoot !== undefined) result.showRoot = showRoot
 
   if (data.ПериодАвтоОбновления !== undefined) result.autoRefreshPeriod = data.ПериодАвтоОбновления
 
-  const allowRootChoice = importBooleanFromEnterprise(context, data.РазрешитьВыборКорня)
+  const allowRootChoice = importBooleanFromEnterprise(context, undefined, data.РазрешитьВыборКорня)
   if (allowRootChoice !== undefined) result.allowRootChoice = allowRootChoice
 
   const allowGettingCurrentRowURL = importBooleanFromEnterprise(

@@ -1,9 +1,11 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/importFromXML"
 import { UsePurposes, UsePurposesXML } from "./types"
 
 export const importUsePurposesFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: UsePurposesXML | undefined
 ): UsePurposes | undefined => {
   if (!xml) return undefined
@@ -16,7 +18,7 @@ export const importUsePurposesFromXML = (
   const result: UsePurposes = []
 
   for (const value of valueArray) {
-    const metadataValue = importMetadataValueFromXML(context, value, "string")
+    const metadataValue = importMetadataValueFromXML(context, undefined, value, "string")
     if (metadataValue && metadataValue.type === "string") {
       const stringValue = metadataValue.value as string
       if (stringValue === "PlatformApplication" || stringValue === "MobilePlatformApplication") {

@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -6,6 +7,7 @@ import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } 
 
 export function exportPictureToEnterprise(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined
 ): PictureEnterprise | undefined {
   if (!picture) return undefined
@@ -13,7 +15,7 @@ export function exportPictureToEnterprise(
   let ref: PictureEnterprise | undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToYAML(context, picture.ref, SE.PictureLibToEnterprise)
+    const result = exportSystemEnumerationToYAML(context, undefined, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 
@@ -31,14 +33,14 @@ export function exportPictureToEnterprise(
     const result: PictureEnterpriseExtended = { Ссылка: ref }
 
     if (hasCustomLoadTransparent) {
-      result.ПрозрачныйФон = exportBooleanToEnterprise(context, picture.loadTransparent)
+      result.ПрозрачныйФон = exportBooleanToEnterprise(context, undefined, picture.loadTransparent)
     }
 
     if (hasTransparentPixel) {
       result.ПрозрачныйПиксель = picture.transparentPixel
       // For pictures with transparent pixel, even if loadTransparent matches default, we need to include it
       if (result.ПрозрачныйФон === undefined) {
-        result.ПрозрачныйФон = exportBooleanToEnterprise(context, picture.loadTransparent)
+        result.ПрозрачныйФон = exportBooleanToEnterprise(context, undefined, picture.loadTransparent)
       }
     }
 

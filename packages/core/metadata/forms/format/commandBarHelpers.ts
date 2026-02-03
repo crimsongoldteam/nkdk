@@ -5,6 +5,7 @@ import { wrapButtonContent } from "./helpers"
 
 export const exportCommandBarItemsToStructure = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   childItems: { elementType: FormElementType }[]
 ): string[] => {
   return childItems.flatMap((item) => {

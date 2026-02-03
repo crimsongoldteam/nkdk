@@ -9,14 +9,16 @@ import { Button } from "~/metadata/forms/elements/button/types"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importButtonFromXML<To extends Button | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
 
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: Button = {
     ...baseFields,
@@ -27,10 +29,10 @@ export function importButtonFromXML<To extends Button | undefined>(
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const backColor = importColorFromXML(context, xml.BackColor)
+  const backColor = importColorFromXML(context, undefined, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (xml.CommandName !== undefined) result.commandName = xml.CommandName
@@ -47,10 +49,10 @@ export function importButtonFromXML<To extends Button | undefined>(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.Height !== undefined) result.height = xml.Height
@@ -67,7 +69,7 @@ export function importButtonFromXML<To extends Button | undefined>(
 
   if (xml.OnlyInAllActions !== undefined) result.onlyInAllActions = xml.OnlyInAllActions
 
-  const picture = importPictureFromXML(context, xml.Picture)
+  const picture = importPictureFromXML(context, undefined, xml.Picture)
   if (picture !== undefined) result.picture = picture
 
   if (xml.PictureLocation !== undefined) result.pictureLocation = xml.PictureLocation
@@ -82,10 +84,10 @@ export function importButtonFromXML<To extends Button | undefined>(
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const textColor = importColorFromXML(context, xml.TextColor)
+  const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
   if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
@@ -94,7 +96,7 @@ export function importButtonFromXML<To extends Button | undefined>(
 
   if (xml.Type !== undefined) result.type = xml.Type
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign

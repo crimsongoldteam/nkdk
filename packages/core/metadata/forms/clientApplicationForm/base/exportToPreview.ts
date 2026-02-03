@@ -10,6 +10,7 @@ import {
 
 export const exportClientApplicationFormToPreview = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   form: ClientApplicationForm
 ): ClientApplicationFormPreview => {
   const childItems = exportChildItemsToPreview(context, form.childItems)

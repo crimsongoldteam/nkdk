@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importMetadataValueFromEnterprise } from "./importFromEnterprise"
 import { MetadataValueEnterprise } from "./types"
 import { MetadataFixedArrayValueEnterprise, MetadataFormChoiceListValueEnterprise } from "./types.ts"
@@ -8,7 +8,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import string value from Enterprise", () => {
     const data: MetadataValueEnterprise = '"Текстовое значение"'
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "string",
@@ -19,7 +19,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import boolean value from Enterprise", () => {
     const data: MetadataValueEnterprise = "Истина"
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "boolean",
@@ -30,7 +30,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import decimal value from Enterprise", () => {
     const data: MetadataValueEnterprise = "0"
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "decimal",
@@ -41,7 +41,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import dateTime value from Enterprise", () => {
     const data: MetadataValueEnterprise = "24.12.2025 12:00:00"
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "dateTime",
@@ -52,7 +52,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import enum (ref) value from Enterprise", () => {
     const data: MetadataValueEnterprise = "Перечисление.ВидыДоговоров.СПоставщиком"
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "ref",
@@ -63,7 +63,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import catalog (ref) value from Enterprise", () => {
     const data: MetadataValueEnterprise = "Справочник.Пользователи.ПустаяСсылка"
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "ref",
@@ -77,7 +77,7 @@ describe("importMetadataValueFromEnterprise", () => {
       "Перечисление.ТипыСчетов.Расходы",
     ]
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "fixedArray",
@@ -97,7 +97,7 @@ describe("importMetadataValueFromEnterprise", () => {
   it("should import FormChoiceListDesTimeValue from Enterprise", () => {
     const data: MetadataValueEnterprise = '"ФЛ"(Физическое лицо)'
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "formChoiceListDesTimeValue",
@@ -122,7 +122,7 @@ describe("importMetadataValueFromEnterprise", () => {
       Значение: '"ФЛ"',
     }
 
-    const result = importMetadataValueFromEnterprise(mockContext, data)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "formChoiceListDesTimeValue",
@@ -140,7 +140,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should return undefined for undefined input", () => {
-    const result = importMetadataValueFromEnterprise(mockContext, undefined)
+    const result = importMetadataValueFromEnterprise(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

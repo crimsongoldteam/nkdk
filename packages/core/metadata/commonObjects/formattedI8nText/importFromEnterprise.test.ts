@@ -11,6 +11,7 @@ describe("importFormattedI8nTextFromEnterprise", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromEnterprise(
         mockContext,
+        mockRule,
         fixture.enterpriseText,
         fixture.enterpriseFormattedText
       )
@@ -22,6 +23,7 @@ describe("importFormattedI8nTextFromEnterprise", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextCombinedFromEnterprise(
         mockContext,
+        mockRule,
         fixture.textFromStructure,
         fixture.enterpriseText,
         fixture.enterpriseFormattedText

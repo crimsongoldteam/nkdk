@@ -4,7 +4,7 @@ import { Color, ColorPrefixToType, ColorXML } from "./types"
 
 export const _importColorFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: ColorXML | undefined
 ): Color | undefined => {
   if (!xml) return undefined

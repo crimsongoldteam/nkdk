@@ -19,15 +19,17 @@ import {
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importButtonTypedFromEnterprise<To extends Button | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importButtonPropsFromEnterprise(context, data)
+  const props = importButtonPropsFromEnterprise(context, undefined, data)
 
   const result: Button = {
     ...props,
@@ -40,16 +42,17 @@ export function importButtonTypedFromEnterprise<To extends Button | undefined>(
 
 export function importButtonPartialFromEnterprise<To extends Button>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importButtonPropsFromEnterprise(context, data)
+  const props = importButtonPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -57,35 +60,36 @@ export function importButtonPartialFromEnterprise<To extends Button>(
 
 const importButtonPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ButtonPartialEnterprise | undefined
 ): Partial<Button> | undefined => {
   const result: Omit<Partial<Button>, "elementType"> = {}
 
   if (data === undefined) return result
 
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  const autoMaxHeight = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (data.ИмяКоманды !== undefined) result.commandName = data.ИмяКоманды
 
-  const commandUniqueness = importBooleanFromEnterprise(context, data.УникальностьКоманды)
+  const commandUniqueness = importBooleanFromEnterprise(context, undefined, data.УникальностьКоманды)
   if (commandUniqueness !== undefined) result.commandUniqueness = commandUniqueness
 
   if (data.ПутьКДанным !== undefined) result.dataPath = data.ПутьКДанным
 
-  const defaultButton = importBooleanFromEnterprise(context, data.КнопкаПоУмолчанию)
+  const defaultButton = importBooleanFromEnterprise(context, undefined, data.КнопкаПоУмолчанию)
   if (defaultButton !== undefined) result.defaultButton = defaultButton
 
-  const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
+  const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -95,13 +99,13 @@ const importButtonPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -113,7 +117,7 @@ const importButtonPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
   const locationInCommandBar = importSystemEnumerationFromYAML<SE.ButtonLocationInCommandBar>(
@@ -127,10 +131,10 @@ const importButtonPropsFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const onlyInAllActions = importBooleanFromEnterprise(context, data.ТолькоВоВсехДействиях)
+  const onlyInAllActions = importBooleanFromEnterprise(context, undefined, data.ТолькоВоВсехДействиях)
   if (onlyInAllActions !== undefined) result.onlyInAllActions = onlyInAllActions
 
-  const picture = importPictureFromEnterprise(context, data.Картинка)
+  const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
   const pictureLocation = importSystemEnumerationFromYAML<SE.FormButtonPictureLocation>(
@@ -159,13 +163,13 @@ const importButtonPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
   if (data.ВысотаЗаголовка !== undefined) result.titleHeight = data.ВысотаЗаголовка
@@ -180,7 +184,12 @@ const importButtonPropsFromEnterprise = (
   const type = importSystemEnumerationFromYAML<SE.FormButtonType>(context, data.Вид, SE.FormButtonTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -192,10 +201,10 @@ const importButtonPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.Ширина !== undefined) result.width = data.Ширина

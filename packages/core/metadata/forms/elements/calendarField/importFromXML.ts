@@ -11,13 +11,15 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { PropertyRule } from "./rules"
 
 export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: CalendarField = {
     ...baseFields,
@@ -28,7 +30,7 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
@@ -39,7 +41,7 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
@@ -50,38 +52,38 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
   if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
 
   if (xml.TitleLocation !== undefined) result.titleLocation = xml.TitleLocation
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  const warningOnEdit = importI8nTextFromXML(context, xml.WarningOnEdit)
+  const warningOnEdit = importI8nTextFromXML(context, undefined, xml.WarningOnEdit)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
   if (xml.WarningOnEditRepresentation !== undefined)
     result.warningOnEditRepresentation = xml.WarningOnEditRepresentation
 
-  const events = importEventsFromXML(context, xml.Events)
+  const events = importEventsFromXML(context, undefined, xml.Events)
   if (events !== undefined) result.events = events
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
@@ -91,10 +93,10 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
   if (xml.BeginOfRepresentationPeriod !== undefined)
     result.beginOfRepresentationPeriod = xml.BeginOfRepresentationPeriod
 
-  const border = importBorderFromXML(context, xml.Border)
+  const border = importBorderFromXML(context, undefined, xml.Border)
   if (border !== undefined) result.border = border
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (xml.CalendarNavigation !== undefined) result.calendarNavigation = xml.CalendarNavigation
@@ -105,7 +107,7 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.EndOfRepresentationPeriod !== undefined) result.endOfRepresentationPeriod = xml.EndOfRepresentationPeriod
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.OnMainServerUnavalableBehavior !== undefined)

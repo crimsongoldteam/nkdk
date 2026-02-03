@@ -5,20 +5,20 @@ import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsE
 
 export const exportMetadataFieldsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataFields | undefined
 ): MetadataFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataFieldToYAML(context, _rule, item)!)
+  return data.map((item) => exportMetadataFieldToYAML(context, undefined, _rule, item)!)
 }
 
 export const exportMetadataFieldToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataField | undefined
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return exportMetadataFieldStringToYAML(context, _rule, data)
+  return exportMetadataFieldStringToYAML(context, undefined, _rule, data)
 }

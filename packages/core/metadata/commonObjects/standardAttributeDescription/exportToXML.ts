@@ -13,9 +13,11 @@ import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoic
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaults } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptions | undefined,
   standartAttributeNames: StandartAttributeName[]
 ): StandardAttributeDescriptionsXML | undefined => {
@@ -23,13 +25,14 @@ export const exportStandardAttributeDescriptionsToXML = (
 
   return {
     "xr:StandardAttribute": extendedData.map(
-      (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(context, value)!
+      (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(context, undefined, value)!
     ),
   }
 }
 
 const exportStandardAttributeDescriptionToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionXML => {
   const defaults = getDefaults(context, data)
@@ -43,10 +46,10 @@ const exportStandardAttributeDescriptionToXML = (
 
   result["xr:ChoiceHistoryOnInput"] = mergedData.choiceHistoryOnInput
 
-  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, undefined, mergedData.choiceParameterLinks)
   if (choiceParameterLinks) result["xr:ChoiceParameterLinks"] = choiceParameterLinks
 
-  const choiceParameters = exportChoiceParametersToXML(context, mergedData.choiceParameters)
+  const choiceParameters = exportChoiceParametersToXML(context, undefined, mergedData.choiceParameters)
   if (choiceParameters) result["xr:ChoiceParameters"] = choiceParameters
 
   if (mergedData.comment !== undefined) result["xr:Comment"] = mergedData.comment
@@ -54,7 +57,7 @@ const exportStandardAttributeDescriptionToXML = (
   result["xr:CreateOnInput"] = mergedData.createOnInput
   result["xr:DataHistory"] = mergedData.dataHistory
 
-  const editFormat = exportI8nTextToXML(context, mergedData.editFormat)
+  const editFormat = exportI8nTextToXML(context, undefined, mergedData.editFormat)
   if (editFormat) result["xr:EditFormat"] = editFormat
 
   result["xr:ExtendedEdit"] = mergedData.extendedEdit
@@ -62,15 +65,15 @@ const exportStandardAttributeDescriptionToXML = (
   result["xr:FillChecking"] = mergedData.fillChecking
   result["xr:FillFromFillingValue"] = mergedData.fillFromFillingValue
 
-  const fillValue = exportMetadataValueToXML(context, mergedData.fillValue)
+  const fillValue = exportMetadataValueToXML(context, undefined, mergedData.fillValue)
   if (fillValue) result["xr:FillValue"] = fillValue
 
-  const format = exportI8nTextToXML(context, mergedData.format)
+  const format = exportI8nTextToXML(context, undefined, mergedData.format)
   if (format) result["xr:Format"] = format
 
   result["xr:FullTextSearch"] = mergedData.fullTextSearch
 
-  const linkByType = exportTypeLinkToXML(context, mergedData.linkByType)
+  const linkByType = exportTypeLinkToXML(context, undefined, mergedData.linkByType)
   if (linkByType) result["xr:LinkByType"] = linkByType
 
   result["xr:MarkNegatives"] = mergedData.markNegatives
@@ -85,13 +88,13 @@ const exportStandardAttributeDescriptionToXML = (
 
   result["xr:QuickChoice"] = mergedData.quickChoice
 
-  const synonym = exportI8nTextToXML(context, mergedData.synonym)
+  const synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
   if (synonym !== undefined) result["xr:Synonym"] = synonym
 
-  const toolTip = exportI8nTextToXML(context, mergedData.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
   if (toolTip !== undefined) result["xr:ToolTip"] = toolTip
 
-  const type = exportTypeDescriptionToXML(context, mergedData.type)
+  const type = exportTypeDescriptionToXML(context, undefined, mergedData.type)
   if (type) result["xr:Type"] = type
 
   result["xr:TypeReductionMode"] = mergedData.typeReductionMode

@@ -6,18 +6,18 @@ import {
   minimalUsualGroup,
   minimalUsualGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportUsualGroupPartialToEnterprise, exportUsualGroupTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportUsualGroupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportUsualGroupPartialToEnterprise(mockContext, fullUsualGroup)
+    const result = exportUsualGroupPartialToEnterprise(mockContext, mockRule, fullUsualGroup)
 
     expect(result).toEqual(fullUsualGroupPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportUsualGroupPartialToEnterprise(mockContext, minimalUsualGroup)
+    const result = exportUsualGroupPartialToEnterprise(mockContext, mockRule, minimalUsualGroup)
 
     expect(result).toEqual(minimalUsualGroupPartialEnterprise)
   })
@@ -25,13 +25,13 @@ describe("exportUsualGroupPartialToEnterprise", () => {
 
 describe("exportUsualGroupTypedToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportUsualGroupTypedToEnterprise(mockContext, fullUsualGroup)
+    const result = exportUsualGroupTypedToEnterprise(mockContext, mockRule, fullUsualGroup)
 
     expect(result).toEqual(fullUsualGroupTypedEnterprise)
   })
 
   it("should return undefined when data is undefined", () => {
-    const result = exportUsualGroupTypedToEnterprise(mockContext, undefined)
+    const result = exportUsualGroupTypedToEnterprise(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

@@ -5,6 +5,7 @@ import { CatalogForm } from "./types"
 
 export const exportCatalogFormToStructure = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: CatalogForm
 ): IFormatElementResult => {
   return exportClientApplicationFormToStructure(context, element)

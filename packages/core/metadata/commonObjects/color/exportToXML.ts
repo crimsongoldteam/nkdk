@@ -1,7 +1,12 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Color, ColorTypeToPrefix, ColorXML } from "./types"
 
-export const exportColorToXML = (_context: ConfigurationContext, color: Color | undefined): ColorXML | undefined => {
+export const exportColorToXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  color: Color | undefined
+): ColorXML | undefined => {
   if (!color) return undefined
 
   const prefix = ColorTypeToPrefix[color.type as keyof typeof ColorTypeToPrefix]

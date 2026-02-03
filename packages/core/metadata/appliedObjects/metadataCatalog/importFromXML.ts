@@ -7,6 +7,7 @@ import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/m
 import { importMetadataValueCollectionFromXML } from "~/metadata/commonObjects/metadataValueCollection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { removeDefaults } from "../../helpers/compactObject"
@@ -14,6 +15,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: MetadataCatalogXML
 ): MetadataCatalog | undefined => {
   const props = xml.Catalog.Properties
@@ -24,9 +26,10 @@ export const importMetadataCatalogFromXML = (
 
   const childObjects = xml.Catalog.ChildObjects
 
-  if (childObjects?.Attribute) result.attributes = importMetadataAttributesFromXML(context, childObjects.Attribute)
+  if (childObjects?.Attribute)
+    result.attributes = importMetadataAttributesFromXML(context, undefined, childObjects.Attribute)
 
-  const autonumbering = importBooleanFromXML(context, props.Autonumbering)
+  const autonumbering = importBooleanFromXML(context, undefined, props.Autonumbering)
   if (autonumbering !== undefined) result.autonumbering = autonumbering
 
   if (props.AuxiliaryChoiceForm !== undefined) result.auxiliaryChoiceForm = props.AuxiliaryChoiceForm
@@ -35,13 +38,13 @@ export const importMetadataCatalogFromXML = (
   if (props.AuxiliaryListForm !== undefined) result.auxiliaryListForm = props.AuxiliaryListForm
   if (props.AuxiliaryObjectForm !== undefined) result.auxiliaryObjectForm = props.AuxiliaryObjectForm
 
-  const basedOn = importMetadataValueCollectionFromXML(context, props.BasedOn)
+  const basedOn = importMetadataValueCollectionFromXML(context, undefined, props.BasedOn)
   if (basedOn) result.basedOn = basedOn
 
-  const characteristics = importCharacteristicsDescriptionsFromXML(context, props.Characteristics)
+  const characteristics = importCharacteristicsDescriptionsFromXML(context, undefined, props.Characteristics)
   if (characteristics) result.characteristics = characteristics
 
-  const checkUnique = importBooleanFromXML(context, props.CheckUnique)
+  const checkUnique = importBooleanFromXML(context, undefined, props.CheckUnique)
   if (checkUnique !== undefined) result.checkUnique = checkUnique
 
   if (props.ChoiceDataGetModeOnInputByString !== undefined)
@@ -53,14 +56,14 @@ export const importMetadataCatalogFromXML = (
   if (props.CodeSeries !== undefined) result.codeSeries = props.CodeSeries
   if (props.CodeType !== undefined) result.codeType = props.CodeType
 
-  if (childObjects?.Command) result.commands = importMetadataCommandsFromXML(context, childObjects.Command)
+  if (childObjects?.Command) result.commands = importMetadataCommandsFromXML(context, undefined, childObjects.Command)
 
   if (props.Comment !== undefined) result.comment = props.Comment
   if (props.CreateOnInput !== undefined) result.createOnInput = props.CreateOnInput
   if (props.DataHistory !== undefined) result.dataHistory = props.DataHistory
   if (props.DataLockControlMode !== undefined) result.dataLockControlMode = props.DataLockControlMode
 
-  const dataLockFields = importMetadataFieldsFromXML(context, props.DataLockFields)
+  const dataLockFields = importMetadataFieldsFromXML(context, undefined, props.DataLockFields)
   if (dataLockFields) result.dataLockFields = dataLockFields
 
   if (props.DefaultChoiceForm !== undefined) result.defaultChoiceForm = props.DefaultChoiceForm
@@ -74,74 +77,75 @@ export const importMetadataCatalogFromXML = (
   if (props.ExecuteAfterWriteDataHistoryVersionProcessing !== undefined)
     result.executeAfterWriteDataHistoryVersionProcessing = props.ExecuteAfterWriteDataHistoryVersionProcessing
 
-  const explanation = importI8nTextFromXML(context, props.Explanation)
+  const explanation = importI8nTextFromXML(context, undefined, props.Explanation)
   if (explanation !== undefined) result.explanation = explanation
 
-  const extendedListPresentation = importI8nTextFromXML(context, props.ExtendedListPresentation)
+  const extendedListPresentation = importI8nTextFromXML(context, undefined, props.ExtendedListPresentation)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = importI8nTextFromXML(context, props.ExtendedObjectPresentation)
+  const extendedObjectPresentation = importI8nTextFromXML(context, undefined, props.ExtendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
-  const foldersOnTop = importBooleanFromXML(context, props.FoldersOnTop)
+  const foldersOnTop = importBooleanFromXML(context, undefined, props.FoldersOnTop)
   if (foldersOnTop !== undefined) result.foldersOnTop = foldersOnTop
 
   if (props.FullTextSearch !== undefined) result.fullTextSearch = props.FullTextSearch
   if (props.FullTextSearchOnInputByString !== undefined)
     result.fullTextSearchOnInputByString = props.FullTextSearchOnInputByString
 
-  const hierarchical = importBooleanFromXML(context, props.Hierarchical)
+  const hierarchical = importBooleanFromXML(context, undefined, props.Hierarchical)
   if (hierarchical !== undefined) result.hierarchical = hierarchical
 
   if (props.HierarchyType !== undefined) result.hierarchyType = props.HierarchyType
 
-  const includeHelpInContents = importBooleanFromXML(context, props.IncludeHelpInContents)
+  const includeHelpInContents = importBooleanFromXML(context, undefined, props.IncludeHelpInContents)
   if (includeHelpInContents !== undefined) result.includeHelpInContents = includeHelpInContents
 
-  const inputByString = importMetadataFieldsFromXML(context, props.InputByString)
+  const inputByString = importMetadataFieldsFromXML(context, undefined, props.InputByString)
   if (inputByString) result.inputByString = inputByString
 
   if (props.LevelCount !== undefined) result.levelCount = props.LevelCount
 
-  const limitLevelCount = importBooleanFromXML(context, props.LimitLevelCount)
+  const limitLevelCount = importBooleanFromXML(context, undefined, props.LimitLevelCount)
   if (limitLevelCount !== undefined) result.limitLevelCount = limitLevelCount
 
-  const listPresentation = importI8nTextFromXML(context, props.ListPresentation)
+  const listPresentation = importI8nTextFromXML(context, undefined, props.ListPresentation)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
-  const objectPresentation = importI8nTextFromXML(context, props.ObjectPresentation)
+  const objectPresentation = importI8nTextFromXML(context, undefined, props.ObjectPresentation)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
-  const owners = importMetadataValueCollectionFromXML(context, props.Owners)
+  const owners = importMetadataValueCollectionFromXML(context, undefined, props.Owners)
   if (owners) result.owners = owners
 
   if (props.PredefinedDataUpdate !== undefined) result.predefinedDataUpdate = props.PredefinedDataUpdate
 
-  const quickChoice = importBooleanFromXML(context, props.QuickChoice)
+  const quickChoice = importBooleanFromXML(context, undefined, props.QuickChoice)
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
   if (props.SearchStringModeOnInputByString !== undefined)
     result.searchStringModeOnInputByString = props.SearchStringModeOnInputByString
 
-  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, props.StandardAttributes)
+  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, props.StandardAttributes)
   if (standardAttributes) result.standardAttributes = standardAttributes
 
   if (props.SubordinationUse !== undefined) result.subordinationUse = props.SubordinationUse
 
-  const synonym = importI8nTextFromXML(context, props.Synonym)
+  const synonym = importI8nTextFromXML(context, undefined, props.Synonym)
   if (synonym !== undefined) result.synonym = synonym
 
   if (childObjects?.TabularSection)
-    result.tabularSections = importMetadataTabularSectionsFromXML(context, childObjects.TabularSection)
+    result.tabularSections = importMetadataTabularSectionsFromXML(context, undefined, childObjects.TabularSection)
 
   const updateDataHistoryImmediatelyAfterWrite = importBooleanFromXML(
     context,
+    undefined,
     props.UpdateDataHistoryImmediatelyAfterWrite
   )
   if (updateDataHistoryImmediatelyAfterWrite !== undefined)
     result.updateDataHistoryImmediatelyAfterWrite = updateDataHistoryImmediatelyAfterWrite
 
-  const useStandardCommands = importBooleanFromXML(context, props.UseStandardCommands)
+  const useStandardCommands = importBooleanFromXML(context, undefined, props.UseStandardCommands)
   if (useStandardCommands !== undefined) result.useStandardCommands = useStandardCommands
 
   const defaults = getDefaults(result, context)

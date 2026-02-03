@@ -24,14 +24,16 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importColumnGroupPropsFromEnterprise(context, data)
+  const props = importColumnGroupPropsFromEnterprise(context, undefined, data)
 
   const result: ColumnGroup = {
     ...props,
@@ -40,7 +42,7 @@ export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | un
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -48,17 +50,18 @@ export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | un
 
 export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importColumnGroupPropsFromEnterprise(context, data)
+  const props = importColumnGroupPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -66,6 +69,7 @@ export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
 
 const importColumnGroupPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ColumnGroupTypedEnterprise | ColumnGroupPartialEnterprise | undefined
 ): Omit<Partial<ColumnGroup>, "elementType" | "name"> => {
   const result: Omit<Partial<ColumnGroup>, "elementType" | "name"> = {
@@ -84,7 +88,7 @@ const importColumnGroupPropsFromEnterprise = (
   const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -96,7 +100,7 @@ const importColumnGroupPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -106,32 +110,32 @@ const importColumnGroupPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const enableContentChange = importBooleanFromEnterprise(context, data.РазрешитьИзменениеСостава)
+  const enableContentChange = importBooleanFromEnterprise(context, undefined, data.РазрешитьИзменениеСостава)
   if (enableContentChange !== undefined) result.enableContentChange = enableContentChange
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
   const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -148,16 +152,21 @@ const importColumnGroupPropsFromEnterprise = (
   )
   if (group !== undefined) result.group = group
 
-  const headerPicture = importPictureFromEnterprise(context, data.КартинкаШапки)
+  const headerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаШапки)
   if (headerPicture !== undefined) result.headerPicture = headerPicture
 
-  const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
+  const showInHeader = importBooleanFromEnterprise(context, undefined, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
-  const showTitle = importBooleanFromEnterprise(context, data.ОтображатьЗаголовок)
+  const showTitle = importBooleanFromEnterprise(context, undefined, data.ОтображатьЗаголовок)
   if (showTitle !== undefined) result.showTitle = showTitle
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -173,10 +182,10 @@ const importColumnGroupPropsFromEnterprise = (
 
   if (data.ФорматШапки !== undefined) result.headerFormat = data.ФорматШапки
 
-  const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
+  const titleBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  result.childItems = importChildItemsTypedFromEnterprise(context, data?.ПодчиненныеЭлементы)
+  result.childItems = importChildItemsTypedFromEnterprise(context, undefined, data?.ПодчиненныеЭлементы)
 
   return result
 }

@@ -7,25 +7,37 @@ import {
   minimalInputFieldPartialEnterprise,
   minimalInputFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importInputFieldPartialFromEnterprise, importInputFieldTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importInputFieldFromEnterprise", () => {
   describe("importInputFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importInputFieldTypedFromEnterprise(mockContext, undefined, "ПолеВвода")
+      const result = importInputFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеВвода")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importInputFieldTypedFromEnterprise(mockContext, fullInputFieldTypedEnterprise, "ПолеВвода")
+      const result = importInputFieldTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        fullInputFieldTypedEnterprise,
+        "ПолеВвода"
+      )
 
       expect(result).toEqual(fullInputField)
     })
 
     it("should import minimal", () => {
-      const result = importInputFieldTypedFromEnterprise(mockContext, minimalInputFieldTypedEnterprise, "ПолеВвода")
+      const result = importInputFieldTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        minimalInputFieldTypedEnterprise,
+        "ПолеВвода"
+      )
 
       expect(result).toEqual(minimalInputField)
     })
@@ -33,13 +45,19 @@ describe("importInputFieldFromEnterprise", () => {
 
   describe("importInputFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importInputFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importInputFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
 
     it("should import all fields from Enterprise", () => {
-      const result = importInputFieldPartialFromEnterprise(mockContext, fullInputField, fullInputFieldPartialEnterprise)
+      const result = importInputFieldPartialFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        fullInputField,
+        fullInputFieldPartialEnterprise
+      )
 
       expect(result).toEqual(fullInputField)
     })
@@ -47,6 +65,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importInputFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalInputField,
         minimalInputFieldPartialEnterprise
       )

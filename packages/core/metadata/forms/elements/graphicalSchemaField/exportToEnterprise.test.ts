@@ -6,7 +6,7 @@ import {
   minimalGraphicalSchemaField,
   minimalGraphicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportGraphicalSchemaFieldPartialToEnterprise,
   exportGraphicalSchemaFieldTypedToEnterprise,
@@ -15,13 +15,13 @@ import {
 describe("exportGraphicalSchemaFieldToEnterprise", () => {
   describe("exportGraphicalSchemaFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, fullGraphicalSchemaField)
+      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, mockRule, fullGraphicalSchemaField)
 
       expect(result).toEqual(fullGraphicalSchemaFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, minimalGraphicalSchemaField)
+      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, mockRule, minimalGraphicalSchemaField)
 
       expect(result).toEqual(minimalGraphicalSchemaFieldPartialEnterprise)
     })
@@ -29,13 +29,13 @@ describe("exportGraphicalSchemaFieldToEnterprise", () => {
 
   describe("exportGraphicalSchemaFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, fullGraphicalSchemaField)
+      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, mockRule, fullGraphicalSchemaField)
 
       expect(result).toEqual(fullGraphicalSchemaFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, undefined)
+      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, mockRule, undefined)
 
       expect(result).toBeUndefined()
     })

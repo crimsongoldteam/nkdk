@@ -1,21 +1,26 @@
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importI8nTextFromXML } from "../../commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, Commands, CommandsXML, CommandXML } from "./types"
 
-function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | undefined): Command | undefined {
+function importCommandFromXML(
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: CommandXML | undefined
+): Command | undefined {
   if (!xml) return undefined
 
   const result: Command = {
     name: xml._name,
   }
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
@@ -29,10 +34,10 @@ function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | u
   const table = importMetadataValueFromXMLAsPrimitive(context, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
-  const use = importUserVisibleFromXML(context, xml.Use)
+  const use = importUserVisibleFromXML(context, undefined, xml.Use)
   if (use !== undefined) result.use = use
 
-  const picture = importPictureFromXML(context, xml.Picture)
+  const picture = importPictureFromXML(context, undefined, xml.Picture)
   if (picture !== undefined) result.picture = picture
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
@@ -40,10 +45,14 @@ function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | u
   return result
 }
 
-export function importCommandsFromXML(context: ConfigurationContext, xml: CommandsXML | undefined): Commands {
+export function importCommandsFromXML(
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: CommandsXML | undefined
+): Commands {
   if (!xml) return []
 
   const xmlArray = Array.isArray(xml) ? xml : [xml]
 
-  return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml)!)
+  return xmlArray.map((commandXml) => importCommandFromXML(context, undefined, commandXml)!)
 }

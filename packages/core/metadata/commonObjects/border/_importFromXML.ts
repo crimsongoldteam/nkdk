@@ -5,7 +5,7 @@ import { Border, BorderXML } from "./types"
 
 export const _importBorderFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: BorderXML | { Border: BorderXML } | undefined
 ): Border | undefined => {
   if (!xml) return undefined

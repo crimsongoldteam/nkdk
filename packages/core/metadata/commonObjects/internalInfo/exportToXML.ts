@@ -4,6 +4,7 @@ import { InternalInfoItemsXML, InternalInfoParam } from "./types"
 
 export const exportInternalInfoToXML = <T extends InternalInfoParam[]>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: T
 ): InternalInfoItemsXML<T> => {
   return {

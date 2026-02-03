@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { format, parse } from "date-fns"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromYAML } from "../i8nText/importFromYAML"
@@ -14,7 +14,7 @@ import {
 
 export const importMetadataValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataValueEnterprise | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
@@ -57,7 +57,11 @@ const parseDateTime = (dateTime: string): string => {
   }
 }
 
-const importStringValueFromYAML = (context: ConfigurationContext, _rule: PropertyRule, data: string): MetadataValue => {
+const importStringValueFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: string
+): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
   const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
   if (formChoiceListMatch) {
@@ -130,7 +134,7 @@ const importStringValueFromYAML = (context: ConfigurationContext, _rule: Propert
 
 const importFixedArrayValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueEnterprise
 ): MetadataValue => {
   return {
@@ -141,7 +145,7 @@ const importFixedArrayValueFromYAML = (
 
 export const importFormChoiceListValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueEnterprise
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
@@ -164,7 +168,11 @@ export const importFormChoiceListValueFromYAML = (
   }
 }
 
-export const importMetadataRefFromYAML = (context: ConfigurationContext, _rule: PropertyRule, value: string): MetadataValue => {
+export const importMetadataRefFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  value: string
+): MetadataValue => {
   const convertedValue = importMetadataValueStringFromYAML(context, _rule, value)
   if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
 

@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -5,6 +6,7 @@ import { Border, BorderEnterprise } from "./types"
 
 export const importBorderFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: BorderEnterprise | undefined
 ): Border | undefined => {
   if (!data) return undefined

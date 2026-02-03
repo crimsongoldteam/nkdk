@@ -5,7 +5,7 @@ import { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameter
 
 export const _importChoiceParametersFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: ChoiceParametersXML | undefined
 ): ChoiceParameters | undefined => {
   if (!xml) return undefined
@@ -14,11 +14,15 @@ export const _importChoiceParametersFromXML = (
 
   const items = Array.isArray(appItems) ? appItems : [appItems]
 
-  return items.map((item) => importChoiceParameterFromXML(context, item)!)
+  return items.map((item) => importChoiceParameterFromXML(context, undefined, item)!)
 }
 
-const importChoiceParameterFromXML = (context: ConfigurationContext, xml: ChoiceParameterXML): ChoiceParameter => {
-  const value = importMetadataValueFromXML(context, xml["app:value"])
+const importChoiceParameterFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: ChoiceParameterXML
+): ChoiceParameter => {
+  const value = importMetadataValueFromXML(context, undefined, xml["app:value"])
 
   return {
     name: xml._name,

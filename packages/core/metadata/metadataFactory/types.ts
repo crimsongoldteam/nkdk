@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "../context/types"
 import { AllChildItem } from "../forms/collections/childItems/types"
 import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
+import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
 
@@ -34,45 +35,57 @@ export type ToPreviewType<T> = T extends undefined
 
 export type ImportFromXMLFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToXMLType<To>
 ) => To
 
 export type ImportTypedFromEnterpriseFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ) => To
 
 export type ImportPartialFromEnterpriseFn = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: Object,
   data: Object | undefined
 ) => Object | undefined
 
-export type ExportToXMLFn = (context: ConfigurationContext, data: BaseElement | undefined) => BaseElementXML | undefined
+export type ExportToXMLFn = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: BaseElement | undefined
+) => BaseElementXML | undefined
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ) => ToPartialEnterpriseType<From>
 
 export type ExportTypedToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ) => ToTypedEnterpriseType<From>
 
 export type ExportToStructureFn = <From extends BaseElement>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ) => IFormatElementResult
 
 export type ExportToStructureContentFn = <From extends BaseElement>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ) => IFormatElementResult
 
 export type ExportToPreviewFn = <From extends BaseElement>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ) => NonNullable<ToPreviewType<From>>
 
@@ -161,6 +174,7 @@ export type FormElementTypeEnterprise = (typeof FormElementTypeEnterprise)[keyof
 
 export const importFormElementTypeFromEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormElementTypeEnterprise
 ): FormElementType => {
   return FormElementTypeFromEnterprise[data]
@@ -168,6 +182,7 @@ export const importFormElementTypeFromEnterprise = (
 
 export const exportFormElementTypeToEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: FormElementType
 ): FormElementTypeEnterprise => {
   return FormElementTypeToEnterprise[element]

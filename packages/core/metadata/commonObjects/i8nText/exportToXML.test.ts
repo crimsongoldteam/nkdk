@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "./exportToXML"
 
@@ -8,7 +8,7 @@ describe("exportI8nTextToXML", () => {
   describe("exportI8nTextToXML", () => {
     i8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const result = exportI8nTextToXML(mockContext, fixture.text)
+        const result = exportI8nTextToXML(mockContext, mockRule, fixture.text)
 
         const xml = result ? xmlExport({ Title: result }, false) : undefined
 

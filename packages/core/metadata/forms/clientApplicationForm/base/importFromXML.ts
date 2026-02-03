@@ -5,43 +5,45 @@ import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
-import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"
 import { importCommandsFromXML } from "../../commands/importFromXML"
+import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"
 import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ClientApplicationFormXML,
   xmlMetadata: FormMetadataXML
 ): ClientApplicationForm => {
   const result: ClientApplicationForm = {
-    commands: importCommandsFromXML(context, xml.Commands?.Command),
+    commands: importCommandsFromXML(context, undefined, xml.Commands?.Command),
     childItems: [],
   }
 
-  const attributes = importFormAttributesFromXML(context, xml.Attributes?.Attribute)
+  const attributes = importFormAttributesFromXML(context, undefined, xml.Attributes?.Attribute)
   if (attributes !== undefined) {
     result.attributes = attributes
   }
 
-  const parameters = importFormParametersFromXML(context, xml.Parameters?.Parameter)
+  const parameters = importFormParametersFromXML(context, undefined, xml.Parameters?.Parameter)
   if (parameters !== undefined) {
     result.parameters = parameters
   }
 
-  const autoCommandBar = importAutoCommandBarFromXML(context, xml.AutoCommandBar)
+  const autoCommandBar = importAutoCommandBarFromXML(context, undefined, xml.AutoCommandBar)
   if (autoCommandBar !== undefined) {
     result.autoCommandBar = autoCommandBar
   }
 
-  const commandSet = importCommandSetFromXML(context, xml.CommandSet)
+  const commandSet = importCommandSetFromXML(context, undefined, xml.CommandSet)
   if (commandSet !== undefined) {
     result.commandSet = commandSet
   }
 
-  const commandInterface = importCommandInterfaceFromXML(context, xml.CommandInterface)
+  const commandInterface = importCommandInterfaceFromXML(context, undefined, xml.CommandInterface)
   if (commandInterface !== undefined) {
     result.commandInterface = commandInterface
   }
@@ -94,7 +96,7 @@ export const importClientApplicationFormFromXML = (
     result.enabled = xml.Enabled
   }
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) {
     result.title = title
   }
@@ -159,7 +161,7 @@ export const importClientApplicationFormFromXML = (
     result.enterKeyBehavior = xml.EnterKeyBehavior
   }
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (xml.CommandBarLocation !== undefined) {
     result.commandBarLocation = xml.CommandBarLocation
@@ -205,18 +207,19 @@ export const importClientApplicationFormFromXML = (
     result.saveWindowSettings = xml.SaveWindowSettings
   }
 
-  const events = importEventsFromXML(context, xml.Events)
+  const events = importEventsFromXML(context, undefined, xml.Events)
   if (events !== undefined) {
     result.events = events
   }
 
-  const metadata = importFormMetadataFromXML(context, xmlMetadata)
+  const metadata = importFormMetadataFromXML(context, undefined, xmlMetadata)
 
   return { ...result, ...metadata }
 }
 
 function importFormMetadataFromXML(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xmlMetadata?: FormMetadataXML
 ): Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> {
   const result: Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> =
@@ -227,7 +230,7 @@ function importFormMetadataFromXML(
   const props = xmlMetadata.Form?.Properties
   if (!props) return result
 
-  const synonim = importI8nTextFromXML(context, props.Synonym)
+  const synonim = importI8nTextFromXML(context, undefined, props.Synonym)
   if (synonim !== undefined) {
     result.synonim = synonim
   }
@@ -240,7 +243,7 @@ function importFormMetadataFromXML(
     result.includeHelpInContents = props.IncludeHelpInContents
   }
 
-  const usePurposes = importUsePurposesFromXML(context, props.UsePurposes)
+  const usePurposes = importUsePurposesFromXML(context, undefined, props.UsePurposes)
   if (usePurposes !== undefined) {
     result.usePurposes = usePurposes
   }

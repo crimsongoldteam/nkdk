@@ -11,7 +11,11 @@ import { Table } from "./types"
 
 const V_BAR = t.VBar.LABEL as string
 
-const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
+const formatTableColumn = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  column: NamedElement
+): string => {
   // Пробуем использовать ExportToStructureContent для всех элементов
   const exportContentFunction = getOperationFunction("ExportToStructureContent", column.elementType)
   if (exportContentFunction) {
@@ -24,7 +28,11 @@ const formatTableColumn = (context: ConfigurationContext, column: NamedElement):
   return formatElementTitleAndName(context, column)
 }
 
-export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): IFormatElementResult => {
+export const exportTableContentToStructure = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: Table
+): IFormatElementResult => {
   const childItems = element.childItems ?? []
 
   const parts: string[] = []
@@ -47,6 +55,7 @@ export const exportTableContentToStructure = (context: ConfigurationContext, ele
 
 export const exportTableToStructure: FormatElementFunction = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: NamedElement | undefined
 ): IFormatElementResult => {
   const table = element as Table

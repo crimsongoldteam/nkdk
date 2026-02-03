@@ -6,26 +6,29 @@ import {
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToEnterprise } from "~/metadata/commonObjects/indexField/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportAdditionalIndexToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndex | undefined
 ): AdditionalIndexEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ДополнительныеПоля: exportIndexFieldsToEnterprise(context, data.additionalFields),
+    ДополнительныеПоля: exportIndexFieldsToEnterprise(context, undefined, data.additionalFields),
     Имя: data.name,
-    ИндексируемыеПоля: exportIndexFieldsToEnterprise(context, data.indexedFields),
+    ИндексируемыеПоля: exportIndexFieldsToEnterprise(context, undefined, data.indexedFields),
     Таблица: data.table,
   }
 }
 
 export const exportAdditionalIndexesToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(context, value)!)
+  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(context, undefined, value)!)
 }

@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { UsePurposes, UsePurposesEnterprise } from "./types"
 
 export const importUsePurposesFromEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: UsePurposesEnterprise | undefined
 ): UsePurposes | undefined => {
   if (!data) return undefined

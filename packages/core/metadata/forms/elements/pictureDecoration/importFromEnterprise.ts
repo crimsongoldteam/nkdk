@@ -28,6 +28,7 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 const importPictureDecorationEventsFromEnterprise = (
   data:
@@ -69,12 +70,13 @@ const importPictureDecorationEventsFromEnterprise = (
 
 export function importPictureDecorationTypedFromEnterprise<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importPictureDecorationPropsFromEnterprise(context, data)
+  const props = importPictureDecorationPropsFromEnterprise(context, undefined, data)
 
   const result: PictureDecoration = {
     ...props,
@@ -82,10 +84,10 @@ export function importPictureDecorationTypedFromEnterprise<To extends PictureDec
     name,
   }
 
-  const title = importFormattedI8nTextFromEnterprise(context, data.Заголовок, data.ФорматированныйЗаголовок)
+  const title = importFormattedI8nTextFromEnterprise(context, undefined, data.Заголовок, data.ФорматированныйЗаголовок)
   if (title !== undefined) result.title = title
 
-  const picture = importPictureFromEnterprise(context, data.Картинка)
+  const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
   return result as To
@@ -93,10 +95,11 @@ export function importPictureDecorationTypedFromEnterprise<To extends PictureDec
 
 export function importPictureDecorationPartialFromEnterprise<To extends PictureDecoration>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importPictureDecorationPropsFromEnterprise(context, data)
+  const props = importPictureDecorationPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
@@ -110,7 +113,7 @@ export function importPictureDecorationPartialFromEnterprise<To extends PictureD
   )
   if (title !== undefined) result.title = title
 
-  const picture = importPictureCombinedFromEnterprise(context, source.picture, data?.Картинка)
+  const picture = importPictureCombinedFromEnterprise(context, undefined, source.picture, data?.Картинка)
   if (picture !== undefined) result.picture = picture
 
   return result
@@ -118,16 +121,17 @@ export function importPictureDecorationPartialFromEnterprise<To extends PictureD
 
 const importPictureDecorationPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PictureDecorationTypedEnterprise | PictureDecorationPartialEnterprise | undefined
 ): Omit<Partial<PictureDecoration>, "elementType" | "name"> => {
   const result: Omit<Partial<PictureDecoration>, "elementType" | "name"> = {}
 
   if (data === undefined) return result
 
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  const autoMaxHeight = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -151,7 +155,7 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -163,10 +167,10 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
@@ -180,45 +184,50 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
+  const hyperlink = importBooleanFromEnterprise(context, undefined, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink
 
-  // const picture = importPictureFromEnterprise(context, data.Картинка)
+  // const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
   // if (picture !== undefined) result.picture = picture
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
 
-  const zoomable = importBooleanFromEnterprise(context, data.Масштабировать)
+  const zoomable = importBooleanFromEnterprise(context, undefined, data.Масштабировать)
   if (zoomable !== undefined) result.zoomable = zoomable
 
   const pictureSize = importSystemEnumerationFromYAML<SE.PictureSize>(
@@ -228,13 +237,13 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (pictureSize !== undefined) result.pictureSize = pictureSize
 
-  const enableStartDrag = importBooleanFromEnterprise(context, data.РазрешитьНачалоПеретаскивания)
+  const enableStartDrag = importBooleanFromEnterprise(context, undefined, data.РазрешитьНачалоПеретаскивания)
   if (enableStartDrag !== undefined) result.enableStartDrag = enableStartDrag
 
-  const enableDrag = importBooleanFromEnterprise(context, data.РазрешитьПеретаскивание)
+  const enableDrag = importBooleanFromEnterprise(context, undefined, data.РазрешитьПеретаскивание)
   if (enableDrag !== undefined) result.enableDrag = enableDrag
 
-  const border = importBorderFromEnterprise(context, data.Рамка)
+  const border = importBorderFromEnterprise(context, undefined, data.Рамка)
   if (border !== undefined) result.border = border
 
   const fileDragMode = importSystemEnumerationFromYAML<SE.FileDragMode>(
@@ -246,7 +255,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   if (data.ТекстНевыбраннойКартинки !== undefined) result.nonselectedPictureText = data.ТекстНевыбраннойКартинки
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   const events = importPictureDecorationEventsFromEnterprise(data.События)

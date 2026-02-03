@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Font, FontPreview } from "./types"
 
 export const exportFontToPreview = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   font: Font | undefined
 ): FontPreview | undefined => {
   if (!font) return undefined

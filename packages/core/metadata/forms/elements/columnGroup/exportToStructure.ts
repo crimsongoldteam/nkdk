@@ -11,6 +11,7 @@ const HASH = t.Hash.LABEL as string
 
 export const exportColumnGroupContentToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: ColumnGroup
 ): IFormatElementResult => {
   const resultString = HASH + formatElementName(element)
@@ -23,11 +24,16 @@ export const exportColumnGroupContentToStructure = (
 
 export const exportColumnGroupToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: ColumnGroup
 ): IFormatElementResult => {
   return exportColumnGroupContentToStructure(_context, element)
 }
 
-registerMetadata("ExportToStructureContent", "ColumnGroup", exportColumnGroupContentToStructure as ExportToStructureContentFn)
+registerMetadata(
+  "ExportToStructureContent",
+  "ColumnGroup",
+  exportColumnGroupContentToStructure as ExportToStructureContentFn
+)
 registerMetadata("ExportToStructure", "ColumnGroup", exportColumnGroupToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck<ColumnGroup>(FormElementType.ColumnGroup, () => true)

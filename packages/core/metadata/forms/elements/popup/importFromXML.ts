@@ -10,15 +10,17 @@ import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadata
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 export function importPopupFromXML<To extends Popup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
 
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
 
   const result: Popup = {
     ...baseFields,
@@ -27,7 +29,7 @@ export function importPopupFromXML<To extends Popup | undefined>(
     childItems: [],
   }
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 
@@ -43,16 +45,16 @@ export function importPopupFromXML<To extends Popup | undefined>(
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
@@ -67,13 +69,13 @@ export function importPopupFromXML<To extends Popup | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  const backColor = importColorFromXML(context, xml.BackColor)
+  const backColor = importColorFromXML(context, undefined, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const picture = importPictureFromXML(context, xml.Picture)
+  const picture = importPictureFromXML(context, undefined, xml.Picture)
   if (picture !== undefined) result.picture = picture
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
@@ -82,7 +84,7 @@ export function importPopupFromXML<To extends Popup | undefined>(
 
   if (xml.ShapeRepresentation !== undefined) result.shapeRepresentation = xml.ShapeRepresentation
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   return result as To

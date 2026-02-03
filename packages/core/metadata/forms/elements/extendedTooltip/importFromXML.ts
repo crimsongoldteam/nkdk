@@ -6,9 +6,11 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
 import { isHasContent } from "./helper"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importExtendedTooltipFromXML(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ExtendedTooltipXML
 ): ExtendedTooltip | undefined {
   if (xml === undefined) return undefined
@@ -23,7 +25,7 @@ export function importExtendedTooltipFromXML(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.Height !== undefined) result.height = xml.Height
@@ -40,20 +42,20 @@ export function importExtendedTooltipFromXML(
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const textColor = importColorFromXML(context, xml.TextColor)
+  const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importFormattedI8nTextFromXML(context, xml.Title)
+  const title = importFormattedI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
   if (xml.Type !== undefined) result.type = xml.Type
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign

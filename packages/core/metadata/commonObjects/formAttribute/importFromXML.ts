@@ -16,69 +16,79 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: FormAttributesXML | undefined
 ): FormAttributes | undefined => {
   if (!xml) return undefined
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((item) => importFormAttributeFromXML(context, item as FormAttributeXML))
+  return items.map((item) => importFormAttributeFromXML(context, undefined, item as FormAttributeXML))
 }
 
-const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAttributeXML): FormAttribute => {
-  const title = importI8nTextFromXML(context, props.Title) ?? { items: { [context.defaultLanguage]: "" } }
+const importFormAttributeFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  props: FormAttributeXML
+): FormAttribute => {
+  const title = importI8nTextFromXML(context, undefined, props.Title) ?? { items: { [context.defaultLanguage]: "" } }
 
   const result: FormAttribute = {
     name: props._name,
     title,
   }
 
-  const valueType = importTypeDescriptionFromXML(context, props.Type)!
+  const valueType = importTypeDescriptionFromXML(context, undefined, props.Type)!
   result.valueType = valueType
 
-  const mainAttribute = importBooleanFromXML(context, props.MainAttribute)
+  const mainAttribute = importBooleanFromXML(context, undefined, props.MainAttribute)
   if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
 
-  const storedData = importBooleanFromXML(context, props.SavedData)
+  const storedData = importBooleanFromXML(context, undefined, props.SavedData)
   if (storedData !== undefined) result.storedData = storedData
 
   if (props.FillCheck !== undefined) result.fillCheck = props.FillCheck
 
-  const view = importUserVisibleFromXML(context, props.View ?? props.Use)
+  const view = importUserVisibleFromXML(context, undefined, props.View ?? props.Use)
   if (view) result.view = view
 
-  const edit = importUserVisibleFromXML(context, props.Edit ?? props.Use)
+  const edit = importUserVisibleFromXML(context, undefined, props.Edit ?? props.Use)
   if (edit) result.edit = edit
 
   // Check if Settings is a DynamicList (has _xsi:type indicating DynamicList) or TypeDescription
   if (props.Settings !== undefined) {
     const settingsAsAny = props.Settings as any
     if (settingsAsAny["_xsi:type"] === "DynamicList" || settingsAsAny["_xsi:type"] === "v8:DynamicList") {
-      const dynamicList = importDynamicListFromXML(context, props.Settings as DynamicListXML)
+      const dynamicList = importDynamicListFromXML(context, undefined, props.Settings as DynamicListXML)
       if (dynamicList !== undefined) result.settings = dynamicList
     } else {
-      const settings = importTypeDescriptionFromXML(context, props.Settings)
+      const settings = importTypeDescriptionFromXML(context, undefined, props.Settings)
       if (settings !== undefined) result.settings = settings
     }
   }
 
   if (props.Columns !== undefined) {
-    result.columns = importFormAttributeColumnsFromXML(context, props.Columns.Column)
+    result.columns = importFormAttributeColumnsFromXML(context, undefined, props.Columns.Column)
     if (props.Columns.AdditionalColumns !== undefined) {
-      result.additionalColumns = importFormAttributeAdditionalColumnsFromXML(context, props.Columns.AdditionalColumns)
+      result.additionalColumns = importFormAttributeAdditionalColumnsFromXML(
+        context,
+        undefined,
+        props.Columns.AdditionalColumns
+      )
     }
   }
 
-  const functionalOptions = importFunctionalOptionsFromXML(context, props.FunctionalOptions)
+  const functionalOptions = importFunctionalOptionsFromXML(context, undefined, props.FunctionalOptions)
   if (functionalOptions !== undefined) result.functionalOptions = functionalOptions
 
-  const fieldsList = importFieldsListFromXML(context, props.UseAlways)
+  const fieldsList = importFieldsListFromXML(context, undefined, props.UseAlways)
   if (fieldsList !== undefined) result.fieldsList = fieldsList
 
-  const save = importFieldsListFromXML(context, props.Save)
+  const save = importFieldsListFromXML(context, undefined, props.Save)
   if (save !== undefined) result.save = save
 
   return result
@@ -86,6 +96,7 @@ const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAt
 
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
 ): FormAttributeColumn[] | undefined => {
   if (!xml) return undefined
@@ -98,16 +109,16 @@ const importFormAttributeColumnsFromXML = (
       id: item._id,
     }
 
-    const title = importI8nTextFromXML(context, item.Title)
+    const title = importI8nTextFromXML(context, undefined, item.Title)
     if (title) column.title = title
 
-    const type = importTypeDescriptionFromXML(context, item.Type)
+    const type = importTypeDescriptionFromXML(context, undefined, item.Type)
     if (type) column.type = type
 
-    const view = importUserVisibleFromXML(context, item.View)
+    const view = importUserVisibleFromXML(context, undefined, item.View)
     if (view) column.view = view
 
-    const edit = importUserVisibleFromXML(context, item.Edit)
+    const edit = importUserVisibleFromXML(context, undefined, item.Edit)
     if (edit) column.edit = edit
 
     if (item.FillCheck) {
@@ -115,10 +126,10 @@ const importFormAttributeColumnsFromXML = (
     }
 
     if (item.Column) {
-      column.columns = importFormAttributeColumnsFromXML(context, item.Column)
+      column.columns = importFormAttributeColumnsFromXML(context, undefined, item.Column)
     }
 
-    const functionalOptions = importFunctionalOptionsFromXML(context, item.FunctionalOptions)
+    const functionalOptions = importFunctionalOptionsFromXML(context, undefined, item.FunctionalOptions)
     if (functionalOptions !== undefined) column.functionalOptions = functionalOptions
 
     return column
@@ -127,6 +138,7 @@ const importFormAttributeColumnsFromXML = (
 
 const importFormAttributeAdditionalColumnsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml:
     | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }
     | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[]
@@ -138,6 +150,6 @@ const importFormAttributeAdditionalColumnsFromXML = (
 
   return items.map((item) => ({
     table: item._table,
-    columns: importFormAttributeColumnsFromXML(context, item.Column)!,
+    columns: importFormAttributeColumnsFromXML(context, undefined, item.Column)!,
   }))
 }

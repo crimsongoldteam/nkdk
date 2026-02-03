@@ -5,7 +5,7 @@ import { ChoiceList, ChoiceListXML } from "./types"
 
 export const _importChoiceListFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: ChoiceListXML | undefined
 ): ChoiceList | undefined => {
   if (!xml || !xml["xr:Item"]) return undefined
@@ -15,7 +15,7 @@ export const _importChoiceListFromXML = (
   const items = Array.isArray(xrItem) ? xrItem : [xrItem]
 
   const result = items.map((item) => {
-    return importFormChoiceListValueFromXML(context, item["xr:Value"])!
+    return importFormChoiceListValueFromXML(context, undefined, item["xr:Value"])!
   })
 
   return result

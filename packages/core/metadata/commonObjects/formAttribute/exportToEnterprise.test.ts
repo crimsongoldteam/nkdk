@@ -21,71 +21,71 @@ import {
   withFunctionalOptionsFormAttribute,
   withFunctionalOptionsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportFormAttributesToEnterprise } from "./exportToEnterprise"
 
 describe("exportFormAttributesToEnterprise", () => {
   it("should export undefined when data is undefined", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, undefined)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, fullFormAttributes)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, fullFormAttributes)
 
     expect(result).toEqual(fullFormAttributesEnterprise)
   })
 
   it("should export with short format", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, shortFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, shortFormAttribute)
 
     expect(result).toEqual(shortFormAttributeEnterprise)
   })
 
   it("should export title when mainAttribute=true and title equals name", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, mainAttributeTitleEqualsName)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, mainAttributeTitleEqualsName)
 
     expect(result).toEqual(mainAttributeTitleEqualsNameEnterprise)
   })
 
   it("should export choice list", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, choiceListFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, choiceListFormAttribute)
 
     expect(result).toEqual(choiceListFormAttributeEnterprise)
   })
 
   it("should export with empty settings", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, withEmptySettingsFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, withEmptySettingsFormAttribute)
 
     expect(result).toEqual(withEmptySettingsFormAttributeEnterprise)
   })
 
   it("should export with dynamic list", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, withDynamicListFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, withDynamicListFormAttribute)
 
     expect(result).toEqual(withDynamicListFormAttributeEnterprise)
   })
 
   it("should export table with columns", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, tableWithColumnsFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, tableWithColumnsFormAttribute)
 
     expect(result).toEqual(tableWithColumnsFormAttributeEnterprise)
   })
 
   it("should export tree with column", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, treeWithColumnFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, treeWithColumnFormAttribute)
 
     expect(result).toEqual(treeWithColumnFormAttributeEnterprise)
   })
 
   it("should export with functional options", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, withFunctionalOptionsFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, withFunctionalOptionsFormAttribute)
 
     expect(result).toEqual(withFunctionalOptionsFormAttributeEnterprise)
   })
 
   it("should export with additional column", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, withAdditionalColumnFormAttribute)
+    const result = exportFormAttributesToEnterprise(mockContext, mockRule, withAdditionalColumnFormAttribute)
 
     expect(result).toEqual(withAdditionalColumnFormAttributeEnterprise)
   })

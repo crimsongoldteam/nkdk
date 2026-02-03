@@ -4,7 +4,7 @@ import { IndexFieldXML } from "./types"
 
 export const _exportIndexFieldToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: IndexFieldXML | undefined
 ): string | undefined => {
   if (!xml) return undefined

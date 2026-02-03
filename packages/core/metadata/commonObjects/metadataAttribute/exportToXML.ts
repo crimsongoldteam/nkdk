@@ -16,15 +16,18 @@ import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataAttributesToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
 
   const result = data.map(
-    (value: MetadataAttribute) => exportMetadataAttributeToXML(context, value, getDefaultsAttribute(context, value))!
+    (value: MetadataAttribute) =>
+      exportMetadataAttributeToXML(context, undefined, value, getDefaultsAttribute(context, value))!
   )
 
   return result
@@ -32,13 +35,14 @@ export const exportMetadataAttributesToXML = (
 
 export const exportMetadataTabularSectionAttributesToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
 
   const result = data.map(
     (value: MetadataAttribute) =>
-      exportMetadataAttributeToXML(context, value, getDefaultsTabularSectionAttribute(context, value))!
+      exportMetadataAttributeToXML(context, undefined, value, getDefaultsTabularSectionAttribute(context, value))!
   )
 
   return result
@@ -46,12 +50,13 @@ export const exportMetadataTabularSectionAttributesToXML = (
 
 const exportMetadataAttributeToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataAttribute,
   defaults: Partial<MetadataAttribute>
 ): MetadataAttributeXML => {
   const mergedData = { ...defaults, ...data }
 
-  const type = exportTypeDescriptionToXML(context, mergedData.type)!
+  const type = exportTypeDescriptionToXML(context, undefined, mergedData.type)!
 
   const result: MetadataAttributeXML = {
     _uuid: getUUID(context),
@@ -70,10 +75,10 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.ChoiceHistoryOnInput = mergedData.choiceHistoryOnInput
 
-  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, undefined, mergedData.choiceParameterLinks)
   if (choiceParameterLinks) result.Properties.ChoiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = exportChoiceParametersToXML(context, mergedData.choiceParameters)
+  const choiceParameters = exportChoiceParametersToXML(context, undefined, mergedData.choiceParameters)
   if (choiceParameters) result.Properties.ChoiceParameters = choiceParameters
 
   if (mergedData.comment !== undefined) result.Properties.Comment = mergedData.comment
@@ -82,7 +87,7 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.DataHistory = mergedData.dataHistory
 
-  const editFormat = exportI8nTextToXML(context, mergedData.editFormat)
+  const editFormat = exportI8nTextToXML(context, undefined, mergedData.editFormat)
   if (editFormat) result.Properties.EditFormat = editFormat
 
   result.Properties.ExtendedEdit = mergedData.extendedEdit
@@ -91,27 +96,27 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.FillFromFillingValue = mergedData.fillFromFillingValue
 
-  const fillValue = exportMetadataValueToXML(context, mergedData.fillValue)
+  const fillValue = exportMetadataValueToXML(context, undefined, mergedData.fillValue)
   if (fillValue) result.Properties.FillValue = fillValue
 
-  const format = exportI8nTextToXML(context, mergedData.format)
+  const format = exportI8nTextToXML(context, undefined, mergedData.format)
   if (format) result.Properties.Format = format
 
   result.Properties.FullTextSearch = mergedData.fullTextSearch
 
   result.Properties.Indexing = mergedData.indexing
 
-  const linkByType = exportTypeLinkToXML(context, mergedData.linkByType)
+  const linkByType = exportTypeLinkToXML(context, undefined, mergedData.linkByType)
   if (linkByType) result.Properties.LinkByType = linkByType
 
   result.Properties.MarkNegatives = mergedData.markNegatives
 
   if (mergedData.mask !== undefined) result.Properties.Mask = mergedData.mask
 
-  const maxValue = exportMetadataSimpleValueToXML(context, mergedData.maxValue, "string")
+  const maxValue = exportMetadataSimpleValueToXML(context, undefined, mergedData.maxValue, "string")
   if (maxValue) result.Properties.MaxValue = maxValue
 
-  const minValue = exportMetadataSimpleValueToXML(context, mergedData.minValue, "string")
+  const minValue = exportMetadataSimpleValueToXML(context, undefined, mergedData.minValue, "string")
   if (minValue) result.Properties.MinValue = minValue
 
   result.Properties.MultiLine = mergedData.multiLine
@@ -122,9 +127,9 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.QuickChoice = mergedData.quickChoice
 
-  result.Properties.Synonym = exportI8nTextToXML(context, mergedData.synonym)!
+  result.Properties.Synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)!
 
-  const toolTip = exportI8nTextToXML(context, mergedData.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
   if (toolTip !== undefined) result.Properties.ToolTip = toolTip
 
   result.Properties.Type = type

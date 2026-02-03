@@ -6,19 +6,25 @@ import {
   minimalColumnGroup,
   minimalColumnGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/columnGroup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importColumnGroupPartialFromEnterprise, importColumnGroupTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importColumnGroupFromEnterprise", () => {
   describe("importColumnGroupTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importColumnGroupTypedFromEnterprise(mockContext, undefined, "ГруппаКолонок")
+      const result = importColumnGroupTypedFromEnterprise(mockContext, mockRule, undefined, "ГруппаКолонок")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importColumnGroupTypedFromEnterprise(mockContext, fullColumnGroupTypedEnterprise, "ГруппаКолонок")
+      const result = importColumnGroupTypedFromEnterprise(
+        mockContext,
+        mockRule,
+        mockRule,
+        fullColumnGroupTypedEnterprise,
+        "ГруппаКолонок"
+      )
 
       expect(result).toEqual(fullColumnGroup)
     })
@@ -26,6 +32,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importColumnGroupTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalColumnGroupTypedEnterprise,
         "ГруппаКолонок"
       )
@@ -36,7 +43,7 @@ describe("importColumnGroupFromEnterprise", () => {
 
   describe("importColumnGroupPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importColumnGroupPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importColumnGroupPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -44,6 +51,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importColumnGroupPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullColumnGroup,
         fullColumnGroupPartialEnterprise
       )

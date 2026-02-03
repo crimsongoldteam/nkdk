@@ -12,18 +12,21 @@ import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/exportToXML"
 import { getDefaults } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(context, value)!)
+  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(context, undefined, value)!)
 }
 
 export const exportMetadataTabularSectionToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)
@@ -46,22 +49,25 @@ export const exportMetadataTabularSectionToXML = (
     properties.ObjectBelonging = mergedData.objectBelonging
   }
 
-  properties.StandardAttributes = exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes, [
-    "LineNumber",
-  ])
+  properties.StandardAttributes = exportStandardAttributeDescriptionsToXML(
+    context,
+    undefined,
+    mergedData.standardAttributes,
+    ["LineNumber"]
+  )
 
   if (mergedData.synonym !== undefined) {
-    properties.Synonym = exportI8nTextToXML(context, mergedData.synonym)
+    properties.Synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
   }
   if (mergedData.toolTip !== undefined) {
-    properties.ToolTip = exportI8nTextToXML(context, mergedData.toolTip)
+    properties.ToolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
   }
 
   properties.Use = mergedData.use
 
   const result: MetadataTabularSectionXML = {
     _uuid: getUUID(context),
-    InternalInfo: exportInternalInfoToXML(context, [
+    InternalInfo: exportInternalInfoToXML(context, undefined, [
       { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
       { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
     ]),
@@ -69,7 +75,7 @@ export const exportMetadataTabularSectionToXML = (
   }
 
   if (mergedData.attributes !== undefined) {
-    const attributes = exportMetadataTabularSectionAttributesToXML(context, mergedData.attributes)
+    const attributes = exportMetadataTabularSectionAttributesToXML(context, undefined, mergedData.attributes)
     if (attributes !== undefined) {
       result.ChildObjects = {
         Attribute: attributes,

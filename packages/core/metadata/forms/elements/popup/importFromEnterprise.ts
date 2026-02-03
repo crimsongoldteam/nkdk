@@ -20,15 +20,17 @@ import {
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   enterprise: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (enterprise === undefined) return undefined as To
 
-  const props = importPopupPropsFromEnterprise(context, enterprise)
+  const props = importPopupPropsFromEnterprise(context, undefined, enterprise)
 
   const result: Popup = {
     ...props,
@@ -37,7 +39,7 @@ export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextFromEnterprise(context, enterprise.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, enterprise.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -45,17 +47,18 @@ export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
 
 export function importPopupPartialFromEnterprise<To extends Popup>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importPopupPropsFromEnterprise(context, data)
+  const props = importPopupPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -63,6 +66,7 @@ export function importPopupPartialFromEnterprise<To extends Popup>(
 
 const importPopupPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   enterprise: PopupTypedEnterprise | PopupPartialEnterprise | undefined
 ): Omit<Partial<Popup>, "elementType" | "name"> => {
   const result: Omit<Partial<Popup>, "elementType" | "name"> = {
@@ -85,7 +89,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, enterprise.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, enterprise.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (enterprise.Высота !== undefined) result.height = enterprise.Высота
@@ -97,7 +101,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, enterprise.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, enterprise.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -107,7 +111,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, enterprise.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, enterprise.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const userVisible = importUserVisibleFromEnterprise(
@@ -119,32 +123,32 @@ const importPopupPropsFromEnterprise = (
     result.userVisible = userVisible
   }
 
-  const enableContentChange = importBooleanFromEnterprise(context, enterprise.РазрешитьИзменениеСостава)
+  const enableContentChange = importBooleanFromEnterprise(context, undefined, enterprise.РазрешитьИзменениеСостава)
   if (enableContentChange !== undefined) result.enableContentChange = enableContentChange
 
-  const verticalStretch = importBooleanFromEnterprise(context, enterprise.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, enterprise.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, enterprise.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, enterprise.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
   if (enterprise.СочетаниеКлавиш !== undefined) result.shortcut = enterprise.СочетаниеКлавиш
 
-  const readOnly = importBooleanFromEnterprise(context, enterprise.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, enterprise.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const titleTextColor = importColorFromEnterprise(context, enterprise.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, enterprise.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
   if (enterprise.Ширина !== undefined) result.width = enterprise.Ширина
 
-  const titleFont = importFontFromEnterprise(context, enterprise.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, enterprise.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, enterprise.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, enterprise.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const picture = importPictureFromEnterprise(context, enterprise.Картинка)
+  const picture = importPictureFromEnterprise(context, undefined, enterprise.Картинка)
   if (picture !== undefined) result.picture = picture
 
   const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
@@ -168,13 +172,13 @@ const importPopupPropsFromEnterprise = (
   )
   if (shape !== undefined) result.shape = shape
 
-  const borderColor = importColorFromEnterprise(context, enterprise.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, enterprise.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const backColor = importColorFromEnterprise(context, enterprise.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, enterprise.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  result.childItems = importChildItemsTypedFromEnterprise(context, enterprise.ПодчиненныеЭлементы)
+  result.childItems = importChildItemsTypedFromEnterprise(context, undefined, enterprise.ПодчиненныеЭлементы)
 
   return result
 }

@@ -14,19 +14,21 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: CheckBoxFieldXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
+    ContextMenu: exportContextMenuToXML(context, undefined, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data),
   }
 
   if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight
@@ -45,28 +47,28 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
 
   if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
 
-  const footerBackColor = exportColorToXML(context, data.footerBackColor)
+  const footerBackColor = exportColorToXML(context, undefined, data.footerBackColor)
   if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
 
   if (data.footerDataPath !== undefined) result.FooterDataPath = data.footerDataPath
 
-  const footerFont = exportFontToXML(context, data.footerFont)
+  const footerFont = exportFontToXML(context, undefined, data.footerFont)
   if (footerFont !== undefined) result.FooterFont = footerFont
 
   if (data.footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = data.footerHorizontalAlign
 
-  const footerPicture = exportPictureToXML(context, data.footerPicture)
+  const footerPicture = exportPictureToXML(context, undefined, data.footerPicture)
   if (footerPicture !== undefined) result.FooterPicture = footerPicture
 
-  const footerText = exportI8nTextToXML(context, data.footerText)
+  const footerText = exportI8nTextToXML(context, undefined, data.footerText)
   if (footerText !== undefined) result.FooterText = footerText
 
-  const footerTextColor = exportColorToXML(context, data.footerTextColor)
+  const footerTextColor = exportColorToXML(context, undefined, data.footerTextColor)
   if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
 
   if (data.headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = data.headerHorizontalAlign
 
-  const headerPicture = exportPictureToXML(context, data.headerPicture)
+  const headerPicture = exportPictureToXML(context, undefined, data.headerPicture)
   if (headerPicture !== undefined) result.HeaderPicture = headerPicture
 
   if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
@@ -83,33 +85,33 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  const table = exportMetadataSimpleValueToXML(context, undefined, data.table, "string")
   if (table !== undefined) result.AssociatedTableElementId = table
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleBackColor = exportColorToXML(context, data.titleBackColor)
+  const titleBackColor = exportColorToXML(context, undefined, data.titleBackColor)
   if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
 
   if (data.titleLocation !== undefined) result.TitleLocation = data.titleLocation
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
 
-  const typeRestriction = exportTypeDescriptionToXML(context, data.typeRestriction)
+  const typeRestriction = exportTypeDescriptionToXML(context, undefined, data.typeRestriction)
   if (typeRestriction !== undefined) result.TypeRestriction = typeRestriction
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
@@ -118,26 +120,26 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
 
   if (data.visible !== undefined) result.Visible = data.visible
 
-  const warningOnEdit = exportI8nTextToXML(context, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToXML(context, undefined, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
   if (data.warningOnEditRepresentation !== undefined)
     result.WarningOnEditRepresentation = data.warningOnEditRepresentation
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.checkBoxType !== undefined) result.CheckBoxType = data.checkBoxType
 
-  const editFormat = exportI8nTextToXML(context, data.editFormat)
+  const editFormat = exportI8nTextToXML(context, undefined, data.editFormat)
   if (editFormat !== undefined) result.EditFormat = editFormat
 
   if (data.equalItemsWidth !== undefined) result.EqualItemsWidth = data.equalItemsWidth
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
   if (font !== undefined) result.Font = font
 
   if (data.itemHeight !== undefined) result.ItemHeight = data.itemHeight
@@ -146,15 +148,15 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
 
   if (data.itemWidth !== undefined) result.ItemWidth = data.itemWidth
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
   if (data.threeState !== undefined) result.ThreeState = data.threeState
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  const events = exportEventsToXML(context, data.events)
+  const events = exportEventsToXML(context, undefined, data.events)
   if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>

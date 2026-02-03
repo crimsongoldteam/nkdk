@@ -4,12 +4,14 @@ import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/aut
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { CommandBarChildItem } from "../../collections/childItems/types"
 import { isHasContent } from "./helper"
+import { PropertyRule } from "../calendarField/rules"
 
 export const importAutoCommandBarFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: AutoCommandBarXML
 ): AutoCommandBar | undefined => {
-  const autofill = importBooleanFromXML(context, xml.Autofill) ?? true
+  const autofill = importBooleanFromXML(context, undefined, xml.Autofill) ?? true
   const childItems = importChildItemsFromXML<CommandBarChildItem>(context, xml.ChildItems)
 
   const result: AutoCommandBar = {

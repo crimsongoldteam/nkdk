@@ -6,7 +6,7 @@ import {
   minimalTrackBarField,
   minimalTrackBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importTrackBarFieldPartialFromEnterprise,
   importTrackBarFieldTypedFromEnterprise,
@@ -15,7 +15,7 @@ import {
 describe("importTrackBarFieldFromEnterprise", () => {
   describe("importTrackBarFieldTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importTrackBarFieldTypedFromEnterprise(mockContext, undefined, "ПолеПолосыПрокрутки")
+      const result = importTrackBarFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеПолосыПрокрутки")
 
       expect(result).toBeUndefined()
     })
@@ -23,6 +23,7 @@ describe("importTrackBarFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importTrackBarFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullTrackBarFieldTypedEnterprise,
         "ПолеПолосыПрокрутки"
       )
@@ -33,6 +34,7 @@ describe("importTrackBarFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importTrackBarFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalTrackBarFieldTypedEnterprise,
         "ПолеПолосыПрокрутки"
       )
@@ -43,7 +45,7 @@ describe("importTrackBarFieldFromEnterprise", () => {
 
   describe("importTrackBarFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importTrackBarFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importTrackBarFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -51,6 +53,7 @@ describe("importTrackBarFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importTrackBarFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullTrackBarField,
         fullTrackBarFieldPartialEnterprise
       )

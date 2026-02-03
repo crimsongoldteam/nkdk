@@ -1,10 +1,10 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const importI8nTextFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: I8nTextEnterprise | undefined
 ): I8nText | undefined => {
   if (data === undefined) return undefined
@@ -24,7 +24,7 @@ export const importI8nTextFromYAML = (
 
 export const importI8nTextCombinedFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   defaultLanguage: I8nText | undefined,
   otherLanguagesEnterprise: I8nTextEnterprise | undefined
 ): I8nText | undefined => {

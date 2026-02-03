@@ -78,14 +78,14 @@ const importForm = (path: string, name: string, outputPath: string) => {
   const formMetadataXmlData = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(formMetadataXml)
 
   try {
-    const formData = importCatalogFormFromXML(context, formXmlData.Form, formMetadataXmlData.MetaDataObject)
+    const formData = importCatalogFormFromXML(context, undefined, formXmlData.Form, formMetadataXmlData.MetaDataObject)
 
     if (!formData) {
       console.log(`⚠  Форма ${name}: не удалось импортировать данные формы`)
       return
     }
 
-    const formYaml = exportCatalogFormToEnterprise(context, formData)
+    const formYaml = exportCatalogFormToEnterprise(context, undefined, formData)
     if (!formYaml) {
       console.log(`⚠  Форма ${name}: не удалось экспортировать форму в Enterprise формат`)
       return

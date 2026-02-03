@@ -6,7 +6,7 @@ import {
   minimalFormattedDocumentField,
   minimalFormattedDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportFormattedDocumentFieldPartialToEnterprise,
   exportFormattedDocumentFieldTypedToEnterprise,
@@ -15,13 +15,17 @@ import {
 describe("exportFormattedDocumentFieldToEnterprise", () => {
   describe("exportFormattedDocumentFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportFormattedDocumentFieldPartialToEnterprise(mockContext, fullFormattedDocumentField)
+      const result = exportFormattedDocumentFieldPartialToEnterprise(mockContext, mockRule, fullFormattedDocumentField)
 
       expect(result).toEqual(fullFormattedDocumentFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportFormattedDocumentFieldPartialToEnterprise(mockContext, minimalFormattedDocumentField)
+      const result = exportFormattedDocumentFieldPartialToEnterprise(
+        mockContext,
+        mockRule,
+        minimalFormattedDocumentField
+      )
 
       expect(result).toEqual(minimalFormattedDocumentFieldPartialEnterprise)
     })
@@ -29,13 +33,13 @@ describe("exportFormattedDocumentFieldToEnterprise", () => {
 
   describe("exportFormattedDocumentFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, fullFormattedDocumentField)
+      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, mockRule, fullFormattedDocumentField)
 
       expect(result).toEqual(fullFormattedDocumentFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, undefined)
+      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, mockRule, undefined)
 
       expect(result).toBeUndefined()
     })

@@ -9,13 +9,15 @@ import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: ButtonGroup = {
     elementType: "ButtonGroup",
@@ -23,9 +25,9 @@ export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
     childItems: [],
   }
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.CommandSource !== undefined) result.commandSource = xml.CommandSource
@@ -46,23 +48,23 @@ export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
   if (xml.Type !== undefined) result.type = xml.Type
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign

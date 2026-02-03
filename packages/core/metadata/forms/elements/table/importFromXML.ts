@@ -17,13 +17,15 @@ import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
 import { importSingleSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
 import { importSingleSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
 import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: Table = {
     elementType: FormElementType.Table,
@@ -39,7 +41,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.AutoAddIncomplete !== undefined) result.autoAddIncomplete = xml.AutoAddIncomplete
 
-  const autoCommandBar = importAutoCommandBarFromXML(context, xml.AutoCommandBar)
+  const autoCommandBar = importAutoCommandBarFromXML(context, undefined, xml.AutoCommandBar)
   if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   if (xml.AutoInsertNewRow !== undefined) result.autoInsertNewRow = xml.AutoInsertNewRow
@@ -56,20 +58,20 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.AutoRefreshPeriod !== undefined) result.autoRefreshPeriod = xml.AutoRefreshPeriod
 
-  const backColor = importColorFromXML(context, xml.BackColor)
+  const backColor = importColorFromXML(context, undefined, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
   if (xml.BehaviorOnHorizontalCompression !== undefined)
     result.behaviorOnHorizontalCompression = xml.BehaviorOnHorizontalCompression
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (xml.ChangeRowOrder !== undefined) result.changeRowOrder = xml.ChangeRowOrder
 
   if (xml.ChangeRowSet !== undefined) result.changeRowSet = xml.ChangeRowSet
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (xml.ChoiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = xml.ChoiceFoldersAndItems
 
@@ -77,10 +79,10 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.CommandBarLocation !== undefined) result.commandBarLocation = xml.CommandBarLocation
 
-  const commandSet = importCommandSetFromXML(context, xml.CommandSet)
+  const commandSet = importCommandSetFromXML(context, undefined, xml.CommandSet)
   if (commandSet !== undefined) result.commandSet = commandSet
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse
@@ -97,15 +99,15 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
 
-  const events = importEventsFromXML(context, xml.Events)
+  const events = importEventsFromXML(context, undefined, xml.Events)
   if (events !== undefined) result.events = events
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.FileDragMode !== undefined) result.fileDragMode = xml.FileDragMode
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.Footer !== undefined) result.footer = xml.Footer
@@ -160,17 +162,17 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.RowSelectionMode !== undefined) result.rowSelectionMode = xml.RowSelectionMode
 
-  const rowsPicture = importPictureFromXML(context, xml.RowsPicture)
+  const rowsPicture = importPictureFromXML(context, undefined, xml.RowsPicture)
   if (rowsPicture !== undefined) result.rowsPicture = rowsPicture
 
-  const searchControl = importSingleSearchControlAdditionFromXML(context, xml.SearchControlAddition)
+  const searchControl = importSingleSearchControlAdditionFromXML(context, undefined, xml.SearchControlAddition)
   if (searchControl !== undefined) result.searchControl = searchControl
 
   if (xml.SearchControlLocation !== undefined) result.searchControlLocation = xml.SearchControlLocation
 
   if (xml.SearchOnInput !== undefined) result.searchOnInput = xml.SearchOnInput
 
-  const searchStringAddition = importSingleSearchStringAdditionFromXML(context, xml.SearchStringAddition)
+  const searchStringAddition = importSingleSearchStringAdditionFromXML(context, undefined, xml.SearchStringAddition)
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
   if (xml.SearchStringLocation !== undefined) result.searchStringLocation = xml.SearchStringLocation
@@ -183,23 +185,23 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const textColor = importColorFromXML(context, xml.TextColor)
+  const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
   if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
 
   if (xml.TitleLocation !== undefined) result.titleLocation = xml.TitleLocation
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
@@ -208,7 +210,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.UseAlternationRowColor !== undefined) result.useAlternationRowColor = xml.UseAlternationRowColor
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
@@ -219,7 +221,7 @@ export function importTableFromXML<To extends Table | undefined>(
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 
-  const viewStatusAddition = importViewStatusAdditionFromXML(context, xml.ViewStatusAddition)
+  const viewStatusAddition = importViewStatusAdditionFromXML(context, undefined, xml.ViewStatusAddition)
   if (viewStatusAddition !== undefined) result.viewStatusAddition = viewStatusAddition
 
   if (xml.ViewStatusLocation !== undefined) result.viewStatusLocation = xml.ViewStatusLocation

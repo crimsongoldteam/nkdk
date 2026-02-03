@@ -6,16 +6,16 @@ import { FormattedI8nText, FormattedI8nTextXML } from "./types"
 
 export const _importFormattedI8nTextFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: FormattedI8nTextXML | undefined
 ): FormattedI8nText | undefined => {
   if (xml === undefined) return undefined
 
-  const resultI8nText = _importI8nTextFromXML(context, _rule, xml)
+  const resultI8nText = _importI8nTextFromXML(context, undefined, _rule, xml)
 
   if (resultI8nText === undefined) return undefined
 
-  const formatted = _importBooleanFromXML(context, _rule, xml._formatted) ?? false
+  const formatted = _importBooleanFromXML(context, undefined, _rule, xml._formatted) ?? false
 
   return {
     formatted: formatted,

@@ -14,14 +14,16 @@ import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importSearchControlAdditionFromXML<To extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
 
-  const props = importSearchControlAdditionPropsFromXML(context, xml) ?? {
+  const props = importSearchControlAdditionPropsFromXML(context, undefined, xml) ?? {
     elementType: "SearchControlAddition",
     childItems: [],
   }
@@ -40,9 +42,10 @@ export function importSearchControlAdditionFromXML<To extends SearchControlAddit
 
 export const importSingleSearchControlAdditionFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: SearchControlAdditionXML
 ): SingleSearchControlAddition | undefined => {
-  const result = importSearchControlAdditionPropsFromXML(context, xml)
+  const result = importSearchControlAdditionPropsFromXML(context, undefined, xml)
   if (result === undefined) return undefined
 
   return result
@@ -50,6 +53,7 @@ export const importSingleSearchControlAdditionFromXML = (
 
 export const importSearchControlAdditionPropsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: SearchControlAdditionXML
 ): SingleSearchControlAddition | undefined => {
   const result: SingleSearchControlAddition = {
@@ -57,51 +61,51 @@ export const importSearchControlAdditionPropsFromXML = (
     childItems: [],
   }
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedToolTip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedToolTip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
   if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.GroupVerticalAlign !== undefined) result.verticalAlignInGroup = xml.GroupVerticalAlign
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const backColor = importColorFromXML(context, xml.BackColor)
+  const backColor = importColorFromXML(context, undefined, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
 
   if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
 
-  const textColor = importColorFromXML(context, xml.TextColor)
+  const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
   if (xml.Width !== undefined) result.width = xml.Width

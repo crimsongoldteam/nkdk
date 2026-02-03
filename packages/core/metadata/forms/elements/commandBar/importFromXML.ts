@@ -9,14 +9,16 @@ import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadata
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importCommandBarFromXML<To extends CommandBar | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
 
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: CommandBar = {
     ...baseFields,
@@ -24,7 +26,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
     childItems: [],
   }
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
@@ -39,16 +41,16 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
 
-  const title = importI8nTextFromXML(context, xml.Title)
+  const title = importI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const titleFont = importFontFromXML(context, xml.TitleFont)
+  const titleFont = importFontFromXML(context, undefined, xml.TitleFont)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
@@ -65,7 +67,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.CommandSource !== undefined) result.commandSource = xml.CommandSource
 
-  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
 
@@ -75,7 +77,7 @@ export function importCommandBarFromXML<To extends CommandBar | undefined>(
 
   if (xml.HorizontalLocation !== undefined) result.horizontalAlign = xml.HorizontalLocation
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   return result as To

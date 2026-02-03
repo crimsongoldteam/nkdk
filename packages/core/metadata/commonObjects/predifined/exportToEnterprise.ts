@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Predefined, PredefinedEnterprise, PredefinedItems, PredefinedItemsEnterprise } from "./types"
 
 export const exportPredefinedToEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: Predefined | undefined
 ): PredefinedEnterprise | undefined => {
   if (!data) return undefined
@@ -16,6 +18,7 @@ export const exportPredefinedToEnterprise = (
 
 export const exportPredefinedItemsToEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PredefinedItems | undefined
 ): PredefinedItemsEnterprise | undefined => {
   if (!data) return undefined

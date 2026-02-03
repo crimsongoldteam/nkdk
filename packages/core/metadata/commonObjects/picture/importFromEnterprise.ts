@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -6,6 +7,7 @@ import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
 
 export const importPictureCombinedFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined,
   yaml: PictureEnterprise | undefined
 ): Picture | undefined => {
@@ -15,7 +17,7 @@ export const importPictureCombinedFromEnterprise = (
     return picture
   }
 
-  const yamlPicture = importPictureFromEnterprise(context, yaml)!
+  const yamlPicture = importPictureFromEnterprise(context, undefined, yaml)!
 
   if (picture === undefined) {
     return yamlPicture
@@ -29,6 +31,7 @@ export const importPictureCombinedFromEnterprise = (
 
 export const importPictureFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PictureEnterprise | undefined
 ): Picture | undefined => {
   if (!data) return undefined
@@ -39,7 +42,7 @@ export const importPictureFromEnterprise = (
 
   if (isPictureEnterpriseExtended(data)) {
     ref = data.Ссылка
-    loadTransparent = importBooleanFromEnterprise(context, data.ПрозрачныйФон)!
+    loadTransparent = importBooleanFromEnterprise(context, undefined, data.ПрозрачныйФон)!
     transparentPixel = data.ПрозрачныйПиксель
   } else {
     ref = data
@@ -71,7 +74,7 @@ function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEn
 
 function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
   if (ref in SE.PictureLibFromEnterprise) {
-    return importSystemEnumerationFromYAML(context, ref, SE.PictureLibFromEnterprise)
+    return importSystemEnumerationFromYAML(context, undefined, ref, SE.PictureLibFromEnterprise)
   }
   return undefined
 }

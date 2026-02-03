@@ -7,6 +7,7 @@
 //   N extends string | undefined,
 // >(
 //   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
 //   data: T,
 //   name: N
 // ): NamedElement => {

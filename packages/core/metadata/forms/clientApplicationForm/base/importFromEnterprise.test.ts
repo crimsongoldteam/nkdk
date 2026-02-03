@@ -5,7 +5,7 @@ import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
@@ -14,10 +14,15 @@ import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
 
 describe("importClientApplicationFormFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importClientApplicationFormFromEnterprise(mockContext, fullClientApplicationFormEnterprise, {
-      childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
-      autoCommandBar: { autofill: false, childItems: [] },
-    })
+    const result = importClientApplicationFormFromEnterprise(
+      mockContext,
+      mockRule,
+      fullClientApplicationFormEnterprise,
+      {
+        childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
+        autoCommandBar: { autofill: false, childItems: [] },
+      }
+    )
 
     expect(result).toEqual(fullClientApplicationForm)
   })
@@ -41,7 +46,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       },
     }
 
-    const result = importClientApplicationFormFromEnterprise(mockContext, enterpriseData, {
+    const result = importClientApplicationFormFromEnterprise(mockContext, mockRule, enterpriseData, {
       childItems: [],
       autoCommandBar: {
         autofill: false,
@@ -105,7 +110,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       },
     }
 
-    const result = importClientApplicationFormFromEnterprise(mockContext, enterpriseData, {
+    const result = importClientApplicationFormFromEnterprise(mockContext, mockRule, enterpriseData, {
       childItems: [table],
     })
 

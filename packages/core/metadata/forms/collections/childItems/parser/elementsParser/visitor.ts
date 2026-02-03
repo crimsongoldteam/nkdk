@@ -82,7 +82,7 @@ export class Visitor extends BaseVisitor {
     const pictureToken = ctx.Picture?.[0] as IToken | undefined
     const pictureRef = pictureToken?.image?.replace(/^@/, "").trim() || ""
 
-    const picture = importPictureFromEnterprise(context, pictureRef)
+    const picture = importPictureFromEnterprise(context, undefined, pictureRef)
 
     const titleText = joinTokens(ctx.LabelContent as IToken[])
     const name = this.visit(ctx.properties as CstNode[], context)
@@ -778,7 +778,7 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[], context)
     const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as FormElementTypeEnterprise
 
-    const elementType = importFormElementTypeFromEnterprise(context, otherFieldType)
+    const elementType = importFormElementTypeFromEnterprise(context, undefined, otherFieldType)
     return {
       elementType: elementType,
       name: name,

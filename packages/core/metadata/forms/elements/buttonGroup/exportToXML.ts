@@ -10,17 +10,19 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  const childItems = exportChildItemsToXML(context, undefined, data.childItems)
+  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
 
   const result: ButtonGroupXML = {
     ...baseFields,
@@ -52,20 +54,20 @@ export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup

@@ -13,42 +13,44 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportLabelDecorationToXML<From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: LabelDecorationXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
+    ContextMenu: exportContextMenuToXML(context, undefined, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data),
   }
 
   if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
 
   if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const border = exportBorderToXML(context, data.border)
+  const border = exportBorderToXML(context, undefined, data.border)
   if (border !== undefined) result.Border = border
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const events = exportEventsToXML(context, data.events)
+  const events = exportEventsToXML(context, undefined, data.events)
   if (events !== undefined) result.Events = events
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
   if (font !== undefined) result.Font = font
 
   // if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
@@ -71,7 +73,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
   const title = exportFormattedI8nTextToXMLWithDefaultLanguage(context, data.title)
@@ -79,14 +81,14 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign

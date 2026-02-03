@@ -6,18 +6,18 @@ import {
   minimalColumnGroup,
   minimalColumnGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/columnGroup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportColumnGroupPartialToEnterprise, exportColumnGroupTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportColumnGroupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportColumnGroupPartialToEnterprise(mockContext, fullColumnGroup)
+    const result = exportColumnGroupPartialToEnterprise(mockContext, mockRule, fullColumnGroup)
 
     expect(result).toEqual(fullColumnGroupPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportColumnGroupPartialToEnterprise(mockContext, minimalColumnGroup)
+    const result = exportColumnGroupPartialToEnterprise(mockContext, mockRule, minimalColumnGroup)
 
     expect(result).toEqual(minimalColumnGroupPartialEnterprise)
   })
@@ -25,13 +25,13 @@ describe("exportColumnGroupPartialToEnterprise", () => {
 
 describe("exportColumnGroupTypedToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportColumnGroupTypedToEnterprise(mockContext, fullColumnGroup)
+    const result = exportColumnGroupTypedToEnterprise(mockContext, mockRule, fullColumnGroup)
 
     expect(result).toEqual(fullColumnGroupTypedEnterprise)
   })
 
   it("should return undefined when data is undefined", () => {
-    const result = exportColumnGroupTypedToEnterprise(mockContext, undefined)
+    const result = exportColumnGroupTypedToEnterprise(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

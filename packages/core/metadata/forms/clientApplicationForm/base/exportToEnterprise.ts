@@ -16,6 +16,7 @@ import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportCommandInterfaceToEnterprise } from "../../commonObjects/commandInterface/exportToEnterprise"
 import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import { getAllElements } from "./getAllElements"
 
 const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {
@@ -49,6 +50,7 @@ const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormE
 
 const exportClientApplicationFormEventsToEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ClientApplicationFormEvents | undefined
 ): ClientApplicationFormEnterprise["События"] | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
@@ -67,54 +69,70 @@ const exportClientApplicationFormEventsToEnterprise = (
 
 export const exportClientApplicationFormToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormEnterprise | undefined => {
   if (!data) return undefined
 
   const result: ClientApplicationFormEnterprise = {}
 
-  const synonym = exportI8nTextToEnterprise(context, data.synonim)
+  const synonym = exportI8nTextToEnterprise(context, undefined, data.synonim)
   if (synonym !== undefined) result.Синоним = synonym
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const includeHelpInContents = exportBooleanToEnterprise(context, data.includeHelpInContents)
+  const includeHelpInContents = exportBooleanToEnterprise(context, undefined, data.includeHelpInContents)
   if (includeHelpInContents !== undefined) result.ВключатьСправкуВСодержание = includeHelpInContents
 
-  const usePurposes = exportUsePurposesToEnterprise(context, data.usePurposes)
+  const usePurposes = exportUsePurposesToEnterprise(context, undefined, data.usePurposes)
   if (usePurposes !== undefined) result.НазначенияИспользования = usePurposes
 
-  const autoTitle = exportBooleanToEnterprise(context, data.autoTitle)
+  const autoTitle = exportBooleanToEnterprise(context, undefined, data.autoTitle)
   if (autoTitle !== undefined) result.АвтоЗаголовок = autoTitle
 
   const autoSaveDataInSettings = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.autoSaveDataInSettings,
     SE.AutoSaveFormDataInSettingsToEnterprise
   )
   if (autoSaveDataInSettings !== undefined) result.АвтоматическоеСохранениеДанныхВНастройках = autoSaveDataInSettings
 
-  const autoURL = exportBooleanToEnterprise(context, data.autoURL)
+  const autoURL = exportBooleanToEnterprise(context, undefined, data.autoURL)
   if (autoURL !== undefined) result.АвтоНавигационнаяСсылка = autoURL
 
-  const saveWindowSettings = exportBooleanToEnterprise(context, data.saveWindowSettings)
+  const saveWindowSettings = exportBooleanToEnterprise(context, undefined, data.saveWindowSettings)
   if (saveWindowSettings !== undefined) result.СохранятьНастройкиОкна = saveWindowSettings
 
-  const verticalScroll = exportSystemEnumerationToYAML(context, data.verticalScroll, SE.VerticalFormScrollToEnterprise)
+  const verticalScroll = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.verticalScroll,
+    SE.VerticalFormScrollToEnterprise
+  )
   if (verticalScroll !== undefined) result.ВертикальнаяПрокрутка = verticalScroll
 
   const childItemsVerticalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.childItemsVerticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
   if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
 
-  const verticalSpacing = exportSystemEnumerationToYAML(context, data.verticalSpacing, SE.FormItemSpacingToEnterprise)
+  const verticalSpacing = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.verticalSpacing,
+    SE.FormItemSpacingToEnterprise
+  )
   if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
 
   const itemsAndTitlesAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.itemsAndTitlesAlign,
     SE.ItemsAndTitlesAlignVariantToEnterprise
   )
@@ -124,6 +142,7 @@ export const exportClientApplicationFormToEnterprise = (
 
   const childItemsHorizontalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.childItemsHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
@@ -131,63 +150,71 @@ export const exportClientApplicationFormToEnterprise = (
 
   const horizontalSpacing = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalSpacing,
     SE.FormItemSpacingToEnterprise
   )
   if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
 
-  const group = exportSystemEnumerationToYAML(context, data.group, SE.ChildFormItemsGroupToEnterprise)
+  const group = exportSystemEnumerationToYAML(context, undefined, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
-  const customizable = exportBooleanToEnterprise(context, data.customizable)
+  const customizable = exportBooleanToEnterprise(context, undefined, data.customizable)
   if (customizable !== undefined) result.РазрешитьИзменятьФорму = customizable
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const closeOnChoice = exportBooleanToEnterprise(context, data.closeOnChoice)
+  const closeOnChoice = exportBooleanToEnterprise(context, undefined, data.closeOnChoice)
   if (closeOnChoice !== undefined) result.ЗакрыватьПриВыборе = closeOnChoice
 
-  const closeOnOwnerClose = exportBooleanToEnterprise(context, data.closeOnOwnerClose)
+  const closeOnOwnerClose = exportBooleanToEnterprise(context, undefined, data.closeOnOwnerClose)
   if (closeOnOwnerClose !== undefined) result.ЗакрыватьПриЗакрытииВладельца = closeOnOwnerClose
 
-  const usedFormServer = exportSystemEnumerationToYAML(context, data.usedFormServer, SE.UsedServerToEnterprise)
+  const usedFormServer = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.usedFormServer,
+    SE.UsedServerToEnterprise
+  )
   if (usedFormServer !== undefined) result.ИспользуемыйСерверФормы = usedFormServer
 
-  const commandInterface = exportCommandInterfaceToEnterprise(context, data.commandInterface)
+  const commandInterface = exportCommandInterfaceToEnterprise(context, undefined, data.commandInterface)
   if (commandInterface !== undefined) result.ИнтерфейсКоманды = commandInterface
 
   if (data.purposeUseKey !== undefined) result.КлючНазначенияИспользования = data.purposeUseKey
 
   if (data.windowOptionsKey !== undefined) result.КлючСохраненияПоложенияОкна = data.windowOptionsKey
 
-  const autoCommandBar = exportAutoCommandBarToEnterprise(context, data.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToEnterprise(context, undefined, data.autoCommandBar)
   if (autoCommandBar !== undefined) result.КоманднаяПанель = autoCommandBar
 
-  const commands = exportCommandsToEnterprise(context, data.commands)
+  const commands = exportCommandsToEnterprise(context, undefined, data.commands)
   if (commands !== undefined) result.Команды = commands
 
   if (data.scale !== undefined) result.Масштаб = data.scale
 
-  const modalMode = exportBooleanToEnterprise(context, data.modalMode)
+  const modalMode = exportBooleanToEnterprise(context, undefined, data.modalMode)
   if (modalMode !== undefined) result.МодальныйРежим = modalMode
 
-  const modified = exportBooleanToEnterprise(context, data.modified)
+  const modified = exportBooleanToEnterprise(context, undefined, data.modified)
   if (modified !== undefined) result.Модифицированность = modified
 
   // if (data.url !== undefined) result.НавигационнаяСсылка = data.url
 
-  const showTitle = exportBooleanToEnterprise(context, data.showTitle)
+  const showTitle = exportBooleanToEnterprise(context, undefined, data.showTitle)
   if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle
 
-  const showCloseButton = exportBooleanToEnterprise(context, data.showCloseButton)
+  const showCloseButton = exportBooleanToEnterprise(context, undefined, data.showCloseButton)
   if (showCloseButton !== undefined) result.ОтображатьКнопкуЗакрытия = showCloseButton
 
   const conversationsRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.conversationsRepresentation,
     SE.FormConversationsRepresentationToEnterprise
   )
@@ -195,6 +222,7 @@ export const exportClientApplicationFormToEnterprise = (
 
   const enterKeyBehavior = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.enterKeyBehavior,
     SE.EnterKeyBehaviorTypeToEnterprise
   )
@@ -202,16 +230,18 @@ export const exportClientApplicationFormToEnterprise = (
 
   const commandBarLocation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.commandBarLocation,
     SE.FormCommandBarLabelLocationToEnterprise
   )
   if (commandBarLocation !== undefined) result.ПоложениеКоманднойПанели = commandBarLocation
 
-  const autoFillCheck = exportBooleanToEnterprise(context, data.autoFillCheck)
+  const autoFillCheck = exportBooleanToEnterprise(context, undefined, data.autoFillCheck)
   if (autoFillCheck !== undefined) result.ПроверятьЗаполнениеАвтоматически = autoFillCheck
 
   const formWindowOpeningMode = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.formWindowOpeningMode,
     SE.FormWindowOpeningModeToEnterprise
   )
@@ -219,48 +249,51 @@ export const exportClientApplicationFormToEnterprise = (
 
   const collapseItemsByImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.collapseItemsByImportance,
     SE.CollapseFormItemsByImportanceToEnterprise
   )
   if (collapseItemsByImportance !== undefined) result.СворачиваниеЭлементовПоВажности = collapseItemsByImportance
 
-  const commandSet = exportCommandSetToEnterprise(context, data.commandSet)
+  const commandSet = exportCommandSetToEnterprise(context, undefined, data.commandSet)
   if (commandSet !== undefined) result.СоставКоманд = commandSet
 
   const saveDataInSettings = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.saveDataInSettings,
     SE.SaveFormDataInSettingsToEnterprise
   )
   if (saveDataInSettings !== undefined) result.СохранениеДанныхВНастройках = saveDataInSettings
 
-  const savedInSettingsDataModified = exportBooleanToEnterprise(context, data.savedInSettingsDataModified)
+  const savedInSettingsDataModified = exportBooleanToEnterprise(context, undefined, data.savedInSettingsDataModified)
   if (savedInSettingsDataModified !== undefined)
     result.СохраняемыеВНастройкахДанныеМодифицированы = savedInSettingsDataModified
 
-  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
   if (data.width !== undefined) result.Ширина = data.width
 
   const slaveItemsWidth = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.slaveItemsWidth,
     SE.ChildFormItemsWidthToEnterprise
   )
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
 
-  const attributes = exportFormAttributesToEnterprise(context, data.attributes)
+  const attributes = exportFormAttributesToEnterprise(context, undefined, data.attributes)
   if (attributes !== undefined) result.Реквизиты = attributes
 
-  const parameters = exportFormParametersToEnterprise(context, data.parameters)
+  const parameters = exportFormParametersToEnterprise(context, undefined, data.parameters)
   if (parameters !== undefined) result.Параметры = parameters
 
-  const events = exportClientApplicationFormEventsToEnterprise(context, data.events)
+  const events = exportClientApplicationFormEventsToEnterprise(context, undefined, data.events)
   if (events !== undefined) result.События = events
 
   const allElements = getAllElements(data)
-  const childItems = exportPartialChildItemsToEnterprise(context, allElements)
+  const childItems = exportPartialChildItemsToEnterprise(context, undefined, allElements)
   if (childItems !== undefined) result.Элементы = childItems
 
   return result

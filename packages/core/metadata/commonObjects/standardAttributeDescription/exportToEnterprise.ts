@@ -14,6 +14,7 @@ import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/type
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
@@ -24,6 +25,7 @@ export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeN
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined
@@ -31,7 +33,7 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
   const result: StandardAttributeDescriptionsEnterprise = Object.fromEntries(
     data.map((value: StandardAttributeDescription) => [
       StandartAttributeNameToEnterprise[value.name],
-      exportStandardAttributeDescriptionToEnterprise(context, value)!,
+      exportStandardAttributeDescriptionToEnterprise(context, undefined, value)!,
     ])
   )
 
@@ -42,30 +44,32 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
 
 const exportStandardAttributeDescriptionToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}
 
-  const quickChoice = exportSystemEnumerationToYAML(context, data.quickChoice, SE.UseQuickChoiceToEnterprise)
+  const quickChoice = exportSystemEnumerationToYAML(context, undefined, data.quickChoice, SE.UseQuickChoiceToEnterprise)
   if (quickChoice) result.БыстрыйВыбор = quickChoice
 
-  const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
+  const markNegatives = exportBooleanToEnterprise(context, undefined, data.markNegatives)
   if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
 
-  const fillFromFillingValue = exportBooleanToEnterprise(context, data.fillFromFillingValue)
+  const fillFromFillingValue = exportBooleanToEnterprise(context, undefined, data.fillFromFillingValue)
   if (fillFromFillingValue !== undefined) result.ЗаполнятьИзДанныхЗаполнения = fillFromFillingValue
 
-  const fillValue = exportMetadataValueToEnterprise(context, data.fillValue)
+  const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
   if (fillValue) result.ЗначениеЗаполнения = fillValue
 
   const choiceHistoryOnInput = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.choiceHistoryOnInput,
     SE.ChoiceHistoryOnInputToEnterprise
   )
   if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToYAML(context, data.dataHistory, SE.DataHistoryUseToEnterprise)
+  const dataHistory = exportSystemEnumerationToYAML(context, undefined, data.dataHistory, SE.DataHistoryUseToEnterprise)
   if (dataHistory) result.ИсторияДанных = dataHistory
 
   if (data.comment) result.Комментарий = data.comment
@@ -73,55 +77,68 @@ const exportStandardAttributeDescriptionToEnterprise = (
   if (data.mask) result.Маска = data.mask
   if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
 
-  const multiLine = exportBooleanToEnterprise(context, data.multiLine)
+  const multiLine = exportBooleanToEnterprise(context, undefined, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const choiceParameters = exportChoiceParametersToEnterprise(context, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters) result.ПараметрыВыбора = choiceParameters
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
-  const fullTextSearch = exportSystemEnumerationToYAML(context, data.fullTextSearch, SE.UseFullTextSearchToEnterprise)
+  const fullTextSearch = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.fullTextSearch,
+    SE.UseFullTextSearchToEnterprise
+  )
   if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToYAML(context, data.fillChecking, SE.FillCheckingToEnterprise)
+  const fillChecking = exportSystemEnumerationToYAML(context, undefined, data.fillChecking, SE.FillCheckingToEnterprise)
   if (fillChecking) result.ПроверкаЗаполнения = fillChecking
 
-  const extendedEdit = exportBooleanToEnterprise(context, data.extendedEdit)
+  const extendedEdit = exportBooleanToEnterprise(context, undefined, data.extendedEdit)
   if (extendedEdit !== undefined) result.РасширенноеРедактирование = extendedEdit
 
-  const passwordMode = exportBooleanToEnterprise(context, data.passwordMode)
+  const passwordMode = exportBooleanToEnterprise(context, undefined, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
   const typeReductionMode = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.typeReductionMode,
     SE.TypeReductionModeToEnterprise
   )
   if (typeReductionMode) result.РежимСокращенияТипа = typeReductionMode
 
-  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, undefined, data.choiceParameterLinks)
   if (choiceParameterLinks) result.СвязиПараметровВыбора = choiceParameterLinks
 
-  const linkByType = exportTypeLinkToEnterprise(context, data.linkByType)
+  const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
   if (linkByType) result.СвязьПоТипу = linkByType
 
-  const synonym = exportI8nTextToEnterprise(context, data.synonym)
+  const synonym = exportI8nTextToEnterprise(context, undefined, data.synonym)
   if (synonym) result.Синоним = synonym
 
-  const createOnInput = exportSystemEnumerationToYAML(context, data.createOnInput, SE.CreateOnInputToEnterprise)
+  const createOnInput = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.createOnInput,
+    SE.CreateOnInputToEnterprise
+  )
   if (createOnInput) result.СозданиеПриВводе = createOnInput
 
-  const type = exportTypeDescriptionToEnterprise(context, data.type)
+  const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)
   if (type) result.Тип = type
 
   if (data.choiceForm) result.ФормаВыбора = data.choiceForm
 
-  const format = exportI8nTextToEnterprise(context, data.format)
+  const format = exportI8nTextToEnterprise(context, undefined, data.format)
   if (format) result.Формат = format
 
-  const editFormat = exportI8nTextToEnterprise(context, data.editFormat)
+  const editFormat = exportI8nTextToEnterprise(context, undefined, data.editFormat)
   if (editFormat) result.ФорматРедактирования = editFormat
 
   return result

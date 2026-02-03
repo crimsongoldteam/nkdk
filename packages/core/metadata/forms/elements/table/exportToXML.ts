@@ -17,50 +17,57 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSingleSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportTableToXML<From extends Table | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const autoCommandBar = exportTableAutoCommandBarToXML(context, data.autoCommandBar, data)
+  const autoCommandBar = exportTableAutoCommandBarToXML(context, undefined, data.autoCommandBar, data)
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, undefined, data.childItems)
 
-  const commandSet = exportCommandSetToXML(context, data.commandSet)
+  const commandSet = exportCommandSetToXML(context, undefined, data.commandSet)
 
-  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
+  const contextMenu = exportContextMenuToXML(context, undefined, data.contextMenu, data)
 
-  const events = exportEventsToXML(context, data.events)
+  const events = exportEventsToXML(context, undefined, data.events)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
 
-  const searchControl = exportSingleSearchControlAdditionToXML(context, data.searchControl, data)
+  const searchControl = exportSingleSearchControlAdditionToXML(context, undefined, data.searchControl, data)
 
-  const searchStringAddition = exportSingleSearchStringAdditionToXML(context, data.searchStringAddition, data)
+  const searchStringAddition = exportSingleSearchStringAdditionToXML(
+    context,
+    undefined,
+    data.searchStringAddition,
+    data
+  )
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, undefined, data.textColor)
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
 
-  const viewStatusAddition = exportViewStatusAdditionToXML(context, data.viewStatusAddition, data)
+  const viewStatusAddition = exportViewStatusAdditionToXML(context, undefined, data.viewStatusAddition, data)
 
   const result: Partial<TableXML> = {
     ...baseFields,
@@ -130,7 +137,7 @@ export function exportTableToXML<From extends Table | undefined>(
   if (data.rowPictureDataPath !== undefined) result.RowPictureDataPath = data.rowPictureDataPath
   if (data.rowSelectionMode !== undefined) result.RowSelectionMode = data.rowSelectionMode
 
-  const rowsPicture = exportPictureToXML(context, data.rowsPicture)
+  const rowsPicture = exportPictureToXML(context, undefined, data.rowsPicture)
   if (rowsPicture !== undefined) result.RowsPicture = rowsPicture
 
   if (searchControl !== undefined) result.SearchControlAddition = searchControl

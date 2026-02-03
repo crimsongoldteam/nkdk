@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Predefined, PredefinedItems, PredefinedItemsXML, PredefinedXML } from "./types"
 
 export const importPredefinedFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PredefinedXML | undefined
 ): Predefined | undefined => {
   if (!data) return undefined
@@ -17,9 +19,10 @@ export const importPredefinedFromXML = (
 
 export const importPredefinedItemsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PredefinedItemsXML | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => importPredefinedFromXML(context, value)!)
+  return data.map((value) => importPredefinedFromXML(context, undefined, value)!)
 }

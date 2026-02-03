@@ -6,6 +6,7 @@ import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToStructure = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: ClientApplicationForm
 ): IFormatElementResult => {
   const childItems = element.childItems ?? []

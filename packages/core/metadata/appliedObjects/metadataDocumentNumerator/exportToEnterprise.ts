@@ -5,11 +5,13 @@ import {
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined
@@ -23,14 +25,19 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
     ),
     Имя: data.name,
     Комментарий: data.comment,
-    КонтрольУникальности: exportBooleanToEnterprise(context, data.checkUnique),
+    КонтрольУникальности: exportBooleanToEnterprise(context, undefined, data.checkUnique),
     ПериодичностьНомера: exportSystemEnumerationToYAML(
       context,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),
-    ПринадлежностьОбъекта: exportSystemEnumerationToYAML(context, data.objectBelonging, SE.ObjectBelongingToEnterprise),
-    Синоним: exportI8nTextToEnterprise(context, data.synonym),
-    ТипНомера: exportSystemEnumerationToYAML(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
+    ПринадлежностьОбъекта: exportSystemEnumerationToYAML(
+      context,
+      undefined,
+      data.objectBelonging,
+      SE.ObjectBelongingToEnterprise
+    ),
+    Синоним: exportI8nTextToEnterprise(context, undefined, data.synonym),
+    ТипНомера: exportSystemEnumerationToYAML(context, undefined, data.numberType, SE.DocumentNumberTypeToEnterprise),
   }
 }

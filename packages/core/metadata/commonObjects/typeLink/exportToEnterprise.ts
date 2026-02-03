@@ -1,14 +1,16 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToEnterprise } from "../metadataField/exportToEnterprise"
 import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const exportTypeLinkToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: TypeLink | undefined
 ): TypeLinkEnterprise | undefined => {
   if (!data) return undefined
 
-  const dataPathEnterprise = exportMetadataFieldToEnterprise(context, data.dataPath)
+  const dataPathEnterprise = exportMetadataFieldToEnterprise(context, undefined, data.dataPath)
   if (!dataPathEnterprise) return undefined
 
   // Добавляем linkItem в скобках, если он не равен 0

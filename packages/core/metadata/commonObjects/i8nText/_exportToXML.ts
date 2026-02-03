@@ -1,11 +1,10 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { isEmptyI8nText } from "./helper"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const _exportI8nTextToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined

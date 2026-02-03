@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
 export const exportUserVisibleToXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   userVisible: UserVisible | undefined
 ): UserVisibleXML | undefined => {
   if (!userVisible) return undefined

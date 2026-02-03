@@ -13,7 +13,7 @@ import {
 
 export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   value: TypeDescriptionEnterprise | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {

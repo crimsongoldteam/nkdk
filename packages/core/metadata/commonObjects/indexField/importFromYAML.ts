@@ -4,7 +4,7 @@ import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } 
 
 export const importIndexFieldFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: IndexFieldEnterprise | undefined
 ): IndexField | undefined => {
   if (!data) return undefined
@@ -14,7 +14,7 @@ export const importIndexFieldFromYAML = (
 
 export const importIndexFieldsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: IndexFieldsEnterprise | undefined
 ): IndexFields | undefined => {
   if (!data) return undefined

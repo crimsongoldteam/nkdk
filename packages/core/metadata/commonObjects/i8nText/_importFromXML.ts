@@ -4,7 +4,7 @@ import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const _importI8nTextFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: I8nTextXML | undefined
 ): I8nText | undefined => {
   if (!xml) return undefined

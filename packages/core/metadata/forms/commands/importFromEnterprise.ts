@@ -1,4 +1,5 @@
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importI8nTextFromEnterprise } from "../../commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "../../commonObjects/picture/importFromEnterprise"
 import { ConfigurationContext } from "../../context/types"
@@ -8,6 +9,7 @@ import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./type
 
 const importCommandFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   name: string,
   data: CommandEnterprise | undefined
 ): Command | undefined => {
@@ -17,10 +19,10 @@ const importCommandFromEnterprise = (
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
@@ -33,7 +35,7 @@ const importCommandFromEnterprise = (
 
   if (data.Таблица !== undefined) result.table = data.Таблица
 
-  const picture = importPictureFromEnterprise(context, data.Картинка)
+  const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
@@ -43,7 +45,12 @@ const importCommandFromEnterprise = (
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const use = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const use = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (use !== undefined) result.use = use
 
   return result
@@ -51,6 +58,7 @@ const importCommandFromEnterprise = (
 
 export const importCommandsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CommandsEnterprise | undefined
 ): Commands => {
   if (!data) return []
@@ -58,7 +66,7 @@ export const importCommandsFromEnterprise = (
   const result: Commands = []
 
   for (const [name, commandData] of Object.entries(data)) {
-    const command = importCommandFromEnterprise(context, name, commandData)
+    const command = importCommandFromEnterprise(context, undefined, name, commandData)
     if (command) {
       result.push(command)
     }

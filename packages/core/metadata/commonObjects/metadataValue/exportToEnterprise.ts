@@ -17,19 +17,21 @@ import {
   MetadataValue,
   MetadataValueEnterprise,
 } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataValueToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValue | undefined
 ): MetadataValueEnterprise | undefined => {
   if (!data) return undefined
 
-  if (data.type === "fixedArray") return exportFixedArrayValueToEnterprise(context, data)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToEnterprise(context, data)
+  if (data.type === "fixedArray") return exportFixedArrayValueToEnterprise(context, undefined, data)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToEnterprise(context, undefined, data)
   if (data.type === "string") return exportStringValueToEnterprise(data)
   if (data.type === "decimal") return exportDecimalValueToEnterprise(data)
   if (data.type === "dateTime") return exportDateTimeValueToEnterprise(data)
-  if (data.type === "boolean") return exportBooleanValueToEnterprise(context, data)
+  if (data.type === "boolean") return exportBooleanValueToEnterprise(context, undefined, data)
   if (data.type === "ref") return exportRefValueToEnterprise(data)
   if (data.type === "objectRef") return exportObjectRefValueToEnterprise(data)
   // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToEnterprise(data)
@@ -55,9 +57,10 @@ const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataV
 
 const exportBooleanValueToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataBooleanValue
 ): MetadataValueEnterprise => {
-  return exportBooleanToEnterprise(context, data.value)!
+  return exportBooleanToEnterprise(context, undefined, data.value)!
 }
 
 const exportRefValueToEnterprise = (data: MetadataRefValue): MetadataValueEnterprise => {
@@ -70,16 +73,20 @@ const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): Metadat
 
 const exportFixedArrayValueToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValue
 ): MetadataValueEnterprise => {
-  return data.value.map((v) => exportMetadataValueToEnterprise(context, v)!) as MetadataFixedArrayValueEnterprise
+  return data.value.map(
+    (v) => exportMetadataValueToEnterprise(context, undefined, v)!
+  ) as MetadataFixedArrayValueEnterprise
 }
 
 export const exportFormChoiceListValueToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueEnterprise => {
-  const valueResult = exportMetadataValueToEnterprise(context, data.value)
+  const valueResult = exportMetadataValueToEnterprise(context, undefined, data.value)
 
   const presentationItems = data.presentation?.items
   const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1

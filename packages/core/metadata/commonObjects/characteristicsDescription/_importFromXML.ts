@@ -27,7 +27,7 @@ const extractFieldValue = (field: MetadataFieldXML | string | number | undefined
 
 export const _importCharacteristicsDescriptionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: CharacteristicsDescriptionXML | undefined
 ): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
@@ -65,7 +65,7 @@ export const _importCharacteristicsDescriptionFromXML = (
   const typesFilterField = extractFieldValue(characteristicTypes?.["xr:TypesFilterField"])
   if (typesFilterField !== undefined) result.typesFilterField = typesFilterField
 
-  const typesFilterValue = importMetadataValueFromXML(context, characteristicTypes?.["xr:TypesFilterValue"])
+  const typesFilterValue = importMetadataValueFromXML(context, undefined, characteristicTypes?.["xr:TypesFilterValue"])
   if (typesFilterValue !== undefined) result.typesFilterValue = typesFilterValue
 
   const valueField = extractFieldValue(characteristicValues?.["xr:ValueField"])
@@ -76,6 +76,7 @@ export const _importCharacteristicsDescriptionFromXML = (
 
 export const _importCharacteristicsDescriptionsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: CharacteristicsDescriptionsXML | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined
@@ -83,5 +84,7 @@ export const _importCharacteristicsDescriptionsFromXML = (
   const characteristics = xml["xr:Characteristic"]
   const items = Array.isArray(characteristics) ? characteristics : [characteristics]
 
-  return items.map((value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(context, value)!)
+  return items.map(
+    (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(context, undefined, value)!
+  )
 }

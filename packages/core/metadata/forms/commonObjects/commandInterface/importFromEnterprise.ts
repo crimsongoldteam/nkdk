@@ -9,9 +9,11 @@ import {
   CommandInterfaceItem,
   CommandInterfaceItemEnterprise,
 } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const importCommandInterfaceFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CommandInterfaceEnterprise | undefined
 ): CommandInterface | undefined => {
   if (!data) return undefined
@@ -23,13 +25,13 @@ export const importCommandInterfaceFromEnterprise = (
 
   if (data.ПанельНавигации && data.ПанельНавигации.length > 0) {
     result.NavigationPanel = data.ПанельНавигации.map((item) =>
-      importCommandInterfaceItemFromEnterprise(context, item)
+      importCommandInterfaceItemFromEnterprise(context, undefined, item)
     )
   }
 
   if (data.КоманднаяПанель && data.КоманднаяПанель.length > 0) {
     result.CommandBar = data.КоманднаяПанель.map((item) =>
-      importCommandInterfaceItemFromEnterprise(context, item)
+      importCommandInterfaceItemFromEnterprise(context, undefined, item)
     )
   }
 
@@ -38,12 +40,13 @@ export const importCommandInterfaceFromEnterprise = (
 
 const importCommandInterfaceItemFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   item: CommandInterfaceItemEnterprise
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {
     command: item.Команда,
     type: item.Тип,
-    defaultVisible: importBooleanFromEnterprise(context, item.Автовидимость)!,
+    defaultVisible: importBooleanFromEnterprise(context, undefined, item.Автовидимость)!,
   }
 
   if (item.ГруппаКоманд) {

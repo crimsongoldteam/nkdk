@@ -12,6 +12,7 @@ import { UsualGroup } from "./types"
 
 export const exportUsualGroupToStructure: FormatElementFunction = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: NamedElement
 ): IFormatElementResult => {
   const usualGroup = element as UsualGroup

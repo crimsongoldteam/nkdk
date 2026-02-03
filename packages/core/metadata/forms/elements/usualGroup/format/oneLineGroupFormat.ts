@@ -10,7 +10,11 @@ const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
 const oneLineGroupSuffix = "%"
 
-export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
+export const formatOneLineGroup = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 
@@ -48,7 +52,11 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
   return result
 }
 
-const formatGroupHeader = (context: ConfigurationContext, element: UsualGroup): string => {
+const formatGroupHeader = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): string => {
   if (element.showTitle === false) {
     return formatElementName(element)
   }

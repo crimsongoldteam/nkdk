@@ -11,25 +11,27 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: UsualGroupXML = {
     ...baseFields,
   } as UsualGroupXML
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, undefined, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
 
-  const table = exportMetadataSimpleValueToXML(context, data.table, "string")
+  const table = exportMetadataSimpleValueToXML(context, undefined, data.table, "string")
   if (table !== undefined) result.AssociatedTableElementId = table
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
@@ -49,13 +51,13 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
@@ -68,7 +70,7 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
   if (data.behavior !== undefined) result.Behavior = data.behavior
@@ -77,7 +79,7 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.childItemsVerticalAlign !== undefined) result.VerticalAlign = data.childItemsVerticalAlign
 
-  const collapsedRepresentationTitle = exportI8nTextToXML(context, data.collapsedRepresentationTitle)
+  const collapsedRepresentationTitle = exportI8nTextToXML(context, undefined, data.collapsedRepresentationTitle)
   if (collapsedRepresentationTitle !== undefined) result.CollapsedRepresentationTitle = collapsedRepresentationTitle
 
   if (data.controlRepresentation !== undefined) result.ControlRepresentation = data.controlRepresentation
@@ -86,7 +88,7 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
 
-  const format = exportI8nTextToXML(context, data.format)
+  const format = exportI8nTextToXML(context, undefined, data.format)
   if (format !== undefined) result.Format = format
 
   if (data.group !== undefined) result.Group = data.group
@@ -95,7 +97,11 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
-  const hiddenRepresentationTitleBackColor = exportColorToXML(context, data.hiddenRepresentationTitleBackColor)
+  const hiddenRepresentationTitleBackColor = exportColorToXML(
+    context,
+    undefined,
+    data.hiddenRepresentationTitleBackColor
+  )
   if (hiddenRepresentationTitleBackColor !== undefined)
     result.HiddenStateTitleBackColor = hiddenRepresentationTitleBackColor
 
@@ -115,7 +121,7 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
 
   if (data.united !== undefined) result.United = data.united
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing

@@ -46,7 +46,7 @@ export const exportMetadataCatalogToXML = (
 
   const properties: MetadataCatalogXML["Catalog"]["Properties"] = {} as MetadataCatalogXML["Catalog"]["Properties"]
 
-  const additionalIndexes = exportAdditionalIndexesToXML(context, mergedData.additionalIndexes)
+  const additionalIndexes = exportAdditionalIndexesToXML(context, undefined, mergedData.additionalIndexes)
   if (additionalIndexes) properties.AdditionalIndexes = additionalIndexes
 
   if (mergedData.autonumbering !== undefined) properties.Autonumbering = mergedData.autonumbering
@@ -62,10 +62,10 @@ export const exportMetadataCatalogToXML = (
 
   if (mergedData.auxiliaryObjectForm !== undefined) properties.AuxiliaryObjectForm = mergedData.auxiliaryObjectForm
 
-  const basedOn = exportMetadataValueCollectionToXML(context, mergedData.basedOn)
+  const basedOn = exportMetadataValueCollectionToXML(context, undefined, mergedData.basedOn)
   if (basedOn) properties.BasedOn = basedOn
 
-  const characteristics = exportCharacteristicsDescriptionsToXML(context, mergedData.characteristics)
+  const characteristics = exportCharacteristicsDescriptionsToXML(context, undefined, mergedData.characteristics)
   if (characteristics) properties.Characteristics = characteristics
 
   if (mergedData.checkUnique !== undefined) properties.CheckUnique = mergedData.checkUnique
@@ -93,7 +93,7 @@ export const exportMetadataCatalogToXML = (
 
   if (mergedData.dataLockControlMode !== undefined) properties.DataLockControlMode = mergedData.dataLockControlMode
 
-  const dataLockFields = exportMetadataFieldsToXML(context, mergedData.dataLockFields)
+  const dataLockFields = exportMetadataFieldsToXML(context, undefined, mergedData.dataLockFields)
   if (dataLockFields) properties.DataLockFields = dataLockFields
 
   if (mergedData.defaultChoiceForm !== undefined) properties.DefaultChoiceForm = mergedData.defaultChoiceForm
@@ -116,13 +116,13 @@ export const exportMetadataCatalogToXML = (
   if (mergedData.executeAfterWriteDataHistoryVersionProcessing !== undefined)
     properties.ExecuteAfterWriteDataHistoryVersionProcessing = mergedData.executeAfterWriteDataHistoryVersionProcessing
 
-  const explanation = exportI8nTextToXML(context, mergedData.explanation)
+  const explanation = exportI8nTextToXML(context, undefined, mergedData.explanation)
   if (explanation !== undefined) properties.Explanation = explanation
 
-  const extendedListPresentation = exportI8nTextToXML(context, mergedData.extendedListPresentation)
+  const extendedListPresentation = exportI8nTextToXML(context, undefined, mergedData.extendedListPresentation)
   if (extendedListPresentation !== undefined) properties.ExtendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = exportI8nTextToXML(context, mergedData.extendedObjectPresentation)
+  const extendedObjectPresentation = exportI8nTextToXML(context, undefined, mergedData.extendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) properties.ExtendedObjectPresentation = extendedObjectPresentation
 
   if (mergedData.foldersOnTop !== undefined) properties.FoldersOnTop = mergedData.foldersOnTop
@@ -139,27 +139,27 @@ export const exportMetadataCatalogToXML = (
   if (mergedData.includeHelpInContents !== undefined)
     properties.IncludeHelpInContents = mergedData.includeHelpInContents
 
-  const inputByString = exportMetadataFieldsToXML(context, mergedData.inputByString)
+  const inputByString = exportMetadataFieldsToXML(context, undefined, mergedData.inputByString)
   if (inputByString) properties.InputByString = inputByString
 
   if (mergedData.levelCount !== undefined) properties.LevelCount = mergedData.levelCount
 
   if (mergedData.limitLevelCount !== undefined) properties.LimitLevelCount = mergedData.limitLevelCount
 
-  const listPresentation = exportI8nTextToXML(context, mergedData.listPresentation)
+  const listPresentation = exportI8nTextToXML(context, undefined, mergedData.listPresentation)
   if (listPresentation !== undefined) properties.ListPresentation = listPresentation
 
   properties.Name = mergedData.name
 
   if (mergedData.objectBelonging !== undefined) properties.ObjectBelonging = mergedData.objectBelonging
 
-  const objectPresentation = exportI8nTextToXML(context, mergedData.objectPresentation)
+  const objectPresentation = exportI8nTextToXML(context, undefined, mergedData.objectPresentation)
   if (objectPresentation !== undefined) properties.ObjectPresentation = objectPresentation
 
-  const owners = exportMetadataValueCollectionToXML(context, mergedData.owners)
+  const owners = exportMetadataValueCollectionToXML(context, undefined, mergedData.owners)
   if (owners) properties.Owners = owners
 
-  const predefined = exportPredefinedItemsToXML(context, mergedData.predefined)
+  const predefined = exportPredefinedItemsToXML(context, undefined, mergedData.predefined)
   if (predefined) properties.Predefined = predefined
 
   if (mergedData.predefinedDataUpdate !== undefined) properties.PredefinedDataUpdate = mergedData.predefinedDataUpdate
@@ -171,6 +171,7 @@ export const exportMetadataCatalogToXML = (
 
   const standardAttributes = exportStandardAttributeDescriptionsToXML(
     context,
+    undefined,
     mergedData.standardAttributes,
     MetadataCatalogStandardAttributeNames
   )
@@ -178,7 +179,7 @@ export const exportMetadataCatalogToXML = (
 
   if (mergedData.subordinationUse !== undefined) properties.SubordinationUse = mergedData.subordinationUse
 
-  const synonym = exportI8nTextToXML(context, mergedData.synonym)
+  const synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
   if (synonym !== undefined) properties.Synonym = synonym
 
   if (mergedData.updateDataHistoryImmediatelyAfterWrite !== undefined)
@@ -186,9 +187,9 @@ export const exportMetadataCatalogToXML = (
 
   if (mergedData.useStandardCommands !== undefined) properties.UseStandardCommands = mergedData.useStandardCommands
 
-  const attributes = exportMetadataAttributesToXML(context, mergedData.attributes)
-  const commands = exportMetadataCommandsToXML(context, mergedData.commands)
-  const tabularSections = exportMetadataTabularSectionsToXML(context, mergedData.tabularSections)
+  const attributes = exportMetadataAttributesToXML(context, undefined, mergedData.attributes)
+  const commands = exportMetadataCommandsToXML(context, undefined, mergedData.commands)
+  const tabularSections = exportMetadataTabularSectionsToXML(context, undefined, mergedData.tabularSections)
   const forms = getFormsFromContext(context)
   const templates = getTemplatesFromContext(context)
 

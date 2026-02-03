@@ -1,8 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportI8nTextToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined
@@ -19,6 +21,7 @@ export const exportI8nTextToEnterprise = (
 
 export const exportI8nTextDefaultToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   title: I8nText | undefined
 ): string | undefined => {
   if (!title) return undefined
@@ -30,6 +33,7 @@ export const exportI8nTextDefaultToEnterprise = (
 
 export const exportI8nTextOtherToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   text: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!text) return undefined
@@ -38,5 +42,5 @@ export const exportI8nTextOtherToEnterprise = (
 
   const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
 
-  return exportI8nTextToEnterprise(context, { items: filtredItems })
+  return exportI8nTextToEnterprise(context, undefined, { items: filtredItems })
 }

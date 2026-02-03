@@ -7,7 +7,7 @@ import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
 export const exportFontToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   font: Font | undefined
 ): FontEnterprise | undefined => {
   if (!font) return undefined
@@ -52,14 +52,15 @@ export const exportFontToYAML = (
 
 const convertRefToYAML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   ref: SE.StyleFonts | SE.WindowsFonts | undefined,
   kind: SE.FontType
 ): SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise | undefined => {
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToYAML(context, ref, SE.StyleFontsToEnterprise)
+    return exportSystemEnumerationToYAML(context, undefined, ref, SE.StyleFontsToEnterprise)
   }
 
-  return exportSystemEnumerationToYAML(context, ref, SE.WindowsFontsToEnterprise)
+  return exportSystemEnumerationToYAML(context, undefined, ref, SE.WindowsFontsToEnterprise)
 }

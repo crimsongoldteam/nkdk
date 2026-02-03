@@ -10,7 +10,11 @@ import { UsualGroup } from "../types"
 const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
 
-export const formatHorizontalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
+export const formatHorizontalGroup = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): IFormatElementResult => {
   const prefix =
     element.group === undefined || element.group === "HorizontalIfPossible"
       ? horizontalIfPossibleGroupPrefix
@@ -26,7 +30,11 @@ export const formatHorizontalGroup = (context: ConfigurationContext, element: Us
   return result
 }
 
-const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): string[][] => {
+const getVerticalItems = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): string[][] => {
   let result: string[][] = []
 
   if (!element.childItems) return result

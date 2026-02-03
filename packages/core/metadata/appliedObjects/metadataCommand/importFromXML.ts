@@ -10,20 +10,23 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataCommandsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, value)!)
+  return items.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, undefined, value)!)
 }
 
 export const importMetadataCommandFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
   if (!xml) return undefined
@@ -33,10 +36,10 @@ export const importMetadataCommandFromXML = (
   const result: MetadataCommand = {
     group: props.Group,
     name: props.Name,
-    synonym: importI8nTextFromXML(context, props.Synonym)!,
+    synonym: importI8nTextFromXML(context, undefined, props.Synonym)!,
   }
 
-  const commandParameterType = importTypeDescriptionFromXML(context, props.CommandParameterType)
+  const commandParameterType = importTypeDescriptionFromXML(context, undefined, props.CommandParameterType)
   if (commandParameterType !== undefined) result.commandParameterType = commandParameterType
 
   if (props.Comment !== undefined) result.comment = props.Comment
@@ -47,14 +50,14 @@ export const importMetadataCommandFromXML = (
 
   if (props.ParameterUseMode !== undefined) result.parameterUseMode = props.ParameterUseMode
 
-  const picture = importPictureFromXML(context, props.Picture)
+  const picture = importPictureFromXML(context, undefined, props.Picture)
   if (picture !== undefined) result.picture = picture
 
   if (props.Representation !== undefined) result.representation = props.Representation
 
   if (props.Shortcut !== undefined) result.shortcut = props.Shortcut
 
-  const toolTip = importI8nTextFromXML(context, props.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (props.OnMainServerUnavalableBehavior !== undefined)

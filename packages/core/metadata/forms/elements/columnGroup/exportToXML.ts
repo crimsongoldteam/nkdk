@@ -11,20 +11,22 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: ColumnGroupXML = {
     ...baseFields,
   } as ColumnGroupXML
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, undefined, data.childItems)
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
@@ -43,20 +45,20 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
   if (data.type !== undefined) result.Type = data.type
 
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
 
   if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
@@ -76,17 +78,17 @@ export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
 
   if (data.headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = data.headerHorizontalAlign
 
-  const headerPicture = exportPictureToXML(context, data.headerPicture)
+  const headerPicture = exportPictureToXML(context, undefined, data.headerPicture)
   if (headerPicture !== undefined) result.HeaderPicture = headerPicture
 
   if (data.showInHeader !== undefined) result.ShowInHeader = data.showInHeader
 
   if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
 
-  const titleBackColor = exportColorToXML(context, data.titleBackColor)
+  const titleBackColor = exportColorToXML(context, undefined, data.titleBackColor)
   if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (childItems !== undefined) result.ChildItems = childItems

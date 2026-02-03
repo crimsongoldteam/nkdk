@@ -11,7 +11,11 @@ import { Pages } from "./types"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const exportPagesToStructure = (context: ConfigurationContext, element: Pages): IFormatElementResult => {
+export const exportPagesToStructure = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: Pages
+): IFormatElementResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
   const result: IFormatElementResult = {

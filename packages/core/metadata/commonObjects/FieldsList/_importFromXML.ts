@@ -4,7 +4,7 @@ import { FieldsList, FieldsListXML } from "./types"
 
 export const _importFieldsListFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: FieldsListXML | undefined
 ): FieldsList | undefined => {
   if (!xml || !xml.Field) return undefined

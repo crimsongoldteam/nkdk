@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -6,6 +7,7 @@ import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
 export const exportFontToEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   font: Font | undefined
 ): FontEnterprise | undefined => {
   if (!font) return undefined
@@ -50,14 +52,15 @@ export const exportFontToEnterprise = (
 
 const convertRefToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   ref: SE.StyleFonts | SE.WindowsFonts | undefined,
   kind: SE.FontType
 ): SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise | undefined => {
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToYAML(context, ref, SE.StyleFontsToEnterprise)
+    return exportSystemEnumerationToYAML(context, undefined, ref, SE.StyleFontsToEnterprise)
   }
 
-  return exportSystemEnumerationToYAML(context, ref, SE.WindowsFontsToEnterprise)
+  return exportSystemEnumerationToYAML(context, undefined, ref, SE.WindowsFontsToEnterprise)
 }

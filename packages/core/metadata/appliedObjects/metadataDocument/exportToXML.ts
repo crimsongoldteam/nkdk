@@ -7,12 +7,14 @@ import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataR
 import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportMetadataCommandsToXML } from "../metadataCommand/exportToXML"
 import { exportMetadataDocumentNumeratorToXML } from "../metadataDocumentNumerator/exportToXML"
 import { MetadataDocument, MetadataDocumentXML } from "./types"
 
 export const exportMetadataDocumentToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataDocument | undefined
 ): MetadataDocumentXML | undefined => {
   if (!data) return undefined
@@ -21,10 +23,10 @@ export const exportMetadataDocumentToXML = (
 
   if (data.actionsWritingOnPost !== undefined) result.ActionsWritingOnPost = data.actionsWritingOnPost
 
-  const additionalIndexes = exportAdditionalIndexesToXML(context, data.additionalIndexes)
+  const additionalIndexes = exportAdditionalIndexesToXML(context, undefined, data.additionalIndexes)
   if (additionalIndexes !== undefined) result.AdditionalIndexes = additionalIndexes
 
-  const attributes = exportMetadataAttributesToXML(context, data.attributes)
+  const attributes = exportMetadataAttributesToXML(context, undefined, data.attributes)
   if (attributes !== undefined) result.Attributes = attributes
 
   if (data.autonumbering !== undefined) result.Autonumbering = data.autonumbering
@@ -35,10 +37,10 @@ export const exportMetadataDocumentToXML = (
 
   if (data.auxiliaryObjectForm !== undefined) result.AuxiliaryObjectForm = data.auxiliaryObjectForm
 
-  const basedOn = exportMetadataItemLinksToXML(context, data.basedOn)
+  const basedOn = exportMetadataItemLinksToXML(context, undefined, data.basedOn)
   if (basedOn !== undefined) result.BasedOn = basedOn
 
-  const characteristics = exportCharacteristicsDescriptionsToXML(context, data.characteristics)
+  const characteristics = exportCharacteristicsDescriptionsToXML(context, undefined, data.characteristics)
   if (characteristics !== undefined) result.Characteristics = characteristics
 
   if (data.checkUnique !== undefined) result.CheckUnique = data.checkUnique
@@ -48,7 +50,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.choiceHistoryOnInput !== undefined) result.ChoiceHistoryOnInput = data.choiceHistoryOnInput
 
-  const commands = exportMetadataCommandsToXML(context, data.commands)
+  const commands = exportMetadataCommandsToXML(context, undefined, data.commands)
   if (commands !== undefined) result.Commands = commands
 
   if (data.comment !== undefined) result.Comment = data.comment
@@ -59,7 +61,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.dataLockControlMode !== undefined) result.DataLockControlMode = data.dataLockControlMode
 
-  const dataLockFields = exportMetadataFieldsToXML(context, data.dataLockFields)
+  const dataLockFields = exportMetadataFieldsToXML(context, undefined, data.dataLockFields)
   if (dataLockFields !== undefined) result.DataLockFields = dataLockFields
 
   if (data.defaultChoiceForm !== undefined) result.DefaultChoiceForm = data.defaultChoiceForm
@@ -71,13 +73,13 @@ export const exportMetadataDocumentToXML = (
   if (data.executeAfterWriteDataHistoryVersionProcessing !== undefined)
     result.ExecuteAfterWriteDataHistoryVersionProcessing = data.executeAfterWriteDataHistoryVersionProcessing
 
-  const explanation = exportI8nTextToXML(context, data.explanation)
+  const explanation = exportI8nTextToXML(context, undefined, data.explanation)
   if (explanation !== undefined) result.Explanation = explanation
 
-  const extendedListPresentation = exportI8nTextToXML(context, data.extendedListPresentation)
+  const extendedListPresentation = exportI8nTextToXML(context, undefined, data.extendedListPresentation)
   if (extendedListPresentation !== undefined) result.ExtendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = exportI8nTextToXML(context, data.extendedObjectPresentation)
+  const extendedObjectPresentation = exportI8nTextToXML(context, undefined, data.extendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.ExtendedObjectPresentation = extendedObjectPresentation
 
   if (data.fullTextSearch !== undefined) result.FullTextSearch = data.fullTextSearch
@@ -87,10 +89,10 @@ export const exportMetadataDocumentToXML = (
 
   if (data.includeHelpInContents !== undefined) result.IncludeHelpInContents = data.includeHelpInContents
 
-  const inputByString = exportMetadataFieldsToXML(context, data.inputByString)
+  const inputByString = exportMetadataFieldsToXML(context, undefined, data.inputByString)
   if (inputByString !== undefined) result.InputByString = inputByString
 
-  const listPresentation = exportI8nTextToXML(context, data.listPresentation)
+  const listPresentation = exportI8nTextToXML(context, undefined, data.listPresentation)
   if (listPresentation !== undefined) result.ListPresentation = listPresentation
 
   if (data.name !== undefined) result.Name = data.name
@@ -103,12 +105,12 @@ export const exportMetadataDocumentToXML = (
 
   if (data.numberType !== undefined) result.NumberType = data.numberType
 
-  const numerator = exportMetadataDocumentNumeratorToXML(context, data.numerator)
+  const numerator = exportMetadataDocumentNumeratorToXML(context, undefined, data.numerator)
   if (numerator !== undefined) result.Numerator = numerator
 
   if (data.objectBelonging !== undefined) result.ObjectBelonging = data.objectBelonging
 
-  const objectPresentation = exportI8nTextToXML(context, data.objectPresentation)
+  const objectPresentation = exportI8nTextToXML(context, undefined, data.objectPresentation)
   if (objectPresentation !== undefined) result.ObjectPresentation = objectPresentation
 
   if (data.posting !== undefined) result.Posting = data.posting
@@ -119,7 +121,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.realTimePosting !== undefined) result.RealTimePosting = data.realTimePosting
 
-  const registerRecords = exportMetadataItemLinksToXML(context, data.registerRecords)
+  const registerRecords = exportMetadataItemLinksToXML(context, undefined, data.registerRecords)
   if (registerRecords !== undefined) result.RegisterRecords = registerRecords
 
   if (data.registerRecordsDeletion !== undefined) result.RegisterRecordsDeletion = data.registerRecordsDeletion
@@ -129,13 +131,15 @@ export const exportMetadataDocumentToXML = (
 
   if (data.sequenceFilling !== undefined) result.SequenceFilling = data.sequenceFilling
 
-  const standardAttributes = exportStandardAttributeDescriptionsToXML(context, data.standardAttributes, ["Ref"])
+  const standardAttributes = exportStandardAttributeDescriptionsToXML(context, undefined, data.standardAttributes, [
+    "Ref",
+  ])
   if (standardAttributes !== undefined) result.StandardAttributes = standardAttributes
 
-  const synonym = exportI8nTextToXML(context, data.synonym)
+  const synonym = exportI8nTextToXML(context, undefined, data.synonym)
   if (synonym !== undefined) result.Synonym = synonym
 
-  const tabularSections = exportMetadataTabularSectionsToXML(context, data.tabularSections)
+  const tabularSections = exportMetadataTabularSectionsToXML(context, undefined, data.tabularSections)
   if (tabularSections !== undefined) result.TabularSections = tabularSections
 
   if (data.updateDataHistoryImmediatelyAfterWrite !== undefined)

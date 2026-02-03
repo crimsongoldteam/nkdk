@@ -6,24 +6,24 @@ import {
   minimalClientApplicationForm,
   minimalClientApplicationFormEnterprise,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
 
 describe("exportClientApplicationFormToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContext, undefined)
+    const result = exportClientApplicationFormToEnterprise(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContext, fullClientApplicationForm)
+    const result = exportClientApplicationFormToEnterprise(mockContext, mockRule, fullClientApplicationForm)
 
     expect(result).toEqual(fullClientApplicationFormEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContext, minimalClientApplicationForm)
+    const result = exportClientApplicationFormToEnterprise(mockContext, mockRule, minimalClientApplicationForm)
 
     expect(result).toEqual(minimalClientApplicationFormEnterprise)
   })

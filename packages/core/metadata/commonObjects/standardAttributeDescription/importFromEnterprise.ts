@@ -17,9 +17,11 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChoiceParametersFromEnterprise } from "../сhoiceParameters/importFromEnterprise"
 import { getDefaults } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptionsEnterprise | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!data) return undefined
@@ -27,7 +29,7 @@ export const importStandardAttributeDescriptionsFromEnterprise = (
   const result: StandardAttributeDescriptions = []
 
   Object.entries(data).forEach(([name, value]) => {
-    result.push(importStandardAttributeDescriptionFromEnterprise(context, value, name)!)
+    result.push(importStandardAttributeDescriptionFromEnterprise(context, undefined, value, name)!)
   })
 
   if (result.length === 0) return undefined
@@ -37,6 +39,7 @@ export const importStandardAttributeDescriptionsFromEnterprise = (
 
 const importStandardAttributeDescriptionFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptionEnterprise,
   name: string
 ): StandardAttributeDescription => {
@@ -51,13 +54,13 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (quickChoice) result.quickChoice = quickChoice
 
-  const markNegatives = importBooleanFromEnterprise(context, data.ВыделятьОтрицательные)
+  const markNegatives = importBooleanFromEnterprise(context, undefined, data.ВыделятьОтрицательные)
   if (markNegatives !== undefined) result.markNegatives = markNegatives
 
-  const fillFromFillingValue = importBooleanFromEnterprise(context, data.ЗаполнятьИзДанныхЗаполнения)
+  const fillFromFillingValue = importBooleanFromEnterprise(context, undefined, data.ЗаполнятьИзДанныхЗаполнения)
   if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
 
-  const fillValue = importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения)
+  const fillValue = importMetadataValueFromEnterprise(context, undefined, data.ЗначениеЗаполнения)
   if (fillValue) result.fillValue = fillValue
 
   const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
@@ -79,13 +82,13 @@ const importStandardAttributeDescriptionFromEnterprise = (
   if (data.Маска) result.mask = data.Маска
   if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
 
-  const multiLine = importBooleanFromEnterprise(context, data.МногострочныйРежим)
+  const multiLine = importBooleanFromEnterprise(context, undefined, data.МногострочныйРежим)
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
+  const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters) result.choiceParameters = choiceParameters
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip) result.toolTip = toolTip
 
   const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
@@ -102,10 +105,10 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (fillChecking) result.fillChecking = fillChecking
 
-  const extendedEdit = importBooleanFromEnterprise(context, data.РасширенноеРедактирование)
+  const extendedEdit = importBooleanFromEnterprise(context, undefined, data.РасширенноеРедактирование)
   if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
 
-  const passwordMode = importBooleanFromEnterprise(context, data.РежимПароля)
+  const passwordMode = importBooleanFromEnterprise(context, undefined, data.РежимПароля)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
   const typeReductionMode = importSystemEnumerationFromYAML<SE.TypeReductionMode>(
@@ -115,13 +118,13 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (typeReductionMode) result.typeReductionMode = typeReductionMode
 
-  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора)
+  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, undefined, data.СвязиПараметровВыбора)
   if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
 
-  const linkByType = importTypeLinkFromEnterprise(context, data.СвязьПоТипу)
+  const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
   if (linkByType) result.linkByType = linkByType
 
-  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
+  const synonym = importI8nTextFromEnterprise(context, undefined, data.Синоним)
   if (synonym) result.synonym = synonym
 
   const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
@@ -131,15 +134,15 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (createOnInput) result.createOnInput = createOnInput
 
-  const type = importTypeDescriptionFromEnterprise(context, data.Тип)
+  const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
   if (type) result.type = type
 
   if (data.ФормаВыбора) result.choiceForm = data.ФормаВыбора
 
-  const format = importI8nTextFromEnterprise(context, data.Формат)
+  const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
   if (format) result.format = format
 
-  const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromEnterprise(context, undefined, data.ФорматРедактирования)
   if (editFormat) result.editFormat = editFormat
 
   const defaults = getDefaults(context, result)

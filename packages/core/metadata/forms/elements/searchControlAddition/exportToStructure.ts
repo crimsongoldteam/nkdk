@@ -7,6 +7,7 @@ import { SearchControlAddition } from "./types"
 
 export function exportSearchControlAdditionContentToStructure(
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: SearchControlAddition
 ): IFormatElementResult {
   const resultString = "?УправлениеПоиском " + formatElementName(element)

@@ -5,7 +5,7 @@ import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise }
 
 export const exportTypeDescriptionToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionEnterprise | undefined => {
   if (!typeDescription) {

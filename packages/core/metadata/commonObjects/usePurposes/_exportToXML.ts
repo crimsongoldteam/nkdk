@@ -5,7 +5,7 @@ import { UsePurposes, UsePurposesXML } from "./types"
 
 export const _exportUsePurposesToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: UsePurposes | undefined
 ): UsePurposesXML | undefined => {
   if (!data || data.length === 0) return undefined

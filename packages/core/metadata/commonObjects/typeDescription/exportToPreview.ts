@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { TypeDescription, TypeDescriptionPreview, TypeDescriptionRules } from "./types"
 
 export const exportTypeDescriptionToPreview = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionPreview | undefined => {
   if (!typeDescription) return undefined

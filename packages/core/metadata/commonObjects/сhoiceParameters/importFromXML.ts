@@ -1,9 +1,11 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/importFromXML"
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameterXML } from "./types"
 
 export const importChoiceParametersFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ChoiceParametersXML | undefined
 ): ChoiceParameters | undefined => {
   if (!xml) return undefined
@@ -12,11 +14,15 @@ export const importChoiceParametersFromXML = (
 
   const items = Array.isArray(appItems) ? appItems : [appItems]
 
-  return items.map((item) => importChoiceParameterFromXML(context, item)!)
+  return items.map((item) => importChoiceParameterFromXML(context, undefined, item)!)
 }
 
-const importChoiceParameterFromXML = (context: ConfigurationContext, xml: ChoiceParameterXML): ChoiceParameter => {
-  const value = importMetadataValueFromXML(context, xml["app:value"])
+const importChoiceParameterFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: ChoiceParameterXML
+): ChoiceParameter => {
+  const value = importMetadataValueFromXML(context, undefined, xml["app:value"])
 
   return {
     name: xml._name,

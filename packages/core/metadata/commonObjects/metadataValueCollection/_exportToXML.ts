@@ -6,7 +6,7 @@ import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const _exportMetadataValueCollectionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataValueCollection | undefined
 ): MetadataValueCollectionXML | undefined => {
   if (!data || data.length === 0) return undefined
@@ -16,7 +16,7 @@ export const _exportMetadataValueCollectionToXML = (
       type: "objectRef",
       value: item,
     }
-    return _exportMetadataValueToXML(context, _rule, metadataValue)! as MetadataSimpleValueXML
+    return _exportMetadataValueToXML(context, undefined, _rule, metadataValue)! as MetadataSimpleValueXML
   })
 
   return {

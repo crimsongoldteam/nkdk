@@ -6,7 +6,7 @@ import {
   minimalGeographicalSchemaField,
   minimalGeographicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportGeographicalSchemaFieldPartialToEnterprise,
   exportGeographicalSchemaFieldTypedToEnterprise,
@@ -15,13 +15,21 @@ import {
 describe("exportGeographicalSchemaFieldToEnterprise", () => {
   describe("exportGeographicalSchemaFieldPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockContext, fullGeographicalSchemaField)
+      const result = exportGeographicalSchemaFieldPartialToEnterprise(
+        mockContext,
+        mockRule,
+        fullGeographicalSchemaField
+      )
 
       expect(result).toEqual(fullGeographicalSchemaFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockContext, minimalGeographicalSchemaField)
+      const result = exportGeographicalSchemaFieldPartialToEnterprise(
+        mockContext,
+        mockRule,
+        minimalGeographicalSchemaField
+      )
 
       expect(result).toEqual(minimalGeographicalSchemaFieldPartialEnterprise)
     })
@@ -29,13 +37,13 @@ describe("exportGeographicalSchemaFieldToEnterprise", () => {
 
   describe("exportGeographicalSchemaFieldTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, fullGeographicalSchemaField)
+      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, mockRule, fullGeographicalSchemaField)
 
       expect(result).toEqual(fullGeographicalSchemaFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, undefined)
+      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, mockRule, undefined)
 
       expect(result).toBeUndefined()
     })

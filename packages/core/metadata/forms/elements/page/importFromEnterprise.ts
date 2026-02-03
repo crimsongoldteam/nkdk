@@ -18,15 +18,17 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importPageTypedFromEnterprise<To extends Page | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importPagePropsFromEnterprise(context, data)
+  const props = importPagePropsFromEnterprise(context, undefined, data)
 
   const result: Page = {
     ...props,
@@ -35,7 +37,7 @@ export function importPageTypedFromEnterprise<To extends Page | undefined>(
     childItems: [],
   }
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -43,10 +45,11 @@ export function importPageTypedFromEnterprise<To extends Page | undefined>(
 
 export function importPagePartialFromEnterprise<To extends Page>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importPagePropsFromEnterprise(context, data)
+  const props = importPagePropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
@@ -54,7 +57,7 @@ export function importPagePartialFromEnterprise<To extends Page>(
     childItems: source.childItems ?? [],
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -62,6 +65,7 @@ export function importPagePartialFromEnterprise<To extends Page>(
 
 export const importPagePropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: PageTypedEnterprise | PagePartialEnterprise | undefined
 ): Omit<Partial<Page>, "elementType" | "name"> => {
   const result: Omit<Partial<Page>, "elementType" | "name"> = {
@@ -70,7 +74,7 @@ export const importPagePropsFromEnterprise = (
 
   if (data === undefined) return result
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
   const childItemsHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -94,7 +98,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const format = importI8nTextFromEnterprise(context, data.Формат)
+  const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
   if (format !== undefined) result.format = format
 
   const group = importSystemEnumerationFromYAML<SE.ChildFormItemsGroup>(
@@ -118,13 +122,13 @@ export const importPagePropsFromEnterprise = (
   )
   if (itemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = itemsAndTitlesAlign
 
-  const picture = importPictureFromEnterprise(context, data.Картинка)
+  const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
-  const scrollOnCompress = importBooleanFromEnterprise(context, data.СкроллПриСжатии)
+  const scrollOnCompress = importBooleanFromEnterprise(context, undefined, data.СкроллПриСжатии)
   if (scrollOnCompress !== undefined) result.scrollOnCompress = scrollOnCompress
 
-  const showTitle = importBooleanFromEnterprise(context, data.ОтображатьЗаголовок)
+  const showTitle = importBooleanFromEnterprise(context, undefined, data.ОтображатьЗаголовок)
   if (showTitle !== undefined) result.showTitle = showTitle
 
   const slaveItemsWidth = importSystemEnumerationFromYAML<SE.ChildFormItemsWidth>(
@@ -136,7 +140,12 @@ export const importPagePropsFromEnterprise = (
 
   if (data.ПутьКДаннымЗаголовка !== undefined) result.titleDataPath = data.ПутьКДаннымЗаголовка
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -148,7 +157,11 @@ export const importPagePropsFromEnterprise = (
   )
   if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
 
-  const verticalScrollOnReduceSize = importBooleanFromEnterprise(context, data.ВертикальнаяПрокруткаПриСжатии)
+  const verticalScrollOnReduceSize = importBooleanFromEnterprise(
+    context,
+    undefined,
+    data.ВертикальнаяПрокруткаПриСжатии
+  )
   if (verticalScrollOnReduceSize !== undefined) result.verticalScrollOnReduceSize = verticalScrollOnReduceSize
 
   const verticalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
@@ -168,7 +181,7 @@ export const importPagePropsFromEnterprise = (
   const type = importSystemEnumerationFromYAML<SE.FormGroupType>(context, data.Вид, SE.FormGroupTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -180,7 +193,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -190,32 +203,32 @@ export const importPagePropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const enableContentChange = importBooleanFromEnterprise(context, data.РазрешитьИзменениеСостава)
+  const enableContentChange = importBooleanFromEnterprise(context, undefined, data.РазрешитьИзменениеСостава)
   if (enableContentChange !== undefined) result.enableContentChange = enableContentChange
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
   return result

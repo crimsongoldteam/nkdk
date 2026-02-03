@@ -8,15 +8,17 @@ import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/e
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { getExtendedTooltipName } from "./helper"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportExtendedTooltipToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ExtendedTooltip | undefined,
   parentElement: { name: string }
 ): ExtendedTooltipXML => {
   const extendendTooltip = data ?? {}
 
-  const baseFields = exportElementPropsToXML(context, {
+  const baseFields = exportElementPropsToXML(context, undefined, {
     name: getExtendedTooltipName(parentElement),
   })
 
@@ -32,7 +34,7 @@ export const exportExtendedTooltipToXML = (
 
   if (extendendTooltip.enabled !== undefined) result.Enabled = extendendTooltip.enabled
 
-  const font = exportFontToXML(context, extendendTooltip.font)
+  const font = exportFontToXML(context, undefined, extendendTooltip.font)
   if (font !== undefined) result.Font = font
 
   if (extendendTooltip.height !== undefined) result.Height = extendendTooltip.height
@@ -50,13 +52,13 @@ export const exportExtendedTooltipToXML = (
 
   if (extendendTooltip.skipOnInput !== undefined) result.SkipOnInput = extendendTooltip.skipOnInput
 
-  const textColor = exportColorToXML(context, extendendTooltip.textColor)
+  const textColor = exportColorToXML(context, undefined, extendendTooltip.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const title = exportFormattedI8nTextToXML(context, extendendTooltip.title)
+  const title = exportFormattedI8nTextToXML(context, undefined, extendendTooltip.title)
   if (title !== undefined) result.Title = title
 
-  const toolTip = exportI8nTextToXML(context, extendendTooltip.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, extendendTooltip.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (extendendTooltip.toolTipRepresentation !== undefined)
@@ -64,7 +66,7 @@ export const exportExtendedTooltipToXML = (
 
   if (extendendTooltip.type !== undefined) result.Type = extendendTooltip.type
 
-  const userVisible = exportUserVisibleToXML(context, extendendTooltip.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, extendendTooltip.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (extendendTooltip.verticalAlignInGroup !== undefined)

@@ -9,6 +9,7 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -17,28 +18,32 @@ import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescr
 
 export const exportMetadataCommandsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCommands | undefined
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
 
-  return Object.fromEntries(data.map((command) => [command.name, exportMetadataCommandToEnterprise(context, command)!]))
+  return Object.fromEntries(
+    data.map((command) => [command.name, exportMetadataCommandToEnterprise(context, undefined, command)!])
+  )
 }
 
 export const exportMetadataCommandToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCommand | undefined
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined
 
   let group: SE.StandardCommandsGroupEnterprise | string | undefined
   if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
-    group = exportSystemEnumerationToYAML(context, data.group, SE.StandardCommandsGroupToEnterprise)!
+    group = exportSystemEnumerationToYAML(context, undefined, data.group, SE.StandardCommandsGroupToEnterprise)!
   } else {
-    group = exportMetadataItemLinkToEnterprise(context, data.group)
+    group = exportMetadataItemLinkToEnterprise(context, undefined, data.group)
   }
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
+  const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {
     return group
@@ -50,29 +55,37 @@ export const exportMetadataCommandToEnterprise = (
 
   if (synonym !== undefined) result.Синоним = synonym
 
-  const modifiesData = exportBooleanToEnterprise(context, data.modifiesData)
+  const modifiesData = exportBooleanToEnterprise(context, undefined, data.modifiesData)
   if (modifiesData !== undefined) result.ИзменяетДанные = modifiesData
 
-  const picture = exportPictureToEnterprise(context, data.picture)
+  const picture = exportPictureToEnterprise(context, undefined, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
   const representation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.representation,
     SE.ButtonRepresentationToEnterprise
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToYAML(context, data.objectBelonging, SE.ObjectBelongingToEnterprise)
+  const objectBelonging = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.objectBelonging,
+    SE.ObjectBelongingToEnterprise
+  )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
   const parameterUseMode = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.parameterUseMode,
     SE.CommandParameterUseModeToEnterprise
   )
@@ -80,11 +93,12 @@ export const exportMetadataCommandToEnterprise = (
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const commandParameterType = exportTypeDescriptionToEnterprise(context, data.commandParameterType)
+  const commandParameterType = exportTypeDescriptionToEnterprise(context, undefined, data.commandParameterType)
   if (commandParameterType !== undefined) result.ТипПараметраКоманды = commandParameterType
 
   const onMainServerUnavalableBehavior = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.onMainServerUnavalableBehavior,
     SE.OnMainServerUnavalableBehaviorToEnterprise
   )

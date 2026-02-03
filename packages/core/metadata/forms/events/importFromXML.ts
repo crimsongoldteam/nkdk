@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Events, EventsXML } from "./types"
 
@@ -6,7 +7,11 @@ function toCamelCase(str: string): string {
   return str.charAt(0).toLowerCase() + str.slice(1)
 }
 
-export const importEventsFromXML = (_context: ConfigurationContext, xml: EventsXML | undefined): Events | undefined => {
+export const importEventsFromXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: EventsXML | undefined
+): Events | undefined => {
   if (!xml) return undefined
 
   const events = Array.isArray(xml.Event) ? xml.Event : [xml.Event]

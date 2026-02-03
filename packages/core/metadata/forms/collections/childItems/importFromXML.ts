@@ -5,6 +5,7 @@ import { AllChildItem } from "./types"
 
 export const importChildItemsFromXML = <From extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: Record<From["elementType"], ToXMLType<From>>[] | Record<From["elementType"], ToXMLType<From>> | undefined
 ): From[] => {
   if (!xml) return []

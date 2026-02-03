@@ -12,6 +12,7 @@ import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/type
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
@@ -20,23 +21,28 @@ import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportT
 
 export const exportMetadataAttributesToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((value: MetadataAttribute) => [value.name, exportMetadataAttributeToEnterprise(context, value)!])
+    data.map((value: MetadataAttribute) => [
+      value.name,
+      exportMetadataAttributeToEnterprise(context, undefined, value)!,
+    ])
   )
 }
 
 const exportMetadataAttributeToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataAttribute
 ): MetadataAttributeEnterprise => {
-  const type = exportTypeDescriptionToEnterprise(context, data.type)!
+  const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)!
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
+  const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {
     return type
@@ -48,33 +54,35 @@ const exportMetadataAttributeToEnterprise = (
 
   if (synonym !== undefined) result.Синоним = synonym
 
-  const quickChoice = exportSystemEnumerationToYAML(context, data.quickChoice, SE.UseQuickChoiceToEnterprise)
+  const quickChoice = exportSystemEnumerationToYAML(context, undefined, data.quickChoice, SE.UseQuickChoiceToEnterprise)
   if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
 
   const choiceFoldersAndItems = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.choiceFoldersAndItems,
     SE.FoldersAndItemsUseToEnterprise
   )
   if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
 
-  const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
+  const markNegatives = exportBooleanToEnterprise(context, undefined, data.markNegatives)
   if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
 
-  const fillFromFillingValue = exportBooleanToEnterprise(context, data.fillFromFillingValue)
+  const fillFromFillingValue = exportBooleanToEnterprise(context, undefined, data.fillFromFillingValue)
   if (fillFromFillingValue !== undefined) result.ЗаполнятьИзДанныхЗаполнения = fillFromFillingValue
 
-  const fillValue = exportMetadataValueToEnterprise(context, data.fillValue)
+  const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
   if (fillValue !== undefined) result.ЗначениеЗаполнения = fillValue
 
-  const indexing = exportSystemEnumerationToYAML(context, data.indexing, SE.IndexingToEnterprise)
+  const indexing = exportSystemEnumerationToYAML(context, undefined, data.indexing, SE.IndexingToEnterprise)
   if (indexing !== undefined) result.Индексирование = indexing
 
-  const use = exportSystemEnumerationToYAML(context, data.use, SE.AttributeUseToEnterprise)
+  const use = exportSystemEnumerationToYAML(context, undefined, data.use, SE.AttributeUseToEnterprise)
   if (use !== undefined) result.Использование = use
 
   const binaryDataStorageLocationUse = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.binaryDataStorageLocationUse,
     SE.BinaryDataStorageLocationUseToEnterprise
   )
@@ -83,12 +91,13 @@ const exportMetadataAttributeToEnterprise = (
 
   const choiceHistoryOnInput = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.choiceHistoryOnInput,
     SE.ChoiceHistoryOnInputToEnterprise
   )
   if (choiceHistoryOnInput !== undefined) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToYAML(context, data.dataHistory, SE.DataHistoryUseToEnterprise)
+  const dataHistory = exportSystemEnumerationToYAML(context, undefined, data.dataHistory, SE.DataHistoryUseToEnterprise)
   if (dataHistory !== undefined) result.ИсторияДанных = dataHistory
 
   if (data.comment !== undefined) result.Комментарий = data.comment
@@ -99,46 +108,60 @@ const exportMetadataAttributeToEnterprise = (
 
   if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
 
-  const multiLine = exportBooleanToEnterprise(context, data.multiLine)
+  const multiLine = exportBooleanToEnterprise(context, undefined, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const choiceParameters = exportChoiceParametersToEnterprise(context, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const binaryDataStorageLocationUseField = exportBooleanToEnterprise(context, data.binaryDataStorageLocationUseField)
+  const binaryDataStorageLocationUseField = exportBooleanToEnterprise(
+    context,
+    undefined,
+    data.binaryDataStorageLocationUseField
+  )
   if (binaryDataStorageLocationUseField !== undefined)
     result.ПолеИспользованияХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUseField
 
-  const fullTextSearch = exportSystemEnumerationToYAML(context, data.fullTextSearch, SE.UseFullTextSearchToEnterprise)
+  const fullTextSearch = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    data.fullTextSearch,
+    SE.UseFullTextSearchToEnterprise
+  )
   if (fullTextSearch !== undefined) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToYAML(context, data.fillChecking, SE.FillCheckingToEnterprise)
+  const fillChecking = exportSystemEnumerationToYAML(context, undefined, data.fillChecking, SE.FillCheckingToEnterprise)
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
-  const extendedEdit = exportBooleanToEnterprise(context, data.extendedEdit)
+  const extendedEdit = exportBooleanToEnterprise(context, undefined, data.extendedEdit)
   if (extendedEdit !== undefined) result.РасширенноеРедактирование = extendedEdit
 
-  const passwordMode = exportBooleanToEnterprise(context, data.passwordMode)
+  const passwordMode = exportBooleanToEnterprise(context, undefined, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, undefined, data.choiceParameterLinks)
   if (choiceParameterLinks !== undefined) result.СвязиПараметровВыбора = choiceParameterLinks
 
-  const linkByType = exportTypeLinkToEnterprise(context, data.linkByType)
+  const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
   if (linkByType !== undefined) result.СвязьПоТипу = linkByType
 
-  const createOnInput = exportSystemEnumerationToYAML(context, data.createOnInput, SE.CreateOnInputToEnterprise)
+  const createOnInput = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    data.createOnInput,
+    SE.CreateOnInputToEnterprise
+  )
   if (createOnInput !== undefined) result.СозданиеПриВводе = createOnInput
 
   if (data.choiceForm !== undefined) result.ФормаВыбора = data.choiceForm
 
-  const format = exportI8nTextToEnterprise(context, data.format)
+  const format = exportI8nTextToEnterprise(context, undefined, data.format)
   if (format !== undefined) result.Формат = format
 
-  const editFormat = exportI8nTextToEnterprise(context, data.editFormat)
+  const editFormat = exportI8nTextToEnterprise(context, undefined, data.editFormat)
   if (editFormat !== undefined) result.ФорматРедактирования = editFormat
 
   return result as MetadataAttributeEnterprise

@@ -28,16 +28,18 @@ import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exp
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { PropertyRule } from "./rules"
 
 export function exportCalendarFieldTypedToEnterprise<From extends CalendarField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, undefined, data)
 
-  const props = exportCalendarFieldPropsToEnterprise(context, data)
+  const props = exportCalendarFieldPropsToEnterprise(context, undefined, data)
 
   const result: CalendarFieldTypedEnterprise = {
     Тип: "ПолеКалендаря",
@@ -45,7 +47,7 @@ export function exportCalendarFieldTypedToEnterprise<From extends CalendarField 
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -53,20 +55,21 @@ export function exportCalendarFieldTypedToEnterprise<From extends CalendarField 
 
 export function exportCalendarFieldPartialToEnterprise<From extends CalendarField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, undefined, data)
 
-  const props = exportCalendarFieldPropsToEnterprise(context, data)
+  const props = exportCalendarFieldPropsToEnterprise(context, undefined, data)
 
   const result: CalendarFieldPartialEnterprise = {
     ...baseFields,
     ...props,
   }
 
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  const title = exportI8nTextOtherToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
@@ -74,18 +77,20 @@ export function exportCalendarFieldPartialToEnterprise<From extends CalendarFiel
 
 const exportCalendarFieldPropsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CalendarField
 ): CalendarFieldPartialEnterprise => {
   const result: CalendarFieldPartialEnterprise = {}
 
-  const autoCellHeight = exportBooleanToEnterprise(context, data.autoCellHeight)
+  const autoCellHeight = exportBooleanToEnterprise(context, undefined, data.autoCellHeight)
   if (autoCellHeight !== undefined) result.АвтоВысотаЯчейки = autoCellHeight
 
-  const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
+  const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
   const displayImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
@@ -93,34 +98,37 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const verticalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const visible = exportBooleanToEnterprise(context, data.visible)
+  const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
   if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
 
-  const cellHyperlink = exportBooleanToEnterprise(context, data.cellHyperlink)
+  const cellHyperlink = exportBooleanToEnterprise(context, undefined, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
   const horizontalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, undefined, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
@@ -128,44 +136,51 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const warningOnEditRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.warningOnEditRepresentation,
     SE.WarningOnEditRepresentationToEnterprise
   )
   if (warningOnEditRepresentation !== undefined)
     result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToYAML(context, data.titleLocation, SE.FormItemTitleLocationToEnterprise)
+  const titleLocation = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.titleLocation,
+    SE.FormItemTitleLocationToEnterprise
+  )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const warningOnEdit = exportI8nTextToEnterprise(context, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToEnterprise(context, undefined, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
-  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)
   if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
 
   if (data.dataPath !== undefined) result.ПутьКДанным = data.dataPath
 
-  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  const titleTextColor = exportColorToEnterprise(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
 
-  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  const autoMaxHeight = exportBooleanToEnterprise(context, undefined, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
 
-  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
   if (data.height !== undefined) result.Высота = data.height
@@ -180,16 +195,16 @@ const exportCalendarFieldPropsToEnterprise = (
 
   if (data.beginOfRepresentationPeriod !== undefined) result.НачалоПериодаОтображения = data.beginOfRepresentationPeriod
 
-  const showMonthsPanel = exportBooleanToEnterprise(context, data.showMonthsPanel)
+  const showMonthsPanel = exportBooleanToEnterprise(context, undefined, data.showMonthsPanel)
   if (showMonthsPanel !== undefined) result.ОтображатьПанельМесяцев = showMonthsPanel
 
-  const showCurrentDate = exportBooleanToEnterprise(context, data.showCurrentDate)
+  const showCurrentDate = exportBooleanToEnterprise(context, undefined, data.showCurrentDate)
   if (showCurrentDate !== undefined) result.ОтображатьТекущуюДату = showCurrentDate
 
-  const calendarNavigation = exportBooleanToEnterprise(context, data.calendarNavigation)
+  const calendarNavigation = exportBooleanToEnterprise(context, undefined, data.calendarNavigation)
   if (calendarNavigation !== undefined) result.ПеремещениеПоКалендарю = calendarNavigation
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+  const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
@@ -197,43 +212,50 @@ const exportCalendarFieldPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const enableStartDrag = exportBooleanToEnterprise(context, data.enableStartDrag)
+  const enableStartDrag = exportBooleanToEnterprise(context, undefined, data.enableStartDrag)
   if (enableStartDrag !== undefined) result.РазрешитьНачалоПеретаскивания = enableStartDrag
 
-  const enableDrag = exportBooleanToEnterprise(context, data.enableDrag)
+  const enableDrag = exportBooleanToEnterprise(context, undefined, data.enableDrag)
   if (enableDrag !== undefined) result.РазрешитьПеретаскивание = enableDrag
 
-  const border = exportBorderToEnterprise(context, data.border)
+  const border = exportBorderToEnterprise(context, undefined, data.border)
   if (border !== undefined) result.Рамка = border
 
-  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  const verticalStretch = exportBooleanToEnterprise(context, undefined, data.verticalStretch)
   if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
 
-  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const selectionMode = exportSystemEnumerationToYAML(context, data.selectionMode, SE.DateSelectionModeToEnterprise)
+  const selectionMode = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.selectionMode,
+    SE.DateSelectionModeToEnterprise
+  )
   if (selectionMode !== undefined) result.РежимВыделения = selectionMode
 
-  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  const borderColor = exportColorToEnterprise(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.ЦветРамки = borderColor
 
   if (data.width !== undefined) result.Ширина = data.width
 
   if (data.widthInMonths !== undefined) result.ШиринаВМесяцах = data.widthInMonths
 
-  const font = exportFontToEnterprise(context, data.font)
+  const font = exportFontToEnterprise(context, undefined, data.font)
   if (font !== undefined) result.Шрифт = font
 
   const onMainServerUnavalableBehavior = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.onMainServerUnavalableBehavior,
     SE.OnMainServerUnavalableBehaviorToEnterprise
   )
   if (onMainServerUnavalableBehavior !== undefined)
     result.ПоведениеПриНедоступностиОсновногоСервера = onMainServerUnavalableBehavior
 
-  const events = exportEventsToEnterprise(context, data.events)
+  const events = exportEventsToEnterprise(context, undefined, data.events)
   if (events !== undefined) result.События = events
 
   return result

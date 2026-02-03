@@ -4,7 +4,7 @@ import { Predefined, PredefinedEnterprise, PredefinedItems, PredefinedItemsEnter
 
 export const importPredefinedFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: PredefinedEnterprise | undefined,
   name: string
 ): Predefined | undefined => {
@@ -20,7 +20,7 @@ export const importPredefinedFromYAML = (
 
 export const importPredefinedItemsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: PredefinedItemsEnterprise | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined

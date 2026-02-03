@@ -17,7 +17,12 @@ describe("importCommandBarFromEnterprise", () => {
         ...mockContext,
         allElements: fullCommandBarAllItems,
       }
-      const result = importCommandBarPartialFromEnterprise(context, sourceCommandBar, fullCommandBarPartialEnterprise)
+      const result = importCommandBarPartialFromEnterprise(
+        context,
+        undefined,
+        sourceCommandBar,
+        fullCommandBarPartialEnterprise
+      )
 
       expect(result).toEqual(fullCommandBar)
     })

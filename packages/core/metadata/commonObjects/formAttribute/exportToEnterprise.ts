@@ -26,23 +26,26 @@ import { DynamicList } from "../dynamicList/types"
 import { exportFieldsListToEnterprise } from "../fieldsList/exportToEnterprise"
 import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttributes | undefined
 ): FormAttributesEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((value: FormAttribute) => [value.name, exportFormAttributeToEnterprise(context, value)!])
+    data.map((value: FormAttribute) => [value.name, exportFormAttributeToEnterprise(context, undefined, value)!])
   )
 }
 
 const exportFormAttributeToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttribute
 ): FormAttributeEnterprise | TypeDescriptionEnterprise => {
-  const type = exportTypeDescriptionToEnterprise(context, data.valueType)
+  const type = exportTypeDescriptionToEnterprise(context, undefined, data.valueType)
 
   const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
   const title = computeTitleForExport(context, data, filteredTitle)
@@ -57,10 +60,10 @@ const exportFormAttributeToEnterprise = (
 
   if (title !== undefined) result.Заголовок = title
 
-  const mainAttribute = exportBooleanToEnterprise(context, data.mainAttribute)
+  const mainAttribute = exportBooleanToEnterprise(context, undefined, data.mainAttribute)
   if (mainAttribute !== undefined) result.ОсновнойРеквизит = mainAttribute
 
-  const storedData = exportBooleanToEnterprise(context, data.storedData)
+  const storedData = exportBooleanToEnterprise(context, undefined, data.storedData)
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
   const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
@@ -70,14 +73,14 @@ const exportFormAttributeToEnterprise = (
   )
   if (fillCheck) result.ПроверкаЗаполнения = fillCheck
 
-  const view = exportUserVisibleToEnterprise(context, data.view, {
+  const view = exportUserVisibleToEnterprise(context, undefined, data.view, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
   if (view) Object.assign(result, view)
 
   if (JSON.stringify(data.view) !== JSON.stringify(data.edit)) {
-    const edit = exportUserVisibleToEnterprise(context, data.edit, {
+    const edit = exportUserVisibleToEnterprise(context, undefined, data.edit, {
       allow: UserEditKeysEnterprise.Allow,
       deny: UserEditKeysEnterprise.Deny,
     })
@@ -91,33 +94,37 @@ const exportFormAttributeToEnterprise = (
       "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
 
     if (isDynamicListSettings) {
-      const dynamicList = exportDynamicListToEnterprise(context, data.settings as DynamicList)
+      const dynamicList = exportDynamicListToEnterprise(context, undefined, data.settings as DynamicList)
       if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
     } else if ("type" in data.settings) {
-      const settings = exportTypeDescriptionToEnterprise(context, data.settings as TypeDescription)
+      const settings = exportTypeDescriptionToEnterprise(context, undefined, data.settings as TypeDescription)
       if (settings !== undefined) result.ТипЗначения = settings
     }
   }
 
   if (data.columns && data.columns.length > 0) {
-    result.Колонки = exportFormAttributeColumnsToEnterprise(context, data.columns)
+    result.Колонки = exportFormAttributeColumnsToEnterprise(context, undefined, data.columns)
   }
 
   if (data.additionalColumns && data.additionalColumns.length > 0) {
-    result.ДополнительныеКолонки = exportFormAttributeAdditionalColumnsToEnterprise(context, data.additionalColumns)
+    result.ДополнительныеКолонки = exportFormAttributeAdditionalColumnsToEnterprise(
+      context,
+      undefined,
+      data.additionalColumns
+    )
   }
 
-  const functionalOptions = exportFunctionalOptionsToEnterprise(context, data.functionalOptions)
+  const functionalOptions = exportFunctionalOptionsToEnterprise(context, undefined, data.functionalOptions)
   if (functionalOptions) {
     result.ФункциональныеОпции = functionalOptions
   }
 
-  const fieldsList = exportFieldsListToEnterprise(context, data.fieldsList)
+  const fieldsList = exportFieldsListToEnterprise(context, undefined, data.fieldsList)
   if (fieldsList) {
     result.ИспользоватьВсегда = fieldsList
   }
 
-  const save = exportFieldsListToEnterprise(context, data.save)
+  const save = exportFieldsListToEnterprise(context, undefined, data.save)
   if (save) {
     result.Сохранение = save
   }
@@ -127,23 +134,25 @@ const exportFormAttributeToEnterprise = (
 
 const exportFormAttributeColumnsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   columns: FormAttributeColumn[]
 ): Record<string, FormAttributeColumnEnterprise> => {
   return Object.fromEntries(
-    columns.map((column) => [column.name, exportFormAttributeColumnToEnterprise(context, column)])
+    columns.map((column) => [column.name, exportFormAttributeColumnToEnterprise(context, undefined, column)])
   )
 }
 
 const exportFormAttributeColumnToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   column: FormAttributeColumn
 ): FormAttributeColumnEnterprise => {
   const result: FormAttributeColumnEnterprise = {}
 
-  const title = exportI8nTextToEnterprise(context, column.title)
+  const title = exportI8nTextToEnterprise(context, undefined, column.title)
   if (title) result.Заголовок = title
 
-  const type = exportTypeDescriptionToEnterprise(context, column.type)
+  const type = exportTypeDescriptionToEnterprise(context, undefined, column.type)
   if (type) result.Тип = type
 
   const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
@@ -153,23 +162,23 @@ const exportFormAttributeColumnToEnterprise = (
   )
   if (fillCheck) result.ПроверкаЗаполнения = fillCheck
 
-  const view = exportUserVisibleToEnterprise(context, column.view, {
+  const view = exportUserVisibleToEnterprise(context, undefined, column.view, {
     allow: UserViewKeysEnterprise.Allow,
     deny: UserViewKeysEnterprise.Deny,
   })
   if (view) Object.assign(result, view)
 
-  const edit = exportUserVisibleToEnterprise(context, column.edit, {
+  const edit = exportUserVisibleToEnterprise(context, undefined, column.edit, {
     allow: UserEditKeysEnterprise.Allow,
     deny: UserEditKeysEnterprise.Deny,
   })
   if (edit) Object.assign(result, edit)
 
   if (column.columns && column.columns.length > 0) {
-    result.Колонки = exportFormAttributeColumnsToEnterprise(context, column.columns)
+    result.Колонки = exportFormAttributeColumnsToEnterprise(context, undefined, column.columns)
   }
 
-  const functionalOptions = exportFunctionalOptionsToEnterprise(context, column.functionalOptions)
+  const functionalOptions = exportFunctionalOptionsToEnterprise(context, undefined, column.functionalOptions)
   if (functionalOptions) {
     result.ФункциональныеОпции = functionalOptions
   }
@@ -179,12 +188,13 @@ const exportFormAttributeColumnToEnterprise = (
 
 const exportFormAttributeAdditionalColumnsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   additionalColumns: FormAttributeAdditionalColumn[]
 ): Record<string, Record<string, FormAttributeColumnEnterprise>> => {
   return Object.fromEntries(
     additionalColumns.map((additionalColumn) => [
       additionalColumn.table.split(".").pop()!,
-      exportFormAttributeColumnsToEnterprise(context, additionalColumn.columns),
+      exportFormAttributeColumnsToEnterprise(context, undefined, additionalColumn.columns),
     ])
   )
 }
@@ -198,6 +208,7 @@ const exportFormAttributeAdditionalColumnsToEnterprise = (
  */
 const computeTitleForExport = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttribute,
   filteredTitle: ReturnType<typeof extractDifferentSynonymPart>
 ): I8nTextEnterprise | undefined => {
@@ -212,12 +223,12 @@ const computeTitleForExport = (
     }
     // Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой)
     if (filteredTitle === undefined && data.title && defaultTitle !== undefined) {
-      return exportI8nTextToEnterprise(context, data.title)
+      return exportI8nTextToEnterprise(context, undefined, data.title)
     }
   }
 
   // Обычная логика
-  return exportI8nTextToEnterprise(context, filteredTitle)
+  return exportI8nTextToEnterprise(context, undefined, filteredTitle)
 }
 
 const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {

@@ -9,7 +9,7 @@ import {
   minimalTableEnterprise,
   sourceTable,
 } from "~/tests/fixtures/forms/table/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importTablePartialFromEnterprise } from "./importFromEnterprise"
 
 describe("importTableFromEnterprise", () => {
@@ -18,13 +18,13 @@ describe("importTableFromEnterprise", () => {
       ...mockContext,
       allElements: fullTableChildItems,
     }
-    const result = importTablePartialFromEnterprise(context, sourceTable, fullTableEnterprise)
+    const result = importTablePartialFromEnterprise(context, undefined, sourceTable, fullTableEnterprise)
 
     expect(result).toEqual(fullTable)
   })
 
   it("should import minimal", () => {
-    const result = importTablePartialFromEnterprise(mockContext, minimalTable, minimalTableEnterprise)
+    const result = importTablePartialFromEnterprise(mockContext, mockRule, minimalTable, minimalTableEnterprise)
 
     expect(result).toEqual(minimalTable)
   })

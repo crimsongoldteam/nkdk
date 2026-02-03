@@ -8,13 +8,15 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
-import { exportCommandInterfaceToXML } from "../../commonObjects/commandInterface/exportToXML"
 import { exportCommandsToXML } from "../../commands/exportToXML"
+import { exportCommandInterfaceToXML } from "../../commonObjects/commandInterface/exportToXML"
 import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
@@ -40,12 +42,12 @@ export const exportClientApplicationFormToXML = (
     _version: "2.20",
   } as ClientApplicationFormXML
 
-  const attributes = exportFormAttributesToXML(context, data.attributes)
+  const attributes = exportFormAttributesToXML(context, undefined, data.attributes)
   if (attributes !== undefined) {
     result.Attributes = { Attribute: attributes }
   }
 
-  result.AutoCommandBar = exportFormAutoCommandBarToXML(context, data.autoCommandBar)
+  result.AutoCommandBar = exportFormAutoCommandBarToXML(context, undefined, data.autoCommandBar)
 
   if (data.autoFillCheck !== undefined) {
     result.AutoFillCheck = data.autoFillCheck
@@ -63,7 +65,7 @@ export const exportClientApplicationFormToXML = (
     result.AutoURL = data.autoURL
   }
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportChildItemsToXML(context, undefined, data.childItems)
   if (childItems !== undefined) {
     result.ChildItems = childItems
   }
@@ -92,17 +94,17 @@ export const exportClientApplicationFormToXML = (
     result.CommandBarLocation = data.commandBarLocation
   }
 
-  const commands = exportCommandsToXML(context, data.commands)
+  const commands = exportCommandsToXML(context, undefined, data.commands)
   if (commands !== undefined) {
     result.Commands = { Command: commands }
   }
 
-  const commandSet = exportCommandSetToXML(context, data.commandSet)
+  const commandSet = exportCommandSetToXML(context, undefined, data.commandSet)
   if (commandSet !== undefined) {
     result.CommandSet = commandSet
   }
 
-  const commandInterface = exportCommandInterfaceToXML(context, data.commandInterface)
+  const commandInterface = exportCommandInterfaceToXML(context, undefined, data.commandInterface)
   if (commandInterface !== undefined) {
     result.CommandInterface = commandInterface
   }
@@ -123,7 +125,7 @@ export const exportClientApplicationFormToXML = (
     result.EnterKeyBehavior = data.enterKeyBehavior
   }
 
-  const events = exportEventsToXML(context, data.events as Events | undefined)
+  const events = exportEventsToXML(context, undefined, data.events as Events | undefined)
   if (events !== undefined) {
     result.Events = events
   }
@@ -152,7 +154,7 @@ export const exportClientApplicationFormToXML = (
     result.Modified = data.modified
   }
 
-  const parameters = exportFormParametersToXML(context, data.parameters)
+  const parameters = exportFormParametersToXML(context, undefined, data.parameters)
   if (parameters !== undefined) {
     result.Parameters = { Parameter: parameters }
   }
@@ -193,7 +195,7 @@ export const exportClientApplicationFormToXML = (
     result.SlaveItemsWidth = data.slaveItemsWidth
   }
 
-  const title = exportI8nTextToXML(context, data.title)
+  const title = exportI8nTextToXML(context, undefined, data.title)
   if (title !== undefined) {
     result.Title = title
   }
@@ -227,6 +229,7 @@ export const exportClientApplicationFormToXML = (
 
 export const exportFormMetadataToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ClientApplicationForm,
   name: string
 ): FormMetadataXML => {
@@ -272,12 +275,12 @@ export const exportFormMetadataToXML = (
 
   properties.Name = name
 
-  const synonym = exportI8nTextToXML(context, data.synonim)
+  const synonym = exportI8nTextToXML(context, undefined, data.synonim)
   if (synonym !== undefined) {
     properties.Synonym = synonym
   }
 
-  const usePurposes = exportUsePurposesToXML(context, data.usePurposes)
+  const usePurposes = exportUsePurposesToXML(context, undefined, data.usePurposes)
   if (usePurposes !== undefined) {
     properties.UsePurposes = usePurposes
   }

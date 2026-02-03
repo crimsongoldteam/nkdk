@@ -12,14 +12,16 @@ import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importLabelDecorationFromXML<To extends LabelDecoration | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
 
-  const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, undefined, xml)
 
   const result: LabelDecoration = {
     ...baseFields,
@@ -30,17 +32,17 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, undefined, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, undefined, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const font = importFontFromXML(context, xml.Font)
+  const font = importFontFromXML(context, undefined, xml.Font)
   if (font !== undefined) result.font = font
 
   if (xml.Height !== undefined) result.height = xml.Height
@@ -57,13 +59,13 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const textColor = importColorFromXML(context, xml.TextColor)
+  const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importFormattedI8nTextFromXML(context, xml.Title)
+  const title = importFormattedI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
@@ -78,13 +80,13 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  const backColor = importColorFromXML(context, xml.BackColor)
+  const backColor = importColorFromXML(context, undefined, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
 
-  const border = importBorderFromXML(context, xml.Border)
+  const border = importBorderFromXML(context, undefined, xml.Border)
   if (border !== undefined) result.border = border
 
-  const borderColor = importColorFromXML(context, xml.BorderColor)
+  const borderColor = importColorFromXML(context, undefined, xml.BorderColor)
   if (borderColor !== undefined) result.borderColor = borderColor
 
   if (xml.GroupVerticalAlign !== undefined) result.groupVerticalAlign = xml.GroupVerticalAlign
@@ -95,12 +97,12 @@ export function importLabelDecorationFromXML<To extends LabelDecoration | undefi
 
   if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  const userVisible = importUserVisibleFromXML(context, undefined, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
   if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
 
-  const events = importEventsFromXML(context, xml.Events)
+  const events = importEventsFromXML(context, undefined, xml.Events)
   if (events !== undefined) result.events = events
 
   return result as To

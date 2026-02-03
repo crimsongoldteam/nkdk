@@ -1,8 +1,10 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataField, MetadataFields, MetadataFieldsXML } from "./types"
 
 export const exportMetadataFieldToXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataField | undefined
 ): string | undefined => {
   if (!data) return undefined
@@ -12,6 +14,7 @@ export const exportMetadataFieldToXML = (
 
 export const exportMetadataFieldsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFields | undefined
 ): MetadataFieldsXML | undefined => {
   if (!data) return undefined
@@ -19,6 +22,6 @@ export const exportMetadataFieldsToXML = (
   const items = Array.isArray(data) ? data : [data]
 
   return {
-    "xr:Field": items.map((value) => exportMetadataFieldToXML(context, value)!),
+    "xr:Field": items.map((value) => exportMetadataFieldToXML(context, undefined, value)!),
   }
 }

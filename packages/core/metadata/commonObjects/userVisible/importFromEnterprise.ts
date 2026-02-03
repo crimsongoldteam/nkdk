@@ -1,10 +1,12 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { type UserVisible } from "./types"
 
 export const importUserVisibleFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   valueAllow: Record<string, StringboolEnterprise> | undefined,
   valueDeny: Record<string, StringboolEnterprise> | undefined
 ): UserVisible | undefined => {
@@ -18,7 +20,7 @@ export const importUserVisibleFromEnterprise = (
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
-    const parsedValue = importBooleanFromEnterprise(context, val)!
+    const parsedValue = importBooleanFromEnterprise(context, undefined, val)!
     return {
       name,
       value: parsedValue,

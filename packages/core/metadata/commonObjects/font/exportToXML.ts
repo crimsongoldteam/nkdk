@@ -1,7 +1,12 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Font, FontXML, PrefixedFontsToXML } from "./types"
 
-export const exportFontToXML = (_context: ConfigurationContext, font: Font | undefined): FontXML | undefined => {
+export const exportFontToXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  font: Font | undefined
+): FontXML | undefined => {
   if (!font) return undefined
 
   const result: any = {}

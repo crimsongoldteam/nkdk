@@ -6,7 +6,7 @@ import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const _importMetadataValueCollectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: MetadataValueCollectionXML | undefined
 ): MetadataValueCollection | undefined => {
   if (!data) return undefined
@@ -16,7 +16,7 @@ export const _importMetadataValueCollectionFromXML = (
   const items = Array.isArray(xrItems) ? xrItems : [xrItems]
 
   const result: MetadataValueCollection = items.map((item: MetadataSimpleValueXML) => {
-    const metadataValue = _importMetadataValueFromXML(context, _rule, item)!
+    const metadataValue = _importMetadataValueFromXML(context, undefined, _rule, item)!
     return String(metadataValue.value)
   })
 

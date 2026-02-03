@@ -25,15 +25,17 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importCheckBoxFieldPropsFromEnterprise(context, data)
+  const props = importCheckBoxFieldPropsFromEnterprise(context, undefined, data)
 
   const result: CheckBoxField = {
     ...props,
@@ -41,7 +43,7 @@ export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField 
     name: name,
   }
 
-  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -49,10 +51,11 @@ export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField 
 
 export function importCheckBoxFieldPartialFromEnterprise<To extends CheckBoxField>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importCheckBoxFieldPropsFromEnterprise(context, data)
+  const props = importCheckBoxFieldPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
@@ -60,7 +63,7 @@ export function importCheckBoxFieldPartialFromEnterprise<To extends CheckBoxFiel
     name: source.name,
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -68,16 +71,17 @@ export function importCheckBoxFieldPartialFromEnterprise<To extends CheckBoxFiel
 
 const importCheckBoxFieldPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CheckBoxFieldTypedEnterprise | CheckBoxFieldPartialEnterprise | undefined
 ): Omit<Partial<CheckBoxField>, "elementType" | "name"> => {
   const result: Omit<Partial<CheckBoxField>, "elementType" | "name"> = {}
 
   if (data === undefined) return result
 
-  const autoCellHeight = importBooleanFromEnterprise(context, data.АвтоВысотаЯчейки)
+  const autoCellHeight = importBooleanFromEnterprise(context, undefined, data.АвтоВысотаЯчейки)
   if (autoCellHeight !== undefined) result.autoCellHeight = autoCellHeight
 
-  const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
+  const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -104,12 +108,12 @@ const importCheckBoxFieldPropsFromEnterprise = (
   const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.ВысотаЗаголовка !== undefined) result.titleHeight = data.ВысотаЗаголовка
 
-  const cellHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЯчейки)
+  const cellHyperlink = importBooleanFromEnterprise(context, undefined, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -140,25 +144,25 @@ const importCheckBoxFieldPropsFromEnterprise = (
   )
   if (headerHorizontalAlign !== undefined) result.headerHorizontalAlign = headerHorizontalAlign
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const footerPicture = importPictureFromEnterprise(context, data.КартинкаПодвала)
+  const footerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаПодвала)
   if (footerPicture !== undefined) result.footerPicture = footerPicture
 
-  const headerPicture = importPictureFromEnterprise(context, data.КартинкаШапки)
+  const headerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаШапки)
   if (headerPicture !== undefined) result.headerPicture = headerPicture
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const typeRestriction = importTypeDescriptionFromEnterprise(context, data.ОграничениеТипа)
+  const typeRestriction = importTypeDescriptionFromEnterprise(context, undefined, data.ОграничениеТипа)
   if (typeRestriction !== undefined) result.typeRestriction = typeRestriction
 
-  const showInFooter = importBooleanFromEnterprise(context, data.ОтображатьВПодвале)
+  const showInFooter = importBooleanFromEnterprise(context, undefined, data.ОтображатьВПодвале)
   if (showInFooter !== undefined) result.showInFooter = showInFooter
 
-  const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
+  const showInHeader = importBooleanFromEnterprise(context, undefined, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -175,7 +179,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
   )
   if (warningOnEditRepresentation !== undefined) result.warningOnEditRepresentation = warningOnEditRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
@@ -185,13 +189,18 @@ const importCheckBoxFieldPropsFromEnterprise = (
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const warningOnEdit = importI8nTextFromEnterprise(context, data.ПредупреждениеПриРедактировании)
+  const warningOnEdit = importI8nTextFromEnterprise(context, undefined, data.ПредупреждениеПриРедактировании)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
@@ -200,7 +209,7 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   if (data.ПутьКДаннымПодвала !== undefined) result.footerDataPath = data.ПутьКДаннымПодвала
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
@@ -214,10 +223,10 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   if (data.Таблица !== undefined) result.table = data.Таблица
 
-  const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
+  const footerText = importI8nTextFromEnterprise(context, undefined, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
@@ -227,22 +236,22 @@ const importCheckBoxFieldPropsFromEnterprise = (
   )
   if (fixingInTable !== undefined) result.fixingInTable = fixingInTable
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const footerTextColor = importColorFromEnterprise(context, data.ЦветТекстаПодвала)
+  const footerTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаПодвала)
   if (footerTextColor !== undefined) result.footerTextColor = footerTextColor
 
-  const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
+  const titleBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  const footerBackColor = importColorFromEnterprise(context, data.ЦветФонаПодвала)
+  const footerBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаПодвала)
   if (footerBackColor !== undefined) result.footerBackColor = footerBackColor
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const footerFont = importFontFromEnterprise(context, data.ШрифтПодвала)
+  const footerFont = importFontFromEnterprise(context, undefined, data.ШрифтПодвала)
   if (footerFont !== undefined) result.footerFont = footerFont
 
   const checkBoxType = importSystemEnumerationFromYAML<SE.CheckBoxType>(
@@ -256,30 +265,30 @@ const importCheckBoxFieldPropsFromEnterprise = (
 
   if (data.ВысотаЭлемента !== undefined) result.itemHeight = data.ВысотаЭлемента
 
-  const equalItemsWidth = importBooleanFromEnterprise(context, data.ОдинаковаяШиринаЭлементов)
+  const equalItemsWidth = importBooleanFromEnterprise(context, undefined, data.ОдинаковаяШиринаЭлементов)
   if (equalItemsWidth !== undefined) result.equalItemsWidth = equalItemsWidth
 
-  const threeState = importBooleanFromEnterprise(context, data.ТриСостояния)
+  const threeState = importBooleanFromEnterprise(context, undefined, data.ТриСостояния)
   if (threeState !== undefined) result.threeState = threeState
 
-  const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromEnterprise(context, undefined, data.ФорматРедактирования)
   if (editFormat !== undefined) result.editFormat = editFormat
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
   if (data.ШиринаЭлемента !== undefined) result.itemWidth = data.ШиринаЭлемента
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importEventsFromEnterprise(context, data.События)
+  const events = importEventsFromEnterprise(context, undefined, data.События)
   if (events !== undefined) result.events = events
 
   return result

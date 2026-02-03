@@ -18,7 +18,11 @@ const exportBorderToPreview = (element: LabelField["border"]): LabelFieldPreview
   }
 }
 
-export const exportLabelFieldToPreview = (context: ConfigurationContext, element: LabelField): LabelFieldPreview => {
+export const exportLabelFieldToPreview = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: LabelField
+): LabelFieldPreview => {
   const result: LabelFieldPreview = {
     ElementType: "FormField",
     Name: element.name,
@@ -95,7 +99,11 @@ export const exportLabelFieldToPreview = (context: ConfigurationContext, element
   const footerFont = exportFontToPreview(context, element.footerFont)
   if (footerFont !== undefined) result.FooterFont = footerFont
 
-  const footerHorizontalAlign = exportSystemEnumerationToPreview(context, element.footerHorizontalAlign, "HorizontalAlign")
+  const footerHorizontalAlign = exportSystemEnumerationToPreview(
+    context,
+    element.footerHorizontalAlign,
+    "HorizontalAlign"
+  )
   if (footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = footerHorizontalAlign
 
   const footerPicture = exportPictureToPreview(context, element.footerPicture)
@@ -107,7 +115,11 @@ export const exportLabelFieldToPreview = (context: ConfigurationContext, element
   const footerTextColor = exportColorToPreview(context, element.footerTextColor)
   if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
 
-  const headerHorizontalAlign = exportSystemEnumerationToPreview(context, element.headerHorizontalAlign, "HorizontalAlign")
+  const headerHorizontalAlign = exportSystemEnumerationToPreview(
+    context,
+    element.headerHorizontalAlign,
+    "HorizontalAlign"
+  )
   if (headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = headerHorizontalAlign
 
   const headerPicture = exportPictureToPreview(context, element.headerPicture)
@@ -116,7 +128,11 @@ export const exportLabelFieldToPreview = (context: ConfigurationContext, element
   const horizontalAlign = exportSystemEnumerationToPreview(context, element.horizontalAlign, "HorizontalAlign")
   if (horizontalAlign !== undefined) result.HorizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToPreview(context, element.horizontalAlignInGroup, "HorizontalAlign")
+  const horizontalAlignInGroup = exportSystemEnumerationToPreview(
+    context,
+    element.horizontalAlignInGroup,
+    "HorizontalAlign"
+  )
   if (horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = horizontalAlignInGroup
 
   if (element.readOnly !== undefined) result.ReadOnly = element.readOnly
@@ -147,7 +163,11 @@ export const exportLabelFieldToPreview = (context: ConfigurationContext, element
   const toolTip = exportI8nTextToPreview(context, element.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
-  const toolTipRepresentation = exportSystemEnumerationToPreview(context, element.toolTipRepresentation, "ToolTipRepresentation")
+  const toolTipRepresentation = exportSystemEnumerationToPreview(
+    context,
+    element.toolTipRepresentation,
+    "ToolTipRepresentation"
+  )
   if (toolTipRepresentation !== undefined) result.ToolTipRepresentation = toolTipRepresentation
 
   const verticalAlign = exportSystemEnumerationToPreview(context, element.verticalAlign, "VerticalAlign")
@@ -161,7 +181,11 @@ export const exportLabelFieldToPreview = (context: ConfigurationContext, element
   const warningOnEdit = exportI8nTextToPreview(context, element.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
-  const warningOnEditRepresentation = exportSystemEnumerationToPreview(context, element.warningOnEditRepresentation, "WarningOnEditRepresentation")
+  const warningOnEditRepresentation = exportSystemEnumerationToPreview(
+    context,
+    element.warningOnEditRepresentation,
+    "WarningOnEditRepresentation"
+  )
   if (warningOnEditRepresentation !== undefined) result.WarningOnEditRepresentation = warningOnEditRepresentation
 
   return result

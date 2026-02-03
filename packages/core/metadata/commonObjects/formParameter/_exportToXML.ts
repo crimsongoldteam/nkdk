@@ -5,25 +5,25 @@ import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } fr
 
 export const _exportFormParametersToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   parameters: FormParameters | undefined
 ): FormParametersXML | undefined => {
   if (parameters === undefined || parameters.length === 0) {
     return undefined
   }
 
-  const result = parameters.map((parameter) => _exportFormParameterToXML(context, _rule, parameter))
+  const result = parameters.map((parameter) => _exportFormParameterToXML(context, undefined, _rule, parameter))
   return result
 }
 
 const _exportFormParameterToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   parameter: FormParameter
 ): FormParameterXML => {
   const result: FormParameterXML = {
     _name: parameter.name,
-    Type: _exportTypeDescriptionToXML(context, _rule, parameter.type)!,
+    Type: _exportTypeDescriptionToXML(context, undefined, _rule, parameter.type)!,
   }
 
   if (parameter.keyParameter !== undefined) {

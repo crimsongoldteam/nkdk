@@ -17,19 +17,25 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FormAttributes | undefined
 ): FormAttributesXML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result = data.map((value: FormAttribute) => exportFormAttributeToXML(context, value))
+  const result = data.map((value: FormAttribute) => exportFormAttributeToXML(context, undefined, value))
 
   return result
 }
 
-const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttribute): FormAttributeXML => {
+const exportFormAttributeToXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: FormAttribute
+): FormAttributeXML => {
   const mergedData = { ...defaults, ...data }
 
   const result: FormAttributeXML = {
@@ -39,34 +45,38 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
 
   if (mergedData.columns && mergedData.columns.length > 0) {
     result.Columns = {
-      Column: exportFormAttributeColumnsToXML(context, mergedData.columns),
+      Column: exportFormAttributeColumnsToXML(context, undefined, mergedData.columns),
     }
   }
 
   if (mergedData.additionalColumns && mergedData.additionalColumns.length > 0) {
-    const additionalColumnsXML = exportFormAttributeAdditionalColumnsToXML(context, mergedData.additionalColumns)
+    const additionalColumnsXML = exportFormAttributeAdditionalColumnsToXML(
+      context,
+      undefined,
+      mergedData.additionalColumns
+    )
     if (!result.Columns) {
       result.Columns = { Column: [] }
     }
     result.Columns.AdditionalColumns = additionalColumnsXML
   }
 
-  const edit = exportUserVisibleToXML(context, mergedData.edit)
+  const edit = exportUserVisibleToXML(context, undefined, mergedData.edit)
   if (edit) result.Edit = edit
 
   if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
 
-  const functionalOptions = exportFunctionalOptionsToXML(context, mergedData.functionalOptions)
+  const functionalOptions = exportFunctionalOptionsToXML(context, undefined, mergedData.functionalOptions)
   if (functionalOptions) result.FunctionalOptions = functionalOptions
 
   if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
 
-  const save = exportFieldsListToXML(context, mergedData.save)
+  const save = exportFieldsListToXML(context, undefined, mergedData.save)
   if (save) result.Save = save
 
   if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
 
-  const settings = exportFormAttributeSettingsToXML(context, mergedData.settings, mergedData.valueType)
+  const settings = exportFormAttributeSettingsToXML(context, undefined, mergedData.settings, mergedData.valueType)
   if (settings) {
     result.Settings = settings
   }
@@ -74,13 +84,13 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
   const title = exportI8nTextToXMLWithDefaultLanguage(context, mergedData.title)
   if (title) result.Title = title
 
-  const type = exportTypeDescriptionToXML(context, mergedData.valueType)
+  const type = exportTypeDescriptionToXML(context, undefined, mergedData.valueType)
   if (type) result.Type = type
 
-  const fieldsList = exportFieldsListToXML(context, mergedData.fieldsList)
+  const fieldsList = exportFieldsListToXML(context, undefined, mergedData.fieldsList)
   if (fieldsList) result.UseAlways = fieldsList
 
-  const view = exportUserVisibleToXML(context, mergedData.view)
+  const view = exportUserVisibleToXML(context, undefined, mergedData.view)
   if (view) result.View = view
 
   return result
@@ -88,6 +98,7 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
 
 const exportFormAttributeSettingsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   settings: FormAttribute["settings"],
   valueType: FormAttribute["valueType"]
 ): FormAttributeXML["Settings"] => {
@@ -108,7 +119,11 @@ const exportFormAttributeSettingsToXML = (
       ...settingsCopy,
     }
   } else {
-    const typeDescriptionSettings = exportTypeDescriptionToXML(context, settings as TypeDescription | undefined)
+    const typeDescriptionSettings = exportTypeDescriptionToXML(
+      context,
+      undefined,
+      settings as TypeDescription | undefined
+    )
     if (typeDescriptionSettings || isValueListType) {
       return {
         "_xsi:type": "v8:TypeDescription",
@@ -122,6 +137,7 @@ const exportFormAttributeSettingsToXML = (
 
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   columns: FormAttributeColumn[]
 ): FormAttributeColumnXML | FormAttributeColumnXML[] => {
   const result = columns.map((column) => {
@@ -131,26 +147,26 @@ const exportFormAttributeColumnsToXML = (
     }
 
     if (column.columns && column.columns.length > 0) {
-      res.Column = exportFormAttributeColumnsToXML(context, column.columns)
+      res.Column = exportFormAttributeColumnsToXML(context, undefined, column.columns)
     }
 
-    const title = exportI8nTextToXML(context, column.title)
+    const title = exportI8nTextToXML(context, undefined, column.title)
     if (title) res.Title = title
 
-    const type = exportTypeDescriptionToXML(context, column.type)
+    const type = exportTypeDescriptionToXML(context, undefined, column.type)
     if (type) res.Type = type
 
-    const view = exportUserVisibleToXML(context, column.view)
+    const view = exportUserVisibleToXML(context, undefined, column.view)
     if (view) res.View = view
 
-    const edit = exportUserVisibleToXML(context, column.edit)
+    const edit = exportUserVisibleToXML(context, undefined, column.edit)
     if (edit) res.Edit = edit
 
     if (column.fillCheck) {
       res.FillCheck = column.fillCheck
     }
 
-    const functionalOptions = exportFunctionalOptionsToXML(context, column.functionalOptions)
+    const functionalOptions = exportFunctionalOptionsToXML(context, undefined, column.functionalOptions)
     if (functionalOptions) res.FunctionalOptions = functionalOptions
 
     return res
@@ -161,10 +177,11 @@ const exportFormAttributeColumnsToXML = (
 
 const exportFormAttributeAdditionalColumnsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   additionalColumns: FormAttributeAdditionalColumn[]
 ) => {
   return additionalColumns.map((additionalColumn) => ({
     _table: additionalColumn.table,
-    Column: exportFormAttributeColumnsToXML(context, additionalColumn.columns),
+    Column: exportFormAttributeColumnsToXML(context, undefined, additionalColumn.columns),
   }))
 }

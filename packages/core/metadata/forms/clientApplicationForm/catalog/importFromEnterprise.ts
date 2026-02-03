@@ -6,6 +6,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importClientApplicationFormFromEnterprise } from "../base/importFromEnterprise"
 import { CatalogForm, CatalogFormEnterprise, CatalogFormEvents } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 const catalogFormEnterpriseEventNameMapping: Record<string, keyof CatalogFormEvents> = {
   ВыборЗначения: "valueChoice",
@@ -36,12 +37,13 @@ const importCatalogFormEventsFromEnterprise = (
 
 export const importCatalogFormFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CatalogFormEnterprise,
   structure: ChildItemsStructureResult
 ): CatalogForm => {
-  const result = importClientApplicationFormFromEnterprise(context, data, structure) as CatalogForm
+  const result = importClientApplicationFormFromEnterprise(context, undefined, data, structure) as CatalogForm
 
-  const choiceAvailable = importBooleanFromEnterprise(context, data.ВыборДоступен)
+  const choiceAvailable = importBooleanFromEnterprise(context, undefined, data.ВыборДоступен)
   if (choiceAvailable !== undefined) result.choiceAvailable = choiceAvailable
 
   const useForFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
@@ -51,7 +53,7 @@ export const importCatalogFormFromEnterprise = (
   )
   if (useForFoldersAndItems !== undefined) result.useForFoldersAndItems = useForFoldersAndItems
 
-  const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
+  const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
   const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(

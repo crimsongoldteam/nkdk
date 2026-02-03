@@ -15,20 +15,23 @@ import { importBooleanFromXML } from "../boolean/importFromXML.ts"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML.ts"
 import { getDefaultsAttribute } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 
 export const importMetadataAttributesFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(context, value)!)
+  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(context, undefined, value)!)
 }
 
 const importMetadataAttributeFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: MetadataAttributeXML
 ): MetadataAttribute => {
   const props = xml.Properties
@@ -38,7 +41,11 @@ const importMetadataAttributeFromXML = (
   if (props.BinaryDataStorageLocationUse !== undefined)
     result.binaryDataStorageLocationUse = props.BinaryDataStorageLocationUse
 
-  const binaryDataStorageLocationUseField = importBooleanFromXML(context, props.BinaryDataStorageLocationUseField)
+  const binaryDataStorageLocationUseField = importBooleanFromXML(
+    context,
+    undefined,
+    props.BinaryDataStorageLocationUseField
+  )
   if (binaryDataStorageLocationUseField !== undefined)
     result.binaryDataStorageLocationUseField = binaryDataStorageLocationUseField
 
@@ -48,10 +55,10 @@ const importMetadataAttributeFromXML = (
 
   if (props.ChoiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = props.ChoiceHistoryOnInput
 
-  const choiceParameterLinks = importChoiceParameterLinksFromXML(context, props.ChoiceParameterLinks)
+  const choiceParameterLinks = importChoiceParameterLinksFromXML(context, undefined, props.ChoiceParameterLinks)
   if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = importChoiceParametersFromXML(context, props.ChoiceParameters)
+  const choiceParameters = importChoiceParametersFromXML(context, undefined, props.ChoiceParameters)
   if (choiceParameters) result.choiceParameters = choiceParameters
 
   if (props.Comment !== undefined) result.comment = props.Comment
@@ -60,31 +67,31 @@ const importMetadataAttributeFromXML = (
 
   if (props.DataHistory !== undefined) result.dataHistory = props.DataHistory
 
-  const editFormat = importI8nTextFromXML(context, props.EditFormat)
+  const editFormat = importI8nTextFromXML(context, undefined, props.EditFormat)
   if (editFormat) result.editFormat = editFormat
 
-  const extendedEdit = importBooleanFromXML(context, props.ExtendedEdit)
+  const extendedEdit = importBooleanFromXML(context, undefined, props.ExtendedEdit)
   if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
 
   if (props.FillChecking !== undefined) result.fillChecking = props.FillChecking
 
-  const fillFromFillingValue = importBooleanFromXML(context, props.FillFromFillingValue)
+  const fillFromFillingValue = importBooleanFromXML(context, undefined, props.FillFromFillingValue)
   if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
 
-  const fillValue = importMetadataValueFromXML(context, props.FillValue)
+  const fillValue = importMetadataValueFromXML(context, undefined, props.FillValue)
   if (fillValue) result.fillValue = fillValue
 
-  const format = importI8nTextFromXML(context, props.Format)
+  const format = importI8nTextFromXML(context, undefined, props.Format)
   if (format) result.format = format
 
   if (props.FullTextSearch !== undefined) result.fullTextSearch = props.FullTextSearch
 
   if (props.Indexing !== undefined) result.indexing = props.Indexing
 
-  const linkByType = importTypeLinkFromXML(context, props.LinkByType)
+  const linkByType = importTypeLinkFromXML(context, undefined, props.LinkByType)
   if (linkByType) result.linkByType = linkByType
 
-  const markNegatives = importBooleanFromXML(context, props.MarkNegatives)
+  const markNegatives = importBooleanFromXML(context, undefined, props.MarkNegatives)
   if (markNegatives !== undefined) result.markNegatives = markNegatives
 
   if (props.Mask !== undefined) result.mask = String(props.Mask)
@@ -95,24 +102,24 @@ const importMetadataAttributeFromXML = (
   const minValue = importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined
   if (minValue !== undefined) result.minValue = minValue
 
-  const multiLine = importBooleanFromXML(context, props.MultiLine)
+  const multiLine = importBooleanFromXML(context, undefined, props.MultiLine)
   if (multiLine !== undefined) result.multiLine = multiLine
 
   result.name = props.Name!
 
-  const passwordMode = importBooleanFromXML(context, props.PasswordMode)
+  const passwordMode = importBooleanFromXML(context, undefined, props.PasswordMode)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
   if (props.QuickChoice !== undefined) result.quickChoice = props.QuickChoice
 
-  const synonym = importI8nTextFromXML(context, props.Synonym)
+  const synonym = importI8nTextFromXML(context, undefined, props.Synonym)
   if (synonym == undefined) result.synonym = { items: { [context.defaultLanguage]: "" } }
   else result.synonym = synonym
 
-  const toolTip = importI8nTextFromXML(context, props.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  result.type = importTypeDescriptionFromXML(context, props.Type)!
+  result.type = importTypeDescriptionFromXML(context, undefined, props.Type)!
 
   if (props.Use !== undefined) result.use = props.Use
 

@@ -5,6 +5,7 @@ import { AllChildItem } from "./types"
 
 export const exportChildItemsToPreview = <From extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From[] | undefined
 ): ToPreviewType<From>[] => {
   if (!data || data.length === 0) return []

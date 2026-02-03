@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importChoiceParameterLinksFromEnterprise } from "./importFromEnterprise"
 
 describe("importFromEnterprise", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParameterLinksFromEnterprise(mockContext, undefined)
+    const result = importChoiceParameterLinksFromEnterprise(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -13,7 +13,7 @@ describe("importFromEnterprise", () => {
     const enterprise =
       "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
 
-    const result = importChoiceParameterLinksFromEnterprise(mockContext, enterprise)
+    const result = importChoiceParameterLinksFromEnterprise(mockContext, mockRule, enterprise)
 
     expect(result).toEqual([
       {
@@ -28,7 +28,7 @@ describe("importFromEnterprise", () => {
     const enterprise =
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
 
-    const result = importChoiceParameterLinksFromEnterprise(mockContext, enterprise)
+    const result = importChoiceParameterLinksFromEnterprise(mockContext, mockRule, enterprise)
 
     expect(result).toEqual([
       {
@@ -47,7 +47,7 @@ describe("importFromEnterprise", () => {
   it("should import with `DontChange` parameter", () => {
     const enterprise = "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)"
 
-    const result = importChoiceParameterLinksFromEnterprise(mockContext, enterprise)
+    const result = importChoiceParameterLinksFromEnterprise(mockContext, mockRule, enterprise)
 
     expect(result).toEqual([
       {
@@ -62,7 +62,7 @@ describe("importFromEnterprise", () => {
     const enterprise =
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
 
-    const result = importChoiceParameterLinksFromEnterprise(mockContext, enterprise)
+    const result = importChoiceParameterLinksFromEnterprise(mockContext, mockRule, enterprise)
 
     expect(result).toEqual([
       {

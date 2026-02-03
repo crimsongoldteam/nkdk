@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importI8nTextFromXML } from "../i8nText/importFromXML"
@@ -16,6 +17,7 @@ import {
 
 export const importMetadataValueFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValueXML | undefined,
   type?: MetadataValueType
 ): MetadataValue | undefined => {
@@ -26,11 +28,11 @@ export const importMetadataValueFromXML = (
   if (!resultedType) throw new Error(`Invalid type: ${data["_xsi:type"]}`)
 
   if (resultedType === "fixedArray") {
-    return importFixedArrayFromXML(context, data as MetadataFixedArrayValueXML)
+    return importFixedArrayFromXML(context, undefined, data as MetadataFixedArrayValueXML)
   }
 
   if (resultedType === "formChoiceListDesTimeValue") {
-    return importFormChoiceListValueFromXML(context, data as MetadataFormChoiceListValueXML)
+    return importFormChoiceListValueFromXML(context, undefined, data as MetadataFormChoiceListValueXML)
   }
 
   const textValue = (data as MetadataSimpleValueXML)["#text"] as string | boolean | number | undefined
@@ -47,7 +49,7 @@ export const importMetadataValueFromXML = (
     throw new Error(`Invalid simple value type: ${resultedType}`)
   }
 
-  const importedValue = importSimpleValueFromXML(context, textValue, resultedType)
+  const importedValue = importSimpleValueFromXML(context, undefined, textValue, resultedType)
   if (importedValue === undefined) {
     return undefined
   }
@@ -60,6 +62,7 @@ export const importMetadataValueFromXML = (
 
 export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueType>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValueXML | undefined,
   type: T
 ): T extends "string"
@@ -71,7 +74,7 @@ export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueTyp
       : T extends "dateTime"
         ? string
         : never => {
-  return importMetadataValueFromXML(context, data, type)?.value as T extends "string"
+  return importMetadataValueFromXML(context, undefined, data, type)?.value as T extends "string"
     ? string
     : T extends "boolean"
       ? boolean
@@ -84,31 +87,37 @@ export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueTyp
 
 const importSimpleValueFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   textValue: string | boolean | number | undefined,
   type: MetadataValueType
 ): string | boolean | number | undefined => {
-  if (type === "string") return importMetadataStringValueFromXML(context, textValue as string | undefined)
-  if (type === "decimal") return importMetadataDecimalValueFromXML(context, textValue as string | undefined)
-  if (type === "dateTime") return importMetadataDateTimeValueFromXML(context, textValue as string | undefined)
-  if (type === "boolean") return importMetadataBooleanValueFromXML(context, textValue as string | boolean | undefined)
-  if (type === "ref") return importMetadataRefValueFromXML(context, textValue as string | undefined)
-  if (type === "objectRef") return importMetadataObjectRefValueFromXML(context, textValue as string | undefined)
+  if (type === "string") return importMetadataStringValueFromXML(context, undefined, textValue as string | undefined)
+  if (type === "decimal") return importMetadataDecimalValueFromXML(context, undefined, textValue as string | undefined)
+  if (type === "dateTime")
+    return importMetadataDateTimeValueFromXML(context, undefined, textValue as string | undefined)
+  if (type === "boolean")
+    return importMetadataBooleanValueFromXML(context, undefined, textValue as string | boolean | undefined)
+  if (type === "ref") return importMetadataRefValueFromXML(context, undefined, textValue as string | undefined)
+  if (type === "objectRef")
+    return importMetadataObjectRefValueFromXML(context, undefined, textValue as string | undefined)
 }
 
 export const importMetadataValuesFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataValueXML[] | undefined
 ): MetadataValue[] | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => importMetadataValueFromXML(context, value)!)
+  return data.map((value) => importMetadataValueFromXML(context, undefined, value)!)
 }
 
 export const importMetadataSimpleValueFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataSimpleValueXML | undefined
 ): string | boolean | number | undefined => {
-  const result = importMetadataValueFromXML(context, data)
+  const result = importMetadataValueFromXML(context, undefined, data)
   if (!result) return undefined
 
   if (!isPrimitiveType(result.type)) throw new Error(`Invalid type: ${result.type}`)
@@ -117,6 +126,7 @@ export const importMetadataSimpleValueFromXML = (
 
 export const importMetadataStringValueFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | undefined
 ): string | undefined => {
   if (value === undefined || value === "") {
@@ -127,6 +137,7 @@ export const importMetadataStringValueFromXML = (
 
 export const importMetadataDecimalValueFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | undefined
 ): number | undefined => {
   return value !== undefined ? Number(value) : undefined
@@ -134,6 +145,7 @@ export const importMetadataDecimalValueFromXML = (
 
 export const importMetadataDateTimeValueFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | undefined
 ): string | undefined => {
   return value
@@ -141,15 +153,17 @@ export const importMetadataDateTimeValueFromXML = (
 
 export const importMetadataBooleanValueFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | boolean | undefined
 ): boolean | undefined => {
   if (value === undefined) return undefined
   if (typeof value === "boolean") return value
-  return importBooleanFromXML(context, value as "true" | "false")!
+  return importBooleanFromXML(context, undefined, value as "true" | "false")!
 }
 
 export const importMetadataRefValueFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | undefined
 ): string | undefined => {
   return value
@@ -157,6 +171,7 @@ export const importMetadataRefValueFromXML = (
 
 export const importMetadataObjectRefValueFromXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: string | undefined
 ): string | undefined => {
   return value
@@ -168,21 +183,23 @@ const extractType = (xmlType: MetadataValueTypeXML): MetadataValueType | undefin
 
 const importFixedArrayFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueXML | { "v8:Value": string | string[] }
 ): MetadataValue => {
   const values = Array.isArray(data["v8:Value"]) ? data["v8:Value"] : [data["v8:Value"]]
   return {
     type: "fixedArray",
-    value: values.map((v) => importMetadataValueFromXML(context, v as MetadataValueXML)!),
+    value: values.map((v) => importMetadataValueFromXML(context, undefined, v as MetadataValueXML)!),
   }
 }
 
 export const importFormChoiceListValueFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueXML
 ): MetadataFormChoiceListValue | undefined => {
-  const value = importMetadataValueFromXML(context, data.Value)
-  const presentation = importI8nTextFromXML(context, data.Presentation)
+  const value = importMetadataValueFromXML(context, undefined, data.Value)
+  const presentation = importI8nTextFromXML(context, undefined, data.Presentation)
   return { type: "formChoiceListDesTimeValue", value, presentation }
 }
 

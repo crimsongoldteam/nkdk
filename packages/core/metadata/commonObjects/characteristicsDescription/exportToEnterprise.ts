@@ -8,9 +8,11 @@ import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metada
 import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
@@ -18,23 +20,23 @@ export const exportCharacteristicsDescriptionToEnterprise = (
   const result: CharacteristicsDescriptionEnterprise = {}
 
   if (data.characteristicTypes) {
-    result.ВидыХарактеристик = exportMetadataItemLinkToEnterprise(context, data.characteristicTypes)
+    result.ВидыХарактеристик = exportMetadataItemLinkToEnterprise(context, undefined, data.characteristicTypes)
   }
 
   if (data.typesFilterValue) {
-    result.ЗначениеОтбораВидов = exportMetadataValueToEnterprise(context, data.typesFilterValue)
+    result.ЗначениеОтбораВидов = exportMetadataValueToEnterprise(context, undefined, data.typesFilterValue)
   }
 
   if (data.characteristicValues) {
-    result.ЗначенияХарактеристик = exportMetadataItemLinkToEnterprise(context, data.characteristicValues)
+    result.ЗначенияХарактеристик = exportMetadataItemLinkToEnterprise(context, undefined, data.characteristicValues)
   }
 
   if (data.typeField) {
-    result.ПолеВида = exportMetadataFieldToEnterprise(context, data.typeField)
+    result.ПолеВида = exportMetadataFieldToEnterprise(context, undefined, data.typeField)
   }
 
   if (data.valueField) {
-    result.ПолеЗначения = exportMetadataFieldToEnterprise(context, data.valueField)
+    result.ПолеЗначения = exportMetadataFieldToEnterprise(context, undefined, data.valueField)
   }
 
   if (data.multipleValuesUseField) {
@@ -45,27 +47,35 @@ export const exportCharacteristicsDescriptionToEnterprise = (
   }
 
   if (data.keyField) {
-    result.ПолеКлюча = exportMetadataFieldToEnterprise(context, data.keyField)
+    result.ПолеКлюча = exportMetadataFieldToEnterprise(context, undefined, data.keyField)
   }
 
   if (data.multipleValuesKeyField) {
-    result.ПолеКлючаМножественныхЗначений = exportMetadataFieldToEnterprise(context, data.multipleValuesKeyField)
+    result.ПолеКлючаМножественныхЗначений = exportMetadataFieldToEnterprise(
+      context,
+      undefined,
+      data.multipleValuesKeyField
+    )
   }
 
   if (data.objectField) {
-    result.ПолеОбъекта = exportMetadataFieldToEnterprise(context, data.objectField)
+    result.ПолеОбъекта = exportMetadataFieldToEnterprise(context, undefined, data.objectField)
   }
 
   if (data.typesFilterField) {
-    result.ПолеОтбораВидов = exportMetadataFieldToEnterprise(context, data.typesFilterField)
+    result.ПолеОтбораВидов = exportMetadataFieldToEnterprise(context, undefined, data.typesFilterField)
   }
 
   if (data.multipleValuesOrderField) {
-    result.ПолеПорядкаМножественныхЗначений = exportMetadataFieldToEnterprise(context, data.multipleValuesOrderField)
+    result.ПолеПорядкаМножественныхЗначений = exportMetadataFieldToEnterprise(
+      context,
+      undefined,
+      data.multipleValuesOrderField
+    )
   }
 
   if (data.dataPathField) {
-    result.ПолеПутиКДанным = exportMetadataFieldToEnterprise(context, data.dataPathField)
+    result.ПолеПутиКДанным = exportMetadataFieldToEnterprise(context, undefined, data.dataPathField)
   }
 
   return result
@@ -73,9 +83,12 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 
 export const exportCharacteristicsDescriptionsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(context, value)!)
+  return data.map(
+    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(context, undefined, value)!
+  )
 }

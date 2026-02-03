@@ -6,7 +6,7 @@ import { Border, BorderEnterprise } from "./types"
 
 export const exportBorderToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: Border | undefined
 ): BorderEnterprise | undefined => {
   if (!data) return undefined

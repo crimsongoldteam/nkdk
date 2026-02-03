@@ -16,9 +16,11 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metadataRef/importFromEnterprise"
 import { getDefaults } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataCommandFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCommandEnterprise | undefined,
   name: string
 ): MetadataCommand | undefined => {
@@ -29,7 +31,7 @@ export const importMetadataCommandFromEnterprise = (
     if (data in SE.StandardCommandsGroupFromEnterprise) {
       group = importSystemEnumerationFromYAML(context, data, SE.StandardCommandsGroupFromEnterprise)!
     } else {
-      group = importMetadataItemLinkFromEnterprise(context, data)!
+      group = importMetadataItemLinkFromEnterprise(context, undefined, data)!
     }
 
     return {
@@ -45,10 +47,14 @@ export const importMetadataCommandFromEnterprise = (
   if (typeof fullData.Группа === "string" && fullData.Группа in SE.StandardCommandsGroupFromEnterprise) {
     group = importSystemEnumerationFromYAML(context, fullData.Группа, SE.StandardCommandsGroupFromEnterprise)!
   } else {
-    group = importMetadataItemLinkFromEnterprise(context, fullData.Группа)!
+    group = importMetadataItemLinkFromEnterprise(context, undefined, fullData.Группа)!
   }
 
-  const synonym = addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, fullData.Синоним), name)
+  const synonym = addDefaultLanguageNameToSynonym(
+    context,
+    importI8nTextFromEnterprise(context, undefined, fullData.Синоним),
+    name
+  )
 
   const result: MetadataCommand = {
     name,
@@ -56,12 +62,12 @@ export const importMetadataCommandFromEnterprise = (
     synonym,
   }
 
-  const commandParameterType = importTypeDescriptionFromEnterprise(context, fullData.ТипПараметраКоманды)
+  const commandParameterType = importTypeDescriptionFromEnterprise(context, undefined, fullData.ТипПараметраКоманды)
   if (commandParameterType !== undefined) result.commandParameterType = commandParameterType
 
   if (fullData.Комментарий !== undefined) result.comment = fullData.Комментарий
 
-  const modifiesData = importBooleanFromEnterprise(context, fullData.ИзменяетДанные)
+  const modifiesData = importBooleanFromEnterprise(context, undefined, fullData.ИзменяетДанные)
   if (modifiesData !== undefined) result.modifiesData = modifiesData
 
   const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
@@ -78,7 +84,7 @@ export const importMetadataCommandFromEnterprise = (
   )
   if (parameterUseMode !== undefined) result.parameterUseMode = parameterUseMode
 
-  const picture = importPictureFromEnterprise(context, fullData.Картинка)
+  const picture = importPictureFromEnterprise(context, undefined, fullData.Картинка)
   if (picture !== undefined) result.picture = picture
 
   const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
@@ -90,7 +96,7 @@ export const importMetadataCommandFromEnterprise = (
 
   if (fullData.СочетаниеКлавиш !== undefined) result.shortcut = fullData.СочетаниеКлавиш
 
-  const toolTip = importI8nTextFromEnterprise(context, fullData.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, fullData.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
@@ -107,9 +113,12 @@ export const importMetadataCommandFromEnterprise = (
 
 export const importMetadataCommandsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCommandsEnterprise | undefined
 ): MetadataCommands | undefined => {
   if (!data) return undefined
 
-  return Object.entries(data).map(([name, value]) => importMetadataCommandFromEnterprise(context, value, name)!)
+  return Object.entries(data).map(
+    ([name, value]) => importMetadataCommandFromEnterprise(context, undefined, value, name)!
+  )
 }

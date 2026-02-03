@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "../elements/baseElement/types"
+import { PropertyRule } from "../elements/calendarField/rules"
 
 export enum WrapInGroupStrategy {
   None,
@@ -18,7 +19,11 @@ export interface IFormatElementResult {
   haveSimpleHorizontalGroup: boolean
 }
 
-export type FormatElementFunction = (context: ConfigurationContext, element: NamedElement) => IFormatElementResult
+export type FormatElementFunction = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: NamedElement
+) => IFormatElementResult
 export type CheckFormatFunction<T = NamedElement> = (element: T) => boolean
 
 export type CheckIsOneLineElementFunction<T = NamedElement> = (element: T) => boolean

@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { Events, EventsXML, EventXML } from "./types"
 
@@ -6,7 +7,11 @@ function toPascalCase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export const exportEventsToXML = (_context: ConfigurationContext, data: Events | undefined): EventsXML | undefined => {
+export const exportEventsToXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: Events | undefined
+): EventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 
   const events: EventXML[] = Object.entries(data)

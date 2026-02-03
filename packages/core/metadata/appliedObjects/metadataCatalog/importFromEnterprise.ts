@@ -11,6 +11,7 @@ import { importMetadataTabularSectionsFromEnterprise } from "~/metadata/commonOb
 import { importPredefinedItemsFromEnterprise } from "~/metadata/commonObjects/predifined/importFromEnterprise"
 import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,6 +19,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataCatalogEnterprise | undefined,
   name: string
 ): MetadataCatalog | undefined => {
@@ -27,47 +29,49 @@ export const importMetadataCatalogFromEnterprise = (
     name,
   }
 
-  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
+  const synonym = importI8nTextFromEnterprise(context, undefined, data.Синоним)
   if (synonym !== undefined) result.synonym = synonym
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
 
-  const hierarchical = importBooleanFromEnterprise(context, data.Иерархический)
+  const hierarchical = importBooleanFromEnterprise(context, undefined, data.Иерархический)
   if (hierarchical !== undefined) result.hierarchical = hierarchical
 
   const hierarchyType = importSystemEnumerationFromYAML<SE.HierarchyType>(
     context,
+    undefined,
     data.ВидИерархии,
     SE.HierarchyTypeFromEnterprise
   )
   if (hierarchyType !== undefined) result.hierarchyType = hierarchyType
 
-  const autonumbering = importBooleanFromEnterprise(context, data.Автонумерация)
+  const autonumbering = importBooleanFromEnterprise(context, undefined, data.Автонумерация)
   if (autonumbering !== undefined) result.autonumbering = autonumbering
 
-  const quickChoice = importBooleanFromEnterprise(context, data.БыстрыйВыбор)
+  const quickChoice = importBooleanFromEnterprise(context, undefined, data.БыстрыйВыбор)
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
-  const basedOn = importMetadataItemLinksFromEnterprise(context, data.ВводитсяНаОсновании)
+  const basedOn = importMetadataItemLinksFromEnterprise(context, undefined, data.ВводитсяНаОсновании)
   if (basedOn !== undefined) result.basedOn = basedOn
 
-  const inputByString = importMetadataFieldsFromEnterprise(context, data.ВводПоСтроке)
+  const inputByString = importMetadataFieldsFromEnterprise(context, undefined, data.ВводПоСтроке)
   if (inputByString !== undefined) result.inputByString = inputByString
 
-  const includeHelpInContents = importBooleanFromEnterprise(context, data.ВключатьСправкуВСодержание)
+  const includeHelpInContents = importBooleanFromEnterprise(context, undefined, data.ВключатьСправкуВСодержание)
   if (includeHelpInContents !== undefined) result.includeHelpInContents = includeHelpInContents
 
-  const owners = importMetadataItemLinksFromEnterprise(context, data.Владельцы)
+  const owners = importMetadataItemLinksFromEnterprise(context, undefined, data.Владельцы)
   if (owners !== undefined) result.owners = owners
 
   const executeAfterWriteDataHistoryVersionProcessing = importBooleanFromEnterprise(
     context,
+    undefined,
     data.ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
   )
   if (executeAfterWriteDataHistoryVersionProcessing !== undefined)
     result.executeAfterWriteDataHistoryVersionProcessing = executeAfterWriteDataHistoryVersionProcessing
 
-  const foldersOnTop = importBooleanFromEnterprise(context, data.ГруппыСверху)
+  const foldersOnTop = importBooleanFromEnterprise(context, undefined, data.ГруппыСверху)
   if (foldersOnTop !== undefined) result.foldersOnTop = foldersOnTop
 
   if (data.ДлинаКода !== undefined) result.codeLength = data.ДлинаКода
@@ -85,11 +89,12 @@ export const importMetadataCatalogFromEnterprise = (
 
   if (data.ДополнительнаяФормаСписка !== undefined) result.auxiliaryListForm = data.ДополнительнаяФормаСписка
 
-  const additionalIndexes = importAdditionalIndexesFromEnterprise(context, data.ДополнительныеИндексы)
+  const additionalIndexes = importAdditionalIndexesFromEnterprise(context, undefined, data.ДополнительныеИндексы)
   if (additionalIndexes !== undefined) result.additionalIndexes = additionalIndexes
 
   const codeAllowedLength = importSystemEnumerationFromYAML<SE.AllowedLength>(
     context,
+    undefined,
     data.ДопустимаяДлинаКода,
     SE.AllowedLengthFromEnterprise
   )
@@ -97,16 +102,18 @@ export const importMetadataCatalogFromEnterprise = (
 
   const subordinationUse = importSystemEnumerationFromYAML<SE.SubordinationUse>(
     context,
+    undefined,
     data.ИспользованиеПодчинения,
     SE.SubordinationUseFromEnterprise
   )
   if (subordinationUse !== undefined) result.subordinationUse = subordinationUse
 
-  const useStandardCommands = importBooleanFromEnterprise(context, data.ИспользоватьСтандартныеКоманды)
+  const useStandardCommands = importBooleanFromEnterprise(context, undefined, data.ИспользоватьСтандартныеКоманды)
   if (useStandardCommands !== undefined) result.useStandardCommands = useStandardCommands
 
   const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
+    undefined,
     data.ИсторияВыбораПриВводе,
     SE.ChoiceHistoryOnInputFromEnterprise
   )
@@ -114,6 +121,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
+    undefined,
     data.ИсторияДанных,
     SE.DataHistoryUseFromEnterprise
   )
@@ -121,11 +129,12 @@ export const importMetadataCatalogFromEnterprise = (
 
   if (data.КоличествоУровней !== undefined) result.levelCount = data.КоличествоУровней
 
-  const checkUnique = importBooleanFromEnterprise(context, data.КонтрольУникальности)
+  const checkUnique = importBooleanFromEnterprise(context, undefined, data.КонтрольУникальности)
   if (checkUnique !== undefined) result.checkUnique = checkUnique
 
-  const predefinedDataUpdate = importSystemEnumerationFromYAML<SE.PredefinedDataUpdate>(
+  const predefinedDataUpdate = importSystemEnumerationFromYAML(
     context,
+    undefined,
     data.ОбновлениеПредопределенныхДанных,
     SE.PredefinedDataUpdateFromEnterprise
   )
@@ -133,12 +142,13 @@ export const importMetadataCatalogFromEnterprise = (
 
   const updateDataHistoryImmediatelyAfterWrite = importBooleanFromEnterprise(
     context,
+    undefined,
     data.ОбновлятьИсториюДанныхСразуПослеЗаписи
   )
   if (updateDataHistoryImmediatelyAfterWrite !== undefined)
     result.updateDataHistoryImmediatelyAfterWrite = updateDataHistoryImmediatelyAfterWrite
 
-  const limitLevelCount = importBooleanFromEnterprise(context, data.ОграничиватьКоличествоУровней)
+  const limitLevelCount = importBooleanFromEnterprise(context, undefined, data.ОграничиватьКоличествоУровней)
   if (limitLevelCount !== undefined) result.limitLevelCount = limitLevelCount
 
   if (data.ОсновнаяФормаГруппы !== undefined) result.defaultFolderForm = data.ОсновнаяФормаГруппы
@@ -154,6 +164,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const defaultPresentation = importSystemEnumerationFromYAML<SE.CatalogMainPresentation>(
     context,
+    undefined,
     data.ОсновноеПредставление,
     SE.CatalogMainPresentationFromEnterprise
   )
@@ -161,6 +172,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
+    undefined,
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
   )
@@ -168,41 +180,48 @@ export const importMetadataCatalogFromEnterprise = (
 
   const fullTextSearchOnInputByString = importSystemEnumerationFromYAML<SE.FullTextSearchOnInputByString>(
     context,
+    undefined,
     data.ПолнотекстовыйПоискПриВводеПоСтроке,
     SE.FullTextSearchOnInputByStringFromEnterprise
   )
   if (fullTextSearchOnInputByString !== undefined) result.fullTextSearchOnInputByString = fullTextSearchOnInputByString
 
-  const dataLockFields = importMetadataFieldsFromEnterprise(context, data.ПоляБлокировкиДанных)
+  const dataLockFields = importMetadataFieldsFromEnterprise(context, undefined, data.ПоляБлокировкиДанных)
   if (dataLockFields !== undefined) result.dataLockFields = dataLockFields
 
-  const explanation = importI8nTextFromEnterprise(context, data.Пояснение)
+  const explanation = importI8nTextFromEnterprise(context, undefined, data.Пояснение)
   if (explanation !== undefined) result.explanation = explanation
 
-  const predefined = importPredefinedItemsFromEnterprise(context, data.Предопределенные)
+  const predefined = importPredefinedItemsFromEnterprise(context, undefined, data.Предопределенные)
   if (predefined !== undefined) result.predefined = predefined
 
-  const objectPresentation = importI8nTextFromEnterprise(context, data.ПредставлениеОбъекта)
+  const objectPresentation = importI8nTextFromEnterprise(context, undefined, data.ПредставлениеОбъекта)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
-  const listPresentation = importI8nTextFromEnterprise(context, data.ПредставлениеСписка)
+  const listPresentation = importI8nTextFromEnterprise(context, undefined, data.ПредставлениеСписка)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
   const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
     context,
+    undefined,
     data.ПринадлежностьОбъекта,
     SE.ObjectBelongingFromEnterprise
   )
   if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const extendedObjectPresentation = importI8nTextFromEnterprise(context, data.РасширенноеПредставлениеОбъекта)
+  const extendedObjectPresentation = importI8nTextFromEnterprise(
+    context,
+    undefined,
+    data.РасширенноеПредставлениеОбъекта
+  )
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
-  const extendedListPresentation = importI8nTextFromEnterprise(context, data.РасширенноеПредставлениеСписка)
+  const extendedListPresentation = importI8nTextFromEnterprise(context, undefined, data.РасширенноеПредставлениеСписка)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
   const choiceDataGetModeOnInputByString = importSystemEnumerationFromYAML<SE.ChoiceDataGetModeOnInputByString>(
     context,
+    undefined,
     data.РежимПолученияДанныхВыбораПриВводеПоСтроке,
     SE.ChoiceDataGetModeOnInputByStringFromEnterprise
   )
@@ -211,6 +230,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const dataLockControlMode = importSystemEnumerationFromYAML<SE.DefaultDataLockControlMode>(
     context,
+    undefined,
     data.РежимУправленияБлокировкойДанных,
     SE.DefaultDataLockControlModeFromEnterprise
   )
@@ -218,6 +238,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const codeSeries = importSystemEnumerationFromYAML<SE.CatalogCodesSeries>(
     context,
+    undefined,
     data.СерииКодов,
     SE.CatalogCodesSeriesFromEnterprise
   )
@@ -225,6 +246,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
+    undefined,
     data.СозданиеПриВводе,
     SE.CreateOnInputFromEnterprise
   )
@@ -232,6 +254,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(
     context,
+    undefined,
     data.СпособВыбора,
     SE.ChoiceModeFromEnterprise
   )
@@ -239,6 +262,7 @@ export const importMetadataCatalogFromEnterprise = (
 
   const searchStringModeOnInputByString = importSystemEnumerationFromYAML<SE.SearchStringModeOnInputByString>(
     context,
+    undefined,
     data.СпособПоискаСтрокиПриВводеПоСтроке,
     SE.SearchStringModeOnInputByStringFromEnterprise
   )
@@ -247,31 +271,37 @@ export const importMetadataCatalogFromEnterprise = (
 
   const editType = importSystemEnumerationFromYAML<SE.EditType>(
     context,
+    undefined,
     data.СпособРедактирования,
     SE.EditTypeFromEnterprise
   )
   if (editType !== undefined) result.editType = editType
 
-  const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(context, data.СтандартныеРеквизиты)
+  const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(
+    context,
+    undefined,
+    data.СтандартныеРеквизиты
+  )
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
   const codeType = importSystemEnumerationFromYAML<SE.CatalogCodeType>(
     context,
+    undefined,
     data.ТипКода,
     SE.CatalogCodeTypeFromEnterprise
   )
   if (codeType !== undefined) result.codeType = codeType
 
-  const characteristics = importCharacteristicsDescriptionsFromEnterprise(context, data.Характеристики)
+  const characteristics = importCharacteristicsDescriptionsFromEnterprise(context, undefined, data.Характеристики)
   if (characteristics !== undefined) result.characteristics = characteristics
 
-  const attributes = importMetadataAttributesFromEnterprise(context, data.Реквизиты)
+  const attributes = importMetadataAttributesFromEnterprise(context, undefined, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  const tabularSections = importMetadataTabularSectionsFromEnterprise(context, data.ТабличныеЧасти)
+  const tabularSections = importMetadataTabularSectionsFromEnterprise(context, undefined, data.ТабличныеЧасти)
   if (tabularSections !== undefined) result.tabularSections = tabularSections
 
-  const commands = importMetadataCommandsFromEnterprise(context, data.Команды)
+  const commands = importMetadataCommandsFromEnterprise(context, undefined, data.Команды)
   if (commands !== undefined) result.commands = commands
 
   const defaults = getDefaults(result, context)

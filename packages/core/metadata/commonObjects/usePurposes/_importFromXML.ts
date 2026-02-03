@@ -5,7 +5,7 @@ import { UsePurposes, UsePurposesXML } from "./types"
 
 export const _importUsePurposesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: UsePurposesXML | undefined
 ): UsePurposes | undefined => {
   if (!xml) return undefined
@@ -18,7 +18,7 @@ export const _importUsePurposesFromXML = (
   const result: UsePurposes = []
 
   for (const value of valueArray) {
-    const metadataValue = _importMetadataValueFromXML(context, _rule, value, "string")
+    const metadataValue = _importMetadataValueFromXML(context, undefined, _rule, value, "string")
     if (metadataValue && metadataValue.type === "string") {
       const stringValue = metadataValue.value as string
       if (stringValue === "PlatformApplication" || stringValue === "MobilePlatformApplication") {

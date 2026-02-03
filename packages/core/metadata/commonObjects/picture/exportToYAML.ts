@@ -7,7 +7,7 @@ import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } 
 
 export function exportPictureToYAML(
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined
 ): PictureEnterprise | undefined {
   if (!picture) return undefined
@@ -15,7 +15,7 @@ export function exportPictureToYAML(
   let ref: PictureEnterprise | undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToYAML(context, picture.ref, SE.PictureLibToEnterprise)
+    const result = exportSystemEnumerationToYAML(context, undefined, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 
@@ -33,14 +33,14 @@ export function exportPictureToYAML(
     const result: PictureEnterpriseExtended = { Ссылка: ref }
 
     if (hasCustomLoadTransparent) {
-      result.ПрозрачныйФон = exportBooleanToYAML(context, _rule, picture.loadTransparent)
+      result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, _rule, picture.loadTransparent)
     }
 
     if (hasTransparentPixel) {
       result.ПрозрачныйПиксель = picture.transparentPixel
       // For pictures with transparent pixel, even if loadTransparent matches default, we need to include it
       if (result.ПрозрачныйФон === undefined) {
-        result.ПрозрачныйФон = exportBooleanToYAML(context, _rule, picture.loadTransparent)
+        result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, _rule, picture.loadTransparent)
       }
     }
 

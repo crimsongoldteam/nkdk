@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullProgressBarField, minimalProgressBarField } from "~/tests/fixtures/forms/progressBarField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importProgressBarFieldFromXML } from "./importFromXML"
 import { ProgressBarFieldXML } from "./types"
 
 describe("importProgressBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importProgressBarFieldFromXML(mockContext, undefined)
+    const result = importProgressBarFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importProgressBarFieldFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ ProgressBarField: ProgressBarFieldXML }>("forms/progressBarField/full.xml")
 
-    const result = importProgressBarFieldFromXML(mockContext, xmlData.ProgressBarField)
+    const result = importProgressBarFieldFromXML(mockContext, mockRule, xmlData.ProgressBarField)
 
     expect(result).toEqual(fullProgressBarField)
   })
@@ -23,7 +23,7 @@ describe("importProgressBarFieldFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ ProgressBarField: ProgressBarFieldXML }>("forms/progressBarField/minimal.xml")
 
-    const result = importProgressBarFieldFromXML(mockContext, xmlData.ProgressBarField)
+    const result = importProgressBarFieldFromXML(mockContext, mockRule, xmlData.ProgressBarField)
 
     expect(result).toEqual(minimalProgressBarField)
   })

@@ -18,6 +18,7 @@ import { getDefaults } from "./defaults"
 
 export const _importStandardAttributeDescriptionsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   rule: PropertyRule,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
@@ -30,7 +31,7 @@ export const _importStandardAttributeDescriptionsFromXML = (
   const result: StandardAttributeDescriptions = []
 
   for (const value of items) {
-    const item = importStandardAttributeDescriptionFromXML(context, rule, value)
+    const item = importStandardAttributeDescriptionFromXML(context, undefined, rule, value)
     if (item) {
       result.push(item)
     }
@@ -43,7 +44,7 @@ export const _importStandardAttributeDescriptionsFromXML = (
 
 const importStandardAttributeDescriptionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: StandardAttributeDescriptionXML
 ): StandardAttributeDescription | undefined => {
   const result: StandardAttributeDescription = {
@@ -54,34 +55,34 @@ const importStandardAttributeDescriptionFromXML = (
 
   if (xml["xr:ChoiceHistoryOnInput"] !== undefined) result.choiceHistoryOnInput = xml["xr:ChoiceHistoryOnInput"]
 
-  const choiceParameterLinks = importChoiceParameterLinksFromXML(context, xml["xr:ChoiceParameterLinks"])
+  const choiceParameterLinks = importChoiceParameterLinksFromXML(context, undefined, xml["xr:ChoiceParameterLinks"])
   if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = importChoiceParametersFromXML(context, xml["xr:ChoiceParameters"])
+  const choiceParameters = importChoiceParametersFromXML(context, undefined, xml["xr:ChoiceParameters"])
   if (choiceParameters) result.choiceParameters = choiceParameters
 
   if (xml["xr:Comment"] !== undefined) result.comment = xml["xr:Comment"]
   if (xml["xr:CreateOnInput"] !== undefined) result.createOnInput = xml["xr:CreateOnInput"]
   if (xml["xr:DataHistory"] !== undefined) result.dataHistory = xml["xr:DataHistory"]
 
-  const editFormat = importI8nTextFromXML(context, xml["xr:EditFormat"])
+  const editFormat = importI8nTextFromXML(context, undefined, xml["xr:EditFormat"])
   if (editFormat) result.editFormat = editFormat
 
-  const extendedEdit = importBooleanFromXML(context, xml["xr:ExtendedEdit"])
+  const extendedEdit = importBooleanFromXML(context, undefined, xml["xr:ExtendedEdit"])
   if (extendedEdit) result.extendedEdit = extendedEdit
 
   if (xml["xr:FillChecking"] !== undefined) result.fillChecking = xml["xr:FillChecking"]
   if (xml["xr:FillFromFillingValue"] !== undefined) result.fillFromFillingValue = xml["xr:FillFromFillingValue"]
 
-  const fillValue = importMetadataValueFromXML(context, xml["xr:FillValue"])
+  const fillValue = importMetadataValueFromXML(context, undefined, xml["xr:FillValue"])
   if (fillValue) result.fillValue = fillValue
 
-  const format = importI8nTextFromXML(context, xml["xr:Format"])
+  const format = importI8nTextFromXML(context, undefined, xml["xr:Format"])
   if (format) result.format = format
 
   if (xml["xr:FullTextSearch"] !== undefined) result.fullTextSearch = xml["xr:FullTextSearch"]
 
-  const linkByType = importTypeLinkFromXML(context, xml["xr:LinkByType"])
+  const linkByType = importTypeLinkFromXML(context, undefined, xml["xr:LinkByType"])
   if (linkByType) result.linkByType = linkByType
 
   if (xml["xr:MarkNegatives"] !== undefined) result.markNegatives = xml["xr:MarkNegatives"]
@@ -89,21 +90,21 @@ const importStandardAttributeDescriptionFromXML = (
   if (xml["xr:MaxValue"] !== undefined) result.maxValue = xml["xr:MaxValue"]
   if (xml["xr:MinValue"] !== undefined) result.minValue = xml["xr:MinValue"]
 
-  const multiLine = importBooleanFromXML(context, xml["xr:MultiLine"])
+  const multiLine = importBooleanFromXML(context, undefined, xml["xr:MultiLine"])
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const passwordMode = importBooleanFromXML(context, xml["xr:PasswordMode"])
+  const passwordMode = importBooleanFromXML(context, undefined, xml["xr:PasswordMode"])
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
   if (xml["xr:QuickChoice"] !== undefined) result.quickChoice = xml["xr:QuickChoice"]
 
-  const synonym = importI8nTextFromXML(context, xml["xr:Synonym"])
+  const synonym = importI8nTextFromXML(context, undefined, xml["xr:Synonym"])
   if (synonym !== undefined) result.synonym = synonym
 
-  const toolTip = importI8nTextFromXML(context, xml["xr:ToolTip"])
+  const toolTip = importI8nTextFromXML(context, undefined, xml["xr:ToolTip"])
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const type = importTypeDescriptionFromXML(context, xml["xr:Type"])
+  const type = importTypeDescriptionFromXML(context, undefined, xml["xr:Type"])
   if (type) result.type = type
 
   if (xml["xr:TypeReductionMode"] !== undefined) result.typeReductionMode = xml["xr:TypeReductionMode"]

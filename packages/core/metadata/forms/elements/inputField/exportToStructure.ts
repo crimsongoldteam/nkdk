@@ -12,6 +12,7 @@ const COLON = t.Colon.LABEL as string
 
 export const exportInputFieldToStructure = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: InputField
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined

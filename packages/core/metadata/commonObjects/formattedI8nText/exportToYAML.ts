@@ -6,14 +6,14 @@ import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
 export const exportFormattedI8nTextToYAML = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   title: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey
 ): { [K in Key | FormattedKey]?: FormattedI8nTextEnterprise } => {
   if (!title) return {}
 
-  const exported = exportI8nTextToYAML(context, _rule, title)
+  const exported = exportI8nTextToYAML(context, undefined, _rule, title)
   if (exported === undefined) return {}
 
   if (title.formatted) {
@@ -29,15 +29,15 @@ export const exportFormattedI8nTextToYAML = <Key extends string, FormattedKey ex
 
 export const exportFormattedI8nTextDefaultToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   title: FormattedI8nText | undefined
 ): FormattedI8nTextEnterprise | undefined => {
-  return exportI8nTextDefaultToYAML(context, _rule, title)
+  return exportI8nTextDefaultToYAML(context, undefined, _rule, title)
 }
 
 export const exportFormattedI8nTextOtherToYAML = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   text: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey
@@ -50,5 +50,5 @@ export const exportFormattedI8nTextOtherToYAML = <Key extends string, FormattedK
 
   const filtrdText: FormattedI8nText = { formatted: text.formatted, items: filtredItems }
 
-  return exportFormattedI8nTextToYAML(context, _rule, filtrdText, key, formattedKey)
+  return exportFormattedI8nTextToYAML(context, undefined, _rule, filtrdText, key, formattedKey)
 }

@@ -1,9 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { isEmptyI8nText } from "./helper"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
@@ -12,11 +14,12 @@ export const exportI8nTextToXMLWithDefaultLanguage = (
     return undefined
   }
 
-  return exportI8nTextToXML(context, data)
+  return exportI8nTextToXML(context, undefined, data)
 }
 
 export const exportI8nTextToXML = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined

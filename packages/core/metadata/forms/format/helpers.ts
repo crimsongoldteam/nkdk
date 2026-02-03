@@ -9,6 +9,7 @@ export const formatElementName = (element: { name: string }) => {
 
 export const formatDefaultLanguageText = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   text: I8nText | undefined
 ): string | undefined => {
   if (!text) return undefined
@@ -19,6 +20,7 @@ export const formatDefaultLanguageText = (
 
 export const formatElementTitleAndName = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   element: { title?: I8nText; name: string },
   alwaysShowTitle: boolean = false
 ) => {

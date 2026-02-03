@@ -4,7 +4,7 @@ import { UsePurposes, UsePurposesEnterprise } from "./types"
 
 export const importUsePurposesFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   data: UsePurposesEnterprise | undefined
 ): UsePurposes | undefined => {
   if (!data) return undefined

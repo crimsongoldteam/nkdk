@@ -6,7 +6,11 @@ import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemE
 import { exportChildItemsToStructure } from "../../../collections/childItems/exportToStructure"
 import { UsualGroup } from "../types"
 
-export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
+export const formatVerticalGroup = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -34,7 +38,7 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
   return result
 }
 
-const getHeader = (context: ConfigurationContext, element: UsualGroup): string => {
+const getHeader = (context: ConfigurationContext, _rule: PropertyRule | undefined, element: UsualGroup): string => {
   // const excludeProperties = ["Заголовок", "Поведение", "Группировка"]
 
   const levelDisplay = getLevelDisplay(element)

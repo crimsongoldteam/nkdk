@@ -1,10 +1,10 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined
@@ -21,7 +21,7 @@ export const exportI8nTextToYAML = (
 
 export const exportI8nTextDefaultToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   title: I8nText | undefined
 ): string | undefined => {
   if (!title) return undefined
@@ -33,7 +33,7 @@ export const exportI8nTextDefaultToYAML = (
 
 export const exportI8nTextOtherToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  rule: PropertyRule | undefined,
   text: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!text) return undefined
@@ -42,5 +42,5 @@ export const exportI8nTextOtherToYAML = (
 
   const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
 
-  return exportI8nTextToYAML(context, _rule, { items: filtredItems })
+  return exportI8nTextToYAML(context, rule, { items: filtredItems })
 }

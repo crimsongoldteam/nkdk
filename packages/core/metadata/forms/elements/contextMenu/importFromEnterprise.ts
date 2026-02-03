@@ -4,9 +4,11 @@ import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/co
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 
 export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: T
 ): ContextMenu | undefined {
   if (data === undefined) return undefined
@@ -22,10 +24,10 @@ export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise 
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
+  const autofill = importBooleanFromEnterprise(context, undefined, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
-  result.childItems = importChildItemsTypedFromEnterprise(context, data.ПодчиненныеЭлементы)
+  result.childItems = importChildItemsTypedFromEnterprise(context, undefined, data.ПодчиненныеЭлементы)
 
   return result
 }

@@ -2,7 +2,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { isOneLineElement } from "../../format/isOneLineElementCheckFactory"
 import { UsualGroup } from "./types"
 
-export const isOneLineGroup = (_context: ConfigurationContext, element: UsualGroup): boolean => {
+export const isOneLineGroup = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): boolean => {
   if (!isHorizontalGroup(element)) return false
 
   const childItems = element.childItems ?? []

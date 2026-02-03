@@ -13,9 +13,11 @@ import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpe
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataTabularSectionFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSectionEnterprise | undefined,
   name: string
 ): MetadataTabularSection | undefined => {
@@ -23,7 +25,11 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   const result: MetadataTabularSection = {
     name,
-    synonym: addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, data.Синоним), name),
+    synonym: addDefaultLanguageNameToSynonym(
+      context,
+      importI8nTextFromEnterprise(context, undefined, data.Синоним),
+      name
+    ),
   }
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
@@ -51,13 +57,17 @@ export const importMetadataTabularSectionFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(context, data.СтандартныеРеквизиты)
+  const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(
+    context,
+    undefined,
+    data.СтандартныеРеквизиты
+  )
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
-  const attributes = importMetadataAttributesFromEnterprise(context, data.Реквизиты)
+  const attributes = importMetadataAttributesFromEnterprise(context, undefined, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
   const defaults = getDefaults(context, result)
@@ -66,11 +76,12 @@ export const importMetadataTabularSectionFromEnterprise = (
 
 export const importMetadataTabularSectionsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsEnterprise | undefined
 ): MetadataTabularSections | undefined => {
   if (!data) return undefined
 
   return Object.entries(data)
-    .map(([name, value]) => importMetadataTabularSectionFromEnterprise(context, value, name))
+    .map(([name, value]) => importMetadataTabularSectionFromEnterprise(context, undefined, value, name))
     .filter((item): item is MetadataTabularSection => item !== undefined)
 }

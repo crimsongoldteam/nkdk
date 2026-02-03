@@ -23,59 +23,59 @@ import {
   withFunctionalOptionsFormAttribute,
   withFunctionalOptionsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importFormAttributesFromEnterprise } from "./importFromEnterprise"
 
 describe("importFormAttributesFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, undefined)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, fullFormAttributesEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, fullFormAttributesEnterprise)
 
     expect(result).toEqual(fullFormAttributes)
   })
 
   it("should import minimal", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, minimalFormAttributesEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, minimalFormAttributesEnterprise)
 
     expect(result).toEqual(minimalFormAttributes)
   })
 
   it("should import with short format", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, shortFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, shortFormAttributeEnterprise)
 
     expect(result).toEqual(shortFormAttribute)
   })
 
   it("should import title when mainAttribute=true and title equals name", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mainAttributeTitleEqualsNameEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, mainAttributeTitleEqualsNameEnterprise)
 
     expect(result).toEqual(mainAttributeTitleEqualsName)
   })
 
   it("should import choice list", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, choiceListFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, choiceListFormAttributeEnterprise)
 
     expect(result).toEqual(choiceListFormAttribute)
   })
 
   it("should import with empty settings", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, withEmptySettingsFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, withEmptySettingsFormAttributeEnterprise)
 
     expect(result).toEqual(withEmptySettingsFormAttribute)
   })
 
   it("should import with dynamic list", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, withDynamicListFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, withDynamicListFormAttributeEnterprise)
 
     expect(result).toEqual(withDynamicListFormAttribute)
   })
 
   it("should import table with columns", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, tableWithColumnsFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, tableWithColumnsFormAttributeEnterprise)
 
     // Reset IDs for comparison since Enterprise doesn't provide them
     const expected = tableWithColumnsFormAttribute.map((attr) => ({
@@ -87,7 +87,7 @@ describe("importFormAttributesFromEnterprise", () => {
   })
 
   it("should import tree with column", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, treeWithColumnFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(mockContext, mockRule, treeWithColumnFormAttributeEnterprise)
 
     // Reset IDs recursively for comparison
     const resetIds = (columns?: any[]): any[] | undefined =>
@@ -106,13 +106,21 @@ describe("importFormAttributesFromEnterprise", () => {
   })
 
   it("should import with functional options", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, withFunctionalOptionsFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(
+      mockContext,
+      mockRule,
+      withFunctionalOptionsFormAttributeEnterprise
+    )
 
     expect(result).toEqual(withFunctionalOptionsFormAttribute)
   })
 
   it("should import with additional column", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, withAdditionalColumnFormAttributeEnterprise)
+    const result = importFormAttributesFromEnterprise(
+      mockContext,
+      mockRule,
+      withAdditionalColumnFormAttributeEnterprise
+    )
 
     // Reset IDs for comparison since Enterprise doesn't provide them
     const expected = withAdditionalColumnFormAttribute.map((attr) => ({

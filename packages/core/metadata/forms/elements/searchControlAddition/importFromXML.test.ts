@@ -5,7 +5,7 @@ import {
   fullSingleSearchControlAddition,
   minimalSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importSearchControlAdditionFromXML, importSingleSearchControlAdditionFromXML } from "./importFromXML"
 import { SearchControlAdditionXML } from "./types"
@@ -17,7 +17,7 @@ describe("importSearchControlAdditionFromXML", () => {
         "forms/searchControlAddition/fullSingle.xml"
       )
 
-      const result = importSingleSearchControlAdditionFromXML(mockContext, xmlData.SearchControlAddition)
+      const result = importSingleSearchControlAdditionFromXML(mockContext, mockRule, xmlData.SearchControlAddition)
 
       expect(result).toEqual(fullSingleSearchControlAddition)
     })
@@ -27,7 +27,7 @@ describe("importSearchControlAdditionFromXML", () => {
         "forms/searchControlAddition/minimalSingle.xml"
       )
 
-      const result = importSingleSearchControlAdditionFromXML(mockContext, xmlData.SearchControlAddition)
+      const result = importSingleSearchControlAdditionFromXML(mockContext, mockRule, xmlData.SearchControlAddition)
 
       expect(result).toBeUndefined()
     })
@@ -38,7 +38,7 @@ describe("importSearchControlAdditionFromXML", () => {
         "forms/searchControlAddition/full.xml"
       )
 
-      const result = importSearchControlAdditionFromXML(mockContext, xmlData.SearchControlAddition)
+      const result = importSearchControlAdditionFromXML(mockContext, mockRule, xmlData.SearchControlAddition)
 
       expect(result).toEqual(fullSearchControlAddition)
     })
@@ -48,7 +48,7 @@ describe("importSearchControlAdditionFromXML", () => {
         "forms/searchControlAddition/minimal.xml"
       )
 
-      const result = importSearchControlAdditionFromXML(mockContext, xmlData.SearchControlAddition)
+      const result = importSearchControlAdditionFromXML(mockContext, mockRule, xmlData.SearchControlAddition)
 
       expect(result).toEqual(minimalSearchControlAddition)
     })

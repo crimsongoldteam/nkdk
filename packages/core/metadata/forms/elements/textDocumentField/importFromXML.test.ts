@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { fullTextDocumentField, minimalTextDocumentField } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importTextDocumentFieldFromXML } from "./importFromXML"
 import { TextDocumentFieldXML } from "./types"
 
 describe("importTextDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importTextDocumentFieldFromXML(mockContext, undefined)
+    const result = importTextDocumentFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importTextDocumentFieldFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ TextDocumentField: TextDocumentFieldXML }>("forms/textDocumentField/full.xml")
 
-    const result = importTextDocumentFieldFromXML(mockContext, xmlData.TextDocumentField)
+    const result = importTextDocumentFieldFromXML(mockContext, mockRule, xmlData.TextDocumentField)
 
     expect(result).toEqual(fullTextDocumentField)
   })
@@ -25,7 +25,7 @@ describe("importTextDocumentFieldFromXML", () => {
       "forms/textDocumentField/minimal.xml"
     )
 
-    const result = importTextDocumentFieldFromXML(mockContext, xmlData.TextDocumentField)
+    const result = importTextDocumentFieldFromXML(mockContext, mockRule, xmlData.TextDocumentField)
 
     expect(result).toEqual(minimalTextDocumentField)
   })

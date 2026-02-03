@@ -14,6 +14,7 @@ import { getDefaults } from "./defaults"
 
 export const _importMetadataTabularSectionsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   rule: PropertyRule,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
@@ -21,23 +22,25 @@ export const _importMetadataTabularSectionsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, rule, value)!)
+  return items.map(
+    (value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, undefined, rule, value)!
+  )
 }
 
 const importMetadataTabularSectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
   const props = xml.Properties
 
   const result: MetadataTabularSection = {
     name: props.Name!,
-    synonym: importI8nTextFromXML(context, props.Synonym)!,
+    synonym: importI8nTextFromXML(context, undefined, props.Synonym)!,
   }
 
   if (xml.ChildObjects?.Attribute) {
-    result.attributes = importMetadataAttributesFromXML(context, xml.ChildObjects.Attribute)
+    result.attributes = importMetadataAttributesFromXML(context, undefined, xml.ChildObjects.Attribute)
   }
 
   if (props.Comment !== undefined) result.comment = props.Comment
@@ -45,10 +48,10 @@ const importMetadataTabularSectionFromXML = (
   if (props.LineNumberLength !== undefined) result.lineNumberLength = props.LineNumberLength
   // if (props.ObjectBelonging !== undefined) result.objectBelonging = props.ObjectBelonging
 
-  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, props.StandardAttributes)
+  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, props.StandardAttributes)
   if (standardAttributes) result.standardAttributes = standardAttributes
 
-  const toolTip = importI8nTextFromXML(context, props.ToolTip)
+  const toolTip = importI8nTextFromXML(context, undefined, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (props.Use !== undefined) result.use = props.Use

@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromEnterprise } from "../metadataField/importFromEnterprise"
 import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
@@ -6,7 +7,11 @@ import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
  * Парсит строку вида "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
  * в массив ChoiceParameterLinks
  */
-const parseChoiceParameterLinksString = (context: ConfigurationContext, value: string): ChoiceParameterLinks => {
+const parseChoiceParameterLinksString = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  value: string
+): ChoiceParameterLinks => {
   const result: ChoiceParameterLinks = []
   let currentIndex = 0
 
@@ -61,7 +66,7 @@ const parseChoiceParameterLinksString = (context: ConfigurationContext, value: s
     }
 
     // Преобразуем dataPath из Enterprise формата в XML формат
-    const xmlDataPath = importMetadataFieldFromEnterprise(context, dataPath)
+    const xmlDataPath = importMetadataFieldFromEnterprise(context, undefined, dataPath)
     if (!xmlDataPath) {
       throw new Error(`Invalid dataPath: ${dataPath}`)
     }
@@ -80,6 +85,7 @@ const parseChoiceParameterLinksString = (context: ConfigurationContext, value: s
 
 export const importChoiceParameterLinksFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ChoiceParameterLinksEnterprise | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined

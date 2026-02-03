@@ -31,14 +31,16 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 export function importInputFieldTypedFromEnterprise<To extends InputField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
   if (data === undefined) return undefined as To
 
-  const props = importInputFieldPropsFromEnterprise(context, data)
+  const props = importInputFieldPropsFromEnterprise(context, undefined, data)
 
   const result: InputField = {
     ...props,
@@ -46,7 +48,7 @@ export function importInputFieldTypedFromEnterprise<To extends InputField | unde
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, data?.Заголовок)
+  const title = importI8nTextFromEnterprise(context, undefined, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -54,10 +56,11 @@ export function importInputFieldTypedFromEnterprise<To extends InputField | unde
 
 export function importInputFieldPartialFromEnterprise<To extends InputField>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const props = importInputFieldPropsFromEnterprise(context, data)
+  const props = importInputFieldPropsFromEnterprise(context, undefined, data)
   const result: To = {
     ...source,
     ...props,
@@ -65,7 +68,7 @@ export function importInputFieldPartialFromEnterprise<To extends InputField>(
     name: source.name,
   }
 
-  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  const title = importI8nTextCombinedFromEnterprise(context, undefined, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result
@@ -73,16 +76,17 @@ export function importInputFieldPartialFromEnterprise<To extends InputField>(
 
 const importInputFieldPropsFromEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: InputFieldTypedEnterprise | InputFieldPartialEnterprise | undefined
 ): Omit<Partial<InputField>, "elementType" | "name"> => {
   const result: Omit<Partial<InputField>, "elementType" | "name"> = {}
 
   if (data === undefined) return result
 
-  const autoCellHeight = importBooleanFromEnterprise(context, data.АвтоВысотаЯчейки)
+  const autoCellHeight = importBooleanFromEnterprise(context, undefined, data.АвтоВысотаЯчейки)
   if (autoCellHeight !== undefined) result.autoCellHeight = autoCellHeight
 
-  const defaultItem = importBooleanFromEnterprise(context, data.АктивизироватьПоУмолчанию)
+  const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
   const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
@@ -109,12 +113,12 @@ const importInputFieldPropsFromEnterprise = (
   const type = importSystemEnumerationFromYAML<SE.FormFieldType>(context, data.Вид, SE.FormFieldTypeFromEnterprise)
   if (type !== undefined) result.type = type
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
+  const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
   if (data.ВысотаЗаголовка !== undefined) result.titleHeight = data.ВысотаЗаголовка
 
-  const cellHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЯчейки)
+  const cellHyperlink = importBooleanFromEnterprise(context, undefined, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
   const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
@@ -145,25 +149,25 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (headerHorizontalAlign !== undefined) result.headerHorizontalAlign = headerHorizontalAlign
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
+  const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const footerPicture = importPictureFromEnterprise(context, data.КартинкаПодвала)
+  const footerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаПодвала)
   if (footerPicture !== undefined) result.footerPicture = footerPicture
 
-  const headerPicture = importPictureFromEnterprise(context, data.КартинкаШапки)
+  const headerPicture = importPictureFromEnterprise(context, undefined, data.КартинкаШапки)
   if (headerPicture !== undefined) result.headerPicture = headerPicture
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const typeRestriction = importTypeDescriptionFromEnterprise(context, data.ОграничениеТипа)
+  const typeRestriction = importTypeDescriptionFromEnterprise(context, undefined, data.ОграничениеТипа)
   if (typeRestriction !== undefined) result.typeRestriction = typeRestriction
 
-  const showInFooter = importBooleanFromEnterprise(context, data.ОтображатьВПодвале)
+  const showInFooter = importBooleanFromEnterprise(context, undefined, data.ОтображатьВПодвале)
   if (showInFooter !== undefined) result.showInFooter = showInFooter
 
-  const showInHeader = importBooleanFromEnterprise(context, data.ОтображатьВШапке)
+  const showInHeader = importBooleanFromEnterprise(context, undefined, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
   const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
@@ -180,7 +184,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (warningOnEditRepresentation !== undefined) result.warningOnEditRepresentation = warningOnEditRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
@@ -190,22 +194,27 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const userVisible = importUserVisibleFromEnterprise(context, data.РазрешитьИспользование, data.ЗапретитьИспользование)
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    undefined,
+    data.РазрешитьИспользование,
+    data.ЗапретитьИспользование
+  )
   if (userVisible !== undefined) {
     result.userVisible = userVisible
   }
 
-  const warningOnEdit = importI8nTextFromEnterprise(context, data.ПредупреждениеПриРедактировании)
+  const warningOnEdit = importI8nTextFromEnterprise(context, undefined, data.ПредупреждениеПриРедактировании)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
-  const skipOnInput = importBooleanFromEnterprise(context, data.ПропускатьПриВводе)
+  const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
   if (skipOnInput !== undefined) result.skipOnInput = skipOnInput
 
   if (data.ПутьКДанным !== undefined) result.dataPath = data.ПутьКДанным
 
   if (data.ПутьКДаннымПодвала !== undefined) result.footerDataPath = data.ПутьКДаннымПодвала
 
-  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
@@ -219,10 +228,10 @@ const importInputFieldPropsFromEnterprise = (
 
   if (data.Таблица !== undefined) result.table = data.Таблица
 
-  const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
+  const footerText = importI8nTextFromEnterprise(context, undefined, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
 
-  const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
+  const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
   const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
@@ -232,25 +241,25 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (fixingInTable !== undefined) result.fixingInTable = fixingInTable
 
-  const titleTextColor = importColorFromEnterprise(context, data.ЦветТекстаЗаголовка)
+  const titleTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаЗаголовка)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const footerTextColor = importColorFromEnterprise(context, data.ЦветТекстаПодвала)
+  const footerTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаПодвала)
   if (footerTextColor !== undefined) result.footerTextColor = footerTextColor
 
-  const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
+  const titleBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  const footerBackColor = importColorFromEnterprise(context, data.ЦветФонаПодвала)
+  const footerBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаПодвала)
   if (footerBackColor !== undefined) result.footerBackColor = footerBackColor
 
-  const titleFont = importFontFromEnterprise(context, data.ШрифтЗаголовка)
+  const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const footerFont = importFontFromEnterprise(context, data.ШрифтПодвала)
+  const footerFont = importFontFromEnterprise(context, undefined, data.ШрифтПодвала)
   if (footerFont !== undefined) result.footerFont = footerFont
 
-  const autoChoiceIncomplete = importBooleanFromEnterprise(context, data.АвтоВыборНезаполненного)
+  const autoChoiceIncomplete = importBooleanFromEnterprise(context, undefined, data.АвтоВыборНезаполненного)
   if (autoChoiceIncomplete !== undefined) result.autoChoiceIncomplete = autoChoiceIncomplete
 
   const autoCapitalizationOnTextInput = importSystemEnumerationFromYAML<SE.AutoCapitalizationOnTextInput>(
@@ -267,13 +276,13 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (autoCorrectionOnTextInput !== undefined) result.autoCorrectionOnTextInput = autoCorrectionOnTextInput
 
-  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  const autoMaxHeight = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
-  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const autoMarkIncomplete = importBooleanFromEnterprise(context, data.АвтоОтметкаНезаполненного)
+  const autoMarkIncomplete = importBooleanFromEnterprise(context, undefined, data.АвтоОтметкаНезаполненного)
   if (autoMarkIncomplete !== undefined) result.autoMarkIncomplete = autoMarkIncomplete
 
   const autoShowOpenButton = importSystemEnumerationFromYAML<SE.AutoShowOpenButtonMode>(
@@ -290,10 +299,10 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (autoShowClearButton !== undefined) result.autoShowClearButton = autoShowClearButton
 
-  const wrap = importBooleanFromEnterprise(context, data.АвтоПереносСтрок)
+  const wrap = importBooleanFromEnterprise(context, undefined, data.АвтоПереносСтрок)
   if (wrap !== undefined) result.wrap = wrap
 
-  const quickChoice = importBooleanFromEnterprise(context, data.БыстрыйВыбор)
+  const quickChoice = importBooleanFromEnterprise(context, undefined, data.БыстрыйВыбор)
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
   const heightControlVariant = importSystemEnumerationFromYAML<SE.ItemHeightControlVariant>(
@@ -303,7 +312,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (heightControlVariant !== undefined) result.heightControlVariant = heightControlVariant
 
-  const chooseType = importBooleanFromEnterprise(context, data.ВыбиратьТип)
+  const chooseType = importBooleanFromEnterprise(context, undefined, data.ВыбиратьТип)
   if (chooseType !== undefined) result.chooseType = chooseType
 
   const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItems>(
@@ -315,17 +324,17 @@ const importInputFieldPropsFromEnterprise = (
 
   // if (data.ВыделенныйТекст !== undefined) result.selectedText = data.ВыделенныйТекст
 
-  const markNegatives = importBooleanFromEnterprise(context, data.ВыделятьОтрицательные)
+  const markNegatives = importBooleanFromEnterprise(context, undefined, data.ВыделятьОтрицательные)
   if (markNegatives !== undefined) result.markNegatives = markNegatives
 
   if (data.Высота !== undefined) result.height = data.Высота
 
   if (data.ВысотаСпискаВыбора !== undefined) result.choiceListHeight = data.ВысотаСпискаВыбора
 
-  const multipleValuesHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаМножественныхЗначений)
+  const multipleValuesHyperlink = importBooleanFromEnterprise(context, undefined, data.ГиперссылкаМножественныхЗначений)
   if (multipleValuesHyperlink !== undefined) result.multipleValuesHyperlink = multipleValuesHyperlink
 
-  const availableTypes = importTypeDescriptionFromEnterprise(context, data.ДоступныеТипы)
+  const availableTypes = importTypeDescriptionFromEnterprise(context, undefined, data.ДоступныеТипы)
   if (availableTypes !== undefined) result.availableTypes = availableTypes
 
   const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
@@ -335,31 +344,31 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const choiceButtonPicture = importPictureFromEnterprise(context, data.КартинкаКнопкиВыбора)
+  const choiceButtonPicture = importPictureFromEnterprise(context, undefined, data.КартинкаКнопкиВыбора)
   if (choiceButtonPicture !== undefined) result.choiceButtonPicture = choiceButtonPicture
 
-  const multipleValuesPicture = importPictureFromEnterprise(context, data.КартинкаМножественныхЗначений)
+  const multipleValuesPicture = importPictureFromEnterprise(context, undefined, data.КартинкаМножественныхЗначений)
   if (multipleValuesPicture !== undefined) result.multipleValuesPicture = multipleValuesPicture
 
-  const choiceButton = importBooleanFromEnterprise(context, data.КнопкаВыбора)
+  const choiceButton = importBooleanFromEnterprise(context, undefined, data.КнопкаВыбора)
   if (choiceButton !== undefined) result.choiceButton = choiceButton
 
-  const dropListButton = importBooleanFromEnterprise(context, data.КнопкаВыпадающегоСписка)
+  const dropListButton = importBooleanFromEnterprise(context, undefined, data.КнопкаВыпадающегоСписка)
   if (dropListButton !== undefined) result.dropListButton = dropListButton
 
-  const openButton = importBooleanFromEnterprise(context, data.КнопкаОткрытия)
+  const openButton = importBooleanFromEnterprise(context, undefined, data.КнопкаОткрытия)
   if (openButton !== undefined) result.openButton = openButton
 
-  const clearButton = importBooleanFromEnterprise(context, data.КнопкаОчистки)
+  const clearButton = importBooleanFromEnterprise(context, undefined, data.КнопкаОчистки)
   if (clearButton !== undefined) result.clearButton = clearButton
 
-  const spinButton = importBooleanFromEnterprise(context, data.КнопкаРегулирования)
+  const spinButton = importBooleanFromEnterprise(context, undefined, data.КнопкаРегулирования)
   if (spinButton !== undefined) result.spinButton = spinButton
 
-  const createButton = importBooleanFromEnterprise(context, data.КнопкаСоздания)
+  const createButton = importBooleanFromEnterprise(context, undefined, data.КнопкаСоздания)
   if (createButton !== undefined) result.createButton = createButton
 
-  const choiceListButton = importBooleanFromEnterprise(context, data.КнопкаСпискаВыбора)
+  const choiceListButton = importBooleanFromEnterprise(context, undefined, data.КнопкаСпискаВыбора)
   if (choiceListButton !== undefined) result.choiceListButton = choiceListButton
 
   if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
@@ -372,7 +381,7 @@ const importInputFieldPropsFromEnterprise = (
 
   if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
 
-  const multiLine = importBooleanFromEnterprise(context, data.МногострочныйРежим)
+  const multiLine = importBooleanFromEnterprise(context, undefined, data.МногострочныйРежим)
   if (multiLine !== undefined) result.multiLine = multiLine
 
   const editTextUpdate = importSystemEnumerationFromYAML<SE.EditTextUpdate>(
@@ -382,7 +391,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (editTextUpdate !== undefined) result.editTextUpdate = editTextUpdate
 
-  const markIncomplete = importBooleanFromEnterprise(context, data.ОтметкаНезаполненного)
+  const markIncomplete = importBooleanFromEnterprise(context, undefined, data.ОтметкаНезаполненного)
   if (markIncomplete !== undefined) result.markIncomplete = markIncomplete
 
   const showCheckBoxesInDropListWhenInputMultipleValues = importBooleanFromEnterprise(
@@ -399,7 +408,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (choiceButtonRepresentation !== undefined) result.choiceButtonRepresentation = choiceButtonRepresentation
 
-  const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
+  const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
   const autoFillHint = importSystemEnumerationFromYAML<SE.InputFieldAutofillHint>(
@@ -409,7 +418,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (autoFillHint !== undefined) result.autoFillHint = autoFillHint
 
-  const inputHint = importI8nTextFromEnterprise(context, data.ПодсказкаВвода)
+  const inputHint = importI8nTextFromEnterprise(context, undefined, data.ПодсказкаВвода)
   if (inputHint !== undefined) result.inputHint = inputHint
 
   const spellCheckingOnTextInput = importSystemEnumerationFromYAML<SE.SpellCheckingOnTextInput>(
@@ -447,16 +456,16 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (allowMultipleValuesDuplicates !== undefined) result.allowMultipleValuesDuplicates = allowMultipleValuesDuplicates
 
-  const typeDomainEnabled = importBooleanFromEnterprise(context, data.РазрешитьСоставнойТип)
+  const typeDomainEnabled = importBooleanFromEnterprise(context, undefined, data.РазрешитьСоставнойТип)
   if (typeDomainEnabled !== undefined) result.typeDomainEnabled = typeDomainEnabled
 
-  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  const verticalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
-  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  const horizontalStretch = importBooleanFromEnterprise(context, undefined, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedEdit = importBooleanFromEnterprise(context, data.РасширенноеРедактирование)
+  const extendedEdit = importBooleanFromEnterprise(context, undefined, data.РасширенноеРедактирование)
   if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
 
   const multipleValuesExtendedEdit = importBooleanFromEnterprise(
@@ -465,10 +474,10 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (multipleValuesExtendedEdit !== undefined) result.multipleValuesExtendedEdit = multipleValuesExtendedEdit
 
-  const textEdit = importBooleanFromEnterprise(context, data.РедактированиеТекста)
+  const textEdit = importBooleanFromEnterprise(context, undefined, data.РедактированиеТекста)
   if (textEdit !== undefined) result.textEdit = textEdit
 
-  const listChoiceMode = importBooleanFromEnterprise(context, data.РежимВыбораИзСписка)
+  const listChoiceMode = importBooleanFromEnterprise(context, undefined, data.РежимВыбораИзСписка)
   if (listChoiceMode !== undefined) result.listChoiceMode = listChoiceMode
 
   const incompleteChoiceMode = importSystemEnumerationFromYAML<SE.IncompleteChoiceMode>(
@@ -478,13 +487,13 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (incompleteChoiceMode !== undefined) result.incompleteChoiceMode = incompleteChoiceMode
 
-  const passwordMode = importBooleanFromEnterprise(context, data.РежимПароля)
+  const passwordMode = importBooleanFromEnterprise(context, undefined, data.РежимПароля)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
-  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора)
+  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, undefined, data.СвязиПараметровВыбора)
   if (choiceParameterLinks !== undefined) result.choiceParameterLinks = choiceParameterLinks
 
-  const typeLink = importTypeLinkFromEnterprise(context, data.СвязьПоТипу)
+  const typeLink = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
   if (typeLink !== undefined) result.typeLink = typeLink
 
   const specialTextInputMode = importSystemEnumerationFromYAML<SE.SpecialTextInputMode>(
@@ -494,7 +503,7 @@ const importInputFieldPropsFromEnterprise = (
   )
   if (specialTextInputMode !== undefined) result.specialTextInputMode = specialTextInputMode
 
-  const choiceList = importChoiceListFromEnterprise(context, data.СписокВыбора)
+  const choiceList = importChoiceListFromEnterprise(context, undefined, data.СписокВыбора)
   if (choiceList !== undefined) result.choiceList = choiceList
 
   const onScreenKeyboardReturnKeyText = importSystemEnumerationFromYAML<SE.OnScreenKeyboardReturnKeyText>(
@@ -515,38 +524,38 @@ const importInputFieldPropsFromEnterprise = (
 
   if (data.ФормаВыбора !== undefined) result.choiceForm = data.ФормаВыбора
 
-  const format = importI8nTextFromEnterprise(context, data.Формат)
+  const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
   if (format !== undefined) result.format = format
 
-  const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromEnterprise(context, undefined, data.ФорматРедактирования)
   if (editFormat !== undefined) result.editFormat = editFormat
 
-  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  const borderColor = importColorFromEnterprise(context, undefined, data.ЦветРамки)
   if (borderColor !== undefined) result.borderColor = borderColor
 
-  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  const textColor = importColorFromEnterprise(context, undefined, data.ЦветТекста)
   if (textColor !== undefined) result.textColor = textColor
 
-  const multipleValuesTextColor = importColorFromEnterprise(context, data.ЦветТекстаМножественныхЗначений)
+  const multipleValuesTextColor = importColorFromEnterprise(context, undefined, data.ЦветТекстаМножественныхЗначений)
   if (multipleValuesTextColor !== undefined) result.multipleValuesTextColor = multipleValuesTextColor
 
-  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  const multipleValuesBackColor = importColorFromEnterprise(context, data.ЦветФонаМножественныхЗначений)
+  const multipleValuesBackColor = importColorFromEnterprise(context, undefined, data.ЦветФонаМножественныхЗначений)
   if (multipleValuesBackColor !== undefined) result.multipleValuesBackColor = multipleValuesBackColor
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
   if (data.ШиринаВыпадающегоСписка !== undefined) result.dropListWidth = data.ШиринаВыпадающегоСписка
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
+  const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const multipleValuesFont = importFontFromEnterprise(context, data.ШрифтМножественныхЗначений)
+  const multipleValuesFont = importFontFromEnterprise(context, undefined, data.ШрифтМножественныхЗначений)
   if (multipleValuesFont !== undefined) result.multipleValuesFont = multipleValuesFont
 
-  const events = importEventsFromEnterprise(context, data.События)
+  const events = importEventsFromEnterprise(context, undefined, data.События)
   if (events !== undefined) result.events = events
 
   return result

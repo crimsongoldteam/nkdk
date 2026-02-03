@@ -10,16 +10,18 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportButtonToXML<From extends Button | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
 
   const result: ButtonXML = {
     ...baseFields,
@@ -30,10 +32,10 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
 
-  const backColor = exportColorToXML(context, data.backColor)
+  const backColor = exportColorToXML(context, undefined, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.commandName !== undefined) result.CommandName = data.commandName
@@ -50,7 +52,7 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
   if (font !== undefined) result.Font = font
 
   if (data.height !== undefined) result.Height = data.height
@@ -67,7 +69,7 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   if (data.onlyInAllActions !== undefined) result.OnlyInAllActions = data.onlyInAllActions
 
-  const picture = exportPictureToXML(context, data.picture)
+  const picture = exportPictureToXML(context, undefined, data.picture)
   if (picture !== undefined) result.Picture = picture
 
   if (data.pictureLocation !== undefined) result.PictureLocation = data.pictureLocation
@@ -82,7 +84,7 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, undefined, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
@@ -94,7 +96,7 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   if (data.type !== undefined) result.Type = data.type
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup

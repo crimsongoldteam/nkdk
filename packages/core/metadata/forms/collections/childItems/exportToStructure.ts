@@ -6,6 +6,7 @@ import { AllChildItem } from "./types"
 
 export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   items: From[]
 ): IFormatElementResult => {
   let result: IFormatElementResult = {

@@ -7,25 +7,25 @@ import {
   minimalPagePartialEnterprise,
   minimalPageTypedEnterprise,
 } from "~/tests/fixtures/forms/page/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { importPagePartialFromEnterprise, importPageTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importPageFromEnterprise", () => {
   describe("importPageTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPageTypedFromEnterprise(mockContext, undefined, "Страница")
+      const result = importPageTypedFromEnterprise(mockContext, mockRule, undefined, "Страница")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPageTypedFromEnterprise(mockContext, fullPageTypedEnterprise, "Страница")
+      const result = importPageTypedFromEnterprise(mockContext, mockRule, fullPageTypedEnterprise, "Страница")
 
       expect(result).toEqual(fullPage)
     })
 
     it("should import minimal", () => {
-      const result = importPageTypedFromEnterprise(mockContext, minimalPageTypedEnterprise, "Страница")
+      const result = importPageTypedFromEnterprise(mockContext, mockRule, minimalPageTypedEnterprise, "Страница")
 
       expect(result).toEqual(minimalPage)
     })
@@ -33,13 +33,13 @@ describe("importPageFromEnterprise", () => {
 
   describe("importPagePartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importPagePartialFromEnterprise(mockContext, fullPage, fullPagePartialEnterprise)
+      const result = importPagePartialFromEnterprise(mockContext, mockRule, fullPage, fullPagePartialEnterprise)
 
       expect(result).toEqual(fullPage)
     })
 
     it("should import minimal", () => {
-      const result = importPagePartialFromEnterprise(mockContext, minimalPage, minimalPagePartialEnterprise)
+      const result = importPagePartialFromEnterprise(mockContext, mockRule, minimalPage, minimalPagePartialEnterprise)
 
       expect(result).toEqual(minimalPage)
     })

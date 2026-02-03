@@ -8,18 +8,20 @@ import {
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSection | undefined
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
+  const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
 
   const result: MetadataTabularSectionEnterprise = {}
 
@@ -27,24 +29,34 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.lineNumberLength !== undefined) result.ДлинаНомераСтроки = data.lineNumberLength
 
-  const use = exportSystemEnumerationToYAML(context, data.use, SE.AttributeUseToEnterprise)
+  const use = exportSystemEnumerationToYAML(context, undefined, data.use, SE.AttributeUseToEnterprise)
   if (use !== undefined) result.Использование = use
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToYAML(context, data.objectBelonging, SE.ObjectBelongingToEnterprise)
+  const objectBelonging = exportSystemEnumerationToYAML(
+    context,
+    undefined,
+    undefined,
+    data.objectBelonging,
+    SE.ObjectBelongingToEnterprise
+  )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const fillChecking = exportSystemEnumerationToYAML(context, data.fillChecking, SE.FillCheckingToEnterprise)
+  const fillChecking = exportSystemEnumerationToYAML(context, undefined, data.fillChecking, SE.FillCheckingToEnterprise)
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
-  const standardAttributes = exportStandardAttributeDescriptionsToEnterprise(context, data.standardAttributes)
+  const standardAttributes = exportStandardAttributeDescriptionsToEnterprise(
+    context,
+    undefined,
+    data.standardAttributes
+  )
   if (standardAttributes !== undefined) result.СтандартныеРеквизиты = standardAttributes
 
-  const attributes = exportMetadataAttributesToEnterprise(context, data.attributes)
+  const attributes = exportMetadataAttributesToEnterprise(context, undefined, data.attributes)
   if (attributes !== undefined) result.Реквизиты = attributes
 
   return result
@@ -52,11 +64,15 @@ export const exportMetadataTabularSectionToEnterprise = (
 
 export const exportMetadataTabularSectionsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((value: MetadataTabularSection) => [value.name, exportMetadataTabularSectionToEnterprise(context, value)!])
+    data.map((value: MetadataTabularSection) => [
+      value.name,
+      exportMetadataTabularSectionToEnterprise(context, undefined, value)!,
+    ])
   )
 }

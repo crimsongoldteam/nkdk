@@ -20,7 +20,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockContext, use, {
+    const result = exportUserVisibleToEnterprise(mockContext, mockRule, use, {
       allow: UserVisibleKeysEnterprise.Allow,
       deny: UserVisibleKeysEnterprise.Deny,
     })
@@ -44,7 +44,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockContext, use, {
+    const result = exportUserVisibleToEnterprise(mockContext, mockRule, use, {
       allow: UserVisibleKeysEnterprise.Allow,
       deny: UserVisibleKeysEnterprise.Deny,
     })

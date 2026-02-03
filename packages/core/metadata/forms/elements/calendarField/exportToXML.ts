@@ -12,18 +12,20 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { PropertyRule } from "./rules"
 export function exportCalendarFieldToXML<From extends CalendarField | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>
 
-  const baseFields = exportElementPropsToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const result: CalendarFieldXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
+    ContextMenu: exportContextMenuToXML(context, undefined, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data),
   }
 
   if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight
@@ -49,29 +51,29 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
   const title = exportI8nTextToXMLWithDefaultLanguage(context, data.title)
   if (title !== undefined) result.Title = title
 
-  const titleFont = exportFontToXML(context, data.titleFont)
+  const titleFont = exportFontToXML(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.TitleFont = titleFont
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
 
   if (data.titleLocation !== undefined) result.TitleLocation = data.titleLocation
 
-  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, undefined, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
   if (data.verticalAlignInGroup !== undefined) result.GroupVerticalAlign = data.verticalAlignInGroup
 
   if (data.visible !== undefined) result.Visible = data.visible
 
-  const warningOnEdit = exportI8nTextToXML(context, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToXML(context, undefined, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
   if (data.warningOnEditRepresentation !== undefined)
@@ -84,10 +86,10 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
   if (data.beginOfRepresentationPeriod !== undefined)
     result.BeginOfRepresentationPeriod = data.beginOfRepresentationPeriod
 
-  const border = exportBorderToXML(context, data.border)
+  const border = exportBorderToXML(context, undefined, data.border)
   if (border !== undefined) result.Border = border
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
   if (data.calendarNavigation !== undefined) result.CalendarNavigation = data.calendarNavigation
@@ -98,7 +100,7 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   if (data.endOfRepresentationPeriod !== undefined) result.EndOfRepresentationPeriod = data.endOfRepresentationPeriod
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, undefined, data.font)
   if (font !== undefined) result.Font = font
 
   if (data.height !== undefined) result.Height = data.height
@@ -126,7 +128,7 @@ export function exportCalendarFieldToXML<From extends CalendarField | undefined>
 
   if (data.widthInMonths !== undefined) result.WidthInMonths = data.widthInMonths
 
-  const events = exportEventsToXML(context, data.events)
+  const events = exportEventsToXML(context, undefined, data.events)
   if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>

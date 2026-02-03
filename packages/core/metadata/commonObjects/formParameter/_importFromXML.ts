@@ -5,7 +5,7 @@ import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } fr
 
 export const _importFormParametersFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule | undefined,
   xml: FormParametersXML | undefined
 ): FormParameters | undefined => {
   if (xml === undefined) {
@@ -13,13 +13,17 @@ export const _importFormParametersFromXML = (
   }
 
   const items = Array.isArray(xml) ? xml : [xml]
-  return items.map((item) => _importFormParameterFromXML(context, _rule, item))
+  return items.map((item) => _importFormParameterFromXML(context, undefined, _rule, item))
 }
 
-const _importFormParameterFromXML = (context: ConfigurationContext, _rule: PropertyRule, xml: FormParameterXML): FormParameter => {
+const _importFormParameterFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: FormParameterXML
+): FormParameter => {
   const result: FormParameter = {
     name: xml._name,
-    type: _importTypeDescriptionFromXML(context, _rule, xml.Type)!,
+    type: _importTypeDescriptionFromXML(context, undefined, _rule, xml.Type)!,
   }
 
   if (xml.KeyParameter !== undefined) {

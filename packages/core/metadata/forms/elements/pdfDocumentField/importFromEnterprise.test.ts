@@ -7,7 +7,7 @@ import {
   minimalPdfDocumentFieldPartialEnterprise,
   minimalPdfDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/pdfDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importPdfDocumentFieldPartialFromEnterprise,
   importPdfDocumentFieldTypedFromEnterprise,
@@ -16,7 +16,7 @@ import {
 describe("importPdfDocumentFieldFromEnterprise", () => {
   describe("importPdfDocumentFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPdfDocumentFieldTypedFromEnterprise(mockContext, undefined, "ПолеPDFДокумента")
+      const result = importPdfDocumentFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеPDFДокумента")
 
       expect(result).toBeUndefined()
     })
@@ -24,6 +24,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importPdfDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullPdfDocumentFieldTypedEnterprise,
         "ПолеPDFДокумента"
       )
@@ -34,6 +35,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importPdfDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalPdfDocumentFieldTypedEnterprise,
         "ПолеPDFДокумента"
       )
@@ -44,7 +46,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
 
   describe("importPdfDocumentFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importPdfDocumentFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importPdfDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -52,6 +54,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importPdfDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullPdfDocumentField,
         fullPdfDocumentFieldPartialEnterprise
       )
@@ -62,6 +65,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importPdfDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalPdfDocumentField,
         minimalPdfDocumentFieldPartialEnterprise
       )

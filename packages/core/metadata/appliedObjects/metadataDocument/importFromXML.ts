@@ -10,9 +10,11 @@ import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadat
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataDocumentFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: MetadataDocumentXML | undefined
 ): MetadataDocument | undefined => {
   if (!xml) return undefined
@@ -21,10 +23,10 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.ActionsWritingOnPost !== undefined) result.actionsWritingOnPost = xml.ActionsWritingOnPost
 
-  const additionalIndexes = importAdditionalIndexesFromXML(context, xml.AdditionalIndexes)
+  const additionalIndexes = importAdditionalIndexesFromXML(context, undefined, xml.AdditionalIndexes)
   if (additionalIndexes !== undefined) result.additionalIndexes = additionalIndexes
 
-  const attributes = importMetadataAttributesFromXML(context, xml.Attributes)
+  const attributes = importMetadataAttributesFromXML(context, undefined, xml.Attributes)
   if (attributes !== undefined) result.attributes = attributes
 
   if (xml.Autonumbering !== undefined) result.autonumbering = xml.Autonumbering
@@ -35,10 +37,10 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.AuxiliaryObjectForm !== undefined) result.auxiliaryObjectForm = xml.AuxiliaryObjectForm
 
-  const basedOn = importMetadataItemLinksFromXML(context, xml.BasedOn)
+  const basedOn = importMetadataItemLinksFromXML(context, undefined, xml.BasedOn)
   if (basedOn !== undefined) result.basedOn = basedOn
 
-  const characteristics = importCharacteristicsDescriptionsFromXML(context, xml.Characteristics)
+  const characteristics = importCharacteristicsDescriptionsFromXML(context, undefined, xml.Characteristics)
   if (characteristics !== undefined) result.characteristics = characteristics
 
   if (xml.CheckUnique !== undefined) result.checkUnique = xml.CheckUnique
@@ -48,7 +50,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.ChoiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = xml.ChoiceHistoryOnInput
 
-  const commands = importMetadataCommandsFromXML(context, xml.Commands)
+  const commands = importMetadataCommandsFromXML(context, undefined, xml.Commands)
   if (commands !== undefined) result.commands = commands
 
   if (xml.Comment !== undefined) result.comment = xml.Comment
@@ -59,7 +61,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.DataLockControlMode !== undefined) result.dataLockControlMode = xml.DataLockControlMode
 
-  const dataLockFields = importMetadataFieldsFromXML(context, xml.DataLockFields)
+  const dataLockFields = importMetadataFieldsFromXML(context, undefined, xml.DataLockFields)
   if (dataLockFields !== undefined) result.dataLockFields = dataLockFields
 
   if (xml.DefaultChoiceForm !== undefined) result.defaultChoiceForm = xml.DefaultChoiceForm
@@ -71,13 +73,13 @@ export const importMetadataDocumentFromXML = (
   if (xml.ExecuteAfterWriteDataHistoryVersionProcessing !== undefined)
     result.executeAfterWriteDataHistoryVersionProcessing = xml.ExecuteAfterWriteDataHistoryVersionProcessing
 
-  const explanation = importI8nTextFromXML(context, xml.Explanation)
+  const explanation = importI8nTextFromXML(context, undefined, xml.Explanation)
   if (explanation !== undefined) result.explanation = explanation
 
-  const extendedListPresentation = importI8nTextFromXML(context, xml.ExtendedListPresentation)
+  const extendedListPresentation = importI8nTextFromXML(context, undefined, xml.ExtendedListPresentation)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = importI8nTextFromXML(context, xml.ExtendedObjectPresentation)
+  const extendedObjectPresentation = importI8nTextFromXML(context, undefined, xml.ExtendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
   if (xml.FullTextSearch !== undefined) result.fullTextSearch = xml.FullTextSearch
@@ -87,10 +89,10 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.IncludeHelpInContents !== undefined) result.includeHelpInContents = xml.IncludeHelpInContents
 
-  const inputByString = importMetadataFieldsFromXML(context, xml.InputByString)
+  const inputByString = importMetadataFieldsFromXML(context, undefined, xml.InputByString)
   if (inputByString !== undefined) result.inputByString = inputByString
 
-  const listPresentation = importI8nTextFromXML(context, xml.ListPresentation)
+  const listPresentation = importI8nTextFromXML(context, undefined, xml.ListPresentation)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
   if (xml.Name !== undefined) result.name = xml.Name
@@ -103,12 +105,12 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.NumberType !== undefined) result.numberType = xml.NumberType
 
-  const numerator = importMetadataDocumentNumeratorFromXML(context, xml.Numerator)
+  const numerator = importMetadataDocumentNumeratorFromXML(context, undefined, xml.Numerator)
   if (numerator !== undefined) result.numerator = numerator
 
   if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging
 
-  const objectPresentation = importI8nTextFromXML(context, xml.ObjectPresentation)
+  const objectPresentation = importI8nTextFromXML(context, undefined, xml.ObjectPresentation)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
   if (xml.Posting !== undefined) result.posting = xml.Posting
@@ -119,7 +121,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.RealTimePosting !== undefined) result.realTimePosting = xml.RealTimePosting
 
-  const registerRecords = importMetadataItemLinksFromXML(context, xml.RegisterRecords)
+  const registerRecords = importMetadataItemLinksFromXML(context, undefined, xml.RegisterRecords)
   if (registerRecords !== undefined) result.registerRecords = registerRecords
 
   if (xml.RegisterRecordsDeletion !== undefined) result.registerRecordsDeletion = xml.RegisterRecordsDeletion
@@ -129,13 +131,13 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.SequenceFilling !== undefined) result.sequenceFilling = xml.SequenceFilling
 
-  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, xml.StandardAttributes)
+  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, xml.StandardAttributes)
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
-  const synonym = importI8nTextFromXML(context, xml.Synonym)
+  const synonym = importI8nTextFromXML(context, undefined, xml.Synonym)
   if (synonym !== undefined) result.synonym = synonym
 
-  const tabularSections = importMetadataTabularSectionsFromXML(context, xml.TabularSections)
+  const tabularSections = importMetadataTabularSectionsFromXML(context, undefined, xml.TabularSections)
   if (tabularSections !== undefined) result.tabularSections = tabularSections
 
   if (xml.UpdateDataHistoryImmediatelyAfterWrite !== undefined)

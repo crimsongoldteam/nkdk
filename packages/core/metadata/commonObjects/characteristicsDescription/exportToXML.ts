@@ -7,6 +7,7 @@ import {
 import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 const exportFieldValue = (field: MetadataField | undefined): string => {
   if (!field) return "-1"
@@ -15,6 +16,7 @@ const exportFieldValue = (field: MetadataField | undefined): string => {
 
 export const exportCharacteristicsDescriptionToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
@@ -38,7 +40,7 @@ export const exportCharacteristicsDescriptionToXML = (
   }
 
   if (data.typesFilterValue) {
-    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML(context, data.typesFilterValue)
+    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML(context, undefined, data.typesFilterValue)
   }
 
   const characteristicValuesData: CharacteristicsDescriptionXML["xr:CharacteristicValues"] = {}
@@ -86,13 +88,14 @@ export const exportCharacteristicsDescriptionToXML = (
 
 export const exportCharacteristicsDescriptionsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsXML | undefined => {
   if (!data) return undefined
 
   return {
     "xr:Characteristic": data
-      .map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(context, value))
+      .map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(context, undefined, value))
       .filter((value): value is CharacteristicsDescriptionXML => value !== undefined),
   }
 }

@@ -2,20 +2,23 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 
 export const exportAutoCommandBarToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: AutoCommandBar | undefined
 ): AutoCommandBarEnterprise | undefined => {
   if (!data) return undefined
 
   const result: AutoCommandBarEnterprise = {}
 
-  // const autofill = exportBooleanToEnterprise(context, data.autofill)
+  // const autofill = exportBooleanToEnterprise(context, undefined, data.autofill)
   // if (data.autofill == false) result.Автозаполнение = autofill
 
   const displayImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
@@ -23,6 +26,7 @@ export const exportAutoCommandBarToEnterprise = (
 
   const horizontalAlign = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )

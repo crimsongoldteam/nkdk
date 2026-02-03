@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { defaultMetadataCommands, fullMetadataCommands } from "~/tests/fixtures/metadataCommand/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataCommandsToXML } from "./exportToXML"
@@ -11,14 +11,14 @@ vi.mock("uuid", () => ({
 
 describe("exportMetadataCommandsToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportMetadataCommandsToXML(mockContext, undefined)
+    const result = exportMetadataCommandsToXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export metadata command with all fields to XML", () => {
     const expectedResult = readXMLFileAsString("metadataCommand/full.xml")
-    const result = exportMetadataCommandsToXML(mockContext, fullMetadataCommands)
+    const result = exportMetadataCommandsToXML(mockContext, mockRule, fullMetadataCommands)
 
     const xmlString = xmlExport({ Command: result }, false)
 
@@ -28,7 +28,7 @@ describe("exportMetadataCommandsToXML", () => {
   it("should export defaults nodes to XML", () => {
     const expectedResult = readXMLFileAsString("metadataCommand/defaults.xml")
 
-    const result = exportMetadataCommandsToXML(mockContext, defaultMetadataCommands)
+    const result = exportMetadataCommandsToXML(mockContext, mockRule, defaultMetadataCommands)
 
     const xmlString = xmlExport({ Command: result }, false)
 

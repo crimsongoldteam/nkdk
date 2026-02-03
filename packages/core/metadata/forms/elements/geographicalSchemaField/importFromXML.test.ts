@@ -3,14 +3,14 @@ import {
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importGeographicalSchemaFieldFromXML } from "./importFromXML"
 import { GeographicalSchemaFieldXML } from "./types"
 
 describe("importGeographicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importGeographicalSchemaFieldFromXML(mockContext, undefined)
+    const result = importGeographicalSchemaFieldFromXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -20,7 +20,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
       "forms/geographicalSchemaField/full.xml"
     )
 
-    const result = importGeographicalSchemaFieldFromXML(mockContext, xmlData.GeographicalSchemaField)
+    const result = importGeographicalSchemaFieldFromXML(mockContext, mockRule, xmlData.GeographicalSchemaField)
 
     expect(result).toEqual(fullGeographicalSchemaField)
   })
@@ -30,7 +30,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
       "forms/geographicalSchemaField/minimal.xml"
     )
 
-    const result = importGeographicalSchemaFieldFromXML(mockContext, xmlData.GeographicalSchemaField)
+    const result = importGeographicalSchemaFieldFromXML(mockContext, mockRule, xmlData.GeographicalSchemaField)
 
     expect(result).toEqual(minimalGeographicalSchemaField)
   })

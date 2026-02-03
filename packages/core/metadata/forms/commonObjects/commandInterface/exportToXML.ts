@@ -1,14 +1,11 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "../../../context/types"
-import {
-  CommandInterface,
-  CommandInterfaceItem,
-  CommandInterfaceItemXML,
-  CommandInterfaceXML,
-} from "./types"
+import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportCommandInterfaceToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: CommandInterface | undefined
 ): CommandInterfaceXML | undefined => {
   if (!data) return undefined
@@ -17,13 +14,13 @@ export const exportCommandInterfaceToXML = (
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
     result.NavigationPanel = {
-      Item: exportCommandInterfaceItemsToXML(context, data.NavigationPanel),
+      Item: exportCommandInterfaceItemsToXML(context, undefined, data.NavigationPanel),
     }
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
     result.CommandBar = {
-      Item: exportCommandInterfaceItemsToXML(context, data.CommandBar),
+      Item: exportCommandInterfaceItemsToXML(context, undefined, data.CommandBar),
     }
   }
 
@@ -34,13 +31,15 @@ export const exportCommandInterfaceToXML = (
 
 const exportCommandInterfaceItemsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   items: CommandInterfaceItem[]
 ): CommandInterfaceItemXML[] => {
-  return items.map((item, index) => exportCommandInterfaceItemToXML(context, item, index))
+  return items.map((item, index) => exportCommandInterfaceItemToXML(context, undefined, item, index))
 }
 
 const exportCommandInterfaceItemToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   item: CommandInterfaceItem,
   index: number
 ): CommandInterfaceItemXML => {
@@ -56,7 +55,7 @@ const exportCommandInterfaceItemToXML = (
   }
 
   if (item.visible) {
-    const visibleXML = exportUserVisibleToXML(context, item.visible)
+    const visibleXML = exportUserVisibleToXML(context, undefined, item.visible)
     if (visibleXML) {
       result.Visible = visibleXML
     }

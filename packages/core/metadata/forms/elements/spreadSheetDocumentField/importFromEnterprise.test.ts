@@ -18,6 +18,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         undefined,
         "ПолеТабличногоДокумента"
       )
@@ -28,6 +29,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullSpreadSheetDocumentFieldTypedEnterprise,
         "ПолеТабличногоДокумента"
       )
@@ -38,6 +40,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalSpreadSheetDocumentFieldTypedEnterprise,
         "ПолеТабличногоДокумента"
       )
@@ -48,7 +51,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
 
   describe("importSpreadSheetDocumentFieldPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importSpreadSheetDocumentFieldPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importSpreadSheetDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -56,6 +59,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullSpreadSheetDocumentField,
         fullSpreadSheetDocumentFieldPartialEnterprise
       )
@@ -66,6 +70,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
         mockContext,
+        mockRule,
         minimalSpreadSheetDocumentField,
         minimalSpreadSheetDocumentFieldPartialEnterprise
       )

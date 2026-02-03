@@ -1,3 +1,4 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -5,7 +6,8 @@ import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
 import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
 export const importFontFromEnterprise = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: FontEnterprise | undefined
 ): Font | undefined => {
   if (!data) return undefined
@@ -13,7 +15,7 @@ export const importFontFromEnterprise = (
   // Если данные - строка (компактный формат)
   if (typeof data === "string") {
     // Проверяем, является ли это Enterprise значением ref
-    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(_context, data, SE.StyleFontsFromEnterprise)
+    const styleFontRef = importSystemEnumerationFromYAML(context, undefined, data, SE.StyleFontsFromEnterprise)
     if (styleFontRef) {
       return {
         ref: styleFontRef,
@@ -21,11 +23,7 @@ export const importFontFromEnterprise = (
       }
     }
 
-    const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
-      _context,
-      data,
-      SE.WindowsFontsFromEnterprise
-    )
+    const windowsFontRef = importSystemEnumerationFromYAML(context, undefined, data, SE.WindowsFontsFromEnterprise)
     if (windowsFontRef) {
       return {
         ref: windowsFontRef,
@@ -46,17 +44,14 @@ export const importFontFromEnterprise = (
 
   // Конвертируем Вид в ref и kind
   if (fullData.Вид !== undefined) {
-    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(
-      _context,
-      fullData.Вид,
-      SE.StyleFontsFromEnterprise
-    )
+    const styleFontRef = importSystemEnumerationFromYAML(context, undefined, fullData.Вид, SE.StyleFontsFromEnterprise)
     if (styleFontRef) {
       result.ref = styleFontRef
       result.kind = "StyleItem"
     } else {
-      const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
-        _context,
+      const windowsFontRef = importSystemEnumerationFromYAML(
+        context,
+        undefined,
         fullData.Вид,
         SE.WindowsFontsFromEnterprise
       )
@@ -71,12 +66,14 @@ export const importFontFromEnterprise = (
 
   if (fullData.Имя !== undefined) result.faceName = fullData.Имя
   if (fullData.Размер !== undefined) result.height = fullData.Размер
-  if (fullData.Полужирный !== undefined) result.bold = importBooleanFromEnterprise(_context, fullData.Полужирный)
-  if (fullData.Наклонный !== undefined) result.italic = importBooleanFromEnterprise(_context, fullData.Наклонный)
+  if (fullData.Полужирный !== undefined)
+    result.bold = importBooleanFromEnterprise(context, undefined, fullData.Полужирный)
+  if (fullData.Наклонный !== undefined)
+    result.italic = importBooleanFromEnterprise(context, undefined, fullData.Наклонный)
   if (fullData.Подчеркивание !== undefined)
-    result.underline = importBooleanFromEnterprise(_context, fullData.Подчеркивание)
+    result.underline = importBooleanFromEnterprise(context, undefined, fullData.Подчеркивание)
   if (fullData.Зачеркивание !== undefined)
-    result.strikeout = importBooleanFromEnterprise(_context, fullData.Зачеркивание)
+    result.strikeout = importBooleanFromEnterprise(context, undefined, fullData.Зачеркивание)
   if (fullData.Масштаб !== undefined) result.scale = fullData.Масштаб
 
   return result as Font

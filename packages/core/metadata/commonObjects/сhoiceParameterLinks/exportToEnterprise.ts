@@ -1,9 +1,11 @@
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToEnterprise } from "../metadataField/exportToEnterprise"
 import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
 
 export const exportChoiceParameterLinksToEnterprise = (
   _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: ChoiceParameterLinks | undefined
 ): ChoiceParameterLinksEnterprise | undefined => {
   if (!data) return undefined

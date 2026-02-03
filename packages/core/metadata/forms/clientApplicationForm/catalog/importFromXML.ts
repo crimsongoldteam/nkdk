@@ -1,15 +1,17 @@
-import { ConfigurationContext } from "~/metadata/context/types"
 import { importChoiceParametersFromXML } from "~/metadata/commonObjects/сhoiceParameters/importFromXML"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importClientApplicationFormFromXML } from "../base/importFromXML"
-import { CatalogForm, CatalogFormXML } from "./types"
 import { FormMetadataXML } from "../base/types"
+import { CatalogForm, CatalogFormXML } from "./types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const importCatalogFormFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: CatalogFormXML,
   xmlMetadata: FormMetadataXML
 ): CatalogForm => {
-  const result = importClientApplicationFormFromXML(context, xml, xmlMetadata) as CatalogForm
+  const result = importClientApplicationFormFromXML(context, undefined, xml, xmlMetadata) as CatalogForm
 
   if (xml.ChoiceAvailable !== undefined) {
     result.choiceAvailable = xml.ChoiceAvailable
@@ -19,7 +21,7 @@ export const importCatalogFormFromXML = (
     result.useForFoldersAndItems = xml.UseForFoldersAndItems
   }
 
-  const choiceParameters = importChoiceParametersFromXML(context, xml.ChoiceParameters)
+  const choiceParameters = importChoiceParametersFromXML(context, undefined, xml.ChoiceParameters)
   if (choiceParameters !== undefined) {
     result.choiceParameters = choiceParameters
   }

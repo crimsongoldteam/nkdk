@@ -8,7 +8,11 @@ import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/
 import { exportChildItemsToPreview } from "../../collections/childItems/exportToPreview"
 import { UsualGroup, UsualGroupPreview } from "./types"
 
-export const exportUsualGroupToPreview = (context: ConfigurationContext, element: UsualGroup): UsualGroupPreview => {
+export const exportUsualGroupToPreview = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: UsualGroup
+): UsualGroupPreview => {
   const result: UsualGroupPreview = {
     ElementType: "FormGroup",
     Name: element.name,

@@ -6,7 +6,7 @@ import {
   minimalPictureDecoration,
   minimalPictureDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   importPictureDecorationPartialFromEnterprise,
   importPictureDecorationTypedFromEnterprise,
@@ -15,7 +15,7 @@ import {
 describe("importPictureDecorationFromEnterprise", () => {
   describe("importPictureDecorationTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importPictureDecorationTypedFromEnterprise(mockContext, undefined, "ДекорацияКартинки")
+      const result = importPictureDecorationTypedFromEnterprise(mockContext, mockRule, undefined, "ДекорацияКартинки")
 
       expect(result).toBeUndefined()
     })
@@ -23,6 +23,7 @@ describe("importPictureDecorationFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importPictureDecorationTypedFromEnterprise(
         mockContext,
+        mockRule,
         fullPictureDecorationTypedEnterprise,
         "ДекорацияКартинки"
       )
@@ -33,6 +34,7 @@ describe("importPictureDecorationFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importPictureDecorationTypedFromEnterprise(
         mockContext,
+        mockRule,
         minimalPictureDecorationTypedEnterprise,
         "ДекорацияКартинки"
       )
@@ -43,7 +45,7 @@ describe("importPictureDecorationFromEnterprise", () => {
 
   describe("importPictureDecorationPartialFromEnterprise", () => {
     // it("should return undefined when source is undefined", () => {
-    //   const result = importPictureDecorationPartialFromEnterprise(mockContext, undefined, undefined)
+    //   const result = importPictureDecorationPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
 
     //   expect(result).toBeUndefined()
     // })
@@ -51,6 +53,7 @@ describe("importPictureDecorationFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importPictureDecorationPartialFromEnterprise(
         mockContext,
+        mockRule,
         fullPictureDecoration,
         fullPictureDecorationPartialEnterprise
       )

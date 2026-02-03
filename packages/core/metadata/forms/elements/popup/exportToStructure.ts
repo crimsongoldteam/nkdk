@@ -5,7 +5,11 @@ import { ExportToStructureContentFn } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { Popup } from "./types"
 
-export function exportPopupContentToStructure(context: ConfigurationContext, element: Popup): IFormatElementResult {
+export function exportPopupContentToStructure(
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  element: Popup
+): IFormatElementResult {
   const resultString = "^" + formatContent(context, element)
   return {
     strings: [resultString],
@@ -13,7 +17,7 @@ export function exportPopupContentToStructure(context: ConfigurationContext, ele
   }
 }
 
-const formatContent = (context: ConfigurationContext, element: Popup): string => {
+const formatContent = (context: ConfigurationContext, _rule: PropertyRule | undefined, element: Popup): string => {
   return formatElementTitleAndName(context, element)
 }
 

@@ -5,6 +5,7 @@ import { AllChildItem } from "./types"
 
 export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From[] | undefined
 ): Record<string, ToTypedEnterpriseType<From>> | undefined => {
   if (!data || data.length === 0) return undefined
@@ -23,6 +24,7 @@ export const exportTypedChildItemsToEnterprise = <From extends AllChildItem>(
 
 export const exportPartialChildItemsToEnterprise = <From extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From[] | undefined
 ): Record<string, ToPartialEnterpriseType<From>> | undefined => {
   if (!data || data.length === 0) return undefined

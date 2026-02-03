@@ -17,17 +17,19 @@ import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { PropertyRule } from "../calendarField/rules"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 type SearchControlAdditionCommonFields = Omit<SearchControlAddition, "elementType" | "name">
 
 export const exportSingleSearchControlAdditionToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: SingleSearchControlAddition | undefined
 ): SingleSearchControlAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  const result = exportSearchControlAdditionCommonFieldsToEnterprise(context, data)
+  const result = exportSearchControlAdditionCommonFieldsToEnterprise(context, undefined, data)
 
   if (Object.keys(result).length === 0) return undefined
 
@@ -36,11 +38,12 @@ export const exportSingleSearchControlAdditionToEnterprise = (
 
 export const exportSearchControlAdditionPartialToEnterprise = <From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (!data) return undefined as ToPartialEnterpriseType<From>
 
-  const props = exportSearchControlAdditionCommonFieldsToEnterprise(context, data)
+  const props = exportSearchControlAdditionCommonFieldsToEnterprise(context, undefined, data)
 
   const result = {
     ...props,
@@ -55,12 +58,14 @@ export const exportSearchControlAdditionPartialToEnterprise = <From extends Sear
 
 const exportSearchControlAdditionCommonFieldsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: SearchControlAdditionCommonFields
 ): SearchControlAdditionEnterprise => {
   const result: SearchControlAdditionEnterprise = {}
 
   const displayImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
@@ -68,41 +73,44 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
 
   const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const visible = exportBooleanToEnterprise(context, data.visible)
+  const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
   const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, undefined, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportTypedChildItemsToEnterprise(context, undefined, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+  const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
@@ -110,32 +118,32 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const extendedToolTip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  const borderColor = exportColorToEnterprise(context, undefined, data.borderColor)
   if (borderColor !== undefined) result.ЦветРамки = borderColor
 
-  const textColor = exportColorToEnterprise(context, data.textColor)
+  const textColor = exportColorToEnterprise(context, undefined, data.textColor)
   if (textColor !== undefined) result.ЦветТекста = textColor
 
-  const backColor = exportColorToEnterprise(context, data.backColor)
+  const backColor = exportColorToEnterprise(context, undefined, data.backColor)
   if (backColor !== undefined) result.ЦветФона = backColor
 
   if (data.width !== undefined) result.Ширина = data.width
 
-  const font = exportFontToEnterprise(context, data.font)
+  const font = exportFontToEnterprise(context, undefined, data.font)
   if (font !== undefined) result.Шрифт = font
 
   return result

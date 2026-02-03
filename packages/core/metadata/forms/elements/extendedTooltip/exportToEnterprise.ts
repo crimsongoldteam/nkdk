@@ -9,23 +9,26 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../calendarField/rules"
 
 export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | undefined>(
   context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   data: T
 ): ExtendedTooltipEnterprise | undefined {
   if (!data) return undefined
 
   const result: ExtendedTooltipEnterprise = {}
 
-  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  const autoMaxHeight = exportBooleanToEnterprise(context, undefined, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
 
-  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
   const displayImportance = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
@@ -33,30 +36,38 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   const verticalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, data.type, SE.FormDecorationTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormDecorationTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
-  const visible = exportBooleanToEnterprise(context, data.visible)
+  const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
   if (data.height !== undefined) result.Высота = data.height
 
   const horizontalAlignInGroup = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const title = exportFormattedI8nTextToEnterprise(context, data.title, "Заголовок", "ФорматированныйЗаголовок")
+  const title = exportFormattedI8nTextToEnterprise(
+    context,
+    undefined,
+    data.title,
+    "Заголовок",
+    "ФорматированныйЗаголовок"
+  )
   Object.assign(result, title)
 
   if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
@@ -65,15 +76,16 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   const toolTipRepresentation = exportSystemEnumerationToYAML(
     context,
+    undefined,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible, {
+  const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
     allow: UserVisibleKeysEnterprise.Allow,
     deny: UserVisibleKeysEnterprise.Deny,
   })
@@ -81,23 +93,23 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
     Object.assign(result, userVisible)
   }
 
-  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)
   if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
 
-  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  const verticalStretch = exportBooleanToEnterprise(context, undefined, data.verticalStretch)
   if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
 
-  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
-  const textColor = exportColorToEnterprise(context, data.textColor)
+  const textColor = exportColorToEnterprise(context, undefined, data.textColor)
   if (textColor !== undefined) result.ЦветТекста = textColor
 
   if (data.width !== undefined) result.Ширина = data.width
 
-  const font = exportFontToEnterprise(context, data.font)
+  const font = exportFontToEnterprise(context, undefined, data.font)
   if (font !== undefined) result.Шрифт = font
 
   return Object.keys(result).length > 0 ? result : undefined
