@@ -25,7 +25,6 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", enterprise: true },
     enabled: { yaml: "Доступность", type: "boolean", enterprise: true },
     endOfRepresentationPeriod: { yaml: "КонецПериодаОтображения", type: "string", enterprise: true },
-    events: { yaml: "События", type: "Events", enterprise: true },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", enterprise: true },
     font: { yaml: "Шрифт", type: "Font", enterprise: true },
     height: { yaml: "Высота", type: "number", enterprise: true },
