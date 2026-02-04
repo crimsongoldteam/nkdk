@@ -5,6 +5,7 @@ type TypeRulesNames =
   | "boolean"
   | "Border"
   | "Color"
+  | "ExtendedTooltip"
   | "ContextMenu"
   | "DynamicList"
   | "FieldsList"
@@ -60,10 +61,9 @@ export function registerTypeRule(
   typeRulesRegistry.set(key, ruleFunction)
 }
 
-export const getTypeRule = (type: TypeRulesNames, operation: TypeRulesOperations): ImportExportFunction => {
+export const getTypeRule = (type: TypeRulesNames, operation: TypeRulesOperations): ImportExportFunction | undefined => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
-  if (!result) throw new Error(`Type rule ${key} not found`)
   return result
 }
 

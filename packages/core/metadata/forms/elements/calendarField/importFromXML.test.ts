@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/commonObjects/importFromXML"
 import "~/metadata/forms/elements/calendarField/rules"
+import "~/metadata/forms/elements/importFromXML"
 import { fullCalendarField, minimalCalendarField } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

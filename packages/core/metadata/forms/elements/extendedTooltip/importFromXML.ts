@@ -5,8 +5,9 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
-import { isHasContent } from "./helper"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { PropertyRule } from "../calendarField/rules"
+import { isHasContent } from "./helper"
 
 export function importExtendedTooltipFromXML(
   context: ConfigurationContext,
@@ -70,3 +71,5 @@ export function importExtendedTooltipFromXML(
 
   return undefined
 }
+
+registerTypeRule("ExtendedTooltip", "importFromXML", importExtendedTooltipFromXML)

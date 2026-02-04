@@ -18,7 +18,8 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "DisplayImportance",
+      type: "SystemEnumeration",
+      typeDetailed: "DisplayImportance",
       enterprise: true,
     },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", enterprise: true },
