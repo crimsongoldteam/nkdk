@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
 
@@ -37,3 +38,5 @@ const isHasContent = (data: ContextMenu | undefined): boolean => {
 
   return hasOtherFields
 }
+
+registerTypeRule("ContextMenu", "importFromXML", importContextMenuFromXML)

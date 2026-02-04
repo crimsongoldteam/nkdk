@@ -5,6 +5,7 @@ type TypeRulesNames =
   | "boolean"
   | "Border"
   | "Color"
+  | "ContextMenu"
   | "DynamicList"
   | "FieldsList"
   | "Font"

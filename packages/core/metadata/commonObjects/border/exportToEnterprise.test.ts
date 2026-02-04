@@ -14,7 +14,7 @@ describe("exportBorderToEnterprise", () => {
       width: 1,
       controlBorderType: "Solid",
     }
-    const result = exportBorderToEnterprise(mockContext, mockRule, borderData as any)
+    const result = exportBorderToEnterprise(mockContext, mockRule, borderData)
     expect(result).toEqual({
       Имя: "Solid",
       Ширина: 1,
