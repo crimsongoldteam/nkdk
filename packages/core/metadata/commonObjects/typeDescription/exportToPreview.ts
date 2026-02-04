@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { TypeDescription, TypeDescriptionPreview, TypeDescriptionRules } from "./types"
 
@@ -44,3 +45,6 @@ export const exportTypeDescriptionToPreview = (
 
   return result
 }
+
+
+registerTypeRule("TypeDescription", "exportToPreview", exportToPreview)

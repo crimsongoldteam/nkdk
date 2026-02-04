@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FunctionalOptions, FunctionalOptionsXML } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 
 export const exportFunctionalOptionsToXML = (
   _context: ConfigurationContext,
@@ -13,3 +14,6 @@ export const exportFunctionalOptionsToXML = (
     Item: data.length === 1 ? data[0] : data,
   }
 }
+
+
+registerTypeRule("FunctionalOptionsProperty", "exportToXML", exportToXML)

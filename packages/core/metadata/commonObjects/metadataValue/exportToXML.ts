@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportI8nTextToXML } from "../i8nText/exportToXML"
 import {
@@ -100,3 +101,6 @@ const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: s
   "_xsi:type": xsiType,
   "#text": text,
 })
+
+
+registerTypeRule("MetadataValue", "exportToXML", exportToXML)

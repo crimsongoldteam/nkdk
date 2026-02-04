@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FunctionalOptions, FunctionalOptionsEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 
 export const exportFunctionalOptionsToEnterprise = (
   _context: ConfigurationContext,
@@ -11,3 +12,6 @@ export const exportFunctionalOptionsToEnterprise = (
 
   return data
 }
+
+
+registerTypeRule("FunctionalOptionsProperty", "exportToEnterprise", exportToEnterprise)

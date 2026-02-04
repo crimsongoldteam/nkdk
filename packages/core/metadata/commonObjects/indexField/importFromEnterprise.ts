@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } from "./types"
 
@@ -23,3 +24,6 @@ export const importIndexFieldsFromEnterprise = (
     .map((item) => importIndexFieldFromEnterprise(context, undefined, item)!)
     .filter((item): item is IndexField => item !== undefined)
 }
+
+
+registerTypeRule("IndexField", "importFromEnterprise", importFromEnterprise)

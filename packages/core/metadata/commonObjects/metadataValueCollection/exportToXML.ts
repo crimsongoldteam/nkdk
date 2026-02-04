@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/exportToXML"
 import { MetadataSimpleValueXML, MetadataValue } from "../metadataValue/types"
@@ -23,3 +24,6 @@ export const exportMetadataValueCollectionToXML = (
     "xr:Item": items,
   }
 }
+
+
+registerTypeRule("MetadataValueCollection", "exportToXML", exportToXML)

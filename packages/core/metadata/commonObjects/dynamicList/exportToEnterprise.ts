@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { DynamicList, DynamicListEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
@@ -9,3 +10,5 @@ export const exportDynamicListToEnterprise = (
 ): DynamicListEnterprise | undefined => {
   return data
 }
+
+registerTypeRule("DynamicList", "exportToEnterprise", exportDynamicListToEnterprise)

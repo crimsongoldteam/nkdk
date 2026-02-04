@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { Border, BorderXML } from "./types"
 
@@ -28,3 +29,5 @@ export const exportBorderToXML = (
 
   return result
 }
+
+registerTypeRule("Border", "exportToXML", exportBorderToXML)

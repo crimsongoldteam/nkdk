@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -63,3 +64,5 @@ const convertRefToEnterprise = (
 
   return exportSystemEnumerationToYAML(context, undefined, ref, SE.WindowsFontsToEnterprise)
 }
+
+registerTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)

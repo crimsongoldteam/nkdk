@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 
 export const importI8nTextFromEnterprise = (
   context: ConfigurationContext,
@@ -47,3 +48,6 @@ export const importI8nTextCombinedFromEnterprise = (
 
   return result
 }
+
+
+registerTypeRule("I8nText", "importFromEnterprise", importFromEnterprise)

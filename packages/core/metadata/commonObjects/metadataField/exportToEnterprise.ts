@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldStringToEnterprise as exportMetadataFieldToEnterprisePath } from "../metadataPath/exportToEnterprise"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
@@ -22,3 +23,6 @@ export const exportMetadataFieldToEnterprise = (
 
   return exportMetadataFieldToEnterprisePath(context, undefined, data)
 }
+
+
+registerTypeRule("MetadataField", "exportToEnterprise", exportToEnterprise)

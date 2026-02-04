@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 import { UsePurposes, UsePurposesXML } from "./types"
@@ -19,3 +20,6 @@ export const exportUsePurposesToXML = (
     "v8:Value": values.length === 1 ? values[0] : values,
   }
 }
+
+
+registerTypeRule("UsePurposes", "exportToXML", exportToXML)

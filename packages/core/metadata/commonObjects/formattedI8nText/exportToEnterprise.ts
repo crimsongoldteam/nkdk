@@ -3,6 +3,7 @@ import { exportI8nTextDefaultToEnterprise, exportI8nTextToEnterprise } from "../
 import { I8nTextEnterprise } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 
 export const exportFormattedI8nTextToEnterprise = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
@@ -52,3 +53,6 @@ export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, Form
 
   return exportFormattedI8nTextToEnterprise(context, undefined, filtrdText, key, formattedKey)
 }
+
+
+registerTypeRule("FormattedI8nText", "exportToEnterprise", exportToEnterprise)

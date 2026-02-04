@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { Font, FontXML, PrefixedFontsToXML } from "./types"
 
@@ -27,3 +28,5 @@ export const exportFontToXML = (
 
   return result as FontXML
 }
+
+registerTypeRule("Font", "exportToXML", exportFontToXML)

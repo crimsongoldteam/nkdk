@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -33,3 +34,5 @@ export const importBorderFromEnterprise = (
 
   return Object.keys(result).length > 0 ? result : undefined
 }
+
+registerTypeRule("Border", "importFromEnterprise", importBorderFromEnterprise)

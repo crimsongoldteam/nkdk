@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
@@ -28,3 +29,5 @@ export const importFontFromXML = (
 
   return result as Font
 }
+
+registerTypeRule("Font", "importFromXML", importFontFromXML)

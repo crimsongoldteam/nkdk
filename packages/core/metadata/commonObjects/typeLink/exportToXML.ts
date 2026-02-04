@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataSimpleValueToXML } from "../metadataValue/exportToXML"
 import { TypeLink, TypeLinkXML } from "./types"
@@ -30,3 +31,6 @@ export const exportTypeLinkWithXSITypeToXML = (
     "xr:LinkItem": Number(typeLink.linkItem),
   }
 }
+
+
+registerTypeRule("TypeLink", "exportToXML", exportToXML)

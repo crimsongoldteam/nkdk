@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { Color, ColorTypeToPrefix, ColorXML } from "./types"
 
@@ -16,3 +17,5 @@ export const exportColorToXML = (
 
   return color.value
 }
+
+registerTypeRule("Color", "exportToXML", exportColorToXML)

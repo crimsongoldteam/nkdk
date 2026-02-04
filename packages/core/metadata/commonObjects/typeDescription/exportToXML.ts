@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
@@ -122,3 +123,6 @@ const getDateQualifiers = (typeDescription: TypeDescription): TypeDescriptionXML
     "v8:DateFractions": dateQualifiers.dateFractions,
   }
 }
+
+
+registerTypeRule("TypeDescription", "exportToXML", exportToXML)

@@ -1,6 +1,7 @@
 import { format } from "date-fns"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { exportMetadataValueStringToEnterprise as exportMetadataPathValueToEnterprise } from "../metadataPath/exportToEnterprise"
 import {
@@ -117,3 +118,6 @@ export const exportMedatataRefToEnterprise = (context: ConfigurationContext, val
   if (!result) throw new Error(`Invalid type for ref: ${value}`)
   return result
 }
+
+
+registerTypeRule("MetadataValue", "exportToEnterprise", exportToEnterprise)

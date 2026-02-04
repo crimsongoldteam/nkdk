@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { FieldsList, FieldsListXML } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
@@ -11,3 +12,5 @@ export const importFieldsListFromXML = (
 
   return Array.isArray(xml.Field) ? xml.Field : [xml.Field]
 }
+
+registerTypeRule("FieldsList", "importFromXML", importFieldsListFromXML)

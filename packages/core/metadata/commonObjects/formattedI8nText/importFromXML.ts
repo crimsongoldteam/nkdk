@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importI8nTextFromXML } from "../i8nText/importFromXML"
@@ -22,3 +23,6 @@ export const importFormattedI8nTextFromXML = (
     items: resultI8nText.items,
   }
 }
+
+
+registerTypeRule("FormattedI8nText", "importFromXML", importFromXML)

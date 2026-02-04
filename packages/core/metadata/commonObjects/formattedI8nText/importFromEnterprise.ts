@@ -3,6 +3,7 @@ import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 
 export const importFormattedI8nTextFromEnterprise = (
   context: ConfigurationContext,
@@ -51,3 +52,6 @@ export const importFormattedI8nTextCombinedFromEnterprise = (
 
   return result
 }
+
+
+registerTypeRule("FormattedI8nText", "importFromEnterprise", importFromEnterprise)

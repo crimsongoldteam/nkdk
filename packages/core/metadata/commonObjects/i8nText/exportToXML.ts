@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { isEmptyI8nText } from "./helper"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
@@ -31,3 +32,6 @@ export const exportI8nTextToXML = (
 
   return { "v8:item": v8Items }
 }
+
+
+registerTypeRule("I8nText", "exportToXML", exportToXML)

@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { FieldsList, FieldsListEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
@@ -11,3 +12,5 @@ export const importFieldsListFromEnterprise = (
 
   return enterprise
 }
+
+registerTypeRule("FieldsList", "importFromEnterprise", importFieldsListFromEnterprise)

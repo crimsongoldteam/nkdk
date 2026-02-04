@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { getTypeFromEnterprise } from "./helper"
@@ -143,3 +144,6 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers | undefi
   }
   return { dateFractions: "Date" }
 }
+
+
+registerTypeRule("TypeDescription", "importFromEnterprise", importFromEnterprise)

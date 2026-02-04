@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { IndexField, IndexFields, IndexFieldsXML, IndexFieldXML } from "./types"
 
@@ -21,3 +22,6 @@ export const exportIndexFieldsToXML = (
 
   return data.map((value) => exportIndexFieldToXML(context, undefined, value)!)
 }
+
+
+registerTypeRule("IndexField", "exportToXML", exportToXML)

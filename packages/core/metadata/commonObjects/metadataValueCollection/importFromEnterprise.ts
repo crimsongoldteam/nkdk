@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataRefFromEnterprise } from "../metadataValue/importFromEnterprise"
 import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./types"
@@ -15,3 +16,6 @@ export const importMetadataValueCollectionFromEnterprise = (
     return metadataValue.value as string
   })
 }
+
+
+registerTypeRule("MetadataValueCollection", "importFromEnterprise", importFromEnterprise)

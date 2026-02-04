@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -87,3 +88,6 @@ function createPicture(
 ): Picture {
   return { ref, type, loadTransparent, transparentPixel }
 }
+
+
+registerTypeRule("Picture", "importFromEnterprise", importFromEnterprise)

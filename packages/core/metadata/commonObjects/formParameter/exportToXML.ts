@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportTypeDescriptionToXML } from "../typeDescription/exportToXML"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
@@ -32,3 +33,6 @@ const exportFormParameterToXML = (
 
   return result
 }
+
+
+registerTypeRule("FormParameter", "exportToXML", exportToXML)

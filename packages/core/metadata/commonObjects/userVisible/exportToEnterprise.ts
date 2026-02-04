@@ -1,5 +1,6 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleEnterprise, type UserVisible } from "./types"
 
@@ -21,3 +22,6 @@ export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey e
     [key]: values,
   } as Partial<Record<AllowKey | DenyKey, UserVisibleEnterprise>>
 }
+
+
+registerTypeRule("UserVisible", "exportToEnterprise", exportToEnterprise)

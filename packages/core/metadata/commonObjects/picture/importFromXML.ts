@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { Picture, PictureXML } from "./types"
@@ -36,3 +37,6 @@ export const importPictureFromXML = (
     transparentPixel,
   }
 }
+
+
+registerTypeRule("Picture", "importFromXML", importFromXML)

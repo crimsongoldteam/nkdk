@@ -1,5 +1,6 @@
 import { format, parse } from "date-fns"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
@@ -181,3 +182,6 @@ export const importMetadataRefFromEnterprise = (
     value: convertedValue,
   }
 }
+
+
+registerTypeRule("MetadataValue", "importFromEnterprise", importFromEnterprise)

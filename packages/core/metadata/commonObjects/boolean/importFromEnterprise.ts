@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { StringboolEnterprise } from "./types"
 
@@ -10,3 +11,5 @@ export const importBooleanFromEnterprise = (
   if (value === undefined) return undefined
   return value === "Истина"
 }
+
+registerTypeRule("boolean", "importFromEnterprise", importBooleanFromEnterprise)

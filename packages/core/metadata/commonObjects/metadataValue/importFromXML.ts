@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importI8nTextFromXML } from "../i8nText/importFromXML"
@@ -206,3 +207,6 @@ export const importFormChoiceListValueFromXML = (
 const isPrimitiveType = (type: MetadataValueType): boolean => {
   return type === "string" || type === "decimal" || type === "dateTime" || type === "boolean"
 }
+
+
+registerTypeRule("MetadataValue", "importFromXML", importFromXML)

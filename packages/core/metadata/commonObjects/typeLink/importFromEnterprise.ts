@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromEnterprise } from "../metadataField/importFromEnterprise"
 import { TypeLink, TypeLinkEnterprise } from "./types"
@@ -35,3 +36,6 @@ export const importTypeLinkFromEnterprise = (
     linkItem,
   }
 }
+
+
+registerTypeRule("TypeLink", "importFromEnterprise", importFromEnterprise)

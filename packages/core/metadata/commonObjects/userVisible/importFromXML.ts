@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
@@ -29,3 +30,6 @@ export const importUserVisibleFromXML = (
   }
   return result
 }
+
+
+registerTypeRule("UserVisible", "importFromXML", importFromXML)

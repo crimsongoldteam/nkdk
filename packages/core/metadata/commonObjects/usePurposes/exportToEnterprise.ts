@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UsePurposes, UsePurposesEnterprise } from "./types"
 
@@ -24,3 +25,6 @@ export const exportUsePurposesToEnterprise = (
   // так как в Enterprise формате нет отдельного значения для только PlatformApplication
   return undefined
 }
+
+
+registerTypeRule("UsePurposes", "exportToEnterprise", exportToEnterprise)

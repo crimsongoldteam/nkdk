@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { getTypeDescriptionRule } from "./helper"
 import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise } from "./types"
@@ -99,3 +100,6 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
 
   return rule.enterprise
 }
+
+
+registerTypeRule("TypeDescription", "exportToEnterprise", exportToEnterprise)

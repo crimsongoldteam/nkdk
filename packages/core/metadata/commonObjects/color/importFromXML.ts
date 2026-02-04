@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { Color, ColorPrefixToType, ColorXML } from "./types"
 
@@ -24,3 +25,5 @@ export const importColorFromXML = (
     value: xml,
   }
 }
+
+registerTypeRule("Color", "importFromXML", importColorFromXML)
