@@ -6,8 +6,6 @@ import { getElementRule, PropertyRule } from "~/metadata/metadataFactory/rulesFa
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 
-// Импорты для специальных типов
-
 export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -25,13 +23,13 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
   const rules = getElementRule<CalendarField>("CalendarField")
 
   for (const [key, rule] of Object.entries(rules.properties)) {
-    const xmlKey = (rule.xml ?? Capitalize<key>) as keyof typeof xml
+    const xmlKey = (rule.xml ?? key.charAt(0).toUpperCase() + key.slice(1)) as keyof typeof xml
 
-    const xmlValue = xml[xmlKey]
+    const xmlValue = (xml as any)[xmlKey]
 
     const value = importPropertyFromXML(context, rule, xmlValue)
 
-    result[key] = value
+    ;(result as any)[key] = value
   }
 
   return result as To
