@@ -93,14 +93,25 @@ export interface TypeRule {
   exportToPreview?: (context: ConfigurationContext, rule: PropertyRule | undefined, data: any) => any
 }
 
-export const TypeRules: Record<string, TypeRule[]> = {
-  boolean: [
-    {
-      importFromXML: importBooleanFromXML,
-      exportToYAML: exportBooleanToEnterprise,
-      importFromYAML: exportBooleanToEnterprise,
-    },
-  ],
+export const importPropertyFromXML = (context: ConfigurationContext, propertyRule: PropertyRule, data: any): any => {
+  const typeRule = TypeRules[propertyRule.type]
+
+  if (typeRule === undefined) return data
+
+  if (typeRule.importFromXML === undefined) return data
+
+  const result = typeRule.importFromXML(context, propertyRule, data)
+
+  return result
+}
+
+export const TypeRules: Record<string, TypeRule> = {
+  boolean: {
+    importFromXML: importBooleanFromXML,
+    exportToYAML: exportBooleanToEnterprise,
+    importFromYAML: exportBooleanToEnterprise,
+  },
+
   //   Border: [
   //     {
   //       importFromXML: _importBorderFromXML,

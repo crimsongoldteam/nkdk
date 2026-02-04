@@ -1,4 +1,4 @@
-import { TypeRules } from "~/metadata/commonObjects/rules"
+import { importPropertyFromXML } from "~/metadata/commonObjects/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -22,33 +22,16 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
     elementType: "CalendarField",
   }
 
-  const propertiesXmlMap = getElementRule("CalendarField")?.properties
+  const rules = getElementRule<CalendarField>("CalendarField")
 
-  for (const [xmlKey, xmlValue] of Object.entries(xml) as [string, any][]) {
-    const rule = propertiesXmlMap[xmlKey]
+  for (const [key, rule] of Object.entries(rules.properties)) {
+    const xmlKey = (rule.xml ?? Capitalize<key>) as keyof typeof xml
 
-    if (rule === undefined) throw new Error(`Unknown property ${xmlKey}`)
+    const xmlValue = xml[xmlKey]
 
-    // Находим соответствующее имя свойства CalendarField
-    const calendarFieldRule = getElementRule<CalendarField>("CalendarField")
-    const propertyName = Object.entries(calendarFieldRule?.properties || {}).find(([, r]) => r === rule)?.[0]
+    const value = importPropertyFromXML(context, rule, xmlValue)
 
-    if (!propertyName) throw new Error(`Property name not found for rule`)
-
-    // Получаем TypeRule для данного типа свойства
-    const typeRules = TypeRules[rule.type]
-    if (typeRules === undefined) {
-      ;(result as any)[propertyName] = xmlValue
-      continue
-    }
-
-    const typeRule = typeRules[0]
-    if (typeRule.importFromXML) {
-      const importedValue = typeRule.importFromXML(context, rule, xmlValue)
-      ;(result as any)[propertyName] = importedValue
-    } else {
-      ;(result as any)[propertyName] = xmlValue
-    }
+    result[key] = value
   }
 
   return result as To

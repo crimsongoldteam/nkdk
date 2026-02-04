@@ -12,7 +12,6 @@ export type { PropertyRule, ElementRule } from "../metadataFactory/rulesFactory"
 export {
   registerElementRule,
   getElementRule,
-  getElementRuleOrThrow,
   clearElementRulesRegistry,
 } from "../metadataFactory/rulesFactory"
 
