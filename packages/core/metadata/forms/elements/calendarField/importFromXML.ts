@@ -2,8 +2,8 @@ import { TypeRules } from "~/metadata/commonObjects/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { getElementRule, PropertyRule } from "~/metadata/metadataFactory/rulesFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { getElementRule, getElementRuleXMLMap, PropertyRule } from "~/metadata/metadataFactory/rulesFactory"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 
 // Импорты для специальных типов
@@ -22,7 +22,7 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
     elementType: "CalendarField",
   }
 
-  const propertiesXmlMap = getElementRuleXMLMap("CalendarField")?.properties ?? {}
+  const propertiesXmlMap = getElementRule("CalendarField")?.properties
 
   for (const [xmlKey, xmlValue] of Object.entries(xml) as [string, any][]) {
     const rule = propertiesXmlMap[xmlKey]
@@ -31,9 +31,7 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
     // Находим соответствующее имя свойства CalendarField
     const calendarFieldRule = getElementRule<CalendarField>("CalendarField")
-    const propertyName = Object.entries(calendarFieldRule?.properties || {}).find(
-      ([, r]) => r === rule
-    )?.[0]
+    const propertyName = Object.entries(calendarFieldRule?.properties || {}).find(([, r]) => r === rule)?.[0]
 
     if (!propertyName) throw new Error(`Property name not found for rule`)
 

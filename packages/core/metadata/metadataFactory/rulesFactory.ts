@@ -15,16 +15,20 @@ export interface ElementRule<T extends NamedElement> {
   events?: Record<string, string>
 }
 
+export interface ElementRuleFromXML {
+  properties: Record<string, PropertyRule>
+  events: Record<string, string> | undefined
+}
+
+export interface ElementRuleFromYAML {
+  properties: Record<string, PropertyRule>
+  events: Record<string, string> | undefined
+}
+
 export interface RulesRegistryItem {
   base: ElementRule<any>
-  fromXML: {
-    properties: Record<string, PropertyRule>
-    events: Record<string, string> | undefined
-  }
-  fromYAML: {
-    properties: Record<string, PropertyRule>
-    events: Record<string, string> | undefined
-  }
+  fromXML: ElementRuleFromXML
+  fromYAML: ElementRuleFromYAML
 }
 
 const elementRulesRegistry = new Map<FormElementType, RulesRegistryItem>()
@@ -47,8 +51,7 @@ function toPascalCase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-function createRulesRegistryItemFromXML<E extends ElementRule<any>>(elementRule: E): 
-type RulesRegistryItem.fromXML {
+function createRulesRegistryItemFromXML<E extends ElementRule<any>>(elementRule: E): ElementRuleFromXML {
   const properties: Record<string, PropertyRule | undefined> = {}
 
   if (elementRule.properties) {
@@ -59,23 +62,18 @@ type RulesRegistryItem.fromXML {
     }
   }
 
+  // Фильтруем undefined значения перед возвратом
+  const filteredProperties = Object.fromEntries(
+    Object.entries(properties).filter(([, value]): value is PropertyRule => value !== undefined)
+  ) as Record<string, PropertyRule>
+
   return {
-    properties,
+    properties: filteredProperties,
     events: elementRule.events,
   }
 }
 
-/**
- * Создает fromYAML правила из базового ElementRule
- * @param elementRule - базовое правило элемента
- * @returns объект с fromYAML правилами
- */
-function createRulesRegistryItemFromYAML<E extends ElementRule<any>>(
-  elementRule: E
-): {
-  properties: Record<string, PropertyRule | undefined>
-  events: Record<string, string> | undefined
-} {
+function createRulesRegistryItemFromYAML<E extends ElementRule<any>>(elementRule: E): ElementRuleFromYAML {
   const properties: Record<string, PropertyRule | undefined> = {}
 
   // Обрабатываем свойства
@@ -89,48 +87,39 @@ function createRulesRegistryItemFromYAML<E extends ElementRule<any>>(
     }
   }
 
+  // Фильтруем undefined значения перед возвратом
+  const filteredProperties = Object.fromEntries(
+    Object.entries(properties).filter(([, value]): value is PropertyRule => value !== undefined)
+  ) as Record<string, PropertyRule>
+
   return {
-    properties,
+    properties: filteredProperties,
     events: elementRule.events,
   }
 }
 
-export const getElementRule = <T extends NamedElement>(elementType: FormElementType): ElementRule<T> | undefined => {
-  return elementRulesRegistry.get(elementType) as ElementRule<T> | undefined
-}
-
-export const getElementRuleXMLMap = (
-  elementType: FormElementType
-):
-  | {
-      properties: Record<string, PropertyRule | undefined>
-      events: Record<string, string> | undefined
-    }
-  | undefined => {
-  const elementRule = elementRulesRegistry.get(elementType)
-  if (!elementRule) return undefined
-  return createRulesRegistryItemFromXML(elementRule)
-}
-
-export const getElementRuleYAMLMap = (
-  elementType: FormElementType
-):
-  | {
-      properties: Record<string, PropertyRule | undefined>
-      events: Record<string, string> | undefined
-    }
-  | undefined => {
-  const elementRule = elementRulesRegistry.get(elementType)
-  if (!elementRule) return undefined
-  return createRulesRegistryItemFromYAML(elementRule)
-}
-
-export const getElementRuleOrThrow = <T extends NamedElement>(elementType: FormElementType): ElementRule<T> => {
+export const getElementRule = <T extends NamedElement>(elementType: FormElementType): ElementRule<T> => {
   const rule = elementRulesRegistry.get(elementType)
   if (!rule) {
     throw new Error(`Unknown element type: ${elementType}`)
   }
-  return rule as ElementRule<T>
+  return rule.base
+}
+
+export const getElementRuleFromYAML = (elementType: FormElementType): ElementRuleFromYAML => {
+  const rule = elementRulesRegistry.get(elementType)
+  if (!rule) {
+    throw new Error(`Unknown element type: ${elementType}`)
+  }
+  return rule.fromYAML
+}
+
+export const getElementRuleFromXML = (elementType: FormElementType): ElementRuleFromXML => {
+  const rule = elementRulesRegistry.get(elementType)
+  if (!rule) {
+    throw new Error(`Unknown element type: ${elementType}`)
+  }
+  return rule.fromXML
 }
 
 export const clearElementRulesRegistry = (): void => {
