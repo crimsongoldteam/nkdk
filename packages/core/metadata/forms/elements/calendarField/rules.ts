@@ -1,4 +1,4 @@
-import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/rulesFactory"
+import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { CalendarField } from "./types"
 export type { ElementRule, PropertyRule }
 

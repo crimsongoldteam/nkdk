@@ -8,12 +8,8 @@ export { importCatalogFormFromXML } from "./clientApplicationForm/catalog/import
 export type { CatalogFormEnterprise, CatalogFormXML } from "./clientApplicationForm/catalog/types"
 export { importChildItemsFromStructure } from "./collections/childItems/importFromStructure"
 
-export type { PropertyRule, ElementRule } from "../metadataFactory/rulesFactory"
-export {
-  registerElementRule,
-  getElementRule,
-  clearElementRulesRegistry,
-} from "../metadataFactory/rulesFactory"
+export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elementRulesFactory"
+export type { ElementRule, PropertyRule } from "../metadataFactory/elementRulesFactory"
 
 import "./elements/exportToEnterprise"
 import "./elements/exportToStructure"

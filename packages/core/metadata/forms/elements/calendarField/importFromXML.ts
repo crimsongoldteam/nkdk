@@ -1,8 +1,8 @@
-import { importPropertyFromXML } from "~/metadata/commonObjects/rules"
+import { importPropertyFromXML } from "~/metadata/commonObjects/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
+import { getElementRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { getElementRule } from "~/metadata/metadataFactory/rulesFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 

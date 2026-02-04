@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "../context/types"
 import { AllChildItem } from "../forms/collections/childItems/types"
 import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
-import { PropertyRule } from "./rulesFactory"
 import { IFormatElementResult } from "../forms/format/types"
+import { PropertyRule } from "./elementRulesFactory"
 import { TypeRules } from "./rules"
 
 // // #region type associations
