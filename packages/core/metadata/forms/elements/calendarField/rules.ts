@@ -106,22 +106,3 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
 }
 
 registerElementRule("CalendarField", CalendarFieldRules)
-
-// export const CalendarFieldRulesXMLMap = {
-//   properties: Object.entries(CalendarFieldRules.properties!).reduce(
-//     (acc, [key, rule]) => {
-//       const newKey = rule.xml ?? key.charAt(0).toUpperCase() + key.slice(1)
-//       acc[newKey] = rule
-//       return acc
-//     },
-//     {} as Record<string, PropertyRule>
-//   ),
-//   events: Object.entries(CalendarFieldRules.events!).reduce(
-//     (acc, [key]) => {
-//       const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1)
-//       acc[capitalizedKey] = key
-//       return acc
-//     },
-//     {} as Record<string, string>
-//   ),
-// } as const
