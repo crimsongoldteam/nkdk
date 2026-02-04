@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "../context/types"
 import { AllChildItem } from "../forms/collections/childItems/types"
 import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
-import { PropertyRule } from "../forms/elements/calendarField/rules"
+import { PropertyRule } from "./rulesFactory"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
 

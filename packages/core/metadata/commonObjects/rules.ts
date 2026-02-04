@@ -77,7 +77,7 @@
 // import { importChoiceParametersFromYAML } from "./сhoiceParameters/importFromYAML"
 
 import { ConfigurationContext } from "../context/types"
-import { PropertyRule } from "../forms/elements/calendarField/rules"
+import { PropertyRule } from "../metadataFactory/rulesFactory"
 import { exportBooleanToEnterprise } from "./boolean/exportToEnterprise"
 import { importBooleanFromXML } from "./boolean/importFromXML"
 

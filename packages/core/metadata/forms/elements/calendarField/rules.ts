@@ -1,96 +1,97 @@
-import { NamedElement } from "../baseElement/types"
+import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/rulesFactory"
 import { CalendarField } from "./types"
-
-export interface PropertyRule {
-  yaml: string
-  yamlAlt?: string
-  type: string
-  typeDetailed?: string
-  xml?: string
-  enterprise?: boolean
-}
-
-export interface ElementRule<T extends NamedElement> {
-  properties?: Partial<Record<Capitalize<Extract<keyof T, string>>, PropertyRule>>
-  events?: Record<string, string>
-}
+export type { ElementRule, PropertyRule }
 
 export const CalendarFieldRules: ElementRule<CalendarField> = {
   properties: {
-    AutoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean", enterprise: true },
-    AutoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", enterprise: true },
-    AutoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", enterprise: true },
-    BeginOfRepresentationPeriod: { yaml: "НачалоПериодаОтображения", type: "string", enterprise: true },
-    Border: { yaml: "Рамка", type: "Border", enterprise: true },
-    BorderColor: { yaml: "ЦветРамки", type: "Color", enterprise: true },
-    CalendarNavigation: { yaml: "ПеремещениеПоКалендарю", type: "boolean", enterprise: true },
-    CellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", enterprise: true },
-    ContextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", enterprise: true },
-    DataPath: { yaml: "ПутьКДанным", type: "string", enterprise: true },
-    DefaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean", enterprise: true },
-    DisplayImportance: {
+    autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean", enterprise: true },
+    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", enterprise: true },
+    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", enterprise: true },
+    beginOfRepresentationPeriod: { yaml: "НачалоПериодаОтображения", type: "string", enterprise: true },
+    border: { yaml: "Рамка", type: "Border", enterprise: true },
+    borderColor: { yaml: "ЦветРамки", type: "Color", enterprise: true },
+    calendarNavigation: { yaml: "ПеремещениеПоКалендарю", type: "boolean", enterprise: true },
+    cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", enterprise: true },
+    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", enterprise: true },
+    dataPath: { yaml: "ПутьКДанным", type: "string", enterprise: true },
+    defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean", enterprise: true },
+    displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
       type: "DisplayImportance",
       enterprise: true,
     },
-    EnableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", enterprise: true },
-    EnableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", enterprise: true },
-    Enabled: { yaml: "Доступность", type: "boolean", enterprise: true },
-    EndOfRepresentationPeriod: { yaml: "КонецПериодаОтображения", type: "string", enterprise: true },
-    ExtendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", enterprise: true },
-    Font: { yaml: "Шрифт", type: "Font", enterprise: true },
-    Height: { yaml: "Высота", type: "number", enterprise: true },
-    HeightInMonths: { yaml: "ВысотаВМесяцах", type: "number", enterprise: true },
-    HorizontalAlignInGroup: {
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", enterprise: true },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", enterprise: true },
+    enabled: { yaml: "Доступность", type: "boolean", enterprise: true },
+    endOfRepresentationPeriod: { yaml: "КонецПериодаОтображения", type: "string", enterprise: true },
+    events: { yaml: "События", type: "Events", enterprise: true },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", enterprise: true },
+    font: { yaml: "Шрифт", type: "Font", enterprise: true },
+    height: { yaml: "Высота", type: "number", enterprise: true },
+    heightInMonths: { yaml: "ВысотаВМесяцах", type: "number", enterprise: true },
+    horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложение",
       type: "ItemHorizontalLocation",
       xml: "GroupHorizontalAlign",
       enterprise: true,
     },
-    HorizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", enterprise: true },
-    MaxHeight: { yaml: "МаксимальнаяВысота", type: "number", enterprise: true },
-    MaxWidth: { yaml: "МаксимальнаяШирина", type: "number", enterprise: true },
-    OnMainServerUnavalableBehavior: {
+    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", enterprise: true },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", enterprise: true },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", enterprise: true },
+    onMainServerUnavalableBehavior: {
       yaml: "ПоведениеПриНедоступностиОсновногоСервера",
-      type: "OnMainServerUnavalableBehavior",
+      type: "SystemEnumeration",
+      typeDetailed: "OnMainServerUnavalableBehavior",
       enterprise: true,
     },
-    ReadOnly: { yaml: "ТолькоПросмотр", type: "boolean", enterprise: true },
-    SelectionMode: { yaml: "РежимВыделения", type: "DateSelectionMode", enterprise: true },
-    Shortcut: { yaml: "СочетаниеКлавиш", type: "string", enterprise: true },
-    ShowCurrentDate: { yaml: "ОтображатьТекущуюДату", type: "boolean", enterprise: true },
-    ShowMonthsPanel: { yaml: "ОтображатьПанельМесяцев", type: "boolean", enterprise: true },
-    SkipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", enterprise: true },
-    Title: { yaml: "Заголовок", type: "I8nText", enterprise: true },
-    TitleFont: { yaml: "ШрифтЗаголовка", type: "Font", enterprise: true },
-    TitleHeight: { yaml: "ВысотаЗаголовка", type: "number", enterprise: true },
-    TitleLocation: { yaml: "ПоложениеЗаголовка", type: "FormItemTitleLocation", enterprise: true },
-    TitleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", enterprise: true },
-    ToolTip: { yaml: "Подсказка", type: "I8nText", enterprise: true },
-    ToolTipRepresentation: { yaml: "ОтображениеПодсказки", type: "ToolTipRepresentation", enterprise: true },
-    UserVisible: {
+    readOnly: { yaml: "ТолькоПросмотр", type: "boolean", enterprise: true },
+    selectionMode: {
+      yaml: "РежимВыделения",
+      type: "SystemEnumeration",
+      typeDetailed: "DateSelectionMode",
+      enterprise: true,
+    },
+    shortcut: { yaml: "СочетаниеКлавиш", type: "string", enterprise: true },
+    showCurrentDate: { yaml: "ОтображатьТекущуюДату", type: "boolean", enterprise: true },
+    showMonthsPanel: { yaml: "ОтображатьПанельМесяцев", type: "boolean", enterprise: true },
+    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", enterprise: true },
+    title: { yaml: "Заголовок", type: "I8nText", enterprise: true },
+    titleFont: { yaml: "ШрифтЗаголовка", type: "Font", enterprise: true },
+    titleHeight: { yaml: "ВысотаЗаголовка", type: "number", enterprise: true },
+    titleLocation: {
+      yaml: "ПоложениеЗаголовка",
+      type: "SystemEnumeration",
+      typeDetailed: "FormItemTitleLocation",
+      enterprise: true,
+    },
+    titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", enterprise: true },
+    toolTip: { yaml: "Подсказка", type: "I8nText", enterprise: true },
+    toolTipRepresentation: { yaml: "ОтображениеПодсказки", type: "ToolTipRepresentation", enterprise: true },
+    userVisible: {
       yaml: "РазрешитьИспользование",
       yamlAlt: "ЗапретитьИспользование",
       type: "UserVisible",
       enterprise: true,
     },
-    VerticalAlignInGroup: {
+    verticalAlignInGroup: {
       yaml: "ВертикальноеПоложение",
-      type: "ItemVerticalAlign",
+      type: "SystemEnumeration",
+      typeDetailed: "ItemVerticalAlign",
       xml: "GroupVerticalAlign",
       enterprise: true,
     },
-    VerticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", enterprise: true },
-    Visible: { yaml: "Видимость", type: "boolean", enterprise: true },
-    WarningOnEdit: { yaml: "ПредупреждениеПриРедактировании", type: "I8nText", enterprise: true },
-    WarningOnEditRepresentation: {
+    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", enterprise: true },
+    visible: { yaml: "Видимость", type: "boolean", enterprise: true },
+    warningOnEdit: { yaml: "ПредупреждениеПриРедактировании", type: "I8nText", enterprise: true },
+    warningOnEditRepresentation: {
       yaml: "ОтображениеПредупрежденияПриРедактировании",
-      type: "WarningOnEditRepresentation",
+      type: "SystemEnumeration",
+      typeDetailed: "WarningOnEditRepresentation",
       enterprise: true,
     },
-    Width: { yaml: "Ширина", type: "number", enterprise: true },
-    WidthInMonths: { yaml: "ШиринаВМесяцах", type: "number", enterprise: true },
+    width: { yaml: "Ширина", type: "number", enterprise: true },
+    widthInMonths: { yaml: "ШиринаВМесяцах", type: "number", enterprise: true },
   },
   events: {
     onChange: "ПриИзменении",
@@ -103,3 +104,24 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     dragCheck: "ПроверкаПеретаскивания",
   },
 }
+
+registerElementRule("CalendarField", CalendarFieldRules)
+
+// export const CalendarFieldRulesXMLMap = {
+//   properties: Object.entries(CalendarFieldRules.properties!).reduce(
+//     (acc, [key, rule]) => {
+//       const newKey = rule.xml ?? key.charAt(0).toUpperCase() + key.slice(1)
+//       acc[newKey] = rule
+//       return acc
+//     },
+//     {} as Record<string, PropertyRule>
+//   ),
+//   events: Object.entries(CalendarFieldRules.events!).reduce(
+//     (acc, [key]) => {
+//       const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1)
+//       acc[capitalizedKey] = key
+//       return acc
+//     },
+//     {} as Record<string, string>
+//   ),
+// } as const
