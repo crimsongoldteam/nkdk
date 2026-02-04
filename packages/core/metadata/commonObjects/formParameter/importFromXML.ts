@@ -35,4 +35,4 @@ const importFormParameterFromXML = (
 }
 
 
-registerTypeRule("FormParameter", "importFromXML", importFromXML)
+registerTypeRule("FormParameter", "importFromXML", importFormParametersFromXML)

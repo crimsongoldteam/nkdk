@@ -29,4 +29,4 @@ export const importI8nTextFromXML = (
 }
 
 
-registerTypeRule("I8nText", "importFromXML", importFromXML)
+registerTypeRule("I8nText", "importFromXML", importI8nTextFromXML)

@@ -35,4 +35,4 @@ export const importUserVisibleFromEnterprise = (
 }
 
 
-registerTypeRule("UserVisible", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("UserVisible", "importFromEnterprise", importUserVisibleFromEnterprise)

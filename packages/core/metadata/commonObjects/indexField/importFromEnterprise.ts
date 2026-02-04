@@ -26,4 +26,4 @@ export const importIndexFieldsFromEnterprise = (
 }
 
 
-registerTypeRule("IndexField", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("IndexField", "importFromEnterprise", importIndexFieldFromEnterprise)

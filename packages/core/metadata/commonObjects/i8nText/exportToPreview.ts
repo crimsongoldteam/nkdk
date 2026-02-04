@@ -13,4 +13,4 @@ export const exportI8nTextToPreview = (
 }
 
 
-registerTypeRule("I8nText", "exportToPreview", exportToPreview)
+registerTypeRule("I8nText", "exportToPreview", exportI8nTextToPreview)

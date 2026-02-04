@@ -90,4 +90,4 @@ function createPicture(
 }
 
 
-registerTypeRule("Picture", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("Picture", "importFromEnterprise", importPictureFromEnterprise)

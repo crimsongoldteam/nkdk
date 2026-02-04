@@ -209,4 +209,4 @@ const isPrimitiveType = (type: MetadataValueType): boolean => {
 }
 
 
-registerTypeRule("MetadataValue", "importFromXML", importFromXML)
+registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXML)

@@ -120,4 +120,4 @@ export const exportMedatataRefToEnterprise = (context: ConfigurationContext, val
 }
 
 
-registerTypeRule("MetadataValue", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("MetadataValue", "exportToEnterprise", exportMetadataValueToEnterprise)

@@ -125,4 +125,4 @@ const getDateQualifiers = (typeDescription: TypeDescription): TypeDescriptionXML
 }
 
 
-registerTypeRule("TypeDescription", "exportToXML", exportToXML)
+registerTypeRule("TypeDescription", "exportToXML", exportTypeDescriptionToXML)

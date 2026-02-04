@@ -22,4 +22,4 @@ export const importUsePurposesFromEnterprise = (
 }
 
 
-registerTypeRule("UsePurposes", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("UsePurposes", "importFromEnterprise", importUsePurposesFromEnterprise)

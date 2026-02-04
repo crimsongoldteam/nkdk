@@ -113,4 +113,4 @@ function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
 }
 
 
-registerTypeRule("TypeDescription", "importFromXML", importFromXML)
+registerTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)

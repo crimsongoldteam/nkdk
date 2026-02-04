@@ -26,4 +26,4 @@ export const exportPictureToPreview = (
 }
 
 
-registerTypeRule("Picture", "exportToPreview", exportToPreview)
+registerTypeRule("Picture", "exportToPreview", exportPictureToPreview)

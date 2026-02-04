@@ -23,4 +23,4 @@ export const exportTypeLinkToEnterprise = (
 }
 
 
-registerTypeRule("TypeLink", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("TypeLink", "exportToEnterprise", exportTypeLinkToEnterprise)

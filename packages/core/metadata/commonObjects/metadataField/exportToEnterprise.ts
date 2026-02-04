@@ -25,4 +25,4 @@ export const exportMetadataFieldToEnterprise = (
 }
 
 
-registerTypeRule("MetadataField", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("MetadataField", "exportToEnterprise", exportMetadataFieldToEnterprise)

@@ -16,4 +16,4 @@ export const exportFunctionalOptionsToXML = (
 }
 
 
-registerTypeRule("FunctionalOptionsProperty", "exportToXML", exportToXML)
+registerTypeRule("FunctionalOptionsProperty", "exportToXML", exportFunctionalOptionsToXML)

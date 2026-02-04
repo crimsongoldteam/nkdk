@@ -184,4 +184,4 @@ export const importMetadataRefFromEnterprise = (
 }
 
 
-registerTypeRule("MetadataValue", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("MetadataValue", "importFromEnterprise", importMetadataValueFromEnterprise)

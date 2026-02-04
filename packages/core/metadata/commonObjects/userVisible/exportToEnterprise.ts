@@ -24,4 +24,4 @@ export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey e
 }
 
 
-registerTypeRule("UserVisible", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("UserVisible", "exportToEnterprise", exportUserVisibleToEnterprise)

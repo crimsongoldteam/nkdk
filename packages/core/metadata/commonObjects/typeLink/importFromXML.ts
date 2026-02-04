@@ -22,4 +22,4 @@ export const importTypeLinkFromXML = (
 }
 
 
-registerTypeRule("TypeLink", "importFromXML", importFromXML)
+registerTypeRule("TypeLink", "importFromXML", importTypeLinkFromXML)

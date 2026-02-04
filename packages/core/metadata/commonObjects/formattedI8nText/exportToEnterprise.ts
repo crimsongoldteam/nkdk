@@ -55,4 +55,4 @@ export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, Form
 }
 
 
-registerTypeRule("FormattedI8nText", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("FormattedI8nText", "exportToEnterprise", exportFormattedI8nTextToEnterprise)

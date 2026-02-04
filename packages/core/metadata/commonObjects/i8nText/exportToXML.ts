@@ -34,4 +34,4 @@ export const exportI8nTextToXML = (
 }
 
 
-registerTypeRule("I8nText", "exportToXML", exportToXML)
+registerTypeRule("I8nText", "exportToXML", exportI8nTextToXML)

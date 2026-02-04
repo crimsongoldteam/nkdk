@@ -102,4 +102,4 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
 }
 
 
-registerTypeRule("TypeDescription", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("TypeDescription", "exportToEnterprise", exportTypeDescriptionToEnterprise)

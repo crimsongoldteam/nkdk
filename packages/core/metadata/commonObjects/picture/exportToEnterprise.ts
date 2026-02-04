@@ -52,4 +52,4 @@ export function exportPictureToEnterprise(
 }
 
 
-registerTypeRule("Picture", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("Picture", "exportToEnterprise", exportPictureToEnterprise)

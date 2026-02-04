@@ -32,4 +32,4 @@ export const importUsePurposesFromXML = (
 }
 
 
-registerTypeRule("UsePurposes", "importFromXML", importFromXML)
+registerTypeRule("UsePurposes", "importFromXML", importUsePurposesFromXML)

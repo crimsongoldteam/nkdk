@@ -46,5 +46,4 @@ export const exportTypeDescriptionToPreview = (
   return result
 }
 
-
-registerTypeRule("TypeDescription", "exportToPreview", exportToPreview)
+registerTypeRule("TypeDescription", "exportToPreview", exportTypeDescriptionToPreview)

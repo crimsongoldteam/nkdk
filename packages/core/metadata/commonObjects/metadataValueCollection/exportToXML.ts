@@ -26,4 +26,4 @@ export const exportMetadataValueCollectionToXML = (
 }
 
 
-registerTypeRule("MetadataValueCollection", "exportToXML", exportToXML)
+registerTypeRule("MetadataValueCollection", "exportToXML", exportMetadataValueCollectionToXML)

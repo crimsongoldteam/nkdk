@@ -38,4 +38,4 @@ export const importTypeLinkFromEnterprise = (
 }
 
 
-registerTypeRule("TypeLink", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("TypeLink", "importFromEnterprise", importTypeLinkFromEnterprise)

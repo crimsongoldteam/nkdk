@@ -29,4 +29,4 @@ export const exportPictureToXML = (
 }
 
 
-registerTypeRule("Picture", "exportToXML", exportToXML)
+registerTypeRule("Picture", "exportToXML", exportPictureToXML)

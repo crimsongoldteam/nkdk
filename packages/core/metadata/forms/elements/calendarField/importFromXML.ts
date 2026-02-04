@@ -1,10 +1,10 @@
-import { importPropertyFromXML } from "~/metadata/commonObjects/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
 import { getElementRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importPropertyFromXML } from "~/metadata/commonObjects/rules"
 
 export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
   context: ConfigurationContext,

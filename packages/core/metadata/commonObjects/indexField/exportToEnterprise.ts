@@ -24,4 +24,4 @@ export const exportIndexFieldsToEnterprise = (
 }
 
 
-registerTypeRule("IndexField", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("IndexField", "exportToEnterprise", exportIndexFieldToEnterprise)

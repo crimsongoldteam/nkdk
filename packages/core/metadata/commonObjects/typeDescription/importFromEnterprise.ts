@@ -146,4 +146,4 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers | undefi
 }
 
 
-registerTypeRule("TypeDescription", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("TypeDescription", "importFromEnterprise", importTypeDescriptionFromEnterprise)

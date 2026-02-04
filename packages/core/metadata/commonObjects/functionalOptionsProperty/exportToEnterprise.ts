@@ -14,4 +14,4 @@ export const exportFunctionalOptionsToEnterprise = (
 }
 
 
-registerTypeRule("FunctionalOptionsProperty", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("FunctionalOptionsProperty", "exportToEnterprise", exportFunctionalOptionsToEnterprise)

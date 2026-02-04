@@ -32,4 +32,4 @@ export const exportFormattedI8nTextToXML = (
 }
 
 
-registerTypeRule("FormattedI8nText", "exportToXML", exportToXML)
+registerTypeRule("FormattedI8nText", "exportToXML", exportFormattedI8nTextToXML)

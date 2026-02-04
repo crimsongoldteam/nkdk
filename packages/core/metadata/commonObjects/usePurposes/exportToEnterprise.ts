@@ -27,4 +27,4 @@ export const exportUsePurposesToEnterprise = (
 }
 
 
-registerTypeRule("UsePurposes", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("UsePurposes", "exportToEnterprise", exportUsePurposesToEnterprise)

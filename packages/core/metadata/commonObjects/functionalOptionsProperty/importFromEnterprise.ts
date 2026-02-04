@@ -14,4 +14,4 @@ export const importFunctionalOptionsFromEnterprise = (
 }
 
 
-registerTypeRule("FunctionalOptionsProperty", "importFromEnterprise", importFromEnterprise)
+registerTypeRule("FunctionalOptionsProperty", "importFromEnterprise", importFunctionalOptionsFromEnterprise)

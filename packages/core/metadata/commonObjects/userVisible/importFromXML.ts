@@ -32,4 +32,4 @@ export const importUserVisibleFromXML = (
 }
 
 
-registerTypeRule("UserVisible", "importFromXML", importFromXML)
+registerTypeRule("UserVisible", "importFromXML", importUserVisibleFromXML)

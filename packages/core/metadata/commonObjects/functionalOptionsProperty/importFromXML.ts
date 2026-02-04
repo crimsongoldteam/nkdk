@@ -14,4 +14,4 @@ export const importFunctionalOptionsFromXML = (
 }
 
 
-registerTypeRule("FunctionalOptionsProperty", "importFromXML", importFromXML)
+registerTypeRule("FunctionalOptionsProperty", "importFromXML", importFunctionalOptionsFromXML)

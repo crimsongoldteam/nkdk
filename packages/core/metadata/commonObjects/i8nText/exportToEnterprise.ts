@@ -47,4 +47,4 @@ export const exportI8nTextOtherToEnterprise = (
 }
 
 
-registerTypeRule("I8nText", "exportToEnterprise", exportToEnterprise)
+registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToEnterprise)

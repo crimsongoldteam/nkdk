@@ -39,4 +39,4 @@ export const importPictureFromXML = (
 }
 
 
-registerTypeRule("Picture", "importFromXML", importFromXML)
+registerTypeRule("Picture", "importFromXML", importPictureFromXML)

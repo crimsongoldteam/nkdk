@@ -24,4 +24,4 @@ export const exportIndexFieldsToXML = (
 }
 
 
-registerTypeRule("IndexField", "exportToXML", exportToXML)
+registerTypeRule("IndexField", "exportToXML", exportIndexFieldToXML)

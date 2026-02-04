@@ -24,4 +24,4 @@ export const importIndexFieldsFromXML = (
 }
 
 
-registerTypeRule("IndexField", "importFromXML", importFromXML)
+registerTypeRule("IndexField", "importFromXML", importIndexFieldFromXML)

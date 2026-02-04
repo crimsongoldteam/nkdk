@@ -22,4 +22,4 @@ export const exportUserVisibleToXML = (
 }
 
 
-registerTypeRule("UserVisible", "exportToXML", exportToXML)
+registerTypeRule("UserVisible", "exportToXML", exportUserVisibleToXML)

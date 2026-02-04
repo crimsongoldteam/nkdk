@@ -28,4 +28,4 @@ export const exportMetadataFieldsToXML = (
 }
 
 
-registerTypeRule("MetadataField", "exportToXML", exportToXML)
+registerTypeRule("MetadataField", "exportToXML", exportMetadataFieldToXML)

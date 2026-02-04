@@ -22,4 +22,4 @@ export const exportUsePurposesToXML = (
 }
 
 
-registerTypeRule("UsePurposes", "exportToXML", exportToXML)
+registerTypeRule("UsePurposes", "exportToXML", exportUsePurposesToXML)

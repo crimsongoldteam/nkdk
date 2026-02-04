@@ -103,4 +103,4 @@ const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: s
 })
 
 
-registerTypeRule("MetadataValue", "exportToXML", exportToXML)
+registerTypeRule("MetadataValue", "exportToXML", exportMetadataValueToXML)

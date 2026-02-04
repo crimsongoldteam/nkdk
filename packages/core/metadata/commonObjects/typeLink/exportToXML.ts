@@ -33,4 +33,4 @@ export const exportTypeLinkWithXSITypeToXML = (
 }
 
 
-registerTypeRule("TypeLink", "exportToXML", exportToXML)
+registerTypeRule("TypeLink", "exportToXML", exportTypeLinkToXML)
