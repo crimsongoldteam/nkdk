@@ -34,5 +34,33 @@ export const importUserVisibleFromEnterprise = (
   }
 }
 
+export const importUserVisibleFromYAML = (
+  context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  valueAllow: Record<string, StringboolEnterprise> | undefined,
+  valueDeny: Record<string, StringboolEnterprise> | undefined
+): UserVisible | undefined => {
+  if (valueAllow === undefined && valueDeny === undefined) {
+    return undefined
+  }
+
+  const common = valueAllow !== undefined
+
+  const value = common ? valueAllow : valueDeny!
+
+  const values = Object.entries(value).map(([key, val]) => {
+    const name = key.replace(/^Role\./, "")
+    const parsedValue = importBooleanFromEnterprise(context, undefined, val)!
+    return {
+      name,
+      value: parsedValue,
+    }
+  })
+
+  return {
+    common,
+    values,
+  }
+}
 
 registerTypeRule("UserVisible", "importFromEnterprise", importUserVisibleFromEnterprise)

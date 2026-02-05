@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/commonObjects/exportToEnterprise"
+import "~/metadata/forms/elements/calendarField/rules"
+import "~/metadata/forms/elements/exportToEnterprise"
 import {
   fullCalendarField,
   fullCalendarFieldPartialEnterprise,

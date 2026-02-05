@@ -29,7 +29,7 @@ export type TypeRulesNames =
   | "ChoiceParameters"
   | "SystemEnumeration"
 
-type ImportExportFunction = (context: ConfigurationContext, rule: PropertyRule | undefined, value: any) => any
+export type ImportExportFunction = (context: ConfigurationContext, rule: PropertyRule | undefined, value: any) => any
 
 export interface TypeRule {
   importFromXML?: ImportExportFunction
