@@ -10,7 +10,7 @@ import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/comm
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
@@ -29,7 +29,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.lineNumberLength !== undefined) result.ДлинаНомераСтроки = data.lineNumberLength
 
-  const use = exportSystemEnumerationToYAML(context, undefined, data.use, SE.AttributeUseToEnterprise)
+  const use = exportSystemEnumerationToEnterprise(context, undefined, data.use, SE.AttributeUseToEnterprise)
   if (use !== undefined) result.Использование = use
 
   if (data.comment !== undefined) result.Комментарий = data.comment
@@ -37,7 +37,7 @@ export const exportMetadataTabularSectionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToYAML(
+  const objectBelonging = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.objectBelonging,
@@ -45,7 +45,12 @@ export const exportMetadataTabularSectionToEnterprise = (
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const fillChecking = exportSystemEnumerationToYAML(context, undefined, data.fillChecking, SE.FillCheckingToEnterprise)
+  const fillChecking = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.fillChecking,
+    SE.FillCheckingToEnterprise
+  )
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
   const standardAttributes = exportStandardAttributeDescriptionsToEnterprise(

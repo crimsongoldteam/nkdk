@@ -58,13 +58,12 @@ export function importElementFromEnterprisePartial<T extends NamedElement>(
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
     if (!rule.enterprise) continue
 
-    const yamlKey = (rule.yaml ?? key.charAt(0).toUpperCase() + key.slice(1)) as keyof typeof data
+    const yamlKey = rule.yaml as keyof typeof data
 
     const xmlValue = data[yamlKey]
 
     if (xmlValue === undefined) continue
 
-    // Try to get type-specific import function
     const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
 
     if (typeImportFn) {

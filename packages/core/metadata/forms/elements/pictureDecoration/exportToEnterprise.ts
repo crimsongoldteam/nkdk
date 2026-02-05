@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -82,7 +82,7 @@ const exportPictureDecorationPropsToEnterprise = (
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -90,7 +90,7 @@ const exportPictureDecorationPropsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -98,7 +98,7 @@ const exportPictureDecorationPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormDecorationTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormDecorationTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -106,7 +106,7 @@ const exportPictureDecorationPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -124,7 +124,7 @@ const exportPictureDecorationPropsToEnterprise = (
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -176,7 +176,12 @@ const exportPictureDecorationPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const pictureSize = exportSystemEnumerationToYAML(context, undefined, data.pictureSize, SE.PictureSizeToEnterprise)
+  const pictureSize = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.pictureSize,
+    SE.PictureSizeToEnterprise
+  )
   if (pictureSize !== undefined) result.РазмерКартинки = pictureSize
 
   const enableStartDrag = exportBooleanToEnterprise(context, undefined, data.enableStartDrag)
@@ -188,7 +193,12 @@ const exportPictureDecorationPropsToEnterprise = (
   const border = exportBorderToEnterprise(context, undefined, data.border)
   if (border !== undefined) result.Рамка = border
 
-  const fileDragMode = exportSystemEnumerationToYAML(context, undefined, data.fileDragMode, SE.FileDragModeToEnterprise)
+  const fileDragMode = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.fileDragMode,
+    SE.FileDragModeToEnterprise
+  )
   if (fileDragMode !== undefined) result.СпособПеретаскиванияФайлов = fileDragMode
 
   if (data.nonselectedPictureText !== undefined) result.ТекстНевыбраннойКартинки = data.nonselectedPictureText

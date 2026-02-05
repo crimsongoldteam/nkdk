@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color } from "./types"
 
@@ -13,7 +13,12 @@ export const exportColorToEnterprise = <T extends Color | undefined>(
   if (!color) return undefined
 
   if (color.type === "StyleItem") {
-    const standardColor = exportSystemEnumerationToYAML(_context, undefined, color.value, SE.StyleColorsToEnterprise)
+    const standardColor = exportSystemEnumerationToEnterprise(
+      _context,
+      undefined,
+      color.value,
+      SE.StyleColorsToEnterprise
+    )
     if (standardColor) {
       return standardColor
     }
@@ -22,11 +27,11 @@ export const exportColorToEnterprise = <T extends Color | undefined>(
   }
 
   if (color.type === "WindowsColor") {
-    return exportSystemEnumerationToYAML(_context, undefined, color.value, SE.WindowsColorsToEnterprise)
+    return exportSystemEnumerationToEnterprise(_context, undefined, color.value, SE.WindowsColorsToEnterprise)
   }
 
   if (color.type === "WebColor") {
-    return exportSystemEnumerationToYAML(_context, undefined, color.value, SE.WebColorsToEnterprise)
+    return exportSystemEnumerationToEnterprise(_context, undefined, color.value, SE.WebColorsToEnterprise)
   }
 
   return color.value

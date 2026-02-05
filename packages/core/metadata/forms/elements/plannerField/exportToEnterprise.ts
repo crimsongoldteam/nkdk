@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -82,7 +82,7 @@ const exportPlannerFieldPropsToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -90,7 +90,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToYAML(
+  const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlign,
@@ -98,7 +98,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -106,7 +106,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -117,7 +117,7 @@ const exportPlannerFieldPropsToEnterprise = (
   const cellHyperlink = exportBooleanToEnterprise(context, undefined, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
-  const horizontalAlign = exportSystemEnumerationToYAML(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlign,
@@ -125,7 +125,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -133,7 +133,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const footerHorizontalAlign = exportSystemEnumerationToYAML(
+  const footerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.footerHorizontalAlign,
@@ -141,7 +141,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (footerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВПодвале = footerHorizontalAlign
 
-  const headerHorizontalAlign = exportSystemEnumerationToYAML(
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.headerHorizontalAlign,
@@ -170,7 +170,7 @@ const exportPlannerFieldPropsToEnterprise = (
   const showInHeader = exportBooleanToEnterprise(context, undefined, data.showInHeader)
   if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -178,7 +178,7 @@ const exportPlannerFieldPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const warningOnEditRepresentation = exportSystemEnumerationToYAML(
+  const warningOnEditRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.warningOnEditRepresentation,
@@ -190,7 +190,7 @@ const exportPlannerFieldPropsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToYAML(
+  const titleLocation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.titleLocation,
@@ -219,7 +219,7 @@ const exportPlannerFieldPropsToEnterprise = (
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToYAML(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
+  const editMode = exportSystemEnumerationToEnterprise(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
@@ -232,7 +232,7 @@ const exportPlannerFieldPropsToEnterprise = (
   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const fixingInTable = exportSystemEnumerationToYAML(
+  const fixingInTable = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.fixingInTable,

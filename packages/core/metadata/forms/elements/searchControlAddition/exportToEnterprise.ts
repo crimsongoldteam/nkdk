@@ -14,7 +14,7 @@ import {
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -63,7 +63,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
 ): SearchControlAdditionEnterprise => {
   const result: SearchControlAdditionEnterprise = {}
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -71,7 +71,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -82,7 +82,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -96,7 +96,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   const contextMenu = exportContextMenuToEnterprise(context, undefined, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,

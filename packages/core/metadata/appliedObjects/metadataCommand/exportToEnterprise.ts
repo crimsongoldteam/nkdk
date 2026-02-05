@@ -11,7 +11,7 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescription/exportToEnterprise"
@@ -37,7 +37,7 @@ export const exportMetadataCommandToEnterprise = (
 
   let group: SE.StandardCommandsGroupEnterprise | string | undefined
   if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
-    group = exportSystemEnumerationToYAML(context, undefined, data.group, SE.StandardCommandsGroupToEnterprise)!
+    group = exportSystemEnumerationToEnterprise(context, undefined, data.group, SE.StandardCommandsGroupToEnterprise)!
   } else {
     group = exportMetadataItemLinkToEnterprise(context, undefined, data.group)
   }
@@ -63,7 +63,7 @@ export const exportMetadataCommandToEnterprise = (
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const representation = exportSystemEnumerationToYAML(
+  const representation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.representation,
@@ -74,7 +74,7 @@ export const exportMetadataCommandToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToYAML(
+  const objectBelonging = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.objectBelonging,
@@ -82,7 +82,7 @@ export const exportMetadataCommandToEnterprise = (
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const parameterUseMode = exportSystemEnumerationToYAML(
+  const parameterUseMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.parameterUseMode,
@@ -95,7 +95,7 @@ export const exportMetadataCommandToEnterprise = (
   const commandParameterType = exportTypeDescriptionToEnterprise(context, undefined, data.commandParameterType)
   if (commandParameterType !== undefined) result.ТипПараметраКоманды = commandParameterType
 
-  const onMainServerUnavalableBehavior = exportSystemEnumerationToYAML(
+  const onMainServerUnavalableBehavior = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.onMainServerUnavalableBehavior,

@@ -23,13 +23,9 @@ export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey e
   } as Partial<Record<AllowKey | DenyKey, UserVisibleEnterprise>>
 }
 
-const isUserVisiblePropertyRule = (rule: PropertyRule | undefined): rule is UserVisiblePropertyRule => {
-  return rule !== undefined && "yamlAlt" in rule
-}
-
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: UserVisiblePropertyRule,
   userVisible: UserVisible | undefined
 ): Partial<Record<string, UserVisibleEnterprise>> | undefined => {
   if (!userVisible) return undefined
@@ -39,12 +35,11 @@ export const exportUserVisibleToYAML = (
     values[item.name] = exportBooleanToEnterprise(context, undefined, item.value)!
   })
 
-  if (!isUserVisiblePropertyRule(rule)) return undefined
   const key = userVisible.common ? rule.yaml : rule.yamlDeny
-  if (!key) return undefined
+
   return {
     [key]: values,
   }
 }
 
-registerTypeRule("UserVisible", "exportToEnterprise", exportUserVisibleToYAML)
+registerTypeRule("UserVisible", "exportToEnterprise", exportUserVisibleToYAML as any)

@@ -10,13 +10,13 @@ interface BasePropertyRule {
 
 export interface I8nTextPropertyRule extends BasePropertyRule {
   type: "I8nText"
-  yamlPartial: "others" | "none"
+  yamlPartialOthers?: boolean
 }
 
 export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
   type: "FormattedI8nText"
   yamlFormatted: string
-  yamlPartial: "others" | "none"
+  yamlPartialOthers?: boolean
 }
 
 export interface SystemEnumerationPropertyRule extends BasePropertyRule {
@@ -24,7 +24,7 @@ export interface SystemEnumerationPropertyRule extends BasePropertyRule {
   typeSE: string
 }
 
-export interface UserVisiblePropertyRule {
+export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
   yaml: string
   yamlDeny: string

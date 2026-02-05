@@ -5,7 +5,7 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -23,7 +23,7 @@ export const exportViewStatusAdditionToEnterprise = (
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const horizontalAlign = exportSystemEnumerationToYAML(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlign,
@@ -62,7 +62,7 @@ export const exportViewStatusAdditionToEnterprise = (
   const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -76,7 +76,7 @@ export const exportViewStatusAdditionToEnterprise = (
   const contextMenu = exportContextMenuToEnterprise(context, undefined, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,

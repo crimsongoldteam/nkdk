@@ -102,7 +102,12 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       typeSE: "ThroughAlign",
       enterprise: true,
     },
-    title: { yaml: "Заголовок", type: "I8nText", enterprise: true },
+    title: {
+      yaml: "Заголовок",
+      type: "I8nText",
+      yamlPartialOthers: true,
+      enterprise: true,
+    },
     titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "string", enterprise: true },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font", enterprise: true },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", enterprise: true },

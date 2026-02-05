@@ -15,7 +15,7 @@ import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/ex
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
@@ -49,7 +49,12 @@ const exportStandardAttributeDescriptionToEnterprise = (
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}
 
-  const quickChoice = exportSystemEnumerationToYAML(context, undefined, data.quickChoice, SE.UseQuickChoiceToEnterprise)
+  const quickChoice = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.quickChoice,
+    SE.UseQuickChoiceToEnterprise
+  )
   if (quickChoice) result.БыстрыйВыбор = quickChoice
 
   const markNegatives = exportBooleanToEnterprise(context, undefined, data.markNegatives)
@@ -61,7 +66,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
   if (fillValue) result.ЗначениеЗаполнения = fillValue
 
-  const choiceHistoryOnInput = exportSystemEnumerationToYAML(
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.choiceHistoryOnInput,
@@ -69,7 +74,12 @@ const exportStandardAttributeDescriptionToEnterprise = (
   )
   if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToYAML(context, undefined, data.dataHistory, SE.DataHistoryUseToEnterprise)
+  const dataHistory = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.dataHistory,
+    SE.DataHistoryUseToEnterprise
+  )
   if (dataHistory) result.ИсторияДанных = dataHistory
 
   if (data.comment) result.Комментарий = data.comment
@@ -86,7 +96,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
-  const fullTextSearch = exportSystemEnumerationToYAML(
+  const fullTextSearch = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.fullTextSearch,
@@ -94,7 +104,12 @@ const exportStandardAttributeDescriptionToEnterprise = (
   )
   if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToYAML(context, undefined, data.fillChecking, SE.FillCheckingToEnterprise)
+  const fillChecking = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.fillChecking,
+    SE.FillCheckingToEnterprise
+  )
   if (fillChecking) result.ПроверкаЗаполнения = fillChecking
 
   const extendedEdit = exportBooleanToEnterprise(context, undefined, data.extendedEdit)
@@ -103,7 +118,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const passwordMode = exportBooleanToEnterprise(context, undefined, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const typeReductionMode = exportSystemEnumerationToYAML(
+  const typeReductionMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.typeReductionMode,
@@ -120,7 +135,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const synonym = exportI8nTextToEnterprise(context, undefined, data.synonym)
   if (synonym) result.Синоним = synonym
 
-  const createOnInput = exportSystemEnumerationToYAML(
+  const createOnInput = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.createOnInput,

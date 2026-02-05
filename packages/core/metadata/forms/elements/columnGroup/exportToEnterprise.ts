@@ -22,7 +22,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -73,7 +73,7 @@ const exportColumnGroupPropsToEnterprise = (
 ): ColumnGroupPartialEnterprise => {
   const result: ColumnGroupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -81,7 +81,7 @@ const exportColumnGroupPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -89,7 +89,7 @@ const exportColumnGroupPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -100,7 +100,7 @@ const exportColumnGroupPropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -136,7 +136,7 @@ const exportColumnGroupPropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const headerHorizontalAlign = exportSystemEnumerationToYAML(
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.headerHorizontalAlign,
@@ -144,7 +144,7 @@ const exportColumnGroupPropsToEnterprise = (
   )
   if (headerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВШапке = headerHorizontalAlign
 
-  const group = exportSystemEnumerationToYAML(context, undefined, data.group, SE.ColumnsGroupToEnterprise)
+  const group = exportSystemEnumerationToEnterprise(context, undefined, data.group, SE.ColumnsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const headerPicture = exportPictureToEnterprise(context, undefined, data.headerPicture)
@@ -166,7 +166,7 @@ const exportColumnGroupPropsToEnterprise = (
 
   if (data.headerDataPath !== undefined) result.ПутьКДаннымШапки = data.headerDataPath
 
-  const fixingInTable = exportSystemEnumerationToYAML(
+  const fixingInTable = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.fixingInTable,

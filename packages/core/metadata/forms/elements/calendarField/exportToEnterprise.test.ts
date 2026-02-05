@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest"
 import "~/metadata/commonObjects/exportToEnterprise"
 import "~/metadata/forms/elements/calendarField/rules"
 import "~/metadata/forms/elements/exportToEnterprise"
+import "~/metadata/systemEnumerations/exportToEnterprise"
 import {
   fullCalendarField,
   fullCalendarFieldPartialEnterprise,
-  fullCalendarFieldTypedEnterprise,
   minimalCalendarField,
   minimalCalendarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportCalendarFieldPartialToEnterprise, exportCalendarFieldTypedToEnterprise } from "./exportToEnterprise"
+import { exportCalendarFieldPartialToEnterprise } from "./exportToEnterprise"
 
 describe("exportCalendarFieldToEnterprise", () => {
   describe("exportCalendarFieldPartialToEnterprise", () => {
@@ -24,20 +24,6 @@ describe("exportCalendarFieldToEnterprise", () => {
       const result = exportCalendarFieldPartialToEnterprise(mockContext, mockRule, minimalCalendarField)
 
       expect(result).toEqual(minimalCalendarFieldPartialEnterprise)
-    })
-  })
-
-  describe("exportCalendarFieldTypedToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportCalendarFieldTypedToEnterprise(mockContext, mockRule, fullCalendarField)
-
-      expect(result).toEqual(fullCalendarFieldTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportCalendarFieldTypedToEnterprise(mockContext, mockRule, undefined)
-
-      expect(result).toBeUndefined()
     })
   })
 })

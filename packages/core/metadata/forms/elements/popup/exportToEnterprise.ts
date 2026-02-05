@@ -19,7 +19,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -70,7 +70,7 @@ const exportPopupPropsToEnterprise = (
 ): PopupPartialEnterprise => {
   const result: PopupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -78,7 +78,7 @@ const exportPopupPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -86,7 +86,7 @@ const exportPopupPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -97,7 +97,7 @@ const exportPopupPropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -144,7 +144,7 @@ const exportPopupPropsToEnterprise = (
   const picture = exportPictureToEnterprise(context, undefined, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const representation = exportSystemEnumerationToYAML(
+  const representation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.representation,
@@ -152,7 +152,7 @@ const exportPopupPropsToEnterprise = (
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const shapeRepresentation = exportSystemEnumerationToYAML(
+  const shapeRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.shapeRepresentation,
@@ -160,7 +160,7 @@ const exportPopupPropsToEnterprise = (
   )
   if (shapeRepresentation !== undefined) result.ОтображениеФигуры = shapeRepresentation
 
-  const shape = exportSystemEnumerationToYAML(context, undefined, data.shape, SE.ButtonShapeToEnterprise)
+  const shape = exportSystemEnumerationToEnterprise(context, undefined, data.shape, SE.ButtonShapeToEnterprise)
   if (shape !== undefined) result.Фигура = shape
 
   const borderColor = exportColorToEnterprise(context, undefined, data.borderColor)

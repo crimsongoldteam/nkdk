@@ -19,7 +19,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 
@@ -69,7 +69,7 @@ export const exportPagePropsToEnterprise = (
 ): PagePartialEnterprise => {
   const result: PagePartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -77,7 +77,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -85,7 +85,7 @@ export const exportPagePropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -96,7 +96,7 @@ export const exportPagePropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -140,7 +140,7 @@ export const exportPagePropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -151,7 +151,7 @@ export const exportPagePropsToEnterprise = (
   const verticalScrollOnReduceSize = exportBooleanToEnterprise(context, undefined, data.verticalScrollOnReduceSize)
   if (verticalScrollOnReduceSize !== undefined) result.ВертикальнаяПрокруткаПриСжатии = verticalScrollOnReduceSize
 
-  const verticalAlign = exportSystemEnumerationToYAML(
+  const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlign,
@@ -159,7 +159,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const childItemsVerticalAlign = exportSystemEnumerationToYAML(
+  const childItemsVerticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.childItemsVerticalAlign,
@@ -167,7 +167,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
 
-  const verticalSpacing = exportSystemEnumerationToYAML(
+  const verticalSpacing = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalSpacing,
@@ -175,7 +175,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
 
-  const itemsAndTitlesAlign = exportSystemEnumerationToYAML(
+  const itemsAndTitlesAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.itemsAndTitlesAlign,
@@ -183,7 +183,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (itemsAndTitlesAlign !== undefined) result.ВыравниваниеЭлементовИЗаголовков = itemsAndTitlesAlign
 
-  const childItemsHorizontalAlign = exportSystemEnumerationToYAML(
+  const childItemsHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.childItemsHorizontalAlign,
@@ -191,7 +191,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
 
-  const horizontalSpacing = exportSystemEnumerationToYAML(
+  const horizontalSpacing = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalSpacing,
@@ -199,7 +199,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
 
-  const group = exportSystemEnumerationToYAML(context, undefined, data.group, SE.ChildFormItemsGroupToEnterprise)
+  const group = exportSystemEnumerationToEnterprise(context, undefined, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const picture = exportPictureToEnterprise(context, undefined, data.picture)
@@ -219,7 +219,7 @@ export const exportPagePropsToEnterprise = (
   const backColor = exportColorToEnterprise(context, undefined, data.backColor)
   if (backColor !== undefined) result.ЦветФона = backColor
 
-  const slaveItemsWidth = exportSystemEnumerationToYAML(
+  const slaveItemsWidth = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.slaveItemsWidth,

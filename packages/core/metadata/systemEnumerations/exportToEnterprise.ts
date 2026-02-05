@@ -1,7 +1,10 @@
+import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
+import { registerTypeRule, SystemEnumerationPropertyRule } from "../metadataFactory"
 
-export const exportSystemEnumerationToYAML = <T extends string>(
+/** @deprecated */
+export const exportSystemEnumerationToEnterprise = <T extends string>(
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   value: string | undefined,
@@ -11,3 +14,18 @@ export const exportSystemEnumerationToYAML = <T extends string>(
 
   return enumeration[value] as T
 }
+
+export const exportSystemEnumerationToYAML = <T extends string>(
+  _context: ConfigurationContext,
+  rule: SystemEnumerationPropertyRule,
+  value: string | undefined
+): T | undefined => {
+  if (!value) return undefined
+
+  const enumeration = (SE as Record<string, Record<string, string>>)[rule.typeSE + "ToEnterprise"]
+
+  if (!enumeration) throw new Error(`Enumeration ${rule!.typeSE} not found`)
+  return enumeration[value] as T
+}
+
+registerTypeRule("SystemEnumeration", "exportToEnterprise", exportSystemEnumerationToYAML as any)

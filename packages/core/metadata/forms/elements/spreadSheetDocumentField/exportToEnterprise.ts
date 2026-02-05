@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -82,7 +82,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -90,7 +90,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToYAML(
+  const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlign,
@@ -98,7 +98,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -106,7 +106,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -117,7 +117,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const cellHyperlink = exportBooleanToEnterprise(context, undefined, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
-  const horizontalAlign = exportSystemEnumerationToYAML(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlign,
@@ -125,7 +125,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -133,7 +133,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const footerHorizontalAlign = exportSystemEnumerationToYAML(
+  const footerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.footerHorizontalAlign,
@@ -141,7 +141,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (footerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВПодвале = footerHorizontalAlign
 
-  const headerHorizontalAlign = exportSystemEnumerationToYAML(
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.headerHorizontalAlign,
@@ -170,7 +170,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const showInHeader = exportBooleanToEnterprise(context, undefined, data.showInHeader)
   if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -178,7 +178,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const warningOnEditRepresentation = exportSystemEnumerationToYAML(
+  const warningOnEditRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.warningOnEditRepresentation,
@@ -190,7 +190,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToYAML(
+  const titleLocation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.titleLocation,
@@ -211,7 +211,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToYAML(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
+  const editMode = exportSystemEnumerationToEnterprise(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
@@ -224,7 +224,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const fixingInTable = exportSystemEnumerationToYAML(
+  const fixingInTable = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.fixingInTable,
@@ -256,7 +256,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const verticalScrollBar = exportSystemEnumerationToYAML(
+  const verticalScrollBar = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalScrollBar,
@@ -264,12 +264,12 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (verticalScrollBar !== undefined) result.ВертикальнаяПолосаПрокрутки = verticalScrollBar
 
-  const output = exportSystemEnumerationToYAML(context, undefined, data.output, SE.UseOutputToEnterprise)
+  const output = exportSystemEnumerationToEnterprise(context, undefined, data.output, SE.UseOutputToEnterprise)
   if (output !== undefined) result.Вывод = output
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalScrollBar = exportSystemEnumerationToYAML(
+  const horizontalScrollBar = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalScrollBar,
@@ -301,7 +301,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const showGrid = exportBooleanToEnterprise(context, undefined, data.showGrid)
   if (showGrid !== undefined) result.ОтображатьСетку = showGrid
 
-  const statePresentation = exportSystemEnumerationToYAML(
+  const statePresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.statePresentation,
@@ -332,7 +332,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   const edit = exportBooleanToEnterprise(context, undefined, data.edit)
   if (edit !== undefined) result.Редактирование = edit
 
-  const viewScalingMode = exportSystemEnumerationToYAML(
+  const viewScalingMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.viewScalingMode,
@@ -340,7 +340,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (viewScalingMode !== undefined) result.РежимМасштабированияПросмотра = viewScalingMode
 
-  const selectionShowMode = exportSystemEnumerationToYAML(
+  const selectionShowMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.selectionShowMode,
@@ -348,7 +348,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (selectionShowMode !== undefined) result.РежимОтображенияВыделения = selectionShowMode
 
-  const drawingSelectionShowMode = exportSystemEnumerationToYAML(
+  const drawingSelectionShowMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.drawingSelectionShowMode,
@@ -356,7 +356,7 @@ const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   )
   if (drawingSelectionShowMode !== undefined) result.РежимОтображенияВыделенияРисунков = drawingSelectionShowMode
 
-  const pointerType = exportSystemEnumerationToYAML(
+  const pointerType = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.pointerType,

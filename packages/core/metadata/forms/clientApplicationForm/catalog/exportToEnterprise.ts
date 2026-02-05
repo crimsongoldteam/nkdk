@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { exportClientApplicationFormToEnterprise } from "../base/exportToEnterprise"
@@ -49,7 +49,7 @@ export const exportCatalogFormToEnterprise = (
   const choiceAvailable = exportBooleanToEnterprise(context, undefined, data.choiceAvailable)
   if (choiceAvailable !== undefined) result.ВыборДоступен = choiceAvailable
 
-  const useForFoldersAndItems = exportSystemEnumerationToYAML(
+  const useForFoldersAndItems = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.useForFoldersAndItems,
@@ -60,7 +60,7 @@ export const exportCatalogFormToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const choiceMode = exportSystemEnumerationToYAML(context, undefined, data.choiceMode, SE.ChoiceModeToEnterprise)
+  const choiceMode = exportSystemEnumerationToEnterprise(context, undefined, data.choiceMode, SE.ChoiceModeToEnterprise)
   if (choiceMode !== undefined) result.РежимВыбора = choiceMode
 
   const catalogEvents = exportCatalogFormEventsToEnterprise(context, undefined, data.events)

@@ -1,5 +1,6 @@
 import { exportFormattedI8nTextOtherToYAML } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
 import { exportI8nTextOtherToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { getElementRule, PropertyRule } from "../elementRulesFactory"
@@ -66,13 +67,22 @@ export function exportElementToEnterprisePartial<T extends NamedElement>(
 
     const yamlKey = rule.yaml
 
-    if (rule.type == "I8nText" && rule.yamlPartial === "others") {
-      result[yamlKey] = exportI8nTextOtherToEnterprise(context, rule, value)
+    if (rule.type == "UserVisible") {
+      const exportedValue = exportUserVisibleToYAML(context, rule, value)
+      Object.assign(result, exportedValue)
       continue
     }
 
-    if (rule.type == "FormattedI8nText" && rule.yamlPartial === "others") {
-      result[yamlKey] = exportFormattedI8nTextOtherToYAML(context, rule, value)
+    if (rule.type == "I8nText" && rule.yamlPartialOthers) {
+      const exportedValue = exportI8nTextOtherToEnterprise(context, rule, value)
+      if (exportedValue !== undefined) {
+        result[yamlKey] = exportedValue
+      }
+      continue
+    }
+
+    if (rule.type == "FormattedI8nText" && rule.yamlPartialOthers) {
+      Object.assign(result, exportFormattedI8nTextOtherToYAML(context, rule, value))
       continue
     }
 

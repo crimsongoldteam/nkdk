@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } from "./types"
@@ -16,7 +16,7 @@ export function exportPictureToEnterprise(
   let ref: PictureEnterprise | undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToYAML(context, undefined, picture.ref, SE.PictureLibToEnterprise)
+    const result = exportSystemEnumerationToEnterprise(context, undefined, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 
@@ -50,6 +50,5 @@ export function exportPictureToEnterprise(
 
   return ref
 }
-
 
 registerTypeRule("Picture", "exportToEnterprise", exportPictureToEnterprise)

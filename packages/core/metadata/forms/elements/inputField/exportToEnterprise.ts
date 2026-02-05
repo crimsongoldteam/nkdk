@@ -28,7 +28,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -86,7 +86,7 @@ const exportInputFieldPropsToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -94,7 +94,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToYAML(
+  const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlign,
@@ -102,7 +102,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -110,7 +110,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -121,7 +121,7 @@ const exportInputFieldPropsToEnterprise = (
   const cellHyperlink = exportBooleanToEnterprise(context, undefined, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
-  const horizontalAlign = exportSystemEnumerationToYAML(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlign,
@@ -129,7 +129,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -137,7 +137,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const footerHorizontalAlign = exportSystemEnumerationToYAML(
+  const footerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.footerHorizontalAlign,
@@ -145,7 +145,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (footerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВПодвале = footerHorizontalAlign
 
-  const headerHorizontalAlign = exportSystemEnumerationToYAML(
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.headerHorizontalAlign,
@@ -174,7 +174,7 @@ const exportInputFieldPropsToEnterprise = (
   const showInHeader = exportBooleanToEnterprise(context, undefined, data.showInHeader)
   if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -182,7 +182,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const warningOnEditRepresentation = exportSystemEnumerationToYAML(
+  const warningOnEditRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.warningOnEditRepresentation,
@@ -194,7 +194,7 @@ const exportInputFieldPropsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToYAML(
+  const titleLocation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.titleLocation,
@@ -223,7 +223,7 @@ const exportInputFieldPropsToEnterprise = (
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToYAML(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
+  const editMode = exportSystemEnumerationToEnterprise(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
@@ -236,7 +236,7 @@ const exportInputFieldPropsToEnterprise = (
   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const fixingInTable = exportSystemEnumerationToYAML(
+  const fixingInTable = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.fixingInTable,
@@ -265,7 +265,7 @@ const exportInputFieldPropsToEnterprise = (
   const autoChoiceIncomplete = exportBooleanToEnterprise(context, undefined, data.autoChoiceIncomplete)
   if (autoChoiceIncomplete !== undefined) result.АвтоВыборНезаполненного = autoChoiceIncomplete
 
-  const autoCapitalizationOnTextInput = exportSystemEnumerationToYAML(
+  const autoCapitalizationOnTextInput = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.autoCapitalizationOnTextInput,
@@ -274,7 +274,7 @@ const exportInputFieldPropsToEnterprise = (
   if (autoCapitalizationOnTextInput !== undefined)
     result.АвтоИзменениеРегистраПриВводеТекста = autoCapitalizationOnTextInput
 
-  const autoCorrectionOnTextInput = exportSystemEnumerationToYAML(
+  const autoCorrectionOnTextInput = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.autoCorrectionOnTextInput,
@@ -291,7 +291,7 @@ const exportInputFieldPropsToEnterprise = (
   const autoMarkIncomplete = exportBooleanToEnterprise(context, undefined, data.autoMarkIncomplete)
   if (autoMarkIncomplete !== undefined) result.АвтоОтметкаНезаполненного = autoMarkIncomplete
 
-  const autoShowOpenButton = exportSystemEnumerationToYAML(
+  const autoShowOpenButton = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.autoShowOpenButton,
@@ -299,7 +299,7 @@ const exportInputFieldPropsToEnterprise = (
   )
   if (autoShowOpenButton !== undefined) result.АвтоОтображениеКнопкиОткрытия = autoShowOpenButton
 
-  const autoShowClearButton = exportSystemEnumerationToYAML(
+  const autoShowClearButton = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.autoShowClearButton,
@@ -313,7 +313,7 @@ const exportInputFieldPropsToEnterprise = (
   const quickChoice = exportBooleanToEnterprise(context, undefined, data.quickChoice)
   if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
 
-  const heightControlVariant = exportSystemEnumerationToYAML(
+  const heightControlVariant = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.heightControlVariant,
@@ -324,7 +324,7 @@ const exportInputFieldPropsToEnterprise = (
   const chooseType = exportBooleanToEnterprise(context, undefined, data.chooseType)
   if (chooseType !== undefined) result.ВыбиратьТип = chooseType
 
-  const choiceFoldersAndItems = exportSystemEnumerationToYAML(
+  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.choiceFoldersAndItems,
@@ -345,7 +345,7 @@ const exportInputFieldPropsToEnterprise = (
   const availableTypes = exportTypeDescriptionToEnterprise(context, undefined, data.availableTypes)
   if (availableTypes !== undefined) result.ДоступныеТипы = availableTypes
 
-  const choiceHistoryOnInput = exportSystemEnumerationToYAML(
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.choiceHistoryOnInput,
@@ -393,7 +393,7 @@ const exportInputFieldPropsToEnterprise = (
   const multiLine = exportBooleanToEnterprise(context, undefined, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const editTextUpdate = exportSystemEnumerationToYAML(
+  const editTextUpdate = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.editTextUpdate,
@@ -413,7 +413,7 @@ const exportInputFieldPropsToEnterprise = (
     result.ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений =
       showCheckBoxesInDropListWhenInputMultipleValues
 
-  const choiceButtonRepresentation = exportSystemEnumerationToYAML(
+  const choiceButtonRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.choiceButtonRepresentation,
@@ -424,7 +424,7 @@ const exportInputFieldPropsToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const autoFillHint = exportSystemEnumerationToYAML(
+  const autoFillHint = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.autoFillHint,
@@ -435,7 +435,7 @@ const exportInputFieldPropsToEnterprise = (
   const inputHint = exportI8nTextToEnterprise(context, undefined, data.inputHint)
   if (inputHint !== undefined) result.ПодсказкаВвода = inputHint
 
-  const spellCheckingOnTextInput = exportSystemEnumerationToYAML(
+  const spellCheckingOnTextInput = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.spellCheckingOnTextInput,
@@ -452,7 +452,7 @@ const exportInputFieldPropsToEnterprise = (
   if (data.multipleValuePresentationDataPath !== undefined)
     result.ПутьКДаннымПредставленияМножественногоЗначения = data.multipleValuePresentationDataPath
 
-  const multipleValuePictureSize = exportSystemEnumerationToYAML(
+  const multipleValuePictureSize = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.multipleValuePictureSize,
@@ -498,7 +498,7 @@ const exportInputFieldPropsToEnterprise = (
   const listChoiceMode = exportBooleanToEnterprise(context, undefined, data.listChoiceMode)
   if (listChoiceMode !== undefined) result.РежимВыбораИзСписка = listChoiceMode
 
-  const incompleteChoiceMode = exportSystemEnumerationToYAML(
+  const incompleteChoiceMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.incompleteChoiceMode,
@@ -515,7 +515,7 @@ const exportInputFieldPropsToEnterprise = (
   const typeLink = exportTypeLinkToEnterprise(context, undefined, data.typeLink)
   if (typeLink !== undefined) result.СвязьПоТипу = typeLink
 
-  const specialTextInputMode = exportSystemEnumerationToYAML(
+  const specialTextInputMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.specialTextInputMode,
@@ -526,7 +526,7 @@ const exportInputFieldPropsToEnterprise = (
   const choiceList = exportChoiceListToEnterprise(context, undefined, data.choiceList)
   if (choiceList !== undefined) result.СписокВыбора = choiceList
 
-  const onScreenKeyboardReturnKeyText = exportSystemEnumerationToYAML(
+  const onScreenKeyboardReturnKeyText = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.onScreenKeyboardReturnKeyText,
@@ -537,7 +537,7 @@ const exportInputFieldPropsToEnterprise = (
 
   if (data.editText !== undefined) result.ТекстРедактирования = data.editText
 
-  const multipleValuePictureShape = exportSystemEnumerationToYAML(
+  const multipleValuePictureShape = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.multipleValuePictureShape,

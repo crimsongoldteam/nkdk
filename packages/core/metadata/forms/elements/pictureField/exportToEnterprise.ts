@@ -25,7 +25,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -83,7 +83,7 @@ const exportPictureFieldPropsToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, undefined, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToYAML(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.displayImportance,
@@ -91,7 +91,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlign = exportSystemEnumerationToYAML(
+  const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlign,
@@ -99,7 +99,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -107,7 +107,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormFieldTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -118,7 +118,7 @@ const exportPictureFieldPropsToEnterprise = (
   const cellHyperlink = exportBooleanToEnterprise(context, undefined, data.cellHyperlink)
   if (cellHyperlink !== undefined) result.ГиперссылкаЯчейки = cellHyperlink
 
-  const horizontalAlign = exportSystemEnumerationToYAML(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlign,
@@ -126,7 +126,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -134,7 +134,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const footerHorizontalAlign = exportSystemEnumerationToYAML(
+  const footerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.footerHorizontalAlign,
@@ -142,7 +142,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (footerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВПодвале = footerHorizontalAlign
 
-  const headerHorizontalAlign = exportSystemEnumerationToYAML(
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.headerHorizontalAlign,
@@ -171,7 +171,7 @@ const exportPictureFieldPropsToEnterprise = (
   const showInHeader = exportBooleanToEnterprise(context, undefined, data.showInHeader)
   if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -179,7 +179,7 @@ const exportPictureFieldPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const warningOnEditRepresentation = exportSystemEnumerationToYAML(
+  const warningOnEditRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.warningOnEditRepresentation,
@@ -191,7 +191,7 @@ const exportPictureFieldPropsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const titleLocation = exportSystemEnumerationToYAML(
+  const titleLocation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.titleLocation,
@@ -220,7 +220,7 @@ const exportPictureFieldPropsToEnterprise = (
   const extendedTooltip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
-  const editMode = exportSystemEnumerationToYAML(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
+  const editMode = exportSystemEnumerationToEnterprise(context, undefined, data.editMode, SE.ColumnEditModeToEnterprise)
   if (editMode !== undefined) result.РежимРедактирования = editMode
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
@@ -233,7 +233,7 @@ const exportPictureFieldPropsToEnterprise = (
   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const fixingInTable = exportSystemEnumerationToYAML(
+  const fixingInTable = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.fixingInTable,
@@ -282,7 +282,12 @@ const exportPictureFieldPropsToEnterprise = (
   const zoomable = exportBooleanToEnterprise(context, undefined, data.zoomable)
   if (zoomable !== undefined) result.Масштабировать = zoomable
 
-  const pictureSize = exportSystemEnumerationToYAML(context, undefined, data.pictureSize, SE.PictureSizeToEnterprise)
+  const pictureSize = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.pictureSize,
+    SE.PictureSizeToEnterprise
+  )
   if (pictureSize !== undefined) result.РазмерКартинки = pictureSize
 
   const enableStartDrag = exportBooleanToEnterprise(context, undefined, data.enableStartDrag)
@@ -300,7 +305,12 @@ const exportPictureFieldPropsToEnterprise = (
   const horizontalStretch = exportBooleanToEnterprise(context, undefined, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const fileDragMode = exportSystemEnumerationToYAML(context, undefined, data.fileDragMode, SE.FileDragModeToEnterprise)
+  const fileDragMode = exportSystemEnumerationToEnterprise(
+    context,
+    undefined,
+    data.fileDragMode,
+    SE.FileDragModeToEnterprise
+  )
   if (fileDragMode !== undefined) result.СпособПеретаскиванияФайлов = fileDragMode
 
   if (data.nonselectedPictureText !== undefined) result.ТекстНевыбраннойКартинки = data.nonselectedPictureText

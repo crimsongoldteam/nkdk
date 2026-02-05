@@ -9,7 +9,7 @@ import {
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/base/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
@@ -89,7 +89,7 @@ export const exportClientApplicationFormToEnterprise = (
   const autoTitle = exportBooleanToEnterprise(context, undefined, data.autoTitle)
   if (autoTitle !== undefined) result.АвтоЗаголовок = autoTitle
 
-  const autoSaveDataInSettings = exportSystemEnumerationToYAML(
+  const autoSaveDataInSettings = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.autoSaveDataInSettings,
@@ -103,7 +103,7 @@ export const exportClientApplicationFormToEnterprise = (
   const saveWindowSettings = exportBooleanToEnterprise(context, undefined, data.saveWindowSettings)
   if (saveWindowSettings !== undefined) result.СохранятьНастройкиОкна = saveWindowSettings
 
-  const verticalScroll = exportSystemEnumerationToYAML(
+  const verticalScroll = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalScroll,
@@ -111,7 +111,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (verticalScroll !== undefined) result.ВертикальнаяПрокрутка = verticalScroll
 
-  const childItemsVerticalAlign = exportSystemEnumerationToYAML(
+  const childItemsVerticalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.childItemsVerticalAlign,
@@ -119,7 +119,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
 
-  const verticalSpacing = exportSystemEnumerationToYAML(
+  const verticalSpacing = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalSpacing,
@@ -127,7 +127,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
 
-  const itemsAndTitlesAlign = exportSystemEnumerationToYAML(
+  const itemsAndTitlesAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.itemsAndTitlesAlign,
@@ -137,7 +137,7 @@ export const exportClientApplicationFormToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const childItemsHorizontalAlign = exportSystemEnumerationToYAML(
+  const childItemsHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.childItemsHorizontalAlign,
@@ -145,7 +145,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
 
-  const horizontalSpacing = exportSystemEnumerationToYAML(
+  const horizontalSpacing = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalSpacing,
@@ -153,7 +153,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
 
-  const group = exportSystemEnumerationToYAML(context, undefined, data.group, SE.ChildFormItemsGroupToEnterprise)
+  const group = exportSystemEnumerationToEnterprise(context, undefined, data.group, SE.ChildFormItemsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const customizable = exportBooleanToEnterprise(context, undefined, data.customizable)
@@ -171,7 +171,7 @@ export const exportClientApplicationFormToEnterprise = (
   const closeOnOwnerClose = exportBooleanToEnterprise(context, undefined, data.closeOnOwnerClose)
   if (closeOnOwnerClose !== undefined) result.ЗакрыватьПриЗакрытииВладельца = closeOnOwnerClose
 
-  const usedFormServer = exportSystemEnumerationToYAML(
+  const usedFormServer = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.usedFormServer,
@@ -208,7 +208,7 @@ export const exportClientApplicationFormToEnterprise = (
   const showCloseButton = exportBooleanToEnterprise(context, undefined, data.showCloseButton)
   if (showCloseButton !== undefined) result.ОтображатьКнопкуЗакрытия = showCloseButton
 
-  const conversationsRepresentation = exportSystemEnumerationToYAML(
+  const conversationsRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.conversationsRepresentation,
@@ -216,7 +216,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (conversationsRepresentation !== undefined) result.ОтображениеОбсуждений = conversationsRepresentation
 
-  const enterKeyBehavior = exportSystemEnumerationToYAML(
+  const enterKeyBehavior = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.enterKeyBehavior,
@@ -224,7 +224,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (enterKeyBehavior !== undefined) result.ПоведениеКлавишиEnter = enterKeyBehavior
 
-  const commandBarLocation = exportSystemEnumerationToYAML(
+  const commandBarLocation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.commandBarLocation,
@@ -235,7 +235,7 @@ export const exportClientApplicationFormToEnterprise = (
   const autoFillCheck = exportBooleanToEnterprise(context, undefined, data.autoFillCheck)
   if (autoFillCheck !== undefined) result.ПроверятьЗаполнениеАвтоматически = autoFillCheck
 
-  const formWindowOpeningMode = exportSystemEnumerationToYAML(
+  const formWindowOpeningMode = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.formWindowOpeningMode,
@@ -243,7 +243,7 @@ export const exportClientApplicationFormToEnterprise = (
   )
   if (formWindowOpeningMode !== undefined) result.РежимОткрытияОкнаФормы = formWindowOpeningMode
 
-  const collapseItemsByImportance = exportSystemEnumerationToYAML(
+  const collapseItemsByImportance = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.collapseItemsByImportance,
@@ -254,7 +254,7 @@ export const exportClientApplicationFormToEnterprise = (
   const commandSet = exportCommandSetToEnterprise(context, undefined, data.commandSet)
   if (commandSet !== undefined) result.СоставКоманд = commandSet
 
-  const saveDataInSettings = exportSystemEnumerationToYAML(
+  const saveDataInSettings = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.saveDataInSettings,
@@ -271,7 +271,7 @@ export const exportClientApplicationFormToEnterprise = (
 
   if (data.width !== undefined) result.Ширина = data.width
 
-  const slaveItemsWidth = exportSystemEnumerationToYAML(
+  const slaveItemsWidth = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.slaveItemsWidth,

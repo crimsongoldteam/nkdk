@@ -6,7 +6,7 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
@@ -18,7 +18,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
 
   return {
     ДлинаНомера: data.numberLength,
-    ДопустимаяДлинаНомера: exportSystemEnumerationToYAML(
+    ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
       context,
       undefined,
       data.numberAllowedLength,
@@ -27,19 +27,24 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
     Имя: data.name,
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(context, undefined, data.checkUnique),
-    ПериодичностьНомера: exportSystemEnumerationToYAML(
+    ПериодичностьНомера: exportSystemEnumerationToEnterprise(
       context,
       undefined,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),
-    ПринадлежностьОбъекта: exportSystemEnumerationToYAML(
+    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       context,
       undefined,
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise
     ),
     Синоним: exportI8nTextToEnterprise(context, undefined, data.synonym),
-    ТипНомера: exportSystemEnumerationToYAML(context, undefined, data.numberType, SE.DocumentNumberTypeToEnterprise),
+    ТипНомера: exportSystemEnumerationToEnterprise(
+      context,
+      undefined,
+      data.numberType,
+      SE.DocumentNumberTypeToEnterprise
+    ),
   }
 }

@@ -17,7 +17,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -68,7 +68,7 @@ const exportPagesPropsToEnterprise = (
 ): PagesPartialEnterprise => {
   const result: PagesPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToYAML(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.verticalAlignInGroup,
@@ -76,7 +76,7 @@ const exportPagesPropsToEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToYAML(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -84,7 +84,7 @@ const exportPagesPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToYAML(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.horizontalAlignInGroup,
@@ -95,7 +95,7 @@ const exportPagesPropsToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToYAML(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.toolTipRepresentation,
@@ -131,7 +131,7 @@ const exportPagesPropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const currentRowUse = exportSystemEnumerationToYAML(
+  const currentRowUse = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.currentRowUse,
@@ -142,7 +142,7 @@ const exportPagesPropsToEnterprise = (
   // const associatedTable = exportTableToEnterprise(context, undefined, data.associatedTable)
   // if (associatedTable !== undefined) result.ИспользуемаяТаблица = associatedTable
 
-  const pagesRepresentation = exportSystemEnumerationToYAML(
+  const pagesRepresentation = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.pagesRepresentation,
@@ -158,7 +158,7 @@ const exportPagesPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const currentPagesState = exportSystemEnumerationToYAML(
+  const currentPagesState = exportSystemEnumerationToEnterprise(
     context,
     undefined,
     data.currentPagesState,

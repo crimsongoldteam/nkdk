@@ -60,7 +60,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartial: "all",
+      yamlPartialOthers: true,
       enterprise: true,
     },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font", enterprise: true },

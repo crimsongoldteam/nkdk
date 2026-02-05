@@ -29,14 +29,17 @@ export type TypeRulesNames =
   | "ChoiceParameters"
   | "SystemEnumeration"
 
-export type ImportExportFunction = (context: ConfigurationContext, rule: PropertyRule | undefined, value: any) => any
+/** @deprecated */
+type ImportExportFunctionDepricated = (context: ConfigurationContext, rule: PropertyRule | undefined, value: any) => any
+
+type ImportExportFunction = <T extends PropertyRule>(context: ConfigurationContext, rule: T, value: any) => any
 
 export interface TypeRule {
-  importFromXML?: ImportExportFunction
-  exportToXML?: ImportExportFunction
-  importFromEnterprise?: ImportExportFunction
-  exportToEnterprise?: ImportExportFunction
-  exportToPreview?: ImportExportFunction
+  importFromXML?: ImportExportFunction | ImportExportFunctionDepricated
+  exportToXML?: ImportExportFunction | ImportExportFunctionDepricated
+  importFromEnterprise?: ImportExportFunction | ImportExportFunctionDepricated
+  exportToEnterprise?: ImportExportFunction | ImportExportFunctionDepricated
+  exportToPreview?: ImportExportFunction | ImportExportFunctionDepricated
 }
 
 type TypeRulesOperations =
@@ -46,7 +49,7 @@ type TypeRulesOperations =
   | "exportToEnterprise"
   | "exportToPreview"
 
-const typeRulesRegistry = new Map<string, ImportExportFunction>()
+const typeRulesRegistry = new Map<string, ImportExportFunction | ImportExportFunctionDepricated>()
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
 
@@ -57,13 +60,16 @@ const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations)
 export function registerTypeRule(
   type: TypeRulesNames,
   operation: TypeRulesOperations,
-  ruleFunction: ImportExportFunction
+  ruleFunction: ImportExportFunction | ImportExportFunctionDepricated
 ): void {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
 }
 
-export const getTypeRule = (type: TypeRulesNames, operation: TypeRulesOperations): ImportExportFunction | undefined => {
+export const getTypeRule = (
+  type: TypeRulesNames,
+  operation: TypeRulesOperations
+): ImportExportFunction | ImportExportFunctionDepricated | undefined => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result
