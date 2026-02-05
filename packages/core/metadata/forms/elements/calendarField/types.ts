@@ -192,6 +192,3 @@ export interface CalendarFieldPartialEnterprise {
 export interface CalendarFieldTypedEnterprise extends CalendarFieldPartialEnterprise {
   Тип: "ПолеКалендаря"
 }
-
-// Для обратной совместимости
-export type CalendarFieldEnterprise = CalendarFieldPartialEnterprise

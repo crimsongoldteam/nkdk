@@ -56,7 +56,7 @@ export function importElementFromEnterprisePartial<T extends NamedElement>(
   }
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
-    if (!rule.enterprise) continue
+    if (!rule.toEnterprise) continue
 
     const yamlKey = rule.yaml as keyof typeof data
 

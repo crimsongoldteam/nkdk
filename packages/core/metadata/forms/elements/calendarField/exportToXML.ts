@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
-import { exportElementToXML } from "~/metadata/metadataFactory/exportElementToXML"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 

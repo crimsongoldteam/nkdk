@@ -1,22 +1,30 @@
+import { ConfigurationContext } from "../context/types"
 import { NamedElement } from "../forms/elements/baseElement/types"
 import { TypeRulesNames } from "./typeRulesFactory"
 import { FormElementType } from "./types"
 
+export type ExportCheckFn = <T extends NamedElement>(
+  context: ConfigurationContext,
+  rule: PropertyRule,
+  element: T
+) => boolean
+
 interface BasePropertyRule {
   yaml: string
   xml?: string
-  enterprise?: boolean
+  toEnterprise?: false
+  toYAML?: false | ExportCheckFn
 }
 
 export interface I8nTextPropertyRule extends BasePropertyRule {
   type: "I8nText"
-  yamlPartialOthers?: boolean
+  yamlPartialOthers?: true
 }
 
 export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
   type: "FormattedI8nText"
   yamlFormatted: string
-  yamlPartialOthers?: boolean
+  yamlPartialOthers?: true
 }
 
 export interface SystemEnumerationPropertyRule extends BasePropertyRule {
