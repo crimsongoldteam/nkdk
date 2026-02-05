@@ -21,9 +21,9 @@ export const importSystemEnumerationFromYAML = <T extends string>(
 ): T | undefined => {
   if (!value) return undefined
 
-  const enumeration = (SE as Record<string, Record<string, string>>)[rule!.typeDetailed! + "FromEnterprise"]
+  const enumeration = (SE as Record<string, Record<string, string>>)[rule!.typeSE! + "FromEnterprise"]
 
-  if (!enumeration) throw new Error(`Enumeration ${rule!.typeDetailed} not found`)
+  if (!enumeration) throw new Error(`Enumeration ${rule!.typeSE} not found`)
   return enumeration[value] as T
 }
 

@@ -19,7 +19,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
-      typeDetailed: "DisplayImportance",
+      typeSE: "DisplayImportance",
       enterprise: true,
     },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", enterprise: true },
@@ -33,7 +33,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",
-      typeDetailed: "ItemHorizontalLocation",
+      typeSE: "ItemHorizontalLocation",
       xml: "GroupHorizontalAlign",
       enterprise: true,
     },
@@ -43,27 +43,40 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     onMainServerUnavalableBehavior: {
       yaml: "ПоведениеПриНедоступностиОсновногоСервера",
       type: "SystemEnumeration",
-      typeDetailed: "OnMainServerUnavalableBehavior",
+      typeSE: "OnMainServerUnavalableBehavior",
       enterprise: true,
     },
     readOnly: { yaml: "ТолькоПросмотр", type: "boolean", enterprise: true },
     selectionMode: {
       yaml: "РежимВыделения",
       type: "SystemEnumeration",
-      typeDetailed: "DateSelectionMode",
+      typeSE: "DateSelectionMode",
       enterprise: true,
     },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", enterprise: true },
     showCurrentDate: { yaml: "ОтображатьТекущуюДату", type: "boolean", enterprise: true },
     showMonthsPanel: { yaml: "ОтображатьПанельМесяцев", type: "boolean", enterprise: true },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", enterprise: true },
-    title: { yaml: "Заголовок", type: "I8nText", enterprise: true },
+    // export interface PropertyRule {
+    //   yaml: string
+    //   yamlAlt?: string
+    //   type: TypeRulesNames
+    //   typeDetailed?: string
+    //   xml?: string
+    //   enterprise?: boolean
+    // }
+    title: {
+      yaml: "Заголовок",
+      type: "I8nText",
+      yamlPartial: "other",
+      enterprise: true,
+    },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font", enterprise: true },
     titleHeight: { yaml: "ВысотаЗаголовка", type: "number", enterprise: true },
     titleLocation: {
       yaml: "ПоложениеЗаголовка",
       type: "SystemEnumeration",
-      typeDetailed: "FormItemTitleLocation",
+      typeSE: "FormItemTitleLocation",
       enterprise: true,
     },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", enterprise: true },
@@ -71,7 +84,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     toolTipRepresentation: {
       yaml: "ОтображениеПодсказки",
       type: "SystemEnumeration",
-      typeDetailed: "ToolTipRepresentation",
+      typeSE: "ToolTipRepresentation",
       enterprise: true,
     },
     userVisible: {
@@ -83,7 +96,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложение",
       type: "SystemEnumeration",
-      typeDetailed: "ItemVerticalAlign",
+      typeSE: "ItemVerticalAlign",
       xml: "GroupVerticalAlign",
       enterprise: true,
     },
@@ -93,7 +106,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     warningOnEditRepresentation: {
       yaml: "ОтображениеПредупрежденияПриРедактировании",
       type: "SystemEnumeration",
-      typeDetailed: "WarningOnEditRepresentation",
+      typeSE: "WarningOnEditRepresentation",
       enterprise: true,
     },
     width: { yaml: "Ширина", type: "number", enterprise: true },

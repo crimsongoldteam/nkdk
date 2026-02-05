@@ -2,14 +2,38 @@ import { NamedElement } from "../forms/elements/baseElement/types"
 import { TypeRulesNames } from "./typeRulesFactory"
 import { FormElementType } from "./types"
 
-export interface PropertyRule {
+export interface BasePropertyRule {
   yaml: string
-  yamlAlt?: string
   type: TypeRulesNames
-  typeDetailed?: string
   xml?: string
   enterprise?: boolean
 }
+
+export interface I8nTextPropertyRule extends BasePropertyRule {
+  type: "I8nText"
+  yamlPartial: "all" | "others"
+}
+
+export interface SystemEnumerationPropertyRule extends BasePropertyRule {
+  type: "SystemEnumeration"
+  typeSE: string
+}
+
+export interface UserVisiblePropertyRule {
+  type: "UserVisible"
+  yaml: string
+  yamlAlt: string
+}
+
+export interface CleanPropertyRule extends BasePropertyRule {
+  type: Omit<TypeRulesNames, "SystemEnumeration" | "I8nText" | "UserVisible">
+}
+
+export type PropertyRule =
+  | CleanPropertyRule
+  | SystemEnumerationPropertyRule
+  | UserVisiblePropertyRule
+  | I8nTextPropertyRule
 
 export interface ElementRule<T extends NamedElement> {
   properties: Partial<Record<Extract<keyof T, string>, PropertyRule>>

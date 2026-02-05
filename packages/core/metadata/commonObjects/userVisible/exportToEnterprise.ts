@@ -3,6 +3,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleEnterprise, type UserVisible } from "./types"
+import { UserVisiblePropertyRule } from "~/metadata/metadataFactory"
 
 export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey extends string>(
   context: ConfigurationContext,
@@ -23,7 +24,7 @@ export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey e
   } as Partial<Record<AllowKey | DenyKey, UserVisibleEnterprise>>
 }
 
-export const exportUserVisibleToYAML = <T extends PropertyRule | undefined>(
+export const exportUserVisibleToYAML = <T extends UserVisiblePropertyRule | undefined>(
   context: ConfigurationContext,
   rule: T,
   userVisible: UserVisible | undefined
