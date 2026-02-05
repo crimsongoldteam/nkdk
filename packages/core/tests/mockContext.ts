@@ -7,5 +7,5 @@ export const mockContext: ConfigurationContext = {
 }
 export const mockRule: PropertyRule = {
   yaml: "",
-  type: "",
+  type: "string",
 }

@@ -36,7 +36,7 @@ export const importUserVisibleFromEnterprise = (
 
 export const importUserVisibleFromYAML = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  _rule: PropertyRule | undefined,
   valueAllow: Record<string, StringboolEnterprise> | undefined,
   valueDeny: Record<string, StringboolEnterprise> | undefined
 ): UserVisible | undefined => {

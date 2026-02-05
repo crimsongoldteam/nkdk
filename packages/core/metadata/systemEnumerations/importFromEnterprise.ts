@@ -1,7 +1,7 @@
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
-import { registerTypeRule } from "../metadataFactory"
+import { registerTypeRule, SystemEnumerationPropertyRule } from "../metadataFactory"
 
 export const importSystemEnumerationFromEnterprise = <T extends string>(
   _context: ConfigurationContext,
@@ -16,7 +16,7 @@ export const importSystemEnumerationFromEnterprise = <T extends string>(
 
 export const importSystemEnumerationFromYAML = <T extends string>(
   _context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: SystemEnumerationPropertyRule,
   value: string | undefined
 ): T | undefined => {
   if (!value) return undefined
@@ -27,4 +27,4 @@ export const importSystemEnumerationFromYAML = <T extends string>(
   return enumeration[value] as T
 }
 
-registerTypeRule("SystemEnumeration", "importFromEnterprise", importSystemEnumerationFromYAML)
+registerTypeRule("SystemEnumeration", "importFromEnterprise", importSystemEnumerationFromYAML as any)
