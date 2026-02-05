@@ -10,7 +10,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -33,7 +33,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   if (!data) return result
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -41,7 +41,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
     context,
     undefined,
     data.Вид,
@@ -54,7 +54,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -65,7 +65,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -103,7 +103,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   const autofill = importBooleanFromEnterprise(context, undefined, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -111,7 +111,7 @@ export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложение,

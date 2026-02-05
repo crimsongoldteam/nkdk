@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
@@ -16,7 +16,7 @@ export const importFontFromEnterprise = (
   // Если данные - строка (компактный формат)
   if (typeof data === "string") {
     // Проверяем, является ли это Enterprise значением ref
-    const styleFontRef = importSystemEnumerationFromYAML(context, undefined, data, SE.StyleFontsFromEnterprise)
+    const styleFontRef = importSystemEnumerationFromEnterprise(context, undefined, data, SE.StyleFontsFromEnterprise)
     if (styleFontRef) {
       return {
         ref: styleFontRef,
@@ -24,7 +24,12 @@ export const importFontFromEnterprise = (
       }
     }
 
-    const windowsFontRef = importSystemEnumerationFromYAML(context, undefined, data, SE.WindowsFontsFromEnterprise)
+    const windowsFontRef = importSystemEnumerationFromEnterprise(
+      context,
+      undefined,
+      data,
+      SE.WindowsFontsFromEnterprise
+    )
     if (windowsFontRef) {
       return {
         ref: windowsFontRef,
@@ -45,12 +50,17 @@ export const importFontFromEnterprise = (
 
   // Конвертируем Вид в ref и kind
   if (fullData.Вид !== undefined) {
-    const styleFontRef = importSystemEnumerationFromYAML(context, undefined, fullData.Вид, SE.StyleFontsFromEnterprise)
+    const styleFontRef = importSystemEnumerationFromEnterprise(
+      context,
+      undefined,
+      fullData.Вид,
+      SE.StyleFontsFromEnterprise
+    )
     if (styleFontRef) {
       result.ref = styleFontRef
       result.kind = "StyleItem"
     } else {
-      const windowsFontRef = importSystemEnumerationFromYAML(
+      const windowsFontRef = importSystemEnumerationFromEnterprise(
         context,
         undefined,
         fullData.Вид,

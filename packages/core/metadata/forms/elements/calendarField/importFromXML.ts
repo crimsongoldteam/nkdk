@@ -1,51 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
-import { getElementRule } from "~/metadata/metadataFactory/elementRulesFactory"
-import { importPropertyFromXML } from "~/metadata/metadataFactory/importPropertyFromXML"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importElementFromXML } from "~/metadata/metadataFactory/importElementFromXML"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
-  context: ConfigurationContext,
-  xml: ToXMLType<To> | undefined
+	context: ConfigurationContext,
+	xml: ToXMLType<To> | undefined
 ): To {
-  if (xml === undefined) return undefined as To
-
-  const baseFields = importBaseElementFromXML(context, undefined, xml)
-
-  const result: CalendarField = {
-    ...baseFields,
-    elementType: "CalendarField",
-  }
-
-  const rules = getElementRule<CalendarField>("CalendarField")
-
-  for (const [key, rule] of Object.entries(rules.properties)) {
-    const xmlKey = (rule.xml ?? key.charAt(0).toUpperCase() + key.slice(1)) as keyof typeof xml
-
-    const xmlValue = (xml as any)[xmlKey]
-
-    if (!xmlValue) continue
-
-    const value = importPropertyFromXML(context, rule, xmlValue)
-
-    ;(result as any)[key] = value
-  }
-
-  if (rules.events !== undefined) {
-    result.events = {}
-    for (const key of Object.keys(rules.events)) {
-      const xmlKey = key.charAt(0).toUpperCase() + key.slice(1)
-
-      const xmlValue = (xml as any)[xmlKey]
-
-      if (!xmlValue) continue
-      ;(result as any)[key] = xmlValue
-    }
-  }
-
-  return result as To
+	return importElementFromXML<CalendarField>(context, FormElementType.CalendarField, xml) as To
 }
-
-registerMetadata("ImportFromXML", "CalendarField", importCalendarFieldFromXML as ImportFromXMLFn)

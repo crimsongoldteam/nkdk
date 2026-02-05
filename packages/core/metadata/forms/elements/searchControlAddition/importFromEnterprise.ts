@@ -12,7 +12,7 @@ import {
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -65,7 +65,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
     childItems: [],
   }
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -73,7 +73,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -84,7 +84,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -98,7 +98,7 @@ export const importSearchControlAdditionPropsFromEnterprise = (
   const contextMenu = importContextMenuFromEnterprise(context, undefined, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,

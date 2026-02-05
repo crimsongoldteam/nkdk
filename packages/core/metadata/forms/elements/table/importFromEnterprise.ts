@@ -14,7 +14,7 @@ import {
   ImportPartialFromEnterpriseFn,
   ToPartialEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
@@ -178,7 +178,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -186,7 +186,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const heightControlVariant = importSystemEnumerationFromYAML<SE.TableHeightControlVariant>(
+  const heightControlVariant = importSystemEnumerationFromEnterprise<SE.TableHeightControlVariant>(
     context,
     undefined,
     data.ВариантУправленияВысотой,
@@ -194,7 +194,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (heightControlVariant !== undefined) result.heightControlVariant = heightControlVariant
 
-  const verticalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
+  const verticalScrollBar = importSystemEnumerationFromEnterprise<SE.ScrollBarUse>(
     context,
     undefined,
     data.ВертикальнаяПолосаПрокрутки,
@@ -202,7 +202,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (verticalScrollBar !== undefined) result.verticalScrollBar = verticalScrollBar
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -216,7 +216,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const visible = importBooleanFromEnterprise(context, undefined, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  const output = importSystemEnumerationFromYAML<SE.UseOutput>(
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
     context,
     undefined,
     data.Вывод,
@@ -234,7 +234,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   if (data.ВысотаШапки !== undefined) result.headerHeight = data.ВысотаШапки
 
-  const horizontalScrollBar = importSystemEnumerationFromYAML<SE.ScrollBarUse>(
+  const horizontalScrollBar = importSystemEnumerationFromEnterprise<SE.ScrollBarUse>(
     context,
     undefined,
     data.ГоризонтальнаяПолосаПрокрутки,
@@ -242,7 +242,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (horizontalScrollBar !== undefined) result.horizontalScrollBar = horizontalScrollBar
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -259,7 +259,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const refreshRequest = importSystemEnumerationFromYAML<SE.RefreshRequestMethod>(
+  const refreshRequest = importSystemEnumerationFromEnterprise<SE.RefreshRequestMethod>(
     context,
     undefined,
     data.ЗапросОбновления,
@@ -273,7 +273,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const changeRowSet = importBooleanFromEnterprise(context, undefined, data.ИзменятьСоставСтрок)
   if (changeRowSet !== undefined) result.changeRowSet = changeRowSet
 
-  const currentRowUse = importSystemEnumerationFromYAML<SE.TableCurrentRowUse>(
+  const currentRowUse = importSystemEnumerationFromEnterprise<SE.TableCurrentRowUse>(
     context,
     undefined,
     data.ИспользованиеТекущейСтроки,
@@ -300,7 +300,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const multipleChoice = importBooleanFromEnterprise(context, undefined, data.МножественныйВыбор)
   if (multipleChoice !== undefined) result.multipleChoice = multipleChoice
 
-  const initialTreeView = importSystemEnumerationFromYAML<SE.InitialTreeView>(
+  const initialTreeView = importSystemEnumerationFromEnterprise<SE.InitialTreeView>(
     context,
     undefined,
     data.НачальноеОтображениеДерева,
@@ -308,7 +308,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (initialTreeView !== undefined) result.initialTreeView = initialTreeView
 
-  const initialListView = importSystemEnumerationFromYAML<SE.InitialListView>(
+  const initialListView = importSystemEnumerationFromEnterprise<SE.InitialListView>(
     context,
     undefined,
     data.НачальноеОтображениеСписка,
@@ -319,7 +319,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const markIncomplete = importBooleanFromEnterprise(context, undefined, data.ОтметкаНезаполненного)
   if (markIncomplete !== undefined) result.markIncomplete = markIncomplete
 
-  const representation = importSystemEnumerationFromYAML<SE.TableRepresentation>(
+  const representation = importSystemEnumerationFromEnterprise<SE.TableRepresentation>(
     context,
     undefined,
     data.Отображение,
@@ -327,7 +327,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (representation !== undefined) result.representation = representation
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -349,12 +349,13 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (searchStringAddition !== undefined) result.searchStringAddition = searchStringAddition
 
-  const behaviorOnHorizontalCompression = importSystemEnumerationFromYAML<SE.TableBehaviorOnHorizontalCompression>(
-    context,
-    undefined,
-    data.ПоведениеПриСжатииПоГоризонтали,
-    SE.TableBehaviorOnHorizontalCompressionFromEnterprise
-  )
+  const behaviorOnHorizontalCompression =
+    importSystemEnumerationFromEnterprise<SE.TableBehaviorOnHorizontalCompression>(
+      context,
+      undefined,
+      data.ПоведениеПриСжатииПоГоризонтали,
+      SE.TableBehaviorOnHorizontalCompressionFromEnterprise
+    )
   if (behaviorOnHorizontalCompression !== undefined)
     result.behaviorOnHorizontalCompression = behaviorOnHorizontalCompression
 
@@ -366,7 +367,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   result.childItems = importChildItemsPartialFromEnterprise(context, undefined, source.childItems)
 
-  const searchOnInput = importSystemEnumerationFromYAML<SE.SearchInTableOnInput>(
+  const searchOnInput = importSystemEnumerationFromEnterprise<SE.SearchInTableOnInput>(
     context,
     undefined,
     data.ПоискПриВводе,
@@ -374,7 +375,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (searchOnInput !== undefined) result.searchOnInput = searchOnInput
 
-  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
     context,
     undefined,
     data.ПоложениеЗаголовка,
@@ -382,7 +383,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const commandBarLocation = importSystemEnumerationFromYAML<SE.FormItemCommandBarLabelLocation>(
+  const commandBarLocation = importSystemEnumerationFromEnterprise<SE.FormItemCommandBarLabelLocation>(
     context,
     undefined,
     data.ПоложениеКоманднойПанели,
@@ -390,7 +391,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (commandBarLocation !== undefined) result.commandBarLocation = commandBarLocation
 
-  const viewStatusLocation = importSystemEnumerationFromYAML<SE.ViewStatusLocation>(
+  const viewStatusLocation = importSystemEnumerationFromEnterprise<SE.ViewStatusLocation>(
     context,
     undefined,
     data.ПоложениеСостоянияПросмотра,
@@ -398,7 +399,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (viewStatusLocation !== undefined) result.viewStatusLocation = viewStatusLocation
 
-  const searchStringLocation = importSystemEnumerationFromYAML<SE.SearchStringLocation>(
+  const searchStringLocation = importSystemEnumerationFromEnterprise<SE.SearchStringLocation>(
     context,
     undefined,
     data.ПоложениеСтрокиПоиска,
@@ -406,7 +407,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (searchStringLocation !== undefined) result.searchStringLocation = searchStringLocation
 
-  const searchControlLocation = importSystemEnumerationFromYAML<SE.SearchControlLocation>(
+  const searchControlLocation = importSystemEnumerationFromEnterprise<SE.SearchControlLocation>(
     context,
     undefined,
     data.ПоложениеУправленияПоиском,
@@ -446,7 +447,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const rowInputMode = importSystemEnumerationFromYAML<SE.TableRowInputMode>(
+  const rowInputMode = importSystemEnumerationFromEnterprise<SE.TableRowInputMode>(
     context,
     undefined,
     data.РежимВводаСтрок,
@@ -457,7 +458,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const choiceMode = importBooleanFromEnterprise(context, undefined, data.РежимВыбора)
   if (choiceMode !== undefined) result.choiceMode = choiceMode
 
-  const selectionMode = importSystemEnumerationFromYAML<SE.TableSelectionMode>(
+  const selectionMode = importSystemEnumerationFromEnterprise<SE.TableSelectionMode>(
     context,
     undefined,
     data.РежимВыделения,
@@ -465,7 +466,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (selectionMode !== undefined) result.selectionMode = selectionMode
 
-  const rowSelectionMode = importSystemEnumerationFromYAML<SE.TableRowSelectionMode>(
+  const rowSelectionMode = importSystemEnumerationFromEnterprise<SE.TableRowSelectionMode>(
     context,
     undefined,
     data.РежимВыделенияСтроки,
@@ -475,7 +476,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const fileDragMode = importSystemEnumerationFromYAML<SE.FileDragMode>(
+  const fileDragMode = importSystemEnumerationFromEnterprise<SE.FileDragMode>(
     context,
     undefined,
     data.СпособПеретаскиванияФайлов,
@@ -524,7 +525,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const restoreCurrentRow = importBooleanFromEnterprise(context, undefined, data.ВосстанавливатьТекущуюСтроку)
   if (restoreCurrentRow !== undefined) result.restoreCurrentRow = restoreCurrentRow
 
-  const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
+  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
     context,
     undefined,
     data.ВыборГруппИЭлементов,
@@ -539,7 +540,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   )
   if (additionalCreateParameters !== undefined) result.additionalCreateParameters = additionalCreateParameters
 
-  const updateOnDataChange = importSystemEnumerationFromYAML<SE.UpdateOnDataChange>(
+  const updateOnDataChange = importSystemEnumerationFromEnterprise<SE.UpdateOnDataChange>(
     context,
     undefined,
     data.ОбновлениеПриИзмененииДанных,

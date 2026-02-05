@@ -21,7 +21,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -83,7 +83,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -91,7 +91,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложение,
@@ -99,7 +99,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -107,7 +107,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormFieldType>(
     context,
     undefined,
     data.Вид,
@@ -123,7 +123,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const cellHyperlink = importBooleanFromEnterprise(context, undefined, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
-  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложение,
@@ -131,7 +131,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -139,7 +139,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const footerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВПодвале,
@@ -147,7 +147,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (footerHorizontalAlign !== undefined) result.footerHorizontalAlign = footerHorizontalAlign
 
-  const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВШапке,
@@ -176,7 +176,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const showInHeader = importBooleanFromEnterprise(context, undefined, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -184,7 +184,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
+  const warningOnEditRepresentation = importSystemEnumerationFromEnterprise<SE.WarningOnEditRepresentation>(
     context,
     undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
@@ -195,7 +195,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
     context,
     undefined,
     data.ПоложениеЗаголовка,
@@ -216,7 +216,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
+  const editMode = importSystemEnumerationFromEnterprise<SE.ColumnEditMode>(
     context,
     undefined,
     data.РежимРедактирования,
@@ -234,7 +234,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
+  const fixingInTable = importSystemEnumerationFromEnterprise<SE.FixingInTable>(
     context,
     undefined,
     data.ФиксацияВТаблице,
@@ -266,7 +266,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const output = importSystemEnumerationFromYAML<SE.UseOutput>(
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
     context,
     undefined,
     data.Вывод,
@@ -288,7 +288,7 @@ const importPdfDocumentFieldPropsFromEnterprise = (
 
   if (data.Ориентация !== undefined) result.orientation = data.Ориентация
 
-  const viewStatusLocation = importSystemEnumerationFromYAML<SE.ViewStatusLocation>(
+  const viewStatusLocation = importSystemEnumerationFromEnterprise<SE.ViewStatusLocation>(
     context,
     undefined,
     data.ПоложениеСостоянияПросмотра,

@@ -20,7 +20,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -78,7 +78,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   if (data === undefined) return result
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -86,7 +86,7 @@ const importColumnGroupPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
     context,
     undefined,
     data.Вид,
@@ -99,7 +99,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -110,7 +110,7 @@ const importColumnGroupPropsFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -146,7 +146,7 @@ const importColumnGroupPropsFromEnterprise = (
   const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВШапке,
@@ -154,7 +154,7 @@ const importColumnGroupPropsFromEnterprise = (
   )
   if (headerHorizontalAlign !== undefined) result.headerHorizontalAlign = headerHorizontalAlign
 
-  const group = importSystemEnumerationFromYAML<SE.ColumnsGroup>(
+  const group = importSystemEnumerationFromEnterprise<SE.ColumnsGroup>(
     context,
     undefined,
     data.Группировка,
@@ -183,7 +183,7 @@ const importColumnGroupPropsFromEnterprise = (
 
   if (data.ПутьКДаннымШапки !== undefined) result.headerDataPath = data.ПутьКДаннымШапки
 
-  const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
+  const fixingInTable = importSystemEnumerationFromEnterprise<SE.FixingInTable>(
     context,
     undefined,
     data.ФиксацияВТаблице,

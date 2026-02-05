@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 
@@ -107,7 +107,7 @@ const importLabelDecorationPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -115,7 +115,7 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -123,7 +123,7 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormDecorationType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormDecorationType>(
     context,
     undefined,
     data.Вид,
@@ -136,7 +136,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -154,7 +154,7 @@ const importLabelDecorationPropsFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -187,7 +187,7 @@ const importLabelDecorationPropsFromEnterprise = (
   const font = importFontFromEnterprise(context, undefined, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const groupVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const groupVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеВыравниваниеГруппы,
@@ -195,7 +195,7 @@ const importLabelDecorationPropsFromEnterprise = (
   )
   if (groupVerticalAlign !== undefined) result.groupVerticalAlign = groupVerticalAlign
 
-  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложение,
@@ -208,7 +208,7 @@ const importLabelDecorationPropsFromEnterprise = (
   const hyperlink = importBooleanFromEnterprise(context, undefined, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink
 
-  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложение,

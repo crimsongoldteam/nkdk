@@ -21,7 +21,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -84,7 +84,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const defaultItem = importBooleanFromEnterprise(context, undefined, data.АктивизироватьПоУмолчанию)
   if (defaultItem !== undefined) result.defaultItem = defaultItem
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -92,7 +92,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложение,
@@ -100,7 +100,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (verticalAlign !== undefined) result.verticalAlign = verticalAlign
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -108,7 +108,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormFieldType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormFieldType>(
     context,
     undefined,
     data.Вид,
@@ -124,7 +124,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const cellHyperlink = importBooleanFromEnterprise(context, undefined, data.ГиперссылкаЯчейки)
   if (cellHyperlink !== undefined) result.cellHyperlink = cellHyperlink
 
-  const horizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложение,
@@ -132,7 +132,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -140,7 +140,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
-  const footerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const footerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВПодвале,
@@ -148,7 +148,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (footerHorizontalAlign !== undefined) result.footerHorizontalAlign = footerHorizontalAlign
 
-  const headerHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВШапке,
@@ -177,7 +177,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const showInHeader = importBooleanFromEnterprise(context, undefined, data.ОтображатьВШапке)
   if (showInHeader !== undefined) result.showInHeader = showInHeader
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -185,7 +185,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const warningOnEditRepresentation = importSystemEnumerationFromYAML<SE.WarningOnEditRepresentation>(
+  const warningOnEditRepresentation = importSystemEnumerationFromEnterprise<SE.WarningOnEditRepresentation>(
     context,
     undefined,
     data.ОтображениеПредупрежденияПриРедактировании,
@@ -196,7 +196,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const titleLocation = importSystemEnumerationFromYAML<SE.FormItemTitleLocation>(
+  const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
     context,
     undefined,
     data.ПоложениеЗаголовка,
@@ -227,7 +227,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const extendedTooltip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
-  const editMode = importSystemEnumerationFromYAML<SE.ColumnEditMode>(
+  const editMode = importSystemEnumerationFromEnterprise<SE.ColumnEditMode>(
     context,
     undefined,
     data.РежимРедактирования,
@@ -245,7 +245,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const fixingInTable = importSystemEnumerationFromYAML<SE.FixingInTable>(
+  const fixingInTable = importSystemEnumerationFromEnterprise<SE.FixingInTable>(
     context,
     undefined,
     data.ФиксацияВТаблице,
@@ -287,7 +287,7 @@ const importProgressBarFieldPropsFromEnterprise = (
 
   if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
 
-  const orientation = importSystemEnumerationFromYAML<SE.FormItemOrientation>(
+  const orientation = importSystemEnumerationFromEnterprise<SE.FormItemOrientation>(
     context,
     undefined,
     data.Ориентация,
@@ -298,7 +298,7 @@ const importProgressBarFieldPropsFromEnterprise = (
   const showPercent = importBooleanFromEnterprise(context, undefined, data.ОтображатьПроценты)
   if (showPercent !== undefined) result.showPercent = showPercent
 
-  const representation = importSystemEnumerationFromYAML<SE.ProgressBarSmoothingMode>(
+  const representation = importSystemEnumerationFromEnterprise<SE.ProgressBarSmoothingMode>(
     context,
     undefined,
     data.Отображение,

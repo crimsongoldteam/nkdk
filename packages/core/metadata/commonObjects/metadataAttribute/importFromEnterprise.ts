@@ -13,7 +13,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
@@ -63,7 +63,7 @@ const importMetadataAttributeFromEnterprise = (
     synonym,
   }
 
-  const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
+  const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(
     context,
     undefined,
     data.БыстрыйВыбор,
@@ -71,7 +71,7 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
-  const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
+  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
     context,
     undefined,
     data.ВыборГруппИЭлементов,
@@ -88,7 +88,7 @@ const importMetadataAttributeFromEnterprise = (
   const fillValue = importMetadataValueFromEnterprise(context, undefined, data.ЗначениеЗаполнения)
   if (fillValue !== undefined) result.fillValue = fillValue
 
-  const indexing = importSystemEnumerationFromYAML<SE.Indexing>(
+  const indexing = importSystemEnumerationFromEnterprise<SE.Indexing>(
     context,
     undefined,
     data.Индексирование,
@@ -96,7 +96,7 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (indexing !== undefined) result.indexing = indexing
 
-  const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
+  const use = importSystemEnumerationFromEnterprise<SE.AttributeUse>(
     context,
     undefined,
     data.Использование,
@@ -104,7 +104,7 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (use !== undefined) result.use = use
 
-  const binaryDataStorageLocationUse = importSystemEnumerationFromYAML<SE.BinaryDataStorageLocationUse>(
+  const binaryDataStorageLocationUse = importSystemEnumerationFromEnterprise<SE.BinaryDataStorageLocationUse>(
     context,
     undefined,
     data.ИспользованиеХраненияВХранилищеДвоичныхДанных,
@@ -112,7 +112,7 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (binaryDataStorageLocationUse !== undefined) result.binaryDataStorageLocationUse = binaryDataStorageLocationUse
 
-  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
     context,
     undefined,
     data.ИсторияВыбораПриВводе,
@@ -120,7 +120,7 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
+  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
     context,
     undefined,
     data.ИсторияДанных,
@@ -153,7 +153,7 @@ const importMetadataAttributeFromEnterprise = (
   if (binaryDataStorageLocationUseField !== undefined)
     result.binaryDataStorageLocationUseField = binaryDataStorageLocationUseField
 
-  const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
+  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
     context,
     undefined,
     data.ПолнотекстовыйПоиск,
@@ -168,7 +168,7 @@ const importMetadataAttributeFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
+  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
     context,
     undefined,
     data.ПроверкаЗаполнения,
@@ -188,7 +188,7 @@ const importMetadataAttributeFromEnterprise = (
   const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
   if (linkByType !== undefined) result.linkByType = linkByType
 
-  const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
+  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
     context,
     undefined,
     data.СозданиеПриВводе,

@@ -15,7 +15,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
@@ -73,7 +73,7 @@ const importPagesPropsFromEnterprise = (
 
   if (data === undefined) return result
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -81,7 +81,7 @@ const importPagesPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
     context,
     undefined,
     data.Вид,
@@ -94,7 +94,7 @@ const importPagesPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -105,7 +105,7 @@ const importPagesPropsFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -141,7 +141,7 @@ const importPagesPropsFromEnterprise = (
   const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
+  const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,
     undefined,
     data.ИспользованиеТекущейСтроки,
@@ -149,7 +149,7 @@ const importPagesPropsFromEnterprise = (
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const pagesRepresentation = importSystemEnumerationFromYAML<SE.FormPagesRepresentation>(
+  const pagesRepresentation = importSystemEnumerationFromEnterprise<SE.FormPagesRepresentation>(
     context,
     undefined,
     data.ОтображениеСтраниц,
@@ -167,7 +167,7 @@ const importPagesPropsFromEnterprise = (
     result.userVisible = userVisible
   }
 
-  const currentPagesState = importSystemEnumerationFromYAML<SE.FormPagesState>(
+  const currentPagesState = importSystemEnumerationFromEnterprise<SE.FormPagesState>(
     context,
     undefined,
     data.ТекущееСостояниеСтраниц,

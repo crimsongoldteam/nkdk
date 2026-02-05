@@ -1,8 +1,10 @@
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "./elementRulesFactory"
 
-type TypeRulesNames =
+export type TypeRulesNames =
   | "boolean"
+  | "string"
+  | "number"
   | "Border"
   | "Color"
   | "ExtendedTooltip"

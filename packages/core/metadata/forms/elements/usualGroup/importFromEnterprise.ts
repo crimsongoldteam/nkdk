@@ -19,7 +19,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | undefined>(
@@ -75,7 +75,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   if (data === undefined) return result
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -95,7 +95,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -106,7 +106,7 @@ const importUsualGroupPropsFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -139,7 +139,7 @@ const importUsualGroupPropsFromEnterprise = (
   const titleFont = importFontFromEnterprise(context, undefined, data.ШрифтЗаголовка)
   if (titleFont !== undefined) result.titleFont = titleFont
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -147,7 +147,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const childItemsVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const childItemsVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеПодчиненных,
@@ -155,7 +155,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (childItemsVerticalAlign !== undefined) result.childItemsVerticalAlign = childItemsVerticalAlign
 
-  const verticalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
+  const verticalSpacing = importSystemEnumerationFromEnterprise<SE.FormItemSpacing>(
     context,
     undefined,
     data.ВертикальныйИнтервал,
@@ -163,7 +163,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (verticalSpacing !== undefined) result.verticalSpacing = verticalSpacing
 
-  const itemsAndTitlesAlign = importSystemEnumerationFromYAML<SE.ItemsAndTitlesAlignVariant>(
+  const itemsAndTitlesAlign = importSystemEnumerationFromEnterprise<SE.ItemsAndTitlesAlignVariant>(
     context,
     undefined,
     data.ВыравниваниеЭлементовИЗаголовков,
@@ -171,7 +171,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (itemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = itemsAndTitlesAlign
 
-  const childItemsHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const childItemsHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеПодчиненных,
@@ -179,7 +179,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (childItemsHorizontalAlign !== undefined) result.childItemsHorizontalAlign = childItemsHorizontalAlign
 
-  const horizontalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
+  const horizontalSpacing = importSystemEnumerationFromEnterprise<SE.FormItemSpacing>(
     context,
     undefined,
     data.ГоризонтальныйИнтервал,
@@ -187,7 +187,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (horizontalSpacing !== undefined) result.horizontalSpacing = horizontalSpacing
 
-  const group = importSystemEnumerationFromYAML<SE.ChildFormItemsGroup>(
+  const group = importSystemEnumerationFromEnterprise<SE.ChildFormItemsGroup>(
     context,
     undefined,
     data.Группировка,
@@ -202,7 +202,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (collapsedRepresentationTitle !== undefined) result.collapsedRepresentationTitle = collapsedRepresentationTitle
 
-  const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
+  const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,
     undefined,
     data.ИспользованиеТекущейСтроки,
@@ -221,7 +221,7 @@ const importUsualGroupPropsFromEnterprise = (
   const showLeftMargin = importBooleanFromEnterprise(context, undefined, data.ОтображатьОтступСлева)
   if (showLeftMargin !== undefined) result.showLeftMargin = showLeftMargin
 
-  const representation = importSystemEnumerationFromYAML<SE.UsualGroupRepresentation>(
+  const representation = importSystemEnumerationFromEnterprise<SE.UsualGroupRepresentation>(
     context,
     undefined,
     data.Отображение,
@@ -229,7 +229,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (representation !== undefined) result.representation = representation
 
-  const controlRepresentation = importSystemEnumerationFromYAML<SE.UsualGroupControlRepresentation>(
+  const controlRepresentation = importSystemEnumerationFromEnterprise<SE.UsualGroupControlRepresentation>(
     context,
     undefined,
     data.ОтображениеУправления,
@@ -237,7 +237,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (controlRepresentation !== undefined) result.controlRepresentation = controlRepresentation
 
-  const behavior = importSystemEnumerationFromYAML<SE.UsualGroupBehavior>(
+  const behavior = importSystemEnumerationFromEnterprise<SE.UsualGroupBehavior>(
     context,
     undefined,
     data.Поведение,
@@ -257,7 +257,7 @@ const importUsualGroupPropsFromEnterprise = (
 
   if (data.ПутьКДаннымЗаголовка !== undefined) result.titleDataPath = data.ПутьКДаннымЗаголовка
 
-  const throughAlign = importSystemEnumerationFromYAML<SE.ThroughAlign>(
+  const throughAlign = importSystemEnumerationFromEnterprise<SE.ThroughAlign>(
     context,
     undefined,
     data.СквозноеВыравнивание,

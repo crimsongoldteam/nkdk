@@ -17,7 +17,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -75,7 +75,7 @@ const importPopupPropsFromEnterprise = (
 
   if (enterprise === undefined) return result
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     enterprise.ВертикальноеПоложениеВГруппе,
@@ -83,7 +83,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
     context,
     undefined,
     enterprise.Вид,
@@ -96,7 +96,7 @@ const importPopupPropsFromEnterprise = (
 
   if (enterprise.Высота !== undefined) result.height = enterprise.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     enterprise.ГоризонтальноеПоложениеВГруппе,
@@ -107,7 +107,7 @@ const importPopupPropsFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, undefined, enterprise.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     enterprise.ОтображениеПодсказки,
@@ -156,7 +156,7 @@ const importPopupPropsFromEnterprise = (
   const picture = importPictureFromEnterprise(context, undefined, enterprise.Картинка)
   if (picture !== undefined) result.picture = picture
 
-  const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
+  const representation = importSystemEnumerationFromEnterprise<SE.ButtonRepresentation>(
     context,
     undefined,
     enterprise.Отображение,
@@ -164,7 +164,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (representation !== undefined) result.representation = representation
 
-  const shapeRepresentation = importSystemEnumerationFromYAML<SE.ButtonShapeRepresentation>(
+  const shapeRepresentation = importSystemEnumerationFromEnterprise<SE.ButtonShapeRepresentation>(
     context,
     undefined,
     enterprise.ОтображениеФигуры,
@@ -172,7 +172,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (shapeRepresentation !== undefined) result.shapeRepresentation = shapeRepresentation
 
-  const shape = importSystemEnumerationFromYAML<SE.ButtonShape>(
+  const shape = importSystemEnumerationFromEnterprise<SE.ButtonShape>(
     context,
     undefined,
     enterprise.Фигура,

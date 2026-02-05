@@ -1,10 +1,11 @@
 import { NamedElement } from "../forms/elements/baseElement/types"
+import { TypeRulesNames } from "./typeRulesFactory"
 import { FormElementType } from "./types"
 
 export interface PropertyRule {
   yaml: string
   yamlAlt?: string
-  type: string
+  type: TypeRulesNames
   typeDetailed?: string
   xml?: string
   enterprise?: boolean

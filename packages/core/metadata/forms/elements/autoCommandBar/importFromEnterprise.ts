@@ -1,7 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -31,7 +31,7 @@ export const importAutoCommandBarFromEnterprise = (
   const autofill = importBooleanFromEnterprise(context, undefined, enterprise.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
 
-  const displayImportance = importSystemEnumerationFromYAML(
+  const displayImportance = importSystemEnumerationFromEnterprise(
     context,
     undefined,
     enterprise.ВажностьПриОтображении,
@@ -39,7 +39,7 @@ export const importAutoCommandBarFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const horizontalAlign = importSystemEnumerationFromYAML(
+  const horizontalAlign = importSystemEnumerationFromEnterprise(
     context,
     undefined,
     enterprise.ГоризонтальноеПоложение,

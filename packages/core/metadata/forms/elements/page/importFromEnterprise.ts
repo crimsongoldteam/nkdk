@@ -16,7 +16,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 
@@ -77,7 +77,7 @@ export const importPagePropsFromEnterprise = (
   const backColor = importColorFromEnterprise(context, undefined, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  const childItemsHorizontalAlign = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const childItemsHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеПодчиненных,
@@ -85,7 +85,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (childItemsHorizontalAlign !== undefined) result.childItemsHorizontalAlign = childItemsHorizontalAlign
 
-  const childItemsVerticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const childItemsVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеПодчиненных,
@@ -93,7 +93,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (childItemsVerticalAlign !== undefined) result.childItemsVerticalAlign = childItemsVerticalAlign
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -104,7 +104,7 @@ export const importPagePropsFromEnterprise = (
   const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
   if (format !== undefined) result.format = format
 
-  const group = importSystemEnumerationFromYAML<SE.ChildFormItemsGroup>(
+  const group = importSystemEnumerationFromEnterprise<SE.ChildFormItemsGroup>(
     context,
     undefined,
     data.Группировка,
@@ -112,7 +112,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (group !== undefined) result.group = group
 
-  const horizontalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
+  const horizontalSpacing = importSystemEnumerationFromEnterprise<SE.FormItemSpacing>(
     context,
     undefined,
     data.ГоризонтальныйИнтервал,
@@ -120,7 +120,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (horizontalSpacing !== undefined) result.horizontalSpacing = horizontalSpacing
 
-  const itemsAndTitlesAlign = importSystemEnumerationFromYAML<SE.ItemsAndTitlesAlignVariant>(
+  const itemsAndTitlesAlign = importSystemEnumerationFromEnterprise<SE.ItemsAndTitlesAlignVariant>(
     context,
     undefined,
     data.ВыравниваниеЭлементовИЗаголовков,
@@ -137,7 +137,7 @@ export const importPagePropsFromEnterprise = (
   const showTitle = importBooleanFromEnterprise(context, undefined, data.ОтображатьЗаголовок)
   if (showTitle !== undefined) result.showTitle = showTitle
 
-  const slaveItemsWidth = importSystemEnumerationFromYAML<SE.ChildFormItemsWidth>(
+  const slaveItemsWidth = importSystemEnumerationFromEnterprise<SE.ChildFormItemsWidth>(
     context,
     undefined,
     data.ШиринаПодчиненныхЭлементов,
@@ -157,7 +157,7 @@ export const importPagePropsFromEnterprise = (
     result.userVisible = userVisible
   }
 
-  const verticalAlign = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложение,
@@ -172,7 +172,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (verticalScrollOnReduceSize !== undefined) result.verticalScrollOnReduceSize = verticalScrollOnReduceSize
 
-  const verticalSpacing = importSystemEnumerationFromYAML<SE.FormItemSpacing>(
+  const verticalSpacing = importSystemEnumerationFromEnterprise<SE.FormItemSpacing>(
     context,
     undefined,
     data.ВертикальныйИнтервал,
@@ -180,7 +180,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (verticalSpacing !== undefined) result.verticalSpacing = verticalSpacing
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -188,7 +188,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormGroupType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormGroupType>(
     context,
     undefined,
     data.Вид,
@@ -201,7 +201,7 @@ export const importPagePropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -212,7 +212,7 @@ export const importPagePropsFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,

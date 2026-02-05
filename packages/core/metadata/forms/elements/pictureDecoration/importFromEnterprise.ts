@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
@@ -135,7 +135,7 @@ const importPictureDecorationPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, undefined, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const displayImportance = importSystemEnumerationFromYAML<SE.DisplayImportance>(
+  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     undefined,
     data.ВажностьПриОтображении,
@@ -143,7 +143,7 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const verticalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     undefined,
     data.ВертикальноеПоложениеВГруппе,
@@ -151,7 +151,7 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromYAML<SE.FormDecorationType>(
+  const type = importSystemEnumerationFromEnterprise<SE.FormDecorationType>(
     context,
     undefined,
     data.Вид,
@@ -164,7 +164,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   if (data.Высота !== undefined) result.height = data.Высота
 
-  const horizontalAlignInGroup = importSystemEnumerationFromYAML<SE.ItemHorizontalLocation>(
+  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     undefined,
     data.ГоризонтальноеПоложениеВГруппе,
@@ -182,7 +182,7 @@ const importPictureDecorationPropsFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
-  const toolTipRepresentation = importSystemEnumerationFromYAML<SE.ToolTipRepresentation>(
+  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     undefined,
     data.ОтображениеПодсказки,
@@ -236,7 +236,7 @@ const importPictureDecorationPropsFromEnterprise = (
   const zoomable = importBooleanFromEnterprise(context, undefined, data.Масштабировать)
   if (zoomable !== undefined) result.zoomable = zoomable
 
-  const pictureSize = importSystemEnumerationFromYAML<SE.PictureSize>(
+  const pictureSize = importSystemEnumerationFromEnterprise<SE.PictureSize>(
     context,
     undefined,
     data.РазмерКартинки,
@@ -253,7 +253,7 @@ const importPictureDecorationPropsFromEnterprise = (
   const border = importBorderFromEnterprise(context, undefined, data.Рамка)
   if (border !== undefined) result.border = border
 
-  const fileDragMode = importSystemEnumerationFromYAML<SE.FileDragMode>(
+  const fileDragMode = importSystemEnumerationFromEnterprise<SE.FileDragMode>(
     context,
     undefined,
     data.СпособПеретаскиванияФайлов,

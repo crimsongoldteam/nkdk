@@ -3,7 +3,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importI8nTextFromEnterprise } from "../../commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "../../commonObjects/picture/importFromEnterprise"
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./types"
 
@@ -38,7 +38,7 @@ const importCommandFromEnterprise = (
   const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
-  const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
+  const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,
     undefined,
     data.ИспользованиеТекущейСтроки,

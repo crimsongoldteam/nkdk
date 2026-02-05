@@ -32,7 +32,8 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     heightInMonths: { yaml: "ВысотаВМесяцах", type: "number", enterprise: true },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложение",
-      type: "ItemHorizontalLocation",
+      type: "SystemEnumeration",
+      typeDetailed: "ItemHorizontalLocation",
       xml: "GroupHorizontalAlign",
       enterprise: true,
     },
@@ -67,7 +68,12 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", enterprise: true },
     toolTip: { yaml: "Подсказка", type: "I8nText", enterprise: true },
-    toolTipRepresentation: { yaml: "ОтображениеПодсказки", type: "ToolTipRepresentation", enterprise: true },
+    toolTipRepresentation: {
+      yaml: "ОтображениеПодсказки",
+      type: "SystemEnumeration",
+      typeDetailed: "ToolTipRepresentation",
+      enterprise: true,
+    },
     userVisible: {
       yaml: "РазрешитьИспользование",
       yamlAlt: "ЗапретитьИспользование",
