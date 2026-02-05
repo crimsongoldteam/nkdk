@@ -66,6 +66,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
+      xml: "GroupHorizontalAlign",
       type: "SystemEnumeration",
       typeDetailed: "ItemHorizontalLocation",
       enterprise: true,
@@ -79,6 +80,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", enterprise: true },
     itemsAndTitlesAlign: {
       yaml: "ВыравниваниеЭлементовИЗаголовков",
+      xml: "ChildrenAlign",
       type: "SystemEnumeration",
       typeDetailed: "ItemsAndTitlesAlignVariant",
       enterprise: true,
@@ -93,7 +95,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", enterprise: true },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean", enterprise: true },
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean", enterprise: true },
-    table: { yaml: "Таблица", type: "string", enterprise: true },
+    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "string", enterprise: true },
     throughAlign: {
       yaml: "СквозноеВыравнивание",
       type: "SystemEnumeration",
@@ -120,6 +122,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",
+      xml: "GroupVerticalAlign",
       type: "SystemEnumeration",
       typeDetailed: "ItemVerticalAlign",
       enterprise: true,

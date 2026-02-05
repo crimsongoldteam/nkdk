@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "../context/types"
-import { PropertyRule } from "../forms"
-import { getTypeRule } from "./typeRulesFactory"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "../elementRulesFactory"
+import { getTypeRule } from "../typeRulesFactory"
 
 export const importPropertyFromXML = (context: ConfigurationContext, propertyRule: PropertyRule, data: any): any => {
   const ruleFunction = getTypeRule(propertyRule.type as any, "importFromXML")

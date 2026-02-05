@@ -1,8 +1,8 @@
-import { ConfigurationContext } from "../context/types"
-import { NamedElement } from "../forms/elements/baseElement/types"
-import { getElementRule, PropertyRule } from "./elementRulesFactory"
-import { getTypeRule } from "./typeRulesFactory"
-import { FormElementType, ToPartialEnterpriseType, ToTypedEnterpriseType } from "./types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { getElementRule, PropertyRule } from "../elementRulesFactory"
+import { getTypeRule } from "../typeRulesFactory"
+import { FormElementType, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
 export function importElementFromEnterpriseTyped<T extends NamedElement>(
   context: ConfigurationContext,
