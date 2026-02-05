@@ -57,18 +57,10 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     showCurrentDate: { yaml: "ОтображатьТекущуюДату", type: "boolean", enterprise: true },
     showMonthsPanel: { yaml: "ОтображатьПанельМесяцев", type: "boolean", enterprise: true },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", enterprise: true },
-    // export interface PropertyRule {
-    //   yaml: string
-    //   yamlAlt?: string
-    //   type: TypeRulesNames
-    //   typeDetailed?: string
-    //   xml?: string
-    //   enterprise?: boolean
-    // }
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartial: "other",
+      yamlPartial: "all",
       enterprise: true,
     },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font", enterprise: true },
@@ -89,7 +81,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
     },
     userVisible: {
       yaml: "РазрешитьИспользование",
-      yamlAlt: "ЗапретитьИспользование",
+      yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
       enterprise: true,
     },

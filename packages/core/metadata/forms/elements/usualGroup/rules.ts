@@ -116,7 +116,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     united: { yaml: "Объединенная", type: "boolean", enterprise: true },
     userVisible: {
       yaml: "РазрешитьИспользование",
-      yamlAlt: "ЗапретитьИспользование",
+      yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
       enterprise: true,
     },

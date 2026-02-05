@@ -1,9 +1,8 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleEnterprise, type UserVisible } from "./types"
-import { UserVisiblePropertyRule } from "~/metadata/metadataFactory"
 
 export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey extends string>(
   context: ConfigurationContext,
@@ -24,13 +23,15 @@ export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey e
   } as Partial<Record<AllowKey | DenyKey, UserVisibleEnterprise>>
 }
 
-export const exportUserVisibleToYAML = <T extends UserVisiblePropertyRule | undefined>(
+const isUserVisiblePropertyRule = (rule: PropertyRule | undefined): rule is UserVisiblePropertyRule => {
+  return rule !== undefined && "yamlAlt" in rule
+}
+
+export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
-  rule: T,
+  rule: PropertyRule | undefined,
   userVisible: UserVisible | undefined
-):
-  | Partial<Record<NonNullable<T>["yaml"] | NonNullable<NonNullable<T>["yamlAlt"]>, UserVisibleEnterprise>>
-  | undefined => {
+): Partial<Record<string, UserVisibleEnterprise>> | undefined => {
   if (!userVisible) return undefined
 
   const values: UserVisibleEnterprise = {}
@@ -38,11 +39,12 @@ export const exportUserVisibleToYAML = <T extends UserVisiblePropertyRule | unde
     values[item.name] = exportBooleanToEnterprise(context, undefined, item.value)!
   })
 
-  const key = userVisible.common ? rule?.yaml : rule?.yamlAlt
+  if (!isUserVisiblePropertyRule(rule)) return undefined
+  const key = userVisible.common ? rule.yaml : rule.yamlDeny
   if (!key) return undefined
   return {
     [key]: values,
-  } as Partial<Record<NonNullable<T>["yaml"] | NonNullable<NonNullable<T>["yamlAlt"]>, UserVisibleEnterprise>>
+  }
 }
 
 registerTypeRule("UserVisible", "exportToEnterprise", exportUserVisibleToYAML)

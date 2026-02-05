@@ -1,14 +1,16 @@
+import { exportFormattedI8nTextOtherToEnterprise } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
+import { exportI8nTextOtherToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { getElementRule } from "../elementRulesFactory"
-import { getTypeRule } from "../typeRulesFactory"
+import { getElementRule, PropertyRule } from "../elementRulesFactory"
+import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
 import {
-  FormElementType,
-  ToTypedEnterpriseType,
   exportFormElementTypeToEnterprise,
-  ToPartialEnterpriseType,
   ExportPartialToEnterpriseFn,
   ExportTypedToEnterpriseFn,
+  FormElementType,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
 } from "../types"
 
 export function exportElementToEnterpriseTyped<T extends NamedElement>(
@@ -24,14 +26,14 @@ export function exportElementToEnterpriseTyped<T extends NamedElement>(
     Тип: exportFormElementTypeToEnterprise(context, undefined, elementType),
   }
 
-  for (const [key, rule] of Object.entries(rules.properties)) {
+  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
     const value = (data as any)[key]
 
     if (value === undefined) continue
 
     const yamlKey = rule.yaml
 
-    const typeExportFn = getTypeRule(rule.type, "exportToEnterprise")
+    const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
     if (typeExportFn) {
       const exportedValue = (typeExportFn as any)(context, rule, value)
@@ -57,25 +59,33 @@ export function exportElementToEnterprisePartial<T extends NamedElement>(
 
   const result: any = {}
 
-  for (const [key, rule] of Object.entries(rules.properties)) {
+  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
     const value = (data as any)[key]
 
     if (value === undefined) continue
 
-    const yamlKey = (rule.yaml ?? key.charAt(0).toUpperCase() + key.slice(1)) as string
+    const yamlKey = rule.yaml
 
-    // Try to get type-specific export function
-    const typeExportFn = getTypeRule(rule.type, "exportToEnterprise")
+    if (rule.type == "I8nText" && rule.yamlPartial === "others") {
+      result[yamlKey] = exportI8nTextOtherToEnterprise(context, rule, value)
+      continue
+    }
 
-    if (typeExportFn) {
-      // Check if function expects additional parameters (like UserVisible)
-      const exportedValue = (typeExportFn as any)(context, rule, value)
-      if (exportedValue !== undefined) {
-        result[yamlKey] = exportedValue
-      }
-    } else if (typeof value !== "object" || value === null) {
-      // Simple value
+    if (rule.type == "FormattedI8nText" && rule.yamlPartial === "others") {
+      result[yamlKey] = exportFormattedI8nTextOtherToEnterprise(context, rule, value)
+      continue
+    }
+
+    const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
+
+    if (!typeExportFn) {
       result[yamlKey] = value
+      continue
+    }
+
+    const exportedValue = typeExportFn(context, rule, value)
+    if (exportedValue !== undefined) {
+      result[yamlKey] = exportedValue
     }
   }
 
