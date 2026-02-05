@@ -134,9 +134,6 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     visible: { yaml: "Видимость", type: "boolean", enterprise: true },
     width: { yaml: "Ширина", type: "number", enterprise: true },
   },
-  events: {
-    onChange: "ПриИзменении",
-  },
 }
 
 registerElementRule("UsualGroup", UsualGroupRules)
