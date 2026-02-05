@@ -9,12 +9,9 @@
   "npm.packageManager": "pnpm",
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.suggest.autoImports": true,
-  "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit",
-    // "source.fixAll": "explicit",
-    // "source.removeUnused": "explicit",
     "source.addMissingImports": "explicit"
   },
   "files.exclude": {
@@ -26,11 +23,5 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/yarn.lock": true
-  },
-  "[xml]": {
-    "editor.defaultFormatter": "DotJoshJohnson.xml",
-    "editor.insertSpaces": false,
-    "editor.tabSize": 1,
-    "editor.formatOnSave": true
   }
 }
