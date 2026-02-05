@@ -1,4 +1,4 @@
-import { exportFormattedI8nTextOtherToEnterprise } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
+import { exportFormattedI8nTextOtherToYAML } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
 import { exportI8nTextOtherToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
@@ -72,7 +72,7 @@ export function exportElementToEnterprisePartial<T extends NamedElement>(
     }
 
     if (rule.type == "FormattedI8nText" && rule.yamlPartial === "others") {
-      result[yamlKey] = exportFormattedI8nTextOtherToEnterprise(context, rule, value)
+      result[yamlKey] = exportFormattedI8nTextOtherToYAML(context, rule, value)
       continue
     }
 

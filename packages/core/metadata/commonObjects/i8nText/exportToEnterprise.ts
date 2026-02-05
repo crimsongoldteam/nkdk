@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { I8nText, I8nTextEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToEnterprise = (
   context: ConfigurationContext,
@@ -45,6 +45,5 @@ export const exportI8nTextOtherToEnterprise = (
 
   return exportI8nTextToEnterprise(context, undefined, { items: filtredItems })
 }
-
 
 registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToEnterprise)

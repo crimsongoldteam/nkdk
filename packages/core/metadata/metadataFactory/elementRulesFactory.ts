@@ -9,8 +9,14 @@ interface BasePropertyRule {
 }
 
 export interface I8nTextPropertyRule extends BasePropertyRule {
-  type: "I8nText" | "FormattedI8nText"
-  yamlPartial: "all" | "others"
+  type: "I8nText"
+  yamlPartial: "others" | "none"
+}
+
+export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
+  type: "FormattedI8nText"
+  yamlFormatted: string
+  yamlPartial: "others" | "none"
 }
 
 export interface SystemEnumerationPropertyRule extends BasePropertyRule {
@@ -25,13 +31,14 @@ export interface UserVisiblePropertyRule {
 }
 
 export interface CleanPropertyRule extends BasePropertyRule {
-  type: Omit<TypeRulesNames, "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible">
+  type: Exclude<TypeRulesNames, "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible">
 }
 
 export type PropertyRule =
   | SystemEnumerationPropertyRule
   | UserVisiblePropertyRule
   | I8nTextPropertyRule
+  | FormattedI8nTextPropertyRule
   | CleanPropertyRule
 
 export interface ElementRule<T extends NamedElement> {
