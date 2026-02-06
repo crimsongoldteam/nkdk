@@ -7,7 +7,6 @@ function toPascalCase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-/** @deprecated */
 export const exportEventsToXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,

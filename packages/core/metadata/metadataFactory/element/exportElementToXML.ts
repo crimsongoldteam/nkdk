@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
@@ -50,17 +50,29 @@ export function exportElementToXML<T extends NamedElement | EventedElement>(
 }
 
 function mapEventsToXML(
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   rulesEvents: Record<string, string> | undefined,
   dataEvents: Record<string, string> | undefined
 ): { Events?: EventsXML } {
-  if (!rulesEvents || !dataEvents) {
+  if (!rulesEvents || !dataEvents || Object.keys(dataEvents).length === 0) {
     return {}
   }
 
-  if (events !== undefined) {
-    return { Events: events }
+  const events: EventXML[] = []
+
+  for (const ruleKey of Object.keys(rulesEvents)) {
+    const eventName = capitalize(ruleKey)
+    const eventValue = dataEvents[ruleKey]
+    if (eventValue === undefined) continue
+
+    events.push({ _name: eventName, "#text": eventValue })
   }
 
-  return {}
+  if (events.length === 0) {
+    return {}
+  }
+
+  const sortedEvents = events.sort((a, b) => a._name.localeCompare(b._name))
+
+  return { Events: { Event: sortedEvents } }
 }
