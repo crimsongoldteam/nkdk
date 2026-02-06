@@ -45,7 +45,10 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: {
+      yaml: "РасширеннаяПодсказка",
+      type: "ExtendedTooltip",
+    },
     format: { yaml: "Формат", type: "I8nText" },
     group: {
       yaml: "Группировка",
@@ -83,13 +86,17 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       type: "SystemEnumeration",
       typeSE: "UsualGroupRepresentation",
     },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
+    shortcut: {
+      yaml: "СочетаниеКлавиш",
+      type: "string",
+    },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
     table: {
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
       type: "AssociatedTable",
+      toEnterprise: false,
     },
     throughAlign: {
       yaml: "СквозноеВыравнивание",
@@ -115,6 +122,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",

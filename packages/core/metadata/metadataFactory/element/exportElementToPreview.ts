@@ -1,7 +1,8 @@
+import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { getElementRule } from "../elementRulesFactory"
-import { getTypeRule } from "../typeRulesFactory"
+import { getElementRule, PropertyRule } from "../elementRulesFactory"
+import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
 import { FormElementType, ToPreviewType } from "../types"
 
 export function exportElementToPreview<T extends NamedElement>(
@@ -17,25 +18,23 @@ export function exportElementToPreview<T extends NamedElement>(
     ElementType: "FormField",
   }
 
-  for (const [key, rule] of Object.entries(rules.properties)) {
+  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
+    if (!rule.toEnterprise) continue
+
     const value = (data as any)[key]
 
-    if (value === undefined) continue
+    const enterpriseKey = capitalize(key)
 
-    // For preview, use PascalCase key (first letter uppercase)
-    const xmlKey = (rule.xml ?? key.charAt(0).toUpperCase() + key.slice(1)) as string
+    const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToPreview")
 
-    // Try to get type-specific preview export function
-    const typeExportFn = getTypeRule(rule.type, "exportToPreview")
+    if (!typeExportFn) {
+      result[enterpriseKey] = value
+      continue
+    }
 
-    if (typeExportFn) {
-      const exportedValue = typeExportFn(context, rule, value)
-      if (exportedValue !== undefined) {
-        result[xmlKey] = exportedValue
-      }
-    } else if (typeof value !== "object" || value === null) {
-      // Simple value - just pass through
-      result[xmlKey] = value
+    const exportedValue = typeExportFn(context, rule, value)
+    if (exportedValue !== undefined) {
+      result[enterpriseKey] = exportedValue
     }
   }
 

@@ -5,7 +5,7 @@ import { exportPictureToPreview } from "~/metadata/commonObjects/picture/exportT
 import { ConfigurationContext } from "~/metadata/context/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToPreview } from "~/metadata/systemEnumerations/exportToPreview"
+import { exportSystemEnumerationDeprecatedToPreview } from "~/metadata/systemEnumerations/exportToPreview"
 import { getAttributeName } from "../../preview/getAttributeName"
 import { PropertyRule } from "../calendarField/rules"
 import { LabelField, LabelFieldPreview } from "./types"
@@ -27,7 +27,7 @@ export const exportLabelFieldToPreview = (
   const result: LabelFieldPreview = {
     ElementType: "FormField",
     Name: element.name,
-    Type: exportSystemEnumerationToPreview(context, undefined, "LabelField", "FormFieldType")!,
+    Type: exportSystemEnumerationDeprecatedToPreview(context, undefined, "LabelField", "FormFieldType")!,
   }
 
   if (element.autoCellHeight !== undefined) result.AutoCellHeight = element.autoCellHeight
@@ -80,7 +80,7 @@ export const exportLabelFieldToPreview = (
 
   if (element.defaultItem !== undefined) result.DefaultItem = element.defaultItem
 
-  const displayImportance = exportSystemEnumerationToPreview(
+  const displayImportance = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.displayImportance,
@@ -88,12 +88,17 @@ export const exportLabelFieldToPreview = (
   )
   if (displayImportance !== undefined) result.DisplayImportance = displayImportance
 
-  const editMode = exportSystemEnumerationToPreview(context, undefined, element.editMode, "ColumnEditMode")
+  const editMode = exportSystemEnumerationDeprecatedToPreview(context, undefined, element.editMode, "ColumnEditMode")
   if (editMode !== undefined) result.EditMode = editMode
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  const fixingInTable = exportSystemEnumerationToPreview(context, undefined, element.fixingInTable, "FixingInTable")
+  const fixingInTable = exportSystemEnumerationDeprecatedToPreview(
+    context,
+    undefined,
+    element.fixingInTable,
+    "FixingInTable"
+  )
   if (fixingInTable !== undefined) result.FixingInTable = fixingInTable
 
   const footerBackColor = exportColorToPreview(context, undefined, element.footerBackColor)
@@ -105,7 +110,7 @@ export const exportLabelFieldToPreview = (
   const footerFont = exportFontToPreview(context, undefined, element.footerFont)
   if (footerFont !== undefined) result.FooterFont = footerFont
 
-  const footerHorizontalAlign = exportSystemEnumerationToPreview(
+  const footerHorizontalAlign = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.footerHorizontalAlign,
@@ -122,7 +127,7 @@ export const exportLabelFieldToPreview = (
   const footerTextColor = exportColorToPreview(context, undefined, element.footerTextColor)
   if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
 
-  const headerHorizontalAlign = exportSystemEnumerationToPreview(
+  const headerHorizontalAlign = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.headerHorizontalAlign,
@@ -133,7 +138,7 @@ export const exportLabelFieldToPreview = (
   const headerPicture = exportPictureToPreview(context, undefined, element.headerPicture)
   if (headerPicture !== undefined) result.HeaderPicture = headerPicture
 
-  const horizontalAlign = exportSystemEnumerationToPreview(
+  const horizontalAlign = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.horizontalAlign,
@@ -141,7 +146,7 @@ export const exportLabelFieldToPreview = (
   )
   if (horizontalAlign !== undefined) result.HorizontalAlign = horizontalAlign
 
-  const horizontalAlignInGroup = exportSystemEnumerationToPreview(
+  const horizontalAlignInGroup = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.horizontalAlignInGroup,
@@ -168,7 +173,7 @@ export const exportLabelFieldToPreview = (
 
   if (element.titleHeight !== undefined) result.TitleHeight = element.titleHeight
 
-  const titleLocation = exportSystemEnumerationToPreview(
+  const titleLocation = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.titleLocation,
@@ -182,7 +187,7 @@ export const exportLabelFieldToPreview = (
   const toolTip = exportI8nTextToPreview(context, undefined, element.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
-  const toolTipRepresentation = exportSystemEnumerationToPreview(
+  const toolTipRepresentation = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.toolTipRepresentation,
@@ -190,10 +195,15 @@ export const exportLabelFieldToPreview = (
   )
   if (toolTipRepresentation !== undefined) result.ToolTipRepresentation = toolTipRepresentation
 
-  const verticalAlign = exportSystemEnumerationToPreview(context, undefined, element.verticalAlign, "VerticalAlign")
+  const verticalAlign = exportSystemEnumerationDeprecatedToPreview(
+    context,
+    undefined,
+    element.verticalAlign,
+    "VerticalAlign"
+  )
   if (verticalAlign !== undefined) result.VerticalAlign = verticalAlign
 
-  const verticalAlignInGroup = exportSystemEnumerationToPreview(
+  const verticalAlignInGroup = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.verticalAlignInGroup,
@@ -206,7 +216,7 @@ export const exportLabelFieldToPreview = (
   const warningOnEdit = exportI8nTextToPreview(context, undefined, element.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
-  const warningOnEditRepresentation = exportSystemEnumerationToPreview(
+  const warningOnEditRepresentation = exportSystemEnumerationDeprecatedToPreview(
     context,
     undefined,
     element.warningOnEditRepresentation,
