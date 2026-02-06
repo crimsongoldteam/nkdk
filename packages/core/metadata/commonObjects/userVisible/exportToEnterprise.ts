@@ -4,6 +4,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleEnterprise, type UserVisible } from "./types"
 
+/** @deprecated */
 export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey extends string>(
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,

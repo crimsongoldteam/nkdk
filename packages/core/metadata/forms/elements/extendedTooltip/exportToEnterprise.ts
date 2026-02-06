@@ -7,6 +7,7 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
@@ -114,3 +115,5 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   return Object.keys(result).length > 0 ? result : undefined
 }
+
+registerTypeRule("ExtendedTooltip", "exportToEnterprise", exportExtendedTooltipToEnterprise)

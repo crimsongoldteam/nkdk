@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
@@ -34,3 +35,5 @@ export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>
 
   return result
 }
+
+registerTypeRule("ContextMenu", "exportToEnterprise", exportContextMenuToEnterprise)
