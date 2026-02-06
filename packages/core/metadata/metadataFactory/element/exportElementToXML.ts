@@ -1,12 +1,14 @@
+import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { EventsXML } from "~/metadata/forms/events/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
 import { FormElementType, ToXMLType } from "../types"
 
-export function exportElementToXML<T extends NamedElement>(
+export function exportElementToXML<T extends NamedElement | EventedElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
   data: T | undefined
@@ -26,29 +28,39 @@ export function exportElementToXML<T extends NamedElement>(
 
     if (value === undefined) continue
 
-    const xmlKey = (rule.xml ?? key.charAt(0).toUpperCase() + key.slice(1)) as string
+    const xmlKey = rule.xml ?? capitalize(key)
 
-    // Try to get type-specific export function
     const typeExportFn = getTypeRule(rule.type, "exportToXML")
 
-    if (typeExportFn) {
-      const exportedValue = typeExportFn(context, rule, value)
-      if (exportedValue !== undefined) {
-        result[xmlKey] = exportedValue
-      }
-    } else if (typeof value !== "object" || value === null) {
-      // Simple value
+    if (!typeExportFn) {
       result[xmlKey] = value
+      continue
+    }
+
+    const exportedValue = typeExportFn(context, rule, value)
+    if (exportedValue !== undefined) {
+      result[xmlKey] = exportedValue
     }
   }
 
-  const dataAny = data as any
-  if (rules.events !== undefined && dataAny.events !== undefined && Object.keys(dataAny.events).length > 0) {
-    const events = exportEventsToXML(context, undefined, dataAny.events)
-    if (events !== undefined) {
-      result.Events = events
-    }
+  const events = mapEventsToXML(context, rules.events, "events" in data ? data.events : undefined)
+  Object.assign(result, events)
+
+  return sortObject(result)
+}
+
+function mapEventsToXML(
+  context: ConfigurationContext,
+  rulesEvents: Record<string, string> | undefined,
+  dataEvents: Record<string, string> | undefined
+): { Events?: EventsXML } {
+  if (!rulesEvents || !dataEvents) {
+    return {}
   }
 
-  return result as ToXMLType<T>
+  if (events !== undefined) {
+    return { Events: events }
+  }
+
+  return {}
 }

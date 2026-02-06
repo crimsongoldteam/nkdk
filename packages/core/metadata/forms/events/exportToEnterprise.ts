@@ -72,6 +72,7 @@ const eventNameMapping: Record<string, string> = {
   onCurrentParentChange: "ПриСменеТекущегоРодителя",
 }
 
+/** @deprecated */
 export const exportEventsToEnterprise = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,

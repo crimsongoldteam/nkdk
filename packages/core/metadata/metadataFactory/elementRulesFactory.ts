@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { NamedElement } from "../forms/elements/baseElement/types"
+import { EventedElement, NamedElement } from "../forms/elements/baseElement/types"
 import { TypeRulesNames } from "./typeRulesFactory"
 import { FormElementType } from "./types"
 
@@ -42,16 +42,24 @@ export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<TypeRulesNames, "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible">
 }
 
+export interface CustomExportPropertyRule extends BasePropertyRule {
+  type?: never
+  exportToEnterprise: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
+}
+
 export type PropertyRule =
   | SystemEnumerationPropertyRule
   | UserVisiblePropertyRule
   | I8nTextPropertyRule
   | FormattedI8nTextPropertyRule
   | CleanPropertyRule
+  | CustomExportPropertyRule
 
-export interface ElementRule<T extends NamedElement> {
+export interface ElementRule<T extends NamedElement | EventedElement> {
   properties: Partial<Record<Extract<keyof T, string>, PropertyRule>>
-  events?: Record<string, string>
+  events?: T extends EventedElement
+    ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
+    : never
 }
 
 const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()
