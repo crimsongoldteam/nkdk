@@ -14,11 +14,13 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
+      xml: "HorizontalAlign",
     },
     childItemsVerticalAlign: {
       yaml: "ВертикальноеПоложениеПодчиненных",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
+      xml: "VerticalAlign",
     },
     collapsed: { yaml: "Свернута", type: "boolean" },
     collapsedRepresentationTitle: {
@@ -55,6 +57,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     hiddenRepresentationTitleBackColor: {
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
       type: "Color",
+      xml: "HiddenStateTitleBackColor",
     },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -83,7 +86,11 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "string" },
+    table: {
+      yaml: "Таблица",
+      xml: "AssociatedTableElementId",
+      type: "AssociatedTable",
+    },
     throughAlign: {
       yaml: "СквозноеВыравнивание",
       type: "SystemEnumeration",

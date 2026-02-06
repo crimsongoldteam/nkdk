@@ -102,5 +102,14 @@ const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: s
   "#text": text,
 })
 
+export const exportAssociatedTableToXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule,
+  value: string
+): MetadataSimpleValueXML | undefined => {
+  return exportMetadataSimpleValueToXML(_context, undefined, value, "string")
+}
 
 registerTypeRule("MetadataValue", "exportToXML", exportMetadataValueToXML)
+
+registerTypeRule("AssociatedTable", "exportToXML", exportAssociatedTableToXML as any)

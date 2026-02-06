@@ -2,6 +2,7 @@ import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "./elementRulesFactory"
 
 export type TypeRulesNames =
+  | "AssociatedTable"
   | "boolean"
   | "string"
   | "number"

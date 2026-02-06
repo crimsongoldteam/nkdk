@@ -208,5 +208,14 @@ const isPrimitiveType = (type: MetadataValueType): boolean => {
   return type === "string" || type === "decimal" || type === "dateTime" || type === "boolean"
 }
 
+export const importAssociatedTableFromXML = (
+  context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  data: MetadataValueXML | undefined
+): string | undefined => {
+  return importMetadataValueFromXMLAsPrimitive(context, rule, data, "string")
+}
 
 registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXML)
+
+registerTypeRule("AssociatedTable", "importFromXML", importAssociatedTableFromXML)

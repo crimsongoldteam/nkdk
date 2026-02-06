@@ -9,18 +9,18 @@ import {
   minimalUsualGroup,
   minimalUsualGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportUsualGroupPartialToEnterprise } from "./exportToEnterprise"
 
 describe("exportUsualGroupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportUsualGroupPartialToEnterprise(mockContext, mockRule, fullUsualGroup)
+    const result = exportUsualGroupPartialToEnterprise(mockContext, fullUsualGroup)
 
     expect(result).toEqual(fullUsualGroupPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportUsualGroupPartialToEnterprise(mockContext, mockRule, minimalUsualGroup)
+    const result = exportUsualGroupPartialToEnterprise(mockContext, minimalUsualGroup)
 
     expect(result).toEqual(minimalUsualGroupPartialEnterprise)
   })
