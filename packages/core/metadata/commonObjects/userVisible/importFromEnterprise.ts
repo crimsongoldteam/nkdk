@@ -1,7 +1,6 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { type UserVisible } from "./types"
 
@@ -63,4 +62,4 @@ export const importUserVisibleFromYAML = (
   }
 }
 
-registerTypeRule("UserVisible", "importFromEnterprise", importUserVisibleFromEnterprise)
+// registerTypeRule("UserVisible", "importFromEnterprise", importUserVisibleFromEnterprise)
