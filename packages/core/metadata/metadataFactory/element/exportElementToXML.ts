@@ -26,8 +26,6 @@ export function exportElementToXML<T extends NamedElement | EventedElement>(
   for (const [key, rule] of Object.entries(rules.properties)) {
     const value = (data as any)[key]
 
-    if (value === undefined) continue
-
     const xmlKey = rule.xml ?? capitalize(key)
 
     const typeExportFn = getTypeRule(rule.type, "exportToXML")
