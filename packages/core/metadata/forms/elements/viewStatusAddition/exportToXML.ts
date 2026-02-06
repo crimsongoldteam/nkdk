@@ -6,10 +6,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { exportContextMenuToXML } from "../contextMenu/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { getViewStatusAdditionName } from "./helper"
 import { PropertyRule } from "../calendarField/rules"
+import { exportContextMenuDeprecatedToXML } from "../contextMenu/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
+import { getViewStatusAdditionName } from "./helper"
 
 export const exportViewStatusAdditionToXML = (
   context: ConfigurationContext,
@@ -23,8 +23,8 @@ export const exportViewStatusAdditionToXML = (
 
   const baseFields = exportElementPropsToXML(context, undefined, { name })
 
-  const contextMenu = exportContextMenuToXML(context, undefined, element.contextMenu, { name })
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, element.extendedTooltip, { name })
+  const contextMenu = exportContextMenuDeprecatedToXML(context, undefined, element.contextMenu, { name })
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, element.extendedTooltip, { name })
 
   const result: ViewStatusAdditionXML = {
     ...baseFields,

@@ -8,14 +8,14 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
+import { exportContextMenuDeprecatedToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { RadioButtonField, RadioButtonFieldXML } from "~/metadata/forms/elements/radioButtonField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportRadioButtonFieldToXML<From extends RadioButtonField | undefined>(
   context: ConfigurationContext,
@@ -26,8 +26,8 @@ export function exportRadioButtonFieldToXML<From extends RadioButtonField | unde
 
   const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const contextMenu = exportContextMenuToXML(context, undefined, data.contextMenu, data)
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  const contextMenu = exportContextMenuDeprecatedToXML(context, undefined, data.contextMenu, data)
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
 
   const result: RadioButtonFieldXML = {
     ...baseFields,

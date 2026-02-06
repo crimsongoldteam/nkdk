@@ -3,7 +3,7 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
+import { exportContextMenuDeprecatedToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import {
   SearchControlAddition,
   SearchControlAdditionXML,
@@ -14,9 +14,9 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { getSearchControlAdditionName } from "./helper"
 import { PropertyRule } from "../calendarField/rules"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
+import { getSearchControlAdditionName } from "./helper"
 
 export function exportSearchControlAdditionToXML<From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
@@ -59,8 +59,10 @@ const exportSearchControlAdditionPropsToXML = (
 
   const baseFields = exportElementPropsToXML(context, undefined, { name: params.name })
 
-  const contextMenu = exportContextMenuToXML(context, undefined, element.contextMenu, { name: params.name })
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, element.extendedTooltip, { name: params.name })
+  const contextMenu = exportContextMenuDeprecatedToXML(context, undefined, element.contextMenu, { name: params.name })
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, element.extendedTooltip, {
+    name: params.name,
+  })
 
   const additionSourceXML =
     params.additionSource !== undefined

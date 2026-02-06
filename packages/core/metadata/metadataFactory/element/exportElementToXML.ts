@@ -37,7 +37,12 @@ export function exportElementToXML<T extends NamedElement | EventedElement>(
       continue
     }
 
-    const exportedValue = typeExportFn(context, rule, value)
+    const currentContext: ConfigurationContext = {
+      ...context,
+      elementContext: data,
+    }
+
+    const exportedValue = typeExportFn(currentContext, rule, value)
     if (exportedValue !== undefined) {
       result[xmlKey] = exportedValue
     }

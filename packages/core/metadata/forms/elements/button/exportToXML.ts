@@ -10,7 +10,7 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportButtonToXML<From extends Button | undefined>(
   context: ConfigurationContext,
@@ -21,7 +21,7 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
 
   const result: ButtonXML = {
     ...baseFields,

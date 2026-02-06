@@ -9,7 +9,7 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportCommandBarToXML<From extends CommandBar | undefined>(
   context: ConfigurationContext,
@@ -37,7 +37,7 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
   if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
 
   if (data.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = data.horizontalAlignInGroup

@@ -6,11 +6,13 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { getExtendedTooltipName } from "./helper"
 import { PropertyRule } from "../calendarField/rules"
+import { getExtendedTooltipName } from "./helper"
 
-export const exportExtendedTooltipToXML = (
+/** @deprecated */
+export const exportExtendedTooltipToDeprecatedXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: ExtendedTooltip | undefined,
@@ -80,3 +82,14 @@ export const exportExtendedTooltipToXML = (
 
   return sortObject(result)
 }
+
+export function exportExtendedTooltipToXML(
+  context: Required<ConfigurationContext>,
+  rule: PropertyRule,
+  data: ExtendedTooltip | undefined
+): ExtendedTooltipXML {
+  const parentElement = context.elementContext
+  return exportExtendedTooltipToDeprecatedXML(context, rule, data, parentElement)
+}
+
+registerTypeRule("ExtendedTooltip", "exportToXML", exportExtendedTooltipToXML as any)

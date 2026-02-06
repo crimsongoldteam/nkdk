@@ -4,13 +4,13 @@ import { fullContextMenu, minimalContextMenu, parentElement } from "~/tests/fixt
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportContextMenuToXML } from "./exportToXML"
+import { exportContextMenuDeprecatedToXML } from "./exportToXML"
 
 describe("exportContextMenuToXML", () => {
   it("should return all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/contextMenu/full.xml")
 
-    const xmlData = exportContextMenuToXML(mockContext, mockRule, fullContextMenu, parentElement)
+    const xmlData = exportContextMenuDeprecatedToXML(mockContext, mockRule, fullContextMenu, parentElement)
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 
@@ -20,7 +20,7 @@ describe("exportContextMenuToXML", () => {
   it("should return default when data is undefined", () => {
     const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
 
-    const xmlData = exportContextMenuToXML(mockContext, mockRule, undefined, parentElement)
+    const xmlData = exportContextMenuDeprecatedToXML(mockContext, mockRule, undefined, parentElement)
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 
@@ -29,7 +29,7 @@ describe("exportContextMenuToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
-    const xmlData = exportContextMenuToXML(mockContext, mockRule, minimalContextMenu, parentElement)
+    const xmlData = exportContextMenuDeprecatedToXML(mockContext, mockRule, minimalContextMenu, parentElement)
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 

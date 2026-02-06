@@ -10,7 +10,7 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -22,7 +22,7 @@ export function exportButtonGroupToXML<From extends ButtonGroup | undefined>(
   const baseFields = exportElementPropsToXML(context, undefined, data)
 
   const childItems = exportChildItemsToXML(context, undefined, data.childItems)
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
 
   const result: ButtonGroupXML = {
     ...baseFields,

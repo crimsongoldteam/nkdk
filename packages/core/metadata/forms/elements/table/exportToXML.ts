@@ -6,7 +6,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
+import { exportContextMenuDeprecatedToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -14,7 +14,7 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 import { exportSingleSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSingleSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
@@ -38,11 +38,11 @@ export function exportTableToXML<From extends Table | undefined>(
 
   const commandSet = exportCommandSetToXML(context, undefined, data.commandSet)
 
-  const contextMenu = exportContextMenuToXML(context, undefined, data.contextMenu, data)
+  const contextMenu = exportContextMenuDeprecatedToXML(context, undefined, data.contextMenu, data)
 
   const events = exportEventsToXML(context, undefined, data.events)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
 
   const font = exportFontToXML(context, undefined, data.font)
 

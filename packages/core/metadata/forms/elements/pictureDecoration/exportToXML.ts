@@ -13,8 +13,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
-import { exportContextMenuToXML } from "../contextMenu/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportContextMenuDeprecatedToXML } from "../contextMenu/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportPictureDecorationToXML<From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
@@ -25,9 +25,9 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
 
   const baseFields = exportElementPropsToXML(context, undefined, data)
 
-  const contextMenu = exportContextMenuToXML(context, undefined, data.contextMenu, data)
+  const contextMenu = exportContextMenuDeprecatedToXML(context, undefined, data.contextMenu, data)
 
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
   const result: PictureDecorationXML = {
     ...baseFields,
     ContextMenu: contextMenu,

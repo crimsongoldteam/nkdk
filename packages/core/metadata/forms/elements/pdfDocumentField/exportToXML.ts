@@ -7,14 +7,14 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
+import { exportContextMenuDeprecatedToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { PdfDocumentField, PdfDocumentFieldXML } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportPdfDocumentFieldToXML<From extends PdfDocumentField | undefined>(
   context: ConfigurationContext,
@@ -27,8 +27,8 @@ export function exportPdfDocumentFieldToXML<From extends PdfDocumentField | unde
 
   const result: PdfDocumentFieldXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, undefined, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data),
+    ContextMenu: exportContextMenuDeprecatedToXML(context, undefined, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data),
   }
 
   if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight

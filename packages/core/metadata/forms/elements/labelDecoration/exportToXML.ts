@@ -12,8 +12,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
-import { exportContextMenuToXML } from "../contextMenu/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportContextMenuDeprecatedToXML } from "../contextMenu/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportLabelDecorationToXML<From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
@@ -26,8 +26,8 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   const result: LabelDecorationXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, undefined, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data),
+    ContextMenu: exportContextMenuDeprecatedToXML(context, undefined, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data),
   }
 
   if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight

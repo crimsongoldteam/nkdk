@@ -11,7 +11,7 @@ import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { PropertyRule } from "../calendarField/rules"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
 
 export function exportPagesToXML<From extends Pages | undefined>(
   context: ConfigurationContext,
@@ -37,7 +37,7 @@ export function exportPagesToXML<From extends Pages | undefined>(
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, undefined, data.extendedTooltip, data)
+  result.ExtendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
 
   const events = exportEventsToXML(context, undefined, data.events)
   if (events !== undefined) result.Events = events

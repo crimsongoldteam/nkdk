@@ -3,13 +3,13 @@ import { fullExtendedTooltip, parentElement } from "~/tests/fixtures/forms/exten
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportExtendedTooltipToXML } from "./exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "./exportToXML"
 
 describe("exportExtendedTooltipToXML", () => {
   it("should return default when data is undefined", () => {
     const expectedResult = readXMLFileAsString("forms/extendedTooltip/defaults.xml")
 
-    const xmlData = exportExtendedTooltipToXML(mockContext, mockRule, undefined, parentElement)
+    const xmlData = exportExtendedTooltipToDeprecatedXML(mockContext, mockRule, undefined, parentElement)
 
     const result = xmlExport({ ExtendedTooltip: xmlData }, false)
 
@@ -18,7 +18,7 @@ describe("exportExtendedTooltipToXML", () => {
 
   it("should return all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/extendedTooltip/full.xml").trimEnd()
-    const xmlData = exportExtendedTooltipToXML(mockContext, mockRule, fullExtendedTooltip, parentElement)
+    const xmlData = exportExtendedTooltipToDeprecatedXML(mockContext, mockRule, fullExtendedTooltip, parentElement)
 
     const result = xmlExport({ ExtendedTooltip: xmlData }, false)
 

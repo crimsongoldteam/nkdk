@@ -12,10 +12,10 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { exportContextMenuToXML } from "../contextMenu/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { getSearchStringAdditionName } from "./helper"
 import { PropertyRule } from "../calendarField/rules"
+import { exportContextMenuDeprecatedToXML } from "../contextMenu/exportToXML"
+import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportToXML"
+import { getSearchStringAdditionName } from "./helper"
 
 export function exportSearchStringAdditionToXML<From extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
@@ -58,8 +58,10 @@ const exportSearchStringAdditionPropsToXML = (
 
   const baseFields = exportElementPropsToXML(context, undefined, { name: params.name })
 
-  const contextMenu = exportContextMenuToXML(context, undefined, element.contextMenu, { name: params.name })
-  const extendedTooltip = exportExtendedTooltipToXML(context, undefined, element.extendedTooltip, { name: params.name })
+  const contextMenu = exportContextMenuDeprecatedToXML(context, undefined, element.contextMenu, { name: params.name })
+  const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, element.extendedTooltip, {
+    name: params.name,
+  })
 
   const additionSourceXML =
     params.additionSource !== undefined
