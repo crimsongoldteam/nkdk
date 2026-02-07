@@ -47,7 +47,6 @@ export const importUserVisibleFromYAML = (
 
   const common = valueAllow !== undefined
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const value = common ? valueAllow! : valueDeny!
 
   const values = Object.entries(value).map(([key, val]) => {

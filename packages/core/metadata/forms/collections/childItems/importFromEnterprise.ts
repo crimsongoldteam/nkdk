@@ -5,16 +5,9 @@ import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/me
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } from "./types"
 
-/**
- * Imports child items partially from enterprise format, processing properties and recursively handling nested child items and command bar items.
- *
- * @param context - The configuration context containing metadata elements
- * @param childItems - Array of child items to process
- * @returns Processed array of child items with imported properties
- */
 export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  _rule: PropertyRule | undefined,
   childItems: To[]
 ): To[] => {
   const childItemsProperties = context.allElements!
@@ -22,7 +15,6 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
   return childItems.map((item) => {
     const processedItem = importChildItemProperties(context, rule, item, childItemsProperties)
 
-    // Рекурсивно обрабатываем дочерние элементы
     if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
       processedItem.childItems = importChildItemsPartialFromEnterprise(
         context,
@@ -31,7 +23,6 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
       ) as typeof processedItem.childItems
     }
 
-    // Рекурсивно обрабатываем элементы командной панели
     if ("autoCommandBar" in processedItem && processedItem.autoCommandBar?.childItems?.length) {
       processedItem.autoCommandBar = {
         ...processedItem.autoCommandBar,
@@ -47,16 +38,9 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
   })
 }
 
-/**
- * Imports typed child items from enterprise format, converting a typed object structure into an array of child items.
- *
- * @param context - The configuration context containing metadata elements
- * @param allProperties - Typed enterprise object with child items keyed by name
- * @returns Array of imported child items
- */
 export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  _rule: PropertyRule | undefined,
   allProperties?: Record<string, ToTypedEnterpriseType<To>>
 ): To[] => {
   if (!allProperties) return []
@@ -90,4 +74,4 @@ const importChildItemProperties = <To extends AllChildItem>(
 }
 
 // registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
-registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsTypedFromEnterprise)
+registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
