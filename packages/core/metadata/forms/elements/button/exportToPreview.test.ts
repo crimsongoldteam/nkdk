@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullButton } from "~/tests/fixtures/forms/button/data"
+import { fullButton, fullButtonPreview } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportButtonToPreview } from "./exportToPreview"
 

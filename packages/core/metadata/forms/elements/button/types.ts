@@ -96,9 +96,9 @@ export interface ButtonTypedEnterprise extends ButtonPartialEnterprise {
   Тип: "Кнопка"
 }
 
-export type ButtonPreview = Record<Capitalize<keyof Button>, any> & {
+export interface ButtonPreview {
   Name: string
-  ElementType: "FormField"
+  ElementType: "FormButton"
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BackColor?: ColorPreview
@@ -110,7 +110,7 @@ export type ButtonPreview = Record<Capitalize<keyof Button>, any> & {
   DefaultItem?: boolean
   DisplayImportance?: SE.SystemEnumerationPreview
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltip
+  // ExtendedTooltip?: ExtendedTooltipPreview
   Font?: FontPreview
   Height?: number
   HorizontalAlignInGroup?: SE.SystemEnumerationPreview
@@ -123,16 +123,14 @@ export type ButtonPreview = Record<Capitalize<keyof Button>, any> & {
   Picture?: PicturePreview
   PictureLocation?: SE.SystemEnumerationPreview
   Representation?: SE.SystemEnumerationPreview
-  RepresentationInContextMenu?: SE.SystemEnumerationPreview
   Shape?: SE.SystemEnumerationPreview
   ShapeRepresentation?: SE.SystemEnumerationPreview
   SkipOnInput?: boolean
   TextColor?: ColorPreview
-  Title?: I8nText
+  Title?: string
   TitleHeight?: number
   ToolTipRepresentation?: SE.SystemEnumerationPreview
   Type?: SE.SystemEnumerationPreview
-  UserVisible?: UserVisible
   VerticalAlignInGroup?: SE.SystemEnumerationPreview
   VerticalStretch?: boolean
   Visible?: boolean

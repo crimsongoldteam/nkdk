@@ -1,7 +1,24 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Button } from "~/metadata/forms/elements/button/types"
-import { importElementFromEnterprisePartial, registerMetadata } from "~/metadata/metadataFactory"
-import { FormElementType, ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  importElementFromEnterprisePartial,
+  importElementFromEnterpriseTyped,
+  registerMetadata,
+} from "~/metadata/metadataFactory"
+import {
+  FormElementType,
+  ImportPartialFromEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+
+export function importButtonTypedFromEnterprise<To extends Button>(
+  context: ConfigurationContext,
+  data: ToTypedEnterpriseType<To> | undefined,
+  name: string
+): To {
+  return importElementFromEnterpriseTyped(context, FormElementType.Button, data, name) as To
+}
 
 export function importButtonPartialFromEnterprise<To extends Button>(
   context: ConfigurationContext,

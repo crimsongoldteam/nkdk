@@ -1,4 +1,9 @@
-import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "~/metadata/forms/elements/button/types"
+import {
+  Button,
+  ButtonPartialEnterprise,
+  ButtonPreview,
+  ButtonTypedEnterprise,
+} from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -88,7 +93,7 @@ export const fullButtonSource: Button = {
 }
 
 export const fullButtonPartialEnterprise: Required<
-  Exclude<ButtonPartialEnterprise, "Заголовок" | "ЗапретитьИспользование">
+  Omit<ButtonPartialEnterprise, "Заголовок" | "ЗапретитьИспользование">
 > = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
@@ -149,6 +154,49 @@ export const minimalButtonPartialEnterprise: ButtonPartialEnterprise = {}
 export const minimalButtonTypedEnterprise: ButtonTypedEnterprise = {
   ...minimalButtonPartialEnterprise,
   Тип: "Кнопка",
+}
+
+export const fullButtonPreview: Required<ButtonPreview> = {
+  ElementType: "FormButton",
+  Name: "ОбычнаяКнопка",
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
+  BackColor: { Type: "Color", Value: "WebColors.Red" },
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  Check: true,
+  CommandName: "Form.Command.КакаяТоКоманда",
+  CommandUniqueness: false,
+  DefaultButton: true,
+  DefaultItem: true,
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.VeryHigh" },
+  Enabled: false,
+  Font: { Type: "Font", Value: "StyleFonts.LargeTextFont" },
+  Height: 5,
+  HorizontalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  HorizontalStretch: true,
+  LocationInCommandBar: { Type: "SystemEnumeration", Value: "ButtonLocationInCommandBar.InAdditionalSubmenu" },
+  MaxHeight: 2,
+  MaxWidth: 1,
+  OnMainServerUnavalableBehavior: {
+    Type: "SystemEnumeration",
+    Value: "OnMainServerUnavalableBehavior.DontChangeBehavior",
+  },
+  OnlyInAllActions: true,
+  Picture: { Type: "Picture", Value: "PictureLib.Print" },
+  PictureLocation: { Type: "SystemEnumeration", Value: "FormButtonPictureLocation.Left" },
+  Representation: { Type: "SystemEnumeration", Value: "ButtonRepresentation.PictureAndText" },
+  Shape: { Type: "SystemEnumeration", Value: "ButtonShape.Oval" },
+  ShapeRepresentation: { Type: "SystemEnumeration", Value: "ButtonShapeRepresentation.Always" },
+  SkipOnInput: true,
+  TextColor: { Type: "Color", Value: "WebColors.Blue" },
+  Title: "Заголовок кнопки",
+  TitleHeight: 3,
+  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.Balloon" },
+  Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
+  VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
+  VerticalStretch: true,
+  Visible: false,
+  Width: 10,
 }
 
 export interface ButtonStructureFixture {
