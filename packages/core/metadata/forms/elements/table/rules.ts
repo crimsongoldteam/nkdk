@@ -6,7 +6,7 @@ export const TableRules: ElementRule<Table> = {
   enterpriseField: "FormTable",
   properties: {
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
-    autoCommandBar: { yaml: "КоманднаяПанель", type: "string" },
+    autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar" },
     autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean" },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },

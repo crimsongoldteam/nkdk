@@ -3,6 +3,8 @@ import { PropertyRule } from "./elementRulesFactory"
 
 export type TypeRulesNames =
   | "AssociatedTable"
+  | "AutoCommandBar"
+  | "TableAutoCommandBar"
   | "ChildItems"
   | "boolean"
   | "string"
