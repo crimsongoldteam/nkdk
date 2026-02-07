@@ -8,8 +8,8 @@ import { AutoCommandBar, AutoCommandBarEnterprise } from "./types"
 export const importAutoCommandBarFromEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule,
-  structure: AutoCommandBar | undefined,
-  yaml: AutoCommandBarEnterprise | undefined
+  yaml: AutoCommandBarEnterprise | undefined,
+  structure?: AutoCommandBar | undefined
 ): AutoCommandBar | undefined => {
   if (yaml === undefined) return structure
 
@@ -18,7 +18,7 @@ export const importAutoCommandBarFromEnterprise = (
   return importFromEnterprisePartial(
     context,
     AutoCommandBarRules as any,
-    source as unknown as NamedElement,
-    enterprise
+    yaml,
+    source as unknown as NamedElement
   ) as unknown as AutoCommandBar
 }

@@ -20,15 +20,15 @@ describe("importAutoCommandBarFromEnterprise", () => {
     const result = importAutoCommandBarFromEnterprise(
       context,
       mockRule,
-      sourceAutoCommandBar,
-      fullAutoExportCommandBarEnterprise
+      fullAutoExportCommandBarEnterprise,
+      sourceAutoCommandBar
     )
 
     expect(result).toEqual(fullAutoCommandBar)
   })
 
   it("should import minimal", () => {
-    const result = importAutoCommandBarFromEnterprise(mockContext, mockRule, undefined, {})
+    const result = importAutoCommandBarFromEnterprise(mockContext, mockRule, {}, undefined)
 
     expect(result).toEqual(minimalAutoCommandBar)
   })

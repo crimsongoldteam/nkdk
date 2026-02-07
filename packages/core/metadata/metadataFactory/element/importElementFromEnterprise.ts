@@ -63,8 +63,8 @@ export function importSingleElementFromEnterprise<T extends NamedElement>(
   params: {
     rules: ElementRule<T>
   }
-): T {
-  return importFromEnterprisePartial(context, params.rules, source, data)
+): T | undefined {
+  return importFromEnterprisePartial(context, params.rules, data, source)
 }
 
 export function importElementFromEnterprisePartial<T extends NamedElement>(
@@ -72,43 +72,43 @@ export function importElementFromEnterprisePartial<T extends NamedElement>(
   elementType: FormElementType,
   source: T,
   data: ToPartialEnterpriseType<T> | undefined
-): T {
+): T | undefined {
   if (data === undefined) return source
 
   const rules = getElementRule<T>(elementType)
 
-  return importFromEnterprisePartial(context, rules, source, data)
+  return importFromEnterprisePartial(context, rules, data, source)
 }
 
 export function importFromEnterprisePartial<T extends NamedElement>(
   context: ConfigurationContext,
   rules: ElementRule<T>,
-  source: T,
-  data: ToPartialEnterpriseType<T> | undefined
-): T {
+  data: ToPartialEnterpriseType<T> | undefined,
+  source?: T
+): T | undefined {
   if (data === undefined) return source
 
-  const result: T = {
-    ...source,
-  }
+  const result = {
+    ...(source ? source : {}),
+  } as T
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
     const yamlKey = rule.yaml as keyof typeof data
 
-    const xmlValue = data[yamlKey]
-
-    if (xmlValue === undefined) continue
+    const yamlValue = data[yamlKey]
+    const sourceValue = source ? source[key as keyof T] : undefined
 
     const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
-
-    if (typeImportFn) {
-      const importedValue = (typeImportFn as any)(context, rule, xmlValue)
+    if (!typeImportFn) {
+      const importedValue = (typeImportFn as any)(context, rule, yamlValue, sourceValue)
       if (importedValue !== undefined) {
         result[key as keyof T] = importedValue
       }
-    } else {
-      ;(result as any)[key] = xmlValue
+      continue
     }
+
+    if (yamlValue === undefined) continue
+    ;(result as any)[key] = yamlValue
   }
 
   return result
