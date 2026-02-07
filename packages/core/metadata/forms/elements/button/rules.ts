@@ -8,6 +8,7 @@ export const ButtonRules: ElementRule<Button> = {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
+    check: { yaml: "Пометка", type: "boolean" },
     commandName: { yaml: "ИмяКоманды", type: "string" },
     commandUniqueness: { yaml: "УникальностьКоманды", type: "boolean" },
     defaultButton: { yaml: "КнопкаПоУмолчанию", type: "boolean" },
@@ -37,6 +38,11 @@ export const ButtonRules: ElementRule<Button> = {
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     onlyInAllActions: { yaml: "ТолькоВоВсехДействиях", type: "boolean" },
+    onMainServerUnavalableBehavior: {
+      yaml: "ПоведениеПриНедоступностиОсновногоСервера",
+      type: "SystemEnumeration",
+      typeSE: "OnMainServerUnavalableBehavior",
+    },
     picture: { yaml: "Картинка", type: "Picture" },
     pictureLocation: {
       yaml: "ПоложениеКартинки",
@@ -47,6 +53,12 @@ export const ButtonRules: ElementRule<Button> = {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
+    },
+    representationInContextMenu: {
+      yaml: "ОтображениеВКонтекстномМеню",
+      type: "SystemEnumeration",
+      typeSE: "ButtonLocationInContextMenu",
+      toEnterprise: false,
     },
     shape: {
       yaml: "Фигура",

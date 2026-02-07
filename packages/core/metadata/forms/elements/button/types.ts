@@ -1,12 +1,12 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementPropsEnterprise, BaseElementXML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { BaseElementPropsEnterprise, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Button extends NamedElement {
   elementType: "Button"
@@ -14,7 +14,7 @@ export interface Button extends NamedElement {
   autoMaxWidth?: boolean
   backColor?: Color
   borderColor?: Color
-  check: boolean
+  check?: boolean
   commandName?: string
   commandUniqueness?: boolean
   defaultButton?: boolean
@@ -34,10 +34,9 @@ export interface Button extends NamedElement {
   picture?: Picture
   pictureLocation?: SE.FormButtonPictureLocation
   representation?: SE.ButtonRepresentation
-  representationInContextMenu: SE.ButtonLocationInContextMenu
+  representationInContextMenu?: SE.ButtonLocationInContextMenu
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
-  // shortcut?: string
   skipOnInput?: boolean
   textColor?: Color
   title?: I8nText
@@ -49,46 +48,6 @@ export interface Button extends NamedElement {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-}
-
-export interface ButtonXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BackColor?: ColorXML
-  BorderColor?: ColorXML
-  CommandName?: string
-  CommandUniqueness?: boolean
-  DataPath?: string
-  DefaultButton?: boolean
-  DefaultItem?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  Font?: FontXML
-  Height?: number
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  LocationInCommandBar?: SE.ButtonLocationInCommandBar
-  MaxHeight?: number
-  MaxWidth?: number
-  OnlyInAllActions?: boolean
-  Picture?: PictureXML
-  PictureLocation?: SE.FormButtonPictureLocation
-  Representation?: SE.ButtonRepresentation
-  Shape?: SE.ButtonShape
-  ShapeRepresentation?: SE.ButtonShapeRepresentation
-  Shortcut?: string
-  SkipOnInput?: boolean
-  TextColor?: ColorXML
-  Title?: I8nTextXML
-  TitleHeight?: number
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormButtonType
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
 }
 
 export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
@@ -112,12 +71,13 @@ export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
+  ОтображениеВКонтекстномМеню?: SE.ButtonLocationInContextMenuEnterprise
   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
+  Пометка?: StringboolEnterprise
   ПропускатьПриВводе?: StringboolEnterprise
-  ПутьКДанным?: string
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
@@ -136,42 +96,45 @@ export interface ButtonTypedEnterprise extends ButtonPartialEnterprise {
   Тип: "Кнопка"
 }
 
-// export interface ButtonPreview {
-//   name: string
-//   type: "Button"
-//   autoMaxHeight?: boolean
-//   autoMaxWidth?: boolean
-//   backColor?: ColorPreview
-//   borderColor?: ColorPreview
-//   commandName?: string
-//   commandUniqueness?: boolean
-//   dataPath?: string
-//   defaultButton?: boolean
-//   defaultItem?: boolean
-//   displayImportance?: SE.DisplayImportance
-//   enabled?: boolean
-//   extendedTooltip?: ExtendedTooltip
-//   font?: FontPreview
-//   height?: number
-//   horizontalAlignInGroup?: SE.ItemHorizontalLocation
-//   horizontalStretch?: boolean
-//   locationInCommandBar?: SE.ButtonLocationInCommandBar
-//   maxHeight?: number
-//   maxWidth?: number
-//   onlyInAllActions?: boolean
-//   picture?: PicturePreview
-//   pictureLocation?: SE.FormButtonPictureLocation
-//   representation?: SE.ButtonRepresentation
-//   shape?: SE.ButtonShape
-//   shapeRepresentation?: SE.ButtonShapeRepresentation
-//   shortcut?: string
-//   skipOnInput?: boolean
-//   textColor?: ColorPreview
-//   title?: I8nText
-//   titleHeight?: number
-//   toolTipRepresentation?: SE.ToolTipRepresentation
-//   verticalAlignInGroup?: SE.ItemVerticalAlign
-//   verticalStretch?: boolean
-//   visible?: boolean
-//   width?: number
-// }
+export type ButtonPreview = Record<Capitalize<keyof Button>, any> & {
+  Name: string
+  ElementType: "FormField"
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  BackColor?: ColorPreview
+  BorderColor?: ColorPreview
+  Check?: boolean
+  CommandName?: string
+  CommandUniqueness?: boolean
+  DefaultButton?: boolean
+  DefaultItem?: boolean
+  DisplayImportance?: SE.SystemEnumerationPreview
+  Enabled?: boolean
+  ExtendedTooltip?: ExtendedTooltip
+  Font?: FontPreview
+  Height?: number
+  HorizontalAlignInGroup?: SE.SystemEnumerationPreview
+  HorizontalStretch?: boolean
+  LocationInCommandBar?: SE.SystemEnumerationPreview
+  MaxHeight?: number
+  MaxWidth?: number
+  OnMainServerUnavalableBehavior?: SE.SystemEnumerationPreview
+  OnlyInAllActions?: boolean
+  Picture?: PicturePreview
+  PictureLocation?: SE.SystemEnumerationPreview
+  Representation?: SE.SystemEnumerationPreview
+  RepresentationInContextMenu?: SE.SystemEnumerationPreview
+  Shape?: SE.SystemEnumerationPreview
+  ShapeRepresentation?: SE.SystemEnumerationPreview
+  SkipOnInput?: boolean
+  TextColor?: ColorPreview
+  Title?: I8nText
+  TitleHeight?: number
+  ToolTipRepresentation?: SE.SystemEnumerationPreview
+  Type?: SE.SystemEnumerationPreview
+  UserVisible?: UserVisible
+  VerticalAlignInGroup?: SE.SystemEnumerationPreview
+  VerticalStretch?: boolean
+  Visible?: boolean
+  Width?: number
+}

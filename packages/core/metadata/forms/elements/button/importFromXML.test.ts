@@ -3,7 +3,6 @@ import { fullButton, minimalButton } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importButtonFromXML } from "./importFromXML"
-import { ButtonXML } from "./types"
 
 describe("importButtonFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -13,7 +12,7 @@ describe("importButtonFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Button: ButtonXML }>("forms/button/full.xml")
+    const xmlData = readAndParseXMLFile<{ Button: any }>("forms/button/full.xml")
 
     const result = importButtonFromXML(mockContext, xmlData.Button)
 
@@ -21,7 +20,7 @@ describe("importButtonFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Button: ButtonXML }>("forms/button/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ Button: any }>("forms/button/minimal.xml")
 
     const result = importButtonFromXML(mockContext, xmlData.Button)
 
