@@ -10,14 +10,14 @@ export const importFontFromEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   _source: Font | undefined,
-  data: FontEnterprise | undefined
+  yaml: FontEnterprise | undefined
 ): Font | undefined => {
-  if (!data) return undefined
+  if (!yaml) return undefined
 
   // Если данные - строка (компактный формат)
-  if (typeof data === "string") {
+  if (typeof yaml === "string") {
     // Проверяем, является ли это Enterprise значением ref
-    const styleFontRef = importSystemEnumerationFromEnterprise(context, undefined, data, SE.StyleFontsFromEnterprise)
+    const styleFontRef = importSystemEnumerationFromEnterprise(context, undefined, yaml, SE.StyleFontsFromEnterprise)
     if (styleFontRef) {
       return {
         ref: styleFontRef,
@@ -28,7 +28,7 @@ export const importFontFromEnterprise = (
     const windowsFontRef = importSystemEnumerationFromEnterprise(
       context,
       undefined,
-      data,
+      yaml,
       SE.WindowsFontsFromEnterprise
     )
     if (windowsFontRef) {
@@ -40,13 +40,13 @@ export const importFontFromEnterprise = (
 
     // Если не нашли в ref, значит это faceName
     return {
-      faceName: data,
+      faceName: yaml,
       kind: "Absolute",
     }
   }
 
   // Если данные - объект (полный формат)
-  const fullData = data as FontFullEnterprise
+  const fullData = yaml as FontFullEnterprise
   const result: any = {}
 
   // Конвертируем Вид в ref и kind
