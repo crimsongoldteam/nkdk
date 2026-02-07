@@ -3,6 +3,7 @@ import { Table } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const TableRules: ElementRule<Table> = {
+  enterpriseField: "FormTable",
   properties: {
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
     autoCommandBar: { yaml: "КоманднаяПанель", type: "string" },
