@@ -82,7 +82,7 @@ export function importFromYAMLPartial<T extends BaseElement>(
   } as T
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
-    const yamlKey = rule.yaml as keyof (ToPartialEnterpriseType<T>)
+    const yamlKey = rule.yaml as keyof ToPartialEnterpriseType<T>
 
     const yamlValue = yaml[yamlKey as keyof typeof yaml]
     const sourceValue = source ? source[key as keyof T] : rule.defaultValue

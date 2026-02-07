@@ -33,7 +33,7 @@ export function exportElementToPreview<T extends NamedElement>(
       continue
     }
 
-    const exportedValue = typeExportFn({ context, rule, value })
+    const exportedValue = typeExportFn(context, rule, value)
     if (exportedValue !== undefined) {
       result[enterpriseKey] = exportedValue
     }

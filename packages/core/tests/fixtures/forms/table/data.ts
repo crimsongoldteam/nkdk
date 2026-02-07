@@ -21,6 +21,7 @@ export const sourceTable: Table = {
   elementType: FormElementType.Table,
   name: "Таблица",
   autoCommandBar: {
+    elementType: "AutoCommandBar",
     autofill: false,
     childItems: [],
   },
@@ -57,6 +58,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   autoRefreshPeriod: 30,
   autoAddIncomplete: true,
   autoCommandBar: {
+    elementType: "AutoCommandBar",
     autofill: false,
     childItems: [],
   },
@@ -473,6 +475,7 @@ export const tableWithAutoCommandBar: Table = {
   name: "Таблица1",
   elementType: FormElementType.Table,
   autoCommandBar: {
+    elementType: "AutoCommandBar",
     autofill: true,
     childItems: [
       {

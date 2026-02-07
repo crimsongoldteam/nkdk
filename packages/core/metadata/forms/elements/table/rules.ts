@@ -25,7 +25,7 @@ export const TableRules: ElementRule<Table> = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     changeRowOrder: { yaml: "ИзменятьПорядокСтрок", type: "boolean" },
     changeRowSet: { yaml: "ИзменятьСоставСтрок", type: "boolean" },
-    childItems: { yaml: "ПодчиненныеЭлементы", type: "string" },
+    childItems: { type: "string" },
     choiceMode: { yaml: "РежимВыбора", type: "boolean" },
     commandBarLocation: {
       yaml: "ПоложениеКоманднойПанели",

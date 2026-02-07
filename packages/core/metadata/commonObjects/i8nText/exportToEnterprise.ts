@@ -1,15 +1,24 @@
-import context from "antd/es/app/context"
-import { title } from "process"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { I8nTextPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { I8nText, I8nTextEnterprise } from "./types"
 
-export const exportI8nTextToYAML = (params: {
-  context: ConfigurationContext
-  _rule: PropertyRule
+export const exportI8nTextToYAML = (
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
   title: I8nText | undefined
-}): I8nTextEnterprise | undefined => {
+): I8nTextEnterprise | undefined => {
+  if ((rule as I8nTextPropertyRule<any>).yamlPartialOthers) {
+    return exportI8nTextOtherToEnterprise(context, title)
+  }
+
+  return exportFullI8nTextToYAML(context, title)
+}
+
+const exportFullI8nTextToYAML = (
+  context: ConfigurationContext,
+  title: I8nText | undefined
+): I8nTextEnterprise | undefined => {
   if (!title) return undefined
   if (Object.keys(title.items).length === 0) return undefined
 
@@ -22,9 +31,21 @@ export const exportI8nTextToYAML = (params: {
   return items
 }
 
+const exportI8nTextOtherToEnterprise = (
+  context: ConfigurationContext,
+  text: I8nText | undefined
+): I8nTextEnterprise | undefined => {
+  if (!text) return undefined
+
+  const defaultLanguage = context.defaultLanguage
+
+  const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
+
+  return exportFullI8nTextToYAML(context, { items: filtredItems })
+}
+
 export const exportI8nTextDefaultToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   title: I8nText | undefined
 ): string | undefined => {
   if (!title) return undefined
@@ -34,18 +55,4 @@ export const exportI8nTextDefaultToEnterprise = (
   return title.items[defaultLanguage]
 }
 
-export const exportI8nTextOtherToEnterprise = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  text: I8nText | undefined
-): I8nTextEnterprise | undefined => {
-  if (!text) return undefined
-
-  const defaultLanguage = context.defaultLanguage
-
-  const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
-
-  return exportI8nTextToEnterprise(context, undefined, { items: filtredItems })
-}
-
-registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToEnterprise)
+registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToYAML)

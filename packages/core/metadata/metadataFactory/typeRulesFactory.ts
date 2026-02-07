@@ -1,7 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { BaseElement } from "../forms/elements/baseElement/types"
 import { PropertyRule } from "./elementRulesFactory"
-import { ToPartialEnterpriseType } from "./types"
 
 export type TypeRulesNames =
   | "AssociatedTable"
@@ -35,36 +33,28 @@ export type TypeRulesNames =
   | "ChoiceParameters"
   | "SystemEnumeration"
 
-type ExportToXMLFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
-  context: ConfigurationContext
-  rule: P
-  value: T | undefined
-}) => any | undefined
+type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 
-type ImportFromXMLFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
-  context: ConfigurationContext
-  rule: P
-  value: any
-}) => T | undefined
+type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 
-type ImportFromEnterpriseFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
-  context: ConfigurationContext
-  rule: P
-  value: ToPartialEnterpriseType<T> | undefined
+type ImportFromEnterpriseFunction = <T>(
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  value: any | undefined,
   source?: T
-}) => T | undefined
+) => T | undefined
 
-type ExportToEnterpriseFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
-  context: ConfigurationContext
-  rule: P
-  value: T | undefined
-}) => ToPartialEnterpriseType<T> | undefined
+type ExportToEnterpriseFunction = (
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  value: any | undefined
+) => any | undefined
 
-type ExportToPreviewFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
-  context: ConfigurationContext
-  rule: P
-  value: T | undefined
-}) => any | undefined
+type ExportToPreviewFunction = (
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  value: any | undefined
+) => any | undefined
 
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
@@ -83,7 +73,11 @@ type TypeRulesOperations =
 
 const typeRulesRegistry = new Map<
   string,
-  ImportExportFunction | ImportFromEnterpriseFunction | ImportExportFunctionDepricated
+  | ImportFromEnterpriseFunction
+  | ExportToEnterpriseFunction
+  | ImportFromXMLFunction
+  | ExportToXMLFunction
+  | ExportToPreviewFunction
 >()
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
@@ -107,7 +101,7 @@ type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFrom
 export const registerTypeRule = <O extends TypeRulesOperations>(
   type: TypeRulesNames,
   operation: O,
-  ruleFunction: ImportExportFunction<O>
+  ruleFunction: NonNullable<ImportExportFunction<O>>
 ) => {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
