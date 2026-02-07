@@ -146,7 +146,7 @@ export const fullButtonTypedEnterprise: ButtonTypedEnterprise = {
 
 export const minimalButton: Button = {
   elementType: FormElementType.Button,
-  name: "Кнопка",
+  name: "ОбычнаяКнопка",
 }
 
 export const minimalButtonPartialEnterprise: ButtonPartialEnterprise = {}

@@ -12,13 +12,13 @@ import { importButtonPartialFromEnterprise, importButtonTypedFromEnterprise } fr
 describe("importButtonTypedFromEnterprise", () => {
   describe("importButtonTypedFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonTypedFromEnterprise(mockContext, fullButtonTypedEnterprise, "Кнопка")
+      const result = importButtonTypedFromEnterprise(mockContext, fullButtonTypedEnterprise, "ОбычнаяКнопка")
 
       expect(result).toEqual(fullButton)
     })
 
     it("should import minimal", () => {
-      const result = importButtonTypedFromEnterprise(mockContext, minimalButtonTypedEnterprise, "Кнопка")
+      const result = importButtonTypedFromEnterprise(mockContext, minimalButtonTypedEnterprise, "ОбычнаяКнопка")
 
       expect(result).toEqual(minimalButton)
     })

@@ -1,3 +1,5 @@
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { getElementRule, PropertyRule } from "../elementRulesFactory"
@@ -22,19 +24,32 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
     const yamlKey = rule.yaml
 
-    const xmlValue = data[yamlKey as keyof typeof data]
+    const yamlValue = data[yamlKey as keyof typeof data]
 
-    if (xmlValue === undefined) continue
+    if (rule.type === "UserVisible") {
+      const yamlValueDeny = data[rule.yamlDeny as keyof typeof data]
+
+      const importedValue = importUserVisibleFromYAML(
+        context,
+        rule,
+        yamlValue as Record<string, StringboolEnterprise> | undefined,
+        yamlValueDeny as Record<string, StringboolEnterprise> | undefined
+      )
+      if (importedValue !== undefined) {
+        result[key] = importedValue
+      }
+      continue
+    }
 
     const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
 
     if (typeImportFn) {
-      const importedValue = (typeImportFn as any)(context, rule, xmlValue)
+      const importedValue = (typeImportFn as any)(context, rule, yamlValue)
       if (importedValue !== undefined) {
         result[key] = importedValue
       }
     } else {
-      result[key] = xmlValue
+      result[key] = yamlValue
     }
   }
 

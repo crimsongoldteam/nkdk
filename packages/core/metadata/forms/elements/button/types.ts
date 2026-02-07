@@ -72,7 +72,7 @@ export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
   ОтображениеВКонтекстномМеню?: SE.ButtonLocationInContextMenuEnterprise
-  ПоведениеПриНедоступностиОсновногоСервера: SE.OnMainServerUnavalableBehaviorEnterprise
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise

@@ -1,9 +1,11 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { UserVisiblePropertyRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../context/types"
 import { type UserVisible } from "./types"
 
+/** @deprecated */
 export const importUserVisibleFromEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -35,7 +37,7 @@ export const importUserVisibleFromEnterprise = (
 
 export const importUserVisibleFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: UserVisiblePropertyRule,
   valueAllow: Record<string, StringboolEnterprise> | undefined,
   valueDeny: Record<string, StringboolEnterprise> | undefined
 ): UserVisible | undefined => {
@@ -45,7 +47,8 @@ export const importUserVisibleFromYAML = (
 
   const common = valueAllow !== undefined
 
-  const value = common ? valueAllow : valueDeny!
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const value = common ? valueAllow! : valueDeny!
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
@@ -61,5 +64,3 @@ export const importUserVisibleFromYAML = (
     values,
   }
 }
-
-// registerTypeRule("UserVisible", "importFromEnterprise", importUserVisibleFromEnterprise)

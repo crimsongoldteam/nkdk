@@ -9,6 +9,7 @@ import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/ele
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnterprise | undefined>(
   context: ConfigurationContext,
@@ -114,3 +115,5 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
 
   return result as T extends undefined ? undefined : ExtendedTooltip
 }
+
+registerTypeRule("ExtendedTooltip", "importFromEnterprise", importExtendedTooltipFromEnterprise)
