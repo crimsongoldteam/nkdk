@@ -1,18 +1,18 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
-import { FormElementType, ToXMLType } from "../types"
+import { FormElementType } from "../types"
 
 export function exportElementToXML<T extends NamedElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
   data: T | undefined
-): ToXMLType<T> | undefined {
+): any {
   if (data === undefined) return undefined
 
   const name = data.name
@@ -24,7 +24,7 @@ export function exportElementToXML<T extends NamedElement>(
   return exportToXML<T>(context, data, { rule: rule as ElementRule<T>, id, name })
 }
 
-export function exportSingleElementToXML<T extends Object>(
+export function exportSingleElementToXML<T extends BaseElement>(
   context: ConfigurationContext,
   data: T | undefined,
   params: { rule: ElementRule<T>; id: string; name: string }
@@ -32,7 +32,7 @@ export function exportSingleElementToXML<T extends Object>(
   return exportToXML<T>(context, data, params)
 }
 
-function exportToXML<T extends Object>(
+function exportToXML<T extends BaseElement>(
   context: ConfigurationContext,
   data: T | undefined,
   params: { rule: ElementRule<T>; id: string; name: string }
@@ -48,7 +48,7 @@ function exportToXML<T extends Object>(
     elementContext: { name: params.name },
   }
 
-  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule][]) {
+  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
     const value = (data as any)[key]
 
     const xmlKey = ruleProp.xml ?? capitalize(key)

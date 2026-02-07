@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../context/types"
 import { AllChildItem } from "../forms/collections/childItems/types"
-import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
+import { BaseElement } from "../forms/elements/baseElement/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { PropertyRule } from "./elementRulesFactory"
 import { TypeRules } from "./rules"
@@ -47,7 +47,7 @@ export type ImportPartialFromEnterpriseFn = (
   data: Object | undefined
 ) => Object | undefined
 
-export type ExportToXMLFn = (context: ConfigurationContext, data: BaseElement | undefined) => BaseElementXML | undefined
+export type ExportToXMLFn = <From extends AllChildItem>(context: ConfigurationContext, data: From | undefined) => any
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,

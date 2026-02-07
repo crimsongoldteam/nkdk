@@ -13,13 +13,13 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { LabelField } from "~/metadata/forms/elements/labelField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importLabelFieldFromXML<To extends LabelField | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: any
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, undefined, xml)
