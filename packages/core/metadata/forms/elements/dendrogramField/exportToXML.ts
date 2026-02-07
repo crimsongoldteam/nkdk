@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField } from "~/metadata/forms/elements/dendrogramField/types"
 import { exportElementToXML, registerMetadata } from "~/metadata/metadataFactory"
-import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function exportDendrogramFieldToXML<From extends DendrogramField | undefined>(
   context: ConfigurationContext,

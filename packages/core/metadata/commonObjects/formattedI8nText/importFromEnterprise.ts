@@ -53,4 +53,4 @@ export const importFormattedI8nTextCombinedFromEnterprise = (
   return result
 }
 
-registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromEnterprise)
+registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromEnterprise as any)

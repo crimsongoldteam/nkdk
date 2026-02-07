@@ -5,11 +5,7 @@ import {
   importElementFromEnterpriseTyped,
   registerMetadata,
 } from "~/metadata/metadataFactory"
-import {
-  ImportPartialFromEnterpriseFn,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 
 export function importDendrogramFieldTypedFromEnterprise<To extends DendrogramField | undefined>(
   context: ConfigurationContext,
@@ -29,8 +25,4 @@ export function importDendrogramFieldPartialFromEnterprise<To extends Dendrogram
   return importElementFromEnterprisePartial(context, "DendrogramField", source, data as any) as unknown as To
 }
 
-registerMetadata(
-  "ImportPartialFromEnterprise",
-  "DendrogramField",
-  importDendrogramFieldPartialFromEnterprise as any
-)
+registerMetadata("ImportPartialFromEnterprise", "DendrogramField", importDendrogramFieldPartialFromEnterprise as any)

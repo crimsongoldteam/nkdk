@@ -19,12 +19,14 @@ describe("exportAutoCommandBarToXML", () => {
 
       expect(result).toEqual(expectedResult)
     })
+
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/autoCommandBar/fullForm.xml")
       const xmlData = exportFormAutoCommandBarToXML(mockContext, fullAutoCommandBar)
       const result = xmlExport({ AutoCommandBar: xmlData }, false)
       expect(result).toEqual(expectedResult)
     })
+
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalForm.xml")
       const xmlData = exportFormAutoCommandBarToXML(mockContext, minimalAutoCommandBar)
