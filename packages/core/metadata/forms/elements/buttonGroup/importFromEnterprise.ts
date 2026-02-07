@@ -1,18 +1,14 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ButtonGroup } from "~/metadata/forms/elements/buttonGroup/types"
+import { ButtonGroup } from "./types"
 import { importElementFromEnterprisePartial, registerMetadata } from "~/metadata/metadataFactory"
-import { FormElementType, ImportPartialFromEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 
 export function importButtonGroupPartialFromEnterprise<To extends ButtonGroup>(
   context: ConfigurationContext,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  return importElementFromEnterprisePartial(context, FormElementType.ButtonGroup, source, data) as To
+  return importElementFromEnterprisePartial(context, FormElementType.ButtonGroup, source, data)
 }
 
-registerMetadata(
-  "ImportPartialFromEnterprise",
-  "ButtonGroup",
-  importButtonGroupPartialFromEnterprise as unknown as ImportPartialFromEnterpriseFn
-)
+registerMetadata("ImportPartialFromEnterprise", "ButtonGroup", importButtonGroupPartialFromEnterprise as any)

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ButtonGroup } from "~/metadata/forms/elements/buttonGroup/types"
+import { ButtonGroup } from "./types"
 import { exportElementToEnterprisePartial } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"

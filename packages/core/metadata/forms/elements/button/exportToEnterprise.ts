@@ -11,8 +11,4 @@ export function exportButtonPartialToEnterprise<From extends Button | undefined>
   return exportElementToEnterprisePartial(context, "Button", data) as ToPartialEnterpriseType<From>
 }
 
-registerMetadata(
-  "ExportPartialToEnterprise",
-  "Button",
-  exportButtonPartialToEnterprise as ExportPartialToEnterpriseFn
-)
+registerMetadata("ExportPartialToEnterprise", "Button", exportButtonPartialToEnterprise as ExportPartialToEnterpriseFn)
