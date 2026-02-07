@@ -1,4 +1,4 @@
-import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise, ButtonXML } from "../forms/elements/button/types"
+import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "../forms/elements/button/types"
 import {
   ButtonGroup,
   ButtonGroupPartialEnterprise,
@@ -177,7 +177,6 @@ import {
 
 export type TypeRules<T> = T extends Button
   ? {
-      XML: ButtonXML
       PartialEnterprise: ButtonPartialEnterprise
       TypedEnterprise: ButtonTypedEnterprise
     }

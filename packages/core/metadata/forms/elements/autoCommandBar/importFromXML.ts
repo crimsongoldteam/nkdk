@@ -1,6 +1,7 @@
 import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/autoCommandBar/types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { CommandBarChildItem } from "../../collections/childItems/types"
 import { PropertyRule } from "../calendarField/rules"
@@ -27,3 +28,6 @@ export const importAutoCommandBarFromXML = (
 
   return result
 }
+
+registerTypeRule("AutoCommandBar", "importFromEnterprise", importAutoCommandBarFromXML as any)
+registerTypeRule("TableAutoCommandBar", "importFromEnterprise", importAutoCommandBarFromXML as any)

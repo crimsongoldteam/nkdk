@@ -1,52 +1,80 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { getElementRule } from "../elementRulesFactory"
+import { getElementId } from "~/metadata/helpers/getElementId"
+import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
 import { FormElementType, ToXMLType } from "../types"
 
-export function exportElementToXML<T extends NamedElement | EventedElement>(
+export function exportElementToXML<T extends NamedElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
   data: T | undefined
 ): ToXMLType<T> | undefined {
   if (data === undefined) return undefined
 
-  const baseFields = exportElementPropsToXML(context, undefined, { name: data.name })
+  const name = data.name
+  const id = getElementId(context)
+  const rule = getElementRule(elementType)
 
+  if (!rule) throw new Error(`Unknown element type: ${elementType}`)
+
+  return exportToXML<T>(context, data, { rule: rule as ElementRule<T>, id, name })
+}
+
+export function exportSingleElementToXML<T extends Object>(
+  context: ConfigurationContext,
+  data: T | undefined,
+  params: { rule: ElementRule<T>; id: string; name: string }
+): any | undefined {
+  return exportToXML<T>(context, data, params)
+}
+
+function exportToXML<T extends Object>(
+  context: ConfigurationContext,
+  data: T | undefined,
+  params: { rule: ElementRule<T>; id: string; name: string }
+): any {
   const result: any = {
-    ...baseFields,
+    _name: params.name,
+    _id: params.id,
+  }
+  const rule = params.rule
+
+  const currentContext: ConfigurationContext = {
+    ...context,
+    elementContext: { name: params.name },
   }
 
-  const rules = getElementRule<T>(elementType)
-
-  for (const [key, rule] of Object.entries(rules.properties)) {
+  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     const value = (data as any)[key]
 
-    const xmlKey = rule.xml ?? capitalize(key)
+    const xmlKey = ruleProp.xml ?? capitalize(key)
 
-    const typeExportFn = getTypeRule(rule.type, "exportToXML")
+    const typeExportFn = ruleProp.type ? getTypeRule(ruleProp.type, "exportToXML") : undefined
 
     if (!typeExportFn) {
-      result[xmlKey] = value
+      if (value !== undefined && value !== ruleProp.defaultValue) {
+        result[xmlKey] = value
+      }
       continue
     }
 
-    const currentContext: ConfigurationContext = {
-      ...context,
-      elementContext: data,
-    }
-
-    const exportedValue = typeExportFn(currentContext, rule, value)
-    if (exportedValue !== undefined) {
+    const exportedValue = typeExportFn(currentContext, ruleProp, value)
+    if (exportedValue !== undefined && exportedValue !== ruleProp.defaultValue) {
       result[xmlKey] = exportedValue
     }
   }
 
-  const events = mapEventsToXML(context, rules.events, "events" in data ? data.events : undefined)
+  const events = mapEventsToXML(
+    context,
+    rule.events,
+    data && "events" in data
+      ? ((data as Record<string, unknown>).events as Record<string, string> | undefined)
+      : undefined
+  )
   Object.assign(result, events)
 
   return sortObject(result)

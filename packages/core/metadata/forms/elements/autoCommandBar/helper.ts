@@ -1,7 +1,6 @@
-import { NamedElement } from "../baseElement/types"
 import { AutoCommandBar } from "./types"
 
-export const getAutoCommandBarName = (parentElement: NamedElement): string => {
+export const getAutoCommandBarName = (parentElement: { name: string }): string => {
   return `${parentElement.name}КоманднаяПанель`
 }
 

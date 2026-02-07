@@ -3,9 +3,11 @@ import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { AllChildItem } from "./types"
+import { PropertyRule } from "~/metadata/metadataFactory"
 
 export const exportChildItemsToXML = <From extends AllChildItem>(
   context: ConfigurationContext,
+  _rule: PropertyRule,
   data: From[] | undefined
 ): Record<From["elementType"], ToXMLType<From>>[] | undefined => {
   if (!data || data.length === 0) return undefined

@@ -134,6 +134,7 @@ export const FormElementTypeToEnterprise = {
   FormGroup: "ГруппаФормы",
   SearchControlAddition: "УправлениеПоиском",
   SearchStringAddition: "ОтображениеСтрокиПоиска",
+  AutoCommandBar: "АвтоКоманднаяПанель",
 } as const
 
 export const FormElementTypeFromEnterprise = Object.fromEntries(

@@ -1,25 +1,26 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/autoCommandBar/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
+import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
+import { exportSingleElementToXML, PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { getAutoCommandBarName } from "./helper"
+import { AutoCommandBarRules } from "./rules"
 
 export const exportFormAutoCommandBarToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule,
   data: AutoCommandBar | undefined
-): AutoCommandBarXML => {
+): any => {
   return exportAutoCommandBarPropsToXML(context, data, "ФормаКоманднаяПанель", "-1")
 }
 
 export const exportTableAutoCommandBarToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule,
   data: AutoCommandBar | undefined
-): AutoCommandBarXML => {
-  const parentElement = context.elementContext!
+): any => {
+  const table = context.elementContext!
   const id = getElementId(context)
-  const name = getAutoCommandBarName(parentElement)
+  const name = getAutoCommandBarName(table)
   return exportAutoCommandBarPropsToXML(context, data, name, id)
 }
 
@@ -28,21 +29,14 @@ const exportAutoCommandBarPropsToXML = (
   data: AutoCommandBar | undefined,
   name: string,
   id: string
-): AutoCommandBarXML => {
+): any => {
   const autoCommandBar = data ?? getDefaultAutoCommandBar()
 
-  const result: AutoCommandBarXML = {
-    _name: name,
-    _id: id,
-  }
-
-  if (autoCommandBar.autofill !== true) result.Autofill = autoCommandBar.autofill
-  if (autoCommandBar.displayImportance !== undefined) result._DisplayImportance = autoCommandBar.displayImportance
-  if (autoCommandBar.horizontalAlign !== undefined) result.HorizontalAlign = autoCommandBar.horizontalAlign
-
-  result.ChildItems = exportChildItemsToXML(context, autoCommandBar.childItems)
-
-  return sortObject(result)
+  return exportSingleElementToXML(context, autoCommandBar, {
+    rule: AutoCommandBarRules,
+    id: id,
+    name: name,
+  })!
 }
 
 const getDefaultAutoCommandBar = (): AutoCommandBar => {

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { EventedElement, NamedElement } from "../forms/elements/baseElement/types"
+import { BaseElement, EventedElement, NamedElement } from "../forms/elements/baseElement/types"
 import { TypeRulesNames } from "./typeRulesFactory"
 import { FormElementType } from "./types"
 
@@ -14,6 +14,7 @@ interface BasePropertyRule {
   xml?: string
   toEnterprise?: false
   toYAML?: false | ExportCheckFn
+  defaultValue?: any
 }
 
 export interface I8nTextPropertyRule extends BasePropertyRule {
@@ -55,17 +56,18 @@ export type PropertyRule =
   | CleanPropertyRule
   | CustomExportPropertyRule
 
-export interface ElementRule<T extends NamedElement | EventedElement> {
+export interface ElementRule<T extends BaseElement | Object> {
   properties: Partial<Record<Extract<keyof T, string>, PropertyRule>>
   events?: T extends EventedElement
     ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
     : never
   enterpriseField: string
+  alwaysExportToXML?: true
 }
 
 const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()
 
-export function registerElementRule<T extends NamedElement>(
+export function registerElementRule<T extends BaseElement>(
   elementType: FormElementType,
   elementRule: ElementRule<T>
 ): void {

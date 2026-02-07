@@ -1,3 +1,4 @@
+import "./autoCommandBar/rules"
 import "./button/rules"
 import "./buttonGroup/rules"
 import "./calendarField/rules"
