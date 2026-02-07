@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
 
@@ -22,3 +23,5 @@ export const importChildItemsFromXML = <From extends AllChildItem>(
     return importFunction(context, rule, itemResult)! as From
   })
 }
+
+registerTypeRule("ChildItems", "importFromXML", importChildItemsFromXML)

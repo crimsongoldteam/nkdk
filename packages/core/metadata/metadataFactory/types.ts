@@ -35,57 +35,45 @@ export type ToPreviewType<T> = T extends undefined
 
 export type ImportFromXMLFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: ToXMLType<To>
 ) => To
 
 export type ImportTypedFromEnterpriseFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: ToTypedEnterpriseType<To>,
   name: string
 ) => To
 
 export type ImportPartialFromEnterpriseFn = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   source: Object,
   data: Object | undefined
 ) => Object | undefined
 
-export type ExportToXMLFn = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: BaseElement | undefined
-) => BaseElementXML | undefined
+export type ExportToXMLFn = (context: ConfigurationContext, data: BaseElement | undefined) => BaseElementXML | undefined
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: From
 ) => ToPartialEnterpriseType<From>
 
 export type ExportTypedToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: From
 ) => ToTypedEnterpriseType<From>
 
 export type ExportToStructureFn = <From extends BaseElement>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: From
 ) => IFormatElementResult
 
 export type ExportToStructureContentFn = <From extends BaseElement>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: From
 ) => IFormatElementResult
 
 export type ExportToPreviewFn = <From extends BaseElement>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: From
 ) => NonNullable<ToPreviewType<From>>
 

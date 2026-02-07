@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } from "./types"
 
@@ -87,3 +88,6 @@ const importChildItemProperties = <To extends AllChildItem>(
 
   return result as To
 }
+
+registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
+registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsTypedFromEnterprise)

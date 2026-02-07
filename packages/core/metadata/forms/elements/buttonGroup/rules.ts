@@ -6,7 +6,7 @@ export const ButtonGroupRules: ElementRule<ButtonGroup> = {
   enterpriseField: "FormGroup",
   properties: {
     childItems: {
-      yaml: "Элементы",
+      yaml: "ПодчиненныеЭлементы",
       type: "ChildItems",
     },
     extendedTooltip: {
