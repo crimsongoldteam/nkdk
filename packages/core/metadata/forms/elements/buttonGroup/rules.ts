@@ -8,6 +8,7 @@ export const ButtonGroupRules: ElementRule<ButtonGroup> = {
     childItems: {
       yaml: "ПодчиненныеЭлементы",
       type: "ChildItems",
+      defaultValue: [],
     },
     extendedTooltip: {
       yaml: "РасширеннаяПодсказка",

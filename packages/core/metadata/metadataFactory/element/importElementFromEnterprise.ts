@@ -1,7 +1,7 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
 import { FormElementType, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
@@ -56,7 +56,7 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
   return result as T
 }
 
-export function importSingleElementFromEnterprise<T extends NamedElement>(
+export function importSingleElementFromEnterprise<T extends BaseElement>(
   context: ConfigurationContext,
   source: T,
   data: ToPartialEnterpriseType<T> | undefined,
@@ -67,11 +67,11 @@ export function importSingleElementFromEnterprise<T extends NamedElement>(
   return importFromEnterprisePartial(context, params.rules, data, source)
 }
 
-export function importElementFromEnterprisePartial<T extends NamedElement>(
+export function importElementFromEnterprisePartial<T extends BaseElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
-  source: T,
-  data: ToPartialEnterpriseType<T> | undefined
+  data: ToPartialEnterpriseType<T> | undefined,
+  source?: T
 ): T | undefined {
   if (data === undefined) return source
 
@@ -80,7 +80,7 @@ export function importElementFromEnterprisePartial<T extends NamedElement>(
   return importFromEnterprisePartial(context, rules, data, source)
 }
 
-export function importFromEnterprisePartial<T extends NamedElement>(
+export function importFromEnterprisePartial<T extends BaseElement>(
   context: ConfigurationContext,
   rules: ElementRule<T>,
   data: ToPartialEnterpriseType<T> | undefined,
@@ -96,10 +96,25 @@ export function importFromEnterprisePartial<T extends NamedElement>(
     const yamlKey = rule.yaml as keyof typeof data
 
     const yamlValue = data[yamlKey]
-    const sourceValue = source ? source[key as keyof T] : undefined
+    const sourceValue = source ? source[key as keyof T] : rule.defaultValue
+
+    if (rule.type === "UserVisible") {
+      const yamlValueDeny = data[rule.yamlDeny as keyof typeof data]
+
+      const importedValue = importUserVisibleFromYAML(
+        context,
+        rule,
+        yamlValue as Record<string, StringboolEnterprise> | undefined,
+        yamlValueDeny as Record<string, StringboolEnterprise> | undefined
+      )
+      if (importedValue !== undefined) {
+        ;(result as Record<string, unknown>)[key] = importedValue
+      }
+      continue
+    }
 
     const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
-    if (!typeImportFn) {
+    if (typeImportFn) {
       const importedValue = (typeImportFn as any)(context, rule, yamlValue, sourceValue)
       if (importedValue !== undefined) {
         result[key as keyof T] = importedValue

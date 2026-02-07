@@ -1,24 +1,16 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { importFromEnterprisePartial } from "~/metadata/metadataFactory/element/importElementFromEnterprise"
 import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { AutoCommandBarRules } from "./rules"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "./types"
 
-export const importAutoCommandBarFromEnterprise = (
+export const importAutoCommandBarFromEnterprise = <T extends AutoCommandBar>(
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule<T>,
   yaml: AutoCommandBarEnterprise | undefined,
-  structure?: AutoCommandBar | undefined
-): AutoCommandBar | undefined => {
-  if (yaml === undefined) return structure
+  source?: T
+): T | undefined => {
+  if (yaml === undefined) return source
 
-  const source: AutoCommandBar = structure ?? { autofill: true, childItems: [] }
-
-  return importFromEnterprisePartial(
-    context,
-    AutoCommandBarRules as any,
-    yaml,
-    source as unknown as NamedElement
-  ) as unknown as AutoCommandBar
+  return importFromEnterprisePartial(context, AutoCommandBarRules, yaml, source) as T
 }

@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "../context/types"
+import { BaseElement } from "../forms/elements/baseElement/types"
 import { PropertyRule } from "./elementRulesFactory"
 
 export type TypeRulesNames =
@@ -38,17 +39,17 @@ type ImportExportFunctionDepricated = (context: ConfigurationContext, rule: Prop
 
 type ImportExportFunction = <T extends PropertyRule>(context: ConfigurationContext, rule: T, value: any) => any
 
-type ImportEnterpriseFunction = <T extends PropertyRule>(
+type ImportFromEnterpriseFunction = <T extends BaseElement, P extends PropertyRule<T>>(
   context: ConfigurationContext,
-  rule: T,
-  source: any,
-  value: any
-) => any
+  rule: P,
+  value: any,
+  source: T | undefined
+) => T | undefined
 
 export interface TypeRule {
   importFromXML?: ImportExportFunction | ImportExportFunctionDepricated
   exportToXML?: ImportExportFunction | ImportExportFunctionDepricated
-  importFromEnterprise?: ImportEnterpriseFunction | ImportExportFunctionDepricated
+  importFromEnterprise?: ImportFromEnterpriseFunction | ImportExportFunctionDepricated
   exportToEnterprise?: ImportExportFunction | ImportExportFunctionDepricated
   exportToPreview?: ImportExportFunction | ImportExportFunctionDepricated
 }
@@ -62,7 +63,7 @@ type TypeRulesOperations =
 
 const typeRulesRegistry = new Map<
   string,
-  ImportExportFunction | ImportEnterpriseFunction | ImportExportFunctionDepricated
+  ImportExportFunction | ImportFromEnterpriseFunction | ImportExportFunctionDepricated
 >()
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
@@ -74,7 +75,7 @@ const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations)
 export function registerTypeRule(
   type: TypeRulesNames,
   operation: TypeRulesOperations,
-  ruleFunction: ImportExportFunction | ImportEnterpriseFunction | ImportExportFunctionDepricated
+  ruleFunction: ImportExportFunction | ImportFromEnterpriseFunction | ImportExportFunctionDepricated
 ): void {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
@@ -83,7 +84,7 @@ export function registerTypeRule(
 export const getTypeRule = (
   type: TypeRulesNames,
   operation: TypeRulesOperations
-): ImportExportFunction | ImportEnterpriseFunction | ImportExportFunctionDepricated | undefined => {
+): ImportExportFunction | ImportFromEnterpriseFunction | ImportExportFunctionDepricated | undefined => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result

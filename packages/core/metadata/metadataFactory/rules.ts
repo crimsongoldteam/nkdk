@@ -1,3 +1,4 @@
+import { AutoCommandBar, AutoCommandBarEnterprise } from "../forms/elements/autoCommandBar/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -154,7 +155,7 @@ import {
   SpreadSheetDocumentFieldTypedEnterprise,
   SpreadSheetDocumentFieldXML,
 } from "../forms/elements/spreadSheetDocumentField/types"
-import { Table, TablePartialEnterprise, TableXML } from "../forms/elements/table/types"
+import { Table, TablePartialEnterprise } from "../forms/elements/table/types"
 import {
   TextDocumentField,
   TextDocumentFieldPartialEnterprise,
@@ -340,7 +341,6 @@ export type TypeRules<T> = T extends Button
                                                         }
                                                       : T extends Table
                                                         ? {
-                                                            XML: TableXML
                                                             PartialEnterprise: TablePartialEnterprise
                                                           }
                                                         : T extends SearchControlAddition
@@ -381,4 +381,8 @@ export type TypeRules<T> = T extends Button
                                                                           XML: ExtendedTooltipXML
                                                                           PartialEnterprise: ExtendedTooltipEnterprise
                                                                         }
-                                                                      : never
+                                                                      : T extends AutoCommandBar
+                                                                        ? {
+                                                                            PartialEnterprise: AutoCommandBarEnterprise
+                                                                          }
+                                                                        : never

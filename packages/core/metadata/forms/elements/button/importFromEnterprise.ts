@@ -22,10 +22,10 @@ export function importButtonTypedFromEnterprise<To extends Button>(
 
 export function importButtonPartialFromEnterprise<To extends Button>(
   context: ConfigurationContext,
-  source: To,
-  data: ToPartialEnterpriseType<To> | undefined
+  data: ToPartialEnterpriseType<To> | undefined,
+  source?: To
 ): To {
-  return importElementFromEnterprisePartial(context, FormElementType.Button, source, data) as To
+  return importElementFromEnterprisePartial(context, FormElementType.Button, data, source) as To
 }
 
 registerMetadata(

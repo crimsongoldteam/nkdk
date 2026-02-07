@@ -26,7 +26,7 @@ describe("importButtonTypedFromEnterprise", () => {
 
   describe("importButtonPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonPartialFromEnterprise(mockContext, fullButton, fullButtonPartialEnterprise)
+      const result = importButtonPartialFromEnterprise(mockContext, fullButtonPartialEnterprise, fullButton)
 
       expect(result).toEqual(fullButton)
     })

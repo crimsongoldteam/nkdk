@@ -7,9 +7,9 @@ import { TypeRules } from "./rules"
 
 // // #region type associations
 
-export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
-  ? undefined
-  : TypeRules<NonNullable<T>>["XML"]
+// export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
+//   ? undefined
+//   : TypeRules<NonNullable<T>>["XML"]
 
 export type ToPartialEnterpriseType<T> = T extends undefined
   ? undefined
@@ -33,10 +33,7 @@ export type ToPreviewType<T> = T extends undefined
 
 // #region functions
 
-export type ImportFromXMLFn = <To extends AllChildItem | undefined>(
-  context: ConfigurationContext,
-  data: ToXMLType<To>
-) => To
+export type ImportFromXMLFn = <To extends AllChildItem | undefined>(context: ConfigurationContext, data: any) => To
 
 export type ImportTypedFromEnterpriseFn = <To extends AllChildItem | undefined>(
   context: ConfigurationContext,
@@ -161,17 +158,17 @@ export const FormElementTypeEnterprise = Object.fromEntries(
 
 export type FormElementTypeEnterprise = (typeof FormElementTypeEnterprise)[keyof typeof FormElementTypeEnterprise]
 
-export const importFormElementTypeFromEnterprise = (
+export const importFormElementTypeFromEnterprise = <T extends BaseElement>(
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<T> | undefined,
   data: FormElementTypeEnterprise
 ): FormElementType => {
   return FormElementTypeFromEnterprise[data]
 }
 
-export const exportFormElementTypeToEnterprise = (
+export const exportFormElementTypeToEnterprise = <T extends BaseElement>(
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<T> | undefined,
   element: FormElementType
 ): FormElementTypeEnterprise => {
   return FormElementTypeToEnterprise[element]

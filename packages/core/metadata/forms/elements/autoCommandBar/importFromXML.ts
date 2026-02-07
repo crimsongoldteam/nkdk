@@ -16,6 +16,7 @@ export const importAutoCommandBarFromXML = (
   const childItems = importChildItemsFromXML<CommandBarChildItem>(context, undefined, xml.ChildItems)
 
   const result: AutoCommandBar = {
+    elementType: "AutoCommandBar",
     childItems: childItems,
     autofill: autofill,
   }

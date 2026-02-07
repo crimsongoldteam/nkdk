@@ -23,9 +23,9 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
       typeSE: "ItemHorizontalLocation",
     },
     childItems: {
-      yaml: "ПодчиненныеЭлементы",
       type: "ChildItems",
       toYAML: false,
+      defaultValue: [],
     },
   },
 }

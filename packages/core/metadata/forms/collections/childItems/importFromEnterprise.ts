@@ -7,17 +7,19 @@ import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } fro
 
 export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule,
+  _data: undefined,
   childItems: To[]
 ): To[] => {
   const childItemsProperties = context.allElements!
 
   return childItems.map((item) => {
-    const processedItem = importChildItemProperties(context, rule, item, childItemsProperties)
+    const processedItem = importChildItemProperties(context, item, childItemsProperties)
 
     if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
       processedItem.childItems = importChildItemsPartialFromEnterprise(
         context,
+        rule,
         undefined,
         processedItem.childItems as To[]
       ) as typeof processedItem.childItems
@@ -28,6 +30,7 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
         ...processedItem.autoCommandBar,
         childItems: importChildItemsPartialFromEnterprise(
           context,
+          rule,
           undefined,
           processedItem.autoCommandBar.childItems as To[]
         ) as CommandBarChildItem[],
@@ -59,7 +62,6 @@ export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
 
 const importChildItemProperties = <To extends AllChildItem>(
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
   item: To,
   allProperties: AllChildItemsPartialEnterprise
 ): To => {
@@ -68,7 +70,7 @@ const importChildItemProperties = <To extends AllChildItem>(
   const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
   if (fn == undefined)
     throw new Error(`ImportPartialFromEnterprise function not found for element type: ${item.elementType}`)
-  const result = fn(context, item, propertiesEnterprise)
+  const result = fn(context, propertiesEnterprise, item)
 
   return result as To
 }
