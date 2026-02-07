@@ -14,9 +14,9 @@ export interface Button extends NamedElement {
   autoMaxWidth?: boolean
   backColor?: Color
   borderColor?: Color
+  check: boolean
   commandName?: string
   commandUniqueness?: boolean
-  dataPath?: string
   defaultButton?: boolean
   defaultItem?: boolean
   displayImportance?: SE.DisplayImportance
@@ -29,13 +29,15 @@ export interface Button extends NamedElement {
   locationInCommandBar?: SE.ButtonLocationInCommandBar
   maxHeight?: number
   maxWidth?: number
+  onMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
   onlyInAllActions?: boolean
   picture?: Picture
   pictureLocation?: SE.FormButtonPictureLocation
   representation?: SE.ButtonRepresentation
+  representationInContextMenu: SE.ButtonLocationInContextMenu
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
-  shortcut?: string
+  // shortcut?: string
   skipOnInput?: boolean
   textColor?: Color
   title?: I8nText

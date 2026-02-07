@@ -6,19 +6,19 @@ import {
   minimalButton,
   minimalButtonPartialEnterprise,
 } from "~/tests/fixtures/forms/button/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportButtonPartialToEnterprise, exportButtonTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportButtonToEnterprise", () => {
   describe("exportButtonPartialToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportButtonPartialToEnterprise(mockContext, mockRule, fullButton)
+      const result = exportButtonPartialToEnterprise(mockContext, fullButton)
 
       expect(result).toEqual(fullButtonPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportButtonPartialToEnterprise(mockContext, mockRule, minimalButton)
+      const result = exportButtonPartialToEnterprise(mockContext, minimalButton)
 
       expect(result).toEqual(minimalButtonPartialEnterprise)
     })
@@ -26,7 +26,7 @@ describe("exportButtonToEnterprise", () => {
 
   describe("exportButtonTypedToEnterprise", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportButtonTypedToEnterprise(mockContext, mockRule, fullButton)
+      const result = exportButtonTypedToEnterprise(mockContext, fullButton)
 
       expect(result).toEqual(fullButtonTypedEnterprise)
     })

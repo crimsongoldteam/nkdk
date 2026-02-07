@@ -13051,3 +13051,20 @@ export interface SystemEnumerationPreview {
   Type: "SystemEnumeration"
   Value: string
 }
+
+export const ButtonLocationInContextMenuToEnterprise = {
+  None: "Нет",
+  AdditionalInContextMenu: "ДополнительноВКонтекстномМеню",
+  OnlyInContextMenu: "ТолькоВКонтекстномМеню",
+  Auto: "Авто",
+} as const
+
+export const ButtonLocationInContextMenuFromEnterprise = {
+  Нет: "None",
+  ДополнительноВКонтекстномМеню: "AdditionalInContextMenu",
+  ТолькоВКонтекстномМеню: "OnlyInContextMenu",
+  Авто: "Auto",
+} as const
+
+export type ButtonLocationInContextMenu = keyof typeof ButtonLocationInContextMenuToEnterprise
+export type ButtonLocationInContextMenuEnterprise = keyof typeof ButtonLocationInContextMenuFromEnterprise

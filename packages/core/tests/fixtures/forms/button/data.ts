@@ -2,54 +2,83 @@ import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "~/metada
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const fullButton: Button = {
+export const fullButton: Required<Button> = {
   elementType: FormElementType.Button,
-  name: "Кнопка",
-  title: {
-    items: { ru: "Кнопка формы" },
+  autoMaxHeight: false,
+  autoMaxWidth: false,
+  backColor: {
+    type: "WebColor",
+    value: "Red",
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
-  backColor: { type: "WebColor", value: "Blue" },
-  borderColor: { type: "WebColor", value: "Green" },
-  commandName: "Команда",
-  commandUniqueness: true,
-  dataPath: "Объект.Реквизит",
+  borderColor: {
+    type: "WebColor",
+    value: "Green",
+  },
+  check: true,
+  commandName: "Form.Command.КакаяТоКоманда",
+  commandUniqueness: false,
   defaultButton: true,
   defaultItem: true,
-  displayImportance: "High",
-  enabled: true,
-  font: { kind: "StyleItem", ref: "NormalTextFont" },
-  height: 30,
+  displayImportance: "VeryHigh",
+  enabled: false,
+  extendedTooltip: {
+    title: {
+      formatted: false,
+      items: {
+        ru: "Расширенная подсказка",
+      },
+    },
+  },
+  font: {
+    kind: "StyleItem",
+    ref: "LargeTextFont",
+  },
+  height: 5,
   horizontalAlignInGroup: "Left",
   horizontalStretch: true,
-  locationInCommandBar: "Auto",
-  maxHeight: 100,
-  maxWidth: 200,
-  onlyInAllActions: true,
+  locationInCommandBar: "InAdditionalSubmenu",
+  maxHeight: 2,
+  maxWidth: 1,
+  name: "ОбычнаяКнопка",
+  onlyInAllActions: true, //deprecated in 8.3.15
+  onMainServerUnavalableBehavior: "DontChangeBehavior",
   picture: {
-    type: "StandardPicture",
-    ref: "Print",
     loadTransparent: true,
+    ref: "Print",
+    transparentPixel: undefined,
+    type: "StandardPicture",
   },
   pictureLocation: "Left",
-  representation: "Text",
+  representation: "PictureAndText",
+  representationInContextMenu: "AdditionalInContextMenu",
   shape: "Oval",
   shapeRepresentation: "Always",
-  shortcut: "Ctrl+A",
   skipOnInput: true,
-  textColor: { type: "WebColor", value: "Yellow" },
-  titleHeight: 20,
-  toolTipRepresentation: "Auto",
+  textColor: {
+    type: "WebColor",
+    value: "Blue",
+  },
+  title: {
+    items: {
+      ru: "Заголовок кнопки",
+    },
+  },
+  titleHeight: 3,
+  toolTipRepresentation: "Balloon",
   type: "UsualButton",
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: true }],
+    values: [
+      {
+        name: "Администратор",
+        value: true,
+      },
+    ],
   },
   verticalAlignInGroup: "Top",
   verticalStretch: true,
-  visible: true,
-  width: 150,
+  visible: false,
+  width: 10,
 }
 
 export const fullButtonTypedEnterprise: ButtonTypedEnterprise = {

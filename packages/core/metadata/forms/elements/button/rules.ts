@@ -10,7 +10,6 @@ export const ButtonRules: ElementRule<Button> = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     commandName: { yaml: "ИмяКоманды", type: "string" },
     commandUniqueness: { yaml: "УникальностьКоманды", type: "boolean" },
-    dataPath: { yaml: "ПутьКДанным", type: "string" },
     defaultButton: { yaml: "КнопкаПоУмолчанию", type: "boolean" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
@@ -59,7 +58,6 @@ export const ButtonRules: ElementRule<Button> = {
       type: "SystemEnumeration",
       typeSE: "ButtonShapeRepresentation",
     },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {
