@@ -68,11 +68,12 @@ export interface Table {
   horizontalStretch?: boolean
   initialListView?: SE.InitialListView
   initialTreeView?: SE.InitialTreeView
-  markIncomplete?: boolean
+  // markIncomplete?: boolean
   maxHeight?: number
   maxHeightInTableRows?: number
   maxWidth?: number
   multipleChoice?: boolean
+  onMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
   output?: SE.UseOutput
   readOnly?: boolean
   refreshRequest?: SE.RefreshRequestMethod
@@ -137,7 +138,7 @@ export interface Table {
   autoRefresh?: boolean
   restoreCurrentRow?: boolean
   choiceFoldersAndItems?: SE.FoldersAndItemsUse
-  additionalCreateParameters?: boolean
+  // additionalCreateParameters?: boolean
   updateOnDataChange?: SE.UpdateOnDataChange
   showRoot?: boolean
   autoRefreshPeriod?: number
@@ -324,7 +325,7 @@ export interface TablePartialEnterprise {
   АвтоОбновление?: StringboolEnterprise
   ВосстанавливатьТекущуюСтроку?: StringboolEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
-  ДополнительныеПараметрыСоздания?: StringboolEnterprise
+  // ДополнительныеПараметрыСоздания?: StringboolEnterprise
   ОбновлениеПриИзмененииДанных?: SE.UpdateOnDataChangeEnterprise
   ОтображатьКорень?: StringboolEnterprise
   ПериодАвтоОбновления?: number

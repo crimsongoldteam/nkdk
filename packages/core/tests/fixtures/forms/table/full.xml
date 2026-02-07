@@ -1,51 +1,58 @@
-<Table name="Таблица" id="11" DisplayImportance="VeryHigh">
+<Table name="Таблица" id="1" DisplayImportance="VeryHigh">
+	<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
+	<AllowRootChoice>true</AllowRootChoice>
+	<AllowStartDrag>true</AllowStartDrag>
 	<AutoAddIncomplete>true</AutoAddIncomplete>
-	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="12">
+	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2">
 		<Autofill>false</Autofill>
 	</AutoCommandBar>
+	<AutoInsertNewRow>true</AutoInsertNewRow>
 	<AutoMarkIncomplete>true</AutoMarkIncomplete>
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<AutoMaxRowsCount>false</AutoMaxRowsCount>
 	<AutoMaxWidth>false</AutoMaxWidth>
+	<AutoRefresh>true</AutoRefresh>
+	<AutoRefreshPeriod>30</AutoRefreshPeriod>
 	<BackColor>web:Red</BackColor>
 	<BehaviorOnHorizontalCompression>HideItemsByImportance</BehaviorOnHorizontalCompression>
 	<BorderColor>web:Green</BorderColor>
 	<ChangeRowOrder>false</ChangeRowOrder>
 	<ChangeRowSet>false</ChangeRowSet>
 	<ChildItems>
-		<InputField name="ТаблицаВвод" id="13">
-			<ContextMenu name="ТаблицаВводКонтекстноеМеню" id="14"/>
+		<InputField name="ТаблицаВвод" id="3">
+			<ContextMenu name="ТаблицаВводКонтекстноеМеню" id="4"/>
 			<DataPath>Таблица.Ввод</DataPath>
 			<EditMode>EnterOnInput</EditMode>
 			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-			<ExtendedTooltip name="ТаблицаВводРасширеннаяПодсказка" id="15"/>
+			<ExtendedTooltip name="ТаблицаВводРасширеннаяПодсказка" id="5"/>
 		</InputField>
-		<LabelField name="ТаблицаНадпись" id="16">
-			<ContextMenu name="ТаблицаНадписьКонтекстноеМеню" id="17"/>
+		<LabelField name="ТаблицаНадпись" id="6">
+			<ContextMenu name="ТаблицаНадписьКонтекстноеМеню" id="7"/>
 			<DataPath>Таблица.Надпись</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ExtendedTooltip name="ТаблицаНадписьРасширеннаяПодсказка" id="18"/>
+			<ExtendedTooltip name="ТаблицаНадписьРасширеннаяПодсказка" id="8"/>
 		</LabelField>
-		<CheckBoxField name="ТаблицаФлажок" id="19">
+		<CheckBoxField name="ТаблицаФлажок" id="9">
 			<CheckBoxType>Auto</CheckBoxType>
-			<ContextMenu name="ТаблицаФлажокКонтекстноеМеню" id="20"/>
+			<ContextMenu name="ТаблицаФлажокКонтекстноеМеню" id="10"/>
 			<DataPath>Таблица.Флажок</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ExtendedTooltip name="ТаблицаФлажокРасширеннаяПодсказка" id="21"/>
+			<ExtendedTooltip name="ТаблицаФлажокРасширеннаяПодсказка" id="11"/>
 		</CheckBoxField>
-		<PictureField name="ТаблицаКартинка" id="22">
-			<ContextMenu name="ТаблицаКартинкаКонтекстноеМеню" id="23"/>
+		<PictureField name="ТаблицаКартинка" id="12">
+			<ContextMenu name="ТаблицаКартинкаКонтекстноеМеню" id="13"/>
 			<DataPath>Таблица.Картинка</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ExtendedTooltip name="ТаблицаКартинкаРасширеннаяПодсказка" id="24"/>
+			<ExtendedTooltip name="ТаблицаКартинкаРасширеннаяПодсказка" id="14"/>
 		</PictureField>
 	</ChildItems>
+	<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
 	<ChoiceMode>true</ChoiceMode>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<CommandSet>
 		<ExcludedCommand>Add</ExcludedCommand>
 	</CommandSet>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="25">
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="15">
 		<Autofill>false</Autofill>
 	</ContextMenu>
 	<CurrentRowUse>SelectionPresentationAndChoice</CurrentRowUse>
@@ -53,6 +60,7 @@
 	<DefaultItem>true</DefaultItem>
 	<Enabled>false</Enabled>
 	<EnableStartDrag>true</EnableStartDrag>
+	<EnableDrag>true</EnableDrag>
 	<Events>
 		<Event name="AfterDeleteRow">ТаблицаПослеУдаления</Event>
 		<Event name="BeforeAddRow">ТаблицаПередНачаломДобавления</Event>
@@ -78,7 +86,7 @@
 		<Event name="Selection">ТаблицаВыбор</Event>
 		<Event name="ValueChoice">ТаблицаВыборЗначения</Event>
 	</Events>
-	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="26">
+	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="16">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -110,6 +118,8 @@
 	<Output>Enable</Output>
 	<ReadOnly>true</ReadOnly>
 	<RefreshRequest>PullFromTop</RefreshRequest>
+	<Representation>Tree</Representation>
+	<RestoreCurrentRow>true</RestoreCurrentRow>
 	<RowInputMode>AfterCurrentRow</RowInputMode>
 	<RowPictureDataPath>Таблица.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
@@ -117,13 +127,13 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</RowsPicture>
-	<SearchControlAddition name="ТаблицаУправлениеПоиском" id="27">
+	<SearchControlAddition name="ТаблицаУправлениеПоиском" id="17">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchControl</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаУправлениеПоискомКонтекстноеМеню" id="28"/>
-		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="29"/>
+		<ContextMenu name="ТаблицаУправлениеПоискомКонтекстноеМеню" id="18"/>
+		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="19"/>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -133,13 +143,13 @@
 	</SearchControlAddition>
 	<SearchControlLocation>CommandBar</SearchControlLocation>
 	<SearchOnInput>Use</SearchOnInput>
-	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="30">
+	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="20">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchStringRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="31"/>
-		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="32"/>
+		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="21"/>
+		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="22"/>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -150,6 +160,7 @@
 	<SearchStringLocation>Top</SearchStringLocation>
 	<SelectionMode>SingleRow</SelectionMode>
 	<Shortcut>Cmd+F</Shortcut>
+	<ShowRoot>true</ShowRoot>
 	<SkipOnInput>false</SkipOnInput>
 	<TextColor>web:Blue</TextColor>
 	<Title>
@@ -169,7 +180,9 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<UpdateOnDataChange>DontUpdate</UpdateOnDataChange>
 	<UseAlternationRowColor>true</UseAlternationRowColor>
+	<UserSettingsGroup>ГруппаПользовательскихНастроек</UserSettingsGroup>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
@@ -177,13 +190,13 @@
 	<VerticalLines>false</VerticalLines>
 	<VerticalScrollBar>UseAlways</VerticalScrollBar>
 	<VerticalStretch>false</VerticalStretch>
-	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="33">
+	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="23">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="34"/>
-		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="35"/>
+		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="24"/>
+		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="25"/>
 		<Title>
 			<v8:item>
 				<v8:lang>ru</v8:lang>

@@ -10,7 +10,11 @@ export const TableRules: ElementRule<Table> = {
     autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean" },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxHeightInTableRows: { yaml: "АвтоМаксимальнаяВысотаВСтрокахТаблицы", type: "boolean" },
+    autoMaxHeightInTableRows: {
+      yaml: "АвтоМаксимальнаяВысотаВСтрокахТаблицы",
+      xml: "AutoMaxRowsCount",
+      type: "boolean",
+    },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
     behaviorOnHorizontalCompression: {
@@ -87,11 +91,20 @@ export const TableRules: ElementRule<Table> = {
       type: "SystemEnumeration",
       typeSE: "InitialTreeView",
     },
-    markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
+    // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxHeightInTableRows: { yaml: "МаксимальнаяВысотаВСтрокахТаблицы", type: "number" },
+    maxHeightInTableRows: {
+      yaml: "МаксимальнаяВысотаВСтрокахТаблицы",
+      type: "number",
+      xml: "MaxRowsCount",
+    },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     multipleChoice: { yaml: "МножественныйВыбор", type: "boolean" },
+    onMainServerUnavalableBehavior: {
+      yaml: "ПоведениеПриНедоступностиОсновногоСервера",
+      type: "SystemEnumeration",
+      typeSE: "OnMainServerUnavalableBehavior",
+    },
     output: {
       yaml: "Вывод",
       type: "SystemEnumeration",
@@ -198,7 +211,7 @@ export const TableRules: ElementRule<Table> = {
       type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
     },
-    additionalCreateParameters: { yaml: "ДополнительныеПараметрыСоздания", type: "boolean" },
+    // additionalCreateParameters: { yaml: "ДополнительныеПараметрыСоздания", type: "boolean" },
     updateOnDataChange: {
       yaml: "ОбновлениеПриИзмененииДанных",
       type: "SystemEnumeration",
