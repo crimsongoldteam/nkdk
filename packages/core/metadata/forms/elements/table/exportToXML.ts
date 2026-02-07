@@ -1,11 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToXMLFn } from "~/metadata/metadataFactory/types"
-import { Table } from "~/metadata/forms/elements/table/types"
 import { exportElementToXML } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { Table } from "./types"
 
-export function exportTableToXML(context: ConfigurationContext, data: Table | undefined) {
+export const exportTableToXML = (context: ConfigurationContext, data?: Table) => {
   return exportElementToXML(context, "Table", data)
 }
 
-registerMetadata("ExportToXML", "Table", exportTableToXML as ExportToXMLFn)
+registerMetadata("ExportToXML", "Table", exportTableToXML)

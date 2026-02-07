@@ -47,7 +47,7 @@ export type ImportPartialFromEnterpriseFn = (
   data: Object | undefined
 ) => Object | undefined
 
-export type ExportToXMLFn = <From extends AllChildItem>(context: ConfigurationContext, data: From | undefined) => any
+export type ExportToXMLFn = (context: ConfigurationContext, data?: any) => any
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,

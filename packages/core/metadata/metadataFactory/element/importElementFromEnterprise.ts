@@ -1,4 +1,3 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -27,17 +26,9 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
 
     const yamlValue = data[yamlKey]
 
-    if (rule.type === "UserVisible") {
-      const yamlValueDeny = data[rule.yamlDeny as keyof typeof data]
-
-      importUserVisibleProperty(
-        context,
-        rule,
-        yamlValue as Record<string, StringboolEnterprise> | undefined,
-        yamlValueDeny as Record<string, StringboolEnterprise> | undefined,
-        result,
-        key
-      )
+    const userVisible = importUserVisibleProperty(context, rule, data)
+    if (userVisible !== undefined) {
+      ;(result[key] as UserVisible) = userVisible
       continue
     }
 
@@ -82,19 +73,20 @@ export function importFromYAMLPartial<T extends BaseElement>(
   } as T
 
   for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
-    const yamlKey = rule.yaml as keyof ToPartialEnterpriseType<T>
+    const yamlKey = rule.yaml
+    if (yamlKey === undefined) continue
 
     const sourceValue = source ? source[key] : rule.defaultValue
 
     const userVisible = importUserVisibleProperty(context, rule, yaml)
     if (userVisible !== undefined) {
-      result[key] = userVisible
+      ;(result[key] as UserVisible) = userVisible
       continue
     }
 
-    const yamlValue = yaml[yamlKey]
+    const yamlValue = yaml[yamlKey as keyof typeof yaml]
 
-    const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
+    const typeImportFn = getTypeRule(rule.type!, "importFromEnterprise")
     if (typeImportFn) {
       const importedValue = (typeImportFn as any)(context, rule, yamlValue, sourceValue)
       if (importedValue !== undefined) {

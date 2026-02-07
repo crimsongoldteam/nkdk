@@ -10,11 +10,7 @@ import {
   CalendarFieldPartialEnterprise,
   CalendarFieldTypedEnterprise,
 } from "../forms/elements/calendarField/types"
-import {
-  ChartField,
-  ChartFieldPartialEnterprise,
-  ChartFieldTypedEnterprise,
-} from "../forms/elements/chartField/types"
+import { ChartField, ChartFieldPartialEnterprise, ChartFieldTypedEnterprise } from "../forms/elements/chartField/types"
 import {
   CheckBoxField,
   CheckBoxFieldPartialEnterprise,
@@ -25,11 +21,7 @@ import {
   ColumnGroupPartialEnterprise,
   ColumnGroupTypedEnterprise,
 } from "../forms/elements/columnGroup/types"
-import {
-  CommandBar,
-  CommandBarPartialEnterprise,
-  CommandBarTypedEnterprise,
-} from "../forms/elements/commandBar/types"
+import { CommandBar, CommandBarPartialEnterprise, CommandBarTypedEnterprise } from "../forms/elements/commandBar/types"
 import { ContextMenu } from "../forms/elements/contextMenu/types"
 import {
   DendrogramField,
@@ -117,14 +109,8 @@ import {
   RadioButtonFieldPartialEnterprise,
   RadioButtonFieldTypedEnterprise,
 } from "../forms/elements/radioButtonField/types"
-import {
-  SearchControlAddition,
-  SearchControlAdditionEnterprise,
-} from "../forms/elements/searchControlAddition/types"
-import {
-  SearchStringAddition,
-  SearchStringAdditionEnterprise,
-} from "../forms/elements/searchStringAddition/types"
+import { SearchControlAddition, SearchControlAdditionEnterprise } from "../forms/elements/searchControlAddition/types"
+import { SearchStringAddition, SearchStringAdditionEnterprise } from "../forms/elements/searchStringAddition/types"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
@@ -314,7 +300,9 @@ export type TypeRules<T> = T extends Button
                                                                       Preview: UsualGroupPreview
                                                                     }
                                                                   : T extends ContextMenu
-                                                                    ? {}
+                                                                    ? {
+                                                                        PartialEnterprise: AutoCommandBarEnterprise
+                                                                      }
                                                                     : T extends AutoCommandBar
                                                                       ? {
                                                                           PartialEnterprise: AutoCommandBarEnterprise
