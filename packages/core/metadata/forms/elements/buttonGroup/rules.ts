@@ -5,6 +5,10 @@ export type { ElementRule, PropertyRule }
 export const ButtonGroupRules: ElementRule<ButtonGroup> = {
   enterpriseField: "FormGroup",
   properties: {
+    childItems: {
+      yaml: "Элементы",
+      type: "ChildItems",
+    },
     extendedTooltip: {
       yaml: "РасширеннаяПодсказка",
       type: "ExtendedTooltip",

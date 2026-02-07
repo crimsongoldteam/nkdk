@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ToPreviewType } from "~/metadata/metadataFactory/types"
 import { AllChildItem } from "./types"
 import { PropertyRule } from "../../elements/calendarField/rules"
@@ -21,3 +22,5 @@ export const exportChildItemsToPreview = <From extends AllChildItem>(
 
   return result
 }
+
+registerTypeRule("ChildItems", "exportToPreview", exportChildItemsToPreview)

@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
@@ -41,3 +42,6 @@ export const exportPartialChildItemsToEnterprise = <From extends AllChildItem>(
 
   return result
 }
+
+registerTypeRule("ChildItems", "exportToEnterprise", exportTypedChildItemsToEnterprise)
+registerTypeRule("ChildItems", "exportToEnterprise", exportPartialChildItemsToEnterprise)

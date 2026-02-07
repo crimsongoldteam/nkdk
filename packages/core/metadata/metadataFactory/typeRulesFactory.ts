@@ -3,6 +3,7 @@ import { PropertyRule } from "./elementRulesFactory"
 
 export type TypeRulesNames =
   | "AssociatedTable"
+  | "ChildItems"
   | "boolean"
   | "string"
   | "number"

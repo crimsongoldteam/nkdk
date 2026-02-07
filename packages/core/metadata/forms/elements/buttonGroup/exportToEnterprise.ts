@@ -1,8 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ButtonGroup } from "./types"
-import { exportElementToEnterprisePartial } from "~/metadata/metadataFactory"
+import { exportElementToEnterprisePartial, exportElementToEnterpriseTyped } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ButtonGroup } from "./types"
 
 export function exportButtonGroupPartialToEnterprise<From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -11,8 +15,20 @@ export function exportButtonGroupPartialToEnterprise<From extends ButtonGroup | 
   return exportElementToEnterprisePartial(context, "ButtonGroup", data) as ToPartialEnterpriseType<From>
 }
 
+export function exportButtonGroupTypedToEnterprise<From extends ButtonGroup | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ToPartialEnterpriseType<From> {
+  return exportElementToEnterpriseTyped(context, "ButtonGroup", data) as ToPartialEnterpriseType<From>
+}
+
 registerMetadata(
   "ExportPartialToEnterprise",
   "ButtonGroup",
   exportButtonGroupPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "ButtonGroup",
+  exportButtonGroupPartialToEnterprise as ExportTypedToEnterpriseFn
 )
