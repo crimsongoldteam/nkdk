@@ -22,7 +22,7 @@ import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttributesEnterprise | undefined
 ): MetadataAttributes | undefined => {
   if (!data) return undefined
@@ -34,7 +34,7 @@ export const importMetadataAttributesFromEnterprise = (
 
 const importMetadataAttributeFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttributeEnterprise,
   name: string
 ): MetadataAttribute => {

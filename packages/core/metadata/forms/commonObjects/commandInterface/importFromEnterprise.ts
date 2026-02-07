@@ -13,7 +13,7 @@ import {
 
 export const importCommandInterfaceFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CommandInterfaceEnterprise | undefined
 ): CommandInterface | undefined => {
   if (!data) return undefined
@@ -40,7 +40,7 @@ export const importCommandInterfaceFromEnterprise = (
 
 const importCommandInterfaceItemFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   item: CommandInterfaceItemEnterprise
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {

@@ -7,7 +7,7 @@ import { Color, ColorEnterprise } from "./types"
 
 export const importColorFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ColorEnterprise | undefined
 ): Color | undefined => {
   if (!data) return undefined

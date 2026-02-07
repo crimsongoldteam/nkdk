@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { I8nText, I8nTextEnterprise } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { I8nText, I8nTextEnterprise } from "./types"
 
 export const importI8nTextFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: I8nTextEnterprise | undefined
 ): I8nText | undefined => {
   if (data === undefined) return undefined
@@ -25,7 +25,7 @@ export const importI8nTextFromEnterprise = (
 
 export const importI8nTextCombinedFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   defaultLanguage: I8nText | undefined,
   otherLanguagesEnterprise: I8nTextEnterprise | undefined
 ): I8nText | undefined => {
@@ -48,6 +48,5 @@ export const importI8nTextCombinedFromEnterprise = (
 
   return result
 }
-
 
 registerTypeRule("I8nText", "importFromEnterprise", importI8nTextFromEnterprise)

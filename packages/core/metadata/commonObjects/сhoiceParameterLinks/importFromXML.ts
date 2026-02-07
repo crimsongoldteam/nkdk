@@ -6,7 +6,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const importChoiceParameterLinksFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ChoiceParameterLinksXML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!xml) return undefined

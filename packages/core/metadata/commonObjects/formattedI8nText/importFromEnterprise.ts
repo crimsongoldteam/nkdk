@@ -7,7 +7,7 @@ import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
 export const importFormattedI8nTextFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   text: FormattedI8nTextEnterprise | undefined,
   formattedText: FormattedI8nTextEnterprise | undefined
 ): FormattedI8nText | undefined => {
@@ -26,7 +26,7 @@ export const importFormattedI8nTextFromEnterprise = (
 
 export const importFormattedI8nTextCombinedFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: I8nText | undefined,
   text: FormattedI8nTextEnterprise | undefined,
   formattedText: FormattedI8nTextEnterprise | undefined

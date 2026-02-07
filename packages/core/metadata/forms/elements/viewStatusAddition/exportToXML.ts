@@ -13,7 +13,7 @@ import { getViewStatusAdditionName } from "./helper"
 
 export const exportViewStatusAdditionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ViewStatusAddition | undefined,
   parentElement: { name: string }
 ): ViewStatusAdditionXML => {

@@ -9,7 +9,7 @@ import { MetadataFieldsRulesToEnterprise, MetadataValuesRulesToEnterprise } from
 
 export const exportMetadataFieldStringToEnterprise = (
   _context: Context,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   name: string
 ): string | undefined => {
   return convertPath(MetadataFieldsRulesToEnterprise, name)
@@ -17,7 +17,7 @@ export const exportMetadataFieldStringToEnterprise = (
 
 export const exportMetadataValueStringToEnterprise = (
   _context: Context,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   name: string | undefined
 ): string | undefined => {
   if (!name) return undefined

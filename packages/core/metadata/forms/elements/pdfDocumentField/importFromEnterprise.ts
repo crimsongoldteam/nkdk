@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importPdfDocumentFieldTypedFromEnterprise<To extends PdfDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importPdfDocumentFieldTypedFromEnterprise<To extends PdfDocument
 
 export function importPdfDocumentFieldPartialFromEnterprise<To extends PdfDocumentField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -70,7 +70,7 @@ export function importPdfDocumentFieldPartialFromEnterprise<To extends PdfDocume
 
 const importPdfDocumentFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PdfDocumentFieldTypedEnterprise | PdfDocumentFieldPartialEnterprise | undefined
 ): Omit<Partial<PdfDocumentField>, "elementType" | "name"> => {
   const result: Omit<Partial<PdfDocumentField>, "elementType" | "name"> = {}

@@ -4,7 +4,7 @@ import { Predefined, PredefinedItems, PredefinedItemsXML, PredefinedXML } from "
 
 export const exportPredefinedToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Predefined | undefined
 ): PredefinedXML | undefined => {
   if (!data) return undefined
@@ -19,7 +19,7 @@ export const exportPredefinedToXML = (
 
 export const exportPredefinedItemsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PredefinedItems | undefined
 ): PredefinedItemsXML | undefined => {
   if (!data) return undefined

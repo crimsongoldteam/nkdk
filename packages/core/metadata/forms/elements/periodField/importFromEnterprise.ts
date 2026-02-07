@@ -29,7 +29,7 @@ import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterp
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | un
 
 export function importPeriodFieldPartialFromEnterprise<To extends PeriodField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -72,7 +72,7 @@ export function importPeriodFieldPartialFromEnterprise<To extends PeriodField | 
 
 const importPeriodFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PeriodFieldTypedEnterprise | PeriodFieldPartialEnterprise | undefined
 ): Omit<Partial<PeriodField>, "elementType" | "name"> => {
   const result: Omit<Partial<PeriodField>, "elementType" | "name"> = {}

@@ -19,7 +19,7 @@ const catalogFormEventNameMapping: Partial<Record<keyof CatalogFormEvents, strin
 
 const exportCatalogFormEventsToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CatalogFormEvents | undefined
 ): CatalogFormEnterprise["События"] | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
@@ -38,7 +38,7 @@ const exportCatalogFormEventsToEnterprise = (
 
 export const exportCatalogFormToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CatalogForm | undefined
 ): CatalogFormEnterprise | undefined => {
   if (!data) return undefined

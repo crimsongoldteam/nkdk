@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { DynamicList, DynamicListXML } from "./types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { DynamicList, DynamicListXML } from "./types"
 
 export const importDynamicListFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: DynamicListXML | undefined
 ): DynamicList | undefined => {
   if (!xml) return undefined

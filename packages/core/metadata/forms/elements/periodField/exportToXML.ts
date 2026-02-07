@@ -19,7 +19,7 @@ import { exportExtendedTooltipToDeprecatedXML } from "../extendedTooltip/exportT
 
 export function exportPeriodFieldToXML<From extends PeriodField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>

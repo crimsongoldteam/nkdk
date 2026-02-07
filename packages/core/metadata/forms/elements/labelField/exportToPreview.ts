@@ -21,7 +21,7 @@ const exportBorderToPreview = (element: LabelField["border"]): LabelFieldPreview
 
 export const exportLabelFieldToPreview = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: LabelField
 ): LabelFieldPreview => {
   const result: LabelFieldPreview = {

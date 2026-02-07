@@ -9,7 +9,7 @@ function toPascalCase(str: string): string {
 
 export const exportEventsToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Events | undefined
 ): EventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined

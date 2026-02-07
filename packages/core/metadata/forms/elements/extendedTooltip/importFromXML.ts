@@ -11,7 +11,7 @@ import { isHasContent } from "./helper"
 
 export function importExtendedTooltipFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ExtendedTooltipXML
 ): ExtendedTooltip | undefined {
   if (xml === undefined) return undefined

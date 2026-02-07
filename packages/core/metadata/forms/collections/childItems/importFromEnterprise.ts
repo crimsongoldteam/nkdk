@@ -43,7 +43,7 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
 
 export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   allProperties?: Record<string, ToTypedEnterpriseType<To>>
 ): To[] => {
   if (!allProperties) return []

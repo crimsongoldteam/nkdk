@@ -30,7 +30,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importRadioButtonFieldTypedFromEnterprise<To extends RadioButtonField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -52,7 +52,7 @@ export function importRadioButtonFieldTypedFromEnterprise<To extends RadioButton
 
 export function importRadioButtonFieldPartialFromEnterprise<To extends RadioButtonField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -72,7 +72,7 @@ export function importRadioButtonFieldPartialFromEnterprise<To extends RadioButt
 
 const importRadioButtonFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: RadioButtonFieldTypedEnterprise | RadioButtonFieldPartialEnterprise | undefined
 ): Omit<Partial<RadioButtonField>, "elementType" | "name"> => {
   const result: Omit<Partial<RadioButtonField>, "elementType" | "name"> = {}

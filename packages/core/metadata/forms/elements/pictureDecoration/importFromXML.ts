@@ -11,13 +11,13 @@ import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
-import { PropertyRule } from "../calendarField/rules"
 
 export function importPictureDecorationFromXML<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To

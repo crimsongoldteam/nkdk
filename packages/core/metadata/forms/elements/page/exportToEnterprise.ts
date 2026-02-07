@@ -25,7 +25,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function exportPageTypedToEnterprise<From extends Page | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -45,7 +45,7 @@ export function exportPageTypedToEnterprise<From extends Page | undefined>(
 
 export function exportPagePartialToEnterprise<From extends Page | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -64,7 +64,7 @@ export function exportPagePartialToEnterprise<From extends Page | undefined>(
 
 export const exportPagePropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Page
 ): PagePartialEnterprise => {
   const result: PagePartialEnterprise = {}

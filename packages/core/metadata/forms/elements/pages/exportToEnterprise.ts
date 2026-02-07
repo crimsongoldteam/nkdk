@@ -24,7 +24,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export const exportPagesTypedToEnterprise = <From extends Pages | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> => {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -44,7 +44,7 @@ export const exportPagesTypedToEnterprise = <From extends Pages | undefined>(
 
 export const exportPagesPartialToEnterprise = <From extends Pages | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -63,7 +63,7 @@ export const exportPagesPartialToEnterprise = <From extends Pages | undefined>(
 
 const exportPagesPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Pages
 ): PagesPartialEnterprise => {
   const result: PagesPartialEnterprise = {}

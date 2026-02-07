@@ -18,7 +18,7 @@ import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescr
 
 export const exportMetadataCommandsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataCommands | undefined
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
@@ -30,7 +30,7 @@ export const exportMetadataCommandsToEnterprise = (
 
 export const exportMetadataCommandToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataCommand | undefined
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined

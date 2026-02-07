@@ -49,7 +49,7 @@ const exportLabelDecorationEventsToEnterprise = (
 
 export const exportLabelDecorationTypedToEnterprise = <From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> => {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -75,7 +75,7 @@ export const exportLabelDecorationTypedToEnterprise = <From extends LabelDecorat
 
 export const exportLabelDecorationPartialToEnterprise = <From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: LabelDecoration
 ): ToPartialEnterpriseType<From> => {
   const props = exportLabelDecorationPropsToEnterprise(context, undefined, data)
@@ -98,7 +98,7 @@ export const exportLabelDecorationPartialToEnterprise = <From extends LabelDecor
 
 const exportLabelDecorationPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: LabelDecoration
 ): LabelDecorationPartialEnterprise => {
   const result: LabelDecorationPartialEnterprise = {}

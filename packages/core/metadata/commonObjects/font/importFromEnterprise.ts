@@ -8,7 +8,7 @@ import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
 export const importFontFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   yaml: FontEnterprise | undefined
 ): Font | undefined => {
   if (!yaml) return undefined

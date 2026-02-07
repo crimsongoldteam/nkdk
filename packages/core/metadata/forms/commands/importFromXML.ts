@@ -8,7 +8,7 @@ import { Command, Commands, CommandsXML, CommandXML } from "./types"
 
 function importCommandFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: CommandXML | undefined
 ): Command | undefined {
   if (!xml) return undefined
@@ -47,7 +47,7 @@ function importCommandFromXML(
 
 export function importCommandsFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: CommandsXML | undefined
 ): Commands {
   if (!xml) return []

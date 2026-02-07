@@ -218,7 +218,7 @@ export const importClientApplicationFormFromXML = (
 
 function importFormMetadataFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xmlMetadata?: FormMetadataXML
 ): Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> {
   const result: Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> =

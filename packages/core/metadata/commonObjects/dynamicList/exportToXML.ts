@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { DynamicList, DynamicListXML } from "./types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportDynamicListToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: DynamicList | undefined
 ): DynamicListXML | undefined => {
   return data

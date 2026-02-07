@@ -31,7 +31,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -51,7 +51,7 @@ export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField 
 
 export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -70,7 +70,7 @@ export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarFiel
 
 function exportTrackBarFieldPropsToEnterprise(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: TrackBarField
 ): TrackBarFieldPartialEnterprise {
   const result: TrackBarFieldPartialEnterprise = {}

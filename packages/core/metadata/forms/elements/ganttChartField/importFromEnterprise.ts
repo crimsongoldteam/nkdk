@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importGanttChartFieldTypedFromEnterprise<To extends GanttChartField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importGanttChartFieldTypedFromEnterprise<To extends GanttChartFi
 
 export function importGanttChartFieldPartialFromEnterprise<To extends GanttChartField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -71,7 +71,7 @@ export function importGanttChartFieldPartialFromEnterprise<To extends GanttChart
 
 const importGanttChartFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: GanttChartFieldTypedEnterprise | GanttChartFieldPartialEnterprise | undefined
 ): Omit<Partial<GanttChartField>, "elementType" | "name"> => {
   const result: Omit<Partial<GanttChartField>, "elementType" | "name"> = {}

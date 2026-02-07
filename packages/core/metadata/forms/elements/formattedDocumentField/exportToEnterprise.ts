@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportFormattedDocumentFieldTypedToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -51,7 +51,7 @@ export function exportFormattedDocumentFieldTypedToEnterprise<From extends Forma
 
 export function exportFormattedDocumentFieldPartialToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -70,7 +70,7 @@ export function exportFormattedDocumentFieldPartialToEnterprise<From extends For
 
 const exportFormattedDocumentFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormattedDocumentField
 ): FormattedDocumentFieldPartialEnterprise => {
   const result: FormattedDocumentFieldPartialEnterprise = {}

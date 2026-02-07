@@ -13,7 +13,7 @@ import { Page } from "./types"
 
 export const exportPageToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: NamedElement
 ): IFormatElementResult => {
   const pageElement = element as Page

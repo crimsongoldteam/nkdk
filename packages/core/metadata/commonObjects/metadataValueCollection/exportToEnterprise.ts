@@ -6,13 +6,12 @@ import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./ty
 
 export const exportMetadataValueCollectionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataValueCollection | undefined
 ): MetadataValueCollectionEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
 
   return data.map((item) => exportMedatataRefToEnterprise(context, item))
 }
-
 
 registerTypeRule("MetadataValueCollection", "exportToEnterprise", exportMetadataValueCollectionToEnterprise)

@@ -9,7 +9,7 @@ import { CommandBar } from "./types"
 
 export const exportCommandBarToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   element: CommandBar
 ): IFormatElementResult => {
   const content = exportCommandBarContentToStructure(context, rule, element)
@@ -23,7 +23,7 @@ export const exportCommandBarToStructure = (
 
 export const exportCommandBarContentToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   element: Pick<CommandBar, "childItems" | "autofill">
 ): string => {
   const buttonStrings = exportCommandBarItemsToStructure(context, rule, element.childItems || [])

@@ -19,7 +19,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataCatalogEnterprise | undefined,
   name: string
 ): MetadataCatalog | undefined => {

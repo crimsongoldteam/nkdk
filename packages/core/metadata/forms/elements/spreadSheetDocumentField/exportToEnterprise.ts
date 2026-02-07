@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportSpreadSheetDocumentFieldTypedToEnterprise<From extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export function exportSpreadSheetDocumentFieldTypedToEnterprise<From extends Spr
 
 export function exportSpreadSheetDocumentFieldPartialToEnterprise<From extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export function exportSpreadSheetDocumentFieldPartialToEnterprise<From extends S
 
 const exportSpreadSheetDocumentFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SpreadSheetDocumentField
 ): SpreadSheetDocumentFieldPartialEnterprise => {
   const result: SpreadSheetDocumentFieldPartialEnterprise = {}

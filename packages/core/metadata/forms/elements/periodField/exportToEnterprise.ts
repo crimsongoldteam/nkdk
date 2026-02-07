@@ -33,7 +33,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportPeriodFieldTypedToEnterprise<From extends PeriodField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -53,7 +53,7 @@ export function exportPeriodFieldTypedToEnterprise<From extends PeriodField | un
 
 export function exportPeriodFieldPartialToEnterprise<From extends PeriodField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -72,7 +72,7 @@ export function exportPeriodFieldPartialToEnterprise<From extends PeriodField | 
 
 const exportPeriodFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PeriodField
 ): PeriodFieldPartialEnterprise => {
   const result: PeriodFieldPartialEnterprise = {}

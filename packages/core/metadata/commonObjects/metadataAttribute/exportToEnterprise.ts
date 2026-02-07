@@ -21,7 +21,7 @@ import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportT
 
 export const exportMetadataAttributesToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttributes | undefined
 ): MetadataAttributesEnterprise | undefined => {
   if (!data) return undefined
@@ -36,7 +36,7 @@ export const exportMetadataAttributesToEnterprise = (
 
 const exportMetadataAttributeToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttribute
 ): MetadataAttributeEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)!

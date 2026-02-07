@@ -37,7 +37,7 @@ const importCatalogFormEventsFromEnterprise = (
 
 export const importCatalogFormFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CatalogFormEnterprise,
   structure: ChildItemsStructureResult
 ): CatalogForm => {

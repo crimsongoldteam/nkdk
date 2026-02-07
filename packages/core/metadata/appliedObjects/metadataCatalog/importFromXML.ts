@@ -15,7 +15,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: MetadataCatalogXML
 ): MetadataCatalog | undefined => {
   const props = xml.Catalog.Properties

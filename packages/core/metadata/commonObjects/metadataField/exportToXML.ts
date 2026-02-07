@@ -5,7 +5,7 @@ import { MetadataField, MetadataFields, MetadataFieldsXML } from "./types"
 
 export const exportMetadataFieldToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataField | undefined
 ): string | undefined => {
   if (!data) return undefined
@@ -15,7 +15,7 @@ export const exportMetadataFieldToXML = (
 
 export const exportMetadataFieldsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFields | undefined
 ): MetadataFieldsXML | undefined => {
   if (!data) return undefined
@@ -26,6 +26,5 @@ export const exportMetadataFieldsToXML = (
     "xr:Field": items.map((value) => exportMetadataFieldToXML(context, undefined, value)!),
   }
 }
-
 
 registerTypeRule("MetadataField", "exportToXML", exportMetadataFieldToXML)

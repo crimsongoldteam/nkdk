@@ -6,7 +6,7 @@ import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./ty
 
 export const importMetadataValueCollectionFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataValueCollectionEnterprise | undefined
 ): MetadataValueCollection | undefined => {
   if (!data || data.length === 0) return undefined
@@ -16,6 +16,5 @@ export const importMetadataValueCollectionFromEnterprise = (
     return metadataValue.value as string
   })
 }
-
 
 registerTypeRule("MetadataValueCollection", "importFromEnterprise", importMetadataValueCollectionFromEnterprise)

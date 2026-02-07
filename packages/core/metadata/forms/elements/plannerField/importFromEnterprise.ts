@@ -28,7 +28,7 @@ import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterp
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 export function importPlannerFieldTypedFromEnterprise<To extends PlannerField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -50,7 +50,7 @@ export function importPlannerFieldTypedFromEnterprise<To extends PlannerField | 
 
 export function importPlannerFieldPartialFromEnterprise<To extends PlannerField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -71,7 +71,7 @@ export function importPlannerFieldPartialFromEnterprise<To extends PlannerField 
 
 const importPlannerFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PlannerFieldTypedEnterprise | PlannerFieldPartialEnterprise | undefined
 ): Omit<Partial<PlannerField>, "elementType" | "name"> => {
   const result: Omit<Partial<PlannerField>, "elementType" | "name"> = {}

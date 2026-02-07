@@ -14,7 +14,7 @@ const SLASH = (t.Slash.LABEL as string).repeat(2)
 
 export const exportPagesToStructure = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: Pages
 ): IFormatElementResult => {
   const pagesElement = element as Pages

@@ -18,7 +18,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function importPictureFieldFromXML<To extends PictureField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To

@@ -13,7 +13,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export const exportViewStatusAdditionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ViewStatusAddition | undefined
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined

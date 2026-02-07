@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importGraphicalSchemaFieldTypedFromEnterprise<To extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importGraphicalSchemaFieldTypedFromEnterprise<To extends Graphic
 
 export function importGraphicalSchemaFieldPartialFromEnterprise<To extends GraphicalSchemaField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -70,7 +70,7 @@ export function importGraphicalSchemaFieldPartialFromEnterprise<To extends Graph
 
 const importGraphicalSchemaFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: GraphicalSchemaFieldTypedEnterprise | GraphicalSchemaFieldPartialEnterprise | undefined
 ): Omit<Partial<GraphicalSchemaField>, "elementType" | "name"> => {
   const result: Omit<Partial<GraphicalSchemaField>, "elementType" | "name"> = {}

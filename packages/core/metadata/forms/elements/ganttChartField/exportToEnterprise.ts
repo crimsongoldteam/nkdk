@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportGanttChartFieldTypedToEnterprise<From extends GanttChartField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export function exportGanttChartFieldTypedToEnterprise<From extends GanttChartFi
 
 export function exportGanttChartFieldPartialToEnterprise<From extends GanttChartField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export function exportGanttChartFieldPartialToEnterprise<From extends GanttChart
 
 const exportGanttChartFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: GanttChartField
 ): GanttChartFieldPartialEnterprise => {
   const result: GanttChartFieldPartialEnterprise = {}

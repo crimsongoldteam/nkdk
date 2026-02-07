@@ -13,7 +13,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAdditionEnterprise | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): From extends undefined ? undefined : ViewStatusAddition => {
   if (!data) return undefined as From extends undefined ? undefined : ViewStatusAddition

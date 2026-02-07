@@ -8,7 +8,7 @@ import { Popup } from "./types"
 
 export function exportPopupContentToStructure(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: Popup
 ): IFormatElementResult {
   const resultString = "^" + formatContent(context, element)

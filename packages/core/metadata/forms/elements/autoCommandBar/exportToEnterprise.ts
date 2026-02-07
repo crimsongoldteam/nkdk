@@ -6,7 +6,7 @@ import { AutoCommandBarRules } from "./rules"
 
 export const exportAutoCommandBarToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: AutoCommandBar | undefined
 ): AutoCommandBarEnterprise | undefined => {
   return exportSingleElementToEnterprise(context, data, { rules: AutoCommandBarRules })

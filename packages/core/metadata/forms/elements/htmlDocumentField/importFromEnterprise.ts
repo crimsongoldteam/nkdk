@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importHTMLDocumentFieldTypedFromEnterprise<To extends HTMLDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importHTMLDocumentFieldTypedFromEnterprise<To extends HTMLDocume
 
 export function importHTMLDocumentFieldPartialFromEnterprise<To extends HTMLDocumentField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -71,7 +71,7 @@ export function importHTMLDocumentFieldPartialFromEnterprise<To extends HTMLDocu
 
 const importHTMLDocumentFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: HTMLDocumentFieldTypedEnterprise | HTMLDocumentFieldPartialEnterprise | undefined
 ): Omit<Partial<HTMLDocumentField>, "elementType" | "name"> => {
   const result: Omit<Partial<HTMLDocumentField>, "elementType" | "name"> = {}

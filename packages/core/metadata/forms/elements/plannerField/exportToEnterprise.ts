@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportPlannerFieldTypedToEnterprise<From extends PlannerField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export function exportPlannerFieldTypedToEnterprise<From extends PlannerField | 
 
 export function exportPlannerFieldPartialToEnterprise<From extends PlannerField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export function exportPlannerFieldPartialToEnterprise<From extends PlannerField 
 
 const exportPlannerFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PlannerField
 ): PlannerFieldPartialEnterprise => {
   const result: PlannerFieldPartialEnterprise = {}

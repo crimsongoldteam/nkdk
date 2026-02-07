@@ -4,7 +4,7 @@ import { CommandSet, CommandSetEnterprise } from "./types"
 
 export const importCommandSetFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CommandSetEnterprise | undefined
 ): CommandSet | undefined => {
   if (!data || data.length === 0) return undefined

@@ -6,14 +6,14 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnterprise | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: T
 ): T extends undefined ? undefined : ExtendedTooltip => {
   if (!data) return undefined as T extends undefined ? undefined : ExtendedTooltip

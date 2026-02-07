@@ -7,7 +7,7 @@ import { AutoCommandBarRules } from "./rules"
 
 export const exportFormAutoCommandBarToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule<any>,
   data: AutoCommandBar | undefined
 ): any => {
   return exportAutoCommandBarPropsToXML(context, data, "ФормаКоманднаяПанель", "-1")
@@ -15,7 +15,7 @@ export const exportFormAutoCommandBarToXML = (
 
 export const exportTableAutoCommandBarToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule<any>,
   data: AutoCommandBar | undefined
 ): any => {
   const table = context.elementContext!
@@ -41,6 +41,7 @@ const exportAutoCommandBarPropsToXML = (
 
 const getDefaultAutoCommandBar = (): AutoCommandBar => {
   return {
+    elementType: "AutoCommandBar",
     childItems: [],
     autofill: true,
   }

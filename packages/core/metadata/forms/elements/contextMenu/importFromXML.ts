@@ -5,7 +5,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function importContextMenuFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ContextMenuXML
 ): ContextMenu | undefined {
   if (xml === undefined) return undefined

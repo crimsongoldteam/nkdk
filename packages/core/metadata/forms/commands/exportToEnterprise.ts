@@ -10,7 +10,7 @@ import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./type
 
 const exportCommandToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Command | undefined
 ): CommandEnterprise | undefined => {
   if (!data) return undefined
@@ -57,7 +57,7 @@ const exportCommandToEnterprise = (
 
 export const exportCommandsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Commands | undefined
 ): CommandsEnterprise | undefined => {
   if (!data || data.length === 0) return undefined

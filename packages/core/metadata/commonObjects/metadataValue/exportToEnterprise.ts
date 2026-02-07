@@ -21,7 +21,7 @@ import {
 
 export const exportMetadataValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataValue | undefined
 ): MetadataValueEnterprise | undefined => {
   if (!data) return undefined
@@ -57,7 +57,7 @@ const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataV
 
 const exportBooleanValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataBooleanValue
 ): MetadataValueEnterprise => {
   return exportBooleanToEnterprise(context, undefined, data.value)!
@@ -76,7 +76,7 @@ const exportObjectRefValueToEnterprise = (
 
 const exportFixedArrayValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFixedArrayValue
 ): MetadataValueEnterprise => {
   return data.value.map(
@@ -86,7 +86,7 @@ const exportFixedArrayValueToEnterprise = (
 
 export const exportFormChoiceListValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueEnterprise => {
   const valueResult = exportMetadataValueToEnterprise(context, undefined, data.value)
@@ -118,6 +118,5 @@ export const exportMedatataRefToEnterprise = (context: ConfigurationContext, val
   if (!result) throw new Error(`Invalid type for ref: ${value}`)
   return result
 }
-
 
 registerTypeRule("MetadataValue", "exportToEnterprise", exportMetadataValueToEnterprise)

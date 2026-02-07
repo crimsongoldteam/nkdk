@@ -12,15 +12,15 @@ import {
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const exportMetadataAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -35,7 +35,7 @@ export const exportMetadataAttributesToXML = (
 
 export const exportMetadataTabularSectionAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -50,7 +50,7 @@ export const exportMetadataTabularSectionAttributesToXML = (
 
 const exportMetadataAttributeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataAttribute,
   defaults: Partial<MetadataAttribute>
 ): MetadataAttributeXML => {

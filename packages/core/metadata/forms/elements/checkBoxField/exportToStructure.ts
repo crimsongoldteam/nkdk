@@ -9,7 +9,7 @@ import { CheckBoxField } from "./types"
 
 export const exportCheckBoxFieldToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   element: CheckBoxField
 ): IFormatElementResult => {
   const result = formatCheckBoxFieldContent(context, rule, element, false)
@@ -22,7 +22,7 @@ export const exportCheckBoxFieldToStructure = (
 
 export const exportCheckBoxFieldContentToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   element: CheckBoxField
 ): IFormatElementResult => {
   const result = formatCheckBoxFieldContent(context, rule, element, true)
@@ -35,7 +35,7 @@ export const exportCheckBoxFieldContentToStructure = (
 
 const formatCheckBoxFieldContent = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: CheckBoxField,
   forContent: boolean
 ): string => {

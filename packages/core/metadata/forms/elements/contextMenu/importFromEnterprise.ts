@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { registerTypeRule } from "~/metadata/metadataFactory"
+import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: T
 ): ContextMenu | undefined {
   if (data === undefined) return undefined

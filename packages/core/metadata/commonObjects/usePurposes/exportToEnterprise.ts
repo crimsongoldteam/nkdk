@@ -5,7 +5,7 @@ import { UsePurposes, UsePurposesEnterprise } from "./types"
 
 export const exportUsePurposesToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: UsePurposes | undefined
 ): UsePurposesEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
@@ -25,6 +25,5 @@ export const exportUsePurposesToEnterprise = (
   // так как в Enterprise формате нет отдельного значения для только PlatformApplication
   return undefined
 }
-
 
 registerTypeRule("UsePurposes", "exportToEnterprise", exportUsePurposesToEnterprise)

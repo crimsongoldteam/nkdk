@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportTextDocumentFieldTypedToEnterprise<From extends TextDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export function exportTextDocumentFieldTypedToEnterprise<From extends TextDocume
 
 export function exportTextDocumentFieldPartialToEnterprise<From extends TextDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export function exportTextDocumentFieldPartialToEnterprise<From extends TextDocu
 
 const exportTextDocumentFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: TextDocumentField
 ): TextDocumentFieldPartialEnterprise => {
   const result: TextDocumentFieldPartialEnterprise = {}

@@ -5,7 +5,7 @@ import { ChoiceList, ChoiceListItemXML, ChoiceListXML } from "./types"
 
 export const exportChoiceListToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   choiceList: ChoiceList | undefined
 ): ChoiceListXML | undefined => {
   if (!choiceList || choiceList.length === 0) return undefined

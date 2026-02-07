@@ -8,7 +8,7 @@ import { Command, CommandXML } from "./types"
 
 export const exportCommandsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Command[] | undefined
 ): CommandXML[] | undefined => {
   if (!data || data.length === 0) return undefined
@@ -17,7 +17,7 @@ export const exportCommandsToXML = (
 
 function exportCommandToXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   command: Command | undefined
 ): CommandXML | undefined {
   if (!command) return undefined

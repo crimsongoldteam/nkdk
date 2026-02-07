@@ -1,13 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
 
 export const importChildItemsFromXML = <From extends AllChildItem>(
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   xml: Record<From["elementType"], ToXMLType<From>>[] | Record<From["elementType"], ToXMLType<From>> | undefined
 ): From[] => {
   if (!xml) return []

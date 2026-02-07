@@ -6,12 +6,12 @@ import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/fo
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { formatElementTitleAndName } from "../../format/helpers"
-import { PictureDecoration } from "./types"
 import { PropertyRule } from "../calendarField/rules"
+import { PictureDecoration } from "./types"
 
 export const exportPictureDecorationToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: PictureDecoration
 ): IFormatElementResult => {
   const picture: PictureEnterprise | undefined = exportPictureToEnterprise(context, undefined, element.picture)

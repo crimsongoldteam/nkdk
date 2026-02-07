@@ -6,7 +6,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function importCheckBoxFieldFromXML<To extends CheckBoxField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   return importElementFromXML(context, FormElementType.CheckBoxField, xml) as unknown as To

@@ -5,7 +5,7 @@ import { TypeDescription, TypeDescriptionPreview, TypeDescriptionRules } from ".
 
 export const exportTypeDescriptionToPreview = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionPreview | undefined => {
   if (!typeDescription) return undefined

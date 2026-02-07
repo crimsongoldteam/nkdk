@@ -6,7 +6,7 @@ import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise }
 
 export const exportTypeDescriptionToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionEnterprise | undefined => {
   if (!typeDescription) {
@@ -100,6 +100,5 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
 
   return rule.enterprise
 }
-
 
 registerTypeRule("TypeDescription", "exportToEnterprise", exportTypeDescriptionToEnterprise)

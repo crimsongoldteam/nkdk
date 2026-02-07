@@ -5,7 +5,7 @@ import { ChoiceList, ChoiceListEnterprise } from "./types"
 
 export const exportChoiceListToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ChoiceList | undefined
 ): ChoiceListEnterprise | undefined => {
   if (!data) return undefined

@@ -7,7 +7,7 @@ import { Border, BorderEnterprise } from "./types"
 
 export const exportBorderToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Border | undefined
 ): BorderEnterprise | undefined => {
   if (!data) return undefined

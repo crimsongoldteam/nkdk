@@ -5,7 +5,7 @@ import { ChoiceParameterLink, ChoiceParameterLinks, ChoiceParameterLinksXML, Cho
 
 export const exportChoiceParameterLinkToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   link: ChoiceParameterLink
 ): ChoiceParameterLinkXML => {
   const dataPath = exportMetadataSimpleValueToXML(context, undefined, link.dataPath, "string")!
@@ -19,7 +19,7 @@ export const exportChoiceParameterLinkToXML = (
 
 export const exportChoiceParameterLinksToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   links: ChoiceParameterLinks | undefined
 ): ChoiceParameterLinksXML | undefined => {
   if (!links || links.length === 0) return undefined

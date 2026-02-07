@@ -9,11 +9,11 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 export function importPopupFromXML<To extends Popup | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To

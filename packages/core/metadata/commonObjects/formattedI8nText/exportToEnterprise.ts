@@ -9,7 +9,7 @@ import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 /** @deprecated */
 export const exportFormattedI8nTextToEnterprise = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   title: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey
@@ -54,7 +54,7 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
 /** @deprecated */
 export const exportFormattedI8nTextDefaultToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   title: FormattedI8nText | undefined
 ): FormattedI8nTextEnterprise | undefined => {
   return exportI8nTextDefaultToEnterprise(context, undefined, title)
@@ -63,7 +63,7 @@ export const exportFormattedI8nTextDefaultToEnterprise = (
 /** @deprecated */
 export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   text: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey

@@ -8,13 +8,13 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataCommandsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
@@ -26,7 +26,7 @@ export const importMetadataCommandsFromXML = (
 
 export const importMetadataCommandFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
   if (!xml) return undefined

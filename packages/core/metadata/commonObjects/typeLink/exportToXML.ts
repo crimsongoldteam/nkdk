@@ -6,7 +6,7 @@ import { TypeLink, TypeLinkXML } from "./types"
 
 export const exportTypeLinkToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   typeLink: TypeLink | undefined
 ): TypeLinkXML | undefined => {
   if (!typeLink) return undefined
@@ -19,7 +19,7 @@ export const exportTypeLinkToXML = (
 
 export const exportTypeLinkWithXSITypeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   typeLink: TypeLink | undefined
 ): TypeLinkXML | undefined => {
   if (!typeLink) return undefined
@@ -31,6 +31,5 @@ export const exportTypeLinkWithXSITypeToXML = (
     "xr:LinkItem": Number(typeLink.linkItem),
   }
 }
-
 
 registerTypeRule("TypeLink", "exportToXML", exportTypeLinkToXML)

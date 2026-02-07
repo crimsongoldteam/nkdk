@@ -1,7 +1,7 @@
 import { format, parse } from "date-fns"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
@@ -15,7 +15,7 @@ import {
 
 export const importMetadataValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataValueEnterprise | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
@@ -60,7 +60,7 @@ const parseDateTime = (dateTime: string): string => {
 
 const importStringValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: string
 ): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
@@ -135,7 +135,7 @@ const importStringValueFromEnterprise = (
 
 const importFixedArrayValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFixedArrayValueEnterprise
 ): MetadataValue => {
   return {
@@ -146,7 +146,7 @@ const importFixedArrayValueFromEnterprise = (
 
 export const importFormChoiceListValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFormChoiceListValueEnterprise
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
@@ -171,7 +171,7 @@ export const importFormChoiceListValueFromEnterprise = (
 
 export const importMetadataRefFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   value: string
 ): MetadataValue => {
   const convertedValue = importMetadataValueStringFromEnterprise(context, undefined, value)
@@ -182,6 +182,5 @@ export const importMetadataRefFromEnterprise = (
     value: convertedValue,
   }
 }
-
 
 registerTypeRule("MetadataValue", "importFromEnterprise", importMetadataValueFromEnterprise)

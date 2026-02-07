@@ -6,7 +6,7 @@ import { SystemEnumerationPreview } from "./types"
 /** @deprecated */
 export const exportSystemEnumerationDeprecatedToPreview = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   value: string | undefined,
   enumerationName: string
 ): SystemEnumerationPreview | undefined => {

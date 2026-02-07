@@ -5,7 +5,7 @@ import { Color, ColorPreview } from "./types"
 
 export const exportColorToPreview = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   color: Color | undefined
 ): ColorPreview | undefined => {
   if (!color) return undefined

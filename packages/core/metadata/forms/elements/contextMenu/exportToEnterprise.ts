@@ -5,7 +5,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: T
 ): ContextMenuEnterprise | undefined {
   if (data === undefined) return undefined

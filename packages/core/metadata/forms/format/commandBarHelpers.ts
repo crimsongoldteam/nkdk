@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { wrapButtonContent } from "./helpers"
 import { PropertyRule } from "../elements/calendarField/rules"
+import { wrapButtonContent } from "./helpers"
 
 export const exportCommandBarItemsToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   childItems: { elementType: FormElementType }[]
 ): string[] => {
   return childItems.flatMap((item) => {

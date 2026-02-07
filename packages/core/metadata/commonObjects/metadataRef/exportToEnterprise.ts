@@ -5,7 +5,7 @@ import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, Metada
 
 export const exportMetadataItemLinkToEnterprise = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkEnterprise | undefined => {
   if (!data) return undefined
@@ -15,7 +15,7 @@ export const exportMetadataItemLinkToEnterprise = (
 
 export const exportMetadataItemLinksToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksEnterprise | undefined => {
   if (!data) return undefined

@@ -6,7 +6,7 @@ import { UsePurposes, UsePurposesXML } from "./types"
 
 export const importUsePurposesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: UsePurposesXML | undefined
 ): UsePurposes | undefined => {
   if (!xml) return undefined
@@ -30,6 +30,5 @@ export const importUsePurposesFromXML = (
 
   return result.length > 0 ? result : undefined
 }
-
 
 registerTypeRule("UsePurposes", "importFromXML", importUsePurposesFromXML)

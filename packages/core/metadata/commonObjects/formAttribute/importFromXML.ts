@@ -2,6 +2,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importDynamicListFromXML } from "../dynamicList/importFromXML"
 import { DynamicListXML } from "../dynamicList/types"
@@ -16,11 +17,10 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: FormAttributesXML | undefined
 ): FormAttributes | undefined => {
   if (!xml) return undefined
@@ -32,7 +32,7 @@ export const importFormAttributesFromXML = (
 
 const importFormAttributeFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   props: FormAttributeXML
 ): FormAttribute => {
   const title = importI8nTextFromXML(context, undefined, props.Title) ?? { items: { [context.defaultLanguage]: "" } }
@@ -96,7 +96,7 @@ const importFormAttributeFromXML = (
 
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
 ): FormAttributeColumn[] | undefined => {
   if (!xml) return undefined
@@ -138,7 +138,7 @@ const importFormAttributeColumnsFromXML = (
 
 const importFormAttributeAdditionalColumnsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml:
     | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }
     | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[]

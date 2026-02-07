@@ -6,7 +6,7 @@ import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsE
 
 export const importMetadataFieldsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFieldsEnterprise | undefined
 ): MetadataFields | undefined => {
   if (!data) return undefined
@@ -16,13 +16,12 @@ export const importMetadataFieldsFromEnterprise = (
 
 export const importMetadataFieldFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataFieldEnterprise | undefined
 ): MetadataField | undefined => {
   if (!data) return undefined
 
   return importMetadataFieldFromEnterprisePath(context, undefined, data)
 }
-
 
 registerTypeRule("MetadataField", "importFromEnterprise", importMetadataFieldFromEnterprise)

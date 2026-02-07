@@ -25,7 +25,7 @@ export const registerFormat = <T extends NamedElement>(
 
 export const formatElement = <T extends NamedElement>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: T
 ): IFormatElementResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
@@ -37,7 +37,7 @@ export const formatElement = <T extends NamedElement>(
 
 export const formatElements = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   items: AllChildItems
 ): IFormatElementResult => {
   let result: IFormatElementResult = {

@@ -22,7 +22,7 @@ import { isHasContent } from "./helper"
 
 export const importSearchControlAdditionPartialFromEnterprise = <To extends SearchControlAddition>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To => {
@@ -44,7 +44,7 @@ export const importSearchControlAdditionPartialFromEnterprise = <To extends Sear
 
 export const importSingleSearchControlAdditionFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchControlAdditionEnterprise | undefined
 ): SingleSearchControlAddition | undefined => {
   const props = importSearchControlAdditionPropsFromEnterprise(context, undefined, data)
@@ -55,7 +55,7 @@ export const importSingleSearchControlAdditionFromEnterprise = (
 
 export const importSearchControlAdditionPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SearchControlAdditionEnterprise | undefined
 ): SingleSearchControlAddition | undefined => {
   if (!data) return undefined

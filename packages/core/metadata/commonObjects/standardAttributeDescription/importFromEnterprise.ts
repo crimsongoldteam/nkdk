@@ -21,7 +21,7 @@ import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: StandardAttributeDescriptionsEnterprise | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!data) return undefined
@@ -39,7 +39,7 @@ export const importStandardAttributeDescriptionsFromEnterprise = (
 
 const importStandardAttributeDescriptionFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: StandardAttributeDescriptionEnterprise,
   name: string
 ): StandardAttributeDescription => {

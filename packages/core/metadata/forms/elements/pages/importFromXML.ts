@@ -13,7 +13,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function importPagesFromXML<To extends Pages | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To

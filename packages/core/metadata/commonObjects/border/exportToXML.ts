@@ -5,7 +5,7 @@ import { Border, BorderXML } from "./types"
 
 export const exportBorderToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   border: Border | undefined
 ): BorderXML | undefined => {
   if (!border) return undefined

@@ -7,7 +7,7 @@ import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const exportMetadataValueCollectionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataValueCollection | undefined
 ): MetadataValueCollectionXML | undefined => {
   if (!data || data.length === 0) return undefined
@@ -24,6 +24,5 @@ export const exportMetadataValueCollectionToXML = (
     "xr:Item": items,
   }
 }
-
 
 registerTypeRule("MetadataValueCollection", "exportToXML", exportMetadataValueCollectionToXML)

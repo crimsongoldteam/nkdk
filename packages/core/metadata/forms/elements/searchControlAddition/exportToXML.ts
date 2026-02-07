@@ -20,7 +20,7 @@ import { getSearchControlAdditionName } from "./helper"
 
 export function exportSearchControlAdditionToXML<From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToXMLType<From> {
   if (!data) return undefined as ToXMLType<From>
@@ -35,7 +35,7 @@ export function exportSearchControlAdditionToXML<From extends SearchControlAddit
 
 export const exportSingleSearchControlAdditionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchControlAddition | undefined,
   parentElement: { name: string }
 ): SearchControlAdditionXML => {
@@ -51,7 +51,7 @@ export const exportSingleSearchControlAdditionToXML = (
 
 const exportSearchControlAdditionPropsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchControlAddition | undefined,
   params: { name: string; additionSource?: string }
 ): SearchControlAdditionXML => {

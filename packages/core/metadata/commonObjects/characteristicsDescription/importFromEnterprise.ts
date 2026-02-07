@@ -12,7 +12,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importCharacteristicsDescriptionFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CharacteristicsDescriptionEnterprise | undefined
 ): CharacteristicsDescription | undefined => {
   if (!data) return undefined
@@ -72,7 +72,7 @@ export const importCharacteristicsDescriptionFromEnterprise = (
 
 export const importCharacteristicsDescriptionsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CharacteristicsDescriptionsEnterprise | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!data) return undefined

@@ -4,7 +4,7 @@ import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItem
 
 export function exportMetadataItemLinkToXML(
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkXML | undefined {
   if (!data) return undefined
@@ -17,7 +17,7 @@ export function exportMetadataItemLinkToXML(
 
 export function exportMetadataItemLinksToXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksXML | undefined {
   if (!data) return undefined

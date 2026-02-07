@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importProgressBarFieldTypedFromEnterprise<To extends ProgressBarField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importProgressBarFieldTypedFromEnterprise<To extends ProgressBar
 
 export function importProgressBarFieldPartialFromEnterprise<To extends ProgressBarField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -71,7 +71,7 @@ export function importProgressBarFieldPartialFromEnterprise<To extends ProgressB
 
 const importProgressBarFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ProgressBarFieldTypedEnterprise | ProgressBarFieldPartialEnterprise | undefined
 ): Omit<Partial<ProgressBarField>, "elementType" | "name"> => {
   const result: Omit<Partial<ProgressBarField>, "elementType" | "name"> = {}

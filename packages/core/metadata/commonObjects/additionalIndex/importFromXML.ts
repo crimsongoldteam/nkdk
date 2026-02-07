@@ -10,7 +10,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importAdditionalIndexFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: AdditionalIndexXML | undefined
 ): AdditionalIndex | undefined => {
   if (!xml) return undefined
@@ -32,7 +32,7 @@ export const importAdditionalIndexFromXML = (
 
 export const importAdditionalIndexesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: AdditionalIndexesXML | undefined
 ): AdditionalIndexes | undefined => {
   if (!xml) return undefined

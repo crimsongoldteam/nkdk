@@ -9,7 +9,7 @@ import { LabelDecoration } from "./types"
 
 export const exportLabelDecorationToStructure = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: LabelDecoration
 ): IFormatElementResult => {
   const titleText = formatElementTitleAndName(context, element)

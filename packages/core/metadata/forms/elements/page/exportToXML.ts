@@ -15,7 +15,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function exportPageToXML<From extends Page | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToXMLType<From> {
   if (data === undefined) return undefined as ToXMLType<From>

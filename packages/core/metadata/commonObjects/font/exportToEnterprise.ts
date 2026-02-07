@@ -8,7 +8,7 @@ import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
 export const exportFontToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   font: Font | undefined
 ): FontEnterprise | undefined => {
   if (!font) return undefined

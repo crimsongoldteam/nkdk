@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importSpreadSheetDocumentFieldTypedFromEnterprise<To extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importSpreadSheetDocumentFieldTypedFromEnterprise<To extends Spr
 
 export function importSpreadSheetDocumentFieldPartialFromEnterprise<To extends SpreadSheetDocumentField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -89,7 +89,7 @@ export function importSpreadSheetDocumentFieldPartialFromEnterprise<To extends S
 
 const importSpreadSheetDocumentFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SpreadSheetDocumentFieldTypedEnterprise | SpreadSheetDocumentFieldPartialEnterprise | undefined
 ): Omit<Partial<SpreadSheetDocumentField>, "elementType" | "name"> => {
   const result: Omit<Partial<SpreadSheetDocumentField>, "elementType" | "name"> = {}

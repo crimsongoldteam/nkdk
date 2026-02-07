@@ -14,7 +14,7 @@ import {
 
 export const importTypeDescriptionFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   value: TypeDescriptionEnterprise | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {
@@ -144,6 +144,5 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers | undefi
   }
   return { dateFractions: "Date" }
 }
-
 
 registerTypeRule("TypeDescription", "importFromEnterprise", importTypeDescriptionFromEnterprise)

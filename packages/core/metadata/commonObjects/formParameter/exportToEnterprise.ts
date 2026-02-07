@@ -6,7 +6,7 @@ import { FormParameterEnterprise, FormParameters, FormParametersEnterprise } fro
 
 export const exportFormParametersToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   parameters: FormParameters | undefined
 ): FormParametersEnterprise | undefined => {
   if (parameters === undefined || parameters.length === 0) {
@@ -29,6 +29,5 @@ export const exportFormParametersToEnterprise = (
 
   return result
 }
-
 
 registerTypeRule("FormParameter", "exportToEnterprise", exportFormParametersToEnterprise)

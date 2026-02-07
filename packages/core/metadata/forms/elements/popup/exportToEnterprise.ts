@@ -26,7 +26,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export const exportPopupTypedToEnterprise = <From extends Popup | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> => {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -46,7 +46,7 @@ export const exportPopupTypedToEnterprise = <From extends Popup | undefined>(
 
 export const exportPopupPartialToEnterprise = <From extends Popup | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -65,7 +65,7 @@ export const exportPopupPartialToEnterprise = <From extends Popup | undefined>(
 
 const exportPopupPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Popup
 ): PopupPartialEnterprise => {
   const result: PopupPartialEnterprise = {}

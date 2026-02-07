@@ -12,7 +12,7 @@ const HASH = t.Hash.LABEL as string
 
 export const exportColumnGroupContentToStructure = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: ColumnGroup
 ): IFormatElementResult => {
   const resultString = HASH + formatElementName(element)
@@ -25,7 +25,7 @@ export const exportColumnGroupContentToStructure = (
 
 export const exportColumnGroupToStructure = (
   _context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   element: ColumnGroup
 ): IFormatElementResult => {
   return exportColumnGroupContentToStructure(_context, rule, element)

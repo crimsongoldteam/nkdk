@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export const exportPictureDecorationTypedToEnterprise = <From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> => {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export const exportPictureDecorationTypedToEnterprise = <From extends PictureDec
 
 export const exportPictureDecorationPartialToEnterprise = <From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export const exportPictureDecorationPartialToEnterprise = <From extends PictureD
 
 const exportPictureDecorationPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PictureDecoration
 ): PictureDecorationPartialEnterprise => {
   const result: PictureDecorationPartialEnterprise = {}

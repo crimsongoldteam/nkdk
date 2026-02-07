@@ -6,7 +6,7 @@ import { UsePurposes, UsePurposesXML } from "./types"
 
 export const exportUsePurposesToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: UsePurposes | undefined
 ): UsePurposesXML | undefined => {
   if (!data || data.length === 0) return undefined
@@ -20,6 +20,5 @@ export const exportUsePurposesToXML = (
     "v8:Value": values.length === 1 ? values[0] : values,
   }
 }
-
 
 registerTypeRule("UsePurposes", "exportToXML", exportUsePurposesToXML)

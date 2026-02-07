@@ -22,7 +22,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -45,7 +45,7 @@ export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
 
 export function importPagesPartialFromEnterprise<To extends Pages>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -64,7 +64,7 @@ export function importPagesPartialFromEnterprise<To extends Pages>(
 
 const importPagesPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PagesTypedEnterprise | PagesPartialEnterprise | undefined
 ): Omit<Partial<Pages>, "elementType" | "name"> => {
   const result: Omit<Partial<Pages>, "elementType" | "name"> = {

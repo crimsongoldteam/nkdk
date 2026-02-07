@@ -48,7 +48,7 @@ const importLabelDecorationEventsFromEnterprise = (
 
 export function importLabelDecorationTypedFromEnterprise<To extends LabelDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -70,7 +70,7 @@ export function importLabelDecorationTypedFromEnterprise<To extends LabelDecorat
 
 export function importLabelDecorationPartialFromEnterprise<To extends LabelDecoration>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -94,7 +94,7 @@ export function importLabelDecorationPartialFromEnterprise<To extends LabelDecor
 
 const importLabelDecorationPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: LabelDecorationTypedEnterprise | LabelDecorationPartialEnterprise | undefined
 ): Omit<Partial<LabelDecoration>, "elementType" | "name"> => {
   const result: Omit<Partial<LabelDecoration>, "elementType" | "name"> = {}

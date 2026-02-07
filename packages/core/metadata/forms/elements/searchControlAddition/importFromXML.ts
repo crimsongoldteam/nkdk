@@ -12,13 +12,13 @@ import {
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
+import { PropertyRule } from "../calendarField/rules"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
-import { PropertyRule } from "../calendarField/rules"
 
 export function importSearchControlAdditionFromXML<To extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
@@ -42,7 +42,7 @@ export function importSearchControlAdditionFromXML<To extends SearchControlAddit
 
 export const importSingleSearchControlAdditionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: SearchControlAdditionXML
 ): SingleSearchControlAddition | undefined => {
   const result = importSearchControlAdditionPropsFromXML(context, undefined, xml)
@@ -53,7 +53,7 @@ export const importSingleSearchControlAdditionFromXML = (
 
 export const importSearchControlAdditionPropsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: SearchControlAdditionXML
 ): SingleSearchControlAddition | undefined => {
   const result: SingleSearchControlAddition = {

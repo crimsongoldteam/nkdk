@@ -6,7 +6,7 @@ import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./t
 
 export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
@@ -123,6 +123,5 @@ const getDateQualifiers = (typeDescription: TypeDescription): TypeDescriptionXML
     "v8:DateFractions": dateQualifiers.dateFractions,
   }
 }
-
 
 registerTypeRule("TypeDescription", "exportToXML", exportTypeDescriptionToXML)

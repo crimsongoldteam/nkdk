@@ -10,14 +10,14 @@ import {
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
-import { PropertyRule } from "../calendarField/rules"
 
 export const importSearchStringAdditionFromXML = <To extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To => {
   if (xml === undefined) return undefined as To
@@ -38,7 +38,7 @@ export const importSearchStringAdditionFromXML = <To extends SearchStringAdditio
 
 export const importSingleSearchStringAdditionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: SearchStringAdditionXML
 ): SingleSearchStringAddition | undefined => {
   const result: SingleSearchStringAddition = {

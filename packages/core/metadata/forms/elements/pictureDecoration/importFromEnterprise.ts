@@ -70,7 +70,7 @@ const importPictureDecorationEventsFromEnterprise = (
 
 export function importPictureDecorationTypedFromEnterprise<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -95,7 +95,7 @@ export function importPictureDecorationTypedFromEnterprise<To extends PictureDec
 
 export function importPictureDecorationPartialFromEnterprise<To extends PictureDecoration>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -122,7 +122,7 @@ export function importPictureDecorationPartialFromEnterprise<To extends PictureD
 
 const importPictureDecorationPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PictureDecorationTypedEnterprise | PictureDecorationPartialEnterprise | undefined
 ): Omit<Partial<PictureDecoration>, "elementType" | "name"> => {
   const result: Omit<Partial<PictureDecoration>, "elementType" | "name"> = {}

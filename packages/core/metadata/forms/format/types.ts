@@ -21,7 +21,7 @@ export interface IFormatElementResult {
 
 export type FormatElementFunction = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: NamedElement
 ) => IFormatElementResult
 export type CheckFormatFunction<T = NamedElement> = (element: T) => boolean

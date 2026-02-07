@@ -5,7 +5,7 @@ import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } 
 
 export const importIndexFieldFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: IndexFieldEnterprise | undefined
 ): IndexField | undefined => {
   if (!data) return undefined
@@ -15,7 +15,7 @@ export const importIndexFieldFromEnterprise = (
 
 export const importIndexFieldsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: IndexFieldsEnterprise | undefined
 ): IndexFields | undefined => {
   if (!data) return undefined
@@ -24,6 +24,5 @@ export const importIndexFieldsFromEnterprise = (
     .map((item) => importIndexFieldFromEnterprise(context, undefined, item)!)
     .filter((item): item is IndexField => item !== undefined)
 }
-
 
 registerTypeRule("IndexField", "importFromEnterprise", importIndexFieldFromEnterprise)

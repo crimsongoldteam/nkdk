@@ -4,14 +4,14 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
-import { PropertyRule } from "../calendarField/rules"
 
 export const importViewStatusAdditionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ViewStatusAdditionXML
 ): ViewStatusAddition | undefined => {
   const result: ViewStatusAddition = {}

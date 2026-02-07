@@ -1,11 +1,11 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../../context/types"
-import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 import { PropertyRule } from "../../elements/calendarField/rules"
+import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: CommandInterfaceXML | undefined
 ): CommandInterface | undefined => {
   if (!xml) return undefined
@@ -34,7 +34,7 @@ export const importCommandInterfaceFromXML = (
 
 const importCommandInterfaceItemFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   item: CommandInterfaceItemXML
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {

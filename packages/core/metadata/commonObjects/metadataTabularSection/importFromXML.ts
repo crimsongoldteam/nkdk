@@ -8,13 +8,13 @@ import {
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataTabularSectionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
@@ -28,7 +28,7 @@ export const importMetadataTabularSectionsFromXML = (
 
 const importMetadataTabularSectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
   const props = xml.Properties

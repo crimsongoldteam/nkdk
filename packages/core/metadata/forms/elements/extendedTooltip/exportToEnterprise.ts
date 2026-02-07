@@ -14,7 +14,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: T
 ): ExtendedTooltipEnterprise | undefined {
   if (!data) return undefined

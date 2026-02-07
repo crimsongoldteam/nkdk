@@ -7,7 +7,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   return importElementFromXML(context, "Table", xml) as To

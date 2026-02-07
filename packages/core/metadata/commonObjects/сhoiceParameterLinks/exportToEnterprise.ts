@@ -5,7 +5,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
 
 export const exportChoiceParameterLinksToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ChoiceParameterLinks | undefined
 ): ChoiceParameterLinksEnterprise | undefined => {
   if (!data) return undefined

@@ -17,7 +17,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataDocument | undefined
 ): MetadataDocumentEnterprise | undefined => {
   if (!data) return undefined

@@ -14,7 +14,7 @@ import { getExtendedTooltipName } from "./helper"
 /** @deprecated */
 export const exportExtendedTooltipToDeprecatedXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ExtendedTooltip | undefined,
   parentElement: { name: string }
 ): ExtendedTooltipXML => {

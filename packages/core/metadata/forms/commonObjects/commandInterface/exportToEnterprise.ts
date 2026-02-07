@@ -3,17 +3,17 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { StandardCommandsGroupToEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
 import {
   CommandInterface,
   CommandInterfaceEnterprise,
   CommandInterfaceItem,
   CommandInterfaceItemEnterprise,
 } from "./types"
-import { PropertyRule } from "../../elements/calendarField/rules"
 
 export const exportCommandInterfaceToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CommandInterface | undefined
 ): CommandInterfaceEnterprise | undefined => {
   if (!data) return undefined
@@ -39,7 +39,7 @@ export const exportCommandInterfaceToEnterprise = (
 
 const exportCommandInterfaceItemToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   item: CommandInterfaceItem
 ): CommandInterfaceItemEnterprise => {
   const result: CommandInterfaceItemEnterprise = {

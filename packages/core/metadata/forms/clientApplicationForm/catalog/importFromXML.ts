@@ -7,7 +7,7 @@ import { CatalogForm, CatalogFormXML } from "./types"
 
 export const importCatalogFormFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: CatalogFormXML,
   xmlMetadata: FormMetadataXML
 ): CatalogForm => {

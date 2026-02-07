@@ -20,7 +20,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataCommandFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataCommandEnterprise | undefined,
   name: string
 ): MetadataCommand | undefined => {
@@ -122,7 +122,7 @@ export const importMetadataCommandFromEnterprise = (
 
 export const importMetadataCommandsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataCommandsEnterprise | undefined
 ): MetadataCommands | undefined => {
   if (!data) return undefined

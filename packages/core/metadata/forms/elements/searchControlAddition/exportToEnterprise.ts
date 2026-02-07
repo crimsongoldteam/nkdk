@@ -24,7 +24,7 @@ type SearchControlAdditionCommonFields = Omit<SearchControlAddition, "elementTyp
 
 export const exportSingleSearchControlAdditionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchControlAddition | undefined
 ): SingleSearchControlAdditionEnterprise | undefined => {
   if (!data) return undefined
@@ -38,7 +38,7 @@ export const exportSingleSearchControlAdditionToEnterprise = (
 
 export const exportSearchControlAdditionPartialToEnterprise = <From extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (!data) return undefined as ToPartialEnterpriseType<From>
@@ -58,7 +58,7 @@ export const exportSearchControlAdditionPartialToEnterprise = <From extends Sear
 
 const exportSearchControlAdditionCommonFieldsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SearchControlAdditionCommonFields
 ): SearchControlAdditionEnterprise => {
   const result: SearchControlAdditionEnterprise = {}

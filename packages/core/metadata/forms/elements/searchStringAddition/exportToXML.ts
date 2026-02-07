@@ -19,7 +19,7 @@ import { getSearchStringAdditionName } from "./helper"
 
 export function exportSearchStringAdditionToXML<From extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToXMLType<From> {
   if (!data) return undefined as ToXMLType<From>
@@ -34,7 +34,7 @@ export function exportSearchStringAdditionToXML<From extends SearchStringAdditio
 
 export const exportSingleSearchStringAdditionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchStringAddition | undefined,
   parentElement: { name: string }
 ): SearchStringAdditionXML => {
@@ -50,7 +50,7 @@ export const exportSingleSearchStringAdditionToXML = (
 
 const exportSearchStringAdditionPropsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchStringAddition | undefined,
   params: { name: string; additionSource?: string }
 ): SearchStringAdditionXML => {

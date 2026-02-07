@@ -8,7 +8,7 @@ import { type UserVisible } from "./types"
 /** @deprecated */
 export const importUserVisibleFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   valueAllow: Record<string, StringboolEnterprise> | undefined,
   valueDeny: Record<string, StringboolEnterprise> | undefined
 ): UserVisible | undefined => {

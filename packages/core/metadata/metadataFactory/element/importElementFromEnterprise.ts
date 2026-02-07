@@ -1,5 +1,6 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
@@ -29,15 +30,14 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
     if (rule.type === "UserVisible") {
       const yamlValueDeny = data[rule.yamlDeny as keyof typeof data]
 
-      const importedValue = importUserVisibleFromYAML(
+      importUserVisibleProperty(
         context,
         rule,
         yamlValue as Record<string, StringboolEnterprise> | undefined,
-        yamlValueDeny as Record<string, StringboolEnterprise> | undefined
+        yamlValueDeny as Record<string, StringboolEnterprise> | undefined,
+        result,
+        key
       )
-      if (importedValue !== undefined) {
-        result[key] = importedValue
-      }
       continue
     }
 
@@ -77,30 +77,22 @@ export function importFromYAMLPartial<T extends BaseElement>(
 ): T | undefined {
   if (yaml === undefined) return source
 
-  const result = {
+  const result: T = {
     ...(source ? source : {}),
   } as T
 
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
+  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     const yamlKey = rule.yaml as keyof ToPartialEnterpriseType<T>
 
-    const yamlValue = yaml[yamlKey as keyof typeof yaml]
-    const sourceValue = source ? source[key as keyof T] : rule.defaultValue
+    const sourceValue = source ? source[key] : rule.defaultValue
 
-    if (rule.type === "UserVisible") {
-      const yamlValueDeny = yaml[rule.yamlDeny as keyof typeof yaml]
-
-      const importedValue = importUserVisibleFromYAML(
-        context,
-        rule,
-        yamlValue as Record<string, StringboolEnterprise> | undefined,
-        yamlValueDeny as Record<string, StringboolEnterprise> | undefined
-      )
-      if (importedValue !== undefined) {
-        ;(result as Record<string, unknown>)[key] = importedValue
-      }
+    const userVisible = importUserVisibleProperty(context, rule, yaml)
+    if (userVisible !== undefined) {
+      result[key] = userVisible
       continue
     }
+
+    const yamlValue = yaml[yamlKey]
 
     const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
     if (typeImportFn) {
@@ -116,4 +108,15 @@ export function importFromYAMLPartial<T extends BaseElement>(
   }
 
   return result
+}
+
+function importUserVisibleProperty(
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  yaml: any
+): UserVisible | undefined {
+  if (rule.type !== "UserVisible") return undefined
+  const yamlValue = yaml[rule.yaml!]
+  const yamlValueDeny = yaml[rule.yamlDeny!]
+  return importUserVisibleFromYAML(context, rule, yamlValue, yamlValueDeny)
 }

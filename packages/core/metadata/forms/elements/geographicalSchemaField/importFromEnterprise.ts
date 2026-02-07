@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importGeographicalSchemaFieldTypedFromEnterprise<To extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importGeographicalSchemaFieldTypedFromEnterprise<To extends Geog
 
 export function importGeographicalSchemaFieldPartialFromEnterprise<To extends GeographicalSchemaField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -71,7 +71,7 @@ export function importGeographicalSchemaFieldPartialFromEnterprise<To extends Ge
 
 const importGeographicalSchemaFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: GeographicalSchemaFieldTypedEnterprise | GeographicalSchemaFieldPartialEnterprise | undefined
 ): Omit<Partial<GeographicalSchemaField>, "elementType" | "name"> => {
   const result: Omit<Partial<GeographicalSchemaField>, "elementType" | "name"> = {}

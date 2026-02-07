@@ -5,7 +5,7 @@ import { IndexField, IndexFields, IndexFieldsXML, IndexFieldXML } from "./types"
 
 export const exportIndexFieldToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: IndexField | undefined
 ): IndexFieldXML | undefined => {
   if (!data) return undefined
@@ -15,13 +15,12 @@ export const exportIndexFieldToXML = (
 
 export const exportIndexFieldsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: IndexFields | undefined
 ): IndexFieldsXML | undefined => {
   if (!data) return undefined
 
   return data.map((value) => exportIndexFieldToXML(context, undefined, value)!)
 }
-
 
 registerTypeRule("IndexField", "exportToXML", exportIndexFieldToXML)

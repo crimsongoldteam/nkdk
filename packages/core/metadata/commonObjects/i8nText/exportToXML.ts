@@ -6,7 +6,7 @@ import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const exportI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
@@ -20,7 +20,7 @@ export const exportI8nTextToXMLWithDefaultLanguage = (
 
 export const exportI8nTextToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
@@ -32,6 +32,5 @@ export const exportI8nTextToXML = (
 
   return { "v8:item": v8Items }
 }
-
 
 registerTypeRule("I8nText", "exportToXML", exportI8nTextToXML)

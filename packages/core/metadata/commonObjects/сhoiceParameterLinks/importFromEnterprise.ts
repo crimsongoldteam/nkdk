@@ -9,7 +9,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
  */
 const parseChoiceParameterLinksString = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   value: string
 ): ChoiceParameterLinks => {
   const result: ChoiceParameterLinks = []
@@ -85,7 +85,7 @@ const parseChoiceParameterLinksString = (
 
 export const importChoiceParameterLinksFromEnterprise = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  rule: PropertyRule<any>,
   data: ChoiceParameterLinksEnterprise | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined

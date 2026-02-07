@@ -11,7 +11,7 @@ import { getContextMenuName } from "./helper"
 /** @deprecated */
 export function exportContextMenuDeprecatedToXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ContextMenu | undefined,
   parentElement: { name: string }
 ): ContextMenuXML {

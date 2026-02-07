@@ -27,7 +27,7 @@ const formatTableColumn = (context: ConfigurationContext, column: NamedElement):
 
 export const exportTableContentToStructure = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: Table
 ): IFormatElementResult => {
   const childItems = element.childItems ?? []
@@ -52,7 +52,7 @@ export const exportTableContentToStructure = (
 
 export const exportTableToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: NamedElement | undefined
 ): IFormatElementResult => {
   const table = element as Table

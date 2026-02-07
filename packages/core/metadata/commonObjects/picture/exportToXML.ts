@@ -5,7 +5,7 @@ import { Picture, PictureXML } from "./types"
 
 export const exportPictureToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   picture: Picture | undefined
 ): PictureXML | undefined => {
   if (!picture) return undefined
@@ -27,6 +27,5 @@ export const exportPictureToXML = (
 
   return result
 }
-
 
 registerTypeRule("Picture", "exportToXML", exportPictureToXML)

@@ -17,7 +17,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To

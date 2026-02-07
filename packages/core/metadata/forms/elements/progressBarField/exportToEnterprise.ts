@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportProgressBarFieldTypedToEnterprise<From extends ProgressBarField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export function exportProgressBarFieldTypedToEnterprise<From extends ProgressBar
 
 export function exportProgressBarFieldPartialToEnterprise<From extends ProgressBarField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export function exportProgressBarFieldPartialToEnterprise<From extends ProgressB
 
 const exportProgressBarFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ProgressBarField
 ): ProgressBarFieldPartialEnterprise => {
   const result: ProgressBarFieldPartialEnterprise = {}

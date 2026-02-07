@@ -33,7 +33,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportPictureFieldTypedToEnterprise<From extends PictureField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -53,7 +53,7 @@ export function exportPictureFieldTypedToEnterprise<From extends PictureField | 
 
 export function exportPictureFieldPartialToEnterprise<From extends PictureField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -72,7 +72,7 @@ export function exportPictureFieldPartialToEnterprise<From extends PictureField 
 
 const exportPictureFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PictureField
 ): PictureFieldPartialEnterprise => {
   const result: PictureFieldPartialEnterprise = {}

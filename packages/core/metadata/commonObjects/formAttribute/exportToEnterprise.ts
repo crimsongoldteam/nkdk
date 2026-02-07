@@ -30,7 +30,7 @@ import { I8nTextEnterprise } from "../i8nText/types"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormAttributes | undefined
 ): FormAttributesEnterprise | undefined => {
   if (!data) return undefined
@@ -42,7 +42,7 @@ export const exportFormAttributesToEnterprise = (
 
 const exportFormAttributeToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormAttribute
 ): FormAttributeEnterprise | TypeDescriptionEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, undefined, data.valueType)
@@ -135,7 +135,7 @@ const exportFormAttributeToEnterprise = (
 
 const exportFormAttributeColumnsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   columns: FormAttributeColumn[]
 ): Record<string, FormAttributeColumnEnterprise> => {
   return Object.fromEntries(
@@ -145,7 +145,7 @@ const exportFormAttributeColumnsToEnterprise = (
 
 const exportFormAttributeColumnToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   column: FormAttributeColumn
 ): FormAttributeColumnEnterprise => {
   const result: FormAttributeColumnEnterprise = {}
@@ -190,7 +190,7 @@ const exportFormAttributeColumnToEnterprise = (
 
 const exportFormAttributeAdditionalColumnsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   additionalColumns: FormAttributeAdditionalColumn[]
 ): Record<string, Record<string, FormAttributeColumnEnterprise>> => {
   return Object.fromEntries(
@@ -210,7 +210,7 @@ const exportFormAttributeAdditionalColumnsToEnterprise = (
  */
 const computeTitleForExport = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormAttribute,
   filteredTitle: ReturnType<typeof extractDifferentSynonymPart>
 ): I8nTextEnterprise | undefined => {

@@ -25,7 +25,7 @@ export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeN
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined
@@ -44,7 +44,7 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
 
 const exportStandardAttributeDescriptionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}

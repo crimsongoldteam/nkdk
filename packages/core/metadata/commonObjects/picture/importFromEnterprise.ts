@@ -8,7 +8,7 @@ import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
 
 export const importPictureCombinedFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   picture: Picture | undefined,
   yaml: PictureEnterprise | undefined
 ): Picture | undefined => {
@@ -32,7 +32,7 @@ export const importPictureCombinedFromEnterprise = (
 
 export const importPictureFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PictureEnterprise | undefined
 ): Picture | undefined => {
   if (!data) return undefined

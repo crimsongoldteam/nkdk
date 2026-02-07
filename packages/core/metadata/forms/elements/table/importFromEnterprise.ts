@@ -136,7 +136,7 @@ const importTableEventsFromEnterprise = (
 
 export function importTablePartialFromEnterprise<To extends Table>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To>
 ): To {

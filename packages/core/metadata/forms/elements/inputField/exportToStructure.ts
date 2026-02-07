@@ -5,15 +5,15 @@ import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLine
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
-import { InputField } from "./types"
 import { PropertyRule } from "../calendarField/rules"
+import { InputField } from "./types"
 
 // const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
 export const exportInputFieldToStructure = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: InputField
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined

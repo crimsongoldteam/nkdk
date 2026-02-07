@@ -9,7 +9,7 @@ import { Button } from "./types"
 
 export function exportButtonToStructure(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: Button
 ): IFormatElementResult {
   const resultString = wrapButtonContent(formatContent(context, element))
@@ -21,7 +21,7 @@ export function exportButtonToStructure(
 
 export function exportButtonContentToStructure(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: Button
 ): IFormatElementResult {
   const resultString = formatContent(context, element)

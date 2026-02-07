@@ -17,7 +17,7 @@ import { MetadataCatalog, MetadataCatalogEnterprise } from "./types"
 
 export const exportMetadataCatalogToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataCatalog | undefined
 ): MetadataCatalogEnterprise | undefined => {
   if (!data) return undefined

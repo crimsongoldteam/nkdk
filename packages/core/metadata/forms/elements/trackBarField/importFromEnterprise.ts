@@ -28,7 +28,7 @@ import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterp
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 export function importTrackBarFieldTypedFromEnterprise<To extends TrackBarField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -50,7 +50,7 @@ export function importTrackBarFieldTypedFromEnterprise<To extends TrackBarField 
 
 export function importTrackBarFieldPartialFromEnterprise<To extends TrackBarField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -72,7 +72,7 @@ export function importTrackBarFieldPartialFromEnterprise<To extends TrackBarFiel
 
 const importTrackBarFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: TrackBarFieldTypedEnterprise | TrackBarFieldPartialEnterprise | undefined
 ): Omit<Partial<TrackBarField>, "elementType" | "name"> => {
   const result: Omit<Partial<TrackBarField>, "elementType" | "name"> = {}

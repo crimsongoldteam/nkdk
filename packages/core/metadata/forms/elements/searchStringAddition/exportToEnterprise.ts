@@ -23,7 +23,7 @@ type SearchStringAdditionCommonFields = Omit<SearchStringAddition, "elementType"
 
 export const exportSingleSearchStringAdditionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SingleSearchStringAddition | undefined
 ): SingleSearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
@@ -37,7 +37,7 @@ export const exportSingleSearchStringAdditionToEnterprise = (
 
 export const exportSearchStringAdditionPartialToEnterprise = <From extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> => {
   if (!data) return undefined as ToPartialEnterpriseType<From>
@@ -51,7 +51,7 @@ export const exportSearchStringAdditionPartialToEnterprise = <From extends Searc
 
 const exportSearchStringAdditionCommonFieldsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: SearchStringAdditionCommonFields
 ): SearchStringAdditionEnterprise => {
   const result: SearchStringAdditionEnterprise = {}

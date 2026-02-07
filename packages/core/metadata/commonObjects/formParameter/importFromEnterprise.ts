@@ -6,7 +6,7 @@ import { FormParameter, FormParameters, FormParametersEnterprise } from "./types
 
 export const importFormParametersFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormParametersEnterprise | undefined
 ): FormParameters | undefined => {
   if (data === undefined) {
@@ -26,6 +26,5 @@ export const importFormParametersFromEnterprise = (
     return result
   })
 }
-
 
 registerTypeRule("FormParameter", "importFromEnterprise", importFormParametersFromEnterprise)

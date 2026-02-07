@@ -5,7 +5,7 @@ import { Picture, PicturePreview } from "./types"
 
 export const exportPictureToPreview = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   picture: Picture | undefined
 ): PicturePreview | undefined => {
   if (!picture || !picture.ref) return undefined
@@ -24,6 +24,5 @@ export const exportPictureToPreview = (
 
   return undefined
 }
-
 
 registerTypeRule("Picture", "exportToPreview", exportPictureToPreview)

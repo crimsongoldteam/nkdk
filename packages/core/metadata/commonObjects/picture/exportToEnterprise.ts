@@ -8,7 +8,7 @@ import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } 
 
 export function exportPictureToEnterprise(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   picture: Picture | undefined
 ): PictureEnterprise | undefined {
   if (!picture) return undefined

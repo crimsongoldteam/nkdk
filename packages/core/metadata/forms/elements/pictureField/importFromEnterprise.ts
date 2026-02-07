@@ -30,7 +30,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importPictureFieldTypedFromEnterprise<To extends PictureField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -52,7 +52,7 @@ export function importPictureFieldTypedFromEnterprise<To extends PictureField | 
 
 export function importPictureFieldPartialFromEnterprise<To extends PictureField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -71,7 +71,7 @@ export function importPictureFieldPartialFromEnterprise<To extends PictureField>
 
 const importPictureFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: PictureFieldTypedEnterprise | PictureFieldPartialEnterprise | undefined
 ): Omit<Partial<PictureField>, "elementType" | "name"> => {
   const result: Omit<Partial<PictureField>, "elementType" | "name"> = {}

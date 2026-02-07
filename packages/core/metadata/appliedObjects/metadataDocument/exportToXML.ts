@@ -14,7 +14,7 @@ import { MetadataDocument, MetadataDocumentXML } from "./types"
 
 export const exportMetadataDocumentToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataDocument | undefined
 ): MetadataDocumentXML | undefined => {
   if (!data) return undefined

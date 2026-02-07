@@ -7,7 +7,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Table | undefined
 ): TablePartialEnterprise | undefined => {
   return exportElementToEnterprisePartial(context, "Table", data)

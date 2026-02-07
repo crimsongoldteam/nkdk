@@ -25,7 +25,7 @@ import { I8nText, I8nTextEnterprise } from "../i8nText/types"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormAttributesEnterprise | undefined
 ): FormAttributes | undefined => {
   if (!data) return undefined
@@ -37,7 +37,7 @@ export const importFormAttributesFromEnterprise = (
 
 const importFormAttributeFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormAttributeEnterprise | string | string[],
   name: string
 ): FormAttribute | undefined => {
@@ -125,7 +125,7 @@ const importFormAttributeFromEnterprise = (
 
 const importFormAttributeColumnsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Record<string, FormAttributeColumnEnterprise>
 ): FormAttributeColumn[] => {
   return Object.entries(data).map(([name, value]) =>
@@ -135,7 +135,7 @@ const importFormAttributeColumnsFromEnterprise = (
 
 const importFormAttributeColumnFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormAttributeColumnEnterprise,
   name: string
 ): FormAttributeColumn => {
@@ -187,7 +187,7 @@ const importFormAttributeColumnFromEnterprise = (
 
 const importFormAttributeAdditionalColumnsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: Record<string, Record<string, FormAttributeColumnEnterprise>>
 ): FormAttributeAdditionalColumn[] => {
   return Object.entries(data).map(([tableName, columns]) => ({

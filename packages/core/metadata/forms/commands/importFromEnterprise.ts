@@ -9,7 +9,7 @@ import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./type
 
 const importCommandFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   name: string,
   data: CommandEnterprise | undefined
 ): Command | undefined => {
@@ -59,7 +59,7 @@ const importCommandFromEnterprise = (
 
 export const importCommandsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CommandsEnterprise | undefined
 ): Commands => {
   if (!data) return []

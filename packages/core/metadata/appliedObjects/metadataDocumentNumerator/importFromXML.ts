@@ -8,7 +8,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataDocumentNumeratorFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: MetadataDocumentNumeratorXML | undefined
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined

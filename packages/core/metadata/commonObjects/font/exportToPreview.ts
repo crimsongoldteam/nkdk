@@ -5,7 +5,7 @@ import { Font, FontPreview } from "./types"
 
 export const exportFontToPreview = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   font: Font | undefined
 ): FontPreview | undefined => {
   if (!font) return undefined

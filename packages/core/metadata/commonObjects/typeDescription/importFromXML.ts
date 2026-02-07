@@ -5,7 +5,7 @@ import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescr
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined
@@ -111,6 +111,5 @@ function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
     dateFractions: xml["v8:DateFractions"],
   }
 }
-
 
 registerTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)

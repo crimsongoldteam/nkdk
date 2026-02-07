@@ -29,7 +29,7 @@ import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFr
 
 export function importFormattedDocumentFieldTypedFromEnterprise<To extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
@@ -51,7 +51,7 @@ export function importFormattedDocumentFieldTypedFromEnterprise<To extends Forma
 
 export function importFormattedDocumentFieldPartialFromEnterprise<To extends FormattedDocumentField>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
@@ -70,7 +70,7 @@ export function importFormattedDocumentFieldPartialFromEnterprise<To extends For
 
 const importFormattedDocumentFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormattedDocumentFieldTypedEnterprise | FormattedDocumentFieldPartialEnterprise | undefined
 ): Omit<Partial<FormattedDocumentField>, "elementType" | "name"> => {
   const result: Omit<Partial<FormattedDocumentField>, "elementType" | "name"> = {}

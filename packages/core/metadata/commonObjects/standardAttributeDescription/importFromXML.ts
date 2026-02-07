@@ -10,15 +10,15 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML"
 import { getDefaults } from "./defaults"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importStandardAttributeDescriptionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
@@ -43,7 +43,7 @@ export const importStandardAttributeDescriptionsFromXML = (
 
 const importStandardAttributeDescriptionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   xml: StandardAttributeDescriptionXML
 ): StandardAttributeDescription | undefined => {
   const result: StandardAttributeDescription = {

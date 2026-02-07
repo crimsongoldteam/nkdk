@@ -7,7 +7,7 @@ import { CatalogForm, CatalogFormXML } from "./types"
 
 export const exportCatalogFormToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CatalogForm | undefined
 ): CatalogFormXML | undefined => {
   if (!data) return undefined

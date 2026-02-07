@@ -7,7 +7,7 @@ import { FormattedI8nText, FormattedI8nTextXML } from "./types"
 
 export const exportFormattedI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormattedI8nText | undefined
 ): FormattedI8nTextXML | undefined => {
   if (!data) return undefined
@@ -21,7 +21,7 @@ export const exportFormattedI8nTextToXMLWithDefaultLanguage = (
 
 export const exportFormattedI8nTextToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: FormattedI8nText | undefined
 ): FormattedI8nTextXML | undefined => {
   if (!data) return undefined
@@ -30,6 +30,5 @@ export const exportFormattedI8nTextToXML = (
 
   return { _formatted: data.formatted, ...v8Items }
 }
-
 
 registerTypeRule("FormattedI8nText", "exportToXML", exportFormattedI8nTextToXML)

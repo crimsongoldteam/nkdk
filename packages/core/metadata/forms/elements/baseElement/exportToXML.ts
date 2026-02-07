@@ -6,7 +6,7 @@ import { BaseElementXML } from "./types"
 /** @deprecated */
 export const exportElementPropsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: { name: string }
 ): BaseElementXML => {
   const result: BaseElementXML = {

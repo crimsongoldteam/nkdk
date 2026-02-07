@@ -7,7 +7,7 @@ import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const importMetadataValueCollectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: MetadataValueCollectionXML | undefined
 ): MetadataValueCollection | undefined => {
   if (!data) return undefined

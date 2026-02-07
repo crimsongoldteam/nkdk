@@ -32,7 +32,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 export function exportGraphicalSchemaFieldTypedToEnterprise<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
@@ -52,7 +52,7 @@ export function exportGraphicalSchemaFieldTypedToEnterprise<From extends Graphic
 
 export function exportGraphicalSchemaFieldPartialToEnterprise<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: From
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
@@ -71,7 +71,7 @@ export function exportGraphicalSchemaFieldPartialToEnterprise<From extends Graph
 
 const exportGraphicalSchemaFieldPropsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: GraphicalSchemaField
 ): GraphicalSchemaFieldPartialEnterprise => {
   const result: GraphicalSchemaFieldPartialEnterprise = {}

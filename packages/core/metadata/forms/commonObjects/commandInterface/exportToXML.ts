@@ -1,11 +1,11 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "../../../context/types"
-import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 import { PropertyRule } from "../../elements/calendarField/rules"
+import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 
 export const exportCommandInterfaceToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: CommandInterface | undefined
 ): CommandInterfaceXML | undefined => {
   if (!data) return undefined
@@ -31,7 +31,7 @@ export const exportCommandInterfaceToXML = (
 
 const exportCommandInterfaceItemsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   items: CommandInterfaceItem[]
 ): CommandInterfaceItemXML[] => {
   return items.map((item, index) => exportCommandInterfaceItemToXML(context, undefined, item, index))
@@ -39,7 +39,7 @@ const exportCommandInterfaceItemsToXML = (
 
 const exportCommandInterfaceItemToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   item: CommandInterfaceItem,
   index: number
 ): CommandInterfaceItemXML => {

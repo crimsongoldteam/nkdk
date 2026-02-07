@@ -12,7 +12,7 @@ import { InputField, InputFieldPreview } from "./types"
 
 export const exportInputFieldToPreview = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   element: InputField
 ): InputFieldPreview => {
   const result: InputFieldPreview = {

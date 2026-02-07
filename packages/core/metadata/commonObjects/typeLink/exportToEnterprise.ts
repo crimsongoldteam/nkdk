@@ -6,7 +6,7 @@ import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const exportTypeLinkToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: TypeLink | undefined
 ): TypeLinkEnterprise | undefined => {
   if (!data) return undefined
@@ -21,6 +21,5 @@ export const exportTypeLinkToEnterprise = (
 
   return dataPathEnterprise
 }
-
 
 registerTypeRule("TypeLink", "exportToEnterprise", exportTypeLinkToEnterprise)

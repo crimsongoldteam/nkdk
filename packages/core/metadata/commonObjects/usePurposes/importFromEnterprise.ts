@@ -5,7 +5,7 @@ import { UsePurposes, UsePurposesEnterprise } from "./types"
 
 export const importUsePurposesFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule<any>,
   data: UsePurposesEnterprise | undefined
 ): UsePurposes | undefined => {
   if (!data) return undefined
@@ -20,6 +20,5 @@ export const importUsePurposesFromEnterprise = (
 
   return undefined
 }
-
 
 registerTypeRule("UsePurposes", "importFromEnterprise", importUsePurposesFromEnterprise)
