@@ -8,7 +8,7 @@ import {
   minimalCalendarField,
   minimalCalendarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { importCalendarFieldPartialFromEnterprise } from "./importFromEnterprise"
 
 describe("importCalendarFieldFromEnterprise", () => {
@@ -16,7 +16,6 @@ describe("importCalendarFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importCalendarFieldPartialFromEnterprise(
         mockContext,
-        mockRule,
         fullCalendarField,
         fullCalendarFieldPartialEnterprise
       )
@@ -27,7 +26,6 @@ describe("importCalendarFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importCalendarFieldPartialFromEnterprise(
         mockContext,
-        mockRule,
         minimalCalendarField,
         minimalCalendarFieldPartialEnterprise
       )

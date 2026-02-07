@@ -3,6 +3,7 @@ import { CalendarField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const CalendarFieldRules: ElementRule<CalendarField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },

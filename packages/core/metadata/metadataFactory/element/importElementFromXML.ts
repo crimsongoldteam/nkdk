@@ -30,6 +30,7 @@ export function importElementFromXML<T extends NamedElement>(
 
     const value = importPropertyFromXML(context, rule, xmlValue)
 
+    if (value === undefined) continue
     ;(result as any)[key] = value
   }
 
