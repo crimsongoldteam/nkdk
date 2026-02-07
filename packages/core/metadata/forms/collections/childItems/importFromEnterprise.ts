@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } from "./types"
 
@@ -67,7 +67,7 @@ export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
     const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
     if (fn == undefined)
       throw new Error(`ImportTypedFromEnterprise function not found for element type: ${elementType}`)
-    const resultItem = fn(context, rule, item, name) as NonNullable<To>
+    const resultItem = fn(context, item, name) as NonNullable<To>
     result.push(resultItem)
   }
   return result
@@ -84,10 +84,10 @@ const importChildItemProperties = <To extends AllChildItem>(
   const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
   if (fn == undefined)
     throw new Error(`ImportPartialFromEnterprise function not found for element type: ${item.elementType}`)
-  const result = fn(context, rule, item, propertiesEnterprise)
+  const result = fn(context, item, propertiesEnterprise)
 
   return result as To
 }
 
-registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
+// registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
 registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsTypedFromEnterprise)

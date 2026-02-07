@@ -19,7 +19,7 @@ describe("importAutoCommandBarFromEnterprise", () => {
 
     const result = importAutoCommandBarFromEnterprise(
       context,
-      undefined,
+      mockRule,
       sourceAutoCommandBar,
       fullAutoExportCommandBarEnterprise
     )

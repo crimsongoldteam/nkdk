@@ -2,7 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { getElementRule, PropertyRule } from "../elementRulesFactory"
+import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
 import { FormElementType, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
@@ -56,6 +56,17 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
   return result as T
 }
 
+export function importSingleElementFromEnterprise<T extends NamedElement>(
+  context: ConfigurationContext,
+  source: T,
+  data: ToPartialEnterpriseType<T> | undefined,
+  params: {
+    rules: ElementRule<T>
+  }
+): T {
+  return importFromEnterprisePartial(context, params.rules, source, data)
+}
+
 export function importElementFromEnterprisePartial<T extends NamedElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
@@ -66,13 +77,22 @@ export function importElementFromEnterprisePartial<T extends NamedElement>(
 
   const rules = getElementRule<T>(elementType)
 
+  return importFromEnterprisePartial(context, rules, source, data)
+}
+
+export function importFromEnterprisePartial<T extends NamedElement>(
+  context: ConfigurationContext,
+  rules: ElementRule<T>,
+  source: T,
+  data: ToPartialEnterpriseType<T> | undefined
+): T {
+  if (data === undefined) return source
+
   const result: T = {
     ...source,
   }
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
-    if (!rule.toEnterprise) continue
-
     const yamlKey = rule.yaml as keyof typeof data
 
     const xmlValue = data[yamlKey]

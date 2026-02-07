@@ -1,6 +1,6 @@
 import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { AutoCommandBar, AutoCommandBarXML } from "~/metadata/forms/elements/autoCommandBar/types"
+import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import { registerTypeRule } from "~/metadata/metadataFactory"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { CommandBarChildItem } from "../../collections/childItems/types"
@@ -10,7 +10,7 @@ import { isHasContent } from "./helper"
 export const importAutoCommandBarFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  xml: AutoCommandBarXML
+  xml: any
 ): AutoCommandBar | undefined => {
   const autofill = importBooleanFromXML(context, undefined, xml.Autofill) ?? true
   const childItems = importChildItemsFromXML<CommandBarChildItem>(context, undefined, xml.ChildItems)

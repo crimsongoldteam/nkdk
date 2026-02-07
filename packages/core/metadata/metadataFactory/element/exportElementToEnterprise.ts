@@ -3,7 +3,7 @@ import { exportI8nTextOtherToEnterprise } from "~/metadata/commonObjects/i8nText
 import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { getElementRule, PropertyRule } from "../elementRulesFactory"
+import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
 import {
   exportFormElementTypeToEnterprise,
@@ -53,6 +53,14 @@ export function exportElementToEnterpriseTyped<T extends NamedElement | EventedE
   return result as ToTypedEnterpriseType<T>
 }
 
+export function exportSingleElementToEnterprise<T extends Object>(
+  context: ConfigurationContext,
+  data: T | undefined,
+  params: { rules: ElementRule<T> }
+): any {
+  return exportToEnterprisePartial(context, data, { rules: params.rules })
+}
+
 export function exportElementToEnterprisePartial<T extends NamedElement | EventedElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
@@ -62,9 +70,22 @@ export function exportElementToEnterprisePartial<T extends NamedElement | Evente
 
   const rules = getElementRule<T>(elementType)
 
+  return exportToEnterprisePartial(context, data, { rules })
+}
+
+function exportToEnterprisePartial<T extends Object>(
+  context: ConfigurationContext,
+  data: T | undefined,
+  params: { rules: ElementRule<T> }
+): any {
+  if (data === undefined) return undefined
+
+  const rules = params.rules
+
   const result = {} as ToPartialEnterpriseType<T>
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
+    if (rule.toYAML === false) continue
     const value = (data as any)[key]
 
     if (value === undefined) continue
@@ -103,8 +124,15 @@ export function exportElementToEnterprisePartial<T extends NamedElement | Evente
     }
   }
 
-  const events = mapEventsToEnterprise(rules.events, "events" in data ? data.events : undefined)
+  const events = mapEventsToEnterprise(
+    rules.events,
+    "events" in data && data.events !== undefined ? (data.events as Record<string, string>) : undefined
+  )
   Object.assign(result, events)
+
+  if (Object.keys(result).length === 0) {
+    return undefined
+  }
 
   return result as ToPartialEnterpriseType<T>
 }

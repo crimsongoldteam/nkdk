@@ -1,29 +1,19 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
-import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commandSet/types"
+import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { TableChildItems, TableChildItemsXML } from "../../collections/childItems/types"
-import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../autoCommandBar/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
-import {
-  SearchControlAdditionXML,
-  SingleSearchControlAddition,
-  SingleSearchControlAdditionEnterprise,
-} from "../searchControlAddition/types"
-import {
-  SearchStringAdditionEnterprise,
-  SearchStringAdditionXML,
-  SingleSearchStringAddition,
-} from "../searchStringAddition/types"
-import { ViewStatusAddition, ViewStatusAdditionEnterprise, ViewStatusAdditionXML } from "../viewStatusAddition/types"
+import { TableChildItems } from "../../collections/childItems/types"
+import { AutoCommandBar, AutoCommandBarEnterprise } from "../autoCommandBar/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { SingleSearchControlAddition, SingleSearchControlAdditionEnterprise } from "../searchControlAddition/types"
+import { SearchStringAdditionEnterprise, SingleSearchStringAddition } from "../searchStringAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "../viewStatusAddition/types"
 
 export interface Table {
   elementType: "Table"
@@ -147,99 +137,6 @@ export interface Table {
   userSettingsGroup?: string
   // period?: boolean // Игнорируем эти поля
   // topLevelParent?: boolean
-}
-
-export interface TableXML extends BaseElementXML {
-  AutoAddIncomplete?: boolean
-  AutoCommandBar: AutoCommandBarXML
-  AutoInsertNewRow?: boolean
-  AutoMarkIncomplete?: boolean
-  AutoMaxHeight?: boolean
-  AutoMaxHeightInTableRows?: boolean
-  AutoMaxWidth?: boolean
-  BackColor?: ColorXML
-  BehaviorOnHorizontalCompression?: SE.TableBehaviorOnHorizontalCompression
-  BorderColor?: ColorXML
-  ChangeRowOrder?: boolean
-  ChangeRowSet?: boolean
-  ChildItems?: TableChildItemsXML
-  ChoiceMode?: boolean
-  CommandBarLocation?: SE.FormItemCommandBarLabelLocation
-  CommandSet?: CommandSetXML
-  ContextMenu: ContextMenuXML
-  CurrentRowUse?: SE.TableCurrentRowUse
-  DataPath?: string
-  DefaultItem?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  EnableDrag?: boolean
-  EnableStartDrag?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  FileDragMode?: SE.FileDragMode
-  Font?: FontXML
-  Footer?: boolean
-  FooterHeight?: number
-  Header?: boolean
-  HeaderHeight?: number
-  Height?: number
-  HeightControlVariant?: SE.TableHeightControlVariant
-  HeightInTableRows?: number
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalLines?: boolean
-  HorizontalScrollBar?: SE.ScrollBarUse
-  HorizontalStretch?: boolean
-  InitialListView?: SE.InitialListView
-  InitialTreeView?: SE.InitialTreeView
-  MarkIncomplete?: boolean
-  MaxHeight?: number
-  MaxHeightInTableRows?: number
-  MaxWidth?: number
-  MultipleChoice?: boolean
-  Output?: SE.UseOutput
-  ReadOnly?: boolean
-  RefreshRequest?: SE.RefreshRequestMethod
-  Representation?: SE.TableRepresentation
-  RowInputMode?: SE.TableRowInputMode
-  RowPictureDataPath?: string
-  RowSelectionMode?: SE.TableRowSelectionMode
-  RowsPicture?: PictureXML
-  SearchControlAddition: SearchControlAdditionXML
-  SearchControlLocation?: SE.SearchControlLocation
-  SearchOnInput?: SE.SearchInTableOnInput
-  SearchStringLocation?: SE.SearchStringLocation
-  SearchStringAddition: SearchStringAdditionXML
-  SelectionMode?: SE.TableSelectionMode
-  Shortcut?: string
-  SkipOnInput?: boolean
-  TextColor?: ColorXML
-  Title?: I8nTextXML
-  TitleFont?: FontXML
-  TitleHeight?: number
-  TitleLocation?: SE.FormItemTitleLocation
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  UseAlternationRowColor?: boolean
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalLines?: boolean
-  VerticalScrollBar?: SE.ScrollBarUse
-  VerticalStretch?: boolean
-  ViewStatusLocation?: SE.ViewStatusLocation
-  ViewStatusAddition: ViewStatusAdditionXML
-  Visible?: boolean
-  Width?: number
-  Events?: EventsXML
-  AutoRefresh?: boolean
-  RestoreCurrentRow?: boolean
-  ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
-  AdditionalCreateParameters?: boolean
-  UpdateOnDataChange?: SE.UpdateOnDataChange
-  ShowRoot?: boolean
-  AutoRefreshPeriod?: number
-  AllowRootChoice?: boolean
-  AllowGettingCurrentRowURL?: boolean
-  UserSettingsGroup?: string
 }
 
 export interface TablePartialEnterprise {

@@ -1,51 +1,18 @@
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
-import { PropertyRule } from "../calendarField/rules"
+import { importFromEnterprisePartial } from "~/metadata/metadataFactory/element/importElementFromEnterprise"
+import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
+import { AutoCommandBarRules } from "./rules"
 
 export const importAutoCommandBarFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  _rule: PropertyRule,
   structure: AutoCommandBar | undefined,
   enterprise: AutoCommandBarEnterprise | undefined
 ): AutoCommandBar | undefined => {
-  if (!enterprise && !structure) return undefined
+  if (enterprise === undefined) return structure
 
-  const sourceExt: AutoCommandBar = structure ?? {
-    childItems: [],
-    autofill: true,
-  }
+  const source: AutoCommandBar = structure ?? { autofill: true, childItems: [] }
 
-  const result: AutoCommandBar = {
-    ...sourceExt,
-  }
-
-  const childItems = importChildItemsPartialFromEnterprise(context, undefined, structure?.childItems ?? [])
-  if (childItems !== undefined) result.childItems = childItems
-
-  if (!enterprise || Object.keys(enterprise).length === 0) return result
-
-  const autofill = importBooleanFromEnterprise(context, undefined, enterprise.Автозаполнение)
-  if (autofill !== undefined) result.autofill = autofill
-
-  const displayImportance = importSystemEnumerationFromEnterprise(
-    context,
-    undefined,
-    enterprise.ВажностьПриОтображении,
-    SE.DisplayImportanceFromEnterprise
-  )
-  if (displayImportance !== undefined) result.displayImportance = displayImportance
-
-  const horizontalAlign = importSystemEnumerationFromEnterprise(
-    context,
-    undefined,
-    enterprise.ГоризонтальноеПоложение,
-    SE.ItemHorizontalLocationFromEnterprise
-  )
-  if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
-
-  return result
+  return importFromEnterprisePartial(context, AutoCommandBarRules as any, source as unknown as NamedElement, enterprise) as unknown as AutoCommandBar
 }
