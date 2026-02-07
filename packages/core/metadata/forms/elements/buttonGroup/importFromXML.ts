@@ -8,8 +8,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export function importButtonGroupFromXML<To extends ButtonGroup | undefined>(
   context: ConfigurationContext,
