@@ -5,7 +5,7 @@ import {
   MetadataCommandsEnterprise,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -43,7 +43,7 @@ export const exportMetadataCommandToEnterprise = (
   }
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
+  const synonym = exportI8nTextToYAML(context, undefined, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {
     return group
@@ -71,7 +71,7 @@ export const exportMetadataCommandToEnterprise = (
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const objectBelonging = exportSystemEnumerationToEnterprise(

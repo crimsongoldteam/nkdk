@@ -3,7 +3,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import {
   exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
+  exportI8nTextToYAML,
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
@@ -43,7 +43,7 @@ export function exportFormattedDocumentFieldTypedToEnterprise<From extends Forma
     Тип: "ПолеФорматированногоДокумента",
     ...props,
   }
-  const title = exportI8nTextToEnterprise(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -186,7 +186,7 @@ const exportFormattedDocumentFieldPropsToEnterprise = (
   if (warningOnEditRepresentation !== undefined)
     result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const titleLocation = exportSystemEnumerationToEnterprise(
@@ -197,7 +197,7 @@ const exportFormattedDocumentFieldPropsToEnterprise = (
   )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const warningOnEdit = exportI8nTextToEnterprise(context, undefined, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToYAML(context, undefined, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
   const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)
@@ -217,7 +217,7 @@ const exportFormattedDocumentFieldPropsToEnterprise = (
 
   if (data.table !== undefined) result.Таблица = data.table
 
-  const footerText = exportI8nTextToEnterprise(context, undefined, data.footerText)
+  const footerText = exportI8nTextToYAML(context, undefined, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
 
   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)

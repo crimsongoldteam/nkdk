@@ -92,11 +92,23 @@ const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations)
   return `${type}:${operation}`
 }
 
-export function registerTypeRule(
+type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromEnterprise"
+  ? ImportFromEnterpriseFunction | undefined
+  : O extends "exportToEnterprise"
+    ? ExportToEnterpriseFunction | undefined
+    : O extends "exportToXML"
+      ? ExportToXMLFunction | undefined
+      : O extends "importFromXML"
+        ? ImportFromXMLFunction | undefined
+        : O extends "exportToPreview"
+          ? ExportToPreviewFunction | undefined
+          : never
+
+export const registerTypeRule = <O extends TypeRulesOperations>(
   type: TypeRulesNames,
-  operation: TypeRulesOperations,
-  ruleFunction: ImportExportFunction | ImportFromEnterpriseFunction | ImportExportFunctionDepricated
-): void {
+  operation: O,
+  ruleFunction: ImportExportFunction<O>
+) => {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
 }
@@ -110,7 +122,11 @@ export const getTypeRule = <O extends TypeRulesOperations>(
     ? ExportToEnterpriseFunction | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | undefined
-      : ImportExportFunction | undefined => {
+      : O extends "importFromXML"
+        ? ImportFromXMLFunction | undefined
+        : O extends "exportToPreview"
+          ? ExportToPreviewFunction | undefined
+          : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

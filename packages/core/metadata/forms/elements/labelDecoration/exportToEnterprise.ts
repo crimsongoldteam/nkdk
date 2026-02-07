@@ -6,7 +6,7 @@ import {
   exportFormattedI8nTextOtherToEnterprise,
   exportFormattedI8nTextToEnterprise,
 } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -159,7 +159,7 @@ const exportLabelDecorationPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)

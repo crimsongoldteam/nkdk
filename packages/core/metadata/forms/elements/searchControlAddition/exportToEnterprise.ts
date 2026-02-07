@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -104,7 +104,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const childItems = exportTypedChildItemsToEnterprise(context, undefined, data.childItems)
@@ -121,7 +121,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToEnterprise(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)

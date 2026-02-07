@@ -3,7 +3,7 @@ import {
   MetadataDocumentNumeratorEnterprise,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -39,7 +39,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise
     ),
-    Синоним: exportI8nTextToEnterprise(context, undefined, data.synonym),
+    Синоним: exportI8nTextToYAML(context, undefined, data.synonym),
     ТипНомера: exportSystemEnumerationToEnterprise(
       context,
       undefined,

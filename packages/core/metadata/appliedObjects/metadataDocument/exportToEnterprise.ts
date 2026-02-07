@@ -4,7 +4,7 @@ import { exportMetadataDocumentNumeratorToEnterprise } from "~/metadata/appliedO
 import { exportAdditionalIndexesToEnterprise } from "~/metadata/commonObjects/additionalIndex/exportToEnterprise"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportCharacteristicsDescriptionsToEnterprise } from "~/metadata/commonObjects/characteristicsDescription/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
 import { exportMetadataFieldsToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinksToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
@@ -106,9 +106,9 @@ export const exportMetadataDocumentToEnterprise = (
       SE.FullTextSearchOnInputByStringToEnterprise
     ),
     ПоляБлокировкиДанных: exportMetadataFieldsToEnterprise(context, undefined, data.dataLockFields),
-    Пояснение: exportI8nTextToEnterprise(context, undefined, data.explanation),
-    ПредставлениеОбъекта: exportI8nTextToEnterprise(context, undefined, data.objectPresentation),
-    ПредставлениеСписка: exportI8nTextToEnterprise(context, undefined, data.listPresentation),
+    Пояснение: exportI8nTextToYAML(context, undefined, data.explanation),
+    ПредставлениеОбъекта: exportI8nTextToYAML(context, undefined, data.objectPresentation),
+    ПредставлениеСписка: exportI8nTextToYAML(context, undefined, data.listPresentation),
     ПривилегированныйРежимПриОтменеПроведения: exportBooleanToEnterprise(
       context,
       undefined,
@@ -122,8 +122,8 @@ export const exportMetadataDocumentToEnterprise = (
       SE.ObjectBelongingToEnterprise
     ),
     Проведение: exportSystemEnumerationToEnterprise(context, undefined, data.posting, SE.PostingToEnterprise),
-    РасширенноеПредставлениеОбъекта: exportI8nTextToEnterprise(context, undefined, data.extendedObjectPresentation),
-    РасширенноеПредставлениеСписка: exportI8nTextToEnterprise(context, undefined, data.extendedListPresentation),
+    РасширенноеПредставлениеОбъекта: exportI8nTextToYAML(context, undefined, data.extendedObjectPresentation),
+    РасширенноеПредставлениеСписка: exportI8nTextToYAML(context, undefined, data.extendedListPresentation),
     РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
       context,
       undefined,
@@ -137,7 +137,7 @@ export const exportMetadataDocumentToEnterprise = (
       SE.DefaultDataLockControlModeToEnterprise
     ),
     Реквизиты: exportMetadataAttributesToEnterprise(context, undefined, data.attributes),
-    Синоним: exportI8nTextToEnterprise(context, undefined, data.synonym),
+    Синоним: exportI8nTextToYAML(context, undefined, data.synonym),
     СозданиеПриВводе: exportSystemEnumerationToEnterprise(
       context,
       undefined,

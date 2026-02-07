@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "../../commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "../../commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "../../commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "../../commonObjects/userVisible/types"
@@ -17,10 +17,10 @@ const exportCommandToEnterprise = (
 
   const result: CommandEnterprise = {}
 
-  const title = exportI8nTextToEnterprise(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut

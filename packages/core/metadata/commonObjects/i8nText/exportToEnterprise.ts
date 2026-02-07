@@ -1,13 +1,15 @@
+import context from "antd/es/app/context"
+import { title } from "process"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { I8nText, I8nTextEnterprise } from "./types"
 
-export const exportI8nTextToEnterprise = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+export const exportI8nTextToYAML = (params: {
+  context: ConfigurationContext
+  _rule: PropertyRule
   title: I8nText | undefined
-): I8nTextEnterprise | undefined => {
+}): I8nTextEnterprise | undefined => {
   if (!title) return undefined
   if (Object.keys(title.items).length === 0) return undefined
 

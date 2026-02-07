@@ -4,13 +4,13 @@ import { mockContext, mockRule } from "~/tests/mockContext"
 import {
   exportI8nTextDefaultToEnterprise,
   exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
+  exportI8nTextToYAML,
 } from "./exportToEnterprise"
 
 describe("exportI8nTextToEnterprise", () => {
   describe("exportI8nTextToEnterprise", () => {
     it.each(i8nTextFixtures)("should export: $name", (fixture) => {
-      const result = exportI8nTextToEnterprise(mockContext, mockRule, fixture.text)
+      const result = exportI8nTextToYAML(mockContext, mockRule, fixture.text)
       expect(result).toEqual(fixture.enterpriseFull)
     })
   })

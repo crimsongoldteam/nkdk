@@ -3,7 +3,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import {
   exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
+  exportI8nTextToYAML,
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
@@ -36,7 +36,7 @@ export const exportPagesTypedToEnterprise = <From extends Pages | undefined>(
     ...props,
   }
 
-  const title = exportI8nTextToEnterprise(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, undefined, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -103,7 +103,7 @@ const exportPagesPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const enableContentChange = exportBooleanToEnterprise(context, undefined, data.enableContentChange)

@@ -1,4 +1,4 @@
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
 import {
   MetadataTabularSection,
@@ -21,7 +21,7 @@ export const exportMetadataTabularSectionToEnterprise = (
   if (!data) return undefined
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToEnterprise(context, undefined, filteredSynonym)
+  const synonym = exportI8nTextToYAML(context, undefined, filteredSynonym)
 
   const result: MetadataTabularSectionEnterprise = {}
 
@@ -34,7 +34,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const objectBelonging = exportSystemEnumerationToEnterprise(

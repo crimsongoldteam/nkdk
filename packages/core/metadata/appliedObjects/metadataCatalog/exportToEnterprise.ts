@@ -1,7 +1,7 @@
 import { exportAdditionalIndexesToEnterprise } from "~/metadata/commonObjects/additionalIndex/exportToEnterprise"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportCharacteristicsDescriptionsToEnterprise } from "~/metadata/commonObjects/characteristicsDescription/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
 import { exportMetadataFieldsToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinksToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
@@ -181,16 +181,16 @@ export const exportMetadataCatalogToEnterprise = (
   const dataLockFields = exportMetadataFieldsToEnterprise(context, undefined, data.dataLockFields)
   if (dataLockFields !== undefined) result.ПоляБлокировкиДанных = dataLockFields
 
-  const explanation = exportI8nTextToEnterprise(context, undefined, data.explanation)
+  const explanation = exportI8nTextToYAML(context, undefined, data.explanation)
   if (explanation !== undefined) result.Пояснение = explanation
 
   const predefined = exportPredefinedItemsToEnterprise(context, undefined, data.predefined)
   if (predefined !== undefined) result.Предопределенные = predefined
 
-  const objectPresentation = exportI8nTextToEnterprise(context, undefined, data.objectPresentation)
+  const objectPresentation = exportI8nTextToYAML(context, undefined, data.objectPresentation)
   if (objectPresentation !== undefined) result.ПредставлениеОбъекта = objectPresentation
 
-  const listPresentation = exportI8nTextToEnterprise(context, undefined, data.listPresentation)
+  const listPresentation = exportI8nTextToYAML(context, undefined, data.listPresentation)
   if (listPresentation !== undefined) result.ПредставлениеСписка = listPresentation
 
   const objectBelonging = exportSystemEnumerationToEnterprise(
@@ -201,10 +201,10 @@ export const exportMetadataCatalogToEnterprise = (
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const extendedObjectPresentation = exportI8nTextToEnterprise(context, undefined, data.extendedObjectPresentation)
+  const extendedObjectPresentation = exportI8nTextToYAML(context, undefined, data.extendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.РасширенноеПредставлениеОбъекта = extendedObjectPresentation
 
-  const extendedListPresentation = exportI8nTextToEnterprise(context, undefined, data.extendedListPresentation)
+  const extendedListPresentation = exportI8nTextToYAML(context, undefined, data.extendedListPresentation)
   if (extendedListPresentation !== undefined) result.РасширенноеПредставлениеСписка = extendedListPresentation
 
   const choiceDataGetModeOnInputByString = exportSystemEnumerationToEnterprise(
@@ -232,7 +232,7 @@ export const exportMetadataCatalogToEnterprise = (
   )
   if (codeSeries !== undefined) result.СерииКодов = codeSeries
 
-  const synonym = exportI8nTextToEnterprise(context, undefined, data.synonym)
+  const synonym = exportI8nTextToYAML(context, undefined, data.synonym)
   if (synonym !== undefined) result.Синоним = synonym
 
   const createOnInput = exportSystemEnumerationToEnterprise(

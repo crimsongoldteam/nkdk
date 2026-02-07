@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { exportI8nTextDefaultToEnterprise, exportI8nTextToEnterprise } from "../i8nText/exportToEnterprise"
+import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "../i8nText/exportToEnterprise"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
@@ -16,7 +16,7 @@ export const exportFormattedI8nTextToEnterprise = <Key extends string, Formatted
 ): { [K in Key | FormattedKey]?: FormattedI8nTextEnterprise } => {
   if (!title) return {}
 
-  const exported = exportI8nTextToEnterprise(context, undefined, title)
+  const exported = exportI8nTextToYAML(context, undefined, title)
   if (exported === undefined) return {}
 
   if (title.formatted) {
@@ -37,7 +37,7 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
 ): { [K in R["yaml"] | R["yamlFormatted"]]?: FormattedI8nTextEnterprise } => {
   if (!text) return {}
 
-  const exported = exportI8nTextToEnterprise(context, undefined, text)
+  const exported = exportI8nTextToYAML(context, undefined, text)
   if (exported === undefined) return {}
 
   if (text.formatted) {

@@ -1,5 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metadataValue/exportToEnterprise"
 import {
   StandardAttributeDescription,
@@ -93,7 +93,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters) result.ПараметрыВыбора = choiceParameters
 
-  const toolTip = exportI8nTextToEnterprise(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
   const fullTextSearch = exportSystemEnumerationToEnterprise(
@@ -132,7 +132,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
   if (linkByType) result.СвязьПоТипу = linkByType
 
-  const synonym = exportI8nTextToEnterprise(context, undefined, data.synonym)
+  const synonym = exportI8nTextToYAML(context, undefined, data.synonym)
   if (synonym) result.Синоним = synonym
 
   const createOnInput = exportSystemEnumerationToEnterprise(
@@ -148,10 +148,10 @@ const exportStandardAttributeDescriptionToEnterprise = (
 
   if (data.choiceForm) result.ФормаВыбора = data.choiceForm
 
-  const format = exportI8nTextToEnterprise(context, undefined, data.format)
+  const format = exportI8nTextToYAML(context, undefined, data.format)
   if (format) result.Формат = format
 
-  const editFormat = exportI8nTextToEnterprise(context, undefined, data.editFormat)
+  const editFormat = exportI8nTextToYAML(context, undefined, data.editFormat)
   if (editFormat) result.ФорматРедактирования = editFormat
 
   return result
