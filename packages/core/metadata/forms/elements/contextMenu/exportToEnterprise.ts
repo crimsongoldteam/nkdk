@@ -1,12 +1,7 @@
-import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { PropertyRule } from "../calendarField/rules"
-import { isHasContent } from "./helper"
 
 export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>(
   context: ConfigurationContext,
@@ -15,23 +10,15 @@ export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>
 ): ContextMenuEnterprise | undefined {
   if (data === undefined) return undefined
 
-  if (!isHasContent(data)) return undefined
-
   const result: ContextMenuEnterprise = {}
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
-    context,
-    undefined,
-    data.displayImportance,
-    SE.DisplayImportanceToEnterprise
-  )
-  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+  if (data.displayImportance !== undefined) {
+    result.ВажностьПриОтображении = data.displayImportance as any
+  }
 
-  const autofill = exportBooleanToEnterprise(context, undefined, data.autofill)
-  if (autofill !== undefined) result.Автозаполнение = autofill
-
-  const childItems = exportTypedChildItemsToEnterprise(context, undefined, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+  if (data.autofill !== undefined) {
+    result.Автозаполнение = data.autofill ? "Истина" : "Ложь"
+  }
 
   return result
 }

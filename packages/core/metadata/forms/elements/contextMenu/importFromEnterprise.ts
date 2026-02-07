@@ -1,9 +1,7 @@
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsTypedFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise | undefined>(
@@ -17,18 +15,17 @@ export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise 
     childItems: [],
   }
 
-  const displayImportance = importSystemEnumerationFromEnterprise(
-    context,
-    undefined,
-    data.ВажностьПриОтображении,
-    SE.DisplayImportanceFromEnterprise
-  )
-  if (displayImportance !== undefined) result.displayImportance = displayImportance
+  if (data.ВажностьПриОтображении !== undefined) {
+    result.displayImportance = data.ВажностьПриОтображении as any
+  }
 
-  const autofill = importBooleanFromEnterprise(context, undefined, data.Автозаполнение)
-  if (autofill !== undefined) result.autofill = autofill
+  if (data.Автозаполнение !== undefined) {
+    result.autofill = data.Автозаполнение === "Истина"
+  }
 
   result.childItems = importChildItemsTypedFromEnterprise(context, undefined, data.ПодчиненныеЭлементы)
 
   return result
 }
+
+registerTypeRule("ContextMenu", "importFromXML", importContextMenuFromEnterprise)

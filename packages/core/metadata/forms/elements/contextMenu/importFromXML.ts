@@ -1,7 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importContextMenuFromXML(
@@ -15,28 +14,15 @@ export function importContextMenuFromXML(
     childItems: [],
   }
 
-  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+  if (xml._DisplayImportance !== undefined) {
+    result.displayImportance = xml._DisplayImportance
+  }
 
-  if (xml.Autofill !== undefined) result.autofill = xml.Autofill
-
-  result.childItems = importChildItemsFromXML(context, undefined, xml.ChildItems)
-
-  if (!isHasContent(result)) return undefined
+  if (xml.Autofill !== undefined) {
+    result.autofill = xml.Autofill
+  }
 
   return result
-}
-
-const EXCLUDED_FIELDS = ["name", "elementType", "childItems"]
-
-const isHasContent = (data: ContextMenu | undefined): boolean => {
-  if (!data) return false
-
-  if (data.childItems.length > 0) return true
-
-  const keys = Object.keys(data)
-  const hasOtherFields = keys.some((key) => !EXCLUDED_FIELDS.includes(key))
-
-  return hasOtherFields
 }
 
 registerTypeRule("ContextMenu", "importFromXML", importContextMenuFromXML)
