@@ -19,7 +19,7 @@ export function exportElementToPreview<T extends NamedElement>(
     Name: data.name,
   }
 
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
+  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
     if (rule.toEnterprise === false) continue
 
     const value = (data as any)[key]

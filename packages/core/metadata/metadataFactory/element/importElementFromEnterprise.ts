@@ -17,14 +17,14 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
   const rules = getElementRule<T>(elementType)
 
   const result: any = {
-    elementType: elementType as any,
+    elementType: elementType,
     name,
   }
 
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
-    const yamlKey = rule.yaml
+  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+    const yamlKey = rule.yaml as keyof typeof data
 
-    const yamlValue = data[yamlKey as keyof typeof data]
+    const yamlValue = data[yamlKey]
 
     if (rule.type === "UserVisible") {
       const yamlValueDeny = data[rule.yamlDeny as keyof typeof data]
@@ -56,17 +56,6 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
   return result as T
 }
 
-export function importSingleElementFromEnterprise<T extends BaseElement>(
-  context: ConfigurationContext,
-  source: T,
-  data: ToPartialEnterpriseType<T> | undefined,
-  params: {
-    rules: ElementRule<T>
-  }
-): T | undefined {
-  return importFromEnterprisePartial(context, params.rules, data, source)
-}
-
 export function importElementFromEnterprisePartial<T extends BaseElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
@@ -77,29 +66,29 @@ export function importElementFromEnterprisePartial<T extends BaseElement>(
 
   const rules = getElementRule<T>(elementType)
 
-  return importFromEnterprisePartial(context, rules, data, source)
+  return importFromYAMLPartial(context, rules, data, source)
 }
 
-export function importFromEnterprisePartial<T extends BaseElement>(
+export function importFromYAMLPartial<T extends BaseElement>(
   context: ConfigurationContext,
   rules: ElementRule<T>,
-  data: ToPartialEnterpriseType<T> | undefined,
+  yaml: ToPartialEnterpriseType<T> | undefined,
   source?: T
 ): T | undefined {
-  if (data === undefined) return source
+  if (yaml === undefined) return source
 
   const result = {
     ...(source ? source : {}),
   } as T
 
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {
-    const yamlKey = rule.yaml as keyof typeof data
+  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
+    const yamlKey = rule.yaml as keyof (ToPartialEnterpriseType<T>)
 
-    const yamlValue = data[yamlKey]
+    const yamlValue = yaml[yamlKey as keyof typeof yaml]
     const sourceValue = source ? source[key as keyof T] : rule.defaultValue
 
     if (rule.type === "UserVisible") {
-      const yamlValueDeny = data[rule.yamlDeny as keyof typeof data]
+      const yamlValueDeny = yaml[rule.yamlDeny as keyof typeof yaml]
 
       const importedValue = importUserVisibleFromYAML(
         context,

@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "../context/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
 import { PropertyRule } from "./elementRulesFactory"
+import { ToPartialEnterpriseType } from "./types"
 
 export type TypeRulesNames =
   | "AssociatedTable"
@@ -34,24 +35,43 @@ export type TypeRulesNames =
   | "ChoiceParameters"
   | "SystemEnumeration"
 
-/** @deprecated */
-type ImportExportFunctionDepricated = (context: ConfigurationContext, rule: PropertyRule | undefined, value: any) => any
+type ExportToXMLFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
+  context: ConfigurationContext
+  rule: P
+  value: T | undefined
+}) => any | undefined
 
-type ImportExportFunction = <T extends PropertyRule>(context: ConfigurationContext, rule: T, value: any) => any
+type ImportFromXMLFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
+  context: ConfigurationContext
+  rule: P
+  value: any
+}) => T | undefined
 
-type ImportFromEnterpriseFunction = <T extends BaseElement, P extends PropertyRule<T>>(
-  context: ConfigurationContext,
-  rule: P,
-  value: any,
-  source: T | undefined
-) => T | undefined
+type ImportFromEnterpriseFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
+  context: ConfigurationContext
+  rule: P
+  value: ToPartialEnterpriseType<T> | undefined
+  source?: T
+}) => T | undefined
+
+type ExportToEnterpriseFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
+  context: ConfigurationContext
+  rule: P
+  value: T | undefined
+}) => ToPartialEnterpriseType<T> | undefined
+
+type ExportToPreviewFunction = <T extends BaseElement, P extends PropertyRule<T>>(params: {
+  context: ConfigurationContext
+  rule: P
+  value: T | undefined
+}) => any | undefined
 
 export interface TypeRule {
-  importFromXML?: ImportExportFunction | ImportExportFunctionDepricated
-  exportToXML?: ImportExportFunction | ImportExportFunctionDepricated
-  importFromEnterprise?: ImportFromEnterpriseFunction | ImportExportFunctionDepricated
-  exportToEnterprise?: ImportExportFunction | ImportExportFunctionDepricated
-  exportToPreview?: ImportExportFunction | ImportExportFunctionDepricated
+  importFromXML?: ImportFromXMLFunction
+  exportToXML?: ExportToXMLFunction
+  importFromEnterprise?: ImportFromEnterpriseFunction
+  exportToEnterprise?: ExportToEnterpriseFunction
+  exportToPreview?: ExportToPreviewFunction
 }
 
 type TypeRulesOperations =
@@ -81,13 +101,19 @@ export function registerTypeRule(
   typeRulesRegistry.set(key, ruleFunction)
 }
 
-export const getTypeRule = (
+export const getTypeRule = <O extends TypeRulesOperations>(
   type: TypeRulesNames,
-  operation: TypeRulesOperations
-): ImportExportFunction | ImportFromEnterpriseFunction | ImportExportFunctionDepricated | undefined => {
+  operation: O
+): O extends "importFromEnterprise"
+  ? ImportFromEnterpriseFunction | undefined
+  : O extends "exportToEnterprise"
+    ? ExportToEnterpriseFunction | undefined
+    : O extends "exportToXML"
+      ? ExportToXMLFunction | undefined
+      : ImportExportFunction | undefined => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
-  return result
+  return result as any
 }
 
 export const clearTypeRulesRegistry = (): void => {

@@ -376,13 +376,13 @@ export type TypeRules<T> = T extends Button
                                                                     ? {
                                                                         XML: ContextMenuXML
                                                                       }
-                                                                    : T extends ExtendedTooltip
+                                                                    : T extends AutoCommandBar
                                                                       ? {
-                                                                          XML: ExtendedTooltipXML
-                                                                          PartialEnterprise: ExtendedTooltipEnterprise
+                                                                          PartialEnterprise: AutoCommandBarEnterprise
                                                                         }
-                                                                      : T extends AutoCommandBar
+                                                                      : T extends ExtendedTooltip
                                                                         ? {
-                                                                            PartialEnterprise: AutoCommandBarEnterprise
+                                                                            XML: ExtendedTooltipXML
+                                                                            PartialEnterprise: ExtendedTooltipEnterprise
                                                                           }
                                                                         : never
