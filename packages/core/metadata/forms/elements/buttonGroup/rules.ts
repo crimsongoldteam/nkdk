@@ -3,8 +3,12 @@ import { ButtonGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ButtonGroupRules: ElementRule<ButtonGroup> = {
+  enterpriseField: "FormGroup",
   properties: {
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: {
+      yaml: "РасширеннаяПодсказка",
+      type: "ExtendedTooltip",
+    },
     representation: {
       yaml: "Отображение",
       type: "SystemEnumeration",
@@ -44,6 +48,7 @@ export const ButtonGroupRules: ElementRule<ButtonGroup> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",

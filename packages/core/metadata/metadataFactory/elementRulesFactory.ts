@@ -60,6 +60,7 @@ export interface ElementRule<T extends NamedElement | EventedElement> {
   events?: T extends EventedElement
     ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
     : never
+  enterpriseField: string
 }
 
 const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()

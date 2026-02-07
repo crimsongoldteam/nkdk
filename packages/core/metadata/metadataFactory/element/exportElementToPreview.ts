@@ -15,7 +15,8 @@ export function exportElementToPreview<T extends NamedElement>(
   const rules = getElementRule<T>(elementType)
 
   const result: any = {
-    ElementType: "FormField",
+    ElementType: rules.enterpriseField,
+    Name: data.name,
   }
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule][]) {

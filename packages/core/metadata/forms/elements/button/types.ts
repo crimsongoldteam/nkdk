@@ -72,6 +72,7 @@ export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
   ОтображениеВКонтекстномМеню?: SE.ButtonLocationInContextMenuEnterprise
+  ПоведениеПриНедоступностиОсновногоСервера: SE.OnMainServerUnavalableBehaviorEnterprise
   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
@@ -81,7 +82,6 @@ export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  СочетаниеКлавиш?: string
   ТолькоВоВсехДействиях?: StringboolEnterprise
   УникальностьКоманды?: StringboolEnterprise
   Фигура?: SE.ButtonShapeEnterprise

@@ -3,6 +3,7 @@ import { Button } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ButtonRules: ElementRule<Button> = {
+  enterpriseField: "FormButton",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
@@ -96,6 +97,7 @@ export const ButtonRules: ElementRule<Button> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",

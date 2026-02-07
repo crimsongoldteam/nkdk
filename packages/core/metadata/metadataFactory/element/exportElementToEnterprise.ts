@@ -32,6 +32,12 @@ export function exportElementToEnterpriseTyped<T extends NamedElement | EventedE
 
     const yamlKey = rule.yaml
 
+    if (rule.type == "UserVisible") {
+      const exportedValue = exportUserVisibleToYAML(context, rule, value)
+      Object.assign(result, exportedValue)
+      continue
+    }
+
     const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
     if (typeExportFn) {
