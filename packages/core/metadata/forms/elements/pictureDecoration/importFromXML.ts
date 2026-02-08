@@ -8,11 +8,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PictureDecoration } from "~/metadata/forms/elements/pictureDecoration/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
+import { ElementXML, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export function importPictureDecorationFromXML<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
@@ -65,7 +66,7 @@ export function importPictureDecorationFromXML<To extends PictureDecoration | un
   const title = importFormattedI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation

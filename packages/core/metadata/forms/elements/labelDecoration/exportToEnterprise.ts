@@ -159,7 +159,7 @@ const exportLabelDecorationPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)

@@ -45,7 +45,7 @@ export function exportPageToXML<From extends Page | undefined>(
   const extendedTooltip = exportExtendedTooltipToDeprecatedXML(context, undefined, data.extendedTooltip, data)
   result.ExtendedTooltip = extendedTooltip
 
-  const format = exportI8nTextToXML(context, undefined, data.format)
+  const format = exportI8nTextToXML(context, { type: "I8nText" }, data.format)
   if (format !== undefined) result.Format = format
 
   if (data.group !== undefined) result.Group = data.group
@@ -84,7 +84,7 @@ export function exportPageToXML<From extends Page | undefined>(
   const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation

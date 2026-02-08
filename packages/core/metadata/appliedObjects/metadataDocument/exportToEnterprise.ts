@@ -97,9 +97,9 @@ export const exportMetadataDocumentToEnterprise = (
       data.fullTextSearchOnInputByString
     ),
     ПоляБлокировкиДанных: exportMetadataFieldsToEnterprise(context, undefined, data.dataLockFields),
-    Пояснение: exportI8nTextToYAML(context, undefined, data.explanation),
-    ПредставлениеОбъекта: exportI8nTextToYAML(context, undefined, data.objectPresentation),
-    ПредставлениеСписка: exportI8nTextToYAML(context, undefined, data.listPresentation),
+    Пояснение: exportI8nTextToYAML(context, { type: "I8nText" }, data.explanation),
+    ПредставлениеОбъекта: exportI8nTextToYAML(context, { type: "I8nText" }, data.objectPresentation),
+    ПредставлениеСписка: exportI8nTextToYAML(context, { type: "I8nText" }, data.listPresentation),
     ПривилегированныйРежимПриОтменеПроведения: exportBooleanToEnterprise(
       context,
       undefined,
@@ -116,20 +116,21 @@ export const exportMetadataDocumentToEnterprise = (
       { type: "SystemEnumeration", typeSE: "Posting" },
       data.posting
     ),
-    РасширенноеПредставлениеОбъекта: exportI8nTextToYAML(context, undefined, data.extendedObjectPresentation),
-    РасширенноеПредставлениеСписка: exportI8nTextToYAML(context, undefined, data.extendedListPresentation),
-    РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToYAML<SE.ChoiceDataGetModeOnInputByStringEnterprise>(
-      context,
-      { type: "SystemEnumeration", typeSE: "ChoiceDataGetModeOnInputByString" },
-      data.choiceDataGetModeOnInputByString
-    ),
+    РасширенноеПредставлениеОбъекта: exportI8nTextToYAML(context, { type: "I8nText" }, data.extendedObjectPresentation),
+    РасширенноеПредставлениеСписка: exportI8nTextToYAML(context, { type: "I8nText" }, data.extendedListPresentation),
+    РежимПолученияДанныхВыбораПриВводеПоСтроке:
+      exportSystemEnumerationToYAML<SE.ChoiceDataGetModeOnInputByStringEnterprise>(
+        context,
+        { type: "SystemEnumeration", typeSE: "ChoiceDataGetModeOnInputByString" },
+        data.choiceDataGetModeOnInputByString
+      ),
     РежимУправленияБлокировкойДанных: exportSystemEnumerationToYAML<SE.DefaultDataLockControlModeEnterprise>(
       context,
       { type: "SystemEnumeration", typeSE: "DefaultDataLockControlMode" },
       data.dataLockControlMode
     ),
     Реквизиты: exportMetadataAttributesToEnterprise(context, undefined, data.attributes),
-    Синоним: exportI8nTextToYAML(context, undefined, data.synonym),
+    Синоним: exportI8nTextToYAML(context, { type: "I8nText" }, data.synonym),
     СозданиеПриВводе: exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
       context,
       { type: "SystemEnumeration", typeSE: "CreateOnInput" },

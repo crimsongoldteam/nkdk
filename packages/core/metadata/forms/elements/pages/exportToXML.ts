@@ -63,7 +63,7 @@ export function exportPagesToXML<From extends Pages | undefined>(
   const titleTextColor = exportColorToXML(context, undefined, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation

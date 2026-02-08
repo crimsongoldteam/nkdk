@@ -44,7 +44,7 @@ export const exportPictureDecorationTypedToEnterprise = <From extends PictureDec
     ...props,
   }
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -132,7 +132,7 @@ const exportPictureDecorationPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)

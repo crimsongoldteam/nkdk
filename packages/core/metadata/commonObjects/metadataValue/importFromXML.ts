@@ -14,6 +14,7 @@ import {
   MetadataValueTypeXML,
   MetadataValueXML,
 } from "./types"
+import { importI8nTextFromXML } from "../i8nText/importFromXML"
 
 export const importMetadataValueFromXML = (
   context: ConfigurationContext,
@@ -199,7 +200,7 @@ export const importFormChoiceListValueFromXML = (
   data: MetadataFormChoiceListValueXML
 ): MetadataFormChoiceListValue | undefined => {
   const value = importMetadataValueFromXML(context, undefined, data.Value)
-  const presentation = iimportI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
+  const presentation = importI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
   return { type: "formChoiceListDesTimeValue", value, presentation }
 }
 

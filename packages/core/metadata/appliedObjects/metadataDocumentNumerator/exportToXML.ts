@@ -31,7 +31,7 @@ export const exportMetadataDocumentNumeratorToXML = (
 
   if (data.objectBelonging !== undefined) result.ObjectBelonging = data.objectBelonging
 
-  const synonym = exportI8nTextToXML(context, undefined, data.synonym)
+  const synonym = exportI8nTextToXML(context, { type: "I8nText" }, data.synonym)
   if (synonym !== undefined) result.Synonym = synonym
 
   return result

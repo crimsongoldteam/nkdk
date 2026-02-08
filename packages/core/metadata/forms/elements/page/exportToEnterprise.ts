@@ -37,7 +37,7 @@ export function exportPageTypedToEnterprise<From extends Page | undefined>(
     ...props,
   }
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -105,7 +105,7 @@ export const exportPagePropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {
@@ -211,7 +211,7 @@ export const exportPagePropsToEnterprise = (
   const scrollOnCompress = exportBooleanToEnterprise(context, undefined, data.scrollOnCompress)
   if (scrollOnCompress !== undefined) result.СкроллПриСжатии = scrollOnCompress
 
-  const format = exportI8nTextToYAML(context, undefined, data.format)
+  const format = exportI8nTextToYAML(context, { type: "I8nText" }, data.format)
   if (format !== undefined) result.Формат = format
 
   const backColor = exportColorToEnterprise(context, undefined, data.backColor)

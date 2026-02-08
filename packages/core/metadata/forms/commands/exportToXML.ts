@@ -56,11 +56,11 @@ function exportCommandToXML(
   }
 
   if (command.title !== undefined) {
-    result.Title = exportI8nTextToXML(context, undefined, command.title)
+    result.Title = exportI8nTextToXML(context, { type: "I8nText" }, command.title)
   }
 
   if (command.toolTip !== undefined) {
-    result.ToolTip = exportI8nTextToXML(context, undefined, command.toolTip)
+    result.ToolTip = exportI8nTextToXML(context, { type: "I8nText" }, command.toolTip)
   }
 
   const use = exportUserVisibleToXML(context, undefined, command.use)

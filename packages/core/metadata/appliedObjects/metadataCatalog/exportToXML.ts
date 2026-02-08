@@ -116,13 +116,17 @@ export const exportMetadataCatalogToXML = (
   if (mergedData.executeAfterWriteDataHistoryVersionProcessing !== undefined)
     properties.ExecuteAfterWriteDataHistoryVersionProcessing = mergedData.executeAfterWriteDataHistoryVersionProcessing
 
-  const explanation = exportI8nTextToXML(context, undefined, mergedData.explanation)
+  const explanation = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.explanation)
   if (explanation !== undefined) properties.Explanation = explanation
 
-  const extendedListPresentation = exportI8nTextToXML(context, undefined, mergedData.extendedListPresentation)
+  const extendedListPresentation = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.extendedListPresentation)
   if (extendedListPresentation !== undefined) properties.ExtendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = exportI8nTextToXML(context, undefined, mergedData.extendedObjectPresentation)
+  const extendedObjectPresentation = exportI8nTextToXML(
+    context,
+    { type: "I8nText" },
+    mergedData.extendedObjectPresentation
+  )
   if (extendedObjectPresentation !== undefined) properties.ExtendedObjectPresentation = extendedObjectPresentation
 
   if (mergedData.foldersOnTop !== undefined) properties.FoldersOnTop = mergedData.foldersOnTop
@@ -146,14 +150,14 @@ export const exportMetadataCatalogToXML = (
 
   if (mergedData.limitLevelCount !== undefined) properties.LimitLevelCount = mergedData.limitLevelCount
 
-  const listPresentation = exportI8nTextToXML(context, undefined, mergedData.listPresentation)
+  const listPresentation = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.listPresentation)
   if (listPresentation !== undefined) properties.ListPresentation = listPresentation
 
   properties.Name = mergedData.name
 
   if (mergedData.objectBelonging !== undefined) properties.ObjectBelonging = mergedData.objectBelonging
 
-  const objectPresentation = exportI8nTextToXML(context, undefined, mergedData.objectPresentation)
+  const objectPresentation = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.objectPresentation)
   if (objectPresentation !== undefined) properties.ObjectPresentation = objectPresentation
 
   const owners = exportMetadataValueCollectionToXML(context, undefined, mergedData.owners)
@@ -179,7 +183,7 @@ export const exportMetadataCatalogToXML = (
 
   if (mergedData.subordinationUse !== undefined) properties.SubordinationUse = mergedData.subordinationUse
 
-  const synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
+  const synonym = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.synonym)
   if (synonym !== undefined) properties.Synonym = synonym
 
   if (mergedData.updateDataHistoryImmediatelyAfterWrite !== undefined)

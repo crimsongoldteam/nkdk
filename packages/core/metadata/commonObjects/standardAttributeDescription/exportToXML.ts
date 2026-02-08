@@ -57,7 +57,7 @@ const exportStandardAttributeDescriptionToXML = (
   result["xr:CreateOnInput"] = mergedData.createOnInput
   result["xr:DataHistory"] = mergedData.dataHistory
 
-  const editFormat = exportI8nTextToXML(context, undefined, mergedData.editFormat)
+  const editFormat = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.editFormat)
   if (editFormat) result["xr:EditFormat"] = editFormat
 
   result["xr:ExtendedEdit"] = mergedData.extendedEdit
@@ -68,7 +68,7 @@ const exportStandardAttributeDescriptionToXML = (
   const fillValue = exportMetadataValueToXML(context, undefined, mergedData.fillValue)
   if (fillValue) result["xr:FillValue"] = fillValue
 
-  const format = exportI8nTextToXML(context, undefined, mergedData.format)
+  const format = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.format)
   if (format) result["xr:Format"] = format
 
   result["xr:FullTextSearch"] = mergedData.fullTextSearch
@@ -88,10 +88,10 @@ const exportStandardAttributeDescriptionToXML = (
 
   result["xr:QuickChoice"] = mergedData.quickChoice
 
-  const synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
+  const synonym = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.synonym)
   if (synonym !== undefined) result["xr:Synonym"] = synonym
 
-  const toolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.toolTip)
   if (toolTip !== undefined) result["xr:ToolTip"] = toolTip
 
   const type = exportTypeDescriptionToXML(context, undefined, mergedData.type)

@@ -1,6 +1,7 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importFormattedI8nTextFromXML } from "~/metadata/commonObjects/formattedI8nText/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -45,10 +46,14 @@ export function importExtendedTooltipFromXML(
   const textColor = importColorFromXML(context, undefined, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const title = importFormattedI8nTextFromXML(context, undefined, xml.Title)
+  const title = importFormattedI8nTextFromXML(
+    context,
+    { type: "FormattedI8nText", yamlFormatted: "ФорматированныйЗаголовок" },
+    xml.Title
+  )
   if (title !== undefined) result.title = title
 
-  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation

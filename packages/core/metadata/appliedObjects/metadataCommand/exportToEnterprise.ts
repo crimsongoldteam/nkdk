@@ -47,7 +47,7 @@ export const exportMetadataCommandToEnterprise = (
   }
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToYAML(context, undefined, filteredSynonym)
+  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {
     return group
@@ -74,7 +74,7 @@ export const exportMetadataCommandToEnterprise = (
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(

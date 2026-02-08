@@ -16,6 +16,7 @@ import {
   FormAttributesXML,
   FormAttributeXML,
 } from "./types"
+import { importI8nTextFromXML } from "../i8nText/importFromXML"
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
@@ -34,7 +35,7 @@ const importFormAttributeFromXML = (
   _rule: PropertyRule<any> | undefined,
   props: FormAttributeXML
 ): FormAttribute => {
-  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Title) ?? {
+  const title = importI8nTextFromXML(context, { type: "I8nText" }, props.Title) ?? {
     items: { [context.defaultLanguage]: "" },
   }
 
@@ -110,7 +111,7 @@ const importFormAttributeColumnsFromXML = (
       id: item._id,
     }
 
-    const title = iimportI8nTextFromXML(context, { type: "I8nText" }, item.Title)
+    const title = importI8nTextFromXML(context, { type: "I8nText" }, item.Title)
     if (title) column.title = title
 
     const type = importTypeDescriptionFromXML(context, undefined, item.Type)

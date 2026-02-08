@@ -100,7 +100,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const childItems = exportTypedChildItemsToEnterprise(context, undefined, data.childItems)
@@ -117,7 +117,7 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)

@@ -43,7 +43,7 @@ export function exportFormattedDocumentFieldTypedToEnterprise<From extends Forma
     Тип: "ПолеФорматированногоДокумента",
     ...props,
   }
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -186,7 +186,7 @@ const exportFormattedDocumentFieldPropsToEnterprise = (
   if (warningOnEditRepresentation !== undefined)
     result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const titleLocation = exportSystemEnumerationToEnterprise(
@@ -197,7 +197,7 @@ const exportFormattedDocumentFieldPropsToEnterprise = (
   )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const warningOnEdit = exportI8nTextToYAML(context, undefined, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToYAML(context, { type: "I8nText" }, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
   const skipOnInput = exportBooleanToEnterprise(context, undefined, data.skipOnInput)
@@ -217,7 +217,7 @@ const exportFormattedDocumentFieldPropsToEnterprise = (
 
   if (data.table !== undefined) result.Таблица = data.table
 
-  const footerText = exportI8nTextToYAML(context, undefined, data.footerText)
+  const footerText = exportI8nTextToYAML(context, { type: "I8nText" }, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
 
   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)

@@ -38,7 +38,7 @@ export const exportPopupTypedToEnterprise = <From extends Popup | undefined>(
     ...props,
   }
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -106,7 +106,7 @@ const exportPopupPropsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {

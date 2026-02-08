@@ -75,7 +75,7 @@ export const exportClientApplicationFormToEnterprise = (
 
   const result: ClientApplicationFormEnterprise = {}
 
-  const synonym = exportI8nTextToYAML(context, undefined, data.synonim)
+  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, data.synonim)
   if (synonym !== undefined) result.Синоним = synonym
 
   if (data.comment !== undefined) result.Комментарий = data.comment
@@ -159,7 +159,7 @@ export const exportClientApplicationFormToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const closeOnChoice = exportBooleanToEnterprise(context, undefined, data.closeOnChoice)

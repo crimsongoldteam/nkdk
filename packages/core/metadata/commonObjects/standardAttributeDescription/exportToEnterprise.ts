@@ -90,7 +90,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters) result.ПараметрыВыбора = choiceParameters
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
   const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchEnterprise>(
@@ -126,7 +126,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
   if (linkByType) result.СвязьПоТипу = linkByType
 
-  const synonym = exportI8nTextToYAML(context, undefined, data.synonym)
+  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, data.synonym)
   if (synonym) result.Синоним = synonym
 
   const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
@@ -141,10 +141,10 @@ const exportStandardAttributeDescriptionToEnterprise = (
 
   if (data.choiceForm) result.ФормаВыбора = data.choiceForm
 
-  const format = exportI8nTextToYAML(context, undefined, data.format)
+  const format = exportI8nTextToYAML(context, { type: "I8nText" }, data.format)
   if (format) result.Формат = format
 
-  const editFormat = exportI8nTextToYAML(context, undefined, data.editFormat)
+  const editFormat = exportI8nTextToYAML(context, { type: "I8nText" }, data.editFormat)
   if (editFormat) result.ФорматРедактирования = editFormat
 
   return result

@@ -17,10 +17,10 @@ const exportCommandToEnterprise = (
 
   const result: CommandEnterprise = {}
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut

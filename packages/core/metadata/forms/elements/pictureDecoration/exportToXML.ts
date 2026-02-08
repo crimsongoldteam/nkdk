@@ -65,7 +65,7 @@ export function exportPictureDecorationToXML<From extends PictureDecoration | un
   const title = exportFormattedI8nTextToXMLWithDefaultLanguage(context, undefined, data.title)
   if (title !== undefined) result.Title = title
 
-  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation

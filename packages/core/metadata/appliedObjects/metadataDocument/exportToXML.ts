@@ -73,13 +73,13 @@ export const exportMetadataDocumentToXML = (
   if (data.executeAfterWriteDataHistoryVersionProcessing !== undefined)
     result.ExecuteAfterWriteDataHistoryVersionProcessing = data.executeAfterWriteDataHistoryVersionProcessing
 
-  const explanation = exportI8nTextToXML(context, undefined, data.explanation)
+  const explanation = exportI8nTextToXML(context, { type: "I8nText" }, data.explanation)
   if (explanation !== undefined) result.Explanation = explanation
 
-  const extendedListPresentation = exportI8nTextToXML(context, undefined, data.extendedListPresentation)
+  const extendedListPresentation = exportI8nTextToXML(context, { type: "I8nText" }, data.extendedListPresentation)
   if (extendedListPresentation !== undefined) result.ExtendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = exportI8nTextToXML(context, undefined, data.extendedObjectPresentation)
+  const extendedObjectPresentation = exportI8nTextToXML(context, { type: "I8nText" }, data.extendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.ExtendedObjectPresentation = extendedObjectPresentation
 
   if (data.fullTextSearch !== undefined) result.FullTextSearch = data.fullTextSearch
@@ -92,7 +92,7 @@ export const exportMetadataDocumentToXML = (
   const inputByString = exportMetadataFieldsToXML(context, undefined, data.inputByString)
   if (inputByString !== undefined) result.InputByString = inputByString
 
-  const listPresentation = exportI8nTextToXML(context, undefined, data.listPresentation)
+  const listPresentation = exportI8nTextToXML(context, { type: "I8nText" }, data.listPresentation)
   if (listPresentation !== undefined) result.ListPresentation = listPresentation
 
   if (data.name !== undefined) result.Name = data.name
@@ -110,7 +110,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.objectBelonging !== undefined) result.ObjectBelonging = data.objectBelonging
 
-  const objectPresentation = exportI8nTextToXML(context, undefined, data.objectPresentation)
+  const objectPresentation = exportI8nTextToXML(context, { type: "I8nText" }, data.objectPresentation)
   if (objectPresentation !== undefined) result.ObjectPresentation = objectPresentation
 
   if (data.posting !== undefined) result.Posting = data.posting
@@ -136,7 +136,7 @@ export const exportMetadataDocumentToXML = (
   ])
   if (standardAttributes !== undefined) result.StandardAttributes = standardAttributes
 
-  const synonym = exportI8nTextToXML(context, undefined, data.synonym)
+  const synonym = exportI8nTextToXML(context, { type: "I8nText" }, data.synonym)
   if (synonym !== undefined) result.Synonym = synonym
 
   const tabularSections = exportMetadataTabularSectionsToXML(context, undefined, data.tabularSections)

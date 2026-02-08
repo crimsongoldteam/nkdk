@@ -10,6 +10,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importMetadataCommandsFromXML = (
   context: ConfigurationContext,
@@ -35,7 +36,7 @@ export const importMetadataCommandFromXML = (
   const result: MetadataCommand = {
     group: props.Group,
     name: props.Name,
-    synonym: iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)!,
+    synonym: importI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)!,
   }
 
   const commandParameterType = importTypeDescriptionFromXML(context, undefined, props.CommandParameterType)
@@ -56,7 +57,7 @@ export const importMetadataCommandFromXML = (
 
   if (props.Shortcut !== undefined) result.shortcut = props.Shortcut
 
-  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ToolTip)
+  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (props.OnMainServerUnavalableBehavior !== undefined)

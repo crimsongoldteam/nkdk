@@ -11,6 +11,7 @@ import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { removeDefaults } from "../../helpers/compactObject"
 import { getDefaults } from "./defaults"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
@@ -76,13 +77,13 @@ export const importMetadataCatalogFromXML = (
   if (props.ExecuteAfterWriteDataHistoryVersionProcessing !== undefined)
     result.executeAfterWriteDataHistoryVersionProcessing = props.ExecuteAfterWriteDataHistoryVersionProcessing
 
-  const explanation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Explanation)
+  const explanation = importI8nTextFromXML(context, { type: "I8nText" }, props.Explanation)
   if (explanation !== undefined) result.explanation = explanation
 
-  const extendedListPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ExtendedListPresentation)
+  const extendedListPresentation = importI8nTextFromXML(context, { type: "I8nText" }, props.ExtendedListPresentation)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = iimportI8nTextFromXML(
+  const extendedObjectPresentation = importI8nTextFromXML(
     context,
     { type: "I8nText" },
     props.ExtendedObjectPresentation
@@ -112,10 +113,10 @@ export const importMetadataCatalogFromXML = (
   const limitLevelCount = importBooleanFromXML(context, undefined, props.LimitLevelCount)
   if (limitLevelCount !== undefined) result.limitLevelCount = limitLevelCount
 
-  const listPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ListPresentation)
+  const listPresentation = importI8nTextFromXML(context, { type: "I8nText" }, props.ListPresentation)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
-  const objectPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ObjectPresentation)
+  const objectPresentation = importI8nTextFromXML(context, { type: "I8nText" }, props.ObjectPresentation)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
   const owners = importMetadataValueCollectionFromXML(context, undefined, props.Owners)
@@ -134,7 +135,7 @@ export const importMetadataCatalogFromXML = (
 
   if (props.SubordinationUse !== undefined) result.subordinationUse = props.SubordinationUse
 
-  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
+  const synonym = importI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
   if (synonym !== undefined) result.synonym = synonym
 
   if (childObjects?.TabularSection)

@@ -90,10 +90,10 @@ const exportSearchControlAdditionPropsToXML = (
 
   if (element.horizontalAlignInGroup !== undefined) result.GroupHorizontalAlign = element.horizontalAlignInGroup
 
-  const title = exportI8nTextToXML(context, undefined, element.title)
+  const title = exportI8nTextToXML(context, { type: "I8nText" }, element.title)
   if (title !== undefined) result.Title = title
 
-  const toolTip = exportI8nTextToXML(context, undefined, element.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, element.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (element.toolTipRepresentation !== undefined) result.ToolTipRepresentation = element.toolTipRepresentation

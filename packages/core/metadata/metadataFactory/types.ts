@@ -57,7 +57,10 @@ export type ToPreviewType<T> = T extends undefined
 
 // #region functions
 
-export type ImportFromXMLFn = <To extends AllChildItem | undefined>(context: ConfigurationContext, data: any) => To
+export type ImportFromXMLFn = <To extends AllChildItem | undefined>(
+  context: ConfigurationContext,
+  data: ElementXML | undefined
+) => To
 
 export type ImportTypedFromEnterpriseFn = <To extends TypedElement>(
   context: ConfigurationContext,

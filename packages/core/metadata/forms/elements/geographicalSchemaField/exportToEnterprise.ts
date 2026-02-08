@@ -22,9 +22,7 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 
 type GeographicalSchemaFieldCommonFields = Omit<GeographicalSchemaField, "elementType" | "name">
 
-export const exportGeographicalSchemaFieldPartialToEnterprise = <
-  From extends GeographicalSchemaField | undefined
->(
+export const exportGeographicalSchemaFieldPartialToEnterprise = <From extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: From
@@ -87,16 +85,16 @@ export const exportGeographicalSchemaFieldPartialToEnterprise = <
   if (warningOnEditRepresentation !== undefined)
     result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const warningOnEdit = exportI8nTextToYAML(context, undefined, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToYAML(context, { type: "I8nText" }, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const titleBackColor = exportColorToEnterprise(context, undefined, data.titleBackColor)
@@ -249,13 +247,13 @@ const exportGeographicalSchemaFieldCommonFieldsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const titleBackColor = exportColorToEnterprise(context, undefined, data.titleBackColor)

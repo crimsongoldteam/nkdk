@@ -63,7 +63,7 @@ export function exportGeographicalSchemaFieldToXML<From extends GeographicalSche
   const footerPicture = exportPictureToXML(context, undefined, data.footerPicture)
   if (footerPicture !== undefined) result.FooterPicture = footerPicture
 
-  const footerText = exportI8nTextToXML(context, undefined, data.footerText)
+  const footerText = exportI8nTextToXML(context, { type: "I8nText" }, data.footerText)
   if (footerText !== undefined) result.FooterText = footerText
 
   const footerTextColor = exportColorToXML(context, undefined, data.footerTextColor)
@@ -107,7 +107,7 @@ export function exportGeographicalSchemaFieldToXML<From extends GeographicalSche
   const table = exportMetadataSimpleValueToXML(context, undefined, data.table, "string")
   if (table !== undefined) result.AssociatedTableElementId = table
 
-  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
@@ -126,7 +126,7 @@ export function exportGeographicalSchemaFieldToXML<From extends GeographicalSche
 
   if (data.visible !== undefined) result.Visible = data.visible
 
-  const warningOnEdit = exportI8nTextToXML(context, undefined, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToXML(context, { type: "I8nText" }, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
   if (data.warningOnEditRepresentation !== undefined)

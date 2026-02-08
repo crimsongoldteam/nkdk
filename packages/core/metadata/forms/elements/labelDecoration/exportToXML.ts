@@ -81,7 +81,7 @@ export function exportLabelDecorationToXML<From extends LabelDecoration | undefi
 
   if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
 
-  const toolTip = exportI8nTextToXML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation

@@ -83,7 +83,7 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const userVisible = exportUserVisibleToEnterprise(context, undefined, data.userVisible, {

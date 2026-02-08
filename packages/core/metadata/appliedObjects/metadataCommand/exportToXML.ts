@@ -44,10 +44,10 @@ export const exportMetadataCommandToXML = (
 
   if (mergedData.shortcut !== undefined) properties.Shortcut = mergedData.shortcut
 
-  const synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
+  const synonym = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.synonym)
   if (synonym !== undefined) properties.Synonym = synonym
 
-  const toolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.toolTip)
   if (toolTip !== undefined) properties.ToolTip = toolTip
 
   const result: MetadataCommandXML = {

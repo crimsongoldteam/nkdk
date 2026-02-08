@@ -14,6 +14,7 @@ import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML"
 import { getDefaults } from "./defaults"
+import { importI8nTextFromXML } from "../i8nText/importFromXML"
 
 export const importStandardAttributeDescriptionsFromXML = (
   context: ConfigurationContext,
@@ -63,7 +64,7 @@ const importStandardAttributeDescriptionFromXML = (
   if (xml["xr:CreateOnInput"] !== undefined) result.createOnInput = xml["xr:CreateOnInput"]
   if (xml["xr:DataHistory"] !== undefined) result.dataHistory = xml["xr:DataHistory"]
 
-  const editFormat = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:EditFormat"])
+  const editFormat = importI8nTextFromXML(context, { type: "I8nText" }, xml["xr:EditFormat"])
   if (editFormat) result.editFormat = editFormat
 
   const extendedEdit = importBooleanFromXML(context, undefined, xml["xr:ExtendedEdit"])
@@ -75,7 +76,7 @@ const importStandardAttributeDescriptionFromXML = (
   const fillValue = importMetadataValueFromXML(context, undefined, xml["xr:FillValue"])
   if (fillValue) result.fillValue = fillValue
 
-  const format = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:Format"])
+  const format = importI8nTextFromXML(context, { type: "I8nText" }, xml["xr:Format"])
   if (format) result.format = format
 
   if (xml["xr:FullTextSearch"] !== undefined) result.fullTextSearch = xml["xr:FullTextSearch"]
@@ -96,10 +97,10 @@ const importStandardAttributeDescriptionFromXML = (
 
   if (xml["xr:QuickChoice"] !== undefined) result.quickChoice = xml["xr:QuickChoice"]
 
-  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:Synonym"])
+  const synonym = importI8nTextFromXML(context, { type: "I8nText" }, xml["xr:Synonym"])
   if (synonym !== undefined) result.synonym = synonym
 
-  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:ToolTip"])
+  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, xml["xr:ToolTip"])
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const type = importTypeDescriptionFromXML(context, undefined, xml["xr:Type"])

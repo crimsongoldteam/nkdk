@@ -36,7 +36,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
       { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
       data.objectBelonging
     ),
-    Синоним: exportI8nTextToYAML(context, undefined, data.synonym),
+    Синоним: exportI8nTextToYAML(context, { type: "I8nText" }, data.synonym),
     ТипНомера: exportSystemEnumerationToYAML<SE.DocumentNumberTypeEnterprise>(
       context,
       { type: "SystemEnumeration", typeSE: "DocumentNumberType" },

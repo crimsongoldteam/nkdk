@@ -172,16 +172,16 @@ export const exportMetadataCatalogToEnterprise = (
   const dataLockFields = exportMetadataFieldsToEnterprise(context, undefined, data.dataLockFields)
   if (dataLockFields !== undefined) result.ПоляБлокировкиДанных = dataLockFields
 
-  const explanation = exportI8nTextToYAML(context, undefined, data.explanation)
+  const explanation = exportI8nTextToYAML(context, { type: "I8nText" }, data.explanation)
   if (explanation !== undefined) result.Пояснение = explanation
 
   const predefined = exportPredefinedItemsToEnterprise(context, undefined, data.predefined)
   if (predefined !== undefined) result.Предопределенные = predefined
 
-  const objectPresentation = exportI8nTextToYAML(context, undefined, data.objectPresentation)
+  const objectPresentation = exportI8nTextToYAML(context, { type: "I8nText" }, data.objectPresentation)
   if (objectPresentation !== undefined) result.ПредставлениеОбъекта = objectPresentation
 
-  const listPresentation = exportI8nTextToYAML(context, undefined, data.listPresentation)
+  const listPresentation = exportI8nTextToYAML(context, { type: "I8nText" }, data.listPresentation)
   if (listPresentation !== undefined) result.ПредставлениеСписка = listPresentation
 
   const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(
@@ -191,10 +191,10 @@ export const exportMetadataCatalogToEnterprise = (
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const extendedObjectPresentation = exportI8nTextToYAML(context, undefined, data.extendedObjectPresentation)
+  const extendedObjectPresentation = exportI8nTextToYAML(context, { type: "I8nText" }, data.extendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.РасширенноеПредставлениеОбъекта = extendedObjectPresentation
 
-  const extendedListPresentation = exportI8nTextToYAML(context, undefined, data.extendedListPresentation)
+  const extendedListPresentation = exportI8nTextToYAML(context, { type: "I8nText" }, data.extendedListPresentation)
   if (extendedListPresentation !== undefined) result.РасширенноеПредставлениеСписка = extendedListPresentation
 
   const choiceDataGetModeOnInputByString = exportSystemEnumerationToYAML<SE.ChoiceDataGetModeOnInputByStringEnterprise>(
@@ -219,7 +219,7 @@ export const exportMetadataCatalogToEnterprise = (
   )
   if (codeSeries !== undefined) result.СерииКодов = codeSeries
 
-  const synonym = exportI8nTextToYAML(context, undefined, data.synonym)
+  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, data.synonym)
   if (synonym !== undefined) result.Синоним = synonym
 
   const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(

@@ -150,7 +150,7 @@ const exportFormAttributeColumnsToXML = (
       res.Column = exportFormAttributeColumnsToXML(context, undefined, column.columns)
     }
 
-    const title = exportI8nTextToXML(context, undefined, column.title)
+    const title = exportI8nTextToXML(context, { type: "I8nText" }, column.title)
     if (title) res.Title = title
 
     const type = exportTypeDescriptionToXML(context, undefined, column.type)

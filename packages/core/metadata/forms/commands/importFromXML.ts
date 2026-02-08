@@ -4,6 +4,7 @@ import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, Commands, CommandsXML, CommandXML } from "./types"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 function importCommandFromXML(
   context: ConfigurationContext,
@@ -16,10 +17,10 @@ function importCommandFromXML(
     name: xml._name,
   }
 
-  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
+  const title = importI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut

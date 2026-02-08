@@ -60,7 +60,7 @@ export const exportExtendedTooltipToDeprecatedXML = (
   const title = exportFormattedI8nTextToXML(context, undefined, extendendTooltip.title)
   if (title !== undefined) result.Title = title
 
-  const toolTip = exportI8nTextToXML(context, undefined, extendendTooltip.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, extendendTooltip.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
 
   if (extendendTooltip.toolTipRepresentation !== undefined)
@@ -85,7 +85,7 @@ export const exportExtendedTooltipToDeprecatedXML = (
 
 export function exportExtendedTooltipToXML(
   context: Required<ConfigurationContext>,
-  rule: PropertyRule,
+  rule: PropertyRule<any>,
   data: ExtendedTooltip | undefined
 ): ExtendedTooltipXML {
   const parentElement = context.elementContext

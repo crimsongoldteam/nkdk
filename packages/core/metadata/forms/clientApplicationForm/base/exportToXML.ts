@@ -194,7 +194,7 @@ export const exportClientApplicationFormToXML = (
     result.SlaveItemsWidth = data.slaveItemsWidth
   }
 
-  const title = exportI8nTextToXML(context, undefined, data.title)
+  const title = exportI8nTextToXML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) {
     result.Title = title
   }
@@ -274,7 +274,7 @@ export const exportFormMetadataToXML = (
 
   properties.Name = name
 
-  const synonym = exportI8nTextToXML(context, undefined, data.synonim)
+  const synonym = exportI8nTextToXML(context, { type: "I8nText" }, data.synonim)
   if (synonym !== undefined) {
     properties.Synonym = synonym
   }

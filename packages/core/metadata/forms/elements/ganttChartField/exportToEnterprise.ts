@@ -82,18 +82,19 @@ export const exportGanttChartFieldPartialToEnterprise = <From extends GanttChart
     { type: "SystemEnumeration", typeSE: "WarningOnEditRepresentation" },
     data.warningOnEditRepresentation
   )
-  if (warningOnEditRepresentation !== undefined) result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
+  if (warningOnEditRepresentation !== undefined)
+    result.ОтображениеПредупрежденияПриРедактировании = warningOnEditRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const warningOnEdit = exportI8nTextToYAML(context, undefined, data.warningOnEdit)
+  const warningOnEdit = exportI8nTextToYAML(context, { type: "I8nText" }, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const titleBackColor = exportColorToEnterprise(context, undefined, data.titleBackColor)
@@ -117,7 +118,7 @@ export const exportGanttChartFieldPartialToEnterprise = <From extends GanttChart
   const headerPicture = exportPictureToEnterprise(context, undefined, data.headerPicture)
   if (headerPicture !== undefined) result.КартинкаШапки = headerPicture
 
-  const footerText = exportI8nTextToYAML(context, undefined, data.footerText)
+  const footerText = exportI8nTextToYAML(context, { type: "I8nText" }, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
 
   const footerBackColor = exportColorToEnterprise(context, undefined, data.footerBackColor)
@@ -310,13 +311,13 @@ const exportGanttChartFieldCommonFieldsToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, undefined, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextToYAML(context, undefined, data.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const titleBackColor = exportColorToEnterprise(context, undefined, data.titleBackColor)
@@ -340,7 +341,7 @@ const exportGanttChartFieldCommonFieldsToEnterprise = (
   const headerPicture = exportPictureToEnterprise(context, undefined, data.headerPicture)
   if (headerPicture !== undefined) result.КартинкаШапки = headerPicture
 
-  const footerText = exportI8nTextToYAML(context, undefined, data.footerText)
+  const footerText = exportI8nTextToYAML(context, { type: "I8nText" }, data.footerText)
   if (footerText !== undefined) result.ТекстПодвала = footerText
 
   const footerBackColor = exportColorToEnterprise(context, undefined, data.footerBackColor)

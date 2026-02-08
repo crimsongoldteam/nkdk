@@ -8,11 +8,12 @@ import {
   SingleSearchStringAddition,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
+import { ElementXML, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importSearchStringAdditionFromXML = <To extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
@@ -56,10 +57,10 @@ export const importSingleSearchStringAdditionFromXML = (
 
   if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
-  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
+  const title = importI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
+  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation

@@ -10,6 +10,7 @@ import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/impor
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
@@ -94,7 +95,7 @@ export const importClientApplicationFormFromXML = (
     result.enabled = xml.Enabled
   }
 
-  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
+  const title = importI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) {
     result.title = title
   }
@@ -228,7 +229,7 @@ function importFormMetadataFromXML(
   const props = xmlMetadata.Form?.Properties
   if (!props) return result
 
-  const synonim = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
+  const synonim = importI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
   if (synonim !== undefined) {
     result.synonim = synonim
   }
