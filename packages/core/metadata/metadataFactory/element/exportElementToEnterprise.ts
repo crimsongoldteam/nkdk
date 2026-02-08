@@ -1,4 +1,5 @@
 import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
@@ -26,12 +27,10 @@ export function exportElementToEnterpriseTyped<T extends TypedElement>(
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
     const value = data[key as keyof T]
 
-    if (value === undefined) continue
-
     const yamlKey = rule.yaml
 
     if (rule.type == "UserVisible") {
-      const exportedValue = exportUserVisibleToYAML(context, rule, value)
+      const exportedValue = exportUserVisibleToYAML(context, rule, value as UserVisible)
       Object.assign(result, exportedValue)
       continue
     }
@@ -39,17 +38,14 @@ export function exportElementToEnterpriseTyped<T extends TypedElement>(
     const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
     if (!typeExportFn) {
-      
-;(result as any)[yamlKey] = value
-continue
-}
-
-      const exportedValue = typeExportFn(context, rule, value)
-      if (exportedValue !== undefined) {
-        ;(result as any)[yamlKey] = exportedValue
-      }
-    } else if (typeof value !== "object" || value === null) {
+      if (value === undefined) continue
       ;(result as any)[yamlKey] = value
+      continue
+    }
+
+    const exportedValue = typeExportFn(context, rule, value)
+    if (exportedValue !== undefined) {
+      ;(result as any)[yamlKey] = exportedValue
     }
   }
 
@@ -85,40 +81,38 @@ function exportToEnterprisePartial<T extends BaseElement>(
 
   const rules = params.rules
 
-  const result: Record<string, unknown> = {}
+  const result = {}
 
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
+  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     if (rule.toYAML === false) continue
-    const value = data[key as keyof T]
+    const value = data[key]
 
     if (value === undefined) continue
 
     const yamlKey = rule.yaml as string
 
     if (rule.type == "UserVisible") {
-      const exportedValue = exportUserVisibleToYAML(context, rule, value)
-      if (exportedValue !== undefined) {
-        Object.assign(result, exportedValue)
-      }
+      const exportedValue = exportUserVisibleToYAML(context, rule, value as UserVisible)
+      Object.assign(result, exportedValue)
       continue
     }
 
     const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
     if (!typeExportFn) {
-      result[yamlKey] = value
+      ;(result as any)[yamlKey] = value
       continue
     }
 
     const exportedValue = typeExportFn(context, rule, value)
     if (exportedValue !== undefined) {
-      result[yamlKey] = exportedValue
+      ;(result as any)[yamlKey] = exportedValue
     }
   }
 
   const events = mapEventsToEnterprise(
     rules.events,
-    data.events !== undefined ? (data.events as Record<string, string>) : undefined
+    "events" in data ? (data.events as Record<string, string>) : undefined
   )
   Object.assign(result, events)
 
