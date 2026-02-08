@@ -9,10 +9,12 @@ import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactor
 import { getTypeRule } from "../typeRulesFactory"
 import { ElementXML } from "../types"
 
-export function exportElementToXML<T extends NamedElement>(
-  context: ConfigurationContext,
+export function exportElementToXML<T extends NamedElement>(params: {
+  context: ConfigurationContext
   data: T | undefined
-): ElementXML | undefined {
+}): ElementXML | undefined {
+  const { data, context } = params
+
   if (data === undefined) return undefined
 
   const name = data.name
