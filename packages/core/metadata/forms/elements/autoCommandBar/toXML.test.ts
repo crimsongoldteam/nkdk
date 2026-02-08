@@ -67,12 +67,11 @@ const exportToXML = (value: AutoCommandBar | undefined, type: "AutoCommandBar" |
 
   const xmlData = exportPropertyToXML({
     context: context,
-    key: "AutoCommandBar",
     rule: { type: type },
     value: value,
   })
 
-  const result = xmlExport({ AutoCommandBar: xmlData ? xmlData["AutoCommandBar"] : undefined }, false)
+  const result = xmlExport({ AutoCommandBar: xmlData }, false)
 
   return result
 }

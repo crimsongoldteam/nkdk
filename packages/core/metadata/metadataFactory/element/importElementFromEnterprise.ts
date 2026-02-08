@@ -12,6 +12,25 @@ import {
   ToTypedEnterpriseType,
 } from "../types"
 
+export const importPropertyFromEnterprise = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: any
+  sourceValue?: any
+}): any => {
+  const { context, rule, value, sourceValue } = params
+
+  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
+
+  if (!typeImportFn) {
+    return value
+  }
+
+  const result = typeImportFn(context, rule, value, sourceValue)
+
+  return result
+}
+
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
   data: ToTypedEnterpriseType<T> | undefined

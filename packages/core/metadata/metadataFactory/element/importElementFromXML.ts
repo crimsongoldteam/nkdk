@@ -7,6 +7,24 @@ import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactor
 import { getTypeRule } from "../typeRulesFactory"
 import { ElementXML, FormElementType } from "../types"
 
+export const importPropertyFromXML = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: any
+}): any => {
+  const { context, rule, value } = params
+
+  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
+
+  if (!typeImportFn) {
+    return value
+  }
+
+  const result = typeImportFn(context, rule, value)
+
+  return result
+}
+
 export const importSingleElementFromXML = <T extends SingleElement>(params: {
   context: ConfigurationContext
   rule: ElementRule<T>
@@ -58,7 +76,7 @@ export function importFromXML<T extends BaseElement>(
 
     const xmlValue = (xml as any)[xmlKey]
 
-    const value = importPropertyFromXML(context, rule, xmlValue)
+    const value = importPropertyFromXML({ context, rule, value: xmlValue })
 
     if (value === undefined) continue
     ;(result as any)[key] = value
@@ -89,14 +107,4 @@ const importEventsFromXML = <T extends EventedElement>(
   }
 
   return { events: result }
-}
-
-const importPropertyFromXML = (context: ConfigurationContext, propertyRule: PropertyRule<any>, data: any): any => {
-  const ruleFunction = getTypeRule(propertyRule.type as any, "importFromXML")
-
-  if (ruleFunction === undefined) return data
-
-  const result = ruleFunction(context, propertyRule, data)
-
-  return result
 }
