@@ -1,35 +1,70 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromEnterprise"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullAutoCommandBar,
-  fullAutoCommandBarAllItems,
-  fullAutoExportCommandBarEnterprise,
+  fullAutoCommandBarPartialEnterprise,
+  fullAutoCommandBarTypedEnterprise,
   minimalAutoCommandBar,
-  sourceAutoCommandBar,
+  minimalAutoCommandBarPartialEnterprise,
+  minimalAutoCommandBarTypedEnterprise,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importAutoCommandBarFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { AutoCommandBar } from "./types"
 
 describe("importAutoCommandBarFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
-    const context = {
-      ...mockContext,
-      allElements: fullAutoCommandBarAllItems,
-    }
+  describe("importAutoCommandBarTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importElementFromYAMLTyped<AutoCommandBar>({
+        context: mockContext,
+        data: undefined,
+        name: "АвтоКоманднаяПанель",
+      })
 
-    const result = importAutoCommandBarFromEnterprise(
-      context,
-      mockRule,
-      fullAutoExportCommandBarEnterprise,
-      sourceAutoCommandBar
-    )
+      expect(result).toBeUndefined()
+    })
 
-    expect(result).toEqual(fullAutoCommandBar)
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLTyped<AutoCommandBar>({
+        context: mockContext,
+        data: fullAutoCommandBarTypedEnterprise,
+        name: "АвтоКоманднаяПанель",
+      })
+
+      expect(result).toEqual(fullAutoCommandBar)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromYAMLTyped<AutoCommandBar>({
+        context: mockContext,
+        data: minimalAutoCommandBarTypedEnterprise,
+        name: "АвтоКоманднаяПанель",
+      })
+
+      expect(result).toEqual(minimalAutoCommandBar)
+    })
   })
 
-  it("should import minimal", () => {
-    const result = importAutoCommandBarFromEnterprise(mockContext, mockRule, {}, undefined)
+  describe("importAutoCommandBarPartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.AutoCommandBar,
+        data: fullAutoCommandBarPartialEnterprise,
+        source: fullAutoCommandBar,
+      })
 
-    expect(result).toEqual(minimalAutoCommandBar)
+      expect(result).toEqual(fullAutoCommandBar)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.AutoCommandBar,
+        data: minimalAutoCommandBarPartialEnterprise,
+        source: minimalAutoCommandBar,
+      })
+
+      expect(result).toEqual(minimalAutoCommandBar)
+    })
   })
 })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullGanttChartField,
   fullGanttChartFieldPartialEnterprise,
@@ -7,68 +8,61 @@ import {
   minimalGanttChartFieldPartialEnterprise,
   minimalGanttChartFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/ganttChartField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importGanttChartFieldPartialFromEnterprise,
-  importGanttChartFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { GanttChartField } from "./types"
 
 describe("importGanttChartFieldFromEnterprise", () => {
   describe("importGanttChartFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importGanttChartFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеДиаграммыГанта")
+      const result = importElementFromYAMLTyped<GanttChartField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеДиаграммыГанта",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importGanttChartFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullGanttChartFieldTypedEnterprise,
-        "ПолеДиаграммыГанта"
-      )
+      const result = importElementFromYAMLTyped<GanttChartField>({
+        context: mockContext,
+        data: fullGanttChartFieldTypedEnterprise,
+        name: "ПолеДиаграммыГанта",
+      })
 
       expect(result).toEqual(fullGanttChartField)
     })
 
     it("should import minimal", () => {
-      const result = importGanttChartFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalGanttChartFieldTypedEnterprise,
-        "ПолеДиаграммыГанта"
-      )
+      const result = importElementFromYAMLTyped<GanttChartField>({
+        context: mockContext,
+        data: minimalGanttChartFieldTypedEnterprise,
+        name: "ПолеДиаграммыГанта",
+      })
 
       expect(result).toEqual(minimalGanttChartField)
     })
   })
 
   describe("importGanttChartFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importGanttChartFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importGanttChartFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullGanttChartField,
-        fullGanttChartFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.GanttChartField,
+        data: fullGanttChartFieldPartialEnterprise,
+        source: fullGanttChartField,
+      })
 
       expect(result).toEqual(fullGanttChartField)
     })
 
     it("should import minimal", () => {
-      const result = importGanttChartFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalGanttChartField,
-        minimalGanttChartFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.GanttChartField,
+        data: minimalGanttChartFieldPartialEnterprise,
+        source: minimalGanttChartField,
+      })
 
       expect(result).toEqual(minimalGanttChartField)
     })

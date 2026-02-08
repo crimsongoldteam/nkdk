@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullButton,
   fullButtonPartialEnterprise,
@@ -7,18 +8,26 @@ import {
   minimalButtonTypedEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
-import { importButtonPartialFromEnterprise, importButtonTypedFromEnterprise } from "./importFromEnterprise"
+import { Button } from "./types"
 
-describe("importButtonTypedFromEnterprise", () => {
+describe("importButtonFromEnterprise", () => {
   describe("importButtonTypedFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonTypedFromEnterprise(mockContext, fullButtonTypedEnterprise, "ОбычнаяКнопка")
+      const result = importElementFromYAMLTyped<Button>({
+        context: mockContext,
+        data: fullButtonTypedEnterprise,
+        name: "ОбычнаяКнопка",
+      })
 
       expect(result).toEqual(fullButton)
     })
 
     it("should import minimal", () => {
-      const result = importButtonTypedFromEnterprise(mockContext, minimalButtonTypedEnterprise, "ОбычнаяКнопка")
+      const result = importElementFromYAMLTyped<Button>({
+        context: mockContext,
+        data: minimalButtonTypedEnterprise,
+        name: "ОбычнаяКнопка",
+      })
 
       expect(result).toEqual(minimalButton)
     })
@@ -26,7 +35,12 @@ describe("importButtonTypedFromEnterprise", () => {
 
   describe("importButtonPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonPartialFromEnterprise(mockContext, fullButtonPartialEnterprise, fullButton)
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.Button,
+        data: fullButtonPartialEnterprise,
+        source: fullButton,
+      })
 
       expect(result).toEqual(fullButton)
     })

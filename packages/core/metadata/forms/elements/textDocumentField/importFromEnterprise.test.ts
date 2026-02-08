@@ -1,79 +1,33 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
 import {
   fullTextDocumentField,
   fullTextDocumentFieldPartialEnterprise,
-  fullTextDocumentFieldTypedEnterprise,
   minimalTextDocumentField,
   minimalTextDocumentFieldPartialEnterprise,
-  minimalTextDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importTextDocumentFieldPartialFromEnterprise,
-  importTextDocumentFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
 
 describe("importTextDocumentFieldFromEnterprise", () => {
-  describe("importTextDocumentFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importTextDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        undefined,
-        "ПолеТекстовогоДокумента"
-      )
-
-      expect(result).toBeUndefined()
-    })
-
-    it("should import all fields from Enterprise", () => {
-      const result = importTextDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullTextDocumentFieldTypedEnterprise,
-        "ПолеТекстовогоДокумента"
-      )
-
-      expect(result).toEqual(fullTextDocumentField)
-    })
-
-    it("should import minimal", () => {
-      const result = importTextDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalTextDocumentFieldTypedEnterprise,
-        "ПолеТекстовогоДокумента"
-      )
-
-      expect(result).toEqual(minimalTextDocumentField)
-    })
-  })
-
   describe("importTextDocumentFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importTextDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importTextDocumentFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullTextDocumentField,
-        fullTextDocumentFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.TextDocumentField,
+        data: fullTextDocumentFieldPartialEnterprise,
+        source: fullTextDocumentField,
+      })
 
       expect(result).toEqual(fullTextDocumentField)
     })
 
     it("should import minimal", () => {
-      const result = importTextDocumentFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalTextDocumentField,
-        minimalTextDocumentFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.TextDocumentField,
+        data: minimalTextDocumentFieldPartialEnterprise,
+        source: minimalTextDocumentField,
+      })
 
       expect(result).toEqual(minimalTextDocumentField)
     })

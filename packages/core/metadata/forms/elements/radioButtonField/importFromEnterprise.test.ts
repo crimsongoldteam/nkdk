@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullRadioButtonField,
   fullRadioButtonFieldPartialEnterprise,
@@ -7,68 +8,61 @@ import {
   minimalRadioButtonFieldPartialEnterprise,
   minimalRadioButtonFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/radioButtonField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importRadioButtonFieldPartialFromEnterprise,
-  importRadioButtonFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { RadioButtonField } from "./types"
 
 describe("importRadioButtonFieldFromEnterprise", () => {
   describe("importRadioButtonFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importRadioButtonFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеПереключателя")
+      const result = importElementFromYAMLTyped<RadioButtonField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеПереключателя",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importRadioButtonFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullRadioButtonFieldTypedEnterprise,
-        "ПолеПереключателя"
-      )
+      const result = importElementFromYAMLTyped<RadioButtonField>({
+        context: mockContext,
+        data: fullRadioButtonFieldTypedEnterprise,
+        name: "ПолеПереключателя",
+      })
 
       expect(result).toEqual(fullRadioButtonField)
     })
 
     it("should import minimal", () => {
-      const result = importRadioButtonFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalRadioButtonFieldTypedEnterprise,
-        "ПолеПереключателя"
-      )
+      const result = importElementFromYAMLTyped<RadioButtonField>({
+        context: mockContext,
+        data: minimalRadioButtonFieldTypedEnterprise,
+        name: "ПолеПереключателя",
+      })
 
       expect(result).toEqual(minimalRadioButtonField)
     })
   })
 
   describe("importRadioButtonFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importRadioButtonFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importRadioButtonFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullRadioButtonField,
-        fullRadioButtonFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.RadioButtonField,
+        data: fullRadioButtonFieldPartialEnterprise,
+        source: fullRadioButtonField,
+      })
 
       expect(result).toEqual(fullRadioButtonField)
     })
 
     it("should import minimal", () => {
-      const result = importRadioButtonFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalRadioButtonField,
-        minimalRadioButtonFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.RadioButtonField,
+        data: minimalRadioButtonFieldPartialEnterprise,
+        source: minimalRadioButtonField,
+      })
 
       expect(result).toEqual(minimalRadioButtonField)
     })

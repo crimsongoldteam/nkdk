@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullPictureField,
   fullPictureFieldPartialEnterprise,
@@ -7,65 +8,61 @@ import {
   minimalPictureFieldPartialEnterprise,
   minimalPictureFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importPictureFieldPartialFromEnterprise, importPictureFieldTypedFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { PictureField } from "./types"
 
 describe("importPictureFieldFromEnterprise", () => {
   describe("importPictureFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPictureFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеКартинки")
+      const result = importElementFromYAMLTyped<PictureField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеКартинки",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPictureFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPictureFieldTypedEnterprise,
-        "ПолеКартинки"
-      )
+      const result = importElementFromYAMLTyped<PictureField>({
+        context: mockContext,
+        data: fullPictureFieldTypedEnterprise,
+        name: "ПолеКартинки",
+      })
 
       expect(result).toEqual(fullPictureField)
     })
 
     it("should import minimal", () => {
-      const result = importPictureFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPictureFieldTypedEnterprise,
-        "ПолеКартинки"
-      )
+      const result = importElementFromYAMLTyped<PictureField>({
+        context: mockContext,
+        data: minimalPictureFieldTypedEnterprise,
+        name: "ПолеКартинки",
+      })
 
       expect(result).toEqual(minimalPictureField)
     })
   })
 
   describe("importPictureFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importPictureFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importPictureFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPictureField,
-        fullPictureFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PictureField,
+        data: fullPictureFieldPartialEnterprise,
+        source: fullPictureField,
+      })
 
       expect(result).toEqual(fullPictureField)
     })
 
     it("should import minimal", () => {
-      const result = importPictureFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPictureField,
-        minimalPictureFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PictureField,
+        data: minimalPictureFieldPartialEnterprise,
+        source: minimalPictureField,
+      })
 
       expect(result).toEqual(minimalPictureField)
     })

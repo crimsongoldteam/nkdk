@@ -1,31 +1,35 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
-import "~/metadata/forms/elements/importFromEnterprise"
+import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
 import {
   fullTable,
-  fullTableChildItems,
-  fullTableEnterprise,
+  fullTablePartialEnterprise,
   minimalTable,
-  minimalTableEnterprise,
-  sourceTable,
+  minimalTablePartialEnterprise,
 } from "~/tests/fixtures/forms/table/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importTablePartialFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
 
 describe("importTableFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
-    const context: ConfigurationContext = {
-      ...mockContext,
-      allElements: fullTableChildItems,
-    }
-    const result = importTablePartialFromEnterprise(context, undefined, sourceTable, fullTableEnterprise)
+  describe("importTablePartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.Table,
+        data: fullTablePartialEnterprise,
+        source: fullTable,
+      })
 
-    expect(result).toEqual(fullTable)
-  })
+      expect(result).toEqual(fullTable)
+    })
 
-  it("should import minimal", () => {
-    const result = importTablePartialFromEnterprise(mockContext, mockRule, minimalTable, minimalTableEnterprise)
+    it("should import minimal", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.Table,
+        data: minimalTablePartialEnterprise,
+        source: minimalTable,
+      })
 
-    expect(result).toEqual(minimalTable)
+      expect(result).toEqual(minimalTable)
+    })
   })
 })

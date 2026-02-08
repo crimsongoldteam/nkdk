@@ -1,21 +1,70 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullViewStatusAddition,
-  fullViewStatusAdditionEnterprise,
+  fullViewStatusAdditionPartialEnterprise,
+  fullViewStatusAdditionTypedEnterprise,
+  minimalViewStatusAddition,
+  minimalViewStatusAdditionPartialEnterprise,
+  minimalViewStatusAdditionTypedEnterprise,
 } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importViewStatusAdditionFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { ViewStatusAddition } from "./types"
 
 describe("importViewStatusAdditionFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
-    const result = importViewStatusAdditionFromEnterprise(mockContext, mockRule, fullViewStatusAdditionEnterprise)
+  describe("importViewStatusAdditionTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importElementFromYAMLTyped<ViewStatusAddition>({
+        context: mockContext,
+        data: undefined,
+        name: "СтатусПросмотра",
+      })
 
-    expect(result).toEqual(fullViewStatusAddition)
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLTyped<ViewStatusAddition>({
+        context: mockContext,
+        data: fullViewStatusAdditionTypedEnterprise,
+        name: "СтатусПросмотра",
+      })
+
+      expect(result).toEqual(fullViewStatusAddition)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromYAMLTyped<ViewStatusAddition>({
+        context: mockContext,
+        data: minimalViewStatusAdditionTypedEnterprise,
+        name: "СтатусПросмотра",
+      })
+
+      expect(result).toEqual(minimalViewStatusAddition)
+    })
   })
 
-  it("should import minimal", () => {
-    const result = importViewStatusAdditionFromEnterprise(mockContext, mockRule, {})
+  describe("importViewStatusAdditionPartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.ViewStatusAddition,
+        data: fullViewStatusAdditionPartialEnterprise,
+        source: fullViewStatusAddition,
+      })
 
-    expect(result).toEqual({})
+      expect(result).toEqual(fullViewStatusAddition)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.ViewStatusAddition,
+        data: minimalViewStatusAdditionPartialEnterprise,
+        source: minimalViewStatusAddition,
+      })
+
+      expect(result).toEqual(minimalViewStatusAddition)
+    })
   })
 })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullSpreadSheetDocumentField,
   fullSpreadSheetDocumentFieldPartialEnterprise,
@@ -7,73 +8,61 @@ import {
   minimalSpreadSheetDocumentFieldPartialEnterprise,
   minimalSpreadSheetDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importSpreadSheetDocumentFieldPartialFromEnterprise,
-  importSpreadSheetDocumentFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { SpreadSheetDocumentField } from "./types"
 
 describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
   describe("importSpreadSheetDocumentFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        undefined,
-        "ПолеТабличногоДокумента"
-      )
+      const result = importElementFromYAMLTyped<SpreadSheetDocumentField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеТабличногоДокумента",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullSpreadSheetDocumentFieldTypedEnterprise,
-        "ПолеТабличногоДокумента"
-      )
+      const result = importElementFromYAMLTyped<SpreadSheetDocumentField>({
+        context: mockContext,
+        data: fullSpreadSheetDocumentFieldTypedEnterprise,
+        name: "ПолеТабличногоДокумента",
+      })
 
       expect(result).toEqual(fullSpreadSheetDocumentField)
     })
 
     it("should import minimal", () => {
-      const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalSpreadSheetDocumentFieldTypedEnterprise,
-        "ПолеТабличногоДокумента"
-      )
+      const result = importElementFromYAMLTyped<SpreadSheetDocumentField>({
+        context: mockContext,
+        data: minimalSpreadSheetDocumentFieldTypedEnterprise,
+        name: "ПолеТабличногоДокумента",
+      })
 
       expect(result).toEqual(minimalSpreadSheetDocumentField)
     })
   })
 
   describe("importSpreadSheetDocumentFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importSpreadSheetDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullSpreadSheetDocumentField,
-        fullSpreadSheetDocumentFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.SpreadSheetDocumentField,
+        data: fullSpreadSheetDocumentFieldPartialEnterprise,
+        source: fullSpreadSheetDocumentField,
+      })
 
       expect(result).toEqual(fullSpreadSheetDocumentField)
     })
 
     it("should import minimal", () => {
-      const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalSpreadSheetDocumentField,
-        minimalSpreadSheetDocumentFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.SpreadSheetDocumentField,
+        data: minimalSpreadSheetDocumentFieldPartialEnterprise,
+        source: minimalSpreadSheetDocumentField,
+      })
 
       expect(result).toEqual(minimalSpreadSheetDocumentField)
     })

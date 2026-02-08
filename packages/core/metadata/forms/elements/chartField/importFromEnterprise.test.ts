@@ -1,71 +1,33 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
 import {
   fullChartField,
   fullChartFieldPartialEnterprise,
-  fullChartFieldTypedEnterprise,
   minimalChartField,
   minimalChartFieldPartialEnterprise,
-  minimalChartFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/chartField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importChartFieldPartialFromEnterprise, importChartFieldTypedFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
 
 describe("importChartFieldFromEnterprise", () => {
-  describe("importChartFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importChartFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеДиаграммы")
-
-      expect(result).toBeUndefined()
-    })
-
-    it("should import all fields from Enterprise", () => {
-      const result = importChartFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullChartFieldTypedEnterprise,
-        "ПолеДиаграммы"
-      )
-
-      expect(result).toEqual(fullChartField)
-    })
-
-    it("should import minimal", () => {
-      const result = importChartFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalChartFieldTypedEnterprise,
-        "ПолеДиаграммы"
-      )
-
-      expect(result).toEqual(minimalChartField)
-    })
-  })
-
   describe("importChartFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importChartFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importChartFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullChartField,
-        fullChartFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.ChartField,
+        data: fullChartFieldPartialEnterprise,
+        source: fullChartField,
+      })
 
       expect(result).toEqual(fullChartField)
     })
 
     it("should import minimal", () => {
-      const result = importChartFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalChartField,
-        minimalChartFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.ChartField,
+        data: minimalChartFieldPartialEnterprise,
+        source: minimalChartField,
+      })
 
       expect(result).toEqual(minimalChartField)
     })

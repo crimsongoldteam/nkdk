@@ -1,19 +1,35 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromEnterprise"
-import { fullContextMenu, fullContextMenuEnterprise } from "~/tests/fixtures/forms/contextMenu/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importContextMenuFromEnterprise } from "./importFromEnterprise"
+import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
+import {
+  fullContextMenu,
+  fullContextMenuPartialEnterprise,
+  minimalContextMenu,
+  minimalContextMenuPartialEnterprise,
+} from "~/tests/fixtures/forms/contextMenu/data"
+import { mockContext } from "~/tests/mockContext"
 
 describe("importContextMenuFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
-    const result = importContextMenuFromEnterprise(mockContext, mockRule, fullContextMenuEnterprise)
+  describe("importContextMenuPartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.ContextMenu,
+        data: fullContextMenuPartialEnterprise,
+        source: fullContextMenu,
+      })
 
-    expect(result).toEqual(fullContextMenu)
-  })
+      expect(result).toEqual(fullContextMenu)
+    })
 
-  it("should import minimal", () => {
-    const result = importContextMenuFromEnterprise(mockContext, mockRule, {})
+    it("should import minimal", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.ContextMenu,
+        data: minimalContextMenuPartialEnterprise,
+        source: minimalContextMenu,
+      })
 
-    expect(result).toEqual({ childItems: [] })
+      expect(result).toEqual(minimalContextMenu)
+    })
   })
 })

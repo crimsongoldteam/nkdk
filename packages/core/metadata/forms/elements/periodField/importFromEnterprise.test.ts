@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullPeriodField,
   fullPeriodFieldPartialEnterprise,
@@ -7,35 +8,37 @@ import {
   minimalPeriodFieldPartialEnterprise,
   minimalPeriodFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importPeriodFieldPartialFromEnterprise, importPeriodFieldTypedFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { PeriodField } from "./types"
 
 describe("importPeriodFieldFromEnterprise", () => {
   describe("importPeriodFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPeriodFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеПериода")
+      const result = importElementFromYAMLTyped<PeriodField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеПериода",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPeriodFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPeriodFieldTypedEnterprise,
-        "ПолеПериода"
-      )
+      const result = importElementFromYAMLTyped<PeriodField>({
+        context: mockContext,
+        data: fullPeriodFieldTypedEnterprise,
+        name: "ПолеПериода",
+      })
 
       expect(result).toEqual(fullPeriodField)
     })
 
     it("should import minimal", () => {
-      const result = importPeriodFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPeriodFieldTypedEnterprise,
-        "ПолеПериода"
-      )
+      const result = importElementFromYAMLTyped<PeriodField>({
+        context: mockContext,
+        data: minimalPeriodFieldTypedEnterprise,
+        name: "ПолеПериода",
+      })
 
       expect(result).toEqual(minimalPeriodField)
     })
@@ -43,29 +46,34 @@ describe("importPeriodFieldFromEnterprise", () => {
 
   describe("importPeriodFieldPartialFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importPeriodFieldPartialFromEnterprise(mockContext, mockRule, undefined, undefined)
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PeriodField,
+        data: undefined,
+        source: undefined,
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPeriodFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPeriodField,
-        fullPeriodFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PeriodField,
+        data: fullPeriodFieldPartialEnterprise,
+        source: fullPeriodField,
+      })
 
       expect(result).toEqual(fullPeriodField)
     })
 
     it("should import minimal", () => {
-      const result = importPeriodFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPeriodField,
-        minimalPeriodFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PeriodField,
+        data: minimalPeriodFieldPartialEnterprise,
+        source: minimalPeriodField,
+      })
 
       expect(result).toEqual(minimalPeriodField)
     })

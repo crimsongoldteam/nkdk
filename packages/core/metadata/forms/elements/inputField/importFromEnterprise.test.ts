@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullInputField,
   fullInputFieldPartialEnterprise,
@@ -7,65 +8,61 @@ import {
   minimalInputFieldPartialEnterprise,
   minimalInputFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importInputFieldPartialFromEnterprise, importInputFieldTypedFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { InputField } from "./types"
 
 describe("importInputFieldFromEnterprise", () => {
   describe("importInputFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importInputFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеВвода")
+      const result = importElementFromYAMLTyped<InputField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеВвода",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importInputFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullInputFieldTypedEnterprise,
-        "ПолеВвода"
-      )
+      const result = importElementFromYAMLTyped<InputField>({
+        context: mockContext,
+        data: fullInputFieldTypedEnterprise,
+        name: "ПолеВвода",
+      })
 
       expect(result).toEqual(fullInputField)
     })
 
     it("should import minimal", () => {
-      const result = importInputFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalInputFieldTypedEnterprise,
-        "ПолеВвода"
-      )
+      const result = importElementFromYAMLTyped<InputField>({
+        context: mockContext,
+        data: minimalInputFieldTypedEnterprise,
+        name: "ПолеВвода",
+      })
 
       expect(result).toEqual(minimalInputField)
     })
   })
 
   describe("importInputFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importInputFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importInputFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullInputField,
-        fullInputFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.InputField,
+        data: fullInputFieldPartialEnterprise,
+        source: fullInputField,
+      })
 
       expect(result).toEqual(fullInputField)
     })
 
     it("should import minimal", () => {
-      const result = importInputFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalInputField,
-        minimalInputFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.InputField,
+        data: minimalInputFieldPartialEnterprise,
+        source: minimalInputField,
+      })
 
       expect(result).toEqual(minimalInputField)
     })

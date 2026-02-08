@@ -1,56 +1,68 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullSearchStringAddition,
-  fullSearchStringAdditionEnterprise,
-  fullSingleSearchStringAddition,
-  fullSingleSearchStringAdditionEnterprise,
+  fullSearchStringAdditionPartialEnterprise,
+  fullSearchStringAdditionTypedEnterprise,
   minimalSearchStringAddition,
-  sourceSearchStringAddition,
+  minimalSearchStringAdditionPartialEnterprise,
+  minimalSearchStringAdditionTypedEnterprise,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importSearchStringAdditionPartialFromEnterprise,
-  importSingleSearchStringAdditionFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { SearchStringAddition } from "./types"
 
-describe("importFromEnterprise", () => {
-  describe("importSingleSearchStringAdditionFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
-      const result = importSingleSearchStringAdditionFromEnterprise(
-        mockContext,
-        mockRule,
-        fullSingleSearchStringAdditionEnterprise
-      )
-
-      expect(result).toEqual(fullSingleSearchStringAddition)
-    })
-
-    it("should import minimal", () => {
-      const result = importSingleSearchStringAdditionFromEnterprise(mockContext, mockRule, {})
+describe("importSearchStringAdditionFromEnterprise", () => {
+  describe("importSearchStringAdditionTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importElementFromYAMLTyped<SearchStringAddition>({
+        context: mockContext,
+        data: undefined,
+        name: "СтрокаПоиска",
+      })
 
       expect(result).toBeUndefined()
     })
-  })
 
-  describe("importSearchStringAdditionPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importSearchStringAdditionPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        sourceSearchStringAddition,
-        fullSearchStringAdditionEnterprise
-      )
+      const result = importElementFromYAMLTyped<SearchStringAddition>({
+        context: mockContext,
+        data: fullSearchStringAdditionTypedEnterprise,
+        name: "СтрокаПоиска",
+      })
 
       expect(result).toEqual(fullSearchStringAddition)
     })
 
     it("should import minimal", () => {
-      const result = importSearchStringAdditionPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        sourceSearchStringAddition,
-        {}
-      )
+      const result = importElementFromYAMLTyped<SearchStringAddition>({
+        context: mockContext,
+        data: minimalSearchStringAdditionTypedEnterprise,
+        name: "СтрокаПоиска",
+      })
+
+      expect(result).toEqual(minimalSearchStringAddition)
+    })
+  })
+
+  describe("importSearchStringAdditionPartialFromEnterprise", () => {
+    it("should import all fields from Enterprise", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.SearchStringAddition,
+        data: fullSearchStringAdditionPartialEnterprise,
+        source: fullSearchStringAddition,
+      })
+
+      expect(result).toEqual(fullSearchStringAddition)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.SearchStringAddition,
+        data: minimalSearchStringAdditionPartialEnterprise,
+        source: minimalSearchStringAddition,
+      })
 
       expect(result).toEqual(minimalSearchStringAddition)
     })

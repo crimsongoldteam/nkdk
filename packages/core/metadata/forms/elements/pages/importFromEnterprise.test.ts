@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullPages,
   fullPagesPartialEnterprise,
@@ -6,39 +7,50 @@ import {
   minimalPages,
   minimalPagesTypedEnterprise,
 } from "~/tests/fixtures/forms/pages/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importPagesPartialFromEnterprise, importPagesTypedFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { Pages } from "./types"
 
 describe("importPagesFromEnterprise", () => {
   describe("importPagesTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importPagesTypedFromEnterprise(mockContext, mockRule, undefined, "Страницы")
+      const result = importElementFromYAMLTyped<Pages>({
+        context: mockContext,
+        data: undefined,
+        name: "Страницы",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPagesTypedFromEnterprise(mockContext, mockRule, fullPagesTypedEnterprise, "Страницы")
+      const result = importElementFromYAMLTyped<Pages>({
+        context: mockContext,
+        data: fullPagesTypedEnterprise,
+        name: "Страницы",
+      })
 
       expect(result).toEqual(fullPages)
     })
 
     it("should import minimal", () => {
-      const result = importPagesTypedFromEnterprise(mockContext, mockRule, minimalPagesTypedEnterprise, "Страницы")
+      const result = importElementFromYAMLTyped<Pages>({
+        context: mockContext,
+        data: minimalPagesTypedEnterprise,
+        name: "Страницы",
+      })
 
       expect(result).toEqual(minimalPages)
     })
   })
 
   describe("importPagesPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importPagesPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importPagesPartialFromEnterprise(mockContext, mockRule, fullPages, fullPagesPartialEnterprise)
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.Pages,
+        data: fullPagesPartialEnterprise,
+        source: fullPages,
+      })
 
       expect(result).toEqual(fullPages)
     })

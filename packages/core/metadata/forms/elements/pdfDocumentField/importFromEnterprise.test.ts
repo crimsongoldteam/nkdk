@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullPdfDocumentField,
   fullPdfDocumentFieldPartialEnterprise,
@@ -7,68 +8,61 @@ import {
   minimalPdfDocumentFieldPartialEnterprise,
   minimalPdfDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/pdfDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importPdfDocumentFieldPartialFromEnterprise,
-  importPdfDocumentFieldTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { PdfDocumentField } from "./types"
 
 describe("importPdfDocumentFieldFromEnterprise", () => {
   describe("importPdfDocumentFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPdfDocumentFieldTypedFromEnterprise(mockContext, mockRule, undefined, "ПолеPDFДокумента")
+      const result = importElementFromYAMLTyped<PdfDocumentField>({
+        context: mockContext,
+        data: undefined,
+        name: "ПолеPDFДокумента",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPdfDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPdfDocumentFieldTypedEnterprise,
-        "ПолеPDFДокумента"
-      )
+      const result = importElementFromYAMLTyped<PdfDocumentField>({
+        context: mockContext,
+        data: fullPdfDocumentFieldTypedEnterprise,
+        name: "ПолеPDFДокумента",
+      })
 
       expect(result).toEqual(fullPdfDocumentField)
     })
 
     it("should import minimal", () => {
-      const result = importPdfDocumentFieldTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPdfDocumentFieldTypedEnterprise,
-        "ПолеPDFДокумента"
-      )
+      const result = importElementFromYAMLTyped<PdfDocumentField>({
+        context: mockContext,
+        data: minimalPdfDocumentFieldTypedEnterprise,
+        name: "ПолеPDFДокумента",
+      })
 
       expect(result).toEqual(minimalPdfDocumentField)
     })
   })
 
   describe("importPdfDocumentFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importPdfDocumentFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importPdfDocumentFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPdfDocumentField,
-        fullPdfDocumentFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PDFDocumentField,
+        data: fullPdfDocumentFieldPartialEnterprise,
+        source: fullPdfDocumentField,
+      })
 
       expect(result).toEqual(fullPdfDocumentField)
     })
 
     it("should import minimal", () => {
-      const result = importPdfDocumentFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPdfDocumentField,
-        minimalPdfDocumentFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PDFDocumentField,
+        data: minimalPdfDocumentFieldPartialEnterprise,
+        source: minimalPdfDocumentField,
+      })
 
       expect(result).toEqual(minimalPdfDocumentField)
     })
