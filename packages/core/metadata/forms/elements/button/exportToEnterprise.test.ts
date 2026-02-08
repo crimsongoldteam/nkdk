@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullButton,
   fullButtonPartialEnterprise,
@@ -7,26 +8,25 @@ import {
   minimalButtonPartialEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportButtonPartialToEnterprise, exportButtonTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportButtonToEnterprise", () => {
-  describe("exportButtonPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportButtonPartialToEnterprise(mockContext, fullButton)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullButton })
 
       expect(result).toEqual(fullButtonPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportButtonPartialToEnterprise(mockContext, minimalButton)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalButton })
 
       expect(result).toEqual(minimalButtonPartialEnterprise)
     })
   })
 
-  describe("exportButtonTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportButtonTypedToEnterprise(mockContext, fullButton)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullButton })
 
       expect(result).toEqual(fullButtonTypedEnterprise)
     })

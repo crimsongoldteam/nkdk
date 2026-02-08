@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { LabelField } from "~/metadata/forms/elements/labelField/types"
-import { exportElementToEnterprisePartial } from "~/metadata/metadataFactory"
+import { exportElementToYAMLPartial } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 
@@ -8,7 +8,7 @@ export function exportLabelFieldPartialToEnterprise<From extends LabelField | un
   context: ConfigurationContext,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterprisePartial(context, "LabelField", data) as ToPartialEnterpriseType<From>
+  return exportElementToYAMLPartial(context, "LabelField", data) as ToPartialEnterpriseType<From>
 }
 
 registerMetadata(

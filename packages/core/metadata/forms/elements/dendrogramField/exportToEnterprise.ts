@@ -1,6 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField } from "~/metadata/forms/elements/dendrogramField/types"
-import { exportElementToEnterprisePartial, exportElementToEnterpriseTyped, registerMetadata } from "~/metadata/metadataFactory"
+import {
+  exportElementToEnterpriseTyped,
+  exportElementToYAMLPartial,
+  registerMetadata,
+} from "~/metadata/metadataFactory"
 import {
   ExportPartialToEnterpriseFn,
   ExportTypedToEnterpriseFn,
@@ -13,7 +17,11 @@ export function exportDendrogramFieldTypedToEnterprise<From extends DendrogramFi
   _rule: any,
   data: From
 ): ToTypedEnterpriseType<From> {
-  return exportElementToEnterpriseTyped(context, "DendrogramField", data as any) as unknown as ToTypedEnterpriseType<From>
+  return exportElementToEnterpriseTyped(
+    context,
+    "DendrogramField",
+    data as any
+  ) as unknown as ToTypedEnterpriseType<From>
 }
 
 export function exportDendrogramFieldPartialToEnterprise<From extends DendrogramField | undefined>(
@@ -21,7 +29,7 @@ export function exportDendrogramFieldPartialToEnterprise<From extends Dendrogram
   _rule: any,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterprisePartial(context, "DendrogramField", data as any) as unknown as ToPartialEnterpriseType<From>
+  return exportElementToYAMLPartial(context, "DendrogramField", data as any) as unknown as ToPartialEnterpriseType<From>
 }
 
 registerMetadata(

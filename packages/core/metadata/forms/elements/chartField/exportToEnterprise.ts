@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ChartField } from "~/metadata/forms/elements/chartField/types"
-import { exportElementToEnterprisePartial } from "~/metadata/metadataFactory"
+import { exportElementToYAMLPartial } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 
@@ -8,7 +8,7 @@ export function exportChartFieldPartialToEnterprise<From extends ChartField | un
   context: ConfigurationContext,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterprisePartial(context, "ChartField", data) as ToPartialEnterpriseType<From>
+  return exportElementToYAMLPartial(context, "ChartField", data) as ToPartialEnterpriseType<From>
 }
 
 registerMetadata(

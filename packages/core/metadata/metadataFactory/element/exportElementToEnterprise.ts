@@ -5,17 +5,14 @@ import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
-import {
-  exportFormElementTypeToEnterprise,
-  FormElementType,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "../types"
+import { exportFormElementTypeToEnterprise, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
-export function exportElementToEnterpriseTyped<T extends TypedElement>(
-  context: ConfigurationContext,
-  data: T
-): ToTypedEnterpriseType<T> {
+export function exportElementToTypedYAML<T extends TypedElement>(params: {
+  context: ConfigurationContext
+  element: T
+}): ToTypedEnterpriseType<T> {
+  const { context, element: data } = params
+
   const rules = getElementRule<T>(data.elementType)
 
   const type = exportFormElementTypeToEnterprise(context, undefined, data.elementType)
@@ -60,12 +57,13 @@ export function exportSingleElementToEnterprise<T extends BaseElement>(
   return exportToEnterprisePartial(context, data, { rules: params.rules })
 }
 
-export function exportElementToEnterprisePartial<T extends BaseElement>(
-  context: ConfigurationContext,
-  elementType: FormElementType,
-  data: T | undefined
-): ToPartialEnterpriseType<T> | undefined {
+export function exportElementToPartialYAML<T extends BaseElement>(params: {
+  context: ConfigurationContext
+  element: T | undefined
+}): ToPartialEnterpriseType<T> | undefined {
+  const { context, element: data } = params
   if (data === undefined) return undefined
+  const elementType = data.elementType
 
   const rules = getElementRule<T>(elementType)
 

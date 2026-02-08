@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToEnterprisePartial, exportElementToEnterpriseTyped } from "~/metadata/metadataFactory"
+import { exportElementToEnterpriseTyped, exportElementToYAMLPartial } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
   ExportPartialToEnterpriseFn,
@@ -12,7 +12,7 @@ export function exportButtonGroupPartialToEnterprise<From extends ButtonGroup | 
   context: ConfigurationContext,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterprisePartial(context, "ButtonGroup", data) as ToPartialEnterpriseType<From>
+  return exportElementToYAMLPartial(context, "ButtonGroup", data) as ToPartialEnterpriseType<From>
 }
 
 export function exportButtonGroupTypedToEnterprise<From extends ButtonGroup | undefined>(

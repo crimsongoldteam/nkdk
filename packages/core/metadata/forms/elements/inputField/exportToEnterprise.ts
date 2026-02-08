@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
-import { exportElementToEnterprisePartial } from "~/metadata/metadataFactory"
+import { exportElementToYAMLPartial } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 
@@ -8,7 +8,7 @@ export function exportInputFieldPartialToEnterprise<From extends InputField | un
   context: ConfigurationContext,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterprisePartial(context, "InputField", data) as ToPartialEnterpriseType<From>
+  return exportElementToYAMLPartial(context, "InputField", data) as ToPartialEnterpriseType<From>
 }
 
 registerMetadata(
