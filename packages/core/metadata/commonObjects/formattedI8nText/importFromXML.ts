@@ -7,12 +7,12 @@ import { FormattedI8nText, FormattedI8nTextXML } from "./types"
 
 export const importFormattedI8nTextFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  rule: PropertyRule<any>,
   xml: FormattedI8nTextXML | undefined
 ): FormattedI8nText | undefined => {
   if (xml === undefined) return undefined
 
-  const resultI8nText = importI8nTextFromXML(context, undefined, xml)
+  const resultI8nText = importI8nTextFromXML(context, rule, xml)
 
   if (resultI8nText === undefined) return undefined
 

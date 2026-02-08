@@ -1,35 +1,15 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
 export const importFormattedI8nTextFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  rule: PropertyRule<any>,
   text: FormattedI8nTextEnterprise | undefined,
-  formattedText: FormattedI8nTextEnterprise | undefined
-): FormattedI8nText | undefined => {
-  if (text === undefined && formattedText === undefined) return undefined
-
-  const textValue = formattedText ? formattedText : text
-  const textResult = importI8nTextFromEnterprise(context, undefined, textValue)!
-
-  const result: FormattedI8nText = {
-    formatted: formattedText !== undefined,
-    items: textResult.items,
-  }
-
-  return result
-}
-
-export const importFormattedI8nTextCombinedFromEnterprise = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  source: I8nText | undefined,
-  text: FormattedI8nTextEnterprise | undefined,
-  formattedText: FormattedI8nTextEnterprise | undefined
+  formattedText: FormattedI8nTextEnterprise | undefined,
+  source?: I8nText | undefined
 ): FormattedI8nText | undefined => {
   if (source === undefined && text === undefined && formattedText === undefined) return undefined
 
@@ -43,7 +23,7 @@ export const importFormattedI8nTextCombinedFromEnterprise = (
   }
 
   if (text !== undefined || formattedText !== undefined) {
-    const otherLanguages = importFormattedI8nTextFromEnterprise(context, undefined, text, formattedText)!
+    const otherLanguages = importFromEnterprise(context, rule, text, formattedText)!
     result.items = { ...result.items, ...otherLanguages.items }
     result.formatted = otherLanguages.formatted
   }
@@ -53,4 +33,21 @@ export const importFormattedI8nTextCombinedFromEnterprise = (
   return result
 }
 
-registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromEnterprise as any)
+const importFromEnterprise = (
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  text: FormattedI8nTextEnterprise | undefined,
+  formattedText: FormattedI8nTextEnterprise | undefined
+): FormattedI8nText | undefined => {
+  if (text === undefined && formattedText === undefined) return undefined
+
+  const textValue = formattedText ? formattedText : text
+  const textResult = importI8nTextFromEnterprise(context, rule, textValue)!
+
+  const result: FormattedI8nText = {
+    formatted: formattedText !== undefined,
+    items: textResult.items,
+  }
+
+  return result
+}

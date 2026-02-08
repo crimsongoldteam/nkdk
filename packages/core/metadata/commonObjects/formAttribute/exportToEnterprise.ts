@@ -150,7 +150,7 @@ const exportFormAttributeColumnToEnterprise = (
 ): FormAttributeColumnEnterprise => {
   const result: FormAttributeColumnEnterprise = {}
 
-  const title = exportI8nTextToYAML(context, undefined, column.title)
+  const title = exportI8nTextToYAML(context, { type: "I8nText" }, column.title)
   if (title) result.Заголовок = title
 
   const type = exportTypeDescriptionToEnterprise(context, undefined, column.type)
@@ -225,12 +225,12 @@ const computeTitleForExport = (
     }
     // Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой)
     if (filteredTitle === undefined && data.title && defaultTitle !== undefined) {
-      return exportI8nTextToYAML(context, undefined, data.title)
+      return exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
     }
   }
 
   // Обычная логика
-  return exportI8nTextToYAML(context, undefined, filteredTitle)
+  return exportI8nTextToYAML(context, { type: "I8nText" }, filteredTitle)
 }
 
 const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {

@@ -1,9 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import {
-  importSystemEnumerationFromEnterprise,
-  importSystemEnumerationFromYAML,
-} from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
@@ -18,7 +15,7 @@ export const importFontFromEnterprise = (
 
   // Если данные - строка (компактный формат)
   if (typeof yaml === "string") {
-    const styleFontRef = importSystemEnumerationFromYAML(
+    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(
       context,
       { type: "SystemEnumeration", typeSE: "StyleFonts" },
       yaml
@@ -30,7 +27,7 @@ export const importFontFromEnterprise = (
       }
     }
 
-    const windowsFontRef = importSystemEnumerationFromYAML(
+    const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
       context,
       { type: "SystemEnumeration", typeSE: "WindowsFonts" },
       yaml
@@ -55,21 +52,19 @@ export const importFontFromEnterprise = (
 
   // Конвертируем Вид в ref и kind
   if (fullData.Вид !== undefined) {
-    const styleFontRef = importSystemEnumerationFromEnterprise(
+    const styleFontRef = importSystemEnumerationFromYAML<SE.StyleFonts>(
       context,
-      undefined,
-      fullData.Вид,
-      SE.StyleFontsFromEnterprise
+      { type: "SystemEnumeration", typeSE: "StyleFonts" },
+      fullData.Вид
     )
     if (styleFontRef) {
       result.ref = styleFontRef
       result.kind = "StyleItem"
     } else {
-      const windowsFontRef = importSystemEnumerationFromEnterprise(
+      const windowsFontRef = importSystemEnumerationFromYAML<SE.WindowsFonts>(
         context,
-        undefined,
-        fullData.Вид,
-        SE.WindowsFontsFromEnterprise
+        { type: "SystemEnumeration", typeSE: "WindowsFonts" },
+        fullData.Вид
       )
       if (windowsFontRef) {
         result.ref = windowsFontRef
