@@ -1,7 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementXML, exportSingleElementToXML, PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
-import { exportFormAutoCommandBarToXML, exportTableAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { getExtendedTooltipName } from "./helper"
 import { ExtendedTooltipRules } from "./rules"
 import { ExtendedTooltip } from "./types"
@@ -24,5 +23,4 @@ export const exportExtendedTooltipToXML = (
   })!
 }
 
-registerTypeRule("AutoCommandBar", "exportToEnterprise", exportFormAutoCommandBarToXML)
-registerTypeRule("TableAutoCommandBar", "exportToEnterprise", exportTableAutoCommandBarToXML)
+registerTypeRule("ExtendedTooltip", "exportToXML", exportExtendedTooltipToXML)
