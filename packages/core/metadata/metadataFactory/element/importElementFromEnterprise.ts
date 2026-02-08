@@ -12,7 +12,7 @@ import {
   ToTypedEnterpriseType,
 } from "../types"
 
-export function importElementFromYAMLTyped<T extends NamedElement>(params: {
+export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
   data: ToTypedEnterpriseType<T> | undefined
   name: string

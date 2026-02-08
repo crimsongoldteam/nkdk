@@ -105,6 +105,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   commandBarLocation: "Top",
   commandSet: ["Add"],
   contextMenu: {
+    elementType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
@@ -250,6 +251,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   verticalScrollBar: "UseAlways",
   verticalStretch: false,
   viewStatusAddition: {
+    elementType: "ViewStatusAddition",
     title: {
       items: {
         ru: "Состояние просмотра",

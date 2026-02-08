@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullButtonGroup,
   fullButtonGroupPartialEnterprise,
@@ -14,7 +14,7 @@ import { ButtonGroup } from "./types"
 describe("importButtonGroupFromEnterprise", () => {
   describe("importButtonGroupTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importElementFromYAMLTyped<ButtonGroup>({
+      const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
         data: undefined,
         name: "ГруппаКнопок",
@@ -24,7 +24,7 @@ describe("importButtonGroupFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<ButtonGroup>({
+      const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
         data: fullButtonGroupTypedEnterprise,
         name: "ГруппаКнопок",
@@ -34,7 +34,7 @@ describe("importButtonGroupFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<ButtonGroup>({
+      const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
         data: minimalButtonGroupTypedEnterprise,
         name: "ГруппаКнопок",

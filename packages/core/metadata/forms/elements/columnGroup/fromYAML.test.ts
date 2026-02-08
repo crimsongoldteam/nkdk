@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullColumnGroup,
   fullColumnGroupPartialEnterprise,
@@ -13,7 +13,7 @@ import { ColumnGroup } from "./types"
 describe("importColumnGroupFromEnterprise", () => {
   describe("importColumnGroupTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importElementFromYAMLTyped<ColumnGroup>({
+      const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
         data: undefined,
         name: "ГруппаКолонок",
@@ -23,7 +23,7 @@ describe("importColumnGroupFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<ColumnGroup>({
+      const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
         data: fullColumnGroupTypedEnterprise,
         name: "ГруппаКолонок",
@@ -33,7 +33,7 @@ describe("importColumnGroupFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<ColumnGroup>({
+      const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
         data: minimalColumnGroupTypedEnterprise,
         name: "ГруппаКолонок",

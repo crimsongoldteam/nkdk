@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color, ColorEnterprise } from "./types"
 
@@ -22,11 +22,10 @@ export const importColorFromEnterprise = (
   }
 
   // Проверяем, является ли это стандартным цветом из стиля
-  const styleColor = importSystemEnumerationFromEnterprise<SE.StyleColors>(
+  const styleColor = importSystemEnumerationFromYAML<SE.StyleColors>(
     _context,
-    undefined,
-    data,
-    SE.StyleColorsFromEnterprise
+    { type: "SystemEnumeration", typeSE: "StyleColors" },
+    data
   )
   if (styleColor) {
     return {
@@ -36,11 +35,10 @@ export const importColorFromEnterprise = (
   }
 
   // Проверяем, является ли это Windows цветом
-  const windowsColor = importSystemEnumerationFromEnterprise<SE.WindowsColors>(
+  const windowsColor = importSystemEnumerationFromYAML<SE.WindowsColors>(
     _context,
-    undefined,
-    data,
-    SE.WindowsColorsFromEnterprise
+    { type: "SystemEnumeration", typeSE: "WindowsColors" },
+    data
   )
   if (windowsColor) {
     return {
@@ -50,11 +48,10 @@ export const importColorFromEnterprise = (
   }
 
   // Проверяем, является ли это Web цветом
-  const webColor = importSystemEnumerationFromEnterprise<SE.WebColors>(
+  const webColor = importSystemEnumerationFromYAML<SE.WebColors>(
     _context,
-    undefined,
-    data,
-    SE.WebColorsFromEnterprise
+    { type: "SystemEnumeration", typeSE: "WebColors" },
+    data
   )
   if (webColor) {
     return {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullPictureField,
   fullPictureFieldPartialEnterprise,
@@ -14,7 +14,7 @@ import { PictureField } from "./types"
 describe("importPictureFieldFromEnterprise", () => {
   describe("importPictureFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importElementFromYAMLTyped<PictureField>({
+      const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,
         data: undefined,
         name: "ПолеКартинки",
@@ -24,7 +24,7 @@ describe("importPictureFieldFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<PictureField>({
+      const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,
         data: fullPictureFieldTypedEnterprise,
         name: "ПолеКартинки",
@@ -34,7 +34,7 @@ describe("importPictureFieldFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<PictureField>({
+      const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,
         data: minimalPictureFieldTypedEnterprise,
         name: "ПолеКартинки",

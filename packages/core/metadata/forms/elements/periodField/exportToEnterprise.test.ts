@@ -1,40 +1,23 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullPeriodField,
   fullPeriodFieldPartialEnterprise,
-  fullPeriodFieldTypedEnterprise,
   minimalPeriodField,
   minimalPeriodFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportPeriodFieldPartialToEnterprise, exportPeriodFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
 
 describe("exportPeriodFieldToEnterprise", () => {
-  describe("exportPeriodFieldPartialToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportPeriodFieldPartialToEnterprise(mockContext, mockRule, fullPeriodField)
+  it("should export all fields to Enterprise", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: fullPeriodField })
 
-      expect(result).toEqual(fullPeriodFieldPartialEnterprise)
-    })
-
-    it("should export minimal", () => {
-      const result = exportPeriodFieldPartialToEnterprise(mockContext, mockRule, minimalPeriodField)
-
-      expect(result).toEqual(minimalPeriodFieldPartialEnterprise)
-    })
+    expect(result).toEqual(fullPeriodFieldPartialEnterprise)
   })
 
-  describe("exportPeriodFieldTypedToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportPeriodFieldTypedToEnterprise(mockContext, mockRule, fullPeriodField)
+  it("should export minimal", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: minimalPeriodField })
 
-      expect(result).toEqual(fullPeriodFieldTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportPeriodFieldTypedToEnterprise(mockContext, mockRule, undefined)
-
-      expect(result).toBeUndefined()
-    })
+    expect(result).toEqual(minimalPeriodFieldPartialEnterprise)
   })
 })

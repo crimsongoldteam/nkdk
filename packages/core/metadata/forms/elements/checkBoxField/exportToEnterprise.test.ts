@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullCheckBoxField,
   fullCheckBoxFieldPartialEnterprise,
@@ -7,7 +8,6 @@ import {
   minimalCheckBoxFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportCheckBoxFieldToEnterprise", () => {
   describe("exportElementToPartialYAML", () => {

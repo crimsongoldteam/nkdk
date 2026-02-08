@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
 import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
@@ -75,7 +75,11 @@ function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEn
 
 function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
   if (ref in SE.PictureLibFromEnterprise) {
-    return importSystemEnumerationFromEnterprise(context, undefined, ref, SE.PictureLibFromEnterprise)
+    return importSystemEnumerationFromYAML<SE.PictureLib>(
+      context,
+      { type: "SystemEnumeration", typeSE: "PictureLib" },
+      ref
+    )
   }
   return undefined
 }

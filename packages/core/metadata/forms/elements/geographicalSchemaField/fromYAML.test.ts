@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullGeographicalSchemaField,
   fullGeographicalSchemaFieldPartialEnterprise,
@@ -14,7 +14,7 @@ import { GeographicalSchemaField } from "./types"
 describe("importGeographicalSchemaFieldFromEnterprise", () => {
   describe("importGeographicalSchemaFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importElementFromYAMLTyped<GeographicalSchemaField>({
+      const result = importElementFromTypedYAML<GeographicalSchemaField>({
         context: mockContext,
         data: undefined,
         name: "ПолеГеографическойСхемы",
@@ -24,7 +24,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<GeographicalSchemaField>({
+      const result = importElementFromTypedYAML<GeographicalSchemaField>({
         context: mockContext,
         data: fullGeographicalSchemaFieldTypedEnterprise,
         name: "ПолеГеографическойСхемы",
@@ -34,7 +34,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<GeographicalSchemaField>({
+      const result = importElementFromTypedYAML<GeographicalSchemaField>({
         context: mockContext,
         data: minimalGeographicalSchemaFieldTypedEnterprise,
         name: "ПолеГеографическойСхемы",

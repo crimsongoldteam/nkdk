@@ -182,9 +182,19 @@ export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = 
   },
 }
 
+export const fullPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
+  ...fullPictureFieldPartialEnterprise,
+  Тип: "ПолеРисунка",
+  Заголовок: "Поле картинки",
+}
+
 export const minimalPictureField: PictureField = {
   elementType: FormElementType.PictureField,
   name: "ПолеКартинки",
 }
 
 export const minimalPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = {}
+
+export const minimalPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
+  Тип: "ПолеРисунка",
+}

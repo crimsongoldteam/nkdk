@@ -15,7 +15,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import { FillChecking, FillCheckingFromEnterprise } from "~/metadata/systemEnumerations/types"
 import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
 import { importFieldsListFromEnterprise } from "../fieldsList/importFromEnterprise"
@@ -66,11 +66,10 @@ const importFormAttributeFromEnterprise = (
   const storedData = importBooleanFromEnterprise(context, undefined, data.СохраняемыеДанные)
   if (storedData !== undefined) result.storedData = storedData
 
-  const fillCheck = importSystemEnumerationFromEnterprise<FillChecking>(
+  const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
     context,
-    undefined,
-    data.ПроверкаЗаполнения,
-    FillCheckingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.ПроверкаЗаполнения
   )
   if (fillCheck) result.fillCheck = fillCheck
 
@@ -150,11 +149,10 @@ const importFormAttributeColumnFromEnterprise = (
   const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
   if (type) column.type = type
 
-  const fillCheck = importSystemEnumerationFromEnterprise<FillChecking>(
+  const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
     context,
-    undefined,
-    data.ПроверкаЗаполнения,
-    FillCheckingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.ПроверкаЗаполнения
   )
   if (fillCheck) column.fillCheck = fillCheck
 

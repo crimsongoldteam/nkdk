@@ -13,7 +13,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metadataRef/importFromEnterprise"
 import { getDefaults } from "./defaults"
@@ -28,7 +28,11 @@ export const importMetadataCommandFromEnterprise = (
   if (typeof data === "string") {
     let group: SE.StandardCommandsGroup | string
     if (data in SE.StandardCommandsGroupFromEnterprise) {
-      group = importSystemEnumerationFromEnterprise(context, undefined, data, SE.StandardCommandsGroupFromEnterprise)!
+      group = importSystemEnumerationFromYAML<SE.StandardCommandsGroup>(
+        context,
+        { type: "SystemEnumeration", typeSE: "StandardCommandsGroup" },
+        data
+      )!
     } else {
       group = importMetadataItemLinkFromEnterprise(context, undefined, data)!
     }
@@ -44,11 +48,10 @@ export const importMetadataCommandFromEnterprise = (
 
   let group: SE.StandardCommandsGroup | string
   if (typeof fullData.Группа === "string" && fullData.Группа in SE.StandardCommandsGroupFromEnterprise) {
-    group = importSystemEnumerationFromEnterprise(
+    group = importSystemEnumerationFromYAML<SE.StandardCommandsGroup>(
       context,
-      undefined,
-      fullData.Группа,
-      SE.StandardCommandsGroupFromEnterprise
+      { type: "SystemEnumeration", typeSE: "StandardCommandsGroup" },
+      fullData.Группа
     )!
   } else {
     group = importMetadataItemLinkFromEnterprise(context, undefined, fullData.Группа)!
@@ -74,30 +77,27 @@ export const importMetadataCommandFromEnterprise = (
   const modifiesData = importBooleanFromEnterprise(context, undefined, fullData.ИзменяетДанные)
   if (modifiesData !== undefined) result.modifiesData = modifiesData
 
-  const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
+  const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
     context,
-    undefined,
-    fullData.ПринадлежностьОбъекта,
-    SE.ObjectBelongingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
+    fullData.ПринадлежностьОбъекта
   )
   if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const parameterUseMode = importSystemEnumerationFromEnterprise<SE.CommandParameterUseMode>(
+  const parameterUseMode = importSystemEnumerationFromYAML<SE.CommandParameterUseMode>(
     context,
-    undefined,
-    fullData.РежимИспользованияПараметра,
-    SE.CommandParameterUseModeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "CommandParameterUseMode" },
+    fullData.РежимИспользованияПараметра
   )
   if (parameterUseMode !== undefined) result.parameterUseMode = parameterUseMode
 
   const picture = importPictureFromEnterprise(context, undefined, fullData.Картинка)
   if (picture !== undefined) result.picture = picture
 
-  const representation = importSystemEnumerationFromEnterprise<SE.ButtonRepresentation>(
+  const representation = importSystemEnumerationFromYAML<SE.ButtonRepresentation>(
     context,
-    undefined,
-    fullData.Отображение,
-    SE.ButtonRepresentationFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ButtonRepresentation" },
+    fullData.Отображение
   )
   if (representation !== undefined) result.representation = representation
 
@@ -106,11 +106,10 @@ export const importMetadataCommandFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, fullData.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const onMainServerUnavalableBehavior = importSystemEnumerationFromEnterprise<SE.OnMainServerUnavalableBehavior>(
+  const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
     context,
-    undefined,
-    fullData.ПоведениеПриНедоступностиОсновногоСервера,
-    SE.OnMainServerUnavalableBehaviorFromEnterprise
+    { type: "SystemEnumeration", typeSE: "OnMainServerUnavalableBehavior" },
+    fullData.ПоведениеПриНедоступностиОсновногоСервера
   )
   if (onMainServerUnavalableBehavior !== undefined)
     result.onMainServerUnavalableBehavior = onMainServerUnavalableBehavior

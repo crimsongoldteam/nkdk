@@ -11,7 +11,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
@@ -34,21 +34,19 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
 
-  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
+  const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
-    undefined,
-    data.ПроверкаЗаполнения,
-    SE.FillCheckingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.ПроверкаЗаполнения
   )
   if (fillChecking !== undefined) result.fillChecking = fillChecking
 
   if (data.ДлинаНомераСтроки !== undefined) result.lineNumberLength = data.ДлинаНомераСтроки
 
-  const use = importSystemEnumerationFromEnterprise<SE.AttributeUse>(
+  const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
     context,
-    undefined,
-    data.Использование,
-    SE.AttributeUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "AttributeUse" },
+    data.Использование
   )
   if (use !== undefined) result.use = use
 

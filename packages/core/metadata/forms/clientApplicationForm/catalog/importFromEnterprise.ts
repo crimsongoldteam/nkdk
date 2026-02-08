@@ -1,7 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
@@ -46,22 +46,20 @@ export const importCatalogFormFromEnterprise = (
   const choiceAvailable = importBooleanFromEnterprise(context, undefined, data.ВыборДоступен)
   if (choiceAvailable !== undefined) result.choiceAvailable = choiceAvailable
 
-  const useForFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
+  const useForFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
-    undefined,
-    data.ИспользованиеДляГруппИЭлементов,
-    SE.FoldersAndItemsUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FoldersAndItemsUse" },
+    data.ИспользованиеДляГруппИЭлементов
   )
   if (useForFoldersAndItems !== undefined) result.useForFoldersAndItems = useForFoldersAndItems
 
   const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
-  const choiceMode = importSystemEnumerationFromEnterprise<SE.ChoiceMode>(
+  const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(
     context,
-    undefined,
-    data.РежимВыбора,
-    SE.ChoiceModeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceMode" },
+    data.РежимВыбора
   )
   if (choiceMode !== undefined) result.choiceMode = choiceMode
 

@@ -13,7 +13,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
@@ -63,19 +63,17 @@ const importMetadataAttributeFromEnterprise = (
     synonym,
   }
 
-  const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(
+  const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
     context,
-    undefined,
-    data.БыстрыйВыбор,
-    SE.UseQuickChoiceFromEnterprise
+    { type: "SystemEnumeration", typeSE: "UseQuickChoice" },
+    data.БыстрыйВыбор
   )
   if (quickChoice !== undefined) result.quickChoice = quickChoice
 
-  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItemsUse>(
+  const choiceFoldersAndItems = importSystemEnumerationFromYAML<SE.FoldersAndItemsUse>(
     context,
-    undefined,
-    data.ВыборГруппИЭлементов,
-    SE.FoldersAndItemsUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FoldersAndItemsUse" },
+    data.ВыборГруппИЭлементов
   )
   if (choiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = choiceFoldersAndItems
 
@@ -88,43 +86,38 @@ const importMetadataAttributeFromEnterprise = (
   const fillValue = importMetadataValueFromEnterprise(context, undefined, data.ЗначениеЗаполнения)
   if (fillValue !== undefined) result.fillValue = fillValue
 
-  const indexing = importSystemEnumerationFromEnterprise<SE.Indexing>(
+  const indexing = importSystemEnumerationFromYAML<SE.Indexing>(
     context,
-    undefined,
-    data.Индексирование,
-    SE.IndexingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "Indexing" },
+    data.Индексирование
   )
   if (indexing !== undefined) result.indexing = indexing
 
-  const use = importSystemEnumerationFromEnterprise<SE.AttributeUse>(
+  const use = importSystemEnumerationFromYAML<SE.AttributeUse>(
     context,
-    undefined,
-    data.Использование,
-    SE.AttributeUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "AttributeUse" },
+    data.Использование
   )
   if (use !== undefined) result.use = use
 
-  const binaryDataStorageLocationUse = importSystemEnumerationFromEnterprise<SE.BinaryDataStorageLocationUse>(
+  const binaryDataStorageLocationUse = importSystemEnumerationFromYAML<SE.BinaryDataStorageLocationUse>(
     context,
-    undefined,
-    data.ИспользованиеХраненияВХранилищеДвоичныхДанных,
-    SE.BinaryDataStorageLocationUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "BinaryDataStorageLocationUse" },
+    data.ИспользованиеХраненияВХранилищеДвоичныхДанных
   )
   if (binaryDataStorageLocationUse !== undefined) result.binaryDataStorageLocationUse = binaryDataStorageLocationUse
 
-  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
-    undefined,
-    data.ИсторияВыбораПриВводе,
-    SE.ChoiceHistoryOnInputFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput" },
+    data.ИсторияВыбораПриВводе
   )
   if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
+  const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
-    undefined,
-    data.ИсторияДанных,
-    SE.DataHistoryUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
+    data.ИсторияДанных
   )
   if (dataHistory !== undefined) result.dataHistory = dataHistory
 
@@ -153,11 +146,10 @@ const importMetadataAttributeFromEnterprise = (
   if (binaryDataStorageLocationUseField !== undefined)
     result.binaryDataStorageLocationUseField = binaryDataStorageLocationUseField
 
-  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
+  const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
-    { type: "I8nText" },
-    data.ПолнотекстовыйПоиск,
-    SE.UseFullTextSearchFromEnterprise
+    { type: "SystemEnumeration", typeSE: "UseFullTextSearch" },
+    data.ПолнотекстовыйПоиск
   )
   if (fullTextSearch !== undefined) result.fullTextSearch = fullTextSearch
 
@@ -168,10 +160,10 @@ const importMetadataAttributeFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
+  const fillChecking = importSystemEnumerationFromYAML<SE.FillChecking>(
     context,
-    data.ПроверкаЗаполнения,
-    SE.FillCheckingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.ПроверкаЗаполнения
   )
   if (fillChecking !== undefined) result.fillChecking = fillChecking
 
@@ -187,11 +179,10 @@ const importMetadataAttributeFromEnterprise = (
   const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
   if (linkByType !== undefined) result.linkByType = linkByType
 
-  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
+  const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
-    undefined,
-    data.СозданиеПриВводе,
-    SE.CreateOnInputFromEnterprise
+    { type: "SystemEnumeration", typeSE: "CreateOnInput" },
+    data.СозданиеПриВводе
   )
   if (createOnInput !== undefined) result.createOnInput = createOnInput
 

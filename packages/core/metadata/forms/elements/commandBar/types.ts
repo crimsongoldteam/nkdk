@@ -1,16 +1,12 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  CommandBarChildItem,
-  CommandBarChildItemsTypedEnterprise,
-  CommandBarChildItemsXML,
-} from "../../collections/childItems/types"
-import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { CommandBarChildItem } from "../../collections/childItems/types"
+import { NamedElement } from "../baseElement/types"
+import { ExtendedTooltip } from "../extendedTooltip/types"
 
 export interface CommandBar extends NamedElement {
   elementType: "CommandBar"
@@ -40,33 +36,6 @@ export interface CommandBar extends NamedElement {
   childItems: CommandBarChildItem[]
 }
 
-export interface CommandBarXML extends BaseElementXML {
-  Autofill?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation //HorizontalAlignInGroup
-  EnableContentChange?: boolean
-  Enabled?: boolean
-  Height?: number
-  HorizontalLocation?: SE.ItemHorizontalLocation // HorizontalAlign
-  HorizontalStretch?: boolean
-  ReadOnly?: boolean
-  Shortcut?: string
-  CommandSource?: string
-  Title?: I8nTextXML
-  TitleFont?: FontXML
-  TitleTextColor?: ColorXML
-  ExtendedTooltip: ExtendedTooltipXML // Нет в Enterprise
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormGroupType
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-  ChildItems?: CommandBarChildItemsXML
-}
-
 export interface CommandBarPartialEnterprise {
   Автозаполнение?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
@@ -91,9 +60,5 @@ export interface CommandBarPartialEnterprise {
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
   ИсточникКоманд?: string
-  ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
-}
-
-export interface CommandBarTypedEnterprise extends CommandBarPartialEnterprise {
-  Тип: "КоманднаяПанель"
+  // ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
 }

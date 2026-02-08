@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullCheckBoxField,
   fullCheckBoxFieldPartialEnterprise,
@@ -13,7 +13,7 @@ import { CheckBoxField } from "./types"
 describe("importCheckBoxFieldFromEnterprise", () => {
   describe("importCheckBoxFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importElementFromYAMLTyped({
+      const result = importElementFromTypedYAML({
         context: mockContext,
         data: undefined,
         name: "Флажок",
@@ -23,7 +23,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<CheckBoxField>({
+      const result = importElementFromTypedYAML<CheckBoxField>({
         context: mockContext,
         data: fullCheckBoxFieldTypedEnterprise,
         name: "Флажок",
@@ -33,7 +33,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<CheckBoxField>({
+      const result = importElementFromTypedYAML<CheckBoxField>({
         context: mockContext,
         data: minimalCheckBoxFieldTypedEnterprise,
         name: "Флажок",

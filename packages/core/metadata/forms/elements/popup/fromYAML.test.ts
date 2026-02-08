@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullPopup,
   fullPopupPartialEnterprise,
@@ -14,7 +14,7 @@ import { Popup } from "./types"
 describe("importPopupFromEnterprise", () => {
   describe("importPopupTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importElementFromYAMLTyped<Popup>({
+      const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
         data: undefined,
         name: "ВсплывающаяФорма",
@@ -24,7 +24,7 @@ describe("importPopupFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<Popup>({
+      const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
         data: fullPopupTypedEnterprise,
         name: "ВсплывающаяФорма",
@@ -34,7 +34,7 @@ describe("importPopupFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<Popup>({
+      const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
         data: minimalPopupTypedEnterprise,
         name: "ВсплывающаяФорма",

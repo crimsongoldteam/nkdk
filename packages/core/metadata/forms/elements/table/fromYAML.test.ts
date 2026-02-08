@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
-import {
-  fullTable,
-  fullTablePartialEnterprise,
-  minimalTable,
-  minimalTablePartialEnterprise,
-} from "~/tests/fixtures/forms/table/data"
+import { fullTable, fullTableEnterprise, minimalTable, minimalTableEnterprise } from "~/tests/fixtures/forms/table/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importTableFromEnterprise", () => {
@@ -13,7 +8,7 @@ describe("importTableFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.Table,
-      data: fullTablePartialEnterprise,
+      data: fullTableEnterprise,
       source: fullTable,
     })
 
@@ -24,7 +19,7 @@ describe("importTableFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.Table,
-      data: minimalTablePartialEnterprise,
+      data: minimalTableEnterprise,
       source: minimalTable,
     })
 

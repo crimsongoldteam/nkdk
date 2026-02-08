@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullButton,
   fullButtonPartialEnterprise,
@@ -13,7 +13,7 @@ import { Button } from "./types"
 describe("importButtonFromEnterprise", () => {
   describe("importButtonTypedFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLTyped<Button>({
+      const result = importElementFromTypedYAML<Button>({
         context: mockContext,
         data: fullButtonTypedEnterprise,
         name: "ОбычнаяКнопка",
@@ -23,7 +23,7 @@ describe("importButtonFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLTyped<Button>({
+      const result = importElementFromTypedYAML<Button>({
         context: mockContext,
         data: minimalButtonTypedEnterprise,
         name: "ОбычнаяКнопка",
