@@ -15,6 +15,17 @@ export const exportI8nTextToYAML = (
   return exportFullI8nTextToYAML(context, title)
 }
 
+export const exportI8nTextDefaultToEnterprise = (
+  context: ConfigurationContext,
+  title: I8nText | undefined
+): string | undefined => {
+  if (!title) return undefined
+
+  const defaultLanguage = context.defaultLanguage
+
+  return title.items[defaultLanguage]
+}
+
 const exportFullI8nTextToYAML = (
   context: ConfigurationContext,
   title: I8nText | undefined
@@ -42,17 +53,6 @@ const exportI8nTextOtherToEnterprise = (
   const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
 
   return exportFullI8nTextToYAML(context, { items: filtredItems })
-}
-
-export const exportI8nTextDefaultToEnterprise = (
-  context: ConfigurationContext,
-  title: I8nText | undefined
-): string | undefined => {
-  if (!title) return undefined
-
-  const defaultLanguage = context.defaultLanguage
-
-  return title.items[defaultLanguage]
 }
 
 registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToYAML)

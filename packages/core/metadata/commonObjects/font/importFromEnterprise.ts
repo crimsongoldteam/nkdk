@@ -1,6 +1,9 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import {
+  importSystemEnumerationFromEnterprise,
+  importSystemEnumerationFromYAML,
+} from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
@@ -15,8 +18,11 @@ export const importFontFromEnterprise = (
 
   // Если данные - строка (компактный формат)
   if (typeof yaml === "string") {
-    // Проверяем, является ли это Enterprise значением ref
-    const styleFontRef = importSystemEnumerationFromEnterprise(context, undefined, yaml, SE.StyleFontsFromEnterprise)
+    const styleFontRef = importSystemEnumerationFromYAML(
+      context,
+      { type: "SystemEnumeration", typeSE: "StyleFonts" },
+      yaml
+    )
     if (styleFontRef) {
       return {
         ref: styleFontRef,
@@ -24,11 +30,10 @@ export const importFontFromEnterprise = (
       }
     }
 
-    const windowsFontRef = importSystemEnumerationFromEnterprise(
+    const windowsFontRef = importSystemEnumerationFromYAML(
       context,
-      undefined,
-      yaml,
-      SE.WindowsFontsFromEnterprise
+      { type: "SystemEnumeration", typeSE: "WindowsFonts" },
+      yaml
     )
     if (windowsFontRef) {
       return {

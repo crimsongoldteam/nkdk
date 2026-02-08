@@ -26,6 +26,7 @@ export interface FormattedI8nTextPropertyRule<T extends BaseElement> extends Bas
   type: "FormattedI8nText"
   yamlFormatted: string
   yamlPartialOthers?: true
+  xmlWithDefaultLanguage?: true
 }
 
 export interface SystemEnumerationPropertyRule<T extends BaseElement> extends BasePropertyRule<T> {

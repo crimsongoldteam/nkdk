@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
@@ -59,10 +59,10 @@ const convertRefToEnterprise = (
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToEnterprise(context, undefined, ref, SE.StyleFontsToEnterprise)
+    return exportSystemEnumerationToYAML(context, { type: "SystemEnumeration", typeSE: "StyleFonts" }, ref)
   }
 
-  return exportSystemEnumerationToEnterprise(context, undefined, ref, SE.WindowsFontsToEnterprise)
+  return exportSystemEnumerationToYAML(context, { type: "SystemEnumeration", typeSE: "WindowsFonts" }, ref)
 }
 
 registerTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)
