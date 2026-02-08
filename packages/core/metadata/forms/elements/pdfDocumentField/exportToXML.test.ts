@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportPdfDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/pdfDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullPdfDocumentField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullPdfDocumentField })
 
     const result = xmlExport({ PdfDocumentField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportPdfDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/pdfDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalPdfDocumentField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalPdfDocumentField })
 
     const result = xmlExport({ PdfDocumentField: xmlData }, false)
 

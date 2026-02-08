@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportPeriodFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/periodField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullPeriodField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullPeriodField })
 
     const result = xmlExport({ PeriodField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportPeriodFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/periodField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalPeriodField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalPeriodField })
 
     const result = xmlExport({ PeriodField: xmlData }, false)
 

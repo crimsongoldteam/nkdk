@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToXML"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import {
   fullSearchStringAddition,
   fullSingleSearchStringAddition,
@@ -10,7 +11,6 @@ import {
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportElementToXML } from "~/metadata/metadataFactory"
 import { exportSingleSearchStringAdditionToXML } from "./exportToXML"
 
 describe("exportSearchStringAdditionToXML", () => {
@@ -61,7 +61,7 @@ describe("exportSearchStringAdditionToXML", () => {
 
       const xmlData = exportElementToXML({
         context: mockContext,
-        data: fullSearchStringAddition,
+        element: fullSearchStringAddition,
       })
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
@@ -73,7 +73,7 @@ describe("exportSearchStringAdditionToXML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
       const xmlData = exportElementToXML({
         context: mockContext,
-        data: minimalSearchStringAddition,
+        element: minimalSearchStringAddition,
       })
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)

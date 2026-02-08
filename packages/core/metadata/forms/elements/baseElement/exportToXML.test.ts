@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { FormElementType } from "../../../metadataFactory/types"
 import { exportElementToXML } from "../../../metadataFactory"
+import { FormElementType } from "../../../metadataFactory/types"
 import { NamedElement } from "./types"
 
 describe("exportBaseElementToXML", () => {
@@ -14,7 +14,7 @@ describe("exportBaseElementToXML", () => {
 
     const expectedResult = `<BaseElement name="ИмяПоля" id="1"/>`
 
-    const xmlData = exportElementToXML({ context: mockContext, data: mockElement })
+    const xmlData = exportElementToXML({ context: mockContext, element: mockElement })
     const result = { BaseElement: xmlData }
     const xmlString = xmlExport(result, false)
 

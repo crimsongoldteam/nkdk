@@ -9,7 +9,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportTableToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/table/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullTable })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullTable })
 
     const result = xmlExport({ Table: xmlData }, false)
 
@@ -18,7 +18,7 @@ describe("exportTableToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/table/minimal.xml").trimEnd()
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalTable })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalTable })
 
     const result = xmlExport({ Table: xmlData }, false)
 

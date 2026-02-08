@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportTrackBarFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/trackBarField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullTrackBarField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullTrackBarField })
 
     const result = xmlExport({ TrackBarField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportTrackBarFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/trackBarField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalTrackBarField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalTrackBarField })
 
     const result = xmlExport({ TrackBarField: xmlData }, false)
 

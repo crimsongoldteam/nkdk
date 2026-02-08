@@ -10,7 +10,7 @@ describe("exportContextMenuToXML", () => {
   it("should return all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/contextMenu/full.xml")
 
-    const xmlData = exportElementToXML({ context: mockContext, data: fullContextMenu })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullContextMenu })
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 
@@ -20,7 +20,7 @@ describe("exportContextMenuToXML", () => {
   it("should return default when data is undefined", () => {
     const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
 
-    const xmlData = exportElementToXML({ context: mockContext, data: undefined })
+    const xmlData = exportElementToXML({ context: mockContext, element: undefined })
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 
@@ -29,7 +29,7 @@ describe("exportContextMenuToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalContextMenu })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalContextMenu })
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 

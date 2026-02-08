@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportUsualGroupToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/usualGroup/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullUsualGroup })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullUsualGroup })
 
     const result = xmlExport({ UsualGroup: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportUsualGroupToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/usualGroup/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalUsualGroup })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalUsualGroup })
 
     const result = xmlExport({ UsualGroup: xmlData }, false)
 

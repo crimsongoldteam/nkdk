@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportDendrogramFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/dendrogramField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullDendrogramField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullDendrogramField })
 
     const result = xmlExport({ DendrogramField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportDendrogramFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/dendrogramField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalDendrogramField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalDendrogramField })
 
     const result = xmlExport({ DendrogramField: xmlData }, false)
 

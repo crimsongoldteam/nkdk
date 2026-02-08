@@ -9,7 +9,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportCommandBarToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/commandBar/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullCommandBar })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullCommandBar })
 
     const result = xmlExport({ CommandBar: xmlData }, false)
 
@@ -18,7 +18,7 @@ describe("exportCommandBarToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/commandBar/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalCommandBar })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalCommandBar })
 
     const result = xmlExport({ CommandBar: xmlData }, false)
 

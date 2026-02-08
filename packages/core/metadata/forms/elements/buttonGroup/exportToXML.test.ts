@@ -9,7 +9,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportButtonGroupToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/buttonGroup/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullButtonGroup })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullButtonGroup })
 
     const result = xmlExport({ ButtonGroup: xmlData }, false)
 
@@ -18,7 +18,7 @@ describe("exportButtonGroupToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/buttonGroup/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalButtonGroup })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalButtonGroup })
 
     const result = xmlExport({ ButtonGroup: xmlData }, false)
 

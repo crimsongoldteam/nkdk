@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportCalendarFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/calendarField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullCalendarField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullCalendarField })
 
     const result = xmlExport({ CalendarField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportCalendarFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/calendarField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalCalendarField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalCalendarField })
 
     const result = xmlExport({ CalendarField: xmlData }, false)
 

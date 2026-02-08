@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportGraphicalSchemaFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/graphicalSchemaField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullGraphicalSchemaField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullGraphicalSchemaField })
 
     const result = xmlExport({ GraphicalSchemaField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportGraphicalSchemaFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/graphicalSchemaField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalGraphicalSchemaField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalGraphicalSchemaField })
 
     const result = xmlExport({ GraphicalSchemaField: xmlData }, false)
 

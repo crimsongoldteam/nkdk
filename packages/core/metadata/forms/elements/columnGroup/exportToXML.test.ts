@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportColumnGroupToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/columnGroup/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullColumnGroup })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullColumnGroup })
 
     const result = xmlExport({ ColumnGroup: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportColumnGroupToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/columnGroup/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalColumnGroup })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalColumnGroup })
 
     const result = xmlExport({ ColumnGroup: xmlData }, false)
 

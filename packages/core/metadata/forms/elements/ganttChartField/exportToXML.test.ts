@@ -9,7 +9,7 @@ describe("exportGanttChartFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/ganttChartField/full.xml")
 
-    const xmlData = exportElementToXML({ context: mockContext, data: fullGanttChartField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullGanttChartField })
 
     const result = xmlExport({ GanttChartField: xmlData }, false)
 
@@ -18,7 +18,7 @@ describe("exportGanttChartFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/ganttChartField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalGanttChartField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalGanttChartField })
 
     const result = xmlExport({ GanttChartField: xmlData }, false)
 

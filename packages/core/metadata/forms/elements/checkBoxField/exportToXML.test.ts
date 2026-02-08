@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportCheckBoxFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/checkBoxField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullCheckBoxField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullCheckBoxField })
 
     const result = xmlExport({ CheckBoxField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportCheckBoxFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/checkBoxField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalCheckBoxField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalCheckBoxField })
 
     const result = xmlExport({ CheckBoxField: xmlData }, false)
 

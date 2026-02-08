@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportPopupToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/popup/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullPopup })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullPopup })
 
     const result = xmlExport({ Popup: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportPopupToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/popup/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalPopup })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalPopup })
 
     const result = xmlExport({ Popup: xmlData }, false)
 

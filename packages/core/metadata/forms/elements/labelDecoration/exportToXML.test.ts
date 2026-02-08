@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportLabelDecorationToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/labelDecoration/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullLabelDecoration })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullLabelDecoration })
 
     const result = xmlExport({ LabelDecoration: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportLabelDecorationToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/labelDecoration/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalLabelDecoration })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalLabelDecoration })
 
     const result = xmlExport({ LabelDecoration: xmlData }, false)
 

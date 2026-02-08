@@ -11,43 +11,49 @@ import { ElementXML } from "../types"
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContext
-  data: T | undefined
+  element: T | undefined
 }): ElementXML | undefined {
-  const { data, context } = params
+  const { element, context } = params
 
-  if (data === undefined) return undefined
+  if (element === undefined) return undefined
 
-  const name = data.name
+  const name = element.name
   const id = getElementId(context)
-  const rule = getElementRule(data.elementType)
+  const rule = getElementRule<T>(element.elementType)
 
-  if (!rule) throw new Error(`Unknown element type: ${data.elementType}`)
+  if (!rule) throw new Error(`Unknown element type: ${element.elementType}`)
 
-  return exportToXML<T>(context, data, { rule: rule as ElementRule<T>, id, name })
+  return exportToXML<T>({ context, element, rule, id, name })
 }
 
-export function exportSingleElementToXML<T extends SingleElement>(
-  context: ConfigurationContext,
-  data: T | undefined,
-  params: { rule: ElementRule<T>; id: string; name: string }
-): ElementXML {
-  return exportToXML<T>(context, data, params)
+export function exportSingleElementToXML<T extends SingleElement>(params: {
+  context: ConfigurationContext
+  element: T | undefined
+  rule: ElementRule<T>
+  id: string
+  name: string
+}): ElementXML {
+  const { element, context, rule, id, name } = params
+  return exportToXML<T>({ context, element, rule, id, name })
 }
 
-function exportToXML<T extends BaseElement>(
-  context: ConfigurationContext,
-  data: T | undefined,
-  params: { rule: ElementRule<T>; id: string; name: string }
-): any {
+function exportToXML<T extends BaseElement>(params: {
+  context: ConfigurationContext
+  element: T | undefined
+  rule: ElementRule<T>
+  id: string
+  name: string
+}): any {
+  const { context, element: data, rule, id, name } = params
+
   const result: any = {
-    _name: params.name,
-    _id: params.id,
+    _name: name,
+    _id: id,
   }
-  const rule = params.rule
 
   const currentContext: ConfigurationContext = {
     ...context,
-    elementContext: { name: params.name },
+    elementContext: { name: name },
   }
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {

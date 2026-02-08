@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportHTMLDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/htmlDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullHtmlDocumentField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullHtmlDocumentField })
 
     const result = xmlExport({ HtmlDocumentField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportHTMLDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/htmlDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalHtmlDocumentField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalHtmlDocumentField })
 
     const result = xmlExport({ HtmlDocumentField: xmlData }, false)
 

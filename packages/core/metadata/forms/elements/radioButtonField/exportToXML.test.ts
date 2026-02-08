@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportRadioButtonFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/radioButtonField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullRadioButtonField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullRadioButtonField })
 
     const result = xmlExport({ RadioButtonField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportRadioButtonFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/radioButtonField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalRadioButtonField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalRadioButtonField })
 
     const result = xmlExport({ RadioButtonField: xmlData }, false)
 

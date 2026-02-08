@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportPagesToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/pages/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullPages })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullPages })
 
     const result = xmlExport({ Pages: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportPagesToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/pages/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalPages })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalPages })
 
     const result = xmlExport({ Pages: xmlData }, false)
 

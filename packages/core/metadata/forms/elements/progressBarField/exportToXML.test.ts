@@ -8,7 +8,7 @@ import { xmlExport } from "~/xml/export/exporter"
 describe("exportProgressBarFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/progressBarField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: fullProgressBarField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullProgressBarField })
 
     const result = xmlExport({ ProgressBarField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportProgressBarFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/progressBarField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, data: minimalProgressBarField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalProgressBarField })
 
     const result = xmlExport({ ProgressBarField: xmlData }, false)
 
