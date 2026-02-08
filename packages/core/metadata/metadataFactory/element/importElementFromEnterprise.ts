@@ -1,4 +1,3 @@
-import context from "antd/es/app/context"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -33,41 +32,52 @@ export const importPropertyFromEnterprise = (params: {
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
-  data: ToTypedEnterpriseType<T> | undefined
+  yaml: ToTypedEnterpriseType<T> | undefined
   name: string
 }): T | undefined {
-  if (params.data === undefined) return undefined
+  const { context, yaml: yaml, name } = params
+  if (yaml === undefined) return undefined
 
-  const elementType = importFormElementTypeFromEnterprise(params.context, params.data.Тип)
+  const elementType = importFormElementTypeFromEnterprise(params.context, yaml.Тип)
 
   const rules = getElementRule<T>(elementType)
 
   const result: any = {
     elementType: elementType,
-    name: params.name,
+    name: name,
   }
 
   for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
-    const yamlKey = rule.yaml as keyof typeof params.data
+    const yamlKey = rule.yaml as keyof typeof params.yaml
 
-    const yamlValue = params.data[yamlKey]
+    const yamlValue = yaml[yamlKey]
 
-    const userVisible = importUserVisibleProperty(params.context, rule, params.data)
-    if (userVisible !== undefined) {
-      ;(result[key] as UserVisible) = userVisible
-      continue
+    const importedValue = importPropertyFromEnterprise({
+      context,
+      rule: rule,
+      value: yamlValue,
+    })
+
+    if (importedValue !== undefined) {
+      result[key as keyof T] = importedValue
     }
 
-    const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
+    // const userVisible = importUserVisibleProperty(params.context, rule, params.data)
+    // if (userVisible !== undefined) {
+    //   ;(result[key] as UserVisible) = userVisible
+    //   continue
+    // }
 
-    if (typeImportFn) {
-      const importedValue = (typeImportFn as any)(context, rule, yamlValue)
-      if (importedValue !== undefined) {
-        result[key] = importedValue
-      }
-    } else {
-      result[key] = yamlValue
-    }
+    // const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
+
+    // if (typeImportFn) {
+    //   const importedValue = (typeImportFn as any)(context, rule, yamlValue)
+    //   if (importedValue !== undefined) {
+    //     result[key] = importedValue
+    //   }
+    // } else {
+    //   result[key] = yamlValue
+    // }
   }
 
   return result as T
@@ -118,17 +128,16 @@ export function importElementFromYAML<T extends BaseElement>(params: {
 
     const yamlValue = (yaml as any)[yamlKey]
 
-    const typeImportFn = getTypeRule(curRule.type!, "importFromEnterprise")
-    if (typeImportFn) {
-      const importedValue = (typeImportFn as any)(context, curRule, yamlValue, sourceValue)
-      if (importedValue !== undefined) {
-        result[key as keyof T] = importedValue
-      }
-      continue
-    }
+    const importedValue = importPropertyFromEnterprise({
+      context,
+      rule: curRule,
+      value: yamlValue,
+      sourceValue,
+    })
 
-    if (yamlValue === undefined) continue
-    ;(result as any)[key] = yamlValue
+    if (importedValue !== undefined) {
+      result[key as keyof T] = importedValue
+    }
   }
 
   return result

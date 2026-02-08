@@ -16,7 +16,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<GeographicalSchemaField>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ПолеГеографическойСхемы",
       })
 
@@ -26,7 +26,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<GeographicalSchemaField>({
         context: mockContext,
-        data: fullGeographicalSchemaFieldTypedEnterprise,
+        yaml: fullGeographicalSchemaFieldTypedEnterprise,
         name: "ПолеГеографическойСхемы",
       })
 
@@ -36,7 +36,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<GeographicalSchemaField>({
         context: mockContext,
-        data: minimalGeographicalSchemaFieldTypedEnterprise,
+        yaml: minimalGeographicalSchemaFieldTypedEnterprise,
         name: "ПолеГеографическойСхемы",
       })
 

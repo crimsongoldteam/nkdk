@@ -16,7 +16,7 @@ describe("importButtonGroupFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ГруппаКнопок",
       })
 
@@ -26,7 +26,7 @@ describe("importButtonGroupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
-        data: fullButtonGroupTypedEnterprise,
+        yaml: fullButtonGroupTypedEnterprise,
         name: "ГруппаКнопок",
       })
 
@@ -36,7 +36,7 @@ describe("importButtonGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
-        data: minimalButtonGroupTypedEnterprise,
+        yaml: minimalButtonGroupTypedEnterprise,
         name: "ГруппаКнопок",
       })
 

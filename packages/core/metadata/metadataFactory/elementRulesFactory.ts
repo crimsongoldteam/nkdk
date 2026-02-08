@@ -73,7 +73,7 @@ export interface ElementRule<T extends BaseElement> {
     : never
   enterpriseField?: "FormField" | "FormDecoration" | "Table" | "FormGroup" | "FormButton"
   alwaysExportToXML?: true
-  registerAsType?: Record<TypeRulesNames, RegisterAsTypeRule<T>>
+  registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
 }
 
 const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()

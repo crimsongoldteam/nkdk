@@ -15,7 +15,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "Флажок",
       })
 
@@ -25,7 +25,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<CheckBoxField>({
         context: mockContext,
-        data: fullCheckBoxFieldTypedEnterprise,
+        yaml: fullCheckBoxFieldTypedEnterprise,
         name: "Флажок",
       })
 
@@ -35,7 +35,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<CheckBoxField>({
         context: mockContext,
-        data: minimalCheckBoxFieldTypedEnterprise,
+        yaml: minimalCheckBoxFieldTypedEnterprise,
         name: "Флажок",
       })
 

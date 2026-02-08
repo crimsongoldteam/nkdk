@@ -15,7 +15,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
       const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ГруппаКолонок",
       })
 
@@ -25,7 +25,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
-        data: fullColumnGroupTypedEnterprise,
+        yaml: fullColumnGroupTypedEnterprise,
         name: "ГруппаКолонок",
       })
 
@@ -35,7 +35,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
-        data: minimalColumnGroupTypedEnterprise,
+        yaml: minimalColumnGroupTypedEnterprise,
         name: "ГруппаКолонок",
       })
 

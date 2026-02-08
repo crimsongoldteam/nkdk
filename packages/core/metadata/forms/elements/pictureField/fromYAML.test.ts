@@ -16,7 +16,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ПолеКартинки",
       })
 
@@ -26,7 +26,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,
-        data: fullPictureFieldTypedEnterprise,
+        yaml: fullPictureFieldTypedEnterprise,
         name: "ПолеКартинки",
       })
 
@@ -36,7 +36,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,
-        data: minimalPictureFieldTypedEnterprise,
+        yaml: minimalPictureFieldTypedEnterprise,
         name: "ПолеКартинки",
       })
 

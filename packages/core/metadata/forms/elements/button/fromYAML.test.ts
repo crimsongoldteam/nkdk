@@ -15,7 +15,7 @@ describe("importButtonFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<Button>({
         context: mockContext,
-        data: fullButtonTypedEnterprise,
+        yaml: fullButtonTypedEnterprise,
         name: "ОбычнаяКнопка",
       })
 
@@ -25,7 +25,7 @@ describe("importButtonFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<Button>({
         context: mockContext,
-        data: minimalButtonTypedEnterprise,
+        yaml: minimalButtonTypedEnterprise,
         name: "ОбычнаяКнопка",
       })
 

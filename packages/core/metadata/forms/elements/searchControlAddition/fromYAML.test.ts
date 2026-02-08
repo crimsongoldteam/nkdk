@@ -16,7 +16,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<SearchControlAddition>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "Поиск",
       })
 
@@ -26,7 +26,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<SearchControlAddition>({
         context: mockContext,
-        data: fullSearchControlAdditionTypedEnterprise,
+        yaml: fullSearchControlAdditionTypedEnterprise,
         name: "Поиск",
       })
 
@@ -36,7 +36,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<SearchControlAddition>({
         context: mockContext,
-        data: minimalSearchControlAdditionTypedEnterprise,
+        yaml: minimalSearchControlAdditionTypedEnterprise,
         name: "Поиск",
       })
 

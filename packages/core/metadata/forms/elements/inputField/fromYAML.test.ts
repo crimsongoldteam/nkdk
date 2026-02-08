@@ -16,7 +16,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<InputField>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ПолеВвода",
       })
 
@@ -26,7 +26,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<InputField>({
         context: mockContext,
-        data: fullInputFieldTypedEnterprise,
+        yaml: fullInputFieldTypedEnterprise,
         name: "ПолеВвода",
       })
 
@@ -36,7 +36,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<InputField>({
         context: mockContext,
-        data: minimalInputFieldTypedEnterprise,
+        yaml: minimalInputFieldTypedEnterprise,
         name: "ПолеВвода",
       })
 

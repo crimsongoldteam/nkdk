@@ -16,7 +16,7 @@ describe("importLabelFieldFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<LabelField>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ПолеНадписи",
       })
 
@@ -26,7 +26,7 @@ describe("importLabelFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<LabelField>({
         context: mockContext,
-        data: fullLabelFieldTypedEnterprise,
+        yaml: fullLabelFieldTypedEnterprise,
         name: "ПолеНадписи",
       })
 
@@ -36,7 +36,7 @@ describe("importLabelFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<LabelField>({
         context: mockContext,
-        data: minimalLabelFieldTypedEnterprise,
+        yaml: minimalLabelFieldTypedEnterprise,
         name: "ПолеНадписи",
       })
 

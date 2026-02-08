@@ -1,4 +1,6 @@
-import { ElementRule, PropertyRule } from "../../../metadataFactory/elementRulesFactory"
+import { getElementId } from "~/metadata/helpers/getElementId"
+import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { getExtendedTooltipName } from "./helper"
 import { ExtendedTooltip } from "./types"
 export type { ElementRule, PropertyRule }
 
@@ -58,4 +60,17 @@ export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
+  registerAsType: {
+    ExtendedTooltip: {
+      toXML: (context, _element) => {
+        if (!context.elementContext) throw new Error("elementContext is not defined")
+        const parent = context.elementContext
+        const id = getElementId(context)
+        const name = getExtendedTooltipName(parent)
+        return { id, name }
+      },
+    },
+  },
 }
+
+registerElementRule("ExtendedTooltip", ExtendedTooltipRules)

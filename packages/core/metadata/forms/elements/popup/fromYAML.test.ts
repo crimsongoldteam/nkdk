@@ -16,7 +16,7 @@ describe("importPopupFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
-        data: undefined,
+        yaml: undefined,
         name: "ВсплывающаяФорма",
       })
 
@@ -26,7 +26,7 @@ describe("importPopupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
-        data: fullPopupTypedEnterprise,
+        yaml: fullPopupTypedEnterprise,
         name: "ВсплывающаяФорма",
       })
 
@@ -36,7 +36,7 @@ describe("importPopupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
-        data: minimalPopupTypedEnterprise,
+        yaml: minimalPopupTypedEnterprise,
         name: "ВсплывающаяФорма",
       })
 
