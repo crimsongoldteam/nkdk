@@ -5,19 +5,21 @@ import {
   minimalCommandBar,
   minimalCommandBarPartialEnterprise,
 } from "~/tests/fixtures/forms/commandBar/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportCommandBarPartialToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 
-describe("exportCommandBarPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportCommandBarPartialToEnterprise(mockContext, mockRule, fullCommandBar)
+describe("exportCommandBarToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullCommandBar })
 
-    expect(result).toEqual(fullCommandBarPartialEnterprise)
-  })
+      expect(result).toEqual(fullCommandBarPartialEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportCommandBarPartialToEnterprise(mockContext, mockRule, minimalCommandBar)
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalCommandBar })
 
-    expect(result).toEqual(minimalCommandBarPartialEnterprise)
+      expect(result).toEqual(minimalCommandBarPartialEnterprise)
+    })
   })
 })

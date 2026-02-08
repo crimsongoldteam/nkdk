@@ -2,14 +2,12 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
 
 export const exportMetadataCommandToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   data: MetadataCommand | undefined
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
@@ -60,10 +58,9 @@ export const exportMetadataCommandToXML = (
 
 export const exportMetadataCommandsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(context, undefined, value)!)
+  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(context, value)!)
 }

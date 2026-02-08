@@ -6,44 +6,33 @@ import {
   minimalGeographicalSchemaField,
   minimalGeographicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportGeographicalSchemaFieldPartialToEnterprise,
-  exportGeographicalSchemaFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportGeographicalSchemaFieldToEnterprise", () => {
-  describe("exportGeographicalSchemaFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGeographicalSchemaFieldPartialToEnterprise(
-        mockContext,
-        mockRule,
-        fullGeographicalSchemaField
-      )
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullGeographicalSchemaField })
 
       expect(result).toEqual(fullGeographicalSchemaFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportGeographicalSchemaFieldPartialToEnterprise(
-        mockContext,
-        mockRule,
-        minimalGeographicalSchemaField
-      )
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalGeographicalSchemaField })
 
       expect(result).toEqual(minimalGeographicalSchemaFieldPartialEnterprise)
     })
   })
 
-  describe("exportGeographicalSchemaFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, mockRule, fullGeographicalSchemaField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullGeographicalSchemaField })
 
       expect(result).toEqual(fullGeographicalSchemaFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

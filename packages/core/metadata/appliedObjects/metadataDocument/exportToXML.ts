@@ -7,14 +7,12 @@ import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataR
 import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportMetadataCommandsToXML } from "../metadataCommand/exportToXML"
 import { exportMetadataDocumentNumeratorToXML } from "../metadataDocumentNumerator/exportToXML"
 import { MetadataDocument, MetadataDocumentXML } from "./types"
 
 export const exportMetadataDocumentToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   data: MetadataDocument | undefined
 ): MetadataDocumentXML | undefined => {
   if (!data) return undefined
@@ -50,7 +48,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.choiceHistoryOnInput !== undefined) result.ChoiceHistoryOnInput = data.choiceHistoryOnInput
 
-  const commands = exportMetadataCommandsToXML(context, undefined, data.commands)
+  const commands = exportMetadataCommandsToXML(context, data.commands)
   if (commands !== undefined) result.Commands = commands
 
   if (data.comment !== undefined) result.Comment = data.comment
@@ -105,7 +103,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.numberType !== undefined) result.NumberType = data.numberType
 
-  const numerator = exportMetadataDocumentNumeratorToXML(context, undefined, data.numerator)
+  const numerator = exportMetadataDocumentNumeratorToXML(context, data.numerator)
   if (numerator !== undefined) result.Numerator = numerator
 
   if (data.objectBelonging !== undefined) result.ObjectBelonging = data.objectBelonging

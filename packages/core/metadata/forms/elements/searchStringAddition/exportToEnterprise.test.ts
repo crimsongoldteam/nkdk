@@ -6,52 +6,45 @@ import {
   minimalSearchStringAddition,
   minimalSingleSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportSearchStringAdditionPartialToEnterprise,
-  exportSingleSearchStringAdditionToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportSearchStringAdditionToEnterprise", () => {
-  describe("exportSingleSearchStringAdditionToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should return undefined when data is undefined", () => {
-      const result = exportSingleSearchStringAdditionToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })
 
     it("should export all fields to Enterprise", () => {
-      const result = exportSingleSearchStringAdditionToEnterprise(mockContext, mockRule, fullSingleSearchStringAddition)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullSingleSearchStringAddition })
 
       expect(result).toEqual(fullSingleSearchStringAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSingleSearchStringAdditionToEnterprise(
-        mockContext,
-        mockRule,
-        minimalSingleSearchStringAddition
-      )
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalSingleSearchStringAddition })
 
       expect(result).toBeUndefined()
     })
   })
 
-  describe("exportSearchStringAdditionToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should return undefined when data is undefined", () => {
-      const result = exportSearchStringAdditionPartialToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToPartialYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })
 
     it("should export all fields to Enterprise", () => {
-      const result = exportSearchStringAdditionPartialToEnterprise(mockContext, mockRule, fullSearchStringAddition)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullSearchStringAddition })
 
       expect(result).toEqual(fullSingleSearchStringAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSearchStringAdditionPartialToEnterprise(mockContext, mockRule, minimalSearchStringAddition)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalSearchStringAddition })
 
       expect(result).toBeUndefined()
     })

@@ -274,7 +274,7 @@ export const exportMetadataCatalogToEnterprise = (
   const tabularSections = exportMetadataTabularSectionsToEnterprise(context, undefined, data.tabularSections)
   if (tabularSections !== undefined) result.ТабличныеЧасти = tabularSections
 
-  const commands = exportMetadataCommandsToEnterprise(context, undefined, data.commands)
+  const commands = exportMetadataCommandsToEnterprise(context, data.commands)
   if (commands !== undefined) result.Команды = commands
 
   return result

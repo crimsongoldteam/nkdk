@@ -9,7 +9,6 @@ import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEn
 import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,19 +17,15 @@ import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescr
 
 export const exportMetadataCommandsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   data: MetadataCommands | undefined
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
 
-  return Object.fromEntries(
-    data.map((command) => [command.name, exportMetadataCommandToEnterprise(context, undefined, command)!])
-  )
+  return Object.fromEntries(data.map((command) => [command.name, exportMetadataCommandToEnterprise(context, command)!]))
 }
 
 export const exportMetadataCommandToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   data: MetadataCommand | undefined
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined

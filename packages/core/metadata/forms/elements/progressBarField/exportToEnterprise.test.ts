@@ -6,36 +6,33 @@ import {
   minimalProgressBarField,
   minimalProgressBarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/progressBarField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportProgressBarFieldPartialToEnterprise,
-  exportProgressBarFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportProgressBarFieldToEnterprise", () => {
-  describe("exportProgressBarFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportProgressBarFieldPartialToEnterprise(mockContext, mockRule, fullProgressBarField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullProgressBarField })
 
       expect(result).toEqual(fullProgressBarFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportProgressBarFieldPartialToEnterprise(mockContext, mockRule, minimalProgressBarField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalProgressBarField })
 
       expect(result).toEqual(minimalProgressBarFieldPartialEnterprise)
     })
   })
 
-  describe("exportProgressBarFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportProgressBarFieldTypedToEnterprise(mockContext, mockRule, fullProgressBarField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullProgressBarField })
 
       expect(result).toEqual(fullProgressBarFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportProgressBarFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

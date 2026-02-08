@@ -1,6 +1,7 @@
 import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { importMetadataCommandsFromXML } from "~/metadata/appliedObjects/metadataCommand/importFromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/importFromXML"
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importMetadataValueCollectionFromXML } from "~/metadata/commonObjects/metadataValueCollection/importFromXML"
@@ -11,7 +12,6 @@ import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { removeDefaults } from "../../helpers/compactObject"
 import { getDefaults } from "./defaults"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
@@ -56,7 +56,7 @@ export const importMetadataCatalogFromXML = (
   if (props.CodeSeries !== undefined) result.codeSeries = props.CodeSeries
   if (props.CodeType !== undefined) result.codeType = props.CodeType
 
-  if (childObjects?.Command) result.commands = importMetadataCommandsFromXML(context, undefined, childObjects.Command)
+  if (childObjects?.Command) result.commands = importMetadataCommandsFromXML(context, childObjects.Command)
 
   if (props.Comment !== undefined) result.comment = props.Comment
   if (props.CreateOnInput !== undefined) result.createOnInput = props.CreateOnInput

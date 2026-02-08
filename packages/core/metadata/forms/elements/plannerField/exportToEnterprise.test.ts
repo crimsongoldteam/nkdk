@@ -6,33 +6,33 @@ import {
   minimalPlannerField,
   minimalPlannerFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/plannerField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportPlannerFieldPartialToEnterprise, exportPlannerFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportPlannerFieldToEnterprise", () => {
-  describe("exportPlannerFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportPlannerFieldPartialToEnterprise(mockContext, mockRule, fullPlannerField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullPlannerField })
 
       expect(result).toEqual(fullPlannerFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportPlannerFieldPartialToEnterprise(mockContext, mockRule, minimalPlannerField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPlannerField })
 
       expect(result).toEqual(minimalPlannerFieldPartialEnterprise)
     })
   })
 
-  describe("exportPlannerFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportPlannerFieldTypedToEnterprise(mockContext, mockRule, fullPlannerField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullPlannerField })
 
       expect(result).toEqual(fullPlannerFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportPlannerFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

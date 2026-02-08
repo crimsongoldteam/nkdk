@@ -4,11 +4,9 @@ import {
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataDocumentNumeratorFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   xml: MetadataDocumentNumeratorXML | undefined
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined

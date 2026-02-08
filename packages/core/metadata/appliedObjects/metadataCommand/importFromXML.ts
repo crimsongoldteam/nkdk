@@ -4,29 +4,26 @@ import {
   MetadataCommandsXML,
   MetadataCommandXML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importMetadataCommandsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, undefined, value)!)
+  return items.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, value)!)
 }
 
 export const importMetadataCommandFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
   if (!xml) return undefined

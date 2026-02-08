@@ -6,33 +6,35 @@ import {
   minimalColumnGroup,
   minimalColumnGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/columnGroup/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportColumnGroupPartialToEnterprise, exportColumnGroupTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportColumnGroupPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportColumnGroupPartialToEnterprise(mockContext, mockRule, fullColumnGroup)
+describe("exportColumnGroupToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullColumnGroup })
 
-    expect(result).toEqual(fullColumnGroupPartialEnterprise)
+      expect(result).toEqual(fullColumnGroupPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalColumnGroup })
+
+      expect(result).toEqual(minimalColumnGroupPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportColumnGroupPartialToEnterprise(mockContext, mockRule, minimalColumnGroup)
+  describe("exportElementToTypedYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullColumnGroup })
 
-    expect(result).toEqual(minimalColumnGroupPartialEnterprise)
-  })
-})
+      expect(result).toEqual(fullColumnGroupTypedEnterprise)
+    })
 
-describe("exportColumnGroupTypedToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportColumnGroupTypedToEnterprise(mockContext, mockRule, fullColumnGroup)
+    it("should return undefined when data is undefined", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
-    expect(result).toEqual(fullColumnGroupTypedEnterprise)
-  })
-
-  it("should return undefined when data is undefined", () => {
-    const result = exportColumnGroupTypedToEnterprise(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
   })
 })

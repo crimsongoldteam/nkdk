@@ -6,33 +6,35 @@ import {
   minimalLabelDecoration,
   minimalLabelDecorationPartialEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportLabelDecorationPartialToEnterprise, exportLabelDecorationTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportLabelDecorationPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportLabelDecorationPartialToEnterprise(mockContext, mockRule, fullLabelDecoration)
+describe("exportLabelDecorationToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullLabelDecoration })
 
-    expect(result).toEqual(fullLabelDecorationPartialEnterprise)
+      expect(result).toEqual(fullLabelDecorationPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalLabelDecoration })
+
+      expect(result).toEqual(minimalLabelDecorationPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportLabelDecorationPartialToEnterprise(mockContext, mockRule, minimalLabelDecoration)
+  describe("exportElementToTypedYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullLabelDecoration })
 
-    expect(result).toEqual(minimalLabelDecorationPartialEnterprise)
-  })
-})
+      expect(result).toEqual(fullLabelDecorationTypedEnterprise)
+    })
 
-describe("exportLabelDecorationTypedToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportLabelDecorationTypedToEnterprise(mockContext, mockRule, fullLabelDecoration)
+    it("should return undefined when data is undefined", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
-    expect(result).toEqual(fullLabelDecorationTypedEnterprise)
-  })
-
-  it("should return undefined when data is undefined", () => {
-    const result = exportLabelDecorationTypedToEnterprise(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
   })
 })

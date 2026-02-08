@@ -6,36 +6,33 @@ import {
   minimalTextDocumentField,
   minimalTextDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportTextDocumentFieldPartialToEnterprise,
-  exportTextDocumentFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportTextDocumentFieldToEnterprise", () => {
-  describe("exportTextDocumentFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportTextDocumentFieldPartialToEnterprise(mockContext, mockRule, fullTextDocumentField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullTextDocumentField })
 
       expect(result).toEqual(fullTextDocumentFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportTextDocumentFieldPartialToEnterprise(mockContext, mockRule, minimalTextDocumentField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalTextDocumentField })
 
       expect(result).toEqual(minimalTextDocumentFieldPartialEnterprise)
     })
   })
 
-  describe("exportTextDocumentFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportTextDocumentFieldTypedToEnterprise(mockContext, mockRule, fullTextDocumentField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullTextDocumentField })
 
       expect(result).toEqual(fullTextDocumentFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportTextDocumentFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

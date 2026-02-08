@@ -7,39 +7,41 @@ import {
   minimalPagesPartialEnterprise,
   minimalPagesTypedEnterprise,
 } from "~/tests/fixtures/forms/pages/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportPagesPartialToEnterprise, exportPagesTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportPagesPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportPagesPartialToEnterprise(mockContext, mockRule, fullPages)
+describe("exportPagesToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullPages })
 
-    expect(result).toEqual(fullPagesPartialEnterprise)
+      expect(result).toEqual(fullPagesPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPages })
+
+      expect(result).toEqual(minimalPagesPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportPagesPartialToEnterprise(mockContext, mockRule, minimalPages)
+  describe("exportElementToTypedYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullPages })
 
-    expect(result).toEqual(minimalPagesPartialEnterprise)
-  })
-})
+      expect(result).toEqual(fullPagesTypedEnterprise)
+    })
 
-describe("exportPagesTypedToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportPagesTypedToEnterprise(mockContext, mockRule, fullPages)
+    it("should return undefined when data is undefined", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
-    expect(result).toEqual(fullPagesTypedEnterprise)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should return undefined when data is undefined", () => {
-    const result = exportPagesTypedToEnterprise(mockContext, mockRule, undefined)
+    it("should export minimal", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalPages })
 
-    expect(result).toBeUndefined()
-  })
-
-  it("should export minimal", () => {
-    const result = exportPagesTypedToEnterprise(mockContext, mockRule, minimalPages)
-
-    expect(result).toEqual(minimalPagesTypedEnterprise)
+      expect(result).toEqual(minimalPagesTypedEnterprise)
+    })
   })
 })

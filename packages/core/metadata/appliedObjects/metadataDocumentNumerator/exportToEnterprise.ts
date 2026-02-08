@@ -5,13 +5,11 @@ import {
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined

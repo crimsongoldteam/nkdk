@@ -64,10 +64,10 @@ export const exportMetadataDocumentToEnterprise = (
       { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
       data.dataHistory
     ),
-    Команды: exportMetadataCommandsToEnterprise(context, undefined, data.commands),
+    Команды: exportMetadataCommandsToEnterprise(context, data.commands),
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(context, undefined, data.checkUnique),
-    Нумератор: exportMetadataDocumentNumeratorToEnterprise(context, undefined, data.numerator),
+    Нумератор: exportMetadataDocumentNumeratorToEnterprise(context, data.numerator),
     ОбновлятьИсториюДанныхСразуПослеЗаписи: exportBooleanToEnterprise(
       context,
       undefined,

@@ -6,48 +6,33 @@ import {
   minimalSpreadSheetDocumentField,
   minimalSpreadSheetDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportSpreadSheetDocumentFieldPartialToEnterprise,
-  exportSpreadSheetDocumentFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportSpreadSheetDocumentFieldToEnterprise", () => {
-  describe("exportSpreadSheetDocumentFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSpreadSheetDocumentFieldPartialToEnterprise(
-        mockContext,
-        mockRule,
-        fullSpreadSheetDocumentField
-      )
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullSpreadSheetDocumentField })
 
       expect(result).toEqual(fullSpreadSheetDocumentFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSpreadSheetDocumentFieldPartialToEnterprise(
-        mockContext,
-        mockRule,
-        minimalSpreadSheetDocumentField
-      )
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalSpreadSheetDocumentField })
 
       expect(result).toEqual(minimalSpreadSheetDocumentFieldPartialEnterprise)
     })
   })
 
-  describe("exportSpreadSheetDocumentFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSpreadSheetDocumentFieldTypedToEnterprise(
-        mockContext,
-        mockRule,
-        fullSpreadSheetDocumentField
-      )
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullSpreadSheetDocumentField })
 
       expect(result).toEqual(fullSpreadSheetDocumentFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportSpreadSheetDocumentFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

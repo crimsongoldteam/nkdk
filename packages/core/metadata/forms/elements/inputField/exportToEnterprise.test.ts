@@ -6,33 +6,33 @@ import {
   minimalInputField,
   minimalInputFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportInputFieldPartialToEnterprise, exportInputFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportInputFieldToEnterprise", () => {
-  describe("exportInputFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportInputFieldPartialToEnterprise(mockContext, mockRule, fullInputField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullInputField })
 
       expect(result).toEqual(fullInputFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportInputFieldPartialToEnterprise(mockContext, mockRule, minimalInputField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalInputField })
 
       expect(result).toEqual(minimalInputFieldPartialEnterprise)
     })
   })
 
-  describe("exportInputFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportInputFieldTypedToEnterprise(mockContext, mockRule, fullInputField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullInputField })
 
       expect(result).toEqual(fullInputFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportInputFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

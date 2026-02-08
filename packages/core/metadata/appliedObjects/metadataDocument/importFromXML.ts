@@ -50,7 +50,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.ChoiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = xml.ChoiceHistoryOnInput
 
-  const commands = importMetadataCommandsFromXML(context, undefined, xml.Commands)
+  const commands = importMetadataCommandsFromXML(context, xml.Commands)
   if (commands !== undefined) result.commands = commands
 
   if (xml.Comment !== undefined) result.comment = xml.Comment
@@ -105,7 +105,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.NumberType !== undefined) result.numberType = xml.NumberType
 
-  const numerator = importMetadataDocumentNumeratorFromXML(context, undefined, xml.Numerator)
+  const numerator = importMetadataDocumentNumeratorFromXML(context, xml.Numerator)
   if (numerator !== undefined) result.numerator = numerator
 
   if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging

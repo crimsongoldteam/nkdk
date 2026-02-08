@@ -6,33 +6,35 @@ import {
   minimalPictureField,
   minimalPictureFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/pictureField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportPictureFieldPartialToEnterprise, exportPictureFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportPictureFieldPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportPictureFieldPartialToEnterprise(mockContext, mockRule, fullPictureField)
+describe("exportPictureFieldToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullPictureField })
 
-    expect(result).toEqual(fullPictureFieldPartialEnterprise)
+      expect(result).toEqual(fullPictureFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPictureField })
+
+      expect(result).toEqual(minimalPictureFieldPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportPictureFieldPartialToEnterprise(mockContext, mockRule, minimalPictureField)
+  describe("exportElementToTypedYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullPictureField })
 
-    expect(result).toEqual(minimalPictureFieldPartialEnterprise)
-  })
-})
+      expect(result).toEqual(fullPictureFieldTypedEnterprise)
+    })
 
-describe("exportPictureFieldTypedToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportPictureFieldTypedToEnterprise(mockContext, mockRule, fullPictureField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
-    expect(result).toEqual(fullPictureFieldTypedEnterprise)
-  })
-
-  it("should return undefined when data is undefined", () => {
-    const result = exportPictureFieldTypedToEnterprise(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
   })
 })

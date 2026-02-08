@@ -7,39 +7,41 @@ import {
   minimalPopupPartialEnterprise,
   minimalPopupTypedEnterprise,
 } from "~/tests/fixtures/forms/popup/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportPopupPartialToEnterprise, exportPopupTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportPopupPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportPopupPartialToEnterprise(mockContext, mockRule, fullPopup)
+describe("exportPopupToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullPopup })
 
-    expect(result).toEqual(fullPopupPartialEnterprise)
+      expect(result).toEqual(fullPopupPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPopup })
+
+      expect(result).toEqual(minimalPopupPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportPopupPartialToEnterprise(mockContext, mockRule, minimalPopup)
+  describe("exportElementToTypedYAML", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
-    expect(result).toEqual(minimalPopupPartialEnterprise)
-  })
-})
+      expect(result).toBeUndefined()
+    })
 
-describe("exportPopupTypedToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPopupTypedToEnterprise(mockContext, mockRule, undefined)
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullPopup })
 
-    expect(result).toBeUndefined()
-  })
+      expect(result).toEqual(fullPopupTypedEnterprise)
+    })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportPopupTypedToEnterprise(mockContext, mockRule, fullPopup)
+    it("should export minimal", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalPopup })
 
-    expect(result).toEqual(fullPopupTypedEnterprise)
-  })
-
-  it("should export minimal", () => {
-    const result = exportPopupTypedToEnterprise(mockContext, mockRule, minimalPopup)
-
-    expect(result).toEqual(minimalPopupTypedEnterprise)
+      expect(result).toEqual(minimalPopupTypedEnterprise)
+    })
   })
 })
