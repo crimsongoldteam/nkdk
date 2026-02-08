@@ -5,7 +5,9 @@ import "./additionalIndex/importFromXML"
 
 import "./boolean/importFromXML"
 
+import "./border/exportToEnterprise"
 import "./border/exportToXML"
+import "./border/importFromEnterprise"
 import "./border/importFromXML"
 
 import "./characteristicsDescription/exportToEnterprise"

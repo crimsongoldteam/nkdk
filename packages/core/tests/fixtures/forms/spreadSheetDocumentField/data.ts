@@ -1,7 +1,6 @@
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
-  SpreadSheetDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -217,19 +216,9 @@ export const fullSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentF
   },
 }
 
-export const fullSpreadSheetDocumentFieldTypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise = {
-  ...fullSpreadSheetDocumentFieldPartialEnterprise,
-  Тип: "ПолеТабличногоДокумента",
-  Заголовок: "Поле табличного документа",
-}
-
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   elementType: FormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
 }
 
 export const minimalSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise = {}
-
-export const minimalSpreadSheetDocumentFieldTypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise = {
-  Тип: "ПолеТабличногоДокумента",
-}
