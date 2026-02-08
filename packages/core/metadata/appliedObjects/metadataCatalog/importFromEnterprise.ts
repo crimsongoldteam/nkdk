@@ -13,7 +13,10 @@ import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/co
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import {
+  importSystemEnumerationFromEnterprise,
+  importSystemEnumerationFromYAML,
+} from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
@@ -132,11 +135,10 @@ export const importMetadataCatalogFromEnterprise = (
   const checkUnique = importBooleanFromEnterprise(context, undefined, data.КонтрольУникальности)
   if (checkUnique !== undefined) result.checkUnique = checkUnique
 
-  const predefinedDataUpdate = importSystemEnumerationFromEnterprise(
+  const predefinedDataUpdate = importSystemEnumerationFromYAML<SE.PredefinedDataUpdate>(
     context,
-    undefined,
-    data.ОбновлениеПредопределенныхДанных,
-    SE.PredefinedDataUpdateFromEnterprise
+    { type: "SystemEnumeration", typeSE: "PredefinedDataUpdate" },
+    data.ОбновлениеПредопределенныхДанных
   )
   if (predefinedDataUpdate !== undefined) result.predefinedDataUpdate = predefinedDataUpdate
 

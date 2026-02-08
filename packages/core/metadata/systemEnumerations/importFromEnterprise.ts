@@ -3,6 +3,7 @@ import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { registerTypeRule, SystemEnumerationPropertyRule } from "../metadataFactory"
 
+/** @deprecated */
 export const importSystemEnumerationFromEnterprise = <T extends string>(
   _context: ConfigurationContext,
   _rule: PropertyRule<any>,

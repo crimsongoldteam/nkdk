@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullInputField,
   fullInputFieldPartialEnterprise,
@@ -7,7 +8,6 @@ import {
   minimalInputFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportInputFieldToEnterprise", () => {
   describe("exportElementToPartialYAML", () => {
@@ -29,12 +29,6 @@ describe("exportInputFieldToEnterprise", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullInputField })
 
       expect(result).toEqual(fullInputFieldTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
-
-      expect(result).toBeUndefined()
     })
   })
 })

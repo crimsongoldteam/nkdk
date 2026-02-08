@@ -307,6 +307,7 @@ export class Visitor extends BaseVisitor {
     const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
 
     const result: AutoCommandBar = {
+      elementType: FormElementType.AutoCommandBar,
       autofill: autofill,
       childItems: filteredChildItems,
     }
