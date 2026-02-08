@@ -5,8 +5,15 @@ export type { ElementRule, PropertyRule }
 export const PopupRules: ElementRule<Popup> = {
   enterpriseField: "FormGroup",
   properties: {
+    backColor: { yaml: "ЦветФона", type: "Color" },
+    borderColor: { yaml: "ЦветРамки", type: "Color" },
+    childItems: {
+      yaml: "ПодчиненныеЭлементы",
+      type: "ChildItems",
+    },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
     height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -15,7 +22,23 @@ export const PopupRules: ElementRule<Popup> = {
       typeSE: "ItemHorizontalLocation",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+    picture: { yaml: "Картинка", type: "Picture" },
     readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
+    representation: {
+      yaml: "Отображение",
+      type: "SystemEnumeration",
+      typeSE: "ButtonRepresentation",
+    },
+    shape: {
+      yaml: "Фигура",
+      type: "SystemEnumeration",
+      typeSE: "ButtonShape",
+    },
+    shapeRepresentation: {
+      yaml: "ОтображениеФигуры",
+      type: "SystemEnumeration",
+      typeSE: "ButtonShapeRepresentation",
+    },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
     title: {
       yaml: "Заголовок",
@@ -49,26 +72,6 @@ export const PopupRules: ElementRule<Popup> = {
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
-    backColor: { yaml: "ЦветФона", type: "Color" },
-    borderColor: { yaml: "ЦветРамки", type: "Color" },
-    picture: { yaml: "Картинка", type: "Picture" },
-    representation: {
-      yaml: "Отображение",
-      type: "SystemEnumeration",
-      typeSE: "ButtonRepresentation",
-    },
-    shape: {
-      yaml: "Фигура",
-      type: "SystemEnumeration",
-      typeSE: "ButtonShape",
-    },
-    shapeRepresentation: {
-      yaml: "ОтображениеФигуры",
-      type: "SystemEnumeration",
-      typeSE: "ButtonShapeRepresentation",
-    },
-    childItems: { yaml: "ПодчиненныеЭлементы", type: "FieldsList" },
   },
   events: {},
 }

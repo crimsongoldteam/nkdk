@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullAutoCommandBar, minimalAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportFormAutoCommandBarToXML, exportTableAutoCommandBarToXML } from "./exportToXML"
+import { exportFormAutoCommandBarToXML, exportTableAutoCommandBarToXML } from "./toXML"
 
 describe("exportAutoCommandBarToXML", () => {
   describe("exportFormAutoCommandBarToXML", () => {
@@ -40,13 +39,12 @@ describe("exportAutoCommandBarToXML", () => {
         ...mockContext,
         elementContext: {
           name: "КакойТоЭлемент",
-          elementType: FormElementType.BaseElement,
         },
       }
 
       const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalTable.xml")
 
-      const xmlData = exportTableAutoCommandBarToXML(context, undefined)
+      const xmlData = exportTableAutoCommandBarToXML(context, mockRule, undefined)
 
       const result = xmlExport({ AutoCommandBar: xmlData }, false)
 
@@ -58,11 +56,10 @@ describe("exportAutoCommandBarToXML", () => {
         ...mockContext,
         elementContext: {
           name: "КакойТоЭлемент",
-          elementType: FormElementType.BaseElement,
         },
       }
       const expectedResult = readXMLFileAsString("forms/autoCommandBar/fullTable.xml")
-      const xmlData = exportTableAutoCommandBarToXML(context, fullAutoCommandBar)
+      const xmlData = exportTableAutoCommandBarToXML(context, mockRule, fullAutoCommandBar)
       const result = xmlExport({ AutoCommandBar: xmlData }, false)
       expect(result).toEqual(expectedResult)
     })
@@ -72,11 +69,10 @@ describe("exportAutoCommandBarToXML", () => {
         ...mockContext,
         elementContext: {
           name: "КакойТоЭлемент",
-          elementType: FormElementType.BaseElement,
         },
       }
       const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalTable.xml")
-      const xmlData = exportTableAutoCommandBarToXML(context, minimalAutoCommandBar)
+      const xmlData = exportTableAutoCommandBarToXML(context, mockRule, minimalAutoCommandBar)
       const result = xmlExport({ AutoCommandBar: xmlData }, false)
       expect(result).toEqual(expectedResult)
     })

@@ -5,8 +5,7 @@ import "~/metadata/commonObjects/exportToXML"
 import "~/metadata/commonObjects/importFromEnterprise"
 import "~/metadata/commonObjects/importFromXML"
 
-import "~/metadata/forms/elements/exportToXML"
-import "~/metadata/forms/elements/rules"
+import "~/metadata/forms/elements"
 
 import "~/metadata/forms/collections/childItems/exportToEnterprise"
 import "~/metadata/forms/collections/childItems/exportToPreview"

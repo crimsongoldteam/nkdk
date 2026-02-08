@@ -5,6 +5,11 @@ export type { ElementRule, PropertyRule }
 export const PagesRules: ElementRule<Pages> = {
   enterpriseField: "FormGroup",
   properties: {
+    childItems: {
+      type: "ChildItems",
+      defaultValue: [],
+      toYAML: false,
+    },
     currentPagesState: {
       yaml: "ТекущееСостояниеСтраниц",
       type: "SystemEnumeration",
@@ -14,11 +19,6 @@ export const PagesRules: ElementRule<Pages> = {
       yaml: "ИспользованиеТекущейСтроки",
       type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
-    },
-    pagesRepresentation: {
-      yaml: "ОтображениеСтраниц",
-      type: "SystemEnumeration",
-      typeSE: "FormPagesRepresentation",
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
@@ -31,6 +31,11 @@ export const PagesRules: ElementRule<Pages> = {
       typeSE: "ItemHorizontalLocation",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+    pagesRepresentation: {
+      yaml: "ОтображениеСтраниц",
+      type: "SystemEnumeration",
+      typeSE: "FormPagesRepresentation",
+    },
     readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
     title: {

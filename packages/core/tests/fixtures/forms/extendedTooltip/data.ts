@@ -2,7 +2,9 @@ import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const defaultExtendedTooltip: ExtendedTooltip = {}
+export const defaultExtendedTooltip: ExtendedTooltip = {
+  elementType: "ExtendedTooltip",
+}
 
 export const parentElement: NamedElement = {
   elementType: FormElementType.InputField,
@@ -15,6 +17,7 @@ export const otherParentElement: NamedElement = {
 }
 
 export const fullExtendedTooltip: ExtendedTooltip = {
+  elementType: "ExtendedTooltip",
   title: {
     items: { ru: "Оформление формы" },
     formatted: false,
@@ -72,6 +75,8 @@ export const fullExtendedTooltipEnterprise: ExtendedTooltipEnterprise = {
   Шрифт: "ОбычныйШрифтТекста",
 }
 
-export const minimalExtendedTooltip: ExtendedTooltip = {}
+export const minimalExtendedTooltip: ExtendedTooltip = {
+  elementType: "ExtendedTooltip",
+}
 
 export const minimalExtendedTooltipEnterprise: ExtendedTooltipEnterprise = {}

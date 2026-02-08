@@ -162,6 +162,7 @@ export const FormElementTypeToEnterprise = {
   AutoCommandBar: "АвтоКоманднаяПанель",
   ViewStatusAddition: "СостояниеПросмотра",
   ContextMenu: "КонтекстноеМеню",
+  ExtendedTooltip: "РасширеннаяПодсказка",
 } as const
 
 export const FormElementTypeFromEnterprise = Object.fromEntries(

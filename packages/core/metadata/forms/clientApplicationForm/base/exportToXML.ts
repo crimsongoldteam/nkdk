@@ -10,7 +10,7 @@ import { getUUID } from "~/metadata/helpers/uuid"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { exportCommandsToXML } from "../../commands/exportToXML"
 import { exportCommandInterfaceToXML } from "../../commonObjects/commandInterface/exportToXML"
-import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/exportToXML"
+import { exportFormAutoCommandBarToXML } from "../../elements/autoCommandBar/toXML"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 
