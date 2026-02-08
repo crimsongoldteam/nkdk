@@ -6,33 +6,33 @@ import {
   minimalCheckBoxField,
   minimalCheckBoxFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/checkBoxField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportCheckBoxFieldPartialToEnterprise, exportCheckBoxFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportCheckBoxFieldToEnterprise", () => {
-  describe("exportCheckBoxFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportCheckBoxFieldPartialToEnterprise(mockContext, mockRule, fullCheckBoxField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullCheckBoxField })
 
       expect(result).toEqual(fullCheckBoxFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportCheckBoxFieldPartialToEnterprise(mockContext, mockRule, minimalCheckBoxField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalCheckBoxField })
 
       expect(result).toEqual(minimalCheckBoxFieldPartialEnterprise)
     })
   })
 
-  describe("exportCheckBoxFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportCheckBoxFieldTypedToEnterprise(mockContext, mockRule, fullCheckBoxField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullCheckBoxField })
 
       expect(result).toEqual(fullCheckBoxFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportCheckBoxFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

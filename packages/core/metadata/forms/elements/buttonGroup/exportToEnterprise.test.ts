@@ -8,32 +8,28 @@ import {
   minimalButtonGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportButtonGroupPartialToEnterprise, exportButtonGroupTypedToEnterprise } from "./exportToEnterprise"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportButtonGroupPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportButtonGroupPartialToEnterprise(mockContext, fullButtonGroup)
+describe("exportButtonGroupToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullButtonGroup })
 
-    expect(result).toEqual(fullButtonGroupPartialEnterprise)
+      expect(result).toEqual(fullButtonGroupPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalButtonGroup })
+
+      expect(result).toEqual(minimalButtonGroupPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportButtonGroupPartialToEnterprise(mockContext, minimalButtonGroup)
+  describe("exportElementToTypedYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullButtonGroup })
 
-    expect(result).toEqual(minimalButtonGroupPartialEnterprise)
-  })
-})
-
-describe("exportButtonGroupTypedToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportButtonGroupTypedToEnterprise(mockContext, fullButtonGroup)
-
-    expect(result).toEqual(fullButtonGroupTypedEnterprise)
-  })
-
-  it("should return undefined when data is undefined", () => {
-    const result = exportButtonGroupTypedToEnterprise(mockContext, undefined)
-
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullButtonGroupTypedEnterprise)
+    })
   })
 })

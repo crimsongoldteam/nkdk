@@ -7,44 +7,33 @@ import {
   minimalSearchControlAddition,
   minimalSingleSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportSearchControlAdditionPartialToEnterprise,
-  exportSingleSearchControlAdditionToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportToEnterprise", () => {
-  describe("exportSingleSearchControlAdditionToEnterprise", () => {
+describe("exportSearchControlAdditionToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSingleSearchControlAdditionToEnterprise(
-        mockContext,
-        mockRule,
-        fullSingleSearchControlAddition
-      )
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullSingleSearchControlAddition })
 
       expect(result).toEqual(fullSingleSearchControlAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSingleSearchControlAdditionToEnterprise(
-        mockContext,
-        mockRule,
-        minimalSingleSearchControlAddition
-      )
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalSingleSearchControlAddition })
 
       expect(result).toBeUndefined()
     })
   })
 
-  describe("exportSearchControlAdditionPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, mockRule, fullSearchControlAddition)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullSearchControlAddition })
 
       expect(result).toEqual(fullSearchControlAdditionEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportSearchControlAdditionPartialToEnterprise(mockContext, mockRule, minimalSearchControlAddition)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalSearchControlAddition })
 
       expect(result).toBeUndefined()
     })

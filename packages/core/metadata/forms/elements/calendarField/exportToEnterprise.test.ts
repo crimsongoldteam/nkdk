@@ -6,18 +6,18 @@ import {
   minimalCalendarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportCalendarFieldPartialToEnterprise } from "./exportToEnterprise"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 
 describe("exportCalendarFieldToEnterprise", () => {
-  describe("exportCalendarFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportCalendarFieldPartialToEnterprise(mockContext, fullCalendarField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullCalendarField })
 
       expect(result).toEqual(fullCalendarFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportCalendarFieldPartialToEnterprise(mockContext, minimalCalendarField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalCalendarField })
 
       expect(result).toEqual(minimalCalendarFieldPartialEnterprise)
     })

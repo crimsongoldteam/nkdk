@@ -6,40 +6,33 @@ import {
   minimalFormattedDocumentField,
   minimalFormattedDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportFormattedDocumentFieldPartialToEnterprise,
-  exportFormattedDocumentFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportFormattedDocumentFieldToEnterprise", () => {
-  describe("exportFormattedDocumentFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportFormattedDocumentFieldPartialToEnterprise(mockContext, mockRule, fullFormattedDocumentField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullFormattedDocumentField })
 
       expect(result).toEqual(fullFormattedDocumentFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportFormattedDocumentFieldPartialToEnterprise(
-        mockContext,
-        mockRule,
-        minimalFormattedDocumentField
-      )
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalFormattedDocumentField })
 
       expect(result).toEqual(minimalFormattedDocumentFieldPartialEnterprise)
     })
   })
 
-  describe("exportFormattedDocumentFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, mockRule, fullFormattedDocumentField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullFormattedDocumentField })
 
       expect(result).toEqual(fullFormattedDocumentFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportFormattedDocumentFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

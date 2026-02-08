@@ -6,36 +6,33 @@ import {
   minimalRadioButtonField,
   minimalRadioButtonFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/radioButtonField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportRadioButtonFieldPartialToEnterprise,
-  exportRadioButtonFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportRadioButtonFieldToEnterprise", () => {
-  describe("exportRadioButtonFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportRadioButtonFieldPartialToEnterprise(mockContext, mockRule, fullRadioButtonField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullRadioButtonField })
 
       expect(result).toEqual(fullRadioButtonFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportRadioButtonFieldPartialToEnterprise(mockContext, mockRule, minimalRadioButtonField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalRadioButtonField })
 
       expect(result).toEqual(minimalRadioButtonFieldPartialEnterprise)
     })
   })
 
-  describe("exportRadioButtonFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportRadioButtonFieldTypedToEnterprise(mockContext, mockRule, fullRadioButtonField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullRadioButtonField })
 
       expect(result).toEqual(fullRadioButtonFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportRadioButtonFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })

@@ -26,10 +26,11 @@ export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey e
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
-  rule: UserVisiblePropertyRule,
+  rule: UserVisiblePropertyRule<any>,
   userVisible: UserVisible | undefined
 ): Partial<Record<string, UserVisibleEnterprise>> | undefined => {
   if (!userVisible) return undefined
+  if (!rule.yaml) throw new Error("UserVisiblePropertyRule must have yaml property")
 
   const values: UserVisibleEnterprise = {}
   userVisible.values.forEach((item) => {

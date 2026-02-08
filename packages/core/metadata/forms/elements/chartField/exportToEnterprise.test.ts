@@ -6,33 +6,33 @@ import {
   minimalChartField,
   minimalChartFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/chartField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportChartFieldPartialToEnterprise, exportChartFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportChartFieldToEnterprise", () => {
-  describe("exportChartFieldPartialToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportChartFieldPartialToEnterprise(mockContext, mockRule, fullChartField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullChartField })
 
       expect(result).toEqual(fullChartFieldPartialEnterprise)
     })
 
     it("should export minimal", () => {
-      const result = exportChartFieldPartialToEnterprise(mockContext, mockRule, minimalChartField)
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalChartField })
 
       expect(result).toEqual(minimalChartFieldPartialEnterprise)
     })
   })
 
-  describe("exportChartFieldTypedToEnterprise", () => {
+  describe("exportElementToTypedYAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportChartFieldTypedToEnterprise(mockContext, mockRule, fullChartField)
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullChartField })
 
       expect(result).toEqual(fullChartFieldTypedEnterprise)
     })
 
     it("should return undefined when data is undefined", () => {
-      const result = exportChartFieldTypedToEnterprise(mockContext, mockRule, undefined)
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
       expect(result).toBeUndefined()
     })
