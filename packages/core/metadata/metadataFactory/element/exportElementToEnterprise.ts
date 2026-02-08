@@ -1,3 +1,4 @@
+import { exportFormattedI8nTextToYAML } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
 import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -20,6 +21,11 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
 
   if (rule.type == "UserVisible") {
     const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
+    return result
+  }
+
+  if (rule.type == "FormattedI8nText") {
+    const result = exportFormattedI8nTextToYAML(context, rule, value)
     return result
   }
 

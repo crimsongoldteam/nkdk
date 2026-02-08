@@ -1,5 +1,5 @@
+import { importFormattedI8nTextFromEnterprise } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
-import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
@@ -15,9 +15,20 @@ export const importPropertyFromEnterprise = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
   value: any
+  yaml?: any
   sourceValue?: any
 }): any => {
-  const { context, rule, value, sourceValue } = params
+  const { context, rule, value, sourceValue, yaml } = params
+
+  if (yaml && rule.type === "UserVisible") {
+    const yamlValueDeny = yaml[rule.yamlDeny]
+    return importUserVisibleFromYAML(context, rule, value, yamlValueDeny)
+  }
+
+  if (yaml && rule.type === "FormattedI8nText") {
+    const yamlFormatted = yaml[rule.yamlFormatted]
+    return importFormattedI8nTextFromEnterprise(context, rule, value, yamlFormatted)
+  }
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
 
@@ -55,29 +66,13 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
     const importedValue = importPropertyFromEnterprise({
       context,
       rule: rule,
+      yaml: yaml,
       value: yamlValue,
     })
 
     if (importedValue !== undefined) {
       result[key as keyof T] = importedValue
     }
-
-    // const userVisible = importUserVisibleProperty(params.context, rule, params.data)
-    // if (userVisible !== undefined) {
-    //   ;(result[key] as UserVisible) = userVisible
-    //   continue
-    // }
-
-    // const typeImportFn = getTypeRule(rule.type as any, "importFromEnterprise")
-
-    // if (typeImportFn) {
-    //   const importedValue = (typeImportFn as any)(context, rule, yamlValue)
-    //   if (importedValue !== undefined) {
-    //     result[key] = importedValue
-    //   }
-    // } else {
-    //   result[key] = yamlValue
-    // }
   }
 
   return result as T
@@ -120,18 +115,13 @@ export function importElementFromYAML<T extends BaseElement>(params: {
 
     const sourceValue = source ? source[key] : curRule.defaultValue
 
-    const userVisible = importUserVisibleProperty(context, curRule, yaml)
-    if (userVisible !== undefined) {
-      ;(result[key] as UserVisible) = userVisible
-      continue
-    }
-
     const yamlValue = (yaml as any)[yamlKey]
 
     const importedValue = importPropertyFromEnterprise({
       context,
       rule: curRule,
       value: yamlValue,
+      yaml: yaml,
       sourceValue,
     })
 
@@ -141,15 +131,4 @@ export function importElementFromYAML<T extends BaseElement>(params: {
   }
 
   return result
-}
-
-function importUserVisibleProperty(
-  context: ConfigurationContext,
-  rule: PropertyRule<any>,
-  yaml: any
-): UserVisible | undefined {
-  if (rule.type !== "UserVisible") return undefined
-  const yamlValue = yaml[rule.yaml!]
-  const yamlValueDeny = yaml[rule.yamlDeny!]
-  return importUserVisibleFromYAML(context, rule, yamlValue, yamlValueDeny)
 }

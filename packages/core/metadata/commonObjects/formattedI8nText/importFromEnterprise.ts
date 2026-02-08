@@ -51,3 +51,5 @@ const importFromEnterprise = (
 
   return result
 }
+
+// registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromEnterprise)

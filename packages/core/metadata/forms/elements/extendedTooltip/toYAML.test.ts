@@ -3,11 +3,11 @@ import { exportPropertyToYAML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { fullExtendedTooltip, fullExtendedTooltipEnterprise } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
-import { ExtendedTooltip } from "./types"
+import { Table } from "../table/types"
 
-const rule: PropertyRule<ExtendedTooltip> = {
+const rule: PropertyRule<Table> = {
   type: "ExtendedTooltip",
-  toYAML: false,
+  yaml: "РасширеннаяПодсказка",
 }
 
 describe("exportExtendedTooltipToEnterprise", () => {
@@ -22,12 +22,12 @@ describe("exportExtendedTooltipToEnterprise", () => {
   })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportPropertyToYAML<ExtendedTooltip>({
+    const result = exportPropertyToYAML({
       context: mockContext,
       rule: rule,
       value: fullExtendedTooltip,
     })
 
-    expect(result).toEqual(fullExtendedTooltipEnterprise)
+    expect(result).toHaveProperty("РасширеннаяПодсказка", fullExtendedTooltipEnterprise)
   })
 })

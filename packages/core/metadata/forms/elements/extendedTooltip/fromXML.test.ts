@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromXML, importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -24,10 +24,10 @@ describe("importExtendedTooltipFromXML", () => {
   it("should return undefined for defaults", () => {
     const xmlData = readAndParseXMLFile<{ ExtendedTooltip: any }>("forms/extendedTooltip/defaults.xml")
 
-    const result = importElementFromXML({
+    const result = importPropertyFromXML({
       context: mockContext,
-      elementType: FormElementType.ExtendedTooltip,
-      xml: xmlData.ExtendedTooltip,
+      rule: rule,
+      value: xmlData.ExtendedTooltip,
     })
 
     expect(result).toBeUndefined()
