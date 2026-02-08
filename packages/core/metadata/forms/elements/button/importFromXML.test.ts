@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullButton, minimalButton } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importButtonFromXML } from "./importFromXML"
 
 describe("importButtonFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importButtonFromXML(mockContext, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.Button,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
@@ -14,7 +18,11 @@ describe("importButtonFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ Button: any }>("forms/button/full.xml")
 
-    const result = importButtonFromXML(mockContext, xmlData.Button)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.Button,
+      xml: xmlData.Button,
+    })
 
     expect(result).toEqual(fullButton)
   })
@@ -22,7 +30,11 @@ describe("importButtonFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Button: any }>("forms/button/minimal.xml")
 
-    const result = importButtonFromXML(mockContext, xmlData.Button)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.Button,
+      xml: xmlData.Button,
+    })
 
     expect(result).toEqual(minimalButton)
   })

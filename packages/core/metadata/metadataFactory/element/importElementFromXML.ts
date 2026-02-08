@@ -7,11 +7,12 @@ import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactor
 import { getTypeRule } from "../typeRulesFactory"
 import { ElementXML, FormElementType } from "../types"
 
-export const importSingleElementFromXML = <T extends SingleElement>(
-  context: ConfigurationContext,
-  elementType: FormElementType,
+export const importSingleElementFromXML = <T extends SingleElement>(params: {
+  context: ConfigurationContext
+  elementType: FormElementType
   xml: ElementXML
-): T | undefined => {
+}): T | undefined => {
+  const { context, elementType, xml } = params
   const rules = getElementRule(elementType)
 
   const props = importFromXML(context, xml, rules)
@@ -24,11 +25,13 @@ export const importSingleElementFromXML = <T extends SingleElement>(
   return result as T | undefined
 }
 
-export function importElementFromXML<T extends NamedElement>(
-  context: ConfigurationContext,
-  elementType: FormElementType,
+export function importElementFromXML<T extends NamedElement>(params: {
+  context: ConfigurationContext
+  elementType: FormElementType
   xml: ElementXML | undefined
-): T | undefined {
+}): T | undefined {
+  const { context, elementType, xml } = params
+
   if (xml === undefined) return undefined
 
   const rules = getElementRule<T>(elementType)
