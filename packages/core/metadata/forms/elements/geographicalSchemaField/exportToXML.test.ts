@@ -1,23 +1,17 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import {
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportGeographicalSchemaFieldToXML } from "./exportToXML"
 
 describe("exportGeographicalSchemaFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportGeographicalSchemaFieldToXML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/geographicalSchemaField/full.xml")
-    const xmlData = exportGeographicalSchemaFieldToXML(mockContext, mockRule, fullGeographicalSchemaField)
+    const xmlData = exportElementToXML({ context: mockContext, data: fullGeographicalSchemaField })
 
     const result = xmlExport({ GeographicalSchemaField: xmlData }, false)
 
@@ -26,7 +20,7 @@ describe("exportGeographicalSchemaFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/geographicalSchemaField/minimal.xml")
-    const xmlData = exportGeographicalSchemaFieldToXML(mockContext, mockRule, minimalGeographicalSchemaField)
+    const xmlData = exportElementToXML({ context: mockContext, data: minimalGeographicalSchemaField })
 
     const result = xmlExport({ GeographicalSchemaField: xmlData }, false)
 

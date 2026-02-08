@@ -1,21 +1,15 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullGanttChartField, minimalGanttChartField } from "~/tests/fixtures/forms/ganttChartField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportGanttChartFieldToXML } from "./exportToXML"
 
 describe("exportGanttChartFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportGanttChartFieldToXML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/ganttChartField/full.xml")
 
-    const xmlData = exportGanttChartFieldToXML(mockContext, mockRule, fullGanttChartField)
+    const xmlData = exportElementToXML({ context: mockContext, data: fullGanttChartField })
 
     const result = xmlExport({ GanttChartField: xmlData }, false)
 
@@ -24,7 +18,7 @@ describe("exportGanttChartFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/ganttChartField/minimal.xml")
-    const xmlData = exportGanttChartFieldToXML(mockContext, mockRule, minimalGanttChartField)
+    const xmlData = exportElementToXML({ context: mockContext, data: minimalGanttChartField })
 
     const result = xmlExport({ GanttChartField: xmlData }, false)
 
