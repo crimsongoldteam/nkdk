@@ -37,12 +37,12 @@ type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule<an
 
 type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 
-type ImportFromEnterpriseFunction = <T>(
+type ImportFromEnterpriseFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined,
-  source?: T
-) => T | undefined
+  source?: any
+) => any | undefined
 
 type ExportToEnterpriseFunction = (
   context: ConfigurationContext,

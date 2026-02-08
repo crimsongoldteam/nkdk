@@ -6,7 +6,7 @@ import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const exportI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  rule: PropertyRule<any>,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
@@ -15,7 +15,7 @@ export const exportI8nTextToXMLWithDefaultLanguage = (
     return undefined
   }
 
-  return exportI8nTextToXML(context, undefined, data)
+  return exportI8nTextToXML(context, rule, data)
 }
 
 export const exportI8nTextToXML = (

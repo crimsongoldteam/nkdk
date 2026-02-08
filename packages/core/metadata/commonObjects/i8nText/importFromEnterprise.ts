@@ -6,6 +6,31 @@ import { I8nText, I8nTextEnterprise } from "./types"
 export const importI8nTextFromEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
+  data: I8nTextEnterprise | undefined,
+  source?: I8nText | undefined
+): I8nText | undefined => {
+  if (source === undefined && data === undefined) return undefined
+
+  const result: I8nText = {
+    items: {},
+  }
+
+  if (source !== undefined) {
+    result.items = { ...result.items, ...source.items }
+  }
+
+  if (data !== undefined) {
+    const otherLanguages = importFromEnterprise(context, data)!
+    result.items = { ...result.items, ...otherLanguages.items }
+  }
+
+  if (Object.keys(result.items).length === 0) return undefined
+
+  return result
+}
+
+const importFromEnterprise = (
+  context: ConfigurationContext,
   data: I8nTextEnterprise | undefined
 ): I8nText | undefined => {
   if (data === undefined) return undefined
@@ -21,32 +46,6 @@ export const importI8nTextFromEnterprise = (
   return {
     items: data,
   }
-}
-
-export const importI8nTextCombinedFromEnterprise = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  defaultLanguage: I8nText | undefined,
-  otherLanguagesEnterprise: I8nTextEnterprise | undefined
-): I8nText | undefined => {
-  if (defaultLanguage === undefined && otherLanguagesEnterprise === undefined) return undefined
-
-  const result: I8nText = {
-    items: {},
-  }
-
-  if (defaultLanguage !== undefined) {
-    result.items = { ...result.items, ...defaultLanguage.items }
-  }
-
-  if (otherLanguagesEnterprise !== undefined) {
-    const otherLanguages = importI8nTextFromEnterprise(context, undefined, otherLanguagesEnterprise)!
-    result.items = { ...result.items, ...otherLanguages.items }
-  }
-
-  if (Object.keys(result.items).length === 0) return undefined
-
-  return result
 }
 
 registerTypeRule("I8nText", "importFromEnterprise", importI8nTextFromEnterprise)

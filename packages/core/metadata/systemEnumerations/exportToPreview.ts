@@ -19,7 +19,7 @@ export const exportSystemEnumerationDeprecatedToPreview = (
 
 export const exportSystemEnumerationToPreview = (
   _context: ConfigurationContext,
-  rule: SystemEnumerationPropertyRule,
+  rule: SystemEnumerationPropertyRule<any>,
   value: string | undefined
 ): SystemEnumerationPreview | undefined => {
   if (!value) return undefined

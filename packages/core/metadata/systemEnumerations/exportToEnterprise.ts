@@ -17,7 +17,7 @@ export const exportSystemEnumerationToEnterprise = <T extends string>(
 
 export const exportSystemEnumerationToYAML = <T extends string>(
   _context: ConfigurationContext,
-  rule: SystemEnumerationPropertyRule,
+  rule: SystemEnumerationPropertyRule<any>,
   value: string | undefined
 ): T | undefined => {
   if (!value) return undefined
