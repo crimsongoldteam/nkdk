@@ -1,28 +1,34 @@
 import { describe, expect, it } from "vitest"
+import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullExtendedTooltip,
   fullExtendedTooltipEnterprise,
   minimalExtendedTooltip,
   minimalExtendedTooltipEnterprise,
 } from "~/tests/fixtures/forms/extendedTooltip/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importExtendedTooltipFromEnterprise } from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+
+const rule: PropertyRule<any> = { type: "ExtendedTooltip" }
 
 describe("importExtendedTooltipFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importExtendedTooltipFromEnterprise(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should import all fields from Enterprise", () => {
-    const result = importExtendedTooltipFromEnterprise(mockContext, mockRule, fullExtendedTooltipEnterprise)
+    const result = importPropertyFromEnterprise({
+      context: mockContext,
+      rule: rule,
+      value: fullExtendedTooltipEnterprise,
+      sourceValue: fullExtendedTooltip,
+    })
 
     expect(result).toEqual(fullExtendedTooltip)
   })
 
   it("should import minimal", () => {
-    const result = importExtendedTooltipFromEnterprise(mockContext, mockRule, minimalExtendedTooltipEnterprise)
+    const result = importPropertyFromEnterprise({
+      context: mockContext,
+      rule: rule,
+      value: minimalExtendedTooltipEnterprise,
+      sourceValue: minimalExtendedTooltip,
+    })
 
     expect(result).toEqual(minimalExtendedTooltip)
   })

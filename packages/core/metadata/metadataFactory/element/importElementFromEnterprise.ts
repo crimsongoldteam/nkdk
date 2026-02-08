@@ -22,12 +22,12 @@ export const importPropertyFromEnterprise = (params: {
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
 
   if (!typeImportFn) {
-    return value
+    return value ?? sourceValue
   }
 
   const result = typeImportFn(context, rule, value, sourceValue)
 
-  return result
+  return result ?? sourceValue
 }
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {

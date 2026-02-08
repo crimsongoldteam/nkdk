@@ -44,9 +44,15 @@ import "./fieldsList/exportToXML"
 import "./fieldsList/importFromEnterprise"
 import "./fieldsList/importFromXML"
 
+import "./font/exportToEnterprise"
 import "./font/exportToXML"
+import "./font/importFromEnterprise"
+import "./font/importFromXML"
 
+import "./formattedI8nText/exportToEnterprise"
 import "./formattedI8nText/exportToXML"
+import "./formattedI8nText/importFromEnterprise"
+import "./formattedI8nText/importFromXML"
 
 import "./formAttribute/exportToEnterprise"
 import "./formAttribute/exportToXML"
@@ -63,7 +69,10 @@ import "./functionalOptionsProperty/exportToXML"
 import "./functionalOptionsProperty/importFromEnterprise"
 import "./functionalOptionsProperty/importFromXML"
 
+import "./i8nText/exportToEnterprise"
 import "./i8nText/exportToXML"
+import "./i8nText/importFromEnterprise"
+import "./i8nText/importFromXML"
 
 import "./indexField/exportToEnterprise"
 import "./indexField/exportToXML"

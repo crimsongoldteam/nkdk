@@ -39,6 +39,7 @@ export const importSingleElementFromXML = <T extends SingleElement>(params: {
     elementType: elementType,
     ...(props ?? {}),
   }
+  if (isEmptyElement(result)) return undefined
 
   return result as T | undefined
 }
@@ -107,4 +108,17 @@ const importEventsFromXML = <T extends EventedElement>(
   }
 
   return { events: result }
+}
+
+const isEmptyElement = (element: BaseElement | undefined): boolean => {
+  if (!element) return true
+
+  for (const [key, value] of Object.entries(element) as [string, any][]) {
+    if (key === "elementType") continue
+    if (key === "childItems" && (value as Array<unknown>).length === 0) continue
+
+    return false
+  }
+
+  return true
 }

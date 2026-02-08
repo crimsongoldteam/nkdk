@@ -1,8 +1,4 @@
-import "./autoCommandBar/fromXML"
-import "./autoCommandBar/fromYAML"
 import "./autoCommandBar/rules"
-import "./autoCommandBar/toXML"
-import "./autoCommandBar/toYAML"
 
 import "./button/exportToStructure"
 import "./button/rules"
@@ -33,8 +29,8 @@ import "./commandBar/types"
 import "./dendrogramField/rules"
 import "./dendrogramField/types"
 
-import "./extendedTooltip/fromXML"
-import "./extendedTooltip/toXML"
+import "./extendedTooltip/rules"
+import "./extendedTooltip/types"
 
 import "./formattedDocumentField/rules"
 import "./formattedDocumentField/types"

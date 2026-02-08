@@ -159,12 +159,14 @@ const registerImportFromEnterprise = <T extends BaseElement>(
     (
       context: ConfigurationContext,
       _rule: PropertyRule<T>,
-      yaml: ToPartialEnterpriseType<T> | undefined
+      yaml: ToPartialEnterpriseType<T> | undefined,
+      source?: T
     ): T | undefined => {
       return importElementFromPartialYAML({
         context,
         elementType: elementType,
         yaml,
+        source,
       })
     }
   )
