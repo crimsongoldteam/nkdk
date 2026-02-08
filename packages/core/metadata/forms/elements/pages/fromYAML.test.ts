@@ -8,7 +8,7 @@ describe("importPagesFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.Pages,
-      data: fullPagesPartialEnterprise,
+      yaml: fullPagesPartialEnterprise,
       source: fullPages,
     })
 

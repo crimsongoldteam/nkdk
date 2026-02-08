@@ -49,7 +49,7 @@ describe("importPopupFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.Popup,
-        data: fullPopupPartialEnterprise,
+        yaml: fullPopupPartialEnterprise,
         source: fullPopup,
       })
 
@@ -60,7 +60,7 @@ describe("importPopupFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.Popup,
-        data: minimalPopupPartialEnterprise,
+        yaml: minimalPopupPartialEnterprise,
         source: fullPopup,
       })
 

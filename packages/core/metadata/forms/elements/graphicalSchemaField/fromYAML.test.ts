@@ -13,7 +13,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.GraphicalSchemaField,
-      data: fullGraphicalSchemaFieldPartialEnterprise,
+      yaml: fullGraphicalSchemaFieldPartialEnterprise,
       source: fullGraphicalSchemaField,
     })
 
@@ -24,7 +24,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.GraphicalSchemaField,
-      data: minimalGraphicalSchemaFieldPartialEnterprise,
+      yaml: minimalGraphicalSchemaFieldPartialEnterprise,
       source: minimalGraphicalSchemaField,
     })
 

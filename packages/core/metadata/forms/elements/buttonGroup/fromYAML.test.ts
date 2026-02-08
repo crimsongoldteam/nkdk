@@ -49,7 +49,7 @@ describe("importButtonGroupFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ButtonGroup,
-        data: fullButtonGroupPartialEnterprise,
+        yaml: fullButtonGroupPartialEnterprise,
         source: fullButtonGroup,
       })
 
@@ -60,7 +60,7 @@ describe("importButtonGroupFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ButtonGroup,
-        data: minimalButtonGroupPartialEnterprise,
+        yaml: minimalButtonGroupPartialEnterprise,
         source: minimalButtonGroup,
       })
 

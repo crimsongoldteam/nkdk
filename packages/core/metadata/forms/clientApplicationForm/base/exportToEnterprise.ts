@@ -15,7 +15,7 @@ import { exportPartialChildItemsToEnterprise } from "../../collections/childItem
 import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportCommandInterfaceToEnterprise } from "../../commonObjects/commandInterface/exportToEnterprise"
-import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
+import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/toYAML"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { getAllElements } from "./getAllElements"
 

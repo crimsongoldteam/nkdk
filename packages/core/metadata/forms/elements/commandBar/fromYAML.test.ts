@@ -13,7 +13,7 @@ describe("importCommandBarFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.CommandBar,
-      data: fullCommandBarPartialEnterprise,
+      yaml: fullCommandBarPartialEnterprise,
       source: fullCommandBar,
     })
 
@@ -24,7 +24,7 @@ describe("importCommandBarFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.CommandBar,
-      data: minimalCommandBarPartialEnterprise,
+      yaml: minimalCommandBarPartialEnterprise,
       source: minimalCommandBar,
     })
 

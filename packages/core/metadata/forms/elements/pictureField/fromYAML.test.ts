@@ -49,7 +49,7 @@ describe("importPictureFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.PictureField,
-        data: fullPictureFieldPartialEnterprise,
+        yaml: fullPictureFieldPartialEnterprise,
         source: fullPictureField,
       })
 
@@ -60,7 +60,7 @@ describe("importPictureFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.PictureField,
-        data: minimalPictureFieldPartialEnterprise,
+        yaml: minimalPictureFieldPartialEnterprise,
         source: minimalPictureField,
       })
 

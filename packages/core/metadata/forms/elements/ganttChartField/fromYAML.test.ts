@@ -13,7 +13,7 @@ describe("importGanttChartFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.GanttChartField,
-      data: fullGanttChartFieldPartialEnterprise,
+      yaml: fullGanttChartFieldPartialEnterprise,
       source: fullGanttChartField,
     })
 
@@ -24,7 +24,7 @@ describe("importGanttChartFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.GanttChartField,
-      data: minimalGanttChartFieldPartialEnterprise,
+      yaml: minimalGanttChartFieldPartialEnterprise,
       source: minimalGanttChartField,
     })
 

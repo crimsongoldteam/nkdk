@@ -8,7 +8,7 @@ describe("importTableFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.Table,
-      data: fullTableEnterprise,
+      yaml: fullTableEnterprise,
       source: fullTable,
     })
 
@@ -19,7 +19,7 @@ describe("importTableFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.Table,
-      data: minimalTableEnterprise,
+      yaml: minimalTableEnterprise,
       source: minimalTable,
     })
 

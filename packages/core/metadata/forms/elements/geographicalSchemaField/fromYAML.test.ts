@@ -49,7 +49,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.GeographicalSchemaField,
-        data: fullGeographicalSchemaFieldPartialEnterprise,
+        yaml: fullGeographicalSchemaFieldPartialEnterprise,
         source: fullGeographicalSchemaField,
       })
 
@@ -60,7 +60,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.GeographicalSchemaField,
-        data: minimalGeographicalSchemaFieldPartialEnterprise,
+        yaml: minimalGeographicalSchemaFieldPartialEnterprise,
         source: minimalGeographicalSchemaField,
       })
 

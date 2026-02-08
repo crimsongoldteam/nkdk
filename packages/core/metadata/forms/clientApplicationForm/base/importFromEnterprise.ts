@@ -16,7 +16,7 @@ import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importCommandInterfaceFromEnterprise } from "../../commonObjects/commandInterface/importFromEnterprise"
-import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
+import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/fromYAML"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",

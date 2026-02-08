@@ -17,5 +17,5 @@ export const importAutoCommandBarFromXML = (
   })
 }
 
-registerTypeRule("AutoCommandBar", "importFromEnterprise", importAutoCommandBarFromXML)
-registerTypeRule("TableAutoCommandBar", "importFromEnterprise", importAutoCommandBarFromXML)
+registerTypeRule("AutoCommandBar", "importFromXML", importAutoCommandBarFromXML)
+registerTypeRule("TableAutoCommandBar", "importFromXML", importAutoCommandBarFromXML)

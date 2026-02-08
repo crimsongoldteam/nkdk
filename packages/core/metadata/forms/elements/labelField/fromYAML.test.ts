@@ -49,7 +49,7 @@ describe("importLabelFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.LabelField,
-        data: fullLabelFieldPartialEnterprise,
+        yaml: fullLabelFieldPartialEnterprise,
         source: fullLabelField,
       })
 
@@ -60,7 +60,7 @@ describe("importLabelFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.LabelField,
-        data: minimalLabelFieldPartialEnterprise,
+        yaml: minimalLabelFieldPartialEnterprise,
         source: minimalLabelField,
       })
 

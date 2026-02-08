@@ -13,7 +13,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PDFDocumentField,
-      data: fullPdfDocumentFieldPartialEnterprise,
+      yaml: fullPdfDocumentFieldPartialEnterprise,
       source: fullPdfDocumentField,
     })
 
@@ -24,7 +24,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PDFDocumentField,
-      data: minimalPdfDocumentFieldPartialEnterprise,
+      yaml: minimalPdfDocumentFieldPartialEnterprise,
       source: minimalPdfDocumentField,
     })
 

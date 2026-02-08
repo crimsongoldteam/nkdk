@@ -1,32 +1,26 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullAutoCommandBar,
-  fullAutoCommandBarPartialEnterprise,
+  fullAutoExportCommandBarEnterprise,
   minimalAutoCommandBar,
-  minimalAutoCommandBarPartialEnterprise,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockRule } from "~/tests/mockContext"
+import { importAutoCommandBarFromYAML } from "./fromYAML"
 
 describe("importAutoCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importElementFromPartialYAML({
-      context: mockContext,
-      elementType: FormElementType.AutoCommandBar,
-      data: fullAutoCommandBarPartialEnterprise,
-      source: fullAutoCommandBar,
-    })
+    const result = importAutoCommandBarFromYAML(
+      mockContext,
+      mockRule,
+      fullAutoExportCommandBarEnterprise,
+      fullAutoCommandBar
+    )
 
     expect(result).toEqual(fullAutoCommandBar)
   })
 
   it("should import minimal", () => {
-    const result = importElementFromPartialYAML({
-      context: mockContext,
-      elementType: FormElementType.AutoCommandBar,
-      data: minimalAutoCommandBarPartialEnterprise,
-      source: minimalAutoCommandBar,
-    })
+    const result = importAutoCommandBarFromYAML(mockContext, mockRule, undefined, minimalAutoCommandBar)
 
     expect(result).toEqual(minimalAutoCommandBar)
   })

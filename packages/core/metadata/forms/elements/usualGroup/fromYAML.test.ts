@@ -13,7 +13,7 @@ describe("importUsualGroupFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.UsualGroup,
-      data: fullUsualGroupPartialEnterprise,
+      yaml: fullUsualGroupPartialEnterprise,
       source: fullUsualGroup,
     })
 
@@ -24,7 +24,7 @@ describe("importUsualGroupFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.UsualGroup,
-      data: minimalUsualGroupPartialEnterprise,
+      yaml: minimalUsualGroupPartialEnterprise,
       source: minimalUsualGroup,
     })
 

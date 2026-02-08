@@ -14,7 +14,7 @@ describe("importContextMenuFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ContextMenu,
-        data: fullContextMenuPartialEnterprise,
+        yaml: fullContextMenuPartialEnterprise,
         source: fullContextMenu,
       })
 
@@ -25,7 +25,7 @@ describe("importContextMenuFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ContextMenu,
-        data: minimalContextMenuPartialEnterprise,
+        yaml: minimalContextMenuPartialEnterprise,
         source: minimalContextMenu,
       })
 

@@ -13,7 +13,7 @@ describe("importPeriodFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PeriodField,
-      data: undefined,
+      yaml: undefined,
       source: undefined,
     })
 
@@ -24,7 +24,7 @@ describe("importPeriodFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PeriodField,
-      data: fullPeriodFieldPartialEnterprise,
+      yaml: fullPeriodFieldPartialEnterprise,
       source: fullPeriodField,
     })
 
@@ -35,7 +35,7 @@ describe("importPeriodFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PeriodField,
-      data: minimalPeriodFieldPartialEnterprise,
+      yaml: minimalPeriodFieldPartialEnterprise,
       source: minimalPeriodField,
     })
 

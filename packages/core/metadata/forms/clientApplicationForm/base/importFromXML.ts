@@ -7,7 +7,7 @@ import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromX
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"
-import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
+import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/fromXML"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 

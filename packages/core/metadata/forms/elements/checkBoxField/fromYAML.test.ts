@@ -48,7 +48,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.CheckBoxField,
-        data: fullCheckBoxFieldPartialEnterprise,
+        yaml: fullCheckBoxFieldPartialEnterprise,
         source: fullCheckBoxField,
       })
 
@@ -59,7 +59,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.CheckBoxField,
-        data: fullCheckBoxFieldPartialEnterprise,
+        yaml: fullCheckBoxFieldPartialEnterprise,
         source: fullCheckBoxField,
       })
 

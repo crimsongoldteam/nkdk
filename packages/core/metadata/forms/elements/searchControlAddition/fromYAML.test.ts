@@ -49,7 +49,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.SearchControlAddition,
-        data: fullSearchControlAdditionPartialEnterprise,
+        yaml: fullSearchControlAdditionPartialEnterprise,
         source: fullSearchControlAddition,
       })
 
@@ -60,7 +60,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.SearchControlAddition,
-        data: minimalSearchControlAdditionPartialEnterprise,
+        yaml: minimalSearchControlAdditionPartialEnterprise,
         source: minimalSearchControlAddition,
       })
 

@@ -14,7 +14,7 @@ describe("importChartFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ChartField,
-        data: fullChartFieldPartialEnterprise,
+        yaml: fullChartFieldPartialEnterprise,
         source: fullChartField,
       })
 
@@ -25,7 +25,7 @@ describe("importChartFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ChartField,
-        data: minimalChartFieldPartialEnterprise,
+        yaml: minimalChartFieldPartialEnterprise,
         source: minimalChartField,
       })
 

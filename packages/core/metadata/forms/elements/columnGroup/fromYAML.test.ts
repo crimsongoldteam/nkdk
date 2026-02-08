@@ -48,7 +48,7 @@ describe("importColumnGroupFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ColumnGroup,
-        data: fullColumnGroupPartialEnterprise,
+        yaml: fullColumnGroupPartialEnterprise,
         source: fullColumnGroup,
       })
 

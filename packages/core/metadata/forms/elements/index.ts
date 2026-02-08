@@ -1,14 +1,16 @@
+import "./autoCommandBar/fromXML"
+import "./autoCommandBar/fromYAML"
 import "./autoCommandBar/rules"
 import "./autoCommandBar/toXML"
-import "./autoCommandBar/fromXML"
+import "./autoCommandBar/toYAML"
 
+import "./button/exportToStructure"
 import "./button/rules"
 import "./button/types"
-import "./button/exportToStructure"
 
+import "./buttonGroup/exportToStructure"
 import "./buttonGroup/rules"
 import "./buttonGroup/types"
-import "./buttonGroup/exportToStructure"
 
 import "./calendarField/rules"
 import "./calendarField/types"
@@ -16,23 +18,23 @@ import "./calendarField/types"
 import "./chartField/rules"
 import "./chartField/types"
 
+import "./checkBoxField/exportToStructure"
 import "./checkBoxField/rules"
 import "./checkBoxField/types"
-import "./checkBoxField/exportToStructure"
 
+import "./columnGroup/exportToStructure"
 import "./columnGroup/rules"
 import "./columnGroup/types"
-import "./columnGroup/exportToStructure"
 
+import "./commandBar/exportToStructure"
 import "./commandBar/rules"
 import "./commandBar/types"
-import "./commandBar/exportToStructure"
 
 import "./dendrogramField/rules"
 import "./dendrogramField/types"
 
-import "./extendedTooltip/toXML"
 import "./extendedTooltip/fromXML"
+import "./extendedTooltip/toXML"
 
 import "./formattedDocumentField/rules"
 import "./formattedDocumentField/types"
@@ -49,25 +51,25 @@ import "./graphicalSchemaField/types"
 import "./htmlDocumentField/rules"
 import "./htmlDocumentField/types"
 
+import "./inputField/exportToStructure"
 import "./inputField/rules"
 import "./inputField/types"
-import "./inputField/exportToStructure"
 
+import "./labelDecoration/exportToStructure"
 import "./labelDecoration/rules"
 import "./labelDecoration/types"
-import "./labelDecoration/exportToStructure"
 
+import "./labelField/exportToStructure"
 import "./labelField/rules"
 import "./labelField/types"
-import "./labelField/exportToStructure"
 
+import "./page/exportToStructure"
 import "./page/rules"
 import "./page/types"
-import "./page/exportToStructure"
 
+import "./pages/exportToStructure"
 import "./pages/rules"
 import "./pages/types"
-import "./pages/exportToStructure"
 
 import "./pdfDocumentField/rules"
 import "./pdfDocumentField/types"
@@ -75,20 +77,20 @@ import "./pdfDocumentField/types"
 import "./periodField/rules"
 import "./periodField/types"
 
+import "./pictureDecoration/exportToStructure"
 import "./pictureDecoration/rules"
 import "./pictureDecoration/types"
-import "./pictureDecoration/exportToStructure"
 
+import "./pictureField/exportToStructure"
 import "./pictureField/rules"
 import "./pictureField/types"
-import "./pictureField/exportToStructure"
 
 import "./plannerField/rules"
 import "./plannerField/types"
 
+import "./popup/exportToStructure"
 import "./popup/rules"
 import "./popup/types"
-import "./popup/exportToStructure"
 
 import "./progressBarField/rules"
 import "./progressBarField/types"
@@ -96,20 +98,20 @@ import "./progressBarField/types"
 import "./radioButtonField/rules"
 import "./radioButtonField/types"
 
+import "./searchControlAddition/exportToStructure"
 import "./searchControlAddition/rules"
 import "./searchControlAddition/types"
-import "./searchControlAddition/exportToStructure"
 
+import "./searchStringAddition/exportToStructure"
 import "./searchStringAddition/rules"
 import "./searchStringAddition/types"
-import "./searchStringAddition/exportToStructure"
 
 import "./spreadSheetDocumentField/rules"
 import "./spreadSheetDocumentField/types"
 
+import "./table/exportToStructure"
 import "./table/rules"
 import "./table/types"
-import "./table/exportToStructure"
 
 import "./textDocumentField/rules"
 import "./textDocumentField/types"
@@ -117,9 +119,9 @@ import "./textDocumentField/types"
 import "./trackBarField/rules"
 import "./trackBarField/types"
 
+import "./usualGroup/exportToStructure"
 import "./usualGroup/rules"
 import "./usualGroup/types"
-import "./usualGroup/exportToStructure"
 
 import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"

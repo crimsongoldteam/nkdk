@@ -13,7 +13,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.DendrogramField,
-      data: fullDendrogramFieldPartialEnterprise,
+      yaml: fullDendrogramFieldPartialEnterprise,
       source: fullDendrogramField,
     })
 
@@ -24,7 +24,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.DendrogramField,
-      data: minimalDendrogramFieldPartialEnterprise,
+      yaml: minimalDendrogramFieldPartialEnterprise,
       source: minimalDendrogramField,
     })
 

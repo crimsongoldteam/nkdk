@@ -1,9 +1,5 @@
 import { beforeEach } from "vitest"
-import "~/metadata/commonObjects/exportToEnterprise"
-import "~/metadata/commonObjects/exportToPreview"
-import "~/metadata/commonObjects/exportToXML"
-import "~/metadata/commonObjects/importFromEnterprise"
-import "~/metadata/commonObjects/importFromXML"
+import "~/metadata/commonObjects"
 
 import "~/metadata/forms/elements"
 

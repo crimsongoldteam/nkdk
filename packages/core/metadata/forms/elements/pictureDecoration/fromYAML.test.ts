@@ -12,7 +12,7 @@ describe("importPictureDecorationFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PictureDecoration,
-      data: fullPictureDecorationPartialEnterprise,
+      yaml: fullPictureDecorationPartialEnterprise,
       source: fullPictureDecoration,
     })
 
@@ -23,7 +23,7 @@ describe("importPictureDecorationFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.PictureDecoration,
-      data: fullPictureDecorationPartialEnterprise,
+      yaml: fullPictureDecorationPartialEnterprise,
       source: fullPictureDecoration,
     })
 

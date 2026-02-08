@@ -13,7 +13,7 @@ describe("importViewStatusAdditionFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.ViewStatusAddition,
-      data: fullViewStatusAdditionPartialEnterprise,
+      yaml: fullViewStatusAdditionPartialEnterprise,
       source: fullViewStatusAddition,
     })
 
@@ -24,7 +24,7 @@ describe("importViewStatusAdditionFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.ViewStatusAddition,
-      data: minimalViewStatusAdditionPartialEnterprise,
+      yaml: minimalViewStatusAdditionPartialEnterprise,
       source: minimalViewStatusAddition,
     })
 

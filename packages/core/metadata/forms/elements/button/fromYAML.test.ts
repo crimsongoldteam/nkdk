@@ -38,7 +38,7 @@ describe("importButtonFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.Button,
-        data: fullButtonPartialEnterprise,
+        yaml: fullButtonPartialEnterprise,
         source: fullButton,
       })
 

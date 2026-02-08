@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { fullAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importAutoCommandBarFromXML } from "./importFromXML"
+import { importAutoCommandBarFromXML } from "./fromXML"
 
 describe("importAutoCommandBarFromXML", () => {
   it("should import all fields from XML", () => {

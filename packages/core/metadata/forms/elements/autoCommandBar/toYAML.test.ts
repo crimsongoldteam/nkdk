@@ -5,7 +5,7 @@ import {
   minimalAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportAutoCommandBarToEnterprise } from "./exportToEnterprise"
+import { exportAutoCommandBarToEnterprise } from "./toYAML"
 
 describe("exportAutoCommandBarToEnterprise", () => {
   it("should return undefined when data is undefined", () => {

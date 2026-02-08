@@ -49,7 +49,7 @@ describe("importInputFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.InputField,
-        data: fullInputFieldPartialEnterprise,
+        yaml: fullInputFieldPartialEnterprise,
         source: fullInputField,
       })
 
@@ -60,7 +60,7 @@ describe("importInputFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.InputField,
-        data: minimalInputFieldPartialEnterprise,
+        yaml: minimalInputFieldPartialEnterprise,
         source: minimalInputField,
       })
 
