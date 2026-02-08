@@ -1,9 +1,9 @@
 import { ElementRule, PropertyRule } from "../../../metadataFactory/elementRulesFactory"
+import { ViewStatusAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
-// ViewStatusAddition не входит в FormElementType и не реализует NamedElement,
-// поэтому правила не регистрируются, но файл создан для возможного использования в будущем
-export const ViewStatusAdditionRules: ElementRule<any> = {
+export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition> = {
+  enterpriseField: "ViewStatusAddition",
   properties: {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
@@ -43,5 +43,4 @@ export const ViewStatusAdditionRules: ElementRule<any> = {
       typeSE: "ToolTipRepresentation",
     },
   },
-  events: {},
 }

@@ -1,6 +1,5 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
@@ -64,7 +63,7 @@ export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   const footerPicture = importPictureFromXML(context, undefined, xml.FooterPicture)
   if (footerPicture !== undefined) result.footerPicture = footerPicture
 
-  const footerText = importI8nTextFromXML(context, undefined, xml.FooterText)
+  const footerText = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.FooterText)
   if (footerText !== undefined) result.footerText = footerText
 
   const footerTextColor = importColorFromXML(context, undefined, xml.FooterTextColor)
@@ -92,7 +91,7 @@ export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   const table = importMetadataValueFromXMLAsPrimitive(context, undefined, xml.AssociatedTableElementId, "string")
   if (table !== undefined) result.table = table
 
-  const title = importI8nTextFromXML(context, undefined, xml.Title)
+  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) result.title = title
 
   const titleBackColor = importColorFromXML(context, undefined, xml.TitleBackColor)
@@ -108,7 +107,7 @@ export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   const titleTextColor = importColorFromXML(context, undefined, xml.TitleTextColor)
   if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
 
-  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
@@ -127,7 +126,7 @@ export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  const warningOnEdit = importI8nTextFromXML(context, undefined, xml.WarningOnEdit)
+  const warningOnEdit = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.WarningOnEdit)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
   if (xml.WarningOnEditRepresentation !== undefined)

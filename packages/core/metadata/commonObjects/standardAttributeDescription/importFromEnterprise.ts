@@ -91,7 +91,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters) result.choiceParameters = choiceParameters
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip) result.toolTip = toolTip
 
   const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
@@ -130,7 +130,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
   if (linkByType) result.linkByType = linkByType
 
-  const synonym = importI8nTextFromEnterprise(context, undefined, data.Синоним)
+  const synonym = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним)
   if (synonym) result.synonym = synonym
 
   const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
@@ -146,10 +146,10 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   if (data.ФормаВыбора) result.choiceForm = data.ФормаВыбора
 
-  const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
+  const format = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Формат)
   if (format) result.format = format
 
-  const editFormat = importI8nTextFromEnterprise(context, undefined, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ФорматРедактирования)
   if (editFormat) result.editFormat = editFormat
 
   const defaults = getDefaults(context, result)

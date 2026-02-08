@@ -1,4 +1,3 @@
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import {
   StandardAttributeDescription,
@@ -64,7 +63,7 @@ const importStandardAttributeDescriptionFromXML = (
   if (xml["xr:CreateOnInput"] !== undefined) result.createOnInput = xml["xr:CreateOnInput"]
   if (xml["xr:DataHistory"] !== undefined) result.dataHistory = xml["xr:DataHistory"]
 
-  const editFormat = importI8nTextFromXML(context, undefined, xml["xr:EditFormat"])
+  const editFormat = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:EditFormat"])
   if (editFormat) result.editFormat = editFormat
 
   const extendedEdit = importBooleanFromXML(context, undefined, xml["xr:ExtendedEdit"])
@@ -76,7 +75,7 @@ const importStandardAttributeDescriptionFromXML = (
   const fillValue = importMetadataValueFromXML(context, undefined, xml["xr:FillValue"])
   if (fillValue) result.fillValue = fillValue
 
-  const format = importI8nTextFromXML(context, undefined, xml["xr:Format"])
+  const format = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:Format"])
   if (format) result.format = format
 
   if (xml["xr:FullTextSearch"] !== undefined) result.fullTextSearch = xml["xr:FullTextSearch"]
@@ -97,10 +96,10 @@ const importStandardAttributeDescriptionFromXML = (
 
   if (xml["xr:QuickChoice"] !== undefined) result.quickChoice = xml["xr:QuickChoice"]
 
-  const synonym = importI8nTextFromXML(context, undefined, xml["xr:Synonym"])
+  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:Synonym"])
   if (synonym !== undefined) result.synonym = synonym
 
-  const toolTip = importI8nTextFromXML(context, undefined, xml["xr:ToolTip"])
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml["xr:ToolTip"])
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const type = importTypeDescriptionFromXML(context, undefined, xml["xr:Type"])

@@ -37,7 +37,7 @@ export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -113,7 +113,7 @@ const importPagesPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const enableContentChange = importBooleanFromEnterprise(context, undefined, data.РазрешитьИзменениеСостава)

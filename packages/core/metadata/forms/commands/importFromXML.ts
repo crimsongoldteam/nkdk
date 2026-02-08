@@ -1,6 +1,5 @@
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importI8nTextFromXML } from "../../commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../context/types"
@@ -17,10 +16,10 @@ function importCommandFromXML(
     name: xml._name,
   }
 
-  const title = importI8nTextFromXML(context, undefined, xml.Title)
+  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut

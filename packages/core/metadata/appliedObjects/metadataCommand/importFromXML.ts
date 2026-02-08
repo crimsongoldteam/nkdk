@@ -4,7 +4,6 @@ import {
   MetadataCommandsXML,
   MetadataCommandXML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -36,7 +35,7 @@ export const importMetadataCommandFromXML = (
   const result: MetadataCommand = {
     group: props.Group,
     name: props.Name,
-    synonym: importI8nTextFromXML(context, undefined, props.Synonym)!,
+    synonym: iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)!,
   }
 
   const commandParameterType = importTypeDescriptionFromXML(context, undefined, props.CommandParameterType)
@@ -57,7 +56,7 @@ export const importMetadataCommandFromXML = (
 
   if (props.Shortcut !== undefined) result.shortcut = props.Shortcut
 
-  const toolTip = importI8nTextFromXML(context, undefined, props.ToolTip)
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (props.OnMainServerUnavalableBehavior !== undefined)

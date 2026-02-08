@@ -1,7 +1,6 @@
 import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { importMetadataCommandsFromXML } from "~/metadata/appliedObjects/metadataCommand/importFromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/importFromXML"
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importMetadataValueCollectionFromXML } from "~/metadata/commonObjects/metadataValueCollection/importFromXML"
@@ -77,13 +76,17 @@ export const importMetadataCatalogFromXML = (
   if (props.ExecuteAfterWriteDataHistoryVersionProcessing !== undefined)
     result.executeAfterWriteDataHistoryVersionProcessing = props.ExecuteAfterWriteDataHistoryVersionProcessing
 
-  const explanation = importI8nTextFromXML(context, undefined, props.Explanation)
+  const explanation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Explanation)
   if (explanation !== undefined) result.explanation = explanation
 
-  const extendedListPresentation = importI8nTextFromXML(context, undefined, props.ExtendedListPresentation)
+  const extendedListPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ExtendedListPresentation)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = importI8nTextFromXML(context, undefined, props.ExtendedObjectPresentation)
+  const extendedObjectPresentation = iimportI8nTextFromXML(
+    context,
+    { type: "I8nText" },
+    props.ExtendedObjectPresentation
+  )
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
   const foldersOnTop = importBooleanFromXML(context, undefined, props.FoldersOnTop)
@@ -109,10 +112,10 @@ export const importMetadataCatalogFromXML = (
   const limitLevelCount = importBooleanFromXML(context, undefined, props.LimitLevelCount)
   if (limitLevelCount !== undefined) result.limitLevelCount = limitLevelCount
 
-  const listPresentation = importI8nTextFromXML(context, undefined, props.ListPresentation)
+  const listPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ListPresentation)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
-  const objectPresentation = importI8nTextFromXML(context, undefined, props.ObjectPresentation)
+  const objectPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ObjectPresentation)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
   const owners = importMetadataValueCollectionFromXML(context, undefined, props.Owners)
@@ -131,7 +134,7 @@ export const importMetadataCatalogFromXML = (
 
   if (props.SubordinationUse !== undefined) result.subordinationUse = props.SubordinationUse
 
-  const synonym = importI8nTextFromXML(context, undefined, props.Synonym)
+  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
   if (synonym !== undefined) result.synonym = synonym
 
   if (childObjects?.TabularSection)

@@ -43,7 +43,7 @@ export function importSpreadSheetDocumentFieldTypedFromEnterprise<To extends Spr
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, undefined, data?.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data?.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -211,7 +211,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
   )
   if (warningOnEditRepresentation !== undefined) result.warningOnEditRepresentation = warningOnEditRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const titleLocation = importSystemEnumerationFromEnterprise<SE.FormItemTitleLocation>(
@@ -232,7 +232,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
     result.userVisible = userVisible
   }
 
-  const warningOnEdit = importI8nTextFromEnterprise(context, undefined, data.ПредупреждениеПриРедактировании)
+  const warningOnEdit = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ПредупреждениеПриРедактировании)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
 
   const skipOnInput = importBooleanFromEnterprise(context, undefined, data.ПропускатьПриВводе)
@@ -255,7 +255,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const footerText = importI8nTextFromEnterprise(context, undefined, data.ТекстПодвала)
+  const footerText = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
 
   const readOnly = importBooleanFromEnterprise(context, undefined, data.ТолькоПросмотр)

@@ -256,7 +256,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title !== undefined) result.title = title
 
   const refreshRequest = importSystemEnumerationFromEnterprise<SE.RefreshRequestMethod>(
@@ -362,7 +362,7 @@ export function importTablePartialFromEnterprise<To extends Table>(
   const footer = importBooleanFromEnterprise(context, undefined, data.Подвал)
   if (footer !== undefined) result.footer = footer
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   result.childItems = importChildItemsPartialFromEnterprise(context, undefined, source.childItems)

@@ -29,7 +29,7 @@ export const importMetadataCatalogFromEnterprise = (
     name,
   }
 
-  const synonym = importI8nTextFromEnterprise(context, undefined, data.Синоним)
+  const synonym = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним)
   if (synonym !== undefined) result.synonym = synonym
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
@@ -189,16 +189,16 @@ export const importMetadataCatalogFromEnterprise = (
   const dataLockFields = importMetadataFieldsFromEnterprise(context, undefined, data.ПоляБлокировкиДанных)
   if (dataLockFields !== undefined) result.dataLockFields = dataLockFields
 
-  const explanation = importI8nTextFromEnterprise(context, undefined, data.Пояснение)
+  const explanation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Пояснение)
   if (explanation !== undefined) result.explanation = explanation
 
   const predefined = importPredefinedItemsFromEnterprise(context, undefined, data.Предопределенные)
   if (predefined !== undefined) result.predefined = predefined
 
-  const objectPresentation = importI8nTextFromEnterprise(context, undefined, data.ПредставлениеОбъекта)
+  const objectPresentation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ПредставлениеОбъекта)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
-  const listPresentation = importI8nTextFromEnterprise(context, undefined, data.ПредставлениеСписка)
+  const listPresentation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ПредставлениеСписка)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
   const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
@@ -216,7 +216,11 @@ export const importMetadataCatalogFromEnterprise = (
   )
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
-  const extendedListPresentation = importI8nTextFromEnterprise(context, undefined, data.РасширенноеПредставлениеСписка)
+  const extendedListPresentation = importI8nTextFromEnterprise(
+    context,
+    { type: "I8nText" },
+    data.РасширенноеПредставлениеСписка
+  )
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
   const choiceDataGetModeOnInputByString = importSystemEnumerationFromEnterprise<SE.ChoiceDataGetModeOnInputByString>(

@@ -1,6 +1,5 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
@@ -57,10 +56,10 @@ export const importSingleSearchStringAdditionFromXML = (
 
   if (xml.GroupHorizontalAlign !== undefined) result.horizontalAlignInGroup = xml.GroupHorizontalAlign
 
-  const title = importI8nTextFromXML(context, undefined, xml.Title)
+  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation

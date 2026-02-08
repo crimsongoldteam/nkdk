@@ -57,10 +57,10 @@ export const exportMetadataTabularSectionToXML = (
   )
 
   if (mergedData.synonym !== undefined) {
-    properties.Synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)
+    properties.Synonym = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.synonym)
   }
   if (mergedData.toolTip !== undefined) {
-    properties.ToolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
+    properties.ToolTip = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.toolTip)
   }
 
   properties.Use = mergedData.use

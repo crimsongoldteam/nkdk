@@ -144,7 +144,7 @@ const importFormAttributeColumnFromEnterprise = (
     id: "", // Enterprise doesn't provide IDs
   }
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title) column.title = title
 
   const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
@@ -210,7 +210,7 @@ const computeTitleForImport = (
   mainAttribute: boolean | undefined
 ): I8nText => {
   const defaultLanguage = context.defaultLanguage
-  const importedTitle = importI8nTextFromEnterprise(context, undefined, titleEnterprise)
+  const importedTitle = importI8nTextFromEnterprise(context, { type: "I8nText" }, titleEnterprise)
 
   // Если mainAttribute = true
   if (mainAttribute === true) {

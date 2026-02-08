@@ -84,10 +84,10 @@ export const importViewStatusAdditionFromEnterprise = <From extends ViewStatusAd
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title !== undefined) result.title = title
 
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, undefined, data.РасширеннаяПодсказка)

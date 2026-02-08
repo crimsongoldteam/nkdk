@@ -34,6 +34,7 @@ import { Table } from "../../elements/table/types"
 import { TextDocumentField } from "../../elements/textDocumentField/types"
 import { TrackBarField } from "../../elements/trackBarField/types"
 import { UsualGroup } from "../../elements/usualGroup/types"
+import { ViewStatusAddition } from "../../elements/viewStatusAddition/types"
 
 // #region ChildItem
 
@@ -192,6 +193,6 @@ export type TypedElement =
 
 // #region SingleElement
 
-export type SingleElement = AutoCommandBar | ContextMenu
+export type SingleElement = AutoCommandBar | ContextMenu | ViewStatusAddition
 
 //

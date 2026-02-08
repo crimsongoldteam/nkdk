@@ -19,10 +19,10 @@ const importCommandFromEnterprise = (
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш

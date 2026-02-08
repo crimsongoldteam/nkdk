@@ -37,7 +37,7 @@ export function importPageTypedFromEnterprise<To extends Page | undefined>(
     childItems: [],
   }
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -101,7 +101,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
-  const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
+  const format = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Формат)
   if (format !== undefined) result.format = format
 
   const group = importSystemEnumerationFromEnterprise<SE.ChildFormItemsGroup>(
@@ -220,7 +220,7 @@ export const importPagePropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const enableContentChange = importBooleanFromEnterprise(context, undefined, data.РазрешитьИзменениеСостава)

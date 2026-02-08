@@ -2,7 +2,6 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
-import { importI8nTextFromXML } from "../i8nText/importFromXML"
 import {
   MetadataFixedArrayValueXML,
   MetadataFormChoiceListValue,
@@ -200,7 +199,7 @@ export const importFormChoiceListValueFromXML = (
   data: MetadataFormChoiceListValueXML
 ): MetadataFormChoiceListValue | undefined => {
   const value = importMetadataValueFromXML(context, undefined, data.Value)
-  const presentation = importI8nTextFromXML(context, undefined, data.Presentation)
+  const presentation = iimportI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
   return { type: "formChoiceListDesTimeValue", value, presentation }
 }
 

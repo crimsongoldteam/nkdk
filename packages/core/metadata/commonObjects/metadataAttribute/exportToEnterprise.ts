@@ -42,7 +42,7 @@ const exportMetadataAttributeToEnterprise = (
   const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)!
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
-  const synonym = exportI8nTextToYAML(context, undefined, filteredSynonym)
+  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {
     return type
@@ -127,7 +127,7 @@ const exportMetadataAttributeToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
+  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const binaryDataStorageLocationUseField = exportBooleanToEnterprise(
@@ -173,10 +173,10 @@ const exportMetadataAttributeToEnterprise = (
 
   if (data.choiceForm !== undefined) result.ФормаВыбора = data.choiceForm
 
-  const format = exportI8nTextToYAML(context, undefined, data.format)
+  const format = exportI8nTextToYAML(context, { type: "I8nText" }, data.format)
   if (format !== undefined) result.Формат = format
 
-  const editFormat = exportI8nTextToYAML(context, undefined, data.editFormat)
+  const editFormat = exportI8nTextToYAML(context, { type: "I8nText" }, data.editFormat)
   if (editFormat !== undefined) result.ФорматРедактирования = editFormat
 
   return result as MetadataAttributeEnterprise

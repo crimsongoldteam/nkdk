@@ -39,7 +39,7 @@ export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
     childItems: props.childItems ?? [],
   }
 
-  const title = importI8nTextFromEnterprise(context, undefined, enterprise.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, enterprise.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -115,7 +115,7 @@ const importPopupPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, enterprise.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, enterprise.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const userVisible = importUserVisibleFromEnterprise(

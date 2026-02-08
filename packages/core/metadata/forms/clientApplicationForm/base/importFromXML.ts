@@ -1,6 +1,5 @@
 import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttribute/importFromXML"
 import { importFormParametersFromXML } from "~/metadata/commonObjects/formParameter/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
@@ -95,7 +94,7 @@ export const importClientApplicationFormFromXML = (
     result.enabled = xml.Enabled
   }
 
-  const title = importI8nTextFromXML(context, undefined, xml.Title)
+  const title = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Title)
   if (title !== undefined) {
     result.title = title
   }
@@ -229,7 +228,7 @@ function importFormMetadataFromXML(
   const props = xmlMetadata.Form?.Properties
   if (!props) return result
 
-  const synonim = importI8nTextFromXML(context, undefined, props.Synonym)
+  const synonim = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
   if (synonim !== undefined) {
     result.synonim = synonim
   }

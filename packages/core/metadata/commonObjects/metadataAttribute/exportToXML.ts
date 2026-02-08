@@ -87,7 +87,7 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.DataHistory = mergedData.dataHistory
 
-  const editFormat = exportI8nTextToXML(context, undefined, mergedData.editFormat)
+  const editFormat = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.editFormat)
   if (editFormat) result.Properties.EditFormat = editFormat
 
   result.Properties.ExtendedEdit = mergedData.extendedEdit
@@ -99,7 +99,7 @@ const exportMetadataAttributeToXML = (
   const fillValue = exportMetadataValueToXML(context, undefined, mergedData.fillValue)
   if (fillValue) result.Properties.FillValue = fillValue
 
-  const format = exportI8nTextToXML(context, undefined, mergedData.format)
+  const format = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.format)
   if (format) result.Properties.Format = format
 
   result.Properties.FullTextSearch = mergedData.fullTextSearch
@@ -127,9 +127,9 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.QuickChoice = mergedData.quickChoice
 
-  result.Properties.Synonym = exportI8nTextToXML(context, undefined, mergedData.synonym)!
+  result.Properties.Synonym = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.synonym)!
 
-  const toolTip = exportI8nTextToXML(context, undefined, mergedData.toolTip)
+  const toolTip = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.toolTip)
   if (toolTip !== undefined) result.Properties.ToolTip = toolTip
 
   result.Properties.Type = type

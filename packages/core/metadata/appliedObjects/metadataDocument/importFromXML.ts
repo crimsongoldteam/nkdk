@@ -3,7 +3,6 @@ import { MetadataDocument, MetadataDocumentXML } from "~/metadata/appliedObjects
 import { importMetadataDocumentNumeratorFromXML } from "~/metadata/appliedObjects/metadataDocumentNumerator/importFromXML"
 import { importAdditionalIndexesFromXML } from "~/metadata/commonObjects/additionalIndex/importFromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/importFromXML"
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/importFromXML"
 import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/importFromXML"
@@ -73,13 +72,13 @@ export const importMetadataDocumentFromXML = (
   if (xml.ExecuteAfterWriteDataHistoryVersionProcessing !== undefined)
     result.executeAfterWriteDataHistoryVersionProcessing = xml.ExecuteAfterWriteDataHistoryVersionProcessing
 
-  const explanation = importI8nTextFromXML(context, undefined, xml.Explanation)
+  const explanation = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Explanation)
   if (explanation !== undefined) result.explanation = explanation
 
-  const extendedListPresentation = importI8nTextFromXML(context, undefined, xml.ExtendedListPresentation)
+  const extendedListPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ExtendedListPresentation)
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const extendedObjectPresentation = importI8nTextFromXML(context, undefined, xml.ExtendedObjectPresentation)
+  const extendedObjectPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ExtendedObjectPresentation)
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
   if (xml.FullTextSearch !== undefined) result.fullTextSearch = xml.FullTextSearch
@@ -92,7 +91,7 @@ export const importMetadataDocumentFromXML = (
   const inputByString = importMetadataFieldsFromXML(context, undefined, xml.InputByString)
   if (inputByString !== undefined) result.inputByString = inputByString
 
-  const listPresentation = importI8nTextFromXML(context, undefined, xml.ListPresentation)
+  const listPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ListPresentation)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
   if (xml.Name !== undefined) result.name = xml.Name
@@ -110,7 +109,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging
 
-  const objectPresentation = importI8nTextFromXML(context, undefined, xml.ObjectPresentation)
+  const objectPresentation = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ObjectPresentation)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
   if (xml.Posting !== undefined) result.posting = xml.Posting
@@ -134,7 +133,7 @@ export const importMetadataDocumentFromXML = (
   const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, xml.StandardAttributes)
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
-  const synonym = importI8nTextFromXML(context, undefined, xml.Synonym)
+  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Synonym)
   if (synonym !== undefined) result.synonym = synonym
 
   const tabularSections = importMetadataTabularSectionsFromXML(context, undefined, xml.TabularSections)

@@ -2,7 +2,6 @@ import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromX
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importFormattedI8nTextFromXML } from "~/metadata/commonObjects/formattedI8nText/importFromXML"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -66,7 +65,7 @@ export function importPictureDecorationFromXML<To extends PictureDecoration | un
   const title = importFormattedI8nTextFromXML(context, undefined, xml.Title)
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromXML(context, undefined, xml.ToolTip)
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation

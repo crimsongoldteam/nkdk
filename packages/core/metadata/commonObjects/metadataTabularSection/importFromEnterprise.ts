@@ -27,7 +27,7 @@ export const importMetadataTabularSectionFromEnterprise = (
     name,
     synonym: addDefaultLanguageNameToSynonym(
       context,
-      importI8nTextFromEnterprise(context, undefined, data.Синоним),
+      importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним),
       name
     ),
   }
@@ -59,7 +59,7 @@ export const importMetadataTabularSectionFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(

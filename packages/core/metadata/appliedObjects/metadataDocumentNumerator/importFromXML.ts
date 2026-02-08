@@ -2,7 +2,6 @@ import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorXML,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
@@ -31,7 +30,7 @@ export const importMetadataDocumentNumeratorFromXML = (
 
   if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging
 
-  const synonym = importI8nTextFromXML(context, undefined, xml.Synonym)
+  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, xml.Synonym)
   if (synonym !== undefined) result.synonym = synonym
 
   return result

@@ -53,7 +53,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const synonym = addDefaultLanguageNameToSynonym(
     context,
-    importI8nTextFromEnterprise(context, undefined, data.Синоним),
+    importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним),
     name
   )
 
@@ -142,7 +142,7 @@ const importMetadataAttributeFromEnterprise = (
   const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const binaryDataStorageLocationUseField = importBooleanFromEnterprise(
@@ -155,7 +155,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
     context,
-    undefined,
+    { type: "I8nText" },
     data.ПолнотекстовыйПоиск,
     SE.UseFullTextSearchFromEnterprise
   )
@@ -170,7 +170,6 @@ const importMetadataAttributeFromEnterprise = (
 
   const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
     context,
-    undefined,
     data.ПроверкаЗаполнения,
     SE.FillCheckingFromEnterprise
   )
@@ -198,10 +197,10 @@ const importMetadataAttributeFromEnterprise = (
 
   if (data.ФормаВыбора !== undefined) result.choiceForm = data.ФормаВыбора
 
-  const format = importI8nTextFromEnterprise(context, undefined, data.Формат)
+  const format = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Формат)
   if (format !== undefined) result.format = format
 
-  const editFormat = importI8nTextFromEnterprise(context, undefined, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ФорматРедактирования)
   if (editFormat !== undefined) result.editFormat = editFormat
 
   const defaults = getDefaultsAttribute(context, result)

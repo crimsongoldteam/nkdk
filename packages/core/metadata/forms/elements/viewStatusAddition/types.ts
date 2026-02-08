@@ -1,15 +1,15 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ViewStatusAddition {
+  elementType: "ViewStatusAddition"
   autoMaxWidth?: boolean
   backColor?: Color
   border?: Border
@@ -34,33 +34,6 @@ export interface ViewStatusAddition {
   // userVisible?: UserVisible
   // verticalAlignInGroup?: SE.ItemVerticalAlign
   // visible?: boolean
-}
-
-export interface ViewStatusAdditionXML extends BaseElementXML {
-  AdditionSource: {
-    Item: string
-    Type: "ViewStatusRepresentation"
-  }
-  AutoMaxWidth?: boolean
-  BackColor?: ColorXML
-  Border?: BorderXML
-  BorderColor?: ColorXML
-  ButtonColor?: ColorXML
-  Font?: FontXML
-  HorizontalLocation?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  MaxWidth?: number
-  TextColor?: ColorXML
-  TitleFont?: FontXML
-  TitleTextColor?: ColorXML
-  Width?: number
-  ContextMenu: ContextMenuXML
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  Title?: I8nTextXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
 }
 
 export interface ViewStatusAdditionEnterprise {

@@ -57,7 +57,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const synonym = addDefaultLanguageNameToSynonym(
     context,
-    importI8nTextFromEnterprise(context, undefined, fullData.Синоним),
+    importI8nTextFromEnterprise(context, { type: "I8nText" }, fullData.Синоним),
     name
   )
 
@@ -104,7 +104,7 @@ export const importMetadataCommandFromEnterprise = (
 
   if (fullData.СочетаниеКлавиш !== undefined) result.shortcut = fullData.СочетаниеКлавиш
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, fullData.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, fullData.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const onMainServerUnavalableBehavior = importSystemEnumerationFromEnterprise<SE.OnMainServerUnavalableBehavior>(

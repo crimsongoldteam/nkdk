@@ -14,7 +14,7 @@ import {
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportPartialToEnterpriseFn, ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -63,30 +63,27 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
 ): SearchControlAdditionEnterprise => {
   const result: SearchControlAdditionEnterprise = {}
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML<SE.DisplayImportanceEnterprise>(
     context,
-    undefined,
-    data.displayImportance,
-    SE.DisplayImportanceToEnterprise
+    { type: "SystemEnumeration", typeSE: "DisplayImportance" },
+    data.displayImportance
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
     context,
-    undefined,
-    data.verticalAlignInGroup,
-    SE.ItemVerticalAlignToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
+    data.verticalAlignInGroup
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
   if (visible !== undefined) result.Видимость = visible
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
     context,
-    undefined,
-    data.horizontalAlignInGroup,
-    SE.ItemHorizontalLocationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
+    data.horizontalAlignInGroup
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
@@ -96,11 +93,10 @@ const exportSearchControlAdditionCommonFieldsToEnterprise = (
   const contextMenu = exportContextMenuToEnterprise(context, undefined, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML<SE.ToolTipRepresentationEnterprise>(
     context,
-    undefined,
-    data.toolTipRepresentation,
-    SE.ToolTipRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ToolTipRepresentation" },
+    data.toolTipRepresentation
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 

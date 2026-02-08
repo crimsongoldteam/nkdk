@@ -1,4 +1,3 @@
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import {
   MetadataAttribute,
   MetadataAttributes,
@@ -67,7 +66,7 @@ const importMetadataAttributeFromXML = (
 
   if (props.DataHistory !== undefined) result.dataHistory = props.DataHistory
 
-  const editFormat = importI8nTextFromXML(context, undefined, props.EditFormat)
+  const editFormat = iimportI8nTextFromXML(context, { type: "I8nText" }, props.EditFormat)
   if (editFormat) result.editFormat = editFormat
 
   const extendedEdit = importBooleanFromXML(context, undefined, props.ExtendedEdit)
@@ -81,7 +80,7 @@ const importMetadataAttributeFromXML = (
   const fillValue = importMetadataValueFromXML(context, undefined, props.FillValue)
   if (fillValue) result.fillValue = fillValue
 
-  const format = importI8nTextFromXML(context, undefined, props.Format)
+  const format = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Format)
   if (format) result.format = format
 
   if (props.FullTextSearch !== undefined) result.fullTextSearch = props.FullTextSearch
@@ -116,11 +115,11 @@ const importMetadataAttributeFromXML = (
 
   if (props.QuickChoice !== undefined) result.quickChoice = props.QuickChoice
 
-  const synonym = importI8nTextFromXML(context, undefined, props.Synonym)
+  const synonym = iimportI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
   if (synonym == undefined) result.synonym = { items: { [context.defaultLanguage]: "" } }
   else result.synonym = synonym
 
-  const toolTip = importI8nTextFromXML(context, undefined, props.ToolTip)
+  const toolTip = iimportI8nTextFromXML(context, { type: "I8nText" }, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   result.type = importTypeDescriptionFromXML(context, undefined, props.Type)!

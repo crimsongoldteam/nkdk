@@ -190,7 +190,7 @@ const importPictureDecorationPropsFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const toolTip = importI8nTextFromEnterprise(context, undefined, data.Подсказка)
+  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const userVisible = importUserVisibleFromEnterprise(

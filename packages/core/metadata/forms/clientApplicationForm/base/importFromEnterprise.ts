@@ -143,7 +143,7 @@ export const importClientApplicationFormFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, undefined, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const title = importI8nTextFromEnterprise(context, undefined, data.Заголовок)
+  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
   if (title !== undefined) result.title = title
 
   const closeOnChoice = importBooleanFromEnterprise(context, undefined, data.ЗакрыватьПриВыборе)
@@ -272,7 +272,7 @@ export const importClientApplicationFormFromEnterprise = (
   const parameters = importFormParametersFromEnterprise(context, undefined, data.Параметры)
   if (parameters !== undefined) result.parameters = parameters
 
-  const synonim = importI8nTextFromEnterprise(context, undefined, data.Синоним)
+  const synonim = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним)
   if (synonim !== undefined) result.synonim = synonim
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
