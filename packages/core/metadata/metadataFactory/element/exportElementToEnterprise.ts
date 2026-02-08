@@ -49,14 +49,6 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
   return result as ToTypedEnterpriseType<T>
 }
 
-export function exportSingleElementToEnterprise<T extends BaseElement>(
-  context: ConfigurationContext,
-  data: T | undefined,
-  params: { rules: ElementRule<T> }
-): ToPartialEnterpriseType<T> | undefined {
-  return exportToEnterprisePartial(context, data, { rules: params.rules })
-}
-
 export function exportElementToPartialYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   element: T | undefined
@@ -67,17 +59,16 @@ export function exportElementToPartialYAML<T extends BaseElement>(params: {
 
   const rules = getElementRule<T>(elementType)
 
-  return exportToEnterprisePartial(context, data, { rules })
+  return exportElementToYAML({ context, data, rules })
 }
 
-function exportToEnterprisePartial<T extends BaseElement>(
-  context: ConfigurationContext,
-  data: T | undefined,
-  params: { rules: ElementRule<T> }
-): ToPartialEnterpriseType<T> | undefined {
+export function exportElementToYAML<T extends BaseElement>(params: {
+  context: ConfigurationContext
+  data: T | undefined
+  rules: ElementRule<T>
+}): ToPartialEnterpriseType<T> | undefined {
+  const { context, data, rules } = params
   if (data === undefined) return undefined
-
-  const rules = params.rules
 
   const result = {}
 

@@ -64,28 +64,34 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
 
   const rules = getElementRule<T>(params.elementType)
 
-  return importFromYAMLPartial(params.context, rules, params.yaml, params.source)
+  return importElementFromYAML({
+    context: params.context,
+    rules: rules,
+    yaml: params.yaml,
+    source: params.source,
+  })
 }
 
-export function importFromYAMLPartial<T extends BaseElement>(
-  context: ConfigurationContext,
-  rules: ElementRule<T>,
-  yaml: ToPartialEnterpriseType<T> | undefined,
+export function importElementFromYAML<T extends BaseElement>(params: {
+  context: ConfigurationContext
+  rules: ElementRule<T>
+  yaml: ToPartialEnterpriseType<T> | undefined
   source?: T
-): T | undefined {
+}): T | undefined {
+  const { context, rules, yaml, source } = params
   if (yaml === undefined) return source
 
   const result: T = {
     ...(source ? source : {}),
   } as T
 
-  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
-    const yamlKey = rule.yaml
+  for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+    const yamlKey = curRule.yaml
     if (yamlKey === undefined) continue
 
-    const sourceValue = source ? source[key] : rule.defaultValue
+    const sourceValue = source ? source[key] : curRule.defaultValue
 
-    const userVisible = importUserVisibleProperty(context, rule, yaml)
+    const userVisible = importUserVisibleProperty(context, curRule, yaml)
     if (userVisible !== undefined) {
       ;(result[key] as UserVisible) = userVisible
       continue
@@ -93,9 +99,9 @@ export function importFromYAMLPartial<T extends BaseElement>(
 
     const yamlValue = (yaml as any)[yamlKey]
 
-    const typeImportFn = getTypeRule(rule.type!, "importFromEnterprise")
+    const typeImportFn = getTypeRule(curRule.type!, "importFromEnterprise")
     if (typeImportFn) {
-      const importedValue = (typeImportFn as any)(context, rule, yamlValue, sourceValue)
+      const importedValue = (typeImportFn as any)(context, curRule, yamlValue, sourceValue)
       if (importedValue !== undefined) {
         result[key as keyof T] = importedValue
       }

@@ -1,4 +1,7 @@
-import { ElementRule, PropertyRule } from "../../../metadataFactory/elementRulesFactory"
+import { ConfigurationContext } from "../../../context/types"
+import { getElementId } from "../../../helpers/getElementId"
+import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { getAutoCommandBarName } from "./helper"
 import { AutoCommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
@@ -27,4 +30,22 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
       defaultValue: [],
     },
   },
+  registerAsType: {
+    AutoCommandBar: {
+      toXML: (_context: ConfigurationContext, _element: AutoCommandBar) => ({
+        id: "-1",
+        name: "ФормаКоманднаяПанель",
+      }),
+    },
+    TableAutoCommandBar: {
+      toXML: (context: ConfigurationContext, _element: AutoCommandBar) => {
+        const parentTable = context.elementContext!
+        const elementId = getElementId(context)
+        const elementName = getAutoCommandBarName(parentTable)
+        return { id: elementId, name: elementName }
+      },
+    },
+  } as any,
 }
+
+registerElementRule("AutoCommandBar", AutoCommandBarRules)
