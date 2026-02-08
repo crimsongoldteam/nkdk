@@ -11,7 +11,8 @@ export const exportExtendedTooltipToXML = (
   _rule: PropertyRule<any>,
   element: ExtendedTooltip | undefined
 ): ElementXML => {
-  const parent = context.elementContext!
+  if (!context.elementContext) throw new Error("elementContext is not defined")
+  const parent = context.elementContext
   const id = getElementId(context)
   const name = getExtendedTooltipName(parent)
   return exportSingleElementToXML({

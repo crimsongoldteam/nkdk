@@ -28,9 +28,9 @@ export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {
-      yaml: "Заголовок",
       type: "FormattedI8nText",
-      yamlPartialOthers: true,
+      yaml: "Заголовок",
+      yamlFormatted: "ФорматированныйЗаголовок",
     },
     toolTip: { yaml: "Подсказка", type: "I8nText" },
     toolTipRepresentation: {

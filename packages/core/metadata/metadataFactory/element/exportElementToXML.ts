@@ -43,7 +43,7 @@ function exportToXML<T extends BaseElement>(params: {
   rule: ElementRule<T>
   id: string
   name: string
-}): any {
+}): ElementXML {
   const { context, element: data, rule, id, name } = params
 
   const result: any = {
@@ -56,23 +56,25 @@ function exportToXML<T extends BaseElement>(params: {
     elementContext: { name: name },
   }
 
-  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
-    const value = (data as any)[key]
+  if (data !== undefined) {
+    for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+      const value = (data as any)[key]
 
-    const xmlKey = ruleProp.xml ?? capitalize(key)
+      const xmlKey = ruleProp.xml ?? capitalize(key)
 
-    const typeExportFn = ruleProp.type ? getTypeRule(ruleProp.type, "exportToXML") : undefined
+      const typeExportFn = ruleProp.type ? getTypeRule(ruleProp.type, "exportToXML") : undefined
 
-    if (!typeExportFn) {
-      if (value !== undefined && value !== ruleProp.defaultValue) {
-        result[xmlKey] = value
+      if (!typeExportFn) {
+        if (value !== undefined && value !== ruleProp.defaultValue) {
+          result[xmlKey] = value
+        }
+        continue
       }
-      continue
-    }
 
-    const exportedValue = typeExportFn(currentContext, ruleProp, value)
-    if (exportedValue !== undefined && exportedValue !== ruleProp.defaultValue) {
-      result[xmlKey] = exportedValue
+      const exportedValue = typeExportFn(currentContext, ruleProp, value)
+      if (exportedValue !== undefined && exportedValue !== ruleProp.defaultValue) {
+        result[xmlKey] = exportedValue
+      }
     }
   }
 
