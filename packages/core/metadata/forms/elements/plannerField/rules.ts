@@ -3,6 +3,7 @@ import { PlannerField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const PlannerFieldRules: ElementRule<PlannerField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

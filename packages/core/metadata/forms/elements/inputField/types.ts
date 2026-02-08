@@ -1,33 +1,21 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/metadata/commonObjects/choiceList/types"
-import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PicturePreview, PictureXML } from "~/metadata/commonObjects/picture/types"
-import {
-  TypeDescription,
-  TypeDescriptionEnterprise,
-  TypeDescriptionXML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { ChoiceList, ChoiceListEnterprise } from "~/metadata/commonObjects/choiceList/types"
+import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLink, TypeLinkEnterprise } from "~/metadata/commonObjects/typeLink/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import {
   ChoiceParameterLinks,
   ChoiceParameterLinksEnterprise,
-  ChoiceParameterLinksXML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import {
-  ChoiceParameters,
-  ChoiceParametersEnterprise,
-  ChoiceParametersXML,
-} from "~/metadata/commonObjects/сhoiceParameters/types"
-import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface InputField {
   elementType: "InputField"
@@ -170,131 +158,6 @@ export interface InputField {
     creating?: string
     multipleValuesDelete?: string
   }
-}
-
-export interface InputFieldXML extends BaseElementXML {
-  AllowInputEmptyMultipleValues?: boolean
-  AllowMultipleValuesDuplicates?: boolean
-  AutoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput
-  AutoChoiceIncomplete?: boolean
-  AutoCorrectionOnTextInput?: SE.AutoCorrectionOnTextInput
-  AutoFillHint?: SE.InputFieldAutofillHint
-  AutoMarkIncomplete?: boolean
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  AutoShowClearButtonMode?: SE.AutoShowClearButtonMode
-  AutoShowOpenButton?: SE.AutoShowOpenButtonMode
-  AvailableTypes?: TypeDescriptionXML
-  BackColor?: ColorXML
-  BorderColor?: ColorXML
-  ChoiceButton?: boolean
-  ChoiceButtonPicture?: PictureXML
-  ChoiceButtonRepresentation?: SE.ChoiceButtonRepresentation
-  ChoiceFoldersAndItems?: SE.FoldersAndItems
-  ChoiceForm?: string
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  ChoiceList?: ChoiceListXML
-  ChoiceListButton?: boolean
-  ChoiceListHeight?: number
-  ChoiceParameterLinks?: ChoiceParameterLinksXML
-  ChoiceParameters?: ChoiceParametersXML
-  ChooseType?: boolean
-  ClearButton?: boolean
-  CreateButton?: boolean
-  DropListButton?: boolean
-  DropListWidth?: number
-  EditFormat?: I8nTextXML
-  EditText?: string
-  EditTextUpdate?: SE.EditTextUpdate
-  ExtendedEdit?: boolean
-  ExtendedEditMultipleValues?: boolean
-  Font?: FontXML
-  Format?: I8nTextXML
-  Height?: number
-  HeightControlVariant?: SE.ItemHeightControlVariant
-  HorizontalStretch?: boolean
-  IncompleteChoiceMode?: SE.IncompleteChoiceMode
-  InputHint?: I8nTextXML
-  ListChoiceMode?: boolean
-  MarkIncomplete?: boolean
-  MarkNegatives?: boolean
-  Mask?: string
-  MaxHeight?: number
-  MaxValue?: number
-  MaxWidth?: number
-  MinValue?: number
-  MultiLine?: boolean
-  MultipleValuePictureDataPath?: string
-  MultipleValuePictureShape?: SE.InputFieldMultipleValuePictureShape
-  MultipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize
-  MultipleValuePresentationDataPath?: string
-  MultipleValuesBackColor?: ColorXML
-  // MultipleValuesExtendedEdit?: boolean // ExtendedEditMultipleValues in XML
-  MultipleValuesFont?: FontXML
-  MultipleValuesHyperlink?: boolean
-  MultipleValuesPicture?: PictureXML
-  MultipleValuesTextColor?: ColorXML
-  MultipleValueValueDataPath?: string
-  OnScreenKeyboardReturnKeyText?: SE.OnScreenKeyboardReturnKeyText
-  OpenButton?: boolean
-  PasswordMode?: boolean
-  QuickChoice?: boolean
-  SelectedText?: string
-  ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
-  SpecialTextInputMode?: SE.SpecialTextInputMode
-  SpellCheckingOnTextInput?: SE.SpellCheckingOnTextInput
-  SpinButton?: boolean
-  TextColor?: ColorXML
-  TextEdit?: boolean
-  TypeDomainEnabled?: boolean
-  TypeLink?: TypeLinkXML
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  Width?: number
-  Wrap?: boolean
-  AutoCellHeight?: boolean
-  CellHyperlink?: boolean
-  ContextMenu: ContextMenuXML
-  DataPath?: string
-  DefaultItem?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  EditMode?: SE.ColumnEditMode
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  FixingInTable?: SE.FixingInTable
-  FooterBackColor?: ColorXML
-  FooterDataPath?: string
-  FooterFont?: FontXML
-  FooterHorizontalAlign?: SE.ItemHorizontalLocation
-  FooterPicture?: PictureXML
-  FooterText?: I8nTextXML
-  FooterTextColor?: ColorXML
-  HeaderHorizontalAlign?: SE.ItemHorizontalLocation
-  HeaderPicture?: PictureXML
-  HorizontalAlign?: SE.ItemHorizontalLocation
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  ReadOnly?: boolean
-  Shortcut?: string
-  ShowInFooter?: boolean
-  ShowInHeader?: boolean
-  SkipOnInput?: boolean
-  AssociatedTableElementId?: MetadataValueXML
-  Title?: I8nTextXML
-  TitleBackColor?: ColorXML
-  TitleFont?: FontXML
-  TitleHeight?: number
-  TitleLocation?: SE.FormItemTitleLocation
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormFieldType
-  TypeRestriction?: TypeDescriptionXML
-  VerticalAlign?: SE.ItemVerticalAlign
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  Visible?: boolean
-  WarningOnEdit?: I8nTextXML
-  WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  Events?: EventsXML
 }
 
 export interface InputFieldPartialEnterprise {

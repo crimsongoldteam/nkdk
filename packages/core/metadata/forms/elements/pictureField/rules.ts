@@ -3,6 +3,7 @@ import { PictureField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const PictureFieldRules: ElementRule<PictureField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

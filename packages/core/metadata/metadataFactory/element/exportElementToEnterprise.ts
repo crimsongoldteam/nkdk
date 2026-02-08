@@ -15,7 +15,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
 
   const rules = getElementRule<T>(data.elementType)
 
-  const type = exportFormElementTypeToEnterprise(context, undefined, data.elementType)
+  const type = exportFormElementTypeToEnterprise(context, data.elementType)
 
   const result: ToTypedEnterpriseType<T> = {
     Тип: type,

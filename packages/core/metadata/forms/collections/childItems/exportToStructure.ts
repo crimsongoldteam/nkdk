@@ -7,7 +7,7 @@ import { AllChildItem } from "./types"
 
 export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
-  rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule<any> | undefined,
   items: From[]
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
@@ -46,8 +46,8 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
 
     const text = exportFunction
-      ? (exportFunction(context, rule, item) as IFormatElementResult)
-      : exportOtherElementToStructure(context, rule, item)
+      ? (exportFunction(context, item) as IFormatElementResult)
+      : exportOtherElementToStructure(context, item)
 
     result.strings.push(...text.strings)
     result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup

@@ -6,11 +6,10 @@ import { ButtonGroup, ButtonGroupTypedEnterprise } from "../forms/elements/butto
 import { CheckBoxField, CheckBoxFieldTypedEnterprise } from "../forms/elements/checkBoxField/types"
 import { ColumnGroup, ColumnGroupTypedEnterprise } from "../forms/elements/columnGroup/types"
 import { InputField, InputFieldTypedEnterprise } from "../forms/elements/inputField/types"
-import { LabelField } from "../forms/elements/labelField/types"
-import { PictureFieldTypedEnterprise } from "../forms/elements/pictureField/types"
+import { LabelField, LabelFieldTypedEnterprise } from "../forms/elements/labelField/types"
+import { PictureField, PictureFieldTypedEnterprise } from "../forms/elements/pictureField/types"
 import { Popup, PopupTypedEnterprise } from "../forms/elements/popup/types"
 import { IFormatElementResult } from "../forms/format/types"
-import { PropertyRule } from "./elementRulesFactory"
 import { TypeRules } from "./rules"
 
 // // #region type associations
@@ -44,8 +43,10 @@ export type ToTypedEnterpriseType<T extends TypedElement> = T extends Button
           : T extends InputField
             ? InputFieldTypedEnterprise
             : T extends LabelField
-              ? PictureFieldTypedEnterprise
-              : never
+              ? LabelFieldTypedEnterprise
+              : T extends PictureField
+                ? PictureFieldTypedEnterprise
+                : never
 
 export type ToPreviewType<T> = T extends undefined
   ? undefined
@@ -193,9 +194,8 @@ export const importFormElementTypeFromEnterprise = (
   return FormElementTypeFromEnterprise[data]
 }
 
-export const exportFormElementTypeToEnterprise = <T extends BaseElement>(
+export const exportFormElementTypeToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<T> | undefined,
   element: FormElementType
 ): FormElementTypeEnterprise => {
   return FormElementTypeToEnterprise[element]

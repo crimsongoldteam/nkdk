@@ -1,22 +1,15 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderPreview, BorderXML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PicturePreview, PictureXML } from "~/metadata/commonObjects/picture/types"
-import {
-  TypeDescription,
-  TypeDescriptionEnterprise,
-  TypeDescriptionXML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { Border, BorderEnterprise, BorderPreview } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface LabelField {
   elementType: "LabelField"
@@ -86,70 +79,6 @@ export interface LabelField {
     click?: string
     uRLProcessing?: string
   }
-}
-
-export interface LabelFieldXML extends BaseElementXML {
-  AutoCellHeight?: boolean
-  CellHyperlink?: boolean
-  ContextMenu: ContextMenuXML
-  DataPath?: string
-  DefaultItem?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  EditMode?: SE.ColumnEditMode
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  FixingInTable?: SE.FixingInTable
-  FooterBackColor?: ColorXML
-  FooterDataPath?: string
-  FooterFont?: FontXML
-  FooterHorizontalAlign?: SE.ItemHorizontalLocation
-  FooterPicture?: PictureXML
-  FooterText?: I8nTextXML
-  FooterTextColor?: ColorXML
-  HeaderHorizontalAlign?: SE.ItemHorizontalLocation
-  HeaderPicture?: PictureXML
-  HorizontalAlign?: SE.ItemHorizontalLocation
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  ReadOnly?: boolean
-  Shortcut?: string
-  ShowInFooter?: boolean
-  ShowInHeader?: boolean
-  SkipOnInput?: boolean
-  AssociatedTableElementId?: MetadataValueXML
-  Title?: I8nTextXML
-  TitleBackColor?: ColorXML
-  TitleFont?: FontXML
-  TitleHeight?: number
-  TitleLocation?: SE.FormItemTitleLocation
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormFieldType
-  TypeRestriction?: TypeDescriptionXML
-  UserVisible?: UserVisibleXML
-  VerticalAlign?: SE.ItemVerticalAlign
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  Visible?: boolean
-  WarningOnEdit?: I8nTextXML
-  WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  Events?: EventsXML
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BackColor?: ColorXML
-  Border?: BorderXML
-  BorderColor?: ColorXML
-  Font?: FontXML
-  Format?: I8nTextXML
-  Height?: number
-  HorizontalStretch?: boolean
-  Hiperlink?: boolean
-  MarkNegatives?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  PasswordMode?: boolean
-  TextColor?: ColorXML
-  VerticalStretch?: boolean
-  Width?: number
 }
 
 export interface LabelFieldPartialEnterprise {

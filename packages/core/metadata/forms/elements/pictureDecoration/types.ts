@@ -1,20 +1,14 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import {
-  FormattedI8nText,
-  FormattedI8nTextEnterprise,
-  FormattedI8nTextXML,
-} from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { FormattedI8nText, FormattedI8nTextEnterprise } from "~/metadata/commonObjects/formattedI8nText/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface PictureDecoration {
   elementType: "PictureDecoration"
@@ -63,45 +57,6 @@ export interface PictureDecoration {
   }
 }
 
-export interface PictureDecorationXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  ContextMenu: ContextMenuXML
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  Font?: FontXML
-  Height?: number
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  Shortcut?: string
-  SkipOnInput?: boolean
-  TextColor?: ColorXML
-  Title?: FormattedI8nTextXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormDecorationType
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-  Border?: BorderXML
-  BorderColor?: ColorXML
-  EnableDrag?: boolean
-  EnableStartDrag?: boolean
-  FileDragMode?: SE.FileDragMode
-  Hyperlink?: boolean
-  NonselectedPictureText?: string
-  Picture?: PictureXML
-  PictureSize?: SE.PictureSize
-  Scale?: number
-  Zoomable?: boolean
-  Events?: EventsXML
-}
-
 export interface PictureDecorationPartialEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
@@ -148,12 +103,3 @@ export interface PictureDecorationPartialEnterprise {
     ПроверкаПеретаскивания?: string
   }
 }
-
-export interface PictureDecorationTypedEnterprise extends PictureDecorationPartialEnterprise {
-  Тип: "Рисунок"
-}
-
-/**
- * @deprecated Use PictureDecorationPartialEnterprise or PictureDecorationTypedEnterprise instead
- */
-export type PictureDecorationEnterprise = PictureDecorationPartialEnterprise

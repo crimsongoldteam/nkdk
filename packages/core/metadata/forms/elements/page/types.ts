@@ -1,13 +1,13 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { GroupChildItems, GroupChildItemsXML } from "../../collections/childItems/types"
-import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { GroupChildItems } from "../../collections/childItems/types"
+import { NamedElement } from "../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Page extends NamedElement {
   elementType: "Page"
@@ -49,45 +49,6 @@ export interface Page extends NamedElement {
   childItems: GroupChildItems
 }
 
-export interface PageXML extends BaseElementXML {
-  EnableContentChange?: boolean
-  Enabled?: boolean
-  Height?: number
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  ReadOnly?: boolean
-  Shortcut?: string
-  ExtendedTooltip: ExtendedTooltipXML
-  Title?: I8nTextXML
-  TitleFont?: FontXML
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormGroupType
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-  BackColor?: ColorXML
-  ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  ChildItemsVerticalAlign?: SE.ItemVerticalAlign
-  _DisplayImportance?: SE.DisplayImportance
-  Format?: I8nTextXML
-  Group?: SE.ChildFormItemsGroup
-  HorizontalSpacing?: SE.FormItemSpacing
-  ItemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
-  Picture?: PictureXML
-  ScrollOnCompress?: boolean
-  ShowTitle?: boolean
-  SlaveItemsWidth?: SE.ChildFormItemsWidth
-  TitleDataPath?: string
-  VerticalAlign?: SE.ItemVerticalAlign
-  VerticalScrollOnReduceSize?: boolean
-  VerticalSpacing?: SE.FormItemSpacing
-  ChildItems?: GroupChildItemsXML
-}
-
 export interface PagePartialEnterprise {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
@@ -125,8 +86,4 @@ export interface PagePartialEnterprise {
   Формат?: I8nTextEnterprise
   ЦветФона?: ColorEnterprise
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
-}
-
-export interface PageTypedEnterprise extends PagePartialEnterprise {
-  Тип: "Страница"
 }
