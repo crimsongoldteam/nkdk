@@ -10,7 +10,8 @@ import {
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportSearchStringAdditionToXML, exportSingleSearchStringAdditionToXML } from "./exportToXML"
+import { exportElementToXML } from "~/metadata/metadataFactory"
+import { exportSingleSearchStringAdditionToXML } from "./exportToXML"
 
 describe("exportSearchStringAdditionToXML", () => {
   describe("exportSingleSearchStringAdditionToXML", () => {
@@ -58,7 +59,10 @@ describe("exportSearchStringAdditionToXML", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml")
 
-      const xmlData = exportSearchStringAdditionToXML(mockContext, mockRule, fullSearchStringAddition)
+      const xmlData = exportElementToXML({
+        context: mockContext,
+        data: fullSearchStringAddition,
+      })
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
@@ -67,7 +71,10 @@ describe("exportSearchStringAdditionToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
-      const xmlData = exportSearchStringAdditionToXML(mockContext, mockRule, minimalSearchStringAddition)
+      const xmlData = exportElementToXML({
+        context: mockContext,
+        data: minimalSearchStringAddition,
+      })
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
