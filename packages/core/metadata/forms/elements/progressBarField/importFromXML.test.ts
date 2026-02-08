@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullProgressBarField, minimalProgressBarField } from "~/tests/fixtures/forms/progressBarField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importProgressBarFieldFromXML } from "./importFromXML"
-import { ProgressBarFieldXML } from "./types"
 
 describe("importProgressBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importProgressBarFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ProgressBarField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ProgressBarField: ProgressBarFieldXML }>("forms/progressBarField/full.xml")
+    const xmlData = readAndParseXMLFile<{ ProgressBarField: ElementXML }>("forms/progressBarField/full.xml")
 
-    const result = importProgressBarFieldFromXML(mockContext, mockRule, xmlData.ProgressBarField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ProgressBarField,
+      xml: xmlData.ProgressBarField,
+    })
 
     expect(result).toEqual(fullProgressBarField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ ProgressBarField: ProgressBarFieldXML }>("forms/progressBarField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ ProgressBarField: ElementXML }>("forms/progressBarField/minimal.xml")
 
-    const result = importProgressBarFieldFromXML(mockContext, mockRule, xmlData.ProgressBarField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ProgressBarField,
+      xml: xmlData.ProgressBarField,
+    })
 
     expect(result).toEqual(minimalProgressBarField)
   })

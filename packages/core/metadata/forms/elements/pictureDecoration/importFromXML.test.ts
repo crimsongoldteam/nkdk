@@ -1,31 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPictureDecoration, minimalPictureDecoration } from "~/tests/fixtures/forms/pictureDecoration/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importPictureDecorationFromXML } from "./importFromXML"
-import { PictureDecorationXML } from "./types"
 
 describe("importPictureDecorationFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPictureDecorationFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PictureDecoration,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ PictureDecoration: PictureDecorationXML }>("forms/pictureDecoration/full.xml")
+    const xmlData = readAndParseXMLFile<{ PictureDecoration: ElementXML }>("forms/pictureDecoration/full.xml")
 
-    const result = importPictureDecorationFromXML(mockContext, mockRule, xmlData.PictureDecoration)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PictureDecoration,
+      xml: xmlData.PictureDecoration,
+    })
 
     expect(result).toEqual(fullPictureDecoration)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ PictureDecoration: PictureDecorationXML }>(
-      "forms/pictureDecoration/minimal.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ PictureDecoration: ElementXML }>("forms/pictureDecoration/minimal.xml")
 
-    const result = importPictureDecorationFromXML(mockContext, mockRule, xmlData.PictureDecoration)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PictureDecoration,
+      xml: xmlData.PictureDecoration,
+    })
 
     expect(result).toEqual(minimalPictureDecoration)
   })

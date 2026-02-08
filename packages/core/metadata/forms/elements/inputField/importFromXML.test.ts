@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullInputField, minimalInputField } from "~/tests/fixtures/forms/inputField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importInputFieldFromXML } from "./importFromXML"
-import { InputFieldXML } from "./types"
 
 describe("importInputFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importInputFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.InputField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ InputField: InputFieldXML }>("forms/inputField/full.xml")
+    const xmlData = readAndParseXMLFile<{ InputField: ElementXML }>("forms/inputField/full.xml")
 
-    const result = importInputFieldFromXML(mockContext, mockRule, xmlData.InputField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.InputField,
+      xml: xmlData.InputField,
+    })
 
     expect(result).toEqual(fullInputField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ InputField: InputFieldXML }>("forms/inputField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ InputField: ElementXML }>("forms/inputField/minimal.xml")
 
-    const result = importInputFieldFromXML(mockContext, mockRule, xmlData.InputField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.InputField,
+      xml: xmlData.InputField,
+    })
 
     expect(result).toEqual(minimalInputField)
   })

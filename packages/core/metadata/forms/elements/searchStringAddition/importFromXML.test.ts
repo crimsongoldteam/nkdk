@@ -1,56 +1,41 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromXML"
-import {
-  fullSearchStringAddition,
-  fullSingleSearchStringAddition,
-  minimalSearchStringAddition,
-} from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { fullSearchStringAddition, minimalSearchStringAddition } from "~/tests/fixtures/forms/searchStringAddition/data"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importSearchStringAdditionFromXML, importSingleSearchStringAdditionFromXML } from "./importFromXML"
-import { SearchStringAdditionXML } from "./types"
 
 describe("importSearchStringAdditionFromXML", () => {
-  describe("importSingleSearchStringAdditionFromXML", () => {
-    it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-        "forms/searchStringAddition/fullSingle.xml"
-      )
-
-      const result = importSingleSearchStringAdditionFromXML(mockContext, mockRule, xmlData.SearchStringAddition)
-
-      expect(result).toEqual(fullSingleSearchStringAddition)
+  it("should return undefined when data is undefined", () => {
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.SearchStringAddition,
+      xml: undefined,
     })
 
-    it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-        "forms/searchStringAddition/minimalSingle.xml"
-      )
-
-      const result = importSingleSearchStringAdditionFromXML(mockContext, mockRule, xmlData.SearchStringAddition)
-
-      expect(result).toBeUndefined()
-    })
+    expect(result).toBeUndefined()
   })
-  describe("importSearchStringAdditionFromXML", () => {
-    it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-        "forms/searchStringAddition/full.xml"
-      )
 
-      const result = importSearchStringAdditionFromXML(mockContext, mockRule, xmlData.SearchStringAddition)
+  it("should import all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ SearchStringAddition: ElementXML }>("forms/searchStringAddition/full.xml")
 
-      expect(result).toEqual(fullSearchStringAddition)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.SearchStringAddition,
+      xml: xmlData.SearchStringAddition,
     })
 
-    it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
-        "forms/searchStringAddition/minimal.xml"
-      )
+    expect(result).toEqual(fullSearchStringAddition)
+  })
 
-      const result = importSearchStringAdditionFromXML(mockContext, mockRule, xmlData.SearchStringAddition)
+  it("should import minimal", () => {
+    const xmlData = readAndParseXMLFile<{ SearchStringAddition: ElementXML }>("forms/searchStringAddition/minimal.xml")
 
-      expect(result).toEqual(minimalSearchStringAddition)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.SearchStringAddition,
+      xml: xmlData.SearchStringAddition,
     })
+
+    expect(result).toEqual(minimalSearchStringAddition)
   })
 })

@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullTrackBarField, minimalTrackBarField } from "~/tests/fixtures/forms/trackBarField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importTrackBarFieldFromXML } from "./importFromXML"
-import { TrackBarFieldXML } from "./types"
 
 describe("importTrackBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importTrackBarFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.TrackBarField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ TrackBarField: TrackBarFieldXML }>("forms/trackBarField/full.xml")
+    const xmlData = readAndParseXMLFile<{ TrackBarField: ElementXML }>("forms/trackBarField/full.xml")
 
-    const result = importTrackBarFieldFromXML(mockContext, mockRule, xmlData.TrackBarField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.TrackBarField,
+      xml: xmlData.TrackBarField,
+    })
 
     expect(result).toEqual(fullTrackBarField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ TrackBarField: TrackBarFieldXML }>("forms/trackBarField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ TrackBarField: ElementXML }>("forms/trackBarField/minimal.xml")
 
-    const result = importTrackBarFieldFromXML(mockContext, mockRule, xmlData.TrackBarField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.TrackBarField,
+      xml: xmlData.TrackBarField,
+    })
 
     expect(result).toEqual(minimalTrackBarField)
   })

@@ -1,32 +1,40 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects/importFromXML"
-import "~/metadata/forms/elements/calendarField/rules"
-import "~/metadata/forms/elements/importFromXML"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullCalendarField, minimalCalendarField } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importCalendarFieldFromXML } from "./importFromXML"
-import { CalendarFieldXML } from "./types"
 
 describe("importCalendarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importCalendarFieldFromXML(mockContext, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.CalendarField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ CalendarField: CalendarFieldXML }>("forms/calendarField/full.xml")
+    const xmlData = readAndParseXMLFile<{ CalendarField: ElementXML }>("forms/calendarField/full.xml")
 
-    const result = importCalendarFieldFromXML(mockContext, xmlData.CalendarField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.CalendarField,
+      xml: xmlData.CalendarField,
+    })
 
     expect(result).toEqual(fullCalendarField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ CalendarField: CalendarFieldXML }>("forms/calendarField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ CalendarField: ElementXML }>("forms/calendarField/minimal.xml")
 
-    const result = importCalendarFieldFromXML(mockContext, xmlData.CalendarField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.CalendarField,
+      xml: xmlData.CalendarField,
+    })
 
     expect(result).toEqual(minimalCalendarField)
   })

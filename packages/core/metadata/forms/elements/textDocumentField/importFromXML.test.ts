@@ -1,31 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullTextDocumentField, minimalTextDocumentField } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importTextDocumentFieldFromXML } from "./importFromXML"
-import { TextDocumentFieldXML } from "./types"
 
 describe("importTextDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importTextDocumentFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.TextDocumentField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ TextDocumentField: TextDocumentFieldXML }>("forms/textDocumentField/full.xml")
+    const xmlData = readAndParseXMLFile<{ TextDocumentField: ElementXML }>("forms/textDocumentField/full.xml")
 
-    const result = importTextDocumentFieldFromXML(mockContext, mockRule, xmlData.TextDocumentField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.TextDocumentField,
+      xml: xmlData.TextDocumentField,
+    })
 
     expect(result).toEqual(fullTextDocumentField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ TextDocumentField: TextDocumentFieldXML }>(
-      "forms/textDocumentField/minimal.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ TextDocumentField: ElementXML }>("forms/textDocumentField/minimal.xml")
 
-    const result = importTextDocumentFieldFromXML(mockContext, mockRule, xmlData.TextDocumentField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.TextDocumentField,
+      xml: xmlData.TextDocumentField,
+    })
 
     expect(result).toEqual(minimalTextDocumentField)
   })

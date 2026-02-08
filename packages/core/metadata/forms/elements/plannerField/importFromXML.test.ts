@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPlannerField, minimalPlannerField } from "~/tests/fixtures/forms/plannerField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importPlannerFieldFromXML } from "./importFromXML"
-import { PlannerFieldXML } from "./types"
 
 describe("importPlannerFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPlannerFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PlannerField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ PlannerField: PlannerFieldXML }>("forms/plannerField/full.xml")
+    const xmlData = readAndParseXMLFile<{ PlannerField: ElementXML }>("forms/plannerField/full.xml")
 
-    const result = importPlannerFieldFromXML(mockContext, mockRule, xmlData.PlannerField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PlannerField,
+      xml: xmlData.PlannerField,
+    })
 
     expect(result).toEqual(fullPlannerField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ PlannerField: PlannerFieldXML }>("forms/plannerField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ PlannerField: ElementXML }>("forms/plannerField/minimal.xml")
 
-    const result = importPlannerFieldFromXML(mockContext, mockRule, xmlData.PlannerField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PlannerField,
+      xml: xmlData.PlannerField,
+    })
 
     expect(result).toEqual(minimalPlannerField)
   })

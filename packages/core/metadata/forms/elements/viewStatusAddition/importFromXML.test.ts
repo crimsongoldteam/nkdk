@@ -1,29 +1,41 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromXML"
-import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { fullViewStatusAddition, minimalViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importViewStatusAdditionFromXML } from "./importFromXML"
-import { ViewStatusAdditionXML } from "./types"
 
 describe("importViewStatusAdditionFromXML", () => {
-  it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ViewStatusAddition: ViewStatusAdditionXML }>(
-      "forms/viewStatusAddition/full.xml"
-    )
+  it("should return undefined when data is undefined", () => {
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ViewStatusAddition,
+      xml: undefined,
+    })
 
-    const result = importViewStatusAdditionFromXML(mockContext, mockRule, xmlData.ViewStatusAddition)
+    expect(result).toBeUndefined()
+  })
+
+  it("should import all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ ViewStatusAddition: ElementXML }>("forms/viewStatusAddition/full.xml")
+
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ViewStatusAddition,
+      xml: xmlData.ViewStatusAddition,
+    })
 
     expect(result).toEqual(fullViewStatusAddition)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ ViewStatusAddition: ViewStatusAdditionXML }>(
-      "forms/viewStatusAddition/minimal.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ViewStatusAddition: ElementXML }>("forms/viewStatusAddition/minimal.xml")
 
-    const result = importViewStatusAdditionFromXML(mockContext, mockRule, xmlData.ViewStatusAddition)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ViewStatusAddition,
+      xml: xmlData.ViewStatusAddition,
+    })
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual(minimalViewStatusAddition)
   })
 })

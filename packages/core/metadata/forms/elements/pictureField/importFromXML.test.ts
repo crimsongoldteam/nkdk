@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPictureField, minimalPictureField } from "~/tests/fixtures/forms/pictureField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importPictureFieldFromXML } from "./importFromXML"
-import { PictureFieldXML } from "./types"
 
 describe("importPictureFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPictureFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PictureField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ PictureField: PictureFieldXML }>("forms/pictureField/full.xml")
+    const xmlData = readAndParseXMLFile<{ PictureField: ElementXML }>("forms/pictureField/full.xml")
 
-    const result = importPictureFieldFromXML(mockContext, mockRule, xmlData.PictureField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PictureField,
+      xml: xmlData.PictureField,
+    })
 
     expect(result).toEqual(fullPictureField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ PictureField: PictureFieldXML }>("forms/pictureField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ PictureField: ElementXML }>("forms/pictureField/minimal.xml")
 
-    const result = importPictureFieldFromXML(mockContext, mockRule, xmlData.PictureField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PictureField,
+      xml: xmlData.PictureField,
+    })
 
     expect(result).toEqual(minimalPictureField)
   })

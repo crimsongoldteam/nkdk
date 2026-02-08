@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPeriodField, minimalPeriodField } from "~/tests/fixtures/forms/periodField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importPeriodFieldFromXML } from "./importFromXML"
-import { PeriodFieldXML } from "./types"
 
 describe("importPeriodFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPeriodFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PeriodField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ PeriodField: PeriodFieldXML }>("forms/periodField/full.xml")
+    const xmlData = readAndParseXMLFile<{ PeriodField: ElementXML }>("forms/periodField/full.xml")
 
-    const result = importPeriodFieldFromXML(mockContext, mockRule, xmlData.PeriodField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PeriodField,
+      xml: xmlData.PeriodField,
+    })
 
     expect(result).toEqual(fullPeriodField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ PeriodField: PeriodFieldXML }>("forms/periodField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ PeriodField: ElementXML }>("forms/periodField/minimal.xml")
 
-    const result = importPeriodFieldFromXML(mockContext, mockRule, xmlData.PeriodField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.PeriodField,
+      xml: xmlData.PeriodField,
+    })
 
     expect(result).toEqual(minimalPeriodField)
   })

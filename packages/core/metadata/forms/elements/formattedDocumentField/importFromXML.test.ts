@@ -1,36 +1,40 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullFormattedDocumentField,
-  minimalFormattedDocumentField,
-} from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { fullFormattedDocumentField, minimalFormattedDocumentField } from "~/tests/fixtures/forms/formattedDocumentField/data"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importFormattedDocumentFieldFromXML } from "./importFromXML"
-import { FormattedDocumentFieldXML } from "./types"
 
 describe("importFormattedDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importFormattedDocumentFieldFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.FormattedDocumentField,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ FormattedDocumentField: FormattedDocumentFieldXML }>(
-      "forms/formattedDocumentField/full.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ FormattedDocumentField: ElementXML }>("forms/formattedDocumentField/full.xml")
 
-    const result = importFormattedDocumentFieldFromXML(mockContext, mockRule, xmlData.FormattedDocumentField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.FormattedDocumentField,
+      xml: xmlData.FormattedDocumentField,
+    })
 
     expect(result).toEqual(fullFormattedDocumentField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ FormattedDocumentField: FormattedDocumentFieldXML }>(
-      "forms/formattedDocumentField/minimal.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ FormattedDocumentField: ElementXML }>("forms/formattedDocumentField/minimal.xml")
 
-    const result = importFormattedDocumentFieldFromXML(mockContext, mockRule, xmlData.FormattedDocumentField)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.FormattedDocumentField,
+      xml: xmlData.FormattedDocumentField,
+    })
 
     expect(result).toEqual(minimalFormattedDocumentField)
   })

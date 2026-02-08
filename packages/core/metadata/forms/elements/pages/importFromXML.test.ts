@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPages, minimalPages } from "~/tests/fixtures/forms/pages/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importPagesFromXML } from "./importFromXML"
-import { PagesXML } from "./types"
 
 describe("importPagesFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importPagesFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.Pages,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Pages: PagesXML }>("forms/pages/full.xml")
+    const xmlData = readAndParseXMLFile<{ Pages: ElementXML }>("forms/pages/full.xml")
 
-    const result = importPagesFromXML(mockContext, mockRule, xmlData.Pages)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.Pages,
+      xml: xmlData.Pages,
+    })
 
     expect(result).toEqual(fullPages)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Pages: PagesXML }>("forms/pages/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ Pages: ElementXML }>("forms/pages/minimal.xml")
 
-    const result = importPagesFromXML(mockContext, mockRule, xmlData.Pages)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.Pages,
+      xml: xmlData.Pages,
+    })
 
     expect(result).toEqual(minimalPages)
   })

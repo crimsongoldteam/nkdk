@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullButton, minimalButton } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -28,7 +28,7 @@ describe("importButtonFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Button: any }>("forms/button/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ Button: ElementXML }>("forms/button/minimal.xml")
 
     const result = importElementFromXML({
       context: mockContext,

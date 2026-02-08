@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
+import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullColumnGroup, minimalColumnGroup } from "~/tests/fixtures/forms/columnGroup/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importColumnGroupFromXML } from "./importFromXML"
-import { ColumnGroupXML } from "./types"
 
 describe("importColumnGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importColumnGroupFromXML(mockContext, mockRule, undefined)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ColumnGroup,
+      xml: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ColumnGroup: ColumnGroupXML }>("forms/columnGroup/full.xml")
+    const xmlData = readAndParseXMLFile<{ ColumnGroup: ElementXML }>("forms/columnGroup/full.xml")
 
-    const result = importColumnGroupFromXML(mockContext, mockRule, xmlData.ColumnGroup)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ColumnGroup,
+      xml: xmlData.ColumnGroup,
+    })
 
     expect(result).toEqual(fullColumnGroup)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ ColumnGroup: ColumnGroupXML }>("forms/columnGroup/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ ColumnGroup: ElementXML }>("forms/columnGroup/minimal.xml")
 
-    const result = importColumnGroupFromXML(mockContext, mockRule, xmlData.ColumnGroup)
+    const result = importElementFromXML({
+      context: mockContext,
+      elementType: FormElementType.ColumnGroup,
+      xml: xmlData.ColumnGroup,
+    })
 
     expect(result).toEqual(minimalColumnGroup)
   })
