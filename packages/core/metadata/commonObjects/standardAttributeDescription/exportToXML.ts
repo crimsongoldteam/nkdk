@@ -17,7 +17,7 @@ import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: StandardAttributeDescriptions | undefined,
   standartAttributeNames: StandartAttributeName[]
 ): StandardAttributeDescriptionsXML | undefined => {
@@ -32,7 +32,7 @@ export const exportStandardAttributeDescriptionsToXML = (
 
 const exportStandardAttributeDescriptionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionXML => {
   const defaults = getDefaults(context, data)

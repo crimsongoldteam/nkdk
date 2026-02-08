@@ -16,7 +16,7 @@ const exportFieldValue = (field: MetadataField | undefined): string => {
 
 export const exportCharacteristicsDescriptionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
@@ -88,7 +88,7 @@ export const exportCharacteristicsDescriptionToXML = (
 
 export const exportCharacteristicsDescriptionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsXML | undefined => {
   if (!data) return undefined

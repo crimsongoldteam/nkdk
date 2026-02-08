@@ -7,7 +7,7 @@ import { Color } from "./types"
 
 export const exportColorToEnterprise = <T extends Color | undefined>(
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   color: T
 ): string | undefined => {
   if (!color) return undefined

@@ -5,7 +5,7 @@ import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } 
 
 export const importIndexFieldFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: IndexFieldEnterprise | undefined
 ): IndexField | undefined => {
   if (!data) return undefined
@@ -15,7 +15,7 @@ export const importIndexFieldFromEnterprise = (
 
 export const importIndexFieldsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: IndexFieldsEnterprise | undefined
 ): IndexFields | undefined => {
   if (!data) return undefined

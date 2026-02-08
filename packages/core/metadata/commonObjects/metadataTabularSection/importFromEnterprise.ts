@@ -17,7 +17,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSectionEnterprise | undefined,
   name: string
 ): MetadataTabularSection | undefined => {
@@ -78,7 +78,7 @@ export const importMetadataTabularSectionFromEnterprise = (
 
 export const importMetadataTabularSectionsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSectionsEnterprise | undefined
 ): MetadataTabularSections | undefined => {
   if (!data) return undefined

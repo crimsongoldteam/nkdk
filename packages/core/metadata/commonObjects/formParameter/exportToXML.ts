@@ -6,7 +6,7 @@ import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } fr
 
 export const exportFormParametersToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   parameters: FormParameters | undefined
 ): FormParametersXML | undefined => {
   if (parameters === undefined || parameters.length === 0) {
@@ -19,7 +19,7 @@ export const exportFormParametersToXML = (
 
 const exportFormParameterToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   parameter: FormParameter
 ): FormParameterXML => {
   const result: FormParameterXML = {

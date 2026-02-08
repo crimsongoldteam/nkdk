@@ -4,7 +4,7 @@ import { Predefined, PredefinedEnterprise, PredefinedItems, PredefinedItemsEnter
 
 export const importPredefinedFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: PredefinedEnterprise | undefined,
   name: string
 ): Predefined | undefined => {
@@ -20,7 +20,7 @@ export const importPredefinedFromEnterprise = (
 
 export const importPredefinedItemsFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: PredefinedItemsEnterprise | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined

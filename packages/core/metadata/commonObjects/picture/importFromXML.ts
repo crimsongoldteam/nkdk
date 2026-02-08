@@ -6,7 +6,7 @@ import { Picture, PictureXML } from "./types"
 
 export const importPictureFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: PictureXML | undefined
 ): Picture | undefined => {
   if (!xml) return undefined

@@ -15,7 +15,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSection | undefined
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
@@ -68,7 +68,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 
 export const exportMetadataTabularSectionsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsEnterprise | undefined => {
   if (!data) return undefined

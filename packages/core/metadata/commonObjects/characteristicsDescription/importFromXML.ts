@@ -26,7 +26,7 @@ const extractFieldValue = (field: MetadataFieldXML | string | number | undefined
 
 export const importCharacteristicsDescriptionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: CharacteristicsDescriptionXML | undefined
 ): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
@@ -75,7 +75,7 @@ export const importCharacteristicsDescriptionFromXML = (
 
 export const importCharacteristicsDescriptionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: CharacteristicsDescriptionsXML | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined

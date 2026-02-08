@@ -21,7 +21,7 @@ import {
 
 export const exportMetadataValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataValue | undefined
 ): MetadataValueEnterprise | undefined => {
   if (!data) return undefined
@@ -57,7 +57,7 @@ const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataV
 
 const exportBooleanValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataBooleanValue
 ): MetadataValueEnterprise => {
   return exportBooleanToEnterprise(context, undefined, data.value)!
@@ -76,7 +76,7 @@ const exportObjectRefValueToEnterprise = (
 
 const exportFixedArrayValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFixedArrayValue
 ): MetadataValueEnterprise => {
   return data.value.map(
@@ -86,7 +86,7 @@ const exportFixedArrayValueToEnterprise = (
 
 export const exportFormChoiceListValueToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueEnterprise => {
   const valueResult = exportMetadataValueToEnterprise(context, undefined, data.value)

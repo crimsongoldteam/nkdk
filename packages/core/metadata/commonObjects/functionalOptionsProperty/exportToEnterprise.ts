@@ -5,7 +5,7 @@ import { FunctionalOptions, FunctionalOptionsEnterprise } from "./types"
 
 export const exportFunctionalOptionsToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: FunctionalOptions | undefined
 ): FunctionalOptionsEnterprise | undefined => {
   if (!data || data.length === 0) return undefined

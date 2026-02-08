@@ -5,7 +5,7 @@ import { DynamicList, DynamicListXML } from "./types"
 
 export const exportDynamicListToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: DynamicList | undefined
 ): DynamicListXML | undefined => {
   return data

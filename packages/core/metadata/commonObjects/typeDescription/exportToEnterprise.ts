@@ -6,7 +6,7 @@ import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise }
 
 export const exportTypeDescriptionToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionEnterprise | undefined => {
   if (!typeDescription) {

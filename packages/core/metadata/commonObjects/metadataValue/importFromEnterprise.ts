@@ -15,7 +15,7 @@ import {
 
 export const importMetadataValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataValueEnterprise | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
@@ -60,7 +60,7 @@ const parseDateTime = (dateTime: string): string => {
 
 const importStringValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: string
 ): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
@@ -135,7 +135,7 @@ const importStringValueFromEnterprise = (
 
 const importFixedArrayValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFixedArrayValueEnterprise
 ): MetadataValue => {
   return {
@@ -146,7 +146,7 @@ const importFixedArrayValueFromEnterprise = (
 
 export const importFormChoiceListValueFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFormChoiceListValueEnterprise
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
@@ -171,7 +171,7 @@ export const importFormChoiceListValueFromEnterprise = (
 
 export const importMetadataRefFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   value: string
 ): MetadataValue => {
   const convertedValue = importMetadataValueStringFromEnterprise(context, undefined, value)

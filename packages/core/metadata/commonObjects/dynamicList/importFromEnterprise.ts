@@ -4,7 +4,7 @@ import { DynamicList, DynamicListEnterprise } from "./types"
 
 export const importDynamicListFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: DynamicListEnterprise | undefined
 ): DynamicList | undefined => {
   return data as DynamicList

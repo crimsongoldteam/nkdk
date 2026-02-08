@@ -15,7 +15,7 @@ export const exportMetadataItemLinkToEnterprise = (
 
 export const exportMetadataItemLinksToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksEnterprise | undefined => {
   if (!data) return undefined

@@ -20,7 +20,7 @@ import {
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: FormAttributesXML | undefined
 ): FormAttributes | undefined => {
   if (!xml) return undefined
@@ -32,7 +32,7 @@ export const importFormAttributesFromXML = (
 
 const importFormAttributeFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   props: FormAttributeXML
 ): FormAttribute => {
   const title = importI8nTextFromXML(context, undefined, props.Title) ?? { items: { [context.defaultLanguage]: "" } }
@@ -96,7 +96,7 @@ const importFormAttributeFromXML = (
 
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
 ): FormAttributeColumn[] | undefined => {
   if (!xml) return undefined
@@ -138,7 +138,7 @@ const importFormAttributeColumnsFromXML = (
 
 const importFormAttributeAdditionalColumnsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml:
     | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }
     | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[]

@@ -16,7 +16,7 @@ import { MetadataPrimitiveValueType } from "./types.ts"
 
 export const exportMetadataValueToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataValue | undefined
 ): MetadataValueXML | undefined => {
   if (!data) return undefined
@@ -40,7 +40,7 @@ export const exportMetadataValueToXML = (
 
 export const exportMetadataValuesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataValue[] | undefined
 ): MetadataValueXML[] | undefined => {
   if (!data) return undefined
@@ -50,7 +50,7 @@ export const exportMetadataValuesToXML = (
 
 export const exportMetadataSimpleValueToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   value: string | boolean | number | undefined,
   type: MetadataPrimitiveValueType
 ): MetadataSimpleValueXML | undefined => {
@@ -66,7 +66,7 @@ export const exportMetadataSimpleValueToXML = (
 
 const exportFixedArrayValueToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: Extract<MetadataValue, { type: "fixedArray" }>
 ): MetadataFixedArrayValueXML => {
   const values = data.value.map((v) => exportMetadataValueToXML(context, undefined, v)!)
@@ -78,7 +78,7 @@ const exportFixedArrayValueToXML = (
 
 export const exportFormChoiceListValueToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueXML => {
   const value = exportMetadataValueToXML(context, undefined, data.value)
@@ -92,7 +92,7 @@ export const exportFormChoiceListValueToXML = (
 
   return {
     "_xsi:type": "FormChoiceListDesTimeValue",
-    Presentation: exportI8nTextToXML(context, undefined, data.presentation),
+    Presentation: exportI8nTextToXML(context, { type: "I8nText" }, data.presentation),
     Value: valueXML,
   } as MetadataFormChoiceListValueXML
 }
@@ -104,7 +104,7 @@ const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: s
 
 export const exportAssociatedTableToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule<any> | undefined,
   value: string
 ): MetadataSimpleValueXML | undefined => {
   return exportMetadataSimpleValueToXML(_context, undefined, value, "string")

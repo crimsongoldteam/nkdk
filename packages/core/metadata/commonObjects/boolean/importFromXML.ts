@@ -5,7 +5,7 @@ import { StringboolXML } from "./types"
 
 export const importBooleanFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: StringboolXML | undefined
 ): boolean | undefined => {
   if (xml === undefined) return undefined

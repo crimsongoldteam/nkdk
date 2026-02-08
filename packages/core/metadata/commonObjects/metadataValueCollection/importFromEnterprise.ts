@@ -6,7 +6,7 @@ import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./ty
 
 export const importMetadataValueCollectionFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataValueCollectionEnterprise | undefined
 ): MetadataValueCollection | undefined => {
   if (!data || data.length === 0) return undefined

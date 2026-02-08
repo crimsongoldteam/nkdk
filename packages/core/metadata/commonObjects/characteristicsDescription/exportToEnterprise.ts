@@ -12,7 +12,7 @@ import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterp
 
 export const exportCharacteristicsDescriptionToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
@@ -84,7 +84,7 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 
 export const exportCharacteristicsDescriptionsToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsEnterprise | undefined => {
   if (!data) return undefined

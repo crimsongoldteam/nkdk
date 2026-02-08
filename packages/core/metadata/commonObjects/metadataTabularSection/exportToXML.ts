@@ -16,7 +16,7 @@ import { getDefaults } from "./defaults"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
@@ -26,7 +26,7 @@ export const exportMetadataTabularSectionsToXML = (
 
 export const exportMetadataTabularSectionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)

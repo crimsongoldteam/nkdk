@@ -5,7 +5,7 @@ import { FieldsList, FieldsListEnterprise } from "./types"
 
 export const importFieldsListFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   enterprise: FieldsListEnterprise | undefined
 ): FieldsList | undefined => {
   if (!enterprise || enterprise.length === 0) return undefined

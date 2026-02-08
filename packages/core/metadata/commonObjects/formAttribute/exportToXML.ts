@@ -21,7 +21,7 @@ import {
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: FormAttributes | undefined
 ): FormAttributesXML | undefined => {
   if (!data || data.length === 0) return undefined
@@ -33,7 +33,7 @@ export const exportFormAttributesToXML = (
 
 const exportFormAttributeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: FormAttribute
 ): FormAttributeXML => {
   const mergedData = { ...defaults, ...data }
@@ -98,7 +98,7 @@ const exportFormAttributeToXML = (
 
 const exportFormAttributeSettingsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   settings: FormAttribute["settings"],
   valueType: FormAttribute["valueType"]
 ): FormAttributeXML["Settings"] => {
@@ -137,7 +137,7 @@ const exportFormAttributeSettingsToXML = (
 
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   columns: FormAttributeColumn[]
 ): FormAttributeColumnXML | FormAttributeColumnXML[] => {
   const result = columns.map((column) => {
@@ -177,7 +177,7 @@ const exportFormAttributeColumnsToXML = (
 
 const exportFormAttributeAdditionalColumnsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   additionalColumns: FormAttributeAdditionalColumn[]
 ) => {
   return additionalColumns.map((additionalColumn) => ({

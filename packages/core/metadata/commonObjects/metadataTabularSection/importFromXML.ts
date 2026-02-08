@@ -14,7 +14,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
@@ -28,7 +28,7 @@ export const importMetadataTabularSectionsFromXML = (
 
 const importMetadataTabularSectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
   const props = xml.Properties

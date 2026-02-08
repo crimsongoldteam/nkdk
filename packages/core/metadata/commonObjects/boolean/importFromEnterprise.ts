@@ -5,7 +5,7 @@ import { StringboolEnterprise } from "./types"
 
 export const importBooleanFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   value: StringboolEnterprise | undefined
 ): boolean | undefined => {
   if (value === undefined) return undefined

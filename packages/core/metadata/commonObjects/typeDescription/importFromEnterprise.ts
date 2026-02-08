@@ -14,7 +14,7 @@ import {
 
 export const importTypeDescriptionFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   value: TypeDescriptionEnterprise | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {

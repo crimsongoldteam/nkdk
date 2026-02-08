@@ -4,7 +4,7 @@ import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
 export const exportMetadataCommandGroupToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataCommandGroup | undefined
 ): MetadataCommandGroupXML | undefined => {
   if (!data) return undefined
@@ -17,7 +17,7 @@ export const exportMetadataCommandGroupToXML = (
 
 export const exportMetadataCommandGroupsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataCommandGroup[] | undefined
 ): MetadataCommandGroupXML[] | undefined => {
   if (!data) return undefined

@@ -5,7 +5,7 @@ import { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } fr
 
 export const importMetadataFieldFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFieldXML | string | undefined
 ): MetadataField | undefined => {
   if (!data) return undefined
@@ -17,7 +17,7 @@ export const importMetadataFieldFromXML = (
 
 export const importMetadataFieldsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataFieldsXML | undefined
 ): MetadataFields | undefined => {
   if (!data) return undefined

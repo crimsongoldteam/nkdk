@@ -7,7 +7,7 @@ import { UserVisibleEnterprise, type UserVisible } from "./types"
 /** @deprecated */
 export const exportUserVisibleToEnterprise = <AllowKey extends string, DenyKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   userVisible: UserVisible | undefined,
   keys: { allow: AllowKey; deny: DenyKey }
 ): Partial<Record<AllowKey | DenyKey, UserVisibleEnterprise>> | undefined => {

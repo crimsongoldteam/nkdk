@@ -6,7 +6,7 @@ import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const importTypeLinkFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: TypeLinkEnterprise | undefined
 ): TypeLink | undefined => {
   if (!data) return undefined

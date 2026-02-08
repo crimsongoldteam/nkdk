@@ -19,7 +19,7 @@ import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
@@ -31,7 +31,7 @@ export const importMetadataAttributesFromXML = (
 
 const importMetadataAttributeFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: MetadataAttributeXML
 ): MetadataAttribute => {
   const props = xml.Properties

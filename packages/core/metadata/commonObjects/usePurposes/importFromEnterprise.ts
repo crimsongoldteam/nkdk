@@ -5,7 +5,7 @@ import { UsePurposes, UsePurposesEnterprise } from "./types"
 
 export const importUsePurposesFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: UsePurposesEnterprise | undefined
 ): UsePurposes | undefined => {
   if (!data) return undefined

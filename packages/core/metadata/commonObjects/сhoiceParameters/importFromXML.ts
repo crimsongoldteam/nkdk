@@ -5,7 +5,7 @@ import { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameter
 
 export const importChoiceParametersFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: ChoiceParametersXML | undefined
 ): ChoiceParameters | undefined => {
   if (!xml) return undefined
@@ -19,7 +19,7 @@ export const importChoiceParametersFromXML = (
 
 const importChoiceParameterFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: ChoiceParameterXML
 ): ChoiceParameter => {
   const value = importMetadataValueFromXML(context, undefined, xml["app:value"])

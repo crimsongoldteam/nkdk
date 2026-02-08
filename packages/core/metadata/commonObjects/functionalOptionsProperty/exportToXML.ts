@@ -5,7 +5,7 @@ import { FunctionalOptions, FunctionalOptionsXML } from "./types"
 
 export const exportFunctionalOptionsToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: FunctionalOptions | undefined
 ): FunctionalOptionsXML | undefined => {
   if (!data || data.length === 0) return undefined

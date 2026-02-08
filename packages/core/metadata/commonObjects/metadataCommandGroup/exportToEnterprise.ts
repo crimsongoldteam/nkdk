@@ -4,7 +4,7 @@ import { MetadataCommandGroup, MetadataCommandGroupEnterprise } from "./types"
 
 export const exportMetadataCommandGroupToEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataCommandGroup | undefined
 ): MetadataCommandGroupEnterprise | undefined => {
   if (!data) return undefined

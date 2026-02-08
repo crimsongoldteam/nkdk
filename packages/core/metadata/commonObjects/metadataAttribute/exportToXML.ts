@@ -20,7 +20,7 @@ import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defa
 
 export const exportMetadataAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -35,7 +35,7 @@ export const exportMetadataAttributesToXML = (
 
 export const exportMetadataTabularSectionAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -50,7 +50,7 @@ export const exportMetadataTabularSectionAttributesToXML = (
 
 const exportMetadataAttributeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: MetadataAttribute,
   defaults: Partial<MetadataAttribute>
 ): MetadataAttributeXML => {
