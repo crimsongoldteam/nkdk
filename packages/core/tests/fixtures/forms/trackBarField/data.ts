@@ -1,8 +1,4 @@
-import {
-  TrackBarField,
-  TrackBarFieldPartialEnterprise,
-  TrackBarFieldTypedEnterprise,
-} from "~/metadata/forms/elements/trackBarField/types"
+import { TrackBarField, TrackBarFieldPartialEnterprise } from "~/metadata/forms/elements/trackBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -69,7 +65,10 @@ export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
   events: {
@@ -161,19 +160,9 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
 // Удаляем Заголовок, так как exportFormFieldPropsToEnterprise не экспортирует его
 delete (fullTrackBarFieldPartialEnterprise as any).Заголовок
 
-export const fullTrackBarFieldTypedEnterprise: TrackBarFieldTypedEnterprise = {
-  ...fullTrackBarFieldPartialEnterprise,
-  Тип: "ПолеПолосыПрокрутки",
-  Заголовок: "Поле полосы прокрутки",
-}
-
 export const minimalTrackBarField: TrackBarField = {
   elementType: FormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
 }
 
 export const minimalTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise = {}
-
-export const minimalTrackBarFieldTypedEnterprise: TrackBarFieldTypedEnterprise = {
-  Тип: "ПолеПолосыПрокрутки",
-}

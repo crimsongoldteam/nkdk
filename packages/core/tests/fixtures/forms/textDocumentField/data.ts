@@ -1,7 +1,6 @@
 import {
   TextDocumentField,
   TextDocumentFieldPartialEnterprise,
-  TextDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/textDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -24,7 +23,10 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
   footerDataPath: "Объект.РеквизитПодвала",
@@ -164,19 +166,9 @@ export const fullTextDocumentFieldPartialEnterprise: TextDocumentFieldPartialEnt
   },
 }
 
-export const fullTextDocumentFieldTypedEnterprise: TextDocumentFieldTypedEnterprise = {
-  ...fullTextDocumentFieldPartialEnterprise,
-  Тип: "ПолеТекстовогоДокумента",
-  Заголовок: "Поле текстового документа",
-}
-
 export const minimalTextDocumentField: TextDocumentField = {
   elementType: FormElementType.TextDocumentField,
   name: "ПолеТекстовогоДокумента",
 }
 
 export const minimalTextDocumentFieldPartialEnterprise: TextDocumentFieldPartialEnterprise = {}
-
-export const minimalTextDocumentFieldTypedEnterprise: TextDocumentFieldTypedEnterprise = {
-  Тип: "ПолеТекстовогоДокумента",
-}

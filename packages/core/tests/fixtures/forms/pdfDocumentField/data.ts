@@ -1,8 +1,4 @@
-import {
-  PdfDocumentField,
-  PdfDocumentFieldPartialEnterprise,
-  PdfDocumentFieldTypedEnterprise,
-} from "~/metadata/forms/elements/pdfDocumentField/types"
+import { PdfDocumentField, PdfDocumentFieldPartialEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -21,7 +17,10 @@ export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   height: 200,
   horizontalStretch: true,
   maxHeight: 500,
@@ -164,19 +163,9 @@ export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnter
   },
 }
 
-export const fullPdfDocumentFieldTypedEnterprise: PdfDocumentFieldTypedEnterprise = {
-  ...fullPdfDocumentFieldPartialEnterprise,
-  Тип: "ПолеPDFДокумента",
-  Заголовок: "Поле PDF документа",
-}
-
 export const minimalPdfDocumentField: PdfDocumentField = {
   elementType: FormElementType.PDFDocumentField,
   name: "ПолеPDFДокумента",
 }
 
 export const minimalPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnterprise = {}
-
-export const minimalPdfDocumentFieldTypedEnterprise: PdfDocumentFieldTypedEnterprise = {
-  Тип: "ПолеPDFДокумента",
-}

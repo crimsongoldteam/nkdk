@@ -1,4 +1,8 @@
-import { PictureField, PictureFieldPartialEnterprise } from "~/metadata/forms/elements/pictureField/types"
+import {
+  PictureField,
+  PictureFieldPartialEnterprise,
+  PictureFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pictureField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -71,7 +75,10 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   table: "",
   typeRestriction: { type: ["string"] },
   autoMaxHeight: false,

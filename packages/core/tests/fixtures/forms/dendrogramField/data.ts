@@ -1,8 +1,4 @@
-import {
-  DendrogramField,
-  DendrogramFieldPartialEnterprise,
-  DendrogramFieldTypedEnterprise,
-} from "~/metadata/forms/elements/dendrogramField/types"
+import { DendrogramField, DendrogramFieldPartialEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -80,7 +76,10 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -148,19 +147,9 @@ export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterpr
   },
 }
 
-export const fullDendrogramFieldTypedEnterprise: DendrogramFieldTypedEnterprise = {
-  ...fullDendrogramFieldPartialEnterprise,
-  Тип: "ПолеДендрограммы",
-  Заголовок: "Поле дендрограммы",
-}
-
 export const minimalDendrogramField: DendrogramField = {
   elementType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
 }
 
 export const minimalDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterprise = {}
-
-export const minimalDendrogramFieldTypedEnterprise: DendrogramFieldTypedEnterprise = {
-  Тип: "ПолеДендрограммы",
-}

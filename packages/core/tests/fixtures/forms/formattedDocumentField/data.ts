@@ -1,7 +1,6 @@
 import {
   FormattedDocumentField,
   FormattedDocumentFieldPartialEnterprise,
-  FormattedDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -86,7 +85,10 @@ export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocument
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
   events: {
@@ -162,19 +164,9 @@ export const fullFormattedDocumentFieldPartialEnterprise: FormattedDocumentField
   },
 }
 
-export const fullFormattedDocumentFieldTypedEnterprise: FormattedDocumentFieldTypedEnterprise = {
-  ...fullFormattedDocumentFieldPartialEnterprise,
-  Тип: "ПолеФорматированногоДокумента",
-  Заголовок: "Поле форматированного документа",
-}
-
 export const minimalFormattedDocumentField: FormattedDocumentField = {
   elementType: FormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
 }
 
 export const minimalFormattedDocumentFieldPartialEnterprise: FormattedDocumentFieldPartialEnterprise = {}
-
-export const minimalFormattedDocumentFieldTypedEnterprise: FormattedDocumentFieldTypedEnterprise = {
-  Тип: "ПолеФорматированногоДокумента",
-}

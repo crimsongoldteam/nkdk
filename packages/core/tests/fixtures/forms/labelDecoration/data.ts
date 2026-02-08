@@ -57,7 +57,10 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   events: {
     click: "ПроцедураНажатия",
     uRLProcessing: "ПроцедураОбработкиНавигационнойСсылки",

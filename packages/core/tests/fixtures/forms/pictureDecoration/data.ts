@@ -1,7 +1,6 @@
 import {
   PictureDecoration,
   PictureDecorationPartialEnterprise,
-  PictureDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -60,7 +59,10 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   fileDragMode: "AsFile",
   pictureSize: "AutoSize",
   events: {
@@ -120,22 +122,12 @@ export const fullPictureDecorationPartialEnterprise: PictureDecorationPartialEnt
   },
 }
 
-export const fullPictureDecorationTypedEnterprise: PictureDecorationTypedEnterprise = {
-  ...fullPictureDecorationPartialEnterprise,
-  Тип: "Рисунок",
-  Заголовок: "Декорация картинки",
-}
-
 export const minimalPictureDecoration: PictureDecoration = {
   elementType: FormElementType.PictureDecoration,
   name: "ДекорацияКартинки",
 }
 
 export const minimalPictureDecorationPartialEnterprise: PictureDecorationPartialEnterprise = {}
-
-export const minimalPictureDecorationTypedEnterprise: PictureDecorationTypedEnterprise = {
-  Тип: "Рисунок",
-}
 
 export interface PictureDecorationStructureFixture {
   name: string

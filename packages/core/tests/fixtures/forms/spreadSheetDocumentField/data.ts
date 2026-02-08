@@ -24,7 +24,10 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
   footerDataPath: "Объект.РеквизитПодвала",

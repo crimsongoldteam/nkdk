@@ -70,7 +70,10 @@ export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
   events: {

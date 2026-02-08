@@ -67,7 +67,10 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
   allowInputEmptyMultipleValues: true,

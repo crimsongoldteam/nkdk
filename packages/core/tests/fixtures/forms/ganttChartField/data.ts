@@ -1,8 +1,4 @@
-import {
-  GanttChartField,
-  GanttChartFieldPartialEnterprise,
-  GanttChartFieldTypedEnterprise,
-} from "~/metadata/forms/elements/ganttChartField/types"
+import { GanttChartField, GanttChartFieldPartialEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -85,7 +81,10 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
   events: {
@@ -168,19 +167,9 @@ export const fullGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterpr
   },
 }
 
-export const fullGanttChartFieldTypedEnterprise: GanttChartFieldTypedEnterprise = {
-  ...fullGanttChartFieldPartialEnterprise,
-  Тип: "ПолеДиаграммыГанта",
-  Заголовок: "Поле диаграммы Ганта",
-}
-
 export const minimalGanttChartField: GanttChartField = {
   elementType: FormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
 }
 
 export const minimalGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterprise = {}
-
-export const minimalGanttChartFieldTypedEnterprise: GanttChartFieldTypedEnterprise = {
-  Тип: "ПолеДиаграммыГанта",
-}

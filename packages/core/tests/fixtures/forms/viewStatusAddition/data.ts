@@ -5,6 +5,7 @@ export const parentElement = {
 }
 
 export const fullViewStatusAddition: Required<ViewStatusAddition> = {
+  elementType: "ViewStatusAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   border: { ref: "style:ControlBorder" },
@@ -32,7 +33,10 @@ export const fullViewStatusAddition: Required<ViewStatusAddition> = {
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
 }
 
 export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
@@ -58,4 +62,6 @@ export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
-export const minimalViewStatusAddition: ViewStatusAddition = {}
+export const minimalViewStatusAddition: ViewStatusAddition = {
+  elementType: "ViewStatusAddition",
+}

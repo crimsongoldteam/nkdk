@@ -1,4 +1,4 @@
-import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
+import { Page, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullPage: Required<Page> = {
@@ -30,7 +30,10 @@ export const fullPage: Required<Page> = {
   visible: true,
   width: 300,
   backColor: { type: "WebColor", value: "White" },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   picture: { ref: "Picture", type: "StandardPicture", loadTransparent: true },
   childItemsHorizontalAlign: "Left",
   childItemsVerticalAlign: "Top",
@@ -90,12 +93,6 @@ export const fullPagePartialEnterprise: PagePartialEnterprise = {
   ШиринаПодчиненныхЭлементов: "Авто",
 }
 
-export const fullPageTypedEnterprise: PageTypedEnterprise = {
-  ...fullPagePartialEnterprise,
-  Тип: "Страница",
-  Заголовок: "Страница",
-}
-
 export const minimalPage: Page = {
   elementType: FormElementType.Page,
   name: "Страница",
@@ -104,10 +101,4 @@ export const minimalPage: Page = {
 
 export const minimalPagePartialEnterprise: PagePartialEnterprise = {}
 
-export const minimalPageTypedEnterprise: PageTypedEnterprise = {
-  ...minimalPagePartialEnterprise,
-  Тип: "Страница",
-}
-
-export const fullPageEnterprise: PageTypedEnterprise = fullPageTypedEnterprise
-export const minimalPageEnterprise: PagePartialEnterprise = minimalPagePartialEnterprise
+// export const minimalPageEnterprise: PagePartialEnterprise = minimalPagePartialEnterprise

@@ -8,6 +8,7 @@ export const parentElement: NamedElement = {
 }
 
 export const fullContextMenu: ContextMenu = {
+  elementType: "ContextMenu",
   displayImportance: "High",
   autofill: true,
   childItems: [
@@ -29,6 +30,7 @@ export const fullContextMenuEnterprise: ContextMenuEnterprise = {
 }
 
 export const minimalContextMenu: ContextMenu = {
+  elementType: "ContextMenu",
   childItems: [],
 }
 

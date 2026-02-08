@@ -60,7 +60,10 @@ export const fullUsualGroup: Required<UsualGroup> = {
   united: false,
   verticalSpacing: "Single",
   table: "ИспользуемаяТаблица",
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   childItems: [],
 }
 
