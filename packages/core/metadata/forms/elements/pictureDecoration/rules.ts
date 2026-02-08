@@ -3,6 +3,7 @@ import { PictureDecoration } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const PictureDecorationRules: ElementRule<PictureDecoration> = {
+  enterpriseField: "FormDecoration",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

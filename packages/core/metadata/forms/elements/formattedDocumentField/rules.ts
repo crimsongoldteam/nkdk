@@ -3,6 +3,7 @@ import { FormattedDocumentField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const FormattedDocumentFieldRules: ElementRule<FormattedDocumentField> = {
+  enterpriseField: "FormField",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

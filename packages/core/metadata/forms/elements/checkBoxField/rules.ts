@@ -3,6 +3,7 @@ import { CheckBoxField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const CheckBoxFieldRules: ElementRule<CheckBoxField> = {
+  enterpriseField: "FormField",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },

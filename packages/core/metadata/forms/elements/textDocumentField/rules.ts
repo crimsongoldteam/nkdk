@@ -3,6 +3,7 @@ import { TextDocumentField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const TextDocumentFieldRules: ElementRule<TextDocumentField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

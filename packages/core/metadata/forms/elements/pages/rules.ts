@@ -3,6 +3,7 @@ import { Pages } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const PagesRules: ElementRule<Pages> = {
+  enterpriseField: "FormGroup",
   properties: {
     currentPagesState: {
       yaml: "ТекущееСостояниеСтраниц",

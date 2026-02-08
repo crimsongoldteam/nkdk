@@ -3,6 +3,7 @@ import { Popup } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const PopupRules: ElementRule<Popup> = {
+  enterpriseField: "FormGroup",
   properties: {
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },

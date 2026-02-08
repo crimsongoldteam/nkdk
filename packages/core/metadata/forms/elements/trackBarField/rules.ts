@@ -3,6 +3,7 @@ import { TrackBarField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const TrackBarFieldRules: ElementRule<TrackBarField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

@@ -3,6 +3,7 @@ import { GeographicalSchemaField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const GeographicalSchemaFieldRules: ElementRule<GeographicalSchemaField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

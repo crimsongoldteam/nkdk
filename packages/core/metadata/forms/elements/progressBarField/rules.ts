@@ -3,6 +3,7 @@ import { ProgressBarField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ProgressBarFieldRules: ElementRule<ProgressBarField> = {
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

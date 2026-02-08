@@ -3,6 +3,7 @@ import { GanttChartField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const GanttChartFieldRules: ElementRule<GanttChartField> = {
+  enterpriseField: "FormField",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

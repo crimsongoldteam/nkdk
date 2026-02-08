@@ -61,7 +61,7 @@ export interface ElementRule<T extends BaseElement> {
   events?: T extends EventedElement
     ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
     : never
-  enterpriseField: string
+  enterpriseField: "FormField" | "FormDecoration" | "Table" | "FormGroup"
   alwaysExportToXML?: true
 }
 

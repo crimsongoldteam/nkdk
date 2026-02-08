@@ -3,6 +3,7 @@ import { ColumnGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ColumnGroupRules: ElementRule<ColumnGroup> = {
+  enterpriseField: "FormGroup",
   properties: {
     fixingInTable: {
       yaml: "ФиксацияВТаблице",

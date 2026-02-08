@@ -3,6 +3,7 @@ import { InputField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const InputFieldRules: ElementRule<InputField> = {
+  enterpriseField: "FormField",
   properties: {
     allowInputEmptyMultipleValues: { yaml: "РазрешитьВводПустыхМножественныхЗначений", type: "boolean" },
     allowMultipleValuesDuplicates: { yaml: "РазрешитьДублированиеМножественныхЗначений", type: "boolean" },

@@ -1,19 +1,16 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorPreview, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
   GroupChildItemsPreview,
-  GroupChildItemsXML,
   GroupChilItemPartialEnterprise,
 } from "../../collections/childItems/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface UsualGroup {
   elementType: "UsualGroup"
@@ -60,51 +57,6 @@ export interface UsualGroup {
   united?: boolean
   verticalSpacing?: SE.FormItemSpacing
   childItems: GroupChildItems
-}
-
-export interface UsualGroupXML extends BaseElementXML {
-  AssociatedTableElementId: MetadataValueXML
-  EnableContentChange?: boolean
-  Enabled?: boolean
-  Height?: number
-  HorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  ReadOnly?: boolean
-  Shortcut?: string
-  Title?: I8nTextXML
-  TitleFont?: FontXML
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-  BackColor?: ColorXML
-  Behavior?: SE.UsualGroupBehavior
-  Collapsed: boolean
-  CollapsedRepresentationTitle?: I8nTextXML
-  ControlRepresentation?: SE.UsualGroupControlRepresentation
-  CurrentRowUse?: SE.CurrentRowUse
-  _DisplayImportance?: SE.DisplayImportance
-  ExtendedTooltip: ExtendedTooltipXML
-  Format?: I8nTextXML
-  Group?: SE.ChildFormItemsGroup
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  HiddenStateTitleBackColor?: ColorXML
-  HorizontalSpacing?: SE.FormItemSpacing
-  ChildrenAlign?: SE.ItemsAndTitlesAlignVariant
-  Representation?: SE.UsualGroupRepresentation
-  ShowLeftMargin?: boolean
-  ShowTitle?: boolean
-  SlaveItemsWidth?: SE.ChildFormItemsWidth
-  ThroughAlign?: SE.ThroughAlign
-  TitleDataPath?: string
-  United?: boolean
-  VerticalAlign?: SE.ItemVerticalAlign
-  VerticalSpacing?: SE.FormItemSpacing
-  ChildItems?: GroupChildItemsXML
 }
 
 export interface UsualGroupPartialEnterprise {

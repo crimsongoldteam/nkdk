@@ -3,6 +3,7 @@ import { ChartField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ChartFieldRules: ElementRule<ChartField> = {
+  enterpriseField: "FormField",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
