@@ -1,6 +1,7 @@
 import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { TypedElement } from "~/metadata/forms/collections/childItems/types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
 import {
@@ -10,18 +11,17 @@ import {
   ToTypedEnterpriseType,
 } from "../types"
 
-export function exportElementToEnterpriseTyped<T extends NamedElement>(
+export function exportElementToEnterpriseTyped<T extends TypedElement>(
   context: ConfigurationContext,
-  elementType: FormElementType,
-  data: T | undefined
-): ToTypedEnterpriseType<T> | undefined {
-  if (data === undefined) return undefined
+  data: T
+): ToTypedEnterpriseType<T> {
+  const rules = getElementRule<T>(data.elementType)
 
-  const rules = getElementRule<T>(elementType)
+  const type = exportFormElementTypeToEnterprise(context, undefined, data.elementType)
 
   const result: ToTypedEnterpriseType<T> = {
-    Тип: exportFormElementTypeToEnterprise(context, undefined, elementType),
-  }
+    Тип: type,
+  } as ToTypedEnterpriseType<T>
 
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
     const value = data[key as keyof T]
@@ -38,13 +38,18 @@ export function exportElementToEnterpriseTyped<T extends NamedElement>(
 
     const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
-    if (typeExportFn) {
+    if (!typeExportFn) {
+      
+;(result as any)[yamlKey] = value
+continue
+}
+
       const exportedValue = typeExportFn(context, rule, value)
       if (exportedValue !== undefined) {
-        result[yamlKey as string] = exportedValue
+        ;(result as any)[yamlKey] = exportedValue
       }
     } else if (typeof value !== "object" || value === null) {
-      result[yamlKey as string] = value
+      ;(result as any)[yamlKey] = value
     }
   }
 

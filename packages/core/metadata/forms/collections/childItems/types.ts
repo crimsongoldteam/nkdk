@@ -1,16 +1,11 @@
-import {
-  ToPartialEnterpriseType,
-  ToPreviewType,
-  ToTypedEnterpriseType,
-  ToXMLType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToPreviewType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { CalendarField } from "../../elements/calendarField/types"
 import { ChartField } from "../../elements/chartField/types"
-import { CheckBoxField, CheckBoxFieldTypedEnterprise, CheckBoxFieldXML } from "../../elements/checkBoxField/types"
-import { ColumnGroup, ColumnGroupTypedEnterprise, ColumnGroupXML } from "../../elements/columnGroup/types"
+import { CheckBoxField, CheckBoxFieldTypedEnterprise } from "../../elements/checkBoxField/types"
+import { ColumnGroup, ColumnGroupTypedEnterprise } from "../../elements/columnGroup/types"
 import { CommandBar } from "../../elements/commandBar/types"
 import { DendrogramField } from "../../elements/dendrogramField/types"
 import { FormattedDocumentField } from "../../elements/formattedDocumentField/types"
@@ -18,15 +13,15 @@ import { GanttChartField } from "../../elements/ganttChartField/types"
 import { GeographicalSchemaField } from "../../elements/geographicalSchemaField/types"
 import { GraphicalSchemaField } from "../../elements/graphicalSchemaField/types"
 import { HTMLDocumentField } from "../../elements/htmlDocumentField/types"
-import { InputField, InputFieldTypedEnterprise, InputFieldXML } from "../../elements/inputField/types"
+import { InputField, InputFieldTypedEnterprise } from "../../elements/inputField/types"
 import { LabelDecoration } from "../../elements/labelDecoration/types"
-import { LabelField, LabelFieldTypedEnterprise, LabelFieldXML } from "../../elements/labelField/types"
+import { LabelField, LabelFieldTypedEnterprise } from "../../elements/labelField/types"
 import { Page } from "../../elements/page/types"
 import { Pages } from "../../elements/pages/types"
 import { PdfDocumentField } from "../../elements/pdfDocumentField/types"
 import { PeriodField } from "../../elements/periodField/types"
 import { PictureDecoration } from "../../elements/pictureDecoration/types"
-import { PictureField, PictureFieldXML } from "../../elements/pictureField/types"
+import { PictureField } from "../../elements/pictureField/types"
 import { PlannerField } from "../../elements/plannerField/types"
 import { Popup } from "../../elements/popup/types"
 import { ProgressBarField } from "../../elements/progressBarField/types"
@@ -82,9 +77,6 @@ export type AllChildItem = ChildItem
 
 export type AllChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<AllChildItem>>
 
-export type AllChildItemXML = Record<AllChildItem["elementType"], ToXMLType<AllChildItem>>
-
-export type AllChildItemsXML = AllChildItemXML | AllChildItemXML[]
 // #endregion
 
 // #region ClientApplicationFormChildItem
@@ -120,9 +112,6 @@ export type GroupChildItem =
 
 export type GroupChildItems = GroupChildItem[]
 
-export type GroupChildItemXML = Record<GroupChildItem["elementType"], ToXMLType<GroupChildItem>>
-export type GroupChildItemsXML = GroupChildItemXML | GroupChildItemXML[]
-
 export type GroupChilItemPartialEnterprise = Record<string, ToPartialEnterpriseType<GroupChildItem>>
 
 export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
@@ -134,9 +123,6 @@ export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
 export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
 export type CommandBarChildItems = CommandBarChildItem[]
 
-export type CommandBarChildItemXML = Record<CommandBarChildItem["elementType"], ToXMLType<CommandBarChildItem>>
-export type CommandBarChildItemsXML = CommandBarChildItemXML | CommandBarChildItemXML[]
-
 export type CommandBarChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<CommandBarChildItem>>
 
 export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<CommandBarChildItem>>
@@ -147,12 +133,6 @@ export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpri
 
 export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
 export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
-
-export type CommandBarGroupChildItemXML = Record<
-  CommandBarGroupChildItem["elementType"],
-  ToXMLType<CommandBarGroupChildItem>
->
-export type CommandBarGroupChildItemsXML = CommandBarGroupChildItemXML | CommandBarGroupChildItemXML[]
 
 export type CommandBarGroupChildItemsPartialEnterprise = Record<
   string,
@@ -167,9 +147,6 @@ export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedEnt
 
 export type PagesChildItem = Page
 export type PagesChildItems = PagesChildItem[]
-
-export type PagesChildItemXML = Record<PagesChildItem["elementType"], ToXMLType<PagesChildItem>>
-export type PagesChildItemsXML = PagesChildItemXML | PagesChildItemXML[]
 
 export type PagesChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<PagesChildItem>>
 export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<PagesChildItem>>
@@ -186,11 +163,6 @@ export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelFie
 
 export type TableChildItems = TableChildItem[]
 
-export type TableChildItemXML = CheckBoxFieldXML | ColumnGroupXML | InputFieldXML | LabelFieldXML | PictureFieldXML
-
-export type TableChildItemRecordXML = Record<TableChildItem["elementType"], TableChildItemXML>
-export type TableChildItemsXML = TableChildItemRecordXML | TableChildItemRecordXML[]
-
 export type TableChildItemTypedEnterprise =
   | CheckBoxFieldTypedEnterprise
   | ColumnGroupTypedEnterprise
@@ -200,4 +172,19 @@ export type TableChildItemTypedEnterprise =
 export type TableChildItemsTypedEnterprise = Record<string, TableChildItemTypedEnterprise>
 
 export type TableChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<TableChildItem>>
+
+// #endregion
+
+// #region TypedElements
+
+export type TypedElement =
+  | Button
+  | ButtonGroup
+  | Popup
+  | CheckBoxField
+  | ColumnGroup
+  | InputField
+  | LabelField
+  | PictureField
+
 // #endregion

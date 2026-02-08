@@ -1,6 +1,14 @@
 import { ConfigurationContext } from "../context/types"
-import { AllChildItem } from "../forms/collections/childItems/types"
+import { AllChildItem, TypedElement } from "../forms/collections/childItems/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
+import { Button, ButtonTypedEnterprise } from "../forms/elements/button/types"
+import { ButtonGroup, ButtonGroupTypedEnterprise } from "../forms/elements/buttonGroup/types"
+import { CheckBoxField, CheckBoxFieldTypedEnterprise } from "../forms/elements/checkBoxField/types"
+import { ColumnGroup, ColumnGroupTypedEnterprise } from "../forms/elements/columnGroup/types"
+import { InputField, InputFieldTypedEnterprise } from "../forms/elements/inputField/types"
+import { LabelField } from "../forms/elements/labelField/types"
+import { PictureFieldTypedEnterprise } from "../forms/elements/pictureField/types"
+import { Popup, PopupTypedEnterprise } from "../forms/elements/popup/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { PropertyRule } from "./elementRulesFactory"
 import { TypeRules } from "./rules"
@@ -17,11 +25,21 @@ export type ToPartialEnterpriseType<T> = T extends undefined
     ? TypeRules<NonNullable<T>>["PartialEnterprise"]
     : never
 
-export type ToTypedEnterpriseType<T> = T extends undefined
-  ? undefined
-  : "TypedEnterprise" extends keyof TypeRules<NonNullable<T>>
-    ? TypeRules<NonNullable<T>>["TypedEnterprise"]
-    : never
+export type ToTypedEnterpriseType<T extends TypedElement> = T extends Button
+  ? ButtonTypedEnterprise
+  : T extends ButtonGroup
+    ? ButtonGroupTypedEnterprise
+    : T extends Popup
+      ? PopupTypedEnterprise
+      : T extends CheckBoxField
+        ? CheckBoxFieldTypedEnterprise
+        : T extends ColumnGroup
+          ? ColumnGroupTypedEnterprise
+          : T extends InputField
+            ? InputFieldTypedEnterprise
+            : T extends LabelField
+              ? PictureFieldTypedEnterprise
+              : never
 
 export type ToPreviewType<T> = T extends undefined
   ? undefined
@@ -35,7 +53,7 @@ export type ToPreviewType<T> = T extends undefined
 
 export type ImportFromXMLFn = <To extends AllChildItem | undefined>(context: ConfigurationContext, data: any) => To
 
-export type ImportTypedFromEnterpriseFn = <To extends AllChildItem | undefined>(
+export type ImportTypedFromEnterpriseFn = <To extends TypedElement>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
