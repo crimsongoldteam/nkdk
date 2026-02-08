@@ -5,7 +5,7 @@ import { PropertyRule } from "../calendarField/rules"
 
 export const importAutoCommandBarFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: ElementXML
 ): AutoCommandBar | undefined => {
   return importSingleElementFromXML(context, "AutoCommandBar", xml)

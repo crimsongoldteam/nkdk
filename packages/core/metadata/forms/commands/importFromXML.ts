@@ -1,16 +1,12 @@
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, Commands, CommandsXML, CommandXML } from "./types"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
-function importCommandFromXML(
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  xml: CommandXML | undefined
-): Command | undefined {
+function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | undefined): Command | undefined {
   if (!xml) return undefined
 
   const result: Command = {
@@ -47,12 +43,12 @@ function importCommandFromXML(
 
 export function importCommandsFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: CommandsXML | undefined
 ): Commands {
   if (!xml) return []
 
   const xmlArray = Array.isArray(xml) ? xml : [xml]
 
-  return xmlArray.map((commandXml) => importCommandFromXML(context, undefined, commandXml)!)
+  return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml)!)
 }

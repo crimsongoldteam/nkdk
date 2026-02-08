@@ -6,33 +6,35 @@ import {
   minimalTrackBarField,
   minimalTrackBarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportTrackBarFieldPartialToEnterprise, exportTrackBarFieldTypedToEnterprise } from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
-describe("exportTrackBarFieldPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportTrackBarFieldPartialToEnterprise(mockContext, mockRule, fullTrackBarField)
+describe("exportTrackBarFieldToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullTrackBarField })
 
-    expect(result).toEqual(fullTrackBarFieldPartialEnterprise)
+      expect(result).toEqual(fullTrackBarFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalTrackBarField })
+
+      expect(result).toEqual(minimalTrackBarFieldPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportTrackBarFieldPartialToEnterprise(mockContext, mockRule, minimalTrackBarField)
+  describe("exportElementToTypedYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullTrackBarField })
 
-    expect(result).toEqual(minimalTrackBarFieldPartialEnterprise)
-  })
-})
+      expect(result).toEqual(fullTrackBarFieldTypedEnterprise)
+    })
 
-describe("exportTrackBarFieldTypedToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportTrackBarFieldTypedToEnterprise(mockContext, mockRule, fullTrackBarField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
 
-    expect(result).toEqual(fullTrackBarFieldTypedEnterprise)
-  })
-
-  it("should return undefined when data is undefined", () => {
-    const result = exportTrackBarFieldTypedToEnterprise(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
   })
 })

@@ -4,7 +4,7 @@ import { CommandSet, CommandSetXML } from "./types"
 
 export const importCommandSetFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: CommandSetXML | undefined
 ): CommandSet | undefined => {
   if (!xml) return undefined

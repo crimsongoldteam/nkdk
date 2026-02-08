@@ -1,5 +1,6 @@
 import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttribute/importFromXML"
 import { importFormParametersFromXML } from "~/metadata/commonObjects/formParameter/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
@@ -7,10 +8,8 @@ import { importChildItemsFromXML } from "../../collections/childItems/importFrom
 import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"
 import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
-import { PropertyRule } from "../../elements/calendarField/rules"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 
 export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
@@ -211,14 +210,13 @@ export const importClientApplicationFormFromXML = (
     result.events = events
   }
 
-  const metadata = importFormMetadataFromXML(context, undefined, xmlMetadata)
+  const metadata = importFormMetadataFromXML(context, xmlMetadata)
 
   return { ...result, ...metadata }
 }
 
 function importFormMetadataFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   xmlMetadata?: FormMetadataXML
 ): Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> {
   const result: Partial<Pick<ClientApplicationForm, "synonim" | "comment" | "includeHelpInContents" | "usePurposes">> =

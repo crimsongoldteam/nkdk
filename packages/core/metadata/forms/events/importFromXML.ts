@@ -9,7 +9,7 @@ function toCamelCase(str: string): string {
 
 export const importEventsFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   xml: EventsXML | undefined
 ): Events | undefined => {
   if (!xml) return undefined

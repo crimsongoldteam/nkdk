@@ -10,18 +10,20 @@ import {
   minimalUsualGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportUsualGroupPartialToEnterprise } from "./exportToEnterprise"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 
-describe("exportUsualGroupPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportUsualGroupPartialToEnterprise(mockContext, fullUsualGroup)
+describe("exportUsualGroupToEnterprise", () => {
+  describe("exportElementToPartialYAML", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullUsualGroup })
 
-    expect(result).toEqual(fullUsualGroupPartialEnterprise)
-  })
+      expect(result).toEqual(fullUsualGroupPartialEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportUsualGroupPartialToEnterprise(mockContext, minimalUsualGroup)
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalUsualGroup })
 
-    expect(result).toEqual(minimalUsualGroupPartialEnterprise)
+      expect(result).toEqual(minimalUsualGroupPartialEnterprise)
+    })
   })
 })
