@@ -1,20 +1,14 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullLabelField, minimalLabelField } from "~/tests/fixtures/forms/labelField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportLabelFieldToXML } from "./exportToXML"
 
 describe("exportLabelFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportLabelFieldToXML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/labelField/full.xml")
-    const xmlData = exportLabelFieldToXML(mockContext, mockRule, fullLabelField)
+    const xmlData = exportElementToXML({ context: mockContext, data: fullLabelField })
 
     const result = xmlExport({ LabelField: xmlData }, false)
 
@@ -23,7 +17,7 @@ describe("exportLabelFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/labelField/minimal.xml")
-    const xmlData = exportLabelFieldToXML(mockContext, mockRule, minimalLabelField)
+    const xmlData = exportElementToXML({ context: mockContext, data: minimalLabelField })
 
     const result = xmlExport({ LabelField: xmlData }, false)
 

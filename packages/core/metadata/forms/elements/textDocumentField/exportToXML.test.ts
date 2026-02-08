@@ -1,20 +1,14 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullTextDocumentField, minimalTextDocumentField } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportTextDocumentFieldToXML } from "./exportToXML"
 
 describe("exportTextDocumentFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportTextDocumentFieldToXML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/textDocumentField/full.xml")
-    const xmlData = exportTextDocumentFieldToXML(mockContext, mockRule, fullTextDocumentField)
+    const xmlData = exportElementToXML({ context: mockContext, data: fullTextDocumentField })
 
     const result = xmlExport({ TextDocumentField: xmlData }, false)
 
@@ -23,7 +17,7 @@ describe("exportTextDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/textDocumentField/minimal.xml")
-    const xmlData = exportTextDocumentFieldToXML(mockContext, mockRule, minimalTextDocumentField)
+    const xmlData = exportElementToXML({ context: mockContext, data: minimalTextDocumentField })
 
     const result = xmlExport({ TextDocumentField: xmlData }, false)
 

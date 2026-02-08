@@ -1,20 +1,14 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullTrackBarField, minimalTrackBarField } from "~/tests/fixtures/forms/trackBarField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportTrackBarFieldToXML } from "./exportToXML"
 
 describe("exportTrackBarFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportTrackBarFieldToXML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/trackBarField/full.xml")
-    const xmlData = exportTrackBarFieldToXML(mockContext, mockRule, fullTrackBarField)
+    const xmlData = exportElementToXML({ context: mockContext, data: fullTrackBarField })
 
     const result = xmlExport({ TrackBarField: xmlData }, false)
 
@@ -23,7 +17,7 @@ describe("exportTrackBarFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/trackBarField/minimal.xml")
-    const xmlData = exportTrackBarFieldToXML(mockContext, mockRule, minimalTrackBarField)
+    const xmlData = exportElementToXML({ context: mockContext, data: minimalTrackBarField })
 
     const result = xmlExport({ TrackBarField: xmlData }, false)
 

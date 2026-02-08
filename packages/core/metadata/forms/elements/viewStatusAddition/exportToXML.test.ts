@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToXML"
-import {
-  fullViewStatusAddition,
-  minimalViewStatusAddition,
-  parentElement,
-} from "~/tests/fixtures/forms/viewStatusAddition/data"
+import { fullViewStatusAddition, minimalViewStatusAddition, parentElement } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"

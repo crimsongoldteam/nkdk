@@ -1,20 +1,14 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullPeriodField, minimalPeriodField } from "~/tests/fixtures/forms/periodField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportPeriodFieldToXML } from "./exportToXML"
 
 describe("exportPeriodFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPeriodFieldToXML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/periodField/full.xml")
-    const xmlData = exportPeriodFieldToXML(mockContext, mockRule, fullPeriodField)
+    const xmlData = exportElementToXML({ context: mockContext, data: fullPeriodField })
 
     const result = xmlExport({ PeriodField: xmlData }, false)
 
@@ -23,7 +17,7 @@ describe("exportPeriodFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/periodField/minimal.xml")
-    const xmlData = exportPeriodFieldToXML(mockContext, mockRule, minimalPeriodField)
+    const xmlData = exportElementToXML({ context: mockContext, data: minimalPeriodField })
 
     const result = xmlExport({ PeriodField: xmlData }, false)
 
