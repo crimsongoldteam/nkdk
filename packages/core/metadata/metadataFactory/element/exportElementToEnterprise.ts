@@ -11,7 +11,7 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
   context: ConfigurationContext
   rule: PropertyRule<T>
   value: any
-}): Record<string, any>[] | undefined => {
+}): Record<string, any> | undefined => {
   const { context, rule, value } = params
 
   if (rule.yaml === undefined) return undefined
@@ -20,7 +20,7 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
 
   if (rule.type == "UserVisible") {
     const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
-    return result ? [result] : undefined
+    return result
   }
 
   const yamlKey = rule.yaml
@@ -32,11 +32,11 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
   }
 
   if (!typeExportFn) {
-    return [{ [yamlKey]: value }]
+    return { [yamlKey]: value }
   }
 
   const result = typeExportFn(context, rule, value)
-  return result ? [{ [yamlKey]: result }] : undefined
+  return result ? { [yamlKey]: result } : undefined
 }
 
 export function exportElementToTypedYAML<T extends TypedElement>(params: {
@@ -60,9 +60,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
 
     if (exportedValues == undefined) continue
 
-    for (const exportedValue of exportedValues) {
-      Object.assign(result, exportedValue)
-    }
+    Object.assign(result, exportedValues)
   }
 
   const events = mapEventsToEnterprise(
@@ -104,9 +102,7 @@ export function exportElementToYAML<T extends BaseElement>(params: {
 
     if (exportedValues == undefined) continue
 
-    for (const exportedValue of exportedValues) {
-      Object.assign(result, exportedValue)
-    }
+    Object.assign(result, exportedValues)
   }
 
   const events = mapEventsToEnterprise(

@@ -9,6 +9,32 @@ import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactor
 import { getTypeRule } from "../typeRulesFactory"
 import { ElementXML } from "../types"
 
+export const exportPropertyToXML = (params: {
+  context: ConfigurationContext
+  key: string
+  rule: PropertyRule<any>
+  value: any
+}): Record<string, any> | undefined => {
+  const { context, key, rule, value } = params
+
+  const xmlKey = rule.xml ?? capitalize(key)
+
+  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
+
+  if (!typeExportFn) {
+    if (value === undefined || value === rule.defaultValue) {
+      return undefined
+    }
+    return { [xmlKey]: value }
+  }
+
+  const exportedValue = typeExportFn(context, rule, value)
+  if (exportedValue === undefined || exportedValue === rule.defaultValue) {
+    return undefined
+  }
+  return { [xmlKey]: exportedValue }
+}
+
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContext
   element: T | undefined
@@ -57,25 +83,22 @@ function exportToXML<T extends BaseElement>(params: {
   }
 
   if (data !== undefined) {
-    for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+    Object.entries(rule.properties).reduce<Record<string, unknown>>((acc, [key, ruleProp]) => {
       const value = (data as any)[key]
 
-      const xmlKey = ruleProp.xml ?? capitalize(key)
+      const exportedValue = exportPropertyToXML({
+        context: currentContext,
+        key,
+        rule: ruleProp,
+        value,
+      })
 
-      const typeExportFn = ruleProp.type ? getTypeRule(ruleProp.type, "exportToXML") : undefined
-
-      if (!typeExportFn) {
-        if (value !== undefined && value !== ruleProp.defaultValue) {
-          result[xmlKey] = value
-        }
-        continue
+      if (exportedValue !== undefined) {
+        Object.assign(acc, exportedValue)
       }
 
-      const exportedValue = typeExportFn(currentContext, ruleProp, value)
-      if (exportedValue !== undefined && exportedValue !== ruleProp.defaultValue) {
-        result[xmlKey] = exportedValue
-      }
-    }
+      return acc
+    }, result)
   }
 
   const events = mapEventsToXML(
