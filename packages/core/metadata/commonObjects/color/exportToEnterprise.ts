@@ -2,7 +2,6 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import {
-  exportSystemEnumerationToEnterprise,
   exportSystemEnumerationToYAML,
 } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
@@ -29,11 +28,19 @@ export const exportColorToEnterprise = <T extends Color | undefined>(
   }
 
   if (color.type === "WindowsColor") {
-    return exportSystemEnumerationToEnterprise(context, undefined, color.value, SE.WindowsColorsToEnterprise)
+    return exportSystemEnumerationToYAML<SE.WindowsColors>(
+      context,
+      { type: "SystemEnumeration", typeSE: "WindowsColors" },
+      color.value
+    )
   }
 
   if (color.type === "WebColor") {
-    return exportSystemEnumerationToEnterprise(context, undefined, color.value, SE.WebColorsToEnterprise)
+    return exportSystemEnumerationToYAML<SE.WebColors>(
+      context,
+      { type: "SystemEnumeration", typeSE: "WebColors" },
+      color.value
+    )
   }
 
   return color.value

@@ -183,7 +183,7 @@ export interface TablePartialEnterprise {
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   ОтображениеСостоянияПросмотра?: ViewStatusAdditionEnterprise
   ОтображениеСтрокиПоиска?: SearchStringAdditionEnterprise
-  ПоведениеПриНедоступностиОсновногоСервера: SE.OnMainServerUnavalableBehaviorEnterprise
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
   ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
   Подвал?: StringboolEnterprise
   Подсказка?: I8nTextEnterprise

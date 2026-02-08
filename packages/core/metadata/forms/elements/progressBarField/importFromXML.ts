@@ -12,13 +12,13 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { ProgressBarField } from "~/metadata/forms/elements/progressBarField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ElementXML, FormElementType, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importProgressBarFieldFromXML<To extends ProgressBarField | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, undefined, xml)

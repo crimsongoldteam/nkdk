@@ -12,13 +12,13 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { SpreadSheetDocumentField } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importSpreadSheetDocumentFieldFromXML<To extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, undefined, xml)

@@ -1,12 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField } from "~/metadata/forms/elements/dendrogramField/types"
-import { importElementFromXML, registerMetadata } from "~/metadata/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ElementXML, importElementFromXML, registerMetadata } from "~/metadata/metadataFactory"
 
 export function importDendrogramFieldFromXML<To extends DendrogramField | undefined>(
   context: ConfigurationContext,
   _rule: any,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   return importElementFromXML(context, "DendrogramField", xml as any) as unknown as To
 }

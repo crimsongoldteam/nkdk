@@ -9,7 +9,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PictureDecoration } from "~/metadata/forms/elements/pictureDecoration/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
@@ -18,7 +18,7 @@ import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 export function importPictureDecorationFromXML<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   if (xml === undefined) return undefined as To
 

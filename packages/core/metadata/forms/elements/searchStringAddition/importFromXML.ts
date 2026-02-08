@@ -9,7 +9,7 @@ import {
   SingleSearchStringAddition,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 import { importContextMenuFromXML } from "../contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
@@ -18,7 +18,7 @@ import { isHasContent } from "./helper"
 export const importSearchStringAdditionFromXML = <To extends SearchStringAddition | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To => {
   if (xml === undefined) return undefined as To
 

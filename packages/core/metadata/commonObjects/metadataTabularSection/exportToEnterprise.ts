@@ -10,7 +10,7 @@ import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/comm
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
@@ -29,7 +29,11 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.lineNumberLength !== undefined) result.ДлинаНомераСтроки = data.lineNumberLength
 
-  const use = exportSystemEnumerationToEnterprise(context, undefined, data.use, SE.AttributeUseToEnterprise)
+  const use = exportSystemEnumerationToYAML<SE.AttributeUseEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "AttributeUse" },
+    data.use
+  )
   if (use !== undefined) result.Использование = use
 
   if (data.comment !== undefined) result.Комментарий = data.comment
@@ -37,19 +41,17 @@ export const exportMetadataTabularSectionToEnterprise = (
   const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToEnterprise(
+  const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(
     context,
-    undefined,
-    data.objectBelonging,
-    SE.ObjectBelongingToEnterprise
+    { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
+    data.objectBelonging
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const fillChecking = exportSystemEnumerationToEnterprise(
+  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingEnterprise>(
     context,
-    undefined,
-    data.fillChecking,
-    SE.FillCheckingToEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.fillChecking
   )
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 

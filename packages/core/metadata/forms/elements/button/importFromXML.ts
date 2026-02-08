@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Button } from "~/metadata/forms/elements/button/types"
 import { importElementFromXML, registerMetadata } from "~/metadata/metadataFactory"
-import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 
 export function importButtonFromXML<To extends Button | undefined>(
   context: ConfigurationContext,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   return importElementFromXML(context, FormElementType.Button, xml) as To
 }

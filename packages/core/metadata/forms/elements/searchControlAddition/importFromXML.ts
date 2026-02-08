@@ -10,7 +10,7 @@ import {
   SingleSearchControlAddition,
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
@@ -19,7 +19,7 @@ import { isHasContent } from "./helper"
 export function importSearchControlAdditionFromXML<To extends SearchControlAddition | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   if (xml === undefined) return undefined as To
 

@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Border, BorderEnterprise } from "./types"
 
@@ -15,11 +15,10 @@ export const exportBorderToEnterprise = (
   return {
     Имя: data.ref,
     Ширина: data.width,
-    ТипРамки: exportSystemEnumerationToEnterprise(
+    ТипРамки: exportSystemEnumerationToYAML<SE.ControlBorderTypeEnterprise>(
       context,
-      undefined,
-      data.controlBorderType,
-      SE.ControlBorderTypeToEnterprise
+      { type: "SystemEnumeration", typeSE: "ControlBorderType" },
+      data.controlBorderType
     ),
   }
 }

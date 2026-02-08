@@ -6,7 +6,7 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Popup } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { PropertyRule } from "../calendarField/rules"
@@ -14,7 +14,7 @@ import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 export function importPopupFromXML<To extends Popup | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   if (xml === undefined) return undefined as To
 

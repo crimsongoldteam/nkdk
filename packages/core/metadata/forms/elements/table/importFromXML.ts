@@ -2,13 +2,13 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { importElementFromXML } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: ToXMLType<To> | undefined
+  xml: ElementXML | undefined
 ): To {
   return importElementFromXML(context, "Table", xml) as To
 }

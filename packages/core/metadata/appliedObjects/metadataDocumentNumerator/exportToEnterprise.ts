@@ -6,7 +6,7 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
@@ -18,33 +18,29 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
 
   return {
     ДлинаНомера: data.numberLength,
-    ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
+    ДопустимаяДлинаНомера: exportSystemEnumerationToYAML<SE.AllowedLengthEnterprise>(
       context,
-      undefined,
-      data.numberAllowedLength,
-      SE.AllowedLengthToEnterprise
+      { type: "SystemEnumeration", typeSE: "AllowedLength" },
+      data.numberAllowedLength
     ),
     Имя: data.name,
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(context, undefined, data.checkUnique),
-    ПериодичностьНомера: exportSystemEnumerationToEnterprise(
+    ПериодичностьНомера: exportSystemEnumerationToYAML<SE.BusinessProcessNumberPeriodicityEnterprise>(
       context,
-      undefined,
-      data.numberPeriodicity,
-      SE.BusinessProcessNumberPeriodicityToEnterprise
+      { type: "SystemEnumeration", typeSE: "BusinessProcessNumberPeriodicity" },
+      data.numberPeriodicity
     ),
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
+    ПринадлежностьОбъекта: exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(
       context,
-      undefined,
-      data.objectBelonging,
-      SE.ObjectBelongingToEnterprise
+      { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
+      data.objectBelonging
     ),
     Синоним: exportI8nTextToYAML(context, undefined, data.synonym),
-    ТипНомера: exportSystemEnumerationToEnterprise(
+    ТипНомера: exportSystemEnumerationToYAML<SE.DocumentNumberTypeEnterprise>(
       context,
-      undefined,
-      data.numberType,
-      SE.DocumentNumberTypeToEnterprise
+      { type: "SystemEnumeration", typeSE: "DocumentNumberType" },
+      data.numberType
     ),
   }
 }

@@ -11,7 +11,7 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescription/exportToEnterprise"
@@ -37,7 +37,11 @@ export const exportMetadataCommandToEnterprise = (
 
   let group: SE.StandardCommandsGroupEnterprise | string | undefined
   if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
-    group = exportSystemEnumerationToEnterprise(context, undefined, data.group, SE.StandardCommandsGroupToEnterprise)!
+    group = exportSystemEnumerationToYAML<SE.StandardCommandsGroupEnterprise>(
+      context,
+      { type: "SystemEnumeration", typeSE: "StandardCommandsGroup" },
+      data.group
+    )!
   } else {
     group = exportMetadataItemLinkToEnterprise(context, undefined, data.group)
   }
@@ -63,30 +67,27 @@ export const exportMetadataCommandToEnterprise = (
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const representation = exportSystemEnumerationToEnterprise(
+  const representation = exportSystemEnumerationToYAML<SE.ButtonRepresentationEnterprise>(
     context,
-    undefined,
-    data.representation,
-    SE.ButtonRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ButtonRepresentation" },
+    data.representation
   )
   if (representation !== undefined) result.Отображение = representation
 
   const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToEnterprise(
+  const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(
     context,
-    undefined,
-    data.objectBelonging,
-    SE.ObjectBelongingToEnterprise
+    { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
+    data.objectBelonging
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const parameterUseMode = exportSystemEnumerationToEnterprise(
+  const parameterUseMode = exportSystemEnumerationToYAML<SE.CommandParameterUseModeEnterprise>(
     context,
-    undefined,
-    data.parameterUseMode,
-    SE.CommandParameterUseModeToEnterprise
+    { type: "SystemEnumeration", typeSE: "CommandParameterUseMode" },
+    data.parameterUseMode
   )
   if (parameterUseMode !== undefined) result.РежимИспользованияПараметра = parameterUseMode
 
@@ -95,11 +96,10 @@ export const exportMetadataCommandToEnterprise = (
   const commandParameterType = exportTypeDescriptionToEnterprise(context, undefined, data.commandParameterType)
   if (commandParameterType !== undefined) result.ТипПараметраКоманды = commandParameterType
 
-  const onMainServerUnavalableBehavior = exportSystemEnumerationToEnterprise(
+  const onMainServerUnavalableBehavior = exportSystemEnumerationToYAML<SE.OnMainServerUnavalableBehaviorEnterprise>(
     context,
-    undefined,
-    data.onMainServerUnavalableBehavior,
-    SE.OnMainServerUnavalableBehaviorToEnterprise
+    { type: "SystemEnumeration", typeSE: "OnMainServerUnavalableBehavior" },
+    data.onMainServerUnavalableBehavior
   )
   if (onMainServerUnavalableBehavior !== undefined)
     result.ПоведениеПриНедоступностиОсновногоСервера = onMainServerUnavalableBehavior

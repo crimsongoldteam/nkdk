@@ -13,7 +13,7 @@ import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/ex
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { I8nTextEnterprise } from "../i8nText/types"
@@ -54,19 +54,17 @@ const exportMetadataAttributeToEnterprise = (
 
   if (synonym !== undefined) result.Синоним = synonym
 
-  const quickChoice = exportSystemEnumerationToEnterprise(
+  const quickChoice = exportSystemEnumerationToYAML<SE.UseQuickChoiceEnterprise>(
     context,
-    undefined,
-    data.quickChoice,
-    SE.UseQuickChoiceToEnterprise
+    { type: "SystemEnumeration", typeSE: "UseQuickChoice" },
+    data.quickChoice
   )
   if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
 
-  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise(
+  const choiceFoldersAndItems = exportSystemEnumerationToYAML<SE.FoldersAndItemsUseEnterprise>(
     context,
-    undefined,
-    data.choiceFoldersAndItems,
-    SE.FoldersAndItemsUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "FoldersAndItemsUse" },
+    data.choiceFoldersAndItems
   )
   if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
 
@@ -79,34 +77,39 @@ const exportMetadataAttributeToEnterprise = (
   const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
   if (fillValue !== undefined) result.ЗначениеЗаполнения = fillValue
 
-  const indexing = exportSystemEnumerationToEnterprise(context, undefined, data.indexing, SE.IndexingToEnterprise)
+  const indexing = exportSystemEnumerationToYAML<SE.IndexingEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "Indexing" },
+    data.indexing
+  )
   if (indexing !== undefined) result.Индексирование = indexing
 
-  const use = exportSystemEnumerationToEnterprise(context, undefined, data.use, SE.AttributeUseToEnterprise)
+  const use = exportSystemEnumerationToYAML<SE.AttributeUseEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "AttributeUse" },
+    data.use
+  )
   if (use !== undefined) result.Использование = use
 
-  const binaryDataStorageLocationUse = exportSystemEnumerationToEnterprise(
+  const binaryDataStorageLocationUse = exportSystemEnumerationToYAML<SE.BinaryDataStorageLocationUseEnterprise>(
     context,
-    undefined,
-    data.binaryDataStorageLocationUse,
-    SE.BinaryDataStorageLocationUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "BinaryDataStorageLocationUse" },
+    data.binaryDataStorageLocationUse
   )
   if (binaryDataStorageLocationUse !== undefined)
     result.ИспользованиеХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUse
 
-  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
+  const choiceHistoryOnInput = exportSystemEnumerationToYAML<SE.ChoiceHistoryOnInputEnterprise>(
     context,
-    undefined,
-    data.choiceHistoryOnInput,
-    SE.ChoiceHistoryOnInputToEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput" },
+    data.choiceHistoryOnInput
   )
   if (choiceHistoryOnInput !== undefined) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToEnterprise(
+  const dataHistory = exportSystemEnumerationToYAML<SE.DataHistoryUseEnterprise>(
     context,
-    undefined,
-    data.dataHistory,
-    SE.DataHistoryUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
+    data.dataHistory
   )
   if (dataHistory !== undefined) result.ИсторияДанных = dataHistory
 
@@ -135,19 +138,17 @@ const exportMetadataAttributeToEnterprise = (
   if (binaryDataStorageLocationUseField !== undefined)
     result.ПолеИспользованияХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUseField
 
-  const fullTextSearch = exportSystemEnumerationToEnterprise(
+  const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchEnterprise>(
     context,
-    undefined,
-    data.fullTextSearch,
-    SE.UseFullTextSearchToEnterprise
+    { type: "SystemEnumeration", typeSE: "UseFullTextSearch" },
+    data.fullTextSearch
   )
   if (fullTextSearch !== undefined) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToEnterprise(
+  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingEnterprise>(
     context,
-    undefined,
-    data.fillChecking,
-    SE.FillCheckingToEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.fillChecking
   )
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
@@ -163,11 +164,10 @@ const exportMetadataAttributeToEnterprise = (
   const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
   if (linkByType !== undefined) result.СвязьПоТипу = linkByType
 
-  const createOnInput = exportSystemEnumerationToEnterprise(
+  const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
     context,
-    undefined,
-    data.createOnInput,
-    SE.CreateOnInputToEnterprise
+    { type: "SystemEnumeration", typeSE: "CreateOnInput" },
+    data.createOnInput
   )
   if (createOnInput !== undefined) result.СозданиеПриВводе = createOnInput
 

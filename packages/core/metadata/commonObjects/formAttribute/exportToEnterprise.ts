@@ -20,8 +20,8 @@ import {
 } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
-import { FillCheckingEnterprise, FillCheckingToEnterprise } from "~/metadata/systemEnumerations/types"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { DynamicList } from "../dynamicList/types"
 import { exportFieldsListToEnterprise } from "../fieldsList/exportToEnterprise"
@@ -66,11 +66,10 @@ const exportFormAttributeToEnterprise = (
   const storedData = exportBooleanToEnterprise(context, undefined, data.storedData)
   if (storedData !== undefined) result.СохраняемыеДанные = storedData
 
-  const fillCheck = exportSystemEnumerationToEnterprise<FillCheckingEnterprise>(
+  const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
     context,
-    undefined,
-    data.fillCheck,
-    FillCheckingToEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.fillCheck
   )
   if (fillCheck) result.ПроверкаЗаполнения = fillCheck
 
@@ -156,11 +155,10 @@ const exportFormAttributeColumnToEnterprise = (
   const type = exportTypeDescriptionToEnterprise(context, undefined, column.type)
   if (type) result.Тип = type
 
-  const fillCheck = exportSystemEnumerationToEnterprise<FillCheckingEnterprise>(
+  const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
     context,
-    undefined,
-    column.fillCheck,
-    FillCheckingToEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    column.fillCheck
   )
   if (fillCheck) result.ПроверкаЗаполнения = fillCheck
 

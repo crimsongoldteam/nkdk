@@ -16,7 +16,11 @@ describe("importClientApplicationFormFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockContext, fullClientApplicationFormEnterprise, {
       childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
-      autoCommandBar: { autofill: false, childItems: [] },
+      autoCommandBar: {
+        elementType: "AutoCommandBar",
+        autofill: false,
+        childItems: [],
+      },
     })
 
     expect(result).toEqual(fullClientApplicationForm)
@@ -44,6 +48,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockContext, enterpriseData, {
       childItems: [],
       autoCommandBar: {
+        elementType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },
@@ -53,6 +58,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       commands: [],
       childItems: [],
       autoCommandBar: {
+        elementType: "AutoCommandBar",
         autofill: false,
         childItems: [
           {
@@ -91,6 +97,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       elementType: FormElementType.Table,
       multipleChoice: false,
       autoCommandBar: {
+        elementType: "AutoCommandBar",
         autofill: true,
         childItems: [buttonGroup],
       },
@@ -117,6 +124,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
           elementType: FormElementType.Table,
           multipleChoice: false,
           autoCommandBar: {
+            elementType: "AutoCommandBar",
             autofill: true,
             childItems: [
               {

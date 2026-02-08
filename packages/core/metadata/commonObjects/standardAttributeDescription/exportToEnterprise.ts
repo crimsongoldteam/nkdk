@@ -15,7 +15,7 @@ import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/ex
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
@@ -49,11 +49,10 @@ const exportStandardAttributeDescriptionToEnterprise = (
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}
 
-  const quickChoice = exportSystemEnumerationToEnterprise(
+  const quickChoice = exportSystemEnumerationToYAML<SE.UseQuickChoiceEnterprise>(
     context,
-    undefined,
-    data.quickChoice,
-    SE.UseQuickChoiceToEnterprise
+    { type: "SystemEnumeration", typeSE: "UseQuickChoice" },
+    data.quickChoice
   )
   if (quickChoice) result.БыстрыйВыбор = quickChoice
 
@@ -66,19 +65,17 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
   if (fillValue) result.ЗначениеЗаполнения = fillValue
 
-  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
+  const choiceHistoryOnInput = exportSystemEnumerationToYAML<SE.ChoiceHistoryOnInputEnterprise>(
     context,
-    undefined,
-    data.choiceHistoryOnInput,
-    SE.ChoiceHistoryOnInputToEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput" },
+    data.choiceHistoryOnInput
   )
   if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToEnterprise(
+  const dataHistory = exportSystemEnumerationToYAML<SE.DataHistoryUseEnterprise>(
     context,
-    undefined,
-    data.dataHistory,
-    SE.DataHistoryUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
+    data.dataHistory
   )
   if (dataHistory) result.ИсторияДанных = dataHistory
 
@@ -96,19 +93,17 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const toolTip = exportI8nTextToYAML(context, undefined, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
-  const fullTextSearch = exportSystemEnumerationToEnterprise(
+  const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchEnterprise>(
     context,
-    undefined,
-    data.fullTextSearch,
-    SE.UseFullTextSearchToEnterprise
+    { type: "SystemEnumeration", typeSE: "UseFullTextSearch" },
+    data.fullTextSearch
   )
   if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToEnterprise(
+  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingEnterprise>(
     context,
-    undefined,
-    data.fillChecking,
-    SE.FillCheckingToEnterprise
+    { type: "SystemEnumeration", typeSE: "FillChecking" },
+    data.fillChecking
   )
   if (fillChecking) result.ПроверкаЗаполнения = fillChecking
 
@@ -118,11 +113,10 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const passwordMode = exportBooleanToEnterprise(context, undefined, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const typeReductionMode = exportSystemEnumerationToEnterprise(
+  const typeReductionMode = exportSystemEnumerationToYAML<SE.TypeReductionModeEnterprise>(
     context,
-    undefined,
-    data.typeReductionMode,
-    SE.TypeReductionModeToEnterprise
+    { type: "SystemEnumeration", typeSE: "TypeReductionMode" },
+    data.typeReductionMode
   )
   if (typeReductionMode) result.РежимСокращенияТипа = typeReductionMode
 
@@ -135,11 +129,10 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const synonym = exportI8nTextToYAML(context, undefined, data.synonym)
   if (synonym) result.Синоним = synonym
 
-  const createOnInput = exportSystemEnumerationToEnterprise(
+  const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
     context,
-    undefined,
-    data.createOnInput,
-    SE.CreateOnInputToEnterprise
+    { type: "SystemEnumeration", typeSE: "CreateOnInput" },
+    data.createOnInput
   )
   if (createOnInput) result.СозданиеПриВводе = createOnInput
 
