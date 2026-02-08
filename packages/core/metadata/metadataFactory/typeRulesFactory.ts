@@ -32,6 +32,7 @@ export type TypeRulesNames =
   | "UserVisible"
   | "ChoiceParameters"
   | "SystemEnumeration"
+  | "ViewStatusAddition"
 
 type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 

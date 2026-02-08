@@ -1,12 +1,11 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface SearchStringAddition {
   elementType: "SearchStringAddition"
@@ -32,31 +31,6 @@ export interface SearchStringAddition {
 }
 
 export interface SingleSearchStringAddition extends Omit<SearchStringAddition, "name" | "additionSource"> {}
-
-export interface SearchStringAdditionXML extends BaseElementXML {
-  AdditionSource?: {
-    Item: string
-    Type: "SearchStringRepresentation"
-  }
-  ContextMenu: ContextMenuXML
-
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  Title?: I8nTextXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  Visible?: boolean
-  BackColor?: ColorXML
-  BorderColor?: ColorXML
-  Font?: FontXML
-  HorizontalStretch?: boolean
-  TextColor?: ColorXML
-  UserVisible?: UserVisibleXML
-  Width?: number
-}
 
 export interface SearchStringAdditionEnterprise {
   Источник?: string

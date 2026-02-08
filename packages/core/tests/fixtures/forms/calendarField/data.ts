@@ -42,7 +42,10 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
     onActivateDate: "ПроцедураАктивацииДаты",
     onPeriodOutput: "ПроцедураВыводаПериода",
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   font: { kind: "StyleItem", ref: "SmallTextFont" },
   height: 4,
   heightInMonths: 3,

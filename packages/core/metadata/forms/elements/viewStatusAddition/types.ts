@@ -5,10 +5,11 @@ import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 
 import * as SE from "~/metadata/systemEnumerations/types"
+import { BaseElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
-export interface ViewStatusAddition {
+export interface ViewStatusAddition extends BaseElement {
   elementType: "ViewStatusAddition"
   autoMaxWidth?: boolean
   backColor?: Color

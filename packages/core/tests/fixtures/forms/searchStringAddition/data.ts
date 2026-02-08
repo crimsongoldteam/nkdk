@@ -43,7 +43,10 @@ export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition
     autofill: false,
     childItems: [],
   },
-  extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
 }
 
 export const fullSingleSearchStringAdditionEnterprise: SingleSearchStringAdditionEnterprise = {

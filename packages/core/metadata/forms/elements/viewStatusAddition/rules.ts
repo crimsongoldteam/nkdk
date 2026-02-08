@@ -1,9 +1,10 @@
-import { ElementRule, PropertyRule } from "../../../metadataFactory/elementRulesFactory"
+import { getElementId } from "~/metadata/helpers/getElementId"
+import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { getViewStatusAdditionName } from "./helper"
 import { ViewStatusAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition> = {
-  enterpriseField: "ViewStatusAddition",
   properties: {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
@@ -34,7 +35,6 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition> = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartialOthers: true,
     },
     toolTip: { yaml: "Подсказка", type: "I8nText" },
     toolTipRepresentation: {
@@ -43,4 +43,18 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition> = {
       typeSE: "ToolTipRepresentation",
     },
   },
+
+  registerAsType: {
+    ViewStatusAddition: {
+      toXML: (context, _element) => {
+        if (!context.elementContext) throw new Error("elementContext is not defined")
+        const parent = context.elementContext
+        const id = getElementId(context)
+        const name = getViewStatusAdditionName(parent)
+        return { name, id }
+      },
+    },
+  },
 }
+
+registerElementRule("ViewStatusAddition", ViewStatusAdditionRules)
