@@ -3,7 +3,6 @@ import { AutoCommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
-  enterpriseField: "AutoCommandBar",
   properties: {
     autofill: {
       yaml: "Автозаполнение",

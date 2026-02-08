@@ -21,7 +21,11 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
   borderColor: { type: "WebColor", value: "Green" },
   calendarNavigation: false,
   cellHyperlink: true,
-  contextMenu: { autofill: false, childItems: [] },
+  contextMenu: {
+    elementType: "ContextMenu",
+    autofill: false,
+    childItems: [],
+  },
   dataPath: "ДатаРеквизит",
   defaultItem: true,
   enabled: false,

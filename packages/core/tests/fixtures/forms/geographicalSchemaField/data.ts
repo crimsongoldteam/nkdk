@@ -77,7 +77,11 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
-  contextMenu: { autofill: false, childItems: [] },
+  contextMenu: {
+    elementType: "ContextMenu",
+    autofill: false,
+    childItems: [],
+  },
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   table: "Таблица",
   typeRestriction: { type: ["string"] },

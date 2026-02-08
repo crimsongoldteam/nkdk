@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToXML"
 import { exportElementToXML } from "~/metadata/metadataFactory"
-import { fullContextMenu, minimalContextMenu, parentElement } from "~/tests/fixtures/forms/contextMenu/data"
+import { fullContextMenu, minimalContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"

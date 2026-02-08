@@ -1,7 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { SingleElement } from "~/metadata/forms/collections/childItems/types"
-import { EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Events, EventsXML } from "~/metadata/forms/events/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
@@ -9,13 +9,13 @@ import { ElementXML, FormElementType } from "../types"
 
 export const importSingleElementFromXML = <T extends SingleElement>(params: {
   context: ConfigurationContext
+  rule: ElementRule<T>
   elementType: FormElementType
   xml: ElementXML
 }): T | undefined => {
-  const { context, elementType, xml } = params
-  const rules = getElementRule(elementType)
+  const { context, rule, xml, elementType } = params
 
-  const props = importFromXML(context, xml, rules)
+  const props = importFromXML(context, xml, rule)
 
   const result = {
     elementType: elementType,
@@ -47,7 +47,7 @@ export function importElementFromXML<T extends NamedElement>(params: {
   return result
 }
 
-export function importFromXML<T extends NamedElement>(
+export function importFromXML<T extends BaseElement>(
   context: ConfigurationContext,
   xml: any,
   rules: ElementRule<T>

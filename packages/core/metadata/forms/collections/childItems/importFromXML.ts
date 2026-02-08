@@ -1,27 +1,32 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { importElementFromXML } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ElementXML, FormElementType } from "~/metadata/metadataFactory/types"
+import { NamedElement } from "../../elements/baseElement/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { AllChildItem } from "./types"
 
-export const importChildItemsFromXML = <From extends AllChildItem>(
+type XMLItem<From extends NamedElement> = Record<From["elementType"], ElementXML>
+
+export const importChildItemsFromXML = <From extends NamedElement>(
   context: ConfigurationContext,
-  rule: PropertyRule<any> | undefined,
-  xml: Record<From["elementType"], ToXMLType<From>>[] | Record<From["elementType"], ToXMLType<From>> | undefined
+  _rule: PropertyRule<any>,
+  xml: XMLItem<From>[] | XMLItem<From> | undefined
 ): From[] => {
   if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((item) => {
+  const result: From[] = items.map((item) => {
     const elementType = Object.keys(item)[0] as FormElementType
-    const importFunction = getOperationFunction("ImportFromXML", elementType)
-    if (!importFunction) throw new Error(`ImportFromXML function not found for element type: ${elementType}`)
-
-    const itemResult = (item as Record<string, any>)[elementType]
-    return importFunction(context, rule, itemResult)! as From
+    const xmlValue = (item as Record<string, any>)[elementType]
+    return importElementFromXML({
+      context: context,
+      elementType: elementType,
+      xml: xmlValue,
+    })!
   })
+
+  return result
 }
 
 registerTypeRule("ChildItems", "importFromXML", importChildItemsFromXML)

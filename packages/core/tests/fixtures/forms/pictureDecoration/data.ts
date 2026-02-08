@@ -55,7 +55,11 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   verticalStretch: true,
   visible: true,
   width: 300,
-  contextMenu: { autofill: false, childItems: [] },
+  contextMenu: {
+    elementType: "ContextMenu",
+    autofill: false,
+    childItems: [],
+  },
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   fileDragMode: "AsFile",
   pictureSize: "AutoSize",

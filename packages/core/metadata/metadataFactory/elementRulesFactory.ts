@@ -10,7 +10,7 @@ export type ExportCheckFn = <T extends BaseElement>(
 ) => boolean
 
 interface BasePropertyRule<T extends BaseElement> {
-  yaml?: string
+  yaml?: keyof ToPartialEnterpriseType<T>
   xml?: string
   toEnterprise?: false
   toYAML?: false | ExportCheckFn
@@ -37,7 +37,7 @@ export interface SystemEnumerationPropertyRule<T extends BaseElement> extends Ba
 
 export interface UserVisiblePropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
   type: "UserVisible"
-  yaml: string
+  yaml: keyof ToPartialEnterpriseType<T>
   yamlDeny: string
 }
 
@@ -63,7 +63,7 @@ export interface ElementRule<T extends BaseElement> {
   events?: T extends EventedElement
     ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
     : never
-  enterpriseField: "FormField" | "FormDecoration" | "Table" | "FormGroup"
+  enterpriseField?: "FormField" | "FormDecoration" | "Table" | "FormGroup"
   alwaysExportToXML?: true
 }
 
