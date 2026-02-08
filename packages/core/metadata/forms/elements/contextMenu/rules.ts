@@ -1,0 +1,35 @@
+import { getElementId } from "~/metadata/helpers/getElementId"
+import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { getContextMenuName } from "./helper"
+import { ContextMenu } from "./types"
+export type { ElementRule }
+
+export const ContextMenuRules: ElementRule<ContextMenu> = {
+  properties: {
+    displayImportance: {
+      yaml: "ВажностьПриОтображении",
+      xml: "DisplayImportance",
+      type: "SystemEnumeration",
+      typeSE: "DisplayImportance",
+    },
+    autofill: { yaml: "Автозаполнение", xml: "Autofill", type: "boolean" },
+    childItems: {
+      xml: "ChildItems",
+      type: "ChildItems",
+      defaultValue: [],
+    },
+  },
+  registerAsType: {
+    ContextMenu: {
+      toXML: (context, _element) => {
+        if (!context.elementContext) throw new Error("elementContext is not defined")
+        const parent = context.elementContext
+        const id = getElementId(context)
+        const name = getContextMenuName(parent)
+        return { id, name }
+      },
+    },
+  },
+}
+
+registerElementRule("ContextMenu", ContextMenuRules)

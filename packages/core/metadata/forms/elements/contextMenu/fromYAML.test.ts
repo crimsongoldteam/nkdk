@@ -1,35 +1,35 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullContextMenu,
-  fullContextMenuPartialEnterprise,
+  fullContextMenuEnterprise,
   minimalContextMenu,
-  minimalContextMenuPartialEnterprise,
+  minimalContextMenuEnterprise,
 } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 
+const rule: PropertyRule<any> = { type: "ContextMenu" }
+
 describe("importContextMenuFromEnterprise", () => {
-  describe("importContextMenuPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
-      const result = importElementFromPartialYAML({
-        context: mockContext,
-        elementType: FormElementType.ContextMenu,
-        yaml: fullContextMenuPartialEnterprise,
-        source: fullContextMenu,
-      })
-
-      expect(result).toEqual(fullContextMenu)
+  it("should import all fields from Enterprise", () => {
+    const result = importPropertyFromEnterprise({
+      context: mockContext,
+      rule: rule,
+      value: fullContextMenuEnterprise,
+      sourceValue: fullContextMenu,
     })
 
-    it("should import minimal", () => {
-      const result = importElementFromPartialYAML({
-        context: mockContext,
-        elementType: FormElementType.ContextMenu,
-        yaml: minimalContextMenuPartialEnterprise,
-        source: minimalContextMenu,
-      })
+    expect(result).toEqual(fullContextMenu)
+  })
 
-      expect(result).toEqual(minimalContextMenu)
+  it("should import minimal", () => {
+    const result = importPropertyFromEnterprise({
+      context: mockContext,
+      rule: rule,
+      value: minimalContextMenuEnterprise,
+      sourceValue: minimalContextMenu,
     })
+
+    expect(result).toEqual(minimalContextMenu)
   })
 })

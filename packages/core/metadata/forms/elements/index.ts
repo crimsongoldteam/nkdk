@@ -22,6 +22,9 @@ import "./columnGroup/exportToStructure"
 import "./columnGroup/rules"
 import "./columnGroup/types"
 
+import "./contextMenu/rules"
+import "./contextMenu/types"
+
 import "./commandBar/exportToStructure"
 import "./commandBar/rules"
 import "./commandBar/types"
