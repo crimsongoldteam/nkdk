@@ -161,6 +161,7 @@ export const FormElementTypeToEnterprise = {
   SearchStringAddition: "ОтображениеСтрокиПоиска",
   AutoCommandBar: "АвтоКоманднаяПанель",
   ViewStatusAddition: "СостояниеПросмотра",
+  ContextMenu: "КонтекстноеМеню",
 } as const
 
 export const FormElementTypeFromEnterprise = Object.fromEntries(

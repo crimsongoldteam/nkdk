@@ -69,3 +69,7 @@ export interface PopupPartialEnterprise {
   ЦветФона?: ColorEnterprise
   ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
 }
+
+export interface PopupTypedEnterprise extends PopupPartialEnterprise {
+  Тип: "Подменю"
+}

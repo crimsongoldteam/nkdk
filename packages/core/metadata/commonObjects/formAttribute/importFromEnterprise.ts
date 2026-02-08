@@ -9,14 +9,17 @@ import {
   FormAttributesEnterprise,
 } from "~/metadata/commonObjects/formAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import {
+  importUserVisibleFromEnterprise,
+  importUserVisibleFromYAML,
+} from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
-import { FillChecking, FillCheckingFromEnterprise } from "~/metadata/systemEnumerations/types"
+import { FillChecking } from "~/metadata/systemEnumerations/types"
 import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
 import { importFieldsListFromEnterprise } from "../fieldsList/importFromEnterprise"
 import { importFunctionalOptionsFromEnterprise } from "../functionalOptionsProperty/importFromEnterprise"
@@ -81,11 +84,10 @@ const importFormAttributeFromEnterprise = (
   )
   if (view) result.view = view
 
-  const edit = importUserVisibleFromEnterprise(
+  const edit = importUserVisibleFromYAML(
     context,
-    undefined,
-
-    data[UserEditKeysEnterprise.Allow] ?? (data[UserEditKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
+    { type: "UserVisible", yaml: UserEditKeysEnterprise.Allow, yamlDeny: UserEditKeysEnterprise.Deny },
+    data[UserEditKeysEnterprise.Allow],
     data[UserEditKeysEnterprise.Deny]
   )
   if (edit) result.edit = edit

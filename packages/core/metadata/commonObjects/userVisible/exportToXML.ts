@@ -5,7 +5,7 @@ import { UserVisible, UserVisibleXML } from "./types"
 
 export const exportUserVisibleToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   userVisible: UserVisible | undefined
 ): UserVisibleXML | undefined => {
   if (!userVisible) return undefined

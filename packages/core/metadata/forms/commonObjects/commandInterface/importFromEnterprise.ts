@@ -1,5 +1,5 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { StandardCommandsGroupFromEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
@@ -24,15 +24,11 @@ export const importCommandInterfaceFromEnterprise = (
   }
 
   if (data.ПанельНавигации && data.ПанельНавигации.length > 0) {
-    result.NavigationPanel = data.ПанельНавигации.map((item) =>
-      importCommandInterfaceItemFromEnterprise(context, undefined, item)
-    )
+    result.NavigationPanel = data.ПанельНавигации.map((item) => importCommandInterfaceItemFromEnterprise(context, item))
   }
 
   if (data.КоманднаяПанель && data.КоманднаяПанель.length > 0) {
-    result.CommandBar = data.КоманднаяПанель.map((item) =>
-      importCommandInterfaceItemFromEnterprise(context, undefined, item)
-    )
+    result.CommandBar = data.КоманднаяПанель.map((item) => importCommandInterfaceItemFromEnterprise(context, item))
   }
 
   return result
@@ -40,7 +36,6 @@ export const importCommandInterfaceFromEnterprise = (
 
 const importCommandInterfaceItemFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   item: CommandInterfaceItemEnterprise
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {
@@ -53,9 +48,9 @@ const importCommandInterfaceItemFromEnterprise = (
     result.commandGroup = StandardCommandsGroupFromEnterprise[item.ГруппаКоманд]
   }
 
-  const visible = importUserVisibleFromEnterprise(
+  const visible = importUserVisibleFromYAML(
     context,
-    undefined,
+    { type: "UserVisible", yaml: UserVisibleKeysEnterprise.Allow, yamlDeny: UserVisibleKeysEnterprise.Deny },
     item[UserVisibleKeysEnterprise.Allow],
     item[UserVisibleKeysEnterprise.Deny]
   )

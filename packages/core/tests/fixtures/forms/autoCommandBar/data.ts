@@ -14,6 +14,7 @@ export const parentElement: NamedElement = {
 }
 
 export const sourceAutoCommandBar: AutoCommandBar = {
+  elementType: FormElementType.AutoCommandBar,
   autofill: false,
   childItems: fullCommandBarChildItemsStructure,
 }
@@ -21,6 +22,7 @@ export const sourceAutoCommandBar: AutoCommandBar = {
 export const fullAutoCommandBarAllItems = fullCommandBarChildItemsAllEnterprise
 
 export const fullAutoCommandBar: Required<AutoCommandBar> = {
+  elementType: FormElementType.AutoCommandBar,
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -33,6 +35,7 @@ export const fullAutoExportCommandBarEnterprise: AutoCommandBarEnterprise = {
 }
 
 export const minimalAutoCommandBar: AutoCommandBar = {
+  elementType: FormElementType.AutoCommandBar,
   autofill: true,
   childItems: [],
 }
@@ -47,6 +50,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "autofill and buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: true,
       childItems: [
         {
@@ -69,6 +73,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
@@ -91,6 +96,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: true,
       childItems: [],
     },
@@ -102,6 +108,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill and buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [],
     },
@@ -113,6 +120,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
@@ -141,6 +149,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with button group",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
@@ -160,6 +169,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with popup",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
@@ -178,6 +188,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with search control addition",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
@@ -195,6 +206,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with search string addition",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {

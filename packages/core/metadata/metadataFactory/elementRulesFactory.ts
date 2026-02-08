@@ -10,7 +10,7 @@ export type ExportCheckFn = <T extends BaseElement>(
 ) => boolean
 
 interface BasePropertyRule<T extends BaseElement> {
-  yaml?: keyof ToPartialEnterpriseType<T>
+  yaml?: string
   xml?: string
   toEnterprise?: false
   toYAML?: false | ExportCheckFn
@@ -31,11 +31,13 @@ export interface FormattedI8nTextPropertyRule<T extends BaseElement> extends Bas
 
 export interface SystemEnumerationPropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
   type: "SystemEnumeration"
+
   typeSE: string
 }
 
 export interface UserVisiblePropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
   type: "UserVisible"
+  yaml: string
   yamlDeny: string
 }
 

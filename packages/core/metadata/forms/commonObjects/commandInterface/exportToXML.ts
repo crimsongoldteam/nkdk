@@ -14,13 +14,13 @@ export const exportCommandInterfaceToXML = (
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
     result.NavigationPanel = {
-      Item: exportCommandInterfaceItemsToXML(context, undefined, data.NavigationPanel),
+      Item: exportCommandInterfaceItemsToXML(context, data.NavigationPanel),
     }
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
     result.CommandBar = {
-      Item: exportCommandInterfaceItemsToXML(context, undefined, data.CommandBar),
+      Item: exportCommandInterfaceItemsToXML(context, data.CommandBar),
     }
   }
 
@@ -31,15 +31,13 @@ export const exportCommandInterfaceToXML = (
 
 const exportCommandInterfaceItemsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   items: CommandInterfaceItem[]
 ): CommandInterfaceItemXML[] => {
-  return items.map((item, index) => exportCommandInterfaceItemToXML(context, undefined, item, index))
+  return items.map((item, index) => exportCommandInterfaceItemToXML(context, item, index))
 }
 
 const exportCommandInterfaceItemToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   item: CommandInterfaceItem,
   index: number
 ): CommandInterfaceItemXML => {
@@ -55,7 +53,7 @@ const exportCommandInterfaceItemToXML = (
   }
 
   if (item.visible) {
-    const visibleXML = exportUserVisibleToXML(context, undefined, item.visible)
+    const visibleXML = exportUserVisibleToXML(context, { type: "UserVisible", yamlDeny: "" }, item.visible)
     if (visibleXML) {
       result.Visible = visibleXML
     }

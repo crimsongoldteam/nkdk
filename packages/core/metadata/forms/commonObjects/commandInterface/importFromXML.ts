@@ -19,14 +19,14 @@ export const importCommandInterfaceFromXML = (
     const items = Array.isArray(xml.NavigationPanel.Item) ? xml.NavigationPanel.Item : [xml.NavigationPanel.Item]
     result.NavigationPanel = items
       .sort((a, b) => (a.Index ?? 0) - (b.Index ?? 0))
-      .map((item) => importCommandInterfaceItemFromXML(context, undefined, item))
+      .map((item) => importCommandInterfaceItemFromXML(context, item))
   }
 
   if (xml.CommandBar?.Item) {
     const items = Array.isArray(xml.CommandBar.Item) ? xml.CommandBar.Item : [xml.CommandBar.Item]
     result.CommandBar = items
       .sort((a, b) => (a.Index ?? 0) - (b.Index ?? 0))
-      .map((item) => importCommandInterfaceItemFromXML(context, undefined, item))
+      .map((item) => importCommandInterfaceItemFromXML(context, item))
   }
 
   return result
@@ -34,7 +34,6 @@ export const importCommandInterfaceFromXML = (
 
 const importCommandInterfaceItemFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   item: CommandInterfaceItemXML
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {

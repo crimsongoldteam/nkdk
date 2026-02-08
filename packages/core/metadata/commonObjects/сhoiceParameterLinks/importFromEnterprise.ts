@@ -85,7 +85,7 @@ const parseChoiceParameterLinksString = (
 
 export const importChoiceParameterLinksFromEnterprise = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule<any> | undefined,
   data: ChoiceParameterLinksEnterprise | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined
