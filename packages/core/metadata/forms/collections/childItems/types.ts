@@ -1,7 +1,7 @@
 import { ToPartialEnterpriseType, ToPreviewType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
-import { Button } from "../../elements/button/types"
-import { ButtonGroup } from "../../elements/buttonGroup/types"
+import { Button, ButtonTypedEnterprise } from "../../elements/button/types"
+import { ButtonGroup, ButtonGroupTypedEnterprise } from "../../elements/buttonGroup/types"
 import { CalendarField } from "../../elements/calendarField/types"
 import { ChartField } from "../../elements/chartField/types"
 import { CheckBoxField, CheckBoxFieldTypedEnterprise } from "../../elements/checkBoxField/types"
@@ -22,9 +22,9 @@ import { Pages } from "../../elements/pages/types"
 import { PdfDocumentField } from "../../elements/pdfDocumentField/types"
 import { PeriodField } from "../../elements/periodField/types"
 import { PictureDecoration } from "../../elements/pictureDecoration/types"
-import { PictureField } from "../../elements/pictureField/types"
+import { PictureField, PictureFieldTypedEnterprise } from "../../elements/pictureField/types"
 import { PlannerField } from "../../elements/plannerField/types"
-import { Popup } from "../../elements/popup/types"
+import { Popup, PopupTypedEnterprise } from "../../elements/popup/types"
 import { ProgressBarField } from "../../elements/progressBarField/types"
 import { RadioButtonField } from "../../elements/radioButtonField/types"
 import { SearchControlAddition } from "../../elements/searchControlAddition/types"
@@ -189,6 +189,15 @@ export type TypedElement =
   | LabelField
   | PictureField
 
+export type TypedElementPartialEnterprise =
+  | ButtonTypedEnterprise
+  | ButtonGroupTypedEnterprise
+  | PopupTypedEnterprise
+  | CheckBoxFieldTypedEnterprise
+  | ColumnGroupTypedEnterprise
+  | InputFieldTypedEnterprise
+  | LabelFieldTypedEnterprise
+  | PictureFieldTypedEnterprise
 // #endregion
 
 // #region SingleElement

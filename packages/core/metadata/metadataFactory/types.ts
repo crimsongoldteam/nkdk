@@ -186,9 +186,8 @@ export const FormElementTypeEnterprise = Object.fromEntries(
 
 export type FormElementTypeEnterprise = (typeof FormElementTypeEnterprise)[keyof typeof FormElementTypeEnterprise]
 
-export const importFormElementTypeFromEnterprise = <T extends BaseElement>(
+export const importFormElementTypeFromEnterprise = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<T> | undefined,
   data: FormElementTypeEnterprise
 ): FormElementType => {
   return FormElementTypeFromEnterprise[data]

@@ -1,32 +1,39 @@
+import context from "antd/es/app/context"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
-import { FormElementType, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
+import {
+  FormElementType,
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "../types"
 
-export function importElementFromEnterpriseTyped<T extends NamedElement>(
-  context: ConfigurationContext,
-  elementType: FormElementType,
-  data: ToTypedEnterpriseType<T> | undefined,
+export function importElementFromYAMLTyped<T extends NamedElement>(params: {
+  context: ConfigurationContext
+  data: ToTypedEnterpriseType<T> | undefined
   name: string
-): T | undefined {
-  if (data === undefined) return undefined
+}): T | undefined {
+  if (params.data === undefined) return undefined
+
+  const elementType = importFormElementTypeFromEnterprise(params.context, params.data.Тип)
 
   const rules = getElementRule<T>(elementType)
 
   const result: any = {
     elementType: elementType,
-    name,
+    name: params.name,
   }
 
   for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
-    const yamlKey = rule.yaml as keyof typeof data
+    const yamlKey = rule.yaml as keyof typeof params.data
 
-    const yamlValue = data[yamlKey]
+    const yamlValue = params.data[yamlKey]
 
-    const userVisible = importUserVisibleProperty(context, rule, data)
+    const userVisible = importUserVisibleProperty(params.context, rule, params.data)
     if (userVisible !== undefined) {
       ;(result[key] as UserVisible) = userVisible
       continue

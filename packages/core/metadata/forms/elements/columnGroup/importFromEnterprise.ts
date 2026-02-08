@@ -1,10 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ColumnGroup } from "~/metadata/forms/elements/columnGroup/types"
-import {
-  importElementFromEnterpriseTyped,
-  importElementFromYAMLPartial,
-  registerMetadata,
-} from "~/metadata/metadataFactory"
+import { importElementFromYAMLPartial, importElementFromYAMLTyped, registerMetadata } from "~/metadata/metadataFactory"
 import { FormElementType, ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 
 export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
@@ -12,7 +8,7 @@ export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | un
   data: ToTypedEnterpriseType<To>,
   name: string
 ): To {
-  return importElementFromEnterpriseTyped(context, FormElementType.ColumnGroup, data as any, name) as To
+  return importElementFromYAMLTyped(context, FormElementType.ColumnGroup, data as any, name) as To
 }
 
 export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
