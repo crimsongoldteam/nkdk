@@ -4,7 +4,7 @@ import { exportPictureToEnterprise } from "../../commonObjects/picture/exportToE
 import { exportUserVisibleToEnterprise } from "../../commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "../../commonObjects/userVisible/types"
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./types"
 
@@ -36,11 +36,10 @@ const exportCommandToEnterprise = (
   const picture = exportPictureToEnterprise(context, undefined, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const currentRowUse = exportSystemEnumerationToEnterprise(
+  const currentRowUse = exportSystemEnumerationToYAML<SE.CurrentRowUseEnterprise>(
     context,
-    undefined,
-    data.currentRowUse,
-    SE.CurrentRowUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "CurrentRowUse" },
+    data.currentRowUse
   )
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 

@@ -24,7 +24,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -82,23 +82,25 @@ const exportPictureDecorationPropsToEnterprise = (
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML<SE.DisplayImportanceEnterprise>(
     context,
-    undefined,
-    data.displayImportance,
-    SE.DisplayImportanceToEnterprise
+    { type: "SystemEnumeration", typeSE: "DisplayImportance" },
+    data.displayImportance
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
     context,
-    undefined,
-    data.verticalAlignInGroup,
-    SE.ItemVerticalAlignToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
+    data.verticalAlignInGroup
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormDecorationTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML<SE.FormDecorationTypeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "FormDecorationType" },
+    data.type
+  )
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -106,11 +108,10 @@ const exportPictureDecorationPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
     context,
-    undefined,
-    data.horizontalAlignInGroup,
-    SE.ItemHorizontalLocationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
+    data.horizontalAlignInGroup
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
@@ -124,11 +125,10 @@ const exportPictureDecorationPropsToEnterprise = (
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML<SE.ToolTipRepresentationEnterprise>(
     context,
-    undefined,
-    data.toolTipRepresentation,
-    SE.ToolTipRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ToolTipRepresentation" },
+    data.toolTipRepresentation
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
@@ -176,11 +176,10 @@ const exportPictureDecorationPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const pictureSize = exportSystemEnumerationToEnterprise(
+  const pictureSize = exportSystemEnumerationToYAML<SE.PictureSizeEnterprise>(
     context,
-    undefined,
-    data.pictureSize,
-    SE.PictureSizeToEnterprise
+    { type: "SystemEnumeration", typeSE: "PictureSize" },
+    data.pictureSize
   )
   if (pictureSize !== undefined) result.РазмерКартинки = pictureSize
 
@@ -193,11 +192,10 @@ const exportPictureDecorationPropsToEnterprise = (
   const border = exportBorderToEnterprise(context, undefined, data.border)
   if (border !== undefined) result.Рамка = border
 
-  const fileDragMode = exportSystemEnumerationToEnterprise(
+  const fileDragMode = exportSystemEnumerationToYAML<SE.FileDragModeEnterprise>(
     context,
-    undefined,
-    data.fileDragMode,
-    SE.FileDragModeToEnterprise
+    { type: "SystemEnumeration", typeSE: "FileDragMode" },
+    data.fileDragMode
   )
   if (fileDragMode !== undefined) result.СпособПеретаскиванияФайлов = fileDragMode
 

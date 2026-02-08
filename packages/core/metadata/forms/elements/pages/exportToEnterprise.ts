@@ -17,7 +17,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -68,15 +68,18 @@ const exportPagesPropsToEnterprise = (
 ): PagesPartialEnterprise => {
   const result: PagesPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
     context,
-    undefined,
-    data.verticalAlignInGroup,
-    SE.ItemVerticalAlignToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
+    data.verticalAlignInGroup
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML<SE.FormGroupTypeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "FormGroupType" },
+    data.type
+  )
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -84,22 +87,20 @@ const exportPagesPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
     context,
-    undefined,
-    data.horizontalAlignInGroup,
-    SE.ItemHorizontalLocationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
+    data.horizontalAlignInGroup
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML<SE.ToolTipRepresentationEnterprise>(
     context,
-    undefined,
-    data.toolTipRepresentation,
-    SE.ToolTipRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ToolTipRepresentation" },
+    data.toolTipRepresentation
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
@@ -131,22 +132,20 @@ const exportPagesPropsToEnterprise = (
   const titleFont = exportFontToEnterprise(context, undefined, data.titleFont)
   if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
-  const currentRowUse = exportSystemEnumerationToEnterprise(
+  const currentRowUse = exportSystemEnumerationToYAML<SE.CurrentRowUseEnterprise>(
     context,
-    undefined,
-    data.currentRowUse,
-    SE.CurrentRowUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "CurrentRowUse" },
+    data.currentRowUse
   )
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
   // const associatedTable = exportTableToEnterprise(context, undefined, data.associatedTable)
   // if (associatedTable !== undefined) result.ИспользуемаяТаблица = associatedTable
 
-  const pagesRepresentation = exportSystemEnumerationToEnterprise(
+  const pagesRepresentation = exportSystemEnumerationToYAML<SE.FormPagesRepresentationEnterprise>(
     context,
-    undefined,
-    data.pagesRepresentation,
-    SE.FormPagesRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "FormPagesRepresentation" },
+    data.pagesRepresentation
   )
   if (pagesRepresentation !== undefined) result.ОтображениеСтраниц = pagesRepresentation
 
@@ -158,11 +157,10 @@ const exportPagesPropsToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const currentPagesState = exportSystemEnumerationToEnterprise(
+  const currentPagesState = exportSystemEnumerationToYAML<SE.FormPagesStateEnterprise>(
     context,
-    undefined,
-    data.currentPagesState,
-    SE.FormPagesStateToEnterprise
+    { type: "SystemEnumeration", typeSE: "FormPagesState" },
+    data.currentPagesState
   )
   if (currentPagesState !== undefined) result.ТекущееСостояниеСтраниц = currentPagesState
 

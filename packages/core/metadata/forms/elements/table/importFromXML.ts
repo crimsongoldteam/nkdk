@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { importElementFromXML } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportFromXMLFn } from "~/metadata/metadataFactory/types"
+import { ElementXML, ImportFromXMLFn } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../calendarField/rules"
 
 export function importTableFromXML<To extends Table | undefined>(

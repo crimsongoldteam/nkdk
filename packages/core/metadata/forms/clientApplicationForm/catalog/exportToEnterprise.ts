@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { exportClientApplicationFormToEnterprise } from "../base/exportToEnterprise"
@@ -49,18 +49,21 @@ export const exportCatalogFormToEnterprise = (
   const choiceAvailable = exportBooleanToEnterprise(context, undefined, data.choiceAvailable)
   if (choiceAvailable !== undefined) result.ВыборДоступен = choiceAvailable
 
-  const useForFoldersAndItems = exportSystemEnumerationToEnterprise(
+  const useForFoldersAndItems = exportSystemEnumerationToYAML<SE.FoldersAndItemsUseEnterprise>(
     context,
-    undefined,
-    data.useForFoldersAndItems,
-    SE.FoldersAndItemsUseToEnterprise
+    { type: "SystemEnumeration", typeSE: "FoldersAndItemsUse" },
+    data.useForFoldersAndItems
   )
   if (useForFoldersAndItems !== undefined) result.ИспользованиеДляГруппИЭлементов = useForFoldersAndItems
 
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const choiceMode = exportSystemEnumerationToEnterprise(context, undefined, data.choiceMode, SE.ChoiceModeToEnterprise)
+  const choiceMode = exportSystemEnumerationToYAML<SE.ChoiceModeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "ChoiceMode" },
+    data.choiceMode
+  )
   if (choiceMode !== undefined) result.РежимВыбора = choiceMode
 
   const catalogEvents = exportCatalogFormEventsToEnterprise(context, undefined, data.events)

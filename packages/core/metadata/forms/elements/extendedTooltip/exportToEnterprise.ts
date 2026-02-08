@@ -8,7 +8,7 @@ import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../calendarField/rules"
 
@@ -27,23 +27,25 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const autoMaxWidth = exportBooleanToEnterprise(context, undefined, data.autoMaxWidth)
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
-  const displayImportance = exportSystemEnumerationToEnterprise(
+  const displayImportance = exportSystemEnumerationToYAML<SE.DisplayImportanceEnterprise>(
     context,
-    undefined,
-    data.displayImportance,
-    SE.DisplayImportanceToEnterprise
+    { type: "SystemEnumeration", typeSE: "DisplayImportance" },
+    data.displayImportance
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
     context,
-    undefined,
-    data.verticalAlignInGroup,
-    SE.ItemVerticalAlignToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
+    data.verticalAlignInGroup
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormDecorationTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML<SE.FormDecorationTypeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "FormDecorationType" },
+    data.type
+  )
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -51,11 +53,10 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
     context,
-    undefined,
-    data.horizontalAlignInGroup,
-    SE.ItemHorizontalLocationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
+    data.horizontalAlignInGroup
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
@@ -75,11 +76,10 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML<SE.ToolTipRepresentationEnterprise>(
     context,
-    undefined,
-    data.toolTipRepresentation,
-    SE.ToolTipRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ToolTipRepresentation" },
+    data.toolTipRepresentation
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 

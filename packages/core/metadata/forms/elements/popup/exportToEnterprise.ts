@@ -19,7 +19,7 @@ import {
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { PropertyRule } from "../calendarField/rules"
@@ -70,15 +70,18 @@ const exportPopupPropsToEnterprise = (
 ): PopupPartialEnterprise => {
   const result: PopupPartialEnterprise = {}
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const verticalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
     context,
-    undefined,
-    data.verticalAlignInGroup,
-    SE.ItemVerticalAlignToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
+    data.verticalAlignInGroup
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise(context, undefined, data.type, SE.FormGroupTypeToEnterprise)
+  const type = exportSystemEnumerationToYAML<SE.FormGroupTypeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "FormGroupType" },
+    data.type
+  )
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, undefined, data.visible)
@@ -86,22 +89,20 @@ const exportPopupPropsToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+  const horizontalAlignInGroup = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
     context,
-    undefined,
-    data.horizontalAlignInGroup,
-    SE.ItemHorizontalLocationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
+    data.horizontalAlignInGroup
   )
   if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+  const toolTipRepresentation = exportSystemEnumerationToYAML<SE.ToolTipRepresentationEnterprise>(
     context,
-    undefined,
-    data.toolTipRepresentation,
-    SE.ToolTipRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ToolTipRepresentation" },
+    data.toolTipRepresentation
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
@@ -144,23 +145,25 @@ const exportPopupPropsToEnterprise = (
   const picture = exportPictureToEnterprise(context, undefined, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const representation = exportSystemEnumerationToEnterprise(
+  const representation = exportSystemEnumerationToYAML<SE.ButtonRepresentationEnterprise>(
     context,
-    undefined,
-    data.representation,
-    SE.ButtonRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ButtonRepresentation" },
+    data.representation
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const shapeRepresentation = exportSystemEnumerationToEnterprise(
+  const shapeRepresentation = exportSystemEnumerationToYAML<SE.ButtonShapeRepresentationEnterprise>(
     context,
-    undefined,
-    data.shapeRepresentation,
-    SE.ButtonShapeRepresentationToEnterprise
+    { type: "SystemEnumeration", typeSE: "ButtonShapeRepresentation" },
+    data.shapeRepresentation
   )
   if (shapeRepresentation !== undefined) result.ОтображениеФигуры = shapeRepresentation
 
-  const shape = exportSystemEnumerationToEnterprise(context, undefined, data.shape, SE.ButtonShapeToEnterprise)
+  const shape = exportSystemEnumerationToYAML<SE.ButtonShapeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "ButtonShape" },
+    data.shape
+  )
   if (shape !== undefined) result.Фигура = shape
 
   const borderColor = exportColorToEnterprise(context, undefined, data.borderColor)
