@@ -27,6 +27,7 @@ export const fullButton: Required<Button> = {
   displayImportance: "VeryHigh",
   enabled: false,
   extendedTooltip: {
+    elementType: "ExtendedTooltip",
     title: {
       formatted: false,
       items: {

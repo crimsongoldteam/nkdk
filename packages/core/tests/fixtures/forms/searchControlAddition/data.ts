@@ -29,6 +29,7 @@ export const fullSingleSearchControlAddition: Required<SingleSearchControlAdditi
   textColor: { type: "WebColor", value: "Black" },
   width: 300,
   contextMenu: {
+    elementType: "ContextMenu",
     displayImportance: "High",
     autofill: true,
     childItems: [],
@@ -36,6 +37,7 @@ export const fullSingleSearchControlAddition: Required<SingleSearchControlAdditi
   displayImportance: "High",
   enabled: true,
   extendedTooltip: {
+    elementType: "ExtendedTooltip",
     title: {
       items: { ru: "Оформление формы" },
       formatted: false,

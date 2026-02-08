@@ -142,6 +142,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
     valueChoice: "ТаблицаВыборЗначения",
   },
   extendedTooltip: {
+    elementType: "ExtendedTooltip",
     title: {
       formatted: false,
       items: {

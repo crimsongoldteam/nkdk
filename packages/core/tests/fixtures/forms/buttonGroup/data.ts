@@ -43,6 +43,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
   representation: "Compact",
   commandSource: "FormCommandPanelGlobalCommands",
   extendedTooltip: {
+    elementType: "ExtendedTooltip",
     title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
   },
 }
