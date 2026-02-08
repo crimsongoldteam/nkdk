@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
-import { importElementFromEnterprisePartial, registerMetadata } from "~/metadata/metadataFactory"
+import { importElementFromYAMLPartial, registerMetadata } from "~/metadata/metadataFactory"
 
 import "~/metadata/commonObjects/importFromEnterprise"
 import "~/metadata/forms/elements/importFromEnterprise"
@@ -13,7 +13,7 @@ export function importUsualGroupPartialFromEnterprise<To extends UsualGroup>(
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  return importElementFromEnterprisePartial(context, FormElementType.UsualGroup, source, data)
+  return importElementFromYAMLPartial(context, FormElementType.UsualGroup, source, data)
 }
 
 registerMetadata("ImportPartialFromEnterprise", "UsualGroup", importUsualGroupPartialFromEnterprise as any)

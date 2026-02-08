@@ -12,14 +12,14 @@ export function exportButtonPartialToEnterprise<From extends Button | undefined>
   context: ConfigurationContext,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterprisePartial(context, "Button", data) as ToPartialEnterpriseType<From>
+  return exportElementToEnterprisePartial(context, "Button", data)
 }
 
 export function exportButtonTypedToEnterprise<From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
 ): ToPartialEnterpriseType<From> {
-  return exportElementToEnterpriseTyped(context, "Button", data) as ToPartialEnterpriseType<From>
+  return exportElementToEnterpriseTyped(context, "Button", data)
 }
 
 registerMetadata("ExportPartialToEnterprise", "Button", exportButtonPartialToEnterprise as ExportPartialToEnterpriseFn)

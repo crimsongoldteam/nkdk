@@ -1,14 +1,14 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
-import { importElementFromXML, registerTypeRule } from "~/metadata/metadataFactory"
+import { ElementXML, importSingleElementFromXML, registerTypeRule } from "~/metadata/metadataFactory"
 import { PropertyRule } from "../calendarField/rules"
 
 export const importAutoCommandBarFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  xml: any
+  xml: ElementXML
 ): AutoCommandBar | undefined => {
-  return importElementFromXML(context, "AutoCommandBar", xml)
+  return importSingleElementFromXML(context, "AutoCommandBar", xml)
 }
 
 registerTypeRule("AutoCommandBar", "importFromEnterprise", importAutoCommandBarFromXML)

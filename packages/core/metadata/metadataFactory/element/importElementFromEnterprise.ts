@@ -47,17 +47,17 @@ export function importElementFromEnterpriseTyped<T extends NamedElement>(
   return result as T
 }
 
-export function importElementFromEnterprisePartial<T extends BaseElement>(
-  context: ConfigurationContext,
-  elementType: FormElementType,
-  data: ToPartialEnterpriseType<T> | undefined,
+export function importElementFromYAMLPartial<T extends BaseElement>(params: {
+  context: ConfigurationContext
+  elementType: FormElementType
+  data: ToPartialEnterpriseType<T> | undefined
   source?: T
-): T | undefined {
-  if (data === undefined) return source
+}): T | undefined {
+  if (params.data === undefined) return params.source
 
-  const rules = getElementRule<T>(elementType)
+  const rules = getElementRule<T>(params.elementType)
 
-  return importFromYAMLPartial(context, rules, data, source)
+  return importFromYAMLPartial(params.context, rules, params.data, params.source)
 }
 
 export function importFromYAMLPartial<T extends BaseElement>(

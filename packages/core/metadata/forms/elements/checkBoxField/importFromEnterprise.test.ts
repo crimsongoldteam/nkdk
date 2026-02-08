@@ -1,4 +1,6 @@
+import result from "antd/es/result"
 import { describe, expect, it } from "vitest"
+import { importElementFromYAMLPartial } from "~/metadata/metadataFactory"
 import {
   fullCheckBoxField,
   fullCheckBoxFieldPartialEnterprise,
@@ -16,7 +18,7 @@ import {
 describe("importCheckBoxFieldFromEnterprise", () => {
   describe("importCheckBoxFieldTypedFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importCheckBoxFieldTypedFromEnterprise(mockContext, mockRule, undefined, "Флажок")
+      importCheckBoxFieldTypedFromEnterprise(mockContext, mockRule, undefined, "Флажок")
 
       expect(result).toBeUndefined()
     })
@@ -45,19 +47,13 @@ describe("importCheckBoxFieldFromEnterprise", () => {
   })
 
   describe("importCheckBoxFieldPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importCheckBoxFieldPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importCheckBoxFieldPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullCheckBoxField,
-        fullCheckBoxFieldPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: "CheckBoxField",
+        data: fullCheckBoxFieldPartialEnterprise,
+        source: fullCheckBoxField,
+      })
 
       expect(result).toEqual(fullCheckBoxField)
     })

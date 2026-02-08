@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Button } from "~/metadata/forms/elements/button/types"
 import {
-  importElementFromEnterprisePartial,
   importElementFromEnterpriseTyped,
+  importElementFromYAMLPartial,
   registerMetadata,
 } from "~/metadata/metadataFactory"
 import {
@@ -25,7 +25,7 @@ export function importButtonPartialFromEnterprise<To extends Button>(
   data: ToPartialEnterpriseType<To> | undefined,
   source?: To
 ): To {
-  return importElementFromEnterprisePartial(context, FormElementType.Button, data, source) as To
+  return importElementFromYAMLPartial(context, FormElementType.Button, data, source) as To
 }
 
 registerMetadata(

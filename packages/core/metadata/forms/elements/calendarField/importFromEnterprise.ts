@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
-import { importElementFromEnterprisePartial } from "~/metadata/metadataFactory"
+import { importElementFromYAMLPartial } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
   FormElementType,
@@ -13,7 +13,7 @@ export function importCalendarFieldPartialFromEnterprise<To extends CalendarFiel
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  return importElementFromEnterprisePartial(context, FormElementType.CalendarField, source, data)
+  return importElementFromYAMLPartial(context, FormElementType.CalendarField, source, data)
 }
 
 registerMetadata(
