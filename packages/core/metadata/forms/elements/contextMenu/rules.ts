@@ -8,12 +8,13 @@ export const ContextMenuRules: ElementRule<ContextMenu> = {
   properties: {
     displayImportance: {
       yaml: "ВажностьПриОтображении",
-      xml: "DisplayImportance",
+      xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
     },
     autofill: { yaml: "Автозаполнение", xml: "Autofill", type: "boolean" },
     childItems: {
+      yaml: "ПодчиненныеЭлементы",
       xml: "ChildItems",
       type: "ChildItems",
       defaultValue: [],

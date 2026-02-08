@@ -11,7 +11,7 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsPartialFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { importChildItemsFromPartialYAML } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
@@ -267,7 +267,7 @@ export const importClientApplicationFormFromEnterprise = (
   const usePurposes = importUsePurposesFromEnterprise(context, undefined, data.НазначенияИспользования)
   if (usePurposes !== undefined) result.usePurposes = usePurposes
 
-  result.childItems = importChildItemsPartialFromEnterprise(itemsContext, undefined, structure.childItems)
+  result.childItems = importChildItemsFromPartialYAML(itemsContext, undefined, structure.childItems)
 
   return result
 }

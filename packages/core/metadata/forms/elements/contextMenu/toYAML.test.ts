@@ -3,9 +3,9 @@ import { exportPropertyToYAML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { fullContextMenu, fullContextMenuEnterprise } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
-import { ContextMenu } from "./types"
+import { Table } from "../table/types"
 
-const rule: PropertyRule<ContextMenu> = {
+const rule: PropertyRule<Table> = {
   type: "ContextMenu",
   yaml: "КонтекстноеМеню",
 }

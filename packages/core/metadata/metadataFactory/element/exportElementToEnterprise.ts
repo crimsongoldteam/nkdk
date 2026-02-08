@@ -38,6 +38,7 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
   }
 
   if (!typeExportFn) {
+    if (value === undefined) return undefined
     return { [yamlKey]: value }
   }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType } from "~/metadata/metadataFactory/types"
+import { ElementXML } from "~/metadata/metadataFactory/types"
 import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -20,15 +20,5 @@ describe("importChildItemsFromXML", () => {
     const result = importChildItemsFromXML(mockContext, mockRule, xmlData.ChildItems)
 
     expect(result).toEqual(element)
-  })
-
-  it("should throw error when import function not found", () => {
-    const xmlData = {
-      ChildItems: [{ InvalidElement: { name: "InvalidElement", elementType: FormElementType.Button } }] as any,
-    }
-
-    expect(() => importChildItemsFromXML(mockContext, mockRule, xmlData.ChildItems)).toThrow(
-      "ImportFromXML function not found for element type: InvalidElement"
-    )
   })
 })

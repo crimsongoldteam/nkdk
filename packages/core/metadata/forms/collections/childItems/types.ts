@@ -9,7 +9,7 @@ import { ColumnGroup, ColumnGroupTypedEnterprise } from "../../elements/columnGr
 import { CommandBar } from "../../elements/commandBar/types"
 import { ContextMenu } from "../../elements/contextMenu/types"
 import { DendrogramField } from "../../elements/dendrogramField/types"
-import { ExtendedTooltip, ExtendedTooltip } from "../../elements/extendedTooltip/types"
+import { ExtendedTooltip } from "../../elements/extendedTooltip/types"
 import { FormattedDocumentField } from "../../elements/formattedDocumentField/types"
 import { GanttChartField } from "../../elements/ganttChartField/types"
 import { GeographicalSchemaField } from "../../elements/geographicalSchemaField/types"

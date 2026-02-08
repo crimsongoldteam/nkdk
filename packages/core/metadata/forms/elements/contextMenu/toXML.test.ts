@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToXML } from "~/metadata/metadataFactory"
-import { fullContextMenu, minimalContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
+import { exportPropertyToXML, PropertyRule } from "~/metadata/metadataFactory"
+import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
+const rule: PropertyRule<any> = {
+  type: "ContextMenu",
+}
 describe("exportContextMenuToXML", () => {
   it("should return default when data is undefined", () => {
     const context: ConfigurationContext = {
@@ -14,7 +17,11 @@ describe("exportContextMenuToXML", () => {
     }
     const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
 
-    const xmlData = exportElementToXML({ context: context, element: undefined })
+    const xmlData = exportPropertyToXML({
+      context: context,
+      rule: rule,
+      value: undefined,
+    })
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 
@@ -28,7 +35,7 @@ describe("exportContextMenuToXML", () => {
     }
     const expectedResult = readXMLFileAsString("forms/contextMenu/full.xml").trimEnd()
 
-    const xmlData = exportElementToXML({ context: context, element: fullContextMenu })
+    const xmlData = exportPropertyToXML({ context: context, rule: rule, value: fullContextMenu })
 
     const result = xmlExport({ ContextMenu: xmlData }, false)
 

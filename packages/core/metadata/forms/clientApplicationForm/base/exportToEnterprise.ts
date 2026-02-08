@@ -11,7 +11,7 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportChildItemsToPartialYAML } from "../../collections/childItems/exportToEnterprise"
 import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportCommandInterfaceToEnterprise } from "../../commonObjects/commandInterface/exportToEnterprise"
@@ -278,7 +278,7 @@ export const exportClientApplicationFormToEnterprise = (
   if (events !== undefined) result.События = events
 
   const allElements = getAllElements(data)
-  const childItems = exportPartialChildItemsToEnterprise(context, undefined, allElements)
+  const childItems = exportChildItemsToPartialYAML(context, undefined, allElements)
   if (childItems !== undefined) result.Элементы = childItems
 
   return result

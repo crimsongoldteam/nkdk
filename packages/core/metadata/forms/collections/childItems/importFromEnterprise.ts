@@ -1,13 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { importFormElementTypeFromEnterprise, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { AllChildItem, AllChildItemsPartialEnterprise, CommandBarChildItem } from "./types"
+import { AllChildItem, AllChildItemsPartialEnterprise, TypedElement } from "./types"
 
-export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
+export const importChildItemsFromPartialYAML = <To extends AllChildItem>(
   context: ConfigurationContext,
-  rule: PropertyRule,
+  _rule: PropertyRule<any>,
   _data: undefined,
   childItems: To[]
 ): To[] => {
@@ -16,32 +16,32 @@ export const importChildItemsPartialFromEnterprise = <To extends AllChildItem>(
   return childItems.map((item) => {
     const processedItem = importChildItemProperties(context, item, childItemsProperties)
 
-    if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
-      processedItem.childItems = importChildItemsPartialFromEnterprise(
-        context,
-        rule,
-        undefined,
-        processedItem.childItems as To[]
-      ) as typeof processedItem.childItems
-    }
+    // if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
+    //   processedItem.childItems = importChildItemsFromPartialYAML(
+    //     context,
+    //     rule,
+    //     undefined,
+    //     processedItem.childItems as To[]
+    //   ) as typeof processedItem.childItems
+    // }
 
-    if ("autoCommandBar" in processedItem && processedItem.autoCommandBar?.childItems?.length) {
-      processedItem.autoCommandBar = {
-        ...processedItem.autoCommandBar,
-        childItems: importChildItemsPartialFromEnterprise(
-          context,
-          rule,
-          undefined,
-          processedItem.autoCommandBar.childItems as To[]
-        ) as CommandBarChildItem[],
-      }
-    }
+    // if ("autoCommandBar" in processedItem && processedItem.autoCommandBar?.childItems?.length) {
+    //   processedItem.autoCommandBar = {
+    //     ...processedItem.autoCommandBar,
+    //     childItems: importChildItemsFromPartialYAML(
+    //       context,
+    //       rule,
+    //       undefined,
+    //       processedItem.autoCommandBar.childItems as To[]
+    //     ) as CommandBarChildItem[],
+    //   }
+    // }
 
     return processedItem
   })
 }
 
-export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
+export const importChildItemsTypedFromEnterprise = <To extends TypedElement>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   allProperties?: Record<string, ToTypedEnterpriseType<To>>
@@ -50,11 +50,7 @@ export const importChildItemsTypedFromEnterprise = <To extends AllChildItem>(
 
   const result: To[] = []
   for (const [name, item] of Object.entries(allProperties)) {
-    const elementType = importFormElementTypeFromEnterprise(context, undefined, item.Тип)
-    const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
-    if (fn == undefined)
-      throw new Error(`ImportTypedFromEnterprise function not found for element type: ${elementType}`)
-    const resultItem = fn(context, item, name) as NonNullable<To>
+    const resultItem = importElementFromTypedYAML({ context: context, yaml: item, name: name })!
     result.push(resultItem)
   }
   return result
@@ -67,13 +63,19 @@ const importChildItemProperties = <To extends AllChildItem>(
 ): To => {
   const propertiesEnterprise = allProperties[item.name]
 
-  const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
-  if (fn == undefined)
-    throw new Error(`ImportPartialFromEnterprise function not found for element type: ${item.elementType}`)
-  const result = fn(context, propertiesEnterprise, item)
+  const result = importElementFromPartialYAML({
+    context: context,
+    elementType: item.elementType,
+    yaml: propertiesEnterprise as ToPartialEnterpriseType<To> | undefined,
+    source: item,
+  })!
+
+  // const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
+  // if (fn == undefined)
+  //   throw new Error(`ImportPartialFromEnterprise function not found for element type: ${item.elementType}`)
+  // const result = fn(context, propertiesEnterprise, item)
 
   return result as To
 }
 
-// registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
-registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsPartialFromEnterprise)
+registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsTypedFromEnterprise)

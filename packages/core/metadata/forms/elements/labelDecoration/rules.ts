@@ -32,7 +32,8 @@ export const LabelDecorationRules: ElementRule<LabelDecoration> = {
     textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {
       yaml: "Заголовок",
-      type: "I8nText",
+      type: "FormattedI8nText",
+      yamlFormatted: "ФорматированныйЗаголовок",
       yamlPartialOthers: true,
     },
     toolTip: { yaml: "Подсказка", type: "I8nText" },

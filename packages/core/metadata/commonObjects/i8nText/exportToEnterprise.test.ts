@@ -1,20 +1,23 @@
 import { describe, expect, it } from "vitest"
 import { I8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "./exportToEnterprise"
 
 describe("exportI8nTextToEnterprise", () => {
   describe("exportI8nTextToEnterprise", () => {
     it.each(i8nTextFixtures)("should export: $name", (fixture) => {
-      const result = exportI8nTextToYAML(mockContext, mockRule, fixture.text)
+      const rule: I8nTextPropertyRule<any> = { type: "I8nText" }
+
+      const result = exportI8nTextToYAML(mockContext, rule, fixture.text)
       expect(result).toEqual(fixture.enterpriseFull)
     })
   })
 
   describe("exportI8nTextOtherToEnterprise", () => {
     it.each(i8nTextFixtures)("should export other: $name", (fixture) => {
-      const rule: I8nTextPropertyRule<any> = { ...mockRule, yamlPartialOthers: true }
+      const rule: I8nTextPropertyRule<any> = { type: "I8nText", yamlPartialOthers: true }
+
       const result = exportI8nTextToYAML(mockContext, rule, fixture.text)
       expect(result).toEqual(fixture.enterpriseOtherLanguages)
     })

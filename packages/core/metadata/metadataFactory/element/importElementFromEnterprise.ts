@@ -43,11 +43,10 @@ export const importPropertyFromEnterprise = (params: {
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
-  yaml: ToTypedEnterpriseType<T> | undefined
+  yaml: ToTypedEnterpriseType<T>
   name: string
-}): T | undefined {
+}): T {
   const { context, yaml: yaml, name } = params
-  if (yaml === undefined) return undefined
 
   const elementType = importFormElementTypeFromEnterprise(params.context, yaml.Тип)
 

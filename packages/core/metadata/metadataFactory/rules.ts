@@ -1,37 +1,19 @@
 import { AutoCommandBar, AutoCommandBarEnterprise } from "../forms/elements/autoCommandBar/types"
 import { Button, ButtonPartialEnterprise } from "../forms/elements/button/types"
-import {
-  ButtonGroup,
-  ButtonGroupPartialEnterprise,
-} from "../forms/elements/buttonGroup/types"
-import {
-  CalendarField,
-  CalendarFieldPartialEnterprise,
-} from "../forms/elements/calendarField/types"
+import { ButtonGroup, ButtonGroupPartialEnterprise } from "../forms/elements/buttonGroup/types"
+import { CalendarField, CalendarFieldPartialEnterprise } from "../forms/elements/calendarField/types"
 import { ChartField, ChartFieldPartialEnterprise } from "../forms/elements/chartField/types"
-import {
-  CheckBoxField,
-  CheckBoxFieldPartialEnterprise,
-} from "../forms/elements/checkBoxField/types"
-import {
-  ColumnGroup,
-  ColumnGroupPartialEnterprise,
-} from "../forms/elements/columnGroup/types"
+import { CheckBoxField, CheckBoxFieldPartialEnterprise } from "../forms/elements/checkBoxField/types"
+import { ColumnGroup, ColumnGroupPartialEnterprise } from "../forms/elements/columnGroup/types"
 import { CommandBar, CommandBarPartialEnterprise } from "../forms/elements/commandBar/types"
-import { ContextMenu } from "../forms/elements/contextMenu/types"
-import {
-  DendrogramField,
-  DendrogramFieldPartialEnterprise,
-} from "../forms/elements/dendrogramField/types"
+import { ContextMenu, ContextMenuEnterprise } from "../forms/elements/contextMenu/types"
+import { DendrogramField, DendrogramFieldPartialEnterprise } from "../forms/elements/dendrogramField/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../forms/elements/extendedTooltip/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldPartialEnterprise,
 } from "../forms/elements/formattedDocumentField/types"
-import {
-  GanttChartField,
-  GanttChartFieldPartialEnterprise,
-} from "../forms/elements/ganttChartField/types"
+import { GanttChartField, GanttChartFieldPartialEnterprise } from "../forms/elements/ganttChartField/types"
 import {
   GeographicalSchemaField,
   GeographicalSchemaFieldPartialEnterprise,
@@ -40,55 +22,20 @@ import {
   GraphicalSchemaField,
   GraphicalSchemaFieldPartialEnterprise,
 } from "../forms/elements/graphicalSchemaField/types"
-import {
-  HTMLDocumentField,
-  HTMLDocumentFieldPartialEnterprise,
-} from "../forms/elements/htmlDocumentField/types"
-import {
-  InputField,
-  InputFieldPartialEnterprise,
-  InputFieldPreview,
-} from "../forms/elements/inputField/types"
-import {
-  LabelDecoration,
-  LabelDecorationPartialEnterprise,
-} from "../forms/elements/labelDecoration/types"
-import {
-  LabelField,
-  LabelFieldPartialEnterprise,
-  LabelFieldPreview,
-} from "../forms/elements/labelField/types"
+import { HTMLDocumentField, HTMLDocumentFieldPartialEnterprise } from "../forms/elements/htmlDocumentField/types"
+import { InputField, InputFieldPartialEnterprise, InputFieldPreview } from "../forms/elements/inputField/types"
+import { LabelDecoration, LabelDecorationPartialEnterprise } from "../forms/elements/labelDecoration/types"
+import { LabelField, LabelFieldPartialEnterprise, LabelFieldPreview } from "../forms/elements/labelField/types"
 import { Page, PagePartialEnterprise } from "../forms/elements/page/types"
 import { Pages, PagesPartialEnterprise } from "../forms/elements/pages/types"
-import {
-  PdfDocumentField,
-  PdfDocumentFieldPartialEnterprise,
-} from "../forms/elements/pdfDocumentField/types"
-import {
-  PeriodField,
-  PeriodFieldPartialEnterprise,
-} from "../forms/elements/periodField/types"
-import {
-  PictureDecoration,
-  PictureDecorationPartialEnterprise,
-} from "../forms/elements/pictureDecoration/types"
-import {
-  PictureField,
-  PictureFieldPartialEnterprise,
-} from "../forms/elements/pictureField/types"
-import {
-  PlannerField,
-  PlannerFieldPartialEnterprise,
-} from "../forms/elements/plannerField/types"
+import { PdfDocumentField, PdfDocumentFieldPartialEnterprise } from "../forms/elements/pdfDocumentField/types"
+import { PeriodField, PeriodFieldPartialEnterprise } from "../forms/elements/periodField/types"
+import { PictureDecoration, PictureDecorationPartialEnterprise } from "../forms/elements/pictureDecoration/types"
+import { PictureField, PictureFieldPartialEnterprise } from "../forms/elements/pictureField/types"
+import { PlannerField, PlannerFieldPartialEnterprise } from "../forms/elements/plannerField/types"
 import { Popup, PopupPartialEnterprise } from "../forms/elements/popup/types"
-import {
-  ProgressBarField,
-  ProgressBarFieldPartialEnterprise,
-} from "../forms/elements/progressBarField/types"
-import {
-  RadioButtonField,
-  RadioButtonFieldPartialEnterprise,
-} from "../forms/elements/radioButtonField/types"
+import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "../forms/elements/progressBarField/types"
+import { RadioButtonField, RadioButtonFieldPartialEnterprise } from "../forms/elements/radioButtonField/types"
 import { SearchControlAddition, SearchControlAdditionEnterprise } from "../forms/elements/searchControlAddition/types"
 import { SearchStringAddition, SearchStringAdditionEnterprise } from "../forms/elements/searchStringAddition/types"
 import {
@@ -96,19 +43,9 @@ import {
   SpreadSheetDocumentFieldPartialEnterprise,
 } from "../forms/elements/spreadSheetDocumentField/types"
 import { Table, TablePartialEnterprise } from "../forms/elements/table/types"
-import {
-  TextDocumentField,
-  TextDocumentFieldPartialEnterprise,
-} from "../forms/elements/textDocumentField/types"
-import {
-  TrackBarField,
-  TrackBarFieldPartialEnterprise,
-} from "../forms/elements/trackBarField/types"
-import {
-  UsualGroup,
-  UsualGroupPartialEnterprise,
-  UsualGroupPreview,
-} from "../forms/elements/usualGroup/types"
+import { TextDocumentField, TextDocumentFieldPartialEnterprise } from "../forms/elements/textDocumentField/types"
+import { TrackBarField, TrackBarFieldPartialEnterprise } from "../forms/elements/trackBarField/types"
+import { UsualGroup, UsualGroupPartialEnterprise, UsualGroupPreview } from "../forms/elements/usualGroup/types"
 
 export type TypeRules<T> = T extends Button
   ? {
@@ -247,7 +184,7 @@ export type TypeRules<T> = T extends Button
                                                                     }
                                                                   : T extends ContextMenu
                                                                     ? {
-                                                                        PartialEnterprise: AutoCommandBarEnterprise
+                                                                        PartialEnterprise: ContextMenuEnterprise
                                                                       }
                                                                     : T extends AutoCommandBar
                                                                       ? {
