@@ -84,7 +84,7 @@ export function importFromYAMLPartial<T extends BaseElement>(
       continue
     }
 
-    const yamlValue = yaml[yamlKey as keyof typeof yaml]
+    const yamlValue = (yaml as any)[yamlKey]
 
     const typeImportFn = getTypeRule(rule.type!, "importFromEnterprise")
     if (typeImportFn) {
