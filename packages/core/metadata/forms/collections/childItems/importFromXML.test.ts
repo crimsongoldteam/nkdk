@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromXML"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ElementXML, FormElementType } from "~/metadata/metadataFactory/types"
 import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChildItemsFromXML } from "./importFromXML"
-import { AllChildItemsXML } from "./types"
 
 describe("importChildItemsFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -17,7 +15,7 @@ describe("importChildItemsFromXML", () => {
   it.each(
     childItemsFixturesTable.filter((fixture) => fixture.xmlPath) as Array<ChildItemsFixture & { xmlPath: string }>
   )("$name", ({ element, xmlPath }) => {
-    const xmlData = readAndParseXMLFile<{ ChildItems: AllChildItemsXML }>(xmlPath)
+    const xmlData = readAndParseXMLFile<{ ChildItems: ElementXML[] }>(xmlPath)
 
     const result = importChildItemsFromXML(mockContext, mockRule, xmlData.ChildItems)
 

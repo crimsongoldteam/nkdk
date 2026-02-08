@@ -8,34 +8,48 @@ import { AutoCommandBarRules } from "./rules"
 export const exportFormAutoCommandBarToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  data: AutoCommandBar | undefined
+  element: AutoCommandBar | undefined
 ): any => {
-  return exportAutoCommandBarPropsToXML(context, data, "ФормаКоманднаяПанель", "-1")
+  return exportAutoCommandBarPropsToXML({
+    context,
+    element,
+    name: "ФормаКоманднаяПанель",
+    id: "-1",
+  })
 }
 
 export const exportTableAutoCommandBarToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  data: AutoCommandBar | undefined
+  element: AutoCommandBar | undefined
 ): any => {
   const table = context.elementContext!
   const id = getElementId(context)
   const name = getAutoCommandBarName(table)
-  return exportAutoCommandBarPropsToXML(context, data, name, id)
+  return exportAutoCommandBarPropsToXML({
+    context,
+    element,
+    name,
+    id,
+  })
 }
 
-const exportAutoCommandBarPropsToXML = (
-  context: ConfigurationContext,
-  data: AutoCommandBar | undefined,
-  name: string,
+const exportAutoCommandBarPropsToXML = (params: {
+  context: ConfigurationContext
+  element: AutoCommandBar | undefined
+  name: string
   id: string
-): any => {
-  const autoCommandBar = data ?? getDefaultAutoCommandBar()
+}): any => {
+  const { context, element, name, id } = params
 
-  return exportSingleElementToXML(context, autoCommandBar, {
+  const autoCommandBar = element ?? getDefaultAutoCommandBar()
+
+  return exportSingleElementToXML({
+    context,
+    element: autoCommandBar,
     rule: AutoCommandBarRules,
-    id: id,
-    name: name,
+    id,
+    name,
   })!
 }
 
@@ -47,5 +61,5 @@ const getDefaultAutoCommandBar = (): AutoCommandBar => {
   }
 }
 
-registerTypeRule("AutoCommandBar", "exportToEnterprise", exportFormAutoCommandBarToXML as any)
-registerTypeRule("TableAutoCommandBar", "exportToEnterprise", exportTableAutoCommandBarToXML as any)
+registerTypeRule("AutoCommandBar", "exportToEnterprise", exportFormAutoCommandBarToXML)
+registerTypeRule("TableAutoCommandBar", "exportToEnterprise", exportTableAutoCommandBarToXML)

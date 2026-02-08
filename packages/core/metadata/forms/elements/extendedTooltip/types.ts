@@ -1,17 +1,13 @@
+import { BaseElement } from "../baseElement/types"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import {
-  FormattedI8nText,
-  FormattedI8nTextEnterprise,
-  FormattedI8nTextXML,
-} from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { FormattedI8nText, FormattedI8nTextEnterprise } from "~/metadata/commonObjects/formattedI8nText/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML } from "../baseElement/types"
 
-export interface ExtendedTooltip {
+export interface ExtendedTooltip extends BaseElement {
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   displayImportance?: SE.DisplayImportance
@@ -34,31 +30,6 @@ export interface ExtendedTooltip {
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-}
-
-export interface ExtendedTooltipXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  Font?: FontXML
-  Height?: number
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  Shortcut?: string
-  SkipOnInput?: boolean
-  TextColor?: ColorXML
-  Title?: FormattedI8nTextXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormDecorationType
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
 }
 
 export interface ExtendedTooltipEnterprise {
