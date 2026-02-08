@@ -1,18 +1,13 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import {
-  CommandBarGroupChildItem,
-  CommandBarGroupChildItemsTypedEnterprise,
-  CommandBarGroupChildItemXML,
-} from "../../collections/childItems/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Popup {
   elementType: "Popup"
@@ -45,35 +40,6 @@ export interface Popup {
   childItems: CommandBarGroupChildItem[]
 }
 
-export interface PopupXML extends BaseElementXML {
-  EnableContentChange?: boolean
-  Enabled?: boolean
-  Height?: number
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  HorizontalStretch?: boolean
-  ReadOnly?: boolean
-  Shortcut?: string
-  Title?: I8nTextXML
-  TitleFont?: FontXML
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormGroupType
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-  BackColor?: ColorXML
-  BorderColor?: ColorXML
-  Picture?: PictureXML
-  Representation?: SE.ButtonRepresentation
-  Shape?: SE.ButtonShape
-  ShapeRepresentation?: SE.ButtonShapeRepresentation
-  ExtendedTooltip: ExtendedTooltipXML
-  ChildItems?: CommandBarGroupChildItemXML | CommandBarGroupChildItemXML[]
-}
-
 export interface PopupPartialEnterprise {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
@@ -102,8 +68,4 @@ export interface PopupPartialEnterprise {
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise
   ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
-}
-
-export interface PopupTypedEnterprise extends PopupPartialEnterprise {
-  Тип: "Подменю"
 }

@@ -1,8 +1,4 @@
-import {
-  PlannerField,
-  PlannerFieldPartialEnterprise,
-  PlannerFieldTypedEnterprise,
-} from "~/metadata/forms/elements/plannerField/types"
+import { PlannerField, PlannerFieldPartialEnterprise } from "~/metadata/forms/elements/plannerField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -67,7 +63,11 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
-  contextMenu: { autofill: false, childItems: [] },
+  contextMenu: {
+    elementType: "ContextMenu",
+    autofill: false,
+    childItems: [],
+  },
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   table: "Таблица",
   typeRestriction: { type: ["string"] },
@@ -194,19 +194,9 @@ export const fullPlannerFieldPartialEnterprise: PlannerFieldPartialEnterprise = 
   },
 }
 
-export const fullPlannerFieldTypedEnterprise: PlannerFieldTypedEnterprise = {
-  ...fullPlannerFieldPartialEnterprise,
-  Тип: "ПолеПланировщика",
-  Заголовок: "Поле планировщика",
-}
-
 export const minimalPlannerField: PlannerField = {
   elementType: FormElementType.PlannerField,
   name: "ПолеПланировщика",
 }
 
 export const minimalPlannerFieldPartialEnterprise: PlannerFieldPartialEnterprise = {}
-
-export const minimalPlannerFieldTypedEnterprise: PlannerFieldTypedEnterprise = {
-  Тип: "ПолеПланировщика",
-}

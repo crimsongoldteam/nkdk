@@ -162,7 +162,3 @@ export interface PictureFieldPartialEnterprise {
     ПроверкаПеретаскивания?: string
   }
 }
-
-export interface PictureFieldTypedEnterprise extends PictureFieldPartialEnterprise {
-  Тип: "ПолеРисунка"
-}

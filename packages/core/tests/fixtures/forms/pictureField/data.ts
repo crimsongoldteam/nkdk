@@ -1,8 +1,4 @@
-import {
-  PictureField,
-  PictureFieldPartialEnterprise,
-  PictureFieldTypedEnterprise,
-} from "~/metadata/forms/elements/pictureField/types"
+import { PictureField, PictureFieldPartialEnterprise } from "~/metadata/forms/elements/pictureField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -70,7 +66,11 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
     items: { ru: "Предупреждение" },
   },
   warningOnEditRepresentation: "DontShow",
-  contextMenu: { autofill: false, childItems: [] },
+  contextMenu: {
+    elementType: "ContextMenu",
+    autofill: false,
+    childItems: [],
+  },
   extendedTooltip: { title: { items: { ru: "Расширенная подсказка" }, formatted: false } },
   table: "",
   typeRestriction: { type: ["string"] },
@@ -182,19 +182,9 @@ export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = 
   },
 }
 
-export const fullPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
-  ...fullPictureFieldPartialEnterprise,
-  Тип: "ПолеРисунка",
-  Заголовок: "Поле картинки",
-}
-
 export const minimalPictureField: PictureField = {
   elementType: FormElementType.PictureField,
   name: "ПолеКартинки",
 }
 
 export const minimalPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = {}
-
-export const minimalPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
-  Тип: "ПолеРисунка",
-}

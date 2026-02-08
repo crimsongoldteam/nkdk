@@ -179,10 +179,3 @@ export interface PlannerFieldPartialEnterprise {
   ШрифтЗаголовка?: FontEnterprise
   ШрифтПодвала?: FontEnterprise
 }
-
-export interface PlannerFieldTypedEnterprise extends PlannerFieldPartialEnterprise {
-  Тип: "ПолеПланировщика"
-}
-
-// Для обратной совместимости
-export type PlannerFieldEnterprise = PlannerFieldPartialEnterprise

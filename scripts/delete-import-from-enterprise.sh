@@ -7,16 +7,16 @@ set -e
 
 BASE_DIR="/Users/nikita/git/nakidka-core/packages/core/metadata/forms/elements"
 
-echo "Удаление файлов exportToEnterprise.ts (кроме autoCommandBar)..."
+echo "Удаление файлов importFromXML.ts (кроме autoCommandBar)..."
 
 # Удалить корневой файл importFromEnterprise.ts
-if [ -f "$BASE_DIR/exportToEnterprise.ts" ]; then
-    rm "$BASE_DIR/exportToEnterprise.ts"
-    echo "Удален: $BASE_DIR/exportToEnterprise.ts"
+if [ -f "$BASE_DIR/importFromXML.ts" ]; then
+    rm "$BASE_DIR/importFromXML.ts"
+    echo "Удален: $BASE_DIR/importFromXML.ts"
 fi
 
 # Найти и удалить все importFromEnterprise.ts в поддиректориях (кроме autoCommandBar)
-find "$BASE_DIR" -name "exportToEnterprise.ts" -not -path "*/autoCommandBar/*" -print0 | while IFS= read -r -d '' file; do
+find "$BASE_DIR" -name "importFromXML.ts" -not -path "*/autoCommandBar/*" -print0 | while IFS= read -r -d '' file; do
     rm "$file"
     echo "Удален: $file"
 done
