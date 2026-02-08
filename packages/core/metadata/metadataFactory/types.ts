@@ -19,6 +19,12 @@ import { TypeRules } from "./rules"
 //   ? undefined
 //   : TypeRules<NonNullable<T>>["XML"]
 
+export type ElementXML = {
+  _name: string
+  _id: string
+  [key: string]: any
+}
+
 export type ToPartialEnterpriseType<T> = T extends undefined
   ? undefined
   : "PartialEnterprise" extends keyof TypeRules<NonNullable<T>>
@@ -72,7 +78,7 @@ export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>
   data: From
 ) => ToPartialEnterpriseType<From>
 
-export type ExportTypedToEnterpriseFn = <From extends BaseElement | undefined>(
+export type ExportTypedToEnterpriseFn = <From extends TypedElement>(
   context: ConfigurationContext,
   data: From
 ) => ToTypedEnterpriseType<From>

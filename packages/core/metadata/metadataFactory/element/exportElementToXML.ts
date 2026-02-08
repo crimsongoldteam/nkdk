@@ -1,34 +1,34 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { SingleElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
-import { FormElementType } from "../types"
+import { ElementXML } from "../types"
 
 export function exportElementToXML<T extends NamedElement>(
   context: ConfigurationContext,
-  elementType: FormElementType,
   data: T | undefined
-): any {
+): ElementXML | undefined {
   if (data === undefined) return undefined
 
   const name = data.name
   const id = getElementId(context)
-  const rule = getElementRule(elementType)
+  const rule = getElementRule(data.elementType)
 
-  if (!rule) throw new Error(`Unknown element type: ${elementType}`)
+  if (!rule) throw new Error(`Unknown element type: ${data.elementType}`)
 
   return exportToXML<T>(context, data, { rule: rule as ElementRule<T>, id, name })
 }
 
-export function exportSingleElementToXML<T extends BaseElement>(
+export function exportSingleElementToXML<T extends SingleElement>(
   context: ConfigurationContext,
   data: T | undefined,
   params: { rule: ElementRule<T>; id: string; name: string }
-): any | undefined {
+): ElementXML {
   return exportToXML<T>(context, data, params)
 }
 

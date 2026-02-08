@@ -7,6 +7,7 @@ import { ChartField } from "../../elements/chartField/types"
 import { CheckBoxField, CheckBoxFieldTypedEnterprise } from "../../elements/checkBoxField/types"
 import { ColumnGroup, ColumnGroupTypedEnterprise } from "../../elements/columnGroup/types"
 import { CommandBar } from "../../elements/commandBar/types"
+import { ContextMenu } from "../../elements/contextMenu/types"
 import { DendrogramField } from "../../elements/dendrogramField/types"
 import { FormattedDocumentField } from "../../elements/formattedDocumentField/types"
 import { GanttChartField } from "../../elements/ganttChartField/types"
@@ -125,7 +126,7 @@ export type CommandBarChildItems = CommandBarChildItem[]
 
 export type CommandBarChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<CommandBarChildItem>>
 
-export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<CommandBarChildItem>>
+// export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<CommandBarChildItem>>
 
 // #endregion
 
@@ -149,7 +150,7 @@ export type PagesChildItem = Page
 export type PagesChildItems = PagesChildItem[]
 
 export type PagesChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<PagesChildItem>>
-export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<PagesChildItem>>
+// export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<PagesChildItem>>
 
 // #endregion
 
@@ -175,7 +176,7 @@ export type TableChildItemsPartialEnterprise = Record<string, ToPartialEnterpris
 
 // #endregion
 
-// #region TypedElements
+// #region TypedElement
 
 export type TypedElement =
   | Button
@@ -188,3 +189,9 @@ export type TypedElement =
   | PictureField
 
 // #endregion
+
+// #region SingleElement
+
+export type SingleElement = AutoCommandBar | ContextMenu
+
+//

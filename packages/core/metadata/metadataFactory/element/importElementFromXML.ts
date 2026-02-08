@@ -1,29 +1,56 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
+import { SingleElement } from "~/metadata/forms/collections/childItems/types"
 import { EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Events, EventsXML } from "~/metadata/forms/events/types"
-import { getElementRule } from "../elementRulesFactory"
-import { FormElementType, ToXMLType } from "../types"
-import { importPropertyFromXML } from "./importPropertyFromXML"
+import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
+import { getTypeRule } from "../typeRulesFactory"
+import { ElementXML, FormElementType } from "../types"
+
+export const importSingleElementFromXML = <T extends SingleElement>(
+  context: ConfigurationContext,
+  elementType: FormElementType,
+  xml: ElementXML
+): T | undefined => {
+  const rules = getElementRule(elementType)
+
+  const props = importFromXML(context, xml, rules)
+
+  const result = {
+    elementType: elementType,
+    ...(props ?? {}),
+  }
+
+  return result as T | undefined
+}
 
 export function importElementFromXML<T extends NamedElement>(
   context: ConfigurationContext,
   elementType: FormElementType,
-  xml: ToXMLType<T> | undefined
+  xml: ElementXML | undefined
 ): T | undefined {
   if (xml === undefined) return undefined
 
-  const baseFields = importBaseElementFromXML(context, undefined, xml as any)
-
-  const result: T = {
-    ...baseFields,
-    elementType: elementType as any,
-  } as T
-
   const rules = getElementRule<T>(elementType)
 
-  for (const [key, rule] of Object.entries(rules.properties)) {
+  const props = importFromXML(context, xml, rules)
+
+  const result = {
+    name: xml._name,
+    elementType: elementType,
+    ...props,
+  } as T
+
+  return result
+}
+
+export function importFromXML<T extends NamedElement>(
+  context: ConfigurationContext,
+  xml: any,
+  rules: ElementRule<T>
+): Partial<T> | undefined {
+  const result: Partial<T> = {}
+  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
     const xmlKey = rule.xml ?? capitalize(key)
 
     const xmlValue = (xml as any)[xmlKey]
@@ -59,4 +86,14 @@ const importEventsFromXML = <T extends EventedElement>(
   }
 
   return { events: result }
+}
+
+const importPropertyFromXML = (context: ConfigurationContext, propertyRule: PropertyRule<any>, data: any): any => {
+  const ruleFunction = getTypeRule(propertyRule.type as any, "importFromXML")
+
+  if (ruleFunction === undefined) return data
+
+  const result = ruleFunction(context, propertyRule, data)
+
+  return result
 }

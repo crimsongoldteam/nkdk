@@ -1,22 +1,13 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  CommandBarGroupChildItems,
-  CommandBarGroupChildItemsTypedEnterprise,
-  CommandBarGroupChildItemsXML,
-} from "../../collections/childItems/types"
-import { BaseElementXML } from "../baseElement/types"
+import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
+import { BaseElement } from "../baseElement/types"
 
-export interface ContextMenu {
+export interface ContextMenu extends BaseElement {
+  elementType: "ContextMenu"
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
   childItems: CommandBarGroupChildItems
-}
-
-export interface ContextMenuXML extends BaseElementXML {
-  _DisplayImportance?: SE.DisplayImportance
-  Autofill?: boolean
-  ChildItems?: CommandBarGroupChildItemsXML
 }
 
 export interface ContextMenuEnterprise {
