@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullPictureDecoration,
   fullPictureDecorationPartialEnterprise,
@@ -6,59 +7,63 @@ import {
   minimalPictureDecoration,
   minimalPictureDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  importPictureDecorationPartialFromEnterprise,
-  importPictureDecorationTypedFromEnterprise,
-} from "./importFromEnterprise"
+import { mockContext } from "~/tests/mockContext"
+import { PictureDecoration } from "./types"
 
 describe("importPictureDecorationFromEnterprise", () => {
   describe("importPictureDecorationTypedFromEnterprise", () => {
-    it("should return undefined when source is undefined", () => {
-      const result = importPictureDecorationTypedFromEnterprise(mockContext, mockRule, undefined, "ДекорацияКартинки")
+    it("should return undefined when data is undefined", () => {
+      const result = importElementFromYAMLTyped({
+        context: mockContext,
+        data: undefined,
+        name: "ДекорацияКартинки",
+      })
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPictureDecorationTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPictureDecorationTypedEnterprise,
-        "ДекорацияКартинки"
-      )
+      const result = importElementFromYAMLTyped<PictureDecoration>({
+        context: mockContext,
+        data: fullPictureDecorationTypedEnterprise,
+        name: "ДекорацияКартинки",
+      })
 
       expect(result).toEqual(fullPictureDecoration)
     })
 
     it("should import minimal", () => {
-      const result = importPictureDecorationTypedFromEnterprise(
-        mockContext,
-        mockRule,
-        minimalPictureDecorationTypedEnterprise,
-        "ДекорацияКартинки"
-      )
+      const result = importElementFromYAMLTyped<PictureDecoration>({
+        context: mockContext,
+        data: minimalPictureDecorationTypedEnterprise,
+        name: "ДекорацияКартинки",
+      })
 
       expect(result).toEqual(minimalPictureDecoration)
     })
   })
 
   describe("importPictureDecorationPartialFromEnterprise", () => {
-    // it("should return undefined when source is undefined", () => {
-    //   const result = importPictureDecorationPartialFromEnterprise(mockContext, mockRule,  undefined, undefined)
-
-    //   expect(result).toBeUndefined()
-    // })
-
     it("should import all fields from Enterprise", () => {
-      const result = importPictureDecorationPartialFromEnterprise(
-        mockContext,
-        mockRule,
-        fullPictureDecoration,
-        fullPictureDecorationPartialEnterprise
-      )
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PictureDecoration,
+        data: fullPictureDecorationPartialEnterprise,
+        source: fullPictureDecoration,
+      })
 
       expect(result).toEqual(fullPictureDecoration)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromYAMLPartial({
+        context: mockContext,
+        elementType: FormElementType.PictureDecoration,
+        data: fullPictureDecorationPartialEnterprise,
+        source: fullPictureDecoration,
+      })
+
+      expect(result).toEqual(minimalPictureDecoration)
     })
   })
 })

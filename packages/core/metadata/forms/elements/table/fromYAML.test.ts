@@ -9,27 +9,25 @@ import {
 import { mockContext } from "~/tests/mockContext"
 
 describe("importTableFromEnterprise", () => {
-  describe("importTablePartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLPartial({
-        context: mockContext,
-        elementType: FormElementType.Table,
-        data: fullTablePartialEnterprise,
-        source: fullTable,
-      })
-
-      expect(result).toEqual(fullTable)
+  it("should import all fields from Enterprise", () => {
+    const result = importElementFromYAMLPartial({
+      context: mockContext,
+      elementType: FormElementType.Table,
+      data: fullTablePartialEnterprise,
+      source: fullTable,
     })
 
-    it("should import minimal", () => {
-      const result = importElementFromYAMLPartial({
-        context: mockContext,
-        elementType: FormElementType.Table,
-        data: minimalTablePartialEnterprise,
-        source: minimalTable,
-      })
+    expect(result).toEqual(fullTable)
+  })
 
-      expect(result).toEqual(minimalTable)
+  it("should import minimal", () => {
+    const result = importElementFromYAMLPartial({
+      context: mockContext,
+      elementType: FormElementType.Table,
+      data: minimalTablePartialEnterprise,
+      source: minimalTable,
     })
+
+    expect(result).toEqual(minimalTable)
   })
 })

@@ -28,12 +28,6 @@ describe("importCheckBoxFieldFromEnterprise", () => {
         data: fullCheckBoxFieldTypedEnterprise,
         name: "Флажок",
       })
-      // const result = importCheckBoxFieldTypedFromEnterprise(
-      //   mockContext,
-      //   mockRule,
-      //   fullCheckBoxFieldTypedEnterprise,
-      //   "Флажок"
-      // )
 
       expect(result).toEqual(fullCheckBoxField)
     })
@@ -62,12 +56,6 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      // const result = importCheckBoxFieldPartialFromEnterprise(
-      //   mockContext,
-      //   mockRule,
-      //   minimalCheckBoxField,
-      //   minimalCheckBoxFieldPartialEnterprise
-      // )
       const result = importElementFromYAMLPartial({
         context: mockContext,
         elementType: FormElementType.CheckBoxField,
