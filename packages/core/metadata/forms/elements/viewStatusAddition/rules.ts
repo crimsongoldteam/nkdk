@@ -10,10 +10,11 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition> = {
     backColor: { yaml: "ЦветФона", type: "Color" },
     border: { yaml: "Рамка", type: "Border" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    buttonsBackColor: { yaml: "ЦветФонаКнопок", type: "Color" },
+    buttonsBackColor: { yaml: "ЦветФонаКнопок", type: "Color", xml: "ButtonColor" },
     font: { yaml: "Шрифт", type: "Font" },
     horizontalAlign: {
       yaml: "ГоризонтальноеПоложение",
+      xml: "HorizontalLocation",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
     },

@@ -1,31 +1,33 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullViewStatusAddition,
-  fullViewStatusAdditionPartialEnterprise,
+  fullViewStatusAdditionEnterprise,
   minimalViewStatusAddition,
-  minimalViewStatusAdditionPartialEnterprise,
+  minimalViewStatusAdditionEnterprise,
 } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
 
+const rule: PropertyRule<any> = { type: "ViewStatusAddition" }
+
 describe("importViewStatusAdditionFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importElementFromPartialYAML({
+    const result = importPropertyFromEnterprise({
       context: mockContext,
-      elementType: FormElementType.ViewStatusAddition,
-      yaml: fullViewStatusAdditionPartialEnterprise,
-      source: fullViewStatusAddition,
+      rule: rule,
+      value: fullViewStatusAdditionEnterprise,
+      sourceValue: fullViewStatusAddition,
     })
 
     expect(result).toEqual(fullViewStatusAddition)
   })
 
   it("should import minimal", () => {
-    const result = importElementFromPartialYAML({
+    const result = importPropertyFromEnterprise({
       context: mockContext,
-      elementType: FormElementType.ViewStatusAddition,
-      yaml: minimalViewStatusAdditionPartialEnterprise,
-      source: minimalViewStatusAddition,
+      rule: rule,
+      value: minimalViewStatusAdditionEnterprise,
+      sourceValue: minimalViewStatusAddition,
     })
 
     expect(result).toEqual(minimalViewStatusAddition)

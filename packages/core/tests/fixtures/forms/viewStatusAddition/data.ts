@@ -65,3 +65,5 @@ export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
 export const minimalViewStatusAddition: ViewStatusAddition = {
   elementType: "ViewStatusAddition",
 }
+
+export const minimalViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {}
