@@ -54,7 +54,7 @@ export function importElementFromYAMLTyped<T extends NamedElement>(params: {
   return result as T
 }
 
-export function importElementFromYAMLPartial<T extends BaseElement>(params: {
+export function importElementFromPartialYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   elementType: FormElementType
   data: ToPartialEnterpriseType<T> | undefined

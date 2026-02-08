@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullButton,
   fullButtonPartialEnterprise,
@@ -35,7 +35,7 @@ describe("importButtonFromEnterprise", () => {
 
   describe("importButtonPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLPartial({
+      const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.Button,
         data: fullButtonPartialEnterprise,

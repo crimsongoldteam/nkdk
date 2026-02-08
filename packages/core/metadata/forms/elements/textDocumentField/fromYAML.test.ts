@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullTextDocumentField,
   fullTextDocumentFieldPartialEnterprise,
@@ -10,7 +10,7 @@ import { mockContext } from "~/tests/mockContext"
 
 describe("importTextDocumentFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importElementFromYAMLPartial({
+    const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.TextDocumentField,
       data: fullTextDocumentFieldPartialEnterprise,
@@ -21,7 +21,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
   })
 
   it("should import minimal", () => {
-    const result = importElementFromYAMLPartial({
+    const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.TextDocumentField,
       data: minimalTextDocumentFieldPartialEnterprise,

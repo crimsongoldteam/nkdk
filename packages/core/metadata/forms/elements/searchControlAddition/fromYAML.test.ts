@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromYAMLPartial, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML, importElementFromYAMLTyped } from "~/metadata/metadataFactory"
 import {
   fullSearchControlAddition,
   fullSearchControlAdditionPartialEnterprise,
@@ -46,7 +46,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
 
   describe("importSearchControlAdditionPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLPartial({
+      const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.SearchControlAddition,
         data: fullSearchControlAdditionPartialEnterprise,
@@ -57,7 +57,7 @@ describe("importSearchControlAdditionFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLPartial({
+      const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.SearchControlAddition,
         data: minimalSearchControlAdditionPartialEnterprise,

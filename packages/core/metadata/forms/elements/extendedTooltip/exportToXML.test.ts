@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/exportToXML"
-import { fullExtendedTooltip, parentElement } from "~/tests/fixtures/forms/extendedTooltip/data"
+import { exportElementToXML } from "~/metadata/metadataFactory"
+import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportElementToXML } from "~/metadata/metadataFactory"
 
 describe("exportExtendedTooltipToXML", () => {
   it("should return default when data is undefined", () => {

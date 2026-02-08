@@ -14,7 +14,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import {
-  importSystemEnumerationFromEnterprise,
   importSystemEnumerationFromYAML,
 } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -40,11 +39,10 @@ export const importMetadataCatalogFromEnterprise = (
   const hierarchical = importBooleanFromEnterprise(context, undefined, data.Иерархический)
   if (hierarchical !== undefined) result.hierarchical = hierarchical
 
-  const hierarchyType = importSystemEnumerationFromEnterprise<SE.HierarchyType>(
+  const hierarchyType = importSystemEnumerationFromYAML<SE.HierarchyType>(
     context,
-    undefined,
-    data.ВидИерархии,
-    SE.HierarchyTypeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "HierarchyType" },
+    data.ВидИерархии
   )
   if (hierarchyType !== undefined) result.hierarchyType = hierarchyType
 
@@ -95,38 +93,34 @@ export const importMetadataCatalogFromEnterprise = (
   const additionalIndexes = importAdditionalIndexesFromEnterprise(context, undefined, data.ДополнительныеИндексы)
   if (additionalIndexes !== undefined) result.additionalIndexes = additionalIndexes
 
-  const codeAllowedLength = importSystemEnumerationFromEnterprise<SE.AllowedLength>(
+  const codeAllowedLength = importSystemEnumerationFromYAML<SE.AllowedLength>(
     context,
-    undefined,
-    data.ДопустимаяДлинаКода,
-    SE.AllowedLengthFromEnterprise
+    { type: "SystemEnumeration", typeSE: "AllowedLength" },
+    data.ДопустимаяДлинаКода
   )
   if (codeAllowedLength !== undefined) result.codeAllowedLength = codeAllowedLength
 
-  const subordinationUse = importSystemEnumerationFromEnterprise<SE.SubordinationUse>(
+  const subordinationUse = importSystemEnumerationFromYAML<SE.SubordinationUse>(
     context,
-    undefined,
-    data.ИспользованиеПодчинения,
-    SE.SubordinationUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "SubordinationUse" },
+    data.ИспользованиеПодчинения
   )
   if (subordinationUse !== undefined) result.subordinationUse = subordinationUse
 
   const useStandardCommands = importBooleanFromEnterprise(context, undefined, data.ИспользоватьСтандартныеКоманды)
   if (useStandardCommands !== undefined) result.useStandardCommands = useStandardCommands
 
-  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+  const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
     context,
-    undefined,
-    data.ИсторияВыбораПриВводе,
-    SE.ChoiceHistoryOnInputFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput" },
+    data.ИсторияВыбораПриВводе
   )
   if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
 
-  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
+  const dataHistory = importSystemEnumerationFromYAML<SE.DataHistoryUse>(
     context,
-    undefined,
-    data.ИсторияДанных,
-    SE.DataHistoryUseFromEnterprise
+    { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
+    data.ИсторияДанных
   )
   if (dataHistory !== undefined) result.dataHistory = dataHistory
 
@@ -164,27 +158,24 @@ export const importMetadataCatalogFromEnterprise = (
 
   if (data.ОсновнаяФормаСписка !== undefined) result.defaultListForm = data.ОсновнаяФормаСписка
 
-  const defaultPresentation = importSystemEnumerationFromEnterprise<SE.CatalogMainPresentation>(
+  const defaultPresentation = importSystemEnumerationFromYAML<SE.CatalogMainPresentation>(
     context,
-    undefined,
-    data.ОсновноеПредставление,
-    SE.CatalogMainPresentationFromEnterprise
+    { type: "SystemEnumeration", typeSE: "CatalogMainPresentation" },
+    data.ОсновноеПредставление
   )
   if (defaultPresentation !== undefined) result.defaultPresentation = defaultPresentation
 
-  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
+  const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
     context,
-    undefined,
-    data.ПолнотекстовыйПоиск,
-    SE.UseFullTextSearchFromEnterprise
+    { type: "SystemEnumeration", typeSE: "UseFullTextSearch" },
+    data.ПолнотекстовыйПоиск
   )
   if (fullTextSearch !== undefined) result.fullTextSearch = fullTextSearch
 
-  const fullTextSearchOnInputByString = importSystemEnumerationFromEnterprise<SE.FullTextSearchOnInputByString>(
+  const fullTextSearchOnInputByString = importSystemEnumerationFromYAML<SE.FullTextSearchOnInputByString>(
     context,
-    undefined,
-    data.ПолнотекстовыйПоискПриВводеПоСтроке,
-    SE.FullTextSearchOnInputByStringFromEnterprise
+    { type: "SystemEnumeration", typeSE: "FullTextSearchOnInputByString" },
+    data.ПолнотекстовыйПоискПриВводеПоСтроке
   )
   if (fullTextSearchOnInputByString !== undefined) result.fullTextSearchOnInputByString = fullTextSearchOnInputByString
 
@@ -203,11 +194,10 @@ export const importMetadataCatalogFromEnterprise = (
   const listPresentation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ПредставлениеСписка)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
-  const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
+  const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
     context,
-    undefined,
-    data.ПринадлежностьОбъекта,
-    SE.ObjectBelongingFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
+    data.ПринадлежностьОбъекта
   )
   if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
@@ -225,61 +215,54 @@ export const importMetadataCatalogFromEnterprise = (
   )
   if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
 
-  const choiceDataGetModeOnInputByString = importSystemEnumerationFromEnterprise<SE.ChoiceDataGetModeOnInputByString>(
+  const choiceDataGetModeOnInputByString = importSystemEnumerationFromYAML<SE.ChoiceDataGetModeOnInputByString>(
     context,
-    undefined,
-    data.РежимПолученияДанныхВыбораПриВводеПоСтроке,
-    SE.ChoiceDataGetModeOnInputByStringFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceDataGetModeOnInputByString" },
+    data.РежимПолученияДанныхВыбораПриВводеПоСтроке
   )
   if (choiceDataGetModeOnInputByString !== undefined)
     result.choiceDataGetModeOnInputByString = choiceDataGetModeOnInputByString
 
-  const dataLockControlMode = importSystemEnumerationFromEnterprise<SE.DefaultDataLockControlMode>(
+  const dataLockControlMode = importSystemEnumerationFromYAML<SE.DefaultDataLockControlMode>(
     context,
-    undefined,
-    data.РежимУправленияБлокировкойДанных,
-    SE.DefaultDataLockControlModeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "DefaultDataLockControlMode" },
+    data.РежимУправленияБлокировкойДанных
   )
   if (dataLockControlMode !== undefined) result.dataLockControlMode = dataLockControlMode
 
-  const codeSeries = importSystemEnumerationFromEnterprise<SE.CatalogCodesSeries>(
+  const codeSeries = importSystemEnumerationFromYAML<SE.CatalogCodesSeries>(
     context,
-    undefined,
-    data.СерииКодов,
-    SE.CatalogCodesSeriesFromEnterprise
+    { type: "SystemEnumeration", typeSE: "CatalogCodesSeries" },
+    data.СерииКодов
   )
   if (codeSeries !== undefined) result.codeSeries = codeSeries
 
-  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
+  const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
     context,
-    undefined,
-    data.СозданиеПриВводе,
-    SE.CreateOnInputFromEnterprise
+    { type: "SystemEnumeration", typeSE: "CreateOnInput" },
+    data.СозданиеПриВводе
   )
   if (createOnInput !== undefined) result.createOnInput = createOnInput
 
-  const choiceMode = importSystemEnumerationFromEnterprise<SE.ChoiceMode>(
+  const choiceMode = importSystemEnumerationFromYAML<SE.ChoiceMode>(
     context,
-    undefined,
-    data.СпособВыбора,
-    SE.ChoiceModeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "ChoiceMode" },
+    data.СпособВыбора
   )
   if (choiceMode !== undefined) result.choiceMode = choiceMode
 
-  const searchStringModeOnInputByString = importSystemEnumerationFromEnterprise<SE.SearchStringModeOnInputByString>(
+  const searchStringModeOnInputByString = importSystemEnumerationFromYAML<SE.SearchStringModeOnInputByString>(
     context,
-    undefined,
-    data.СпособПоискаСтрокиПриВводеПоСтроке,
-    SE.SearchStringModeOnInputByStringFromEnterprise
+    { type: "SystemEnumeration", typeSE: "SearchStringModeOnInputByString" },
+    data.СпособПоискаСтрокиПриВводеПоСтроке
   )
   if (searchStringModeOnInputByString !== undefined)
     result.searchStringModeOnInputByString = searchStringModeOnInputByString
 
-  const editType = importSystemEnumerationFromEnterprise<SE.EditType>(
+  const editType = importSystemEnumerationFromYAML<SE.EditType>(
     context,
-    undefined,
-    data.СпособРедактирования,
-    SE.EditTypeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "EditType" },
+    data.СпособРедактирования
   )
   if (editType !== undefined) result.editType = editType
 
@@ -290,11 +273,10 @@ export const importMetadataCatalogFromEnterprise = (
   )
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
-  const codeType = importSystemEnumerationFromEnterprise<SE.CatalogCodeType>(
+  const codeType = importSystemEnumerationFromYAML<SE.CatalogCodeType>(
     context,
-    undefined,
-    data.ТипКода,
-    SE.CatalogCodeTypeFromEnterprise
+    { type: "SystemEnumeration", typeSE: "CatalogCodeType" },
+    data.ТипКода
   )
   if (codeType !== undefined) result.codeType = codeType
 

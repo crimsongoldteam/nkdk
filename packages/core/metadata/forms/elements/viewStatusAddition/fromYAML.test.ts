@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullViewStatusAddition,
   fullViewStatusAdditionPartialEnterprise,
@@ -10,7 +10,7 @@ import { mockContext } from "~/tests/mockContext"
 
 describe("importViewStatusAdditionFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importElementFromYAMLPartial({
+    const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.ViewStatusAddition,
       data: fullViewStatusAdditionPartialEnterprise,
@@ -21,7 +21,7 @@ describe("importViewStatusAdditionFromEnterprise", () => {
   })
 
   it("should import minimal", () => {
-    const result = importElementFromYAMLPartial({
+    const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.ViewStatusAddition,
       data: minimalViewStatusAdditionPartialEnterprise,

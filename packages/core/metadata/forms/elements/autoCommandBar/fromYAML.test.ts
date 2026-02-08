@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullAutoCommandBar,
   fullAutoCommandBarPartialEnterprise,
@@ -10,7 +10,7 @@ import { mockContext } from "~/tests/mockContext"
 
 describe("importAutoCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importElementFromYAMLPartial({
+    const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.AutoCommandBar,
       data: fullAutoCommandBarPartialEnterprise,
@@ -21,7 +21,7 @@ describe("importAutoCommandBarFromEnterprise", () => {
   })
 
   it("should import minimal", () => {
-    const result = importElementFromYAMLPartial({
+    const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.AutoCommandBar,
       data: minimalAutoCommandBarPartialEnterprise,

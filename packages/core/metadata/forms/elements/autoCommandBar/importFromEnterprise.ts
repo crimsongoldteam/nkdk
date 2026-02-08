@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importElementFromYAMLPartial, ToPartialEnterpriseType } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, ToPartialEnterpriseType } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
 import { AutoCommandBar } from "./types"
 
@@ -11,5 +11,5 @@ export const importAutoCommandBarFromEnterprise = <T extends AutoCommandBar>(
 ): T | undefined => {
   if (yaml === undefined) return source
 
-  return importElementFromYAMLPartial<T>(context, "AutoCommandBar", yaml, source)
+  return importElementFromPartialYAML<T>(context, "AutoCommandBar", yaml, source)
 }

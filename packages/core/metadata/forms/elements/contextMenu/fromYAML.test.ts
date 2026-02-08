@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromYAMLPartial } from "~/metadata/metadataFactory"
+import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullContextMenu,
   fullContextMenuPartialEnterprise,
@@ -11,7 +11,7 @@ import { mockContext } from "~/tests/mockContext"
 describe("importContextMenuFromEnterprise", () => {
   describe("importContextMenuPartialFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromYAMLPartial({
+      const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ContextMenu,
         data: fullContextMenuPartialEnterprise,
@@ -22,7 +22,7 @@ describe("importContextMenuFromEnterprise", () => {
     })
 
     it("should import minimal", () => {
-      const result = importElementFromYAMLPartial({
+      const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.ContextMenu,
         data: minimalContextMenuPartialEnterprise,
