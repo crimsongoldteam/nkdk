@@ -11,7 +11,7 @@ describe("exportCheckBoxFieldToStructure", () => {
     it.each(checkBoxFieldStructureFixturesTable)(
       "should export check box field $name",
       ({ element: input, structured: expected }) => {
-        const result = exportCheckBoxFieldToStructure(mockContext, undefined, input)
+        const result = exportCheckBoxFieldToStructure(mockContext, input)
 
         expect(result.strings).toEqual(expected.strings)
       }
@@ -21,7 +21,7 @@ describe("exportCheckBoxFieldToStructure", () => {
     it.each(checkBoxFieldContentStructureFixturesTable)(
       "should export check box field $name",
       ({ element: input, structured: expected }) => {
-        const result = exportCheckBoxFieldContentToStructure(mockContext, undefined, input)
+        const result = exportCheckBoxFieldContentToStructure(mockContext, input)
 
         expect(result.strings).toEqual(expected.strings)
       }

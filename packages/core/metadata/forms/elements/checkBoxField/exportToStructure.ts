@@ -4,15 +4,13 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
-import { PropertyRule } from "../calendarField/rules"
 import { CheckBoxField } from "./types"
 
 export const exportCheckBoxFieldToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
   element: CheckBoxField
 ): IFormatElementResult => {
-  const result = formatCheckBoxFieldContent(context, rule, element, false)
+  const result = formatCheckBoxFieldContent(context, element, false)
 
   return {
     strings: [result],
@@ -22,10 +20,9 @@ export const exportCheckBoxFieldToStructure = (
 
 export const exportCheckBoxFieldContentToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
   element: CheckBoxField
 ): IFormatElementResult => {
-  const result = formatCheckBoxFieldContent(context, rule, element, true)
+  const result = formatCheckBoxFieldContent(context, element, true)
 
   return {
     strings: [result],
@@ -35,7 +32,6 @@ export const exportCheckBoxFieldContentToStructure = (
 
 const formatCheckBoxFieldContent = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   element: CheckBoxField,
   forContent: boolean
 ): string => {

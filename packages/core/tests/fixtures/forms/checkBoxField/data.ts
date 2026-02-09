@@ -141,7 +141,6 @@ export const fullCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise 
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },
-  Заголовок: "Флажок формы",
   ВидФлажка: "Выключатель",
   ВысотаЗаголовкаЭлемента: 15,
   ВысотаЭлемента: 20,
@@ -158,6 +157,7 @@ export const fullCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise 
 export const fullCheckBoxFieldTypedEnterprise: CheckBoxFieldTypedEnterprise = {
   ...fullCheckBoxFieldPartialEnterprise,
   Тип: "ПолеФлажок",
+  Заголовок: "Флажок формы",
 }
 
 export const minimalCheckBoxField: CheckBoxField = {

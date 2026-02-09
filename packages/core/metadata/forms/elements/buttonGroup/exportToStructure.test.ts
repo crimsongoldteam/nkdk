@@ -7,7 +7,7 @@ describe("exportButtonGroupContentToStructure", () => {
   it.each(buttonGroupStructureFixturesTable)(
     "should export button group $name",
     ({ element: input, structured: expected }) => {
-      const result = exportButtonGroupContentToStructure(mockContext, undefined, input)
+      const result = exportButtonGroupContentToStructure(mockContext, input)
 
       expect(result.strings).toEqual(expected.strings)
     }

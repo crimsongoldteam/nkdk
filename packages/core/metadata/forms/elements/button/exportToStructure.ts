@@ -4,14 +4,9 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
-import { PropertyRule } from "../calendarField/rules"
 import { Button } from "./types"
 
-export function exportButtonToStructure(
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  element: Button
-): IFormatElementResult {
+export function exportButtonToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = wrapButtonContent(formatContent(context, element))
   return {
     strings: [resultString],
@@ -19,11 +14,7 @@ export function exportButtonToStructure(
   }
 }
 
-export function exportButtonContentToStructure(
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  element: Button
-): IFormatElementResult {
+export function exportButtonContentToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = formatContent(context, element)
   return {
     strings: [resultString],

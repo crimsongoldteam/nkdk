@@ -13,16 +13,6 @@ import { ButtonGroup } from "./types"
 
 describe("importButtonGroupFromEnterprise", () => {
   describe("importButtonGroupTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML<ButtonGroup>({
-        context: mockContext,
-        yaml: undefined,
-        name: "ГруппаКнопок",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,

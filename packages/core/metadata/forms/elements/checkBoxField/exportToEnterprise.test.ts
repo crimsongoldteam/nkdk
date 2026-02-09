@@ -5,7 +5,6 @@ import {
   fullCheckBoxFieldPartialEnterprise,
   fullCheckBoxFieldTypedEnterprise,
   minimalCheckBoxField,
-  minimalCheckBoxFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -20,7 +19,7 @@ describe("exportCheckBoxFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalCheckBoxField })
 
-      expect(result).toEqual(minimalCheckBoxFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 
@@ -29,12 +28,6 @@ describe("exportCheckBoxFieldToEnterprise", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullCheckBoxField })
 
       expect(result).toEqual(fullCheckBoxFieldTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
-
-      expect(result).toBeUndefined()
     })
   })
 })

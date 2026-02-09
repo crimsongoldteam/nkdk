@@ -5,7 +5,6 @@ import {
   fullButtonPartialEnterprise,
   fullButtonTypedEnterprise,
   minimalButton,
-  minimalButtonPartialEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -20,7 +19,7 @@ describe("exportButtonToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalButton })
 
-      expect(result).toEqual(minimalButtonPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 

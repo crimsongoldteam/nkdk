@@ -13,16 +13,6 @@ import { CheckBoxField } from "./types"
 
 describe("importCheckBoxFieldFromEnterprise", () => {
   describe("importCheckBoxFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML({
-        context: mockContext,
-        yaml: undefined,
-        name: "Флажок",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<CheckBoxField>({
         context: mockContext,

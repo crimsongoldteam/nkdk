@@ -13,7 +13,7 @@ describe("formatOtherElement", () => {
 
     const expectedResult = ["?ПолеВвода {ИмяПоля}"]
 
-    const result = exportOtherElementToStructure(mockContext, undefined, element)
+    const result = exportOtherElementToStructure(mockContext, element)
 
     expect(result.strings).toEqual(expectedResult)
   })
