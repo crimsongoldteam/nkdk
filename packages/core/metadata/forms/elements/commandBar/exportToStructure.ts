@@ -4,15 +4,13 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
 import { formatElementName } from "../../format/helpers"
-import { PropertyRule } from "../calendarField/rules"
 import { CommandBar } from "./types"
 
 export const exportCommandBarToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
   element: CommandBar
 ): IFormatElementResult => {
-  const content = exportCommandBarContentToStructure(context, rule, element)
+  const content = exportCommandBarContentToStructure(context, element)
   const resultString = `${content} ${formatElementName(element)}`
 
   return {
@@ -23,10 +21,9 @@ export const exportCommandBarToStructure = (
 
 export const exportCommandBarContentToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
   element: Pick<CommandBar, "childItems" | "autofill">
 ): string => {
-  const buttonStrings = exportCommandBarItemsToStructure(context, rule, element.childItems || [])
+  const buttonStrings = exportCommandBarItemsToStructure(context, element.childItems || [])
   const autofill = !!element.autofill
 
   return formatCommandBarContent(buttonStrings, autofill)

@@ -10,7 +10,7 @@ import {
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportPopupToEnterprise", () => {
-  describe("exportElementToPartialYAML", () => {
+  describe("Partial", () => {
     it("should export all fields to Enterprise", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullPopup })
 
@@ -24,7 +24,7 @@ describe("exportPopupToEnterprise", () => {
     })
   })
 
-  describe("exportElementToTypedYAML", () => {
+  describe("Typed", () => {
     it("should export all fields to Enterprise", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullPopup })
 

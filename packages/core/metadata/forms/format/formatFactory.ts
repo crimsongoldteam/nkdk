@@ -58,7 +58,7 @@ export const formatElements = (context: ConfigurationContext, items: AllChildIte
 
     prevItem = item
 
-    const text = formatElement(context, undefined, item)
+    const text = formatElement(context, item)
     result.strings.push(...text.strings)
     result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }

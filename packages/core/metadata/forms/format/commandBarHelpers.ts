@@ -1,12 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { PropertyRule } from "../elements/calendarField/rules"
 import { wrapButtonContent } from "./helpers"
 
 export const exportCommandBarItemsToStructure = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
   childItems: { elementType: FormElementType }[]
 ): string[] => {
   return childItems.flatMap((item) => {
@@ -14,7 +12,7 @@ export const exportCommandBarItemsToStructure = (
 
     if (!exportFunction)
       throw new Error(`ExportToStructureContent function not found for element type: ${item.elementType}`)
-    const result = exportFunction(context, rule, item)
+    const result = exportFunction(context, item)
     return result.strings
   })
 }

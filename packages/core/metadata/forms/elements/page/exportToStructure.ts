@@ -2,20 +2,15 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
-import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { addSimpleIndent } from "~/metadata/forms/format/wrap/addIndents"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { NamedElement } from "../baseElement/types"
-import { PropertyRule } from "../calendarField/rules"
 import { Page } from "./types"
 
-export const exportPageToStructure: FormatElementFunction = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  element: NamedElement
-): IFormatElementResult => {
+export const exportPageToStructure = (context: ConfigurationContext, element: NamedElement): IFormatElementResult => {
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []
 

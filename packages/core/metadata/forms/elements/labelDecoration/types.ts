@@ -90,7 +90,3 @@ export interface LabelDecorationPartialEnterprise {
     ОбработкаНавигационнойСсылки?: string
   }
 }
-
-export interface LabelDecorationTypedEnterprise extends LabelDecorationPartialEnterprise {
-  Тип: "Надпись"
-}

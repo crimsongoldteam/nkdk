@@ -1,5 +1,5 @@
 <PictureField name="ПолеКартинки" id="1" DisplayImportance="High">
-	<AssociatedTableElementId xsi:type="xs:string"/>
+	<AssociatedTableElementId xsi:type="xs:string">ИсходнаяТаблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<AutoMaxWidth>false</AutoMaxWidth>

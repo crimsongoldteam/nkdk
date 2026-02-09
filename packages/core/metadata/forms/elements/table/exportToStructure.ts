@@ -16,7 +16,7 @@ const formatTableColumn = (context: ConfigurationContext, column: NamedElement):
   // Пробуем использовать ExportToStructureContent для всех элементов
   const exportContentFunction = getOperationFunction("ExportToStructureContent", column.elementType)
   if (exportContentFunction) {
-    const result = exportContentFunction(context, undefined, column) as IFormatElementResult
+    const result = exportContentFunction(context, column) as IFormatElementResult
     return result.strings[0] || formatElementName(column)
   }
 
@@ -62,10 +62,10 @@ export const exportTableToStructure: FormatElementFunction = (
     haveSimpleHorizontalGroup: false,
   }
 
-  const autoCommandBar = exportAutoCommandBarToStructure(context, undefined, table.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)
   result.strings.push(...autoCommandBar.strings)
 
-  const tableContent = exportTableContentToStructure(context, undefined, table)
+  const tableContent = exportTableContentToStructure(context, table)
   result.strings.push(...tableContent.strings)
 
   return result

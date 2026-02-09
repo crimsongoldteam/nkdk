@@ -1,8 +1,4 @@
-import {
-  LabelDecoration,
-  LabelDecorationPartialEnterprise,
-  LabelDecorationTypedEnterprise,
-} from "~/metadata/forms/elements/labelDecoration/types"
+import { LabelDecoration, LabelDecorationPartialEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -111,22 +107,12 @@ export const fullLabelDecorationPartialEnterprise: LabelDecorationPartialEnterpr
   },
 }
 
-export const fullLabelDecorationTypedEnterprise: LabelDecorationTypedEnterprise = {
-  ...fullLabelDecorationPartialEnterprise,
-  Тип: "Надпись",
-  Заголовок: "Заголовок формы",
-}
-
 export const minimalLabelDecoration: LabelDecoration = {
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
 }
 
 export const minimalLabelDecorationPartialEnterprise: LabelDecorationPartialEnterprise = {}
-
-export const minimalLabelDecorationTypedEnterprise: LabelDecorationTypedEnterprise = {
-  Тип: "Надпись",
-}
 
 // Для обратной совместимости
 export const fullLabelDecorationEnterprise: LabelDecorationPartialEnterprise = fullLabelDecorationPartialEnterprise

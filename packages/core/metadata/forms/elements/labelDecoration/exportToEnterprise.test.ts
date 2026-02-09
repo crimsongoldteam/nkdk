@@ -4,20 +4,21 @@ import {
   fullLabelDecoration,
   fullLabelDecorationPartialEnterprise,
   minimalLabelDecoration,
-  minimalLabelDecorationPartialEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportLabelDecorationToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportElementToPartialYAML({ context: mockContext, element: fullLabelDecoration })
+describe("LabelDecoration to YAML", () => {
+  describe("Partial", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullLabelDecoration })
 
-    expect(result).toEqual(fullLabelDecorationPartialEnterprise)
-  })
+      expect(result).toEqual(fullLabelDecorationPartialEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportElementToPartialYAML({ context: mockContext, element: minimalLabelDecoration })
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalLabelDecoration })
 
-    expect(result).toEqual(minimalLabelDecorationPartialEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
