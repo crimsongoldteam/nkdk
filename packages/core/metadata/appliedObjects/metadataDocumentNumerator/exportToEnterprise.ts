@@ -3,7 +3,7 @@ import {
   MetadataDocumentNumeratorEnterprise,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"

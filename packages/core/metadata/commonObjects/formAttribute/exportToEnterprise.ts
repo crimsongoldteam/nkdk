@@ -9,7 +9,7 @@ import {
   FormAttributes,
   FormAttributesEnterprise,
 } from "~/metadata/commonObjects/formAttribute/types"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"

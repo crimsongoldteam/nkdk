@@ -5,7 +5,7 @@ import {
   MetadataCommandsEnterprise,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"

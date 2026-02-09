@@ -1,4 +1,4 @@
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
 import {
   MetadataTabularSection,

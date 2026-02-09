@@ -18,7 +18,7 @@ interface BasePropertyRule<T extends BaseElement> {
   yaml?: keyof ToPartialEnterpriseType<T>
   xml?: string
   toEnterprise?: false
-  toYAML?: false | ExportCheckFn
+  toPartialYAML?: false | ExportCheckFn
   fromXML?: false
   defaultValue?: any
 }

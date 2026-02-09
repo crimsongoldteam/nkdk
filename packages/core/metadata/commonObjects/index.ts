@@ -71,10 +71,10 @@ import "./functionalOptionsProperty/exportToXML"
 import "./functionalOptionsProperty/importFromEnterprise"
 import "./functionalOptionsProperty/importFromXML"
 
-import "./i8nText/exportToEnterprise"
 import "./i8nText/exportToXML"
 import "./i8nText/importFromEnterprise"
 import "./i8nText/importFromXML"
+import "./i8nText/toYAML"
 
 import "./indexField/exportToEnterprise"
 import "./indexField/exportToXML"

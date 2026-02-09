@@ -5,12 +5,11 @@ import {
   fullLabelFieldPartialEnterprise,
   fullLabelFieldTypedEnterprise,
   minimalLabelField,
-  minimalLabelFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportLabelFieldToEnterprise", () => {
-  describe("exportLabelFieldPartialToEnterprise", () => {
+  describe("Partial", () => {
     it("should export all fields to Enterprise", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullLabelField })
 
@@ -20,11 +19,11 @@ describe("exportLabelFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalLabelField })
 
-      expect(result).toEqual(minimalLabelFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 
-  describe("exportLabelFieldTypedToEnterprise", () => {
+  describe("Typed", () => {
     it("should export all fields to Enterprise", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullLabelField })
 

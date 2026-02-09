@@ -1,5 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metadataValue/exportToEnterprise"
 import {
   StandardAttributeDescription,

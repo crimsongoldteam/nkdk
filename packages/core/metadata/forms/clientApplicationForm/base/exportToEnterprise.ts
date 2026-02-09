@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttribute/exportToEnterprise"
 import { exportFormParametersToEnterprise } from "~/metadata/commonObjects/formParameter/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportUsePurposesToEnterprise } from "~/metadata/commonObjects/usePurposes/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {

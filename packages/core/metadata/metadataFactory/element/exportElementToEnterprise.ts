@@ -1,10 +1,17 @@
 import { exportFormattedI8nTextToYAML } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
+import {
+  ElementRule,
+  FormattedI8nTextPropertyRule,
+  getElementRule,
+  I8nTextPropertyRule,
+  PropertyRule,
+} from "../elementRulesFactory"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
 import { exportFormElementTypeToEnterprise, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
@@ -12,12 +19,13 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
   context: ConfigurationContext
   rule: PropertyRule<T>
   value: any
+  toTyped?: true
 }): Record<string, any> | undefined => {
-  const { context, rule, value } = params
+  const { context, rule, value, toTyped } = params
 
   if (rule.yaml === undefined) return undefined
 
-  if (rule.toYAML === false) return undefined
+  if (!toTyped && rule.toPartialYAML === false) return undefined
 
   if (rule.type == "UserVisible") {
     const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
@@ -25,11 +33,26 @@ export const exportPropertyToYAML = <T extends BaseElement>(params: {
   }
 
   if (rule.type == "FormattedI8nText") {
-    const result = exportFormattedI8nTextToYAML(context, rule, value)
+    const tempRule: FormattedI8nTextPropertyRule<T> = {
+      ...rule,
+      yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
+    }
+    const result = exportFormattedI8nTextToYAML(context, tempRule, value)
     return result
   }
 
   const yamlKey = rule.yaml
+
+  if (rule.type == "I8nText") {
+    const tempRule: I8nTextPropertyRule<T> = {
+      ...rule,
+      yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
+    }
+    const result = exportI8nTextToYAML(context, tempRule, value)
+    if (result === undefined) return undefined
+
+    return { [yamlKey]: result }
+  }
 
   const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
@@ -63,7 +86,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
   for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     const value = data[key]
 
-    const exportedValues = exportPropertyToYAML({ context, rule, value })
+    const exportedValues = exportPropertyToYAML({ context, rule, value, toTyped: true })
 
     if (exportedValues == undefined) continue
 

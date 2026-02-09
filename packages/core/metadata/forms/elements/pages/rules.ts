@@ -8,7 +8,7 @@ export const PagesRules: ElementRule<Pages> = {
     childItems: {
       type: "ChildItems",
       defaultValue: [],
-      toYAML: false,
+      toPartialYAML: false,
     },
     currentPagesState: {
       yaml: "ТекущееСостояниеСтраниц",

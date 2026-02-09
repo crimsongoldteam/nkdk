@@ -13,7 +13,7 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
       yaml: "Автозаполнение",
       type: "boolean",
       defaultValue: true,
-      toYAML: false,
+      toPartialYAML: false,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -28,7 +28,7 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
     },
     childItems: {
       type: "ChildItems",
-      toYAML: false,
+      toPartialYAML: false,
       defaultValue: [],
     },
   },

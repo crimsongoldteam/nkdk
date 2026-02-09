@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { I8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "./exportToEnterprise"
+import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "./toYAML"
 
 describe("exportI8nTextToEnterprise", () => {
   describe("exportI8nTextToEnterprise", () => {

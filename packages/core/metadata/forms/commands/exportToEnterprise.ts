@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportI8nTextToYAML } from "../../commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToYAML } from "../../commonObjects/i8nText/toYAML"
 import { exportPictureToEnterprise } from "../../commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "../../commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "../../commonObjects/userVisible/types"
