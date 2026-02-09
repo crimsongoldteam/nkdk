@@ -128,7 +128,7 @@ export type CommandBarChildItems = CommandBarChildItem[]
 
 export type CommandBarChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<CommandBarChildItem>>
 
-// export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<CommandBarChildItem>>
+export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<Button | ButtonGroup | Popup>>
 
 // #endregion
 

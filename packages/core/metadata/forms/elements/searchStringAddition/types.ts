@@ -49,7 +49,6 @@ export interface SearchStringAdditionEnterprise {
   КонтекстноеМеню?: ContextMenuEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
-  // ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise

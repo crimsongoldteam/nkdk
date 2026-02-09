@@ -1,18 +1,13 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  CommandBarChildItems,
-  CommandBarChildItemsTypedEnterprise,
-  CommandBarChildItemsXML,
-} from "../../collections/childItems/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { CommandBarChildItems, CommandBarChildItemsTypedEnterprise } from "../../collections/childItems/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface SearchControlAddition {
   elementType: "SearchControlAddition"
@@ -41,33 +36,6 @@ export interface SearchControlAddition {
 }
 
 export interface SingleSearchControlAddition extends Omit<SearchControlAddition, "name" | "additionSource"> {}
-
-export interface SearchControlAdditionXML extends BaseElementXML {
-  AdditionSource?: {
-    Item: string
-    Type: "SearchControl"
-  }
-  AutoMaxWidth?: boolean
-  BackColor?: ColorXML
-  BorderColor?: ColorXML
-  Font?: FontXML
-  HorizontalStretch?: boolean
-  MaxWidth?: number
-  TextColor?: ColorXML
-  Width?: number
-  ChildItems?: CommandBarChildItemsXML
-  ContextMenu: ContextMenuXML
-  _DisplayImportance?: SE.DisplayImportance
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  Title?: I8nTextXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  Visible?: boolean
-}
 
 export interface SearchControlAdditionEnterprise {
   Источник?: string

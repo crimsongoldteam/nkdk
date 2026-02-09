@@ -1,10 +1,15 @@
+import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
-import { SearchStringAddition } from "./types"
+import { getSearchStringAdditionName } from "./helper"
+import { SearchStringAddition, SingleSearchStringAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
+export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddition, "additionSource"> = {
   properties: {
-    additionSource: { yaml: "Источник", type: "string" },
+    additionSource: {
+      type: "TableAdditionalSource",
+      additionalSourceType: "SearchStringRepresentation",
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     font: { yaml: "Шрифт", type: "Font" },
@@ -50,7 +55,31 @@ export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
     },
     visible: { yaml: "Видимость", type: "boolean" },
   },
-  events: {},
+  registerAsType: {
+    SearchStringAddition: {
+      toXML: (context, _element) => {
+        if (!context.elementContext) throw new Error("elementContext is not defined")
+        const parent = context.elementContext
+        const id = getElementId(context)
+        const name = getSearchStringAdditionName(parent)
+        return { name, id }
+      },
+    },
+  },
+}
+
+const { additionSource: _excluded, ...SingleSearchStringAdditionRulesProperties } =
+  SingleSearchStringAdditionRules.properties
+
+export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
+  properties: {
+    additionSource: {
+      yaml: "Источник",
+      type: "TableAdditionalSource",
+      additionalSourceType: "SearchStringRepresentation",
+    },
+    ...SingleSearchStringAdditionRulesProperties,
+  },
 }
 
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)

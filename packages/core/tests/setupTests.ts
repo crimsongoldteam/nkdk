@@ -3,6 +3,8 @@ import "~/metadata/commonObjects"
 
 import "~/metadata/forms/elements"
 
+import "~/metadata/forms/commonObjects/index"
+
 import "~/metadata/forms/collections/childItems/exportToEnterprise"
 import "~/metadata/forms/collections/childItems/exportToPreview"
 import "~/metadata/forms/collections/childItems/exportToStructure"

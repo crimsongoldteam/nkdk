@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "../context/types"
+import { TableAdditionalSourceTypes } from "../forms/commonObjects/tableAdditionalSource/types"
 import { BaseElement, EventedElement } from "../forms/elements/baseElement/types"
 import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"
 import { exportSingleElementToXML } from "./element/exportElementToXML"
@@ -45,8 +46,16 @@ export interface UserVisiblePropertyRule<T extends BaseElement> extends BaseProp
   yamlDeny: string
 }
 
+export interface TableAdditionalSourcePropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
+  type: "TableAdditionalSource"
+  additionalSourceType: TableAdditionalSourceTypes
+}
+
 export interface CleanPropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
-  type: Exclude<TypeRulesNames, "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible">
+  type: Exclude<
+    TypeRulesNames,
+    "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible" | "TableAdditionalSource"
+  >
 }
 
 export interface CustomExportPropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
@@ -61,13 +70,14 @@ export type PropertyRule<T extends BaseElement> =
   | FormattedI8nTextPropertyRule<T>
   | CleanPropertyRule<T>
   | CustomExportPropertyRule<T>
+  | TableAdditionalSourcePropertyRule<T>
 
 interface RegisterAsTypeRule<T extends BaseElement> {
   toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
 }
 
-export interface ElementRule<T extends BaseElement> {
-  properties: Partial<Record<Extract<keyof T, string>, PropertyRule<T>>>
+export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> {
+  properties: Partial<Record<Extract<keyof T | ExtraProperties, string>, PropertyRule<T>>>
   events?: T extends EventedElement
     ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
     : never

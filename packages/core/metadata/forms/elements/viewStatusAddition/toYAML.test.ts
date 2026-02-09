@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { exportPropertyToYAML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
-import { fullViewStatusAddition, fullViewStatusAdditionEnterprise } from "~/tests/fixtures/forms/viewStatusAddition/data"
+import {
+  fullViewStatusAddition,
+  fullViewStatusAdditionEnterprise,
+} from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
+import { Table } from "../table/types"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule<Table> = {
   type: "ViewStatusAddition",
+  yaml: "ОтображениеСостоянияПросмотра",
 }
 
 describe("exportViewStatusAdditionToEnterprise", () => {
@@ -26,6 +31,6 @@ describe("exportViewStatusAdditionToEnterprise", () => {
       value: fullViewStatusAddition,
     })
 
-    expect(result).toEqual(fullViewStatusAdditionEnterprise)
+    expect(result).toHaveProperty("ОтображениеСостоянияПросмотра", fullViewStatusAdditionEnterprise)
   })
 })

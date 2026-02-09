@@ -4,8 +4,12 @@ import { getViewStatusAdditionName } from "./helper"
 import { ViewStatusAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition> = {
+export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionSource"> = {
   properties: {
+    additionSource: {
+      type: "TableAdditionalSource",
+      additionalSourceType: "ViewStatusRepresentation",
+    },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
     border: { yaml: "Рамка", type: "Border" },

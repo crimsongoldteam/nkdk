@@ -16,8 +16,6 @@ export const exportPropertyToXML = (params: {
 }): any | undefined => {
   const { context, rule, value } = params
 
-  // const xmlKey = rule.xml ?? capitalize(key)
-
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
@@ -69,7 +67,7 @@ function exportToXML<T extends BaseElement>(params: {
   id: string
   name: string
 }): ElementXML {
-  const { context, element: data, rule, id, name } = params
+  const { context, element, rule, id, name } = params
 
   const result: any = {
     _name: name,
@@ -81,28 +79,27 @@ function exportToXML<T extends BaseElement>(params: {
     elementContext: { name: name },
   }
 
-  if (data !== undefined) {
-    for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
-      const value = (data as any)[key]
+  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+    const value = element === undefined ? undefined : (element as any)[key]
 
-      const xmlKey = ruleProp.xml ?? capitalize(key)
+    const xmlKey = ruleProp.xml ?? capitalize(key)
 
-      const exportedValue = exportPropertyToXML({
-        context: currentContext,
-        rule: ruleProp,
-        value,
-      })
+    const exportedValue = exportPropertyToXML({
+      context: currentContext,
+      rule: ruleProp,
+      value,
+    })
 
-      if (exportedValue === undefined) continue
-      result[xmlKey] = exportedValue
-    }
+    if (exportedValue === undefined) continue
+    result[xmlKey] = exportedValue
   }
+  // }
 
   const events = mapEventsToXML(
     context,
     rule.events,
-    data && "events" in data
-      ? ((data as Record<string, unknown>).events as Record<string, string> | undefined)
+    element && "events" in element
+      ? ((element as Record<string, unknown>).events as Record<string, string> | undefined)
       : undefined
   )
   Object.assign(result, events)
