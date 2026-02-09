@@ -63,7 +63,6 @@ export const PopupRules: ElementRule<Popup, "extendedTooltip"> = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-  events: {},
 }
 
 registerElementRule("Popup", PopupRules)

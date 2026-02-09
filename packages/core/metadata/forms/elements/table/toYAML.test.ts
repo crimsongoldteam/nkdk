@@ -1,0 +1,24 @@
+import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
+import { fullTable, fullTableEnterprise, minimalTable } from "~/tests/fixtures/forms/table/data"
+import { mockContext } from "~/tests/mockContext"
+
+describe("exportTableToEnterprise", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: undefined })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("should export all fields to Enterprise", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: fullTable })
+
+    expect(result).toEqual(fullTableEnterprise)
+  })
+
+  it("should export minimal", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: minimalTable })
+
+    expect(result).toBeUndefined()
+  })
+})
