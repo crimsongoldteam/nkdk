@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../context/types"
 import { TableAdditionalSourceTypes } from "../forms/commonObjects/tableAdditionalSource/types"
-import { BaseElement, EventedElement } from "../forms/elements/baseElement/types"
+import { BaseElement } from "../forms/elements/baseElement/types"
 import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"
 import { exportSingleElementToXML } from "./element/exportElementToXML"
 import { importElementFromPartialYAML } from "./element/importElementFromEnterprise"
@@ -86,14 +86,12 @@ type PropertiesType<T extends BaseElement, ExtraProperties extends string = neve
 
 export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> {
   properties: PropertiesType<T, ExtraProperties>
-  d: T extends EventedElement ? keyof T["events"][number] : undefined
-  events: T extends EventedElement
-    ? Record<keyof Required<T["events"]>, string>
-    : // Record<
-      //   Extract<keyof Required<T["events"]>, string>,
-      //   ToPartialEnterpriseType<T> extends EventedElementYAML ? keyof EventedElementYAML["События"] : never
-      // >
-      undefined
+  events?: T extends { events?: infer P }
+    ? Record<
+        keyof Required<P>,
+        ToPartialEnterpriseType<T> extends { События?: infer Pyaml } ? keyof Required<Pyaml> : never
+      >
+    : never
   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   alwaysExportToXML?: true
   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
