@@ -76,7 +76,7 @@ export interface Table {
   searchControlLocation?: SE.SearchControlLocation
   searchOnInput?: SE.SearchInTableOnInput
   searchStringLocation?: SE.SearchStringLocation
-  searchStringAddition?: SingleSearchStringAddition
+  searchStringRepresentation?: SingleSearchStringAddition
   selectionMode?: SE.TableSelectionMode
   shortcut?: string
   skipOnInput?: boolean
@@ -95,7 +95,7 @@ export interface Table {
   verticalScrollBar?: SE.ScrollBarUse
   verticalStretch?: boolean
   viewStatusLocation?: SE.ViewStatusLocation
-  viewStatusAddition?: ViewStatusAddition
+  viewStatusRepresentation?: ViewStatusAddition
   visible?: boolean
   width?: number
   events?: {
@@ -112,6 +112,7 @@ export interface Table {
     beforeExpand?: string
     beforeCollapse?: string
     beforeDeleteRow?: string
+    beforeLoadUserSettingsAtServer: string
     drag?: string
     afterDeleteRow?: string
     onActivateField?: string
@@ -238,6 +239,7 @@ export interface TablePartialEnterprise {
     ОбработкаЗаписиНового?: string
     ОбработкаЗапросаОбновления?: string
     ОкончаниеПеретаскивания?: string
+    ПередЗагрузкойПользовательскихНастроекНаСервере: string
     ПередНачаломДобавления?: string
     ПередНачаломИзменения?: string
     ПередОкончаниемРедактирования?: string

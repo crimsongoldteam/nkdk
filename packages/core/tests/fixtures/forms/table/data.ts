@@ -82,6 +82,12 @@ export const fullTable: RequiredFieldsElement<Table> = {
   restoreCurrentRow: true,
   childItems: [
     {
+      dataPath: "Таблица.Ввод",
+      editMode: "EnterOnInput",
+      elementType: "InputField",
+      name: "ТаблицаВвод",
+    },
+    {
       dataPath: "Таблица.Надпись",
       editMode: "EnterOnInput",
       elementType: "LabelField",
@@ -197,7 +203,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   },
   searchControlLocation: "CommandBar",
   searchOnInput: "Use",
-  searchStringAddition: {
+  searchStringRepresentation: {
     elementType: "SingleSearchStringAddition",
     title: {
       items: {
@@ -251,7 +257,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   verticalLines: false,
   verticalScrollBar: "UseAlways",
   verticalStretch: false,
-  viewStatusAddition: {
+  viewStatusRepresentation: {
     elementType: "ViewStatusAddition",
     title: {
       items: {

@@ -16,6 +16,7 @@ export type TypeRulesNames =
   | "ContextMenu"
   | "DynamicList"
   | "ChoiceList"
+  | "CommandSet"
   | "FieldsList"
   | "Font"
   | "FormattedI8nText"

@@ -25,14 +25,14 @@ export const TableRules: ElementRule<Table> = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     changeRowOrder: { yaml: "ИзменятьПорядокСтрок", type: "boolean" },
     changeRowSet: { yaml: "ИзменятьСоставСтрок", type: "boolean" },
-    childItems: { type: "string" },
+    childItems: { type: "ChildItems", defaultValue: [] },
     choiceMode: { yaml: "РежимВыбора", type: "boolean" },
     commandBarLocation: {
       yaml: "ПоложениеКоманднойПанели",
       type: "SystemEnumeration",
       typeSE: "FormItemCommandBarLabelLocation",
     },
-    commandSet: { yaml: "Команда", type: "string" },
+    commandSet: { yaml: "Команда", type: "CommandSet" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
@@ -49,7 +49,10 @@ export const TableRules: ElementRule<Table> = {
     },
     enabled: { yaml: "Доступность", type: "boolean" },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
+    enableStartDrag: {
+      yaml: "РазрешитьНачалоПеретаскивания",
+      type: "boolean",
+    },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
@@ -133,7 +136,7 @@ export const TableRules: ElementRule<Table> = {
       typeSE: "TableRowSelectionMode",
     },
     rowsPicture: { yaml: "КартинкаСтрок", type: "Picture" },
-    searchControl: { yaml: "УправлениеПоиском", type: "string" },
+    searchControl: { yaml: "УправлениеПоиском", type: "SearchControlAddition", xml: "SearchControlAddition" },
     searchControlLocation: {
       yaml: "ПоложениеУправленияПоиском",
       type: "SystemEnumeration",
@@ -149,7 +152,11 @@ export const TableRules: ElementRule<Table> = {
       type: "SystemEnumeration",
       typeSE: "SearchStringLocation",
     },
-    searchStringAddition: { yaml: "ОтображениеСтрокиПоиска", type: "string" },
+    searchStringRepresentation: {
+      yaml: "ОтображениеСтрокиПоиска",
+      type: "SearchStringAddition",
+      xml: "SearchStringAddition",
+    },
     selectionMode: {
       yaml: "РежимВыделения",
       type: "SystemEnumeration",
@@ -201,7 +208,11 @@ export const TableRules: ElementRule<Table> = {
       type: "SystemEnumeration",
       typeSE: "ViewStatusLocation",
     },
-    viewStatusAddition: { yaml: "ОтображениеСостоянияПросмотра", type: "string" },
+    viewStatusRepresentation: {
+      yaml: "ОтображениеСостоянияПросмотра",
+      type: "ViewStatusAddition",
+      xml: "ViewStatusAddition",
+    },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     autoRefresh: { yaml: "АвтоОбновление", type: "boolean" },

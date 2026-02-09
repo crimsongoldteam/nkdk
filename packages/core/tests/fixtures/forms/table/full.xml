@@ -1,7 +1,6 @@
 <Table name="Таблица" id="1" DisplayImportance="VeryHigh">
 	<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 	<AllowRootChoice>true</AllowRootChoice>
-	<AllowStartDrag>true</AllowStartDrag>
 	<AutoAddIncomplete>true</AutoAddIncomplete>
 	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2">
 		<Autofill>false</Autofill>
@@ -59,8 +58,8 @@
 	<DataPath>Таблица</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<Enabled>false</Enabled>
-	<EnableStartDrag>true</EnableStartDrag>
 	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
 	<Events>
 		<Event name="AfterDeleteRow">ТаблицаПослеУдаления</Event>
 		<Event name="BeforeAddRow">ТаблицаПередНачаломДобавления</Event>
