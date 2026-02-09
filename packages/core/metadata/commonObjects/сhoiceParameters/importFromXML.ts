@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/importFromXML"
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameterXML } from "./types"
@@ -29,3 +30,5 @@ const importChoiceParameterFromXML = (
     value,
   }
 }
+
+registerTypeRule("ChoiceParameters", "importFromXML", importChoiceParametersFromXML)

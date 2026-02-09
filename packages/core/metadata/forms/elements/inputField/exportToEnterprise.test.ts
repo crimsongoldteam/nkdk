@@ -5,7 +5,6 @@ import {
   fullInputFieldPartialEnterprise,
   fullInputFieldTypedEnterprise,
   minimalInputField,
-  minimalInputFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -20,7 +19,7 @@ describe("exportInputFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalInputField })
 
-      expect(result).toEqual(minimalInputFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 

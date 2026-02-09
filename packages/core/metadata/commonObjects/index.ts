@@ -136,6 +136,9 @@ import "./standardAttributeDescription/exportToXML"
 import "./standardAttributeDescription/importFromEnterprise"
 import "./standardAttributeDescription/importFromXML"
 
+import "./string/fromXML"
+import "./string/toYAML"
+
 import "./typeDescription/exportToEnterprise"
 import "./typeDescription/exportToPreview"
 import "./typeDescription/exportToXML"

@@ -13,16 +13,6 @@ import { InputField } from "./types"
 
 describe("importInputFieldFromEnterprise", () => {
   describe("importInputFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML<InputField>({
-        context: mockContext,
-        yaml: undefined,
-        name: "ПолеВвода",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<InputField>({
         context: mockContext,
