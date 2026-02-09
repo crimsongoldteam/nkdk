@@ -53,7 +53,7 @@ const exportCommandInterfaceItemToXML = (
   }
 
   if (item.visible) {
-    const visibleXML = exportUserVisibleToXML(context, { type: "UserVisible", yamlDeny: "" }, item.visible)
+    const visibleXML = exportUserVisibleToXML(context, { type: "UserVisible", yaml: "", yamlDeny: "" }, item.visible)
     if (visibleXML) {
       result.Visible = visibleXML
     }

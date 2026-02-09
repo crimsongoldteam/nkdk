@@ -228,7 +228,7 @@ export const exportClientApplicationFormToXML = (
 
 export const exportFormMetadataToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule<any> | undefined,
   data: ClientApplicationForm,
   name: string
 ): FormMetadataXML => {

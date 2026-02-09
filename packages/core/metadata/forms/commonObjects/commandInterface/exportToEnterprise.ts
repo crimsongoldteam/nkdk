@@ -21,15 +21,11 @@ export const exportCommandInterfaceToEnterprise = (
   const result: CommandInterfaceEnterprise = {}
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
-    result.ПанельНавигации = data.NavigationPanel.map((item) =>
-      exportCommandInterfaceItemToEnterprise(context, undefined, item)
-    )
+    result.ПанельНавигации = data.NavigationPanel.map((item) => exportCommandInterfaceItemToEnterprise(context, item))
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
-    result.КоманднаяПанель = data.CommandBar.map((item) =>
-      exportCommandInterfaceItemToEnterprise(context, undefined, item)
-    )
+    result.КоманднаяПанель = data.CommandBar.map((item) => exportCommandInterfaceItemToEnterprise(context, item))
   }
 
   if (Object.keys(result).length === 0) return undefined
@@ -39,7 +35,6 @@ export const exportCommandInterfaceToEnterprise = (
 
 const exportCommandInterfaceItemToEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   item: CommandInterfaceItem
 ): CommandInterfaceItemEnterprise => {
   const result: CommandInterfaceItemEnterprise = {

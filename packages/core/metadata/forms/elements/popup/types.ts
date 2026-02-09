@@ -7,30 +7,30 @@ import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/use
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Popup {
   elementType: "Popup"
   name: string
   enableContentChange?: boolean
   enabled?: boolean
+  displayImportance?: SE.DisplayImportance
+  commandSource?: string
   height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  // horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
   readOnly?: boolean
-  shortcut?: string
   title?: I8nText
   titleFont?: Font
   titleTextColor?: Color
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
+  // type?: SE.FormGroupType
   userVisible?: UserVisible
-  verticalAlignInGroup?: SE.ItemVerticalAlign
+  // verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  extendedTooltip?: ExtendedTooltip
+  // extendedTooltip?: ExtendedTooltip
   backColor?: Color
   borderColor?: Color
   picture?: Picture
@@ -41,6 +41,7 @@ export interface Popup {
 }
 
 export interface PopupPartialEnterprise {
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
   Видимость?: StringboolEnterprise
@@ -48,6 +49,7 @@ export interface PopupPartialEnterprise {
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   Доступность?: StringboolEnterprise
   Заголовок?: I8nTextEnterprise
+  ИсточникКоманд?: string
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
@@ -55,7 +57,7 @@ export interface PopupPartialEnterprise {
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  // РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   СочетаниеКлавиш?: string
   ТолькоПросмотр?: StringboolEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise

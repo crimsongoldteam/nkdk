@@ -11,7 +11,7 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   name: "ДекорацияКартинки",
   title: {
     formatted: false,
-    items: { ru: "Декорация картинки" },
+    items: { ru: "Заголовок декорации картинки" },
   },
   border: {
     width: 1,
@@ -74,7 +74,9 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   },
 }
 
-export const fullPictureDecorationPartialEnterprise: PictureDecorationPartialEnterprise = {
+export const fullPictureDecorationPartialEnterprise: Required<
+  Omit<PictureDecorationPartialEnterprise, "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование">
+> = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -136,6 +138,12 @@ export interface PictureDecorationStructureFixture {
   skipImport?: boolean
 }
 
+export const sourcePictureDecoration: PictureDecoration = {
+  name: "ДекорацияКартинки",
+  elementType: FormElementType.PictureDecoration,
+  title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
+}
+
 export const pictureDecorationStructureFixturesTable: PictureDecorationStructureFixture[] = [
   {
     name: "with title",
@@ -143,10 +151,10 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       name: "ИмяПоля",
       elementType: FormElementType.PictureDecoration,
       picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
-      title: { items: { ru: "Заголовок" }, formatted: false },
+      title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
     },
     structured: {
-      strings: ["@Печать Заголовок {ИмяПоля}"],
+      strings: ["@Печать Заголовок декорации картинки {ИмяПоля}"],
       haveSimpleHorizontalGroup: false,
     },
   },

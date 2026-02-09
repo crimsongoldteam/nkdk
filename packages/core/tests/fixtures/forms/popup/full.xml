@@ -1,39 +1,40 @@
-<Popup name="ВсплывающееОкно" id="1">
-	<BackColor>web:White</BackColor>
-	<BorderColor>web:Gray</BorderColor>
+<Popup name="Подменю" id="1" DisplayImportance="VeryHigh">
+	<BackColor>web:CornFlowerBlue</BackColor>
+	<BorderColor>web:Aquamarine</BorderColor>
+	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
 	<EnableContentChange>true</EnableContentChange>
-	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ВсплывающееОкноРасширеннаяПодсказка" id="2"/>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<Height>200</Height>
-	<HorizontalStretch>true</HorizontalStretch>
-	<ReadOnly>false</ReadOnly>
-	<Representation>Text</Representation>
-	<Shape>Usual</Shape>
-	<ShapeRepresentation>Auto</ShapeRepresentation>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Enabled>false</Enabled>
+	<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="2"/>
+	<Height>19</Height>
+	<HorizontalStretch>false</HorizontalStretch>
+	<Picture>
+		<xr:Ref>StdPicture.ChartOfAccounts</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</Picture>
+	<ReadOnly>true</ReadOnly>
+	<Representation>PictureAndText</Representation>
+	<Shape>Oval</Shape>
+	<ShapeRepresentation>WhenActive</ShapeRepresentation>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Всплывающее окно</v8:content>
+			<v8:content>Заголовок подменю</v8:content>
 		</v8:item>
 	</Title>
-	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleFont ref="style:TextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Fuchsia</TitleTextColor>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка</v8:content>
+			<v8:content>Подсказка подменю</v8:content>
 		</v8:item>
 	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
+	<ToolTipRepresentation>Button</ToolTipRepresentation>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
-	<Width>300</Width>
+	<VerticalStretch>false</VerticalStretch>
+	<Visible>false</Visible>
+	<Width>18</Width>
 </Popup>

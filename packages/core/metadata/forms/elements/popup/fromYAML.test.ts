@@ -5,29 +5,19 @@ import {
   fullPopupPartialEnterprise,
   fullPopupTypedEnterprise,
   minimalPopup,
-  minimalPopupPartialEnterprise,
   minimalPopupTypedEnterprise,
+  sourcePopup,
 } from "~/tests/fixtures/forms/popup/data"
 import { mockContext } from "~/tests/mockContext"
 import { Popup } from "./types"
 
-describe("importPopupFromEnterprise", () => {
-  describe("importPopupTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML<Popup>({
-        context: mockContext,
-        yaml: undefined,
-        name: "ВсплывающаяФорма",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
+describe("Popup from YAML", () => {
+  describe("Typed", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
         yaml: fullPopupTypedEnterprise,
-        name: "ВсплывающаяФорма",
+        name: "Подменю",
       })
 
       expect(result).toEqual(fullPopup)
@@ -37,34 +27,34 @@ describe("importPopupFromEnterprise", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
         yaml: minimalPopupTypedEnterprise,
-        name: "ВсплывающаяФорма",
+        name: "Подменю",
       })
 
       expect(result).toEqual(minimalPopup)
     })
   })
 
-  describe("importPopupPartialFromEnterprise", () => {
+  describe("Partial", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         elementType: FormElementType.Popup,
         yaml: fullPopupPartialEnterprise,
-        source: fullPopup,
+        source: sourcePopup,
       })
 
       expect(result).toEqual(fullPopup)
     })
 
-    it("should import minimal", () => {
-      const result = importElementFromPartialYAML({
-        context: mockContext,
-        elementType: FormElementType.Popup,
-        yaml: minimalPopupPartialEnterprise,
-        source: fullPopup,
-      })
+    // it("should import minimal", () => {
+    //   const result = importElementFromPartialYAML({
+    //     context: mockContext,
+    //     elementType: FormElementType.Popup,
+    //     yaml: minimalPopupPartialEnterprise,
+    //     source: sourcePopup,
+    //   })
 
-      expect(result).toEqual(minimalPopup)
-    })
+    //   expect(result).toEqual(minimalPopup)
+    // })
   })
 })

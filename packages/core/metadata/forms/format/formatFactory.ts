@@ -3,7 +3,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { AllChildItems } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
-import { PropertyRule } from "../elements/calendarField/rules"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
 
 type FormatRegistry = {
@@ -25,21 +24,16 @@ export const registerFormat = <T extends NamedElement>(
 
 export const formatElement = <T extends NamedElement>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   element: T
 ): IFormatElementResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return exportOtherElementToStructure(context, undefined, element)
+  if (!formatter) return exportOtherElementToStructure(context, element)
 
-  const result = formatter.format(context, undefined, element)
+  const result = formatter.format(context, element)
   return result
 }
 
-export const formatElements = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  items: AllChildItems
-): IFormatElementResult => {
+export const formatElements = (context: ConfigurationContext, items: AllChildItems): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

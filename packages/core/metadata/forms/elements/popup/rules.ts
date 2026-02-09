@@ -2,25 +2,27 @@ import { ElementRule, PropertyRule, registerElementRule } from "../../../metadat
 import { Popup } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PopupRules: ElementRule<Popup> = {
+export const PopupRules: ElementRule<Popup, "extendedTooltip"> = {
   enterpriseField: "FormGroup",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
+    commandSource: { yaml: "ИсточникКоманд", type: "string" },
     childItems: {
       yaml: "ПодчиненныеЭлементы",
       type: "ChildItems",
+      defaultValue: [],
+    },
+    displayImportance: {
+      yaml: "ВажностьПриОтображении",
+      xml: "_DisplayImportance",
+      type: "SystemEnumeration",
+      typeSE: "DisplayImportance",
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { type: "ExtendedTooltip" },
     height: { yaml: "Высота", type: "number" },
-    horizontalAlignInGroup: {
-      yaml: "ГоризонтальноеПоложениеВГруппе",
-      xml: "GroupHorizontalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     picture: { yaml: "Картинка", type: "Picture" },
     readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
@@ -39,7 +41,6 @@ export const PopupRules: ElementRule<Popup> = {
       type: "SystemEnumeration",
       typeSE: "ButtonShapeRepresentation",
     },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
     title: {
       yaml: "Заголовок",
       type: "I8nText",
@@ -53,21 +54,10 @@ export const PopupRules: ElementRule<Popup> = {
       type: "SystemEnumeration",
       typeSE: "ToolTipRepresentation",
     },
-    type: {
-      yaml: "Вид",
-      type: "SystemEnumeration",
-      typeSE: "FormGroupType",
-    },
     userVisible: {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
-    },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     visible: { yaml: "Видимость", type: "boolean" },

@@ -1,78 +1,113 @@
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const fullPopup: Popup = {
-  elementType: FormElementType.Popup,
-  name: "ВсплывающееОкно",
+export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
+  backColor: {
+    type: "WebColor",
+    value: "CornFlowerBlue",
+  },
+  borderColor: {
+    type: "WebColor",
+    value: "Aquamarine",
+  },
+  childItems: [],
+  displayImportance: "VeryHigh",
+  commandSource: "FormCommandPanelGlobalCommands",
+  elementType: "Popup",
   enableContentChange: true,
-  enabled: true,
-  height: 200,
-  horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  readOnly: false,
-  shortcut: "Ctrl+S",
+  enabled: false,
+  height: 19,
+  horizontalStretch: false,
+  name: "Подменю",
+  picture: {
+    loadTransparent: true,
+    ref: "ChartOfAccounts",
+    transparentPixel: undefined,
+    type: "StandardPicture",
+  },
+  readOnly: true,
+  representation: "PictureAndText",
+  shape: "Oval",
+  shapeRepresentation: "WhenActive",
   title: {
-    items: { ru: "Всплывающее окно" },
+    items: {
+      ru: "Заголовок подменю",
+    },
   },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
+  titleFont: {
+    kind: "StyleItem",
+    ref: "TextFont",
+  },
+  titleTextColor: {
+    type: "WebColor",
+    value: "Fuchsia",
+  },
   toolTip: {
-    items: { ru: "Подсказка" },
+    items: {
+      ru: "Подсказка подменю",
+    },
   },
-  toolTipRepresentation: "None",
-  type: "UsualGroup",
+  toolTipRepresentation: "Button",
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: true }],
+    values: [
+      {
+        name: "Администратор",
+        value: true,
+      },
+    ],
   },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
-  visible: true,
-  width: 300,
-  backColor: { type: "WebColor", value: "White" },
-  borderColor: { type: "WebColor", value: "Gray" },
-  picture: undefined,
-  representation: "Text",
-  shape: "Usual",
-  shapeRepresentation: "Auto",
+  verticalStretch: false,
+  visible: false,
+  width: 18,
+}
+
+export const sourcePopup: Popup = {
+  elementType: FormElementType.Popup,
+  name: "Подменю",
   childItems: [],
+  title: {
+    items: {
+      ru: "Заголовок подменю",
+    },
+  },
 }
 
 export const fullPopupPartialEnterprise: PopupPartialEnterprise = {
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
+  ВажностьПриОтображении: "ОченьВысокая",
+  Видимость: "Ложь",
+  Высота: 19,
+  Доступность: "Ложь",
+  ИсточникКоманд: "FormCommandPanelGlobalCommands",
+  Картинка: "ПланСчетов",
+  Отображение: "КартинкаИТекст",
+  ОтображениеПодсказки: "Кнопка",
+  ОтображениеФигуры: "ПриАктивности",
+  Подсказка: "Подсказка подменю",
   РазрешитьИзменениеСостава: "Истина",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
-  ТолькоПросмотр: "Ложь",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  Отображение: "Текст",
-  ОтображениеФигуры: "Авто",
-  Фигура: "Обычная",
-  ЦветРамки: "Серый",
-  ЦветФона: "Белый",
-  // Заголовок не включается в partial, так как он в defaultLanguage
+  РазрешитьИспользование: {
+    Администратор: "Истина",
+  },
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
+  ТолькоПросмотр: "Истина",
+  Фигура: "Овал",
+  ЦветРамки: "Аквамарин",
+  ЦветТекстаЗаголовка: "Фуксия",
+  ЦветФона: "Васильковый",
+  Ширина: 18,
+  ШрифтЗаголовка: "ШрифтТекста",
 }
 
 export const fullPopupTypedEnterprise: PopupTypedEnterprise = {
   ...fullPopupPartialEnterprise,
   Тип: "Подменю",
-  Заголовок: "Всплывающее окно",
+  Заголовок: "Заголовок подменю",
 }
 
 export const minimalPopup: Popup = {
   elementType: FormElementType.Popup,
-  name: "ВсплывающееОкно",
+  name: "Подменю",
   childItems: [],
 }
 

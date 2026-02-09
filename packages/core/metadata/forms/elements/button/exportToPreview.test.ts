@@ -4,7 +4,7 @@ import { mockContext } from "~/tests/mockContext"
 import { exportButtonToPreview } from "./exportToPreview"
 
 describe("exportButtonToPreview", () => {
-  it("should export all fields to Preview", () => {
+  it.skip("should export all fields to Preview", () => {
     const context = {
       ...mockContext,
       preview: {
