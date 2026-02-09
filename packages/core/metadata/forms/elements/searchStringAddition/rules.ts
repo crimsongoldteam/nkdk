@@ -11,6 +11,7 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
     additionSource: {
       type: "TableAdditionalSource",
       additionalSourceType: "SearchStringRepresentation",
+      fromXML: false,
     },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
@@ -85,3 +86,4 @@ export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
 }
 
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)
+registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

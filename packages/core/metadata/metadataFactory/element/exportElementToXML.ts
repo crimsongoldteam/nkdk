@@ -8,7 +8,6 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
 import { ElementXML, FormElementType } from "../types"
-import context from "antd/es/app/context"
 
 export const exportPropertyToXML = (params: {
   context: ConfigurationContext

@@ -19,6 +19,7 @@ interface BasePropertyRule<T extends BaseElement> {
   xml?: string
   toEnterprise?: false
   toYAML?: false | ExportCheckFn
+  fromXML?: false
   defaultValue?: any
 }
 

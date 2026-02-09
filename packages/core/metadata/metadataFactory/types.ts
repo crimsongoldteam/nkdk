@@ -159,6 +159,7 @@ export const FormElementTypeToEnterprise = {
   FormGroup: "ГруппаФормы",
   SearchControlAddition: "УправлениеПоиском",
   SearchStringAddition: "ОтображениеСтрокиПоиска",
+  SingleSearchStringAddition: "ОдиночноеОтображениеСтрокиПоиска",
   AutoCommandBar: "АвтоКоманднаяПанель",
   ViewStatusAddition: "СостояниеПросмотра",
   ContextMenu: "КонтекстноеМеню",

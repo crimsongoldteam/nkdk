@@ -1,9 +1,9 @@
+import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { FormElementType } from "~/metadata/metadataFactory"
 import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getViewStatusAdditionName } from "./helper"
 import { ViewStatusAddition } from "./types"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { FormElementType } from "~/metadata/metadataFactory"
 export type { ElementRule, PropertyRule }
 
 export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionSource"> = {
@@ -11,6 +11,7 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionS
     additionSource: {
       type: "TableAdditionalSource",
       additionalSourceType: "ViewStatusRepresentation",
+      fromXML: false,
     },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },

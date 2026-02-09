@@ -74,6 +74,7 @@ export function importFromXML<T extends BaseElement>(
 ): Partial<T> | undefined {
   const result: Partial<T> = {}
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
+    if (rule.fromXML === false) continue
     const xmlKey = rule.xml ?? capitalize(key)
 
     const xmlValue = (xml as any)[xmlKey]
