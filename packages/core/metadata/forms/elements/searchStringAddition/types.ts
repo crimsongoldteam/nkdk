@@ -30,7 +30,12 @@ export interface SearchStringAddition {
   visible?: boolean
 }
 
-export interface SingleSearchStringAddition extends Omit<SearchStringAddition, "name" | "additionSource"> {}
+export interface SingleSearchStringAddition extends Omit<
+  SearchStringAddition,
+  "name" | "additionSource" | "elementType"
+> {
+  elementType: "SingleSearchStringAddition"
+}
 
 export interface SearchStringAdditionEnterprise {
   Источник?: string

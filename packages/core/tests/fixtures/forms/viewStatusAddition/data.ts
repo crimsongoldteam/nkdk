@@ -39,7 +39,7 @@ export const fullViewStatusAddition: Required<ViewStatusAddition> = {
   },
 }
 
-export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
+export const fullViewStatusAdditionEnterprise: Required<ViewStatusAdditionEnterprise> = {
   АвтоМаксимальнаяШирина: "Истина",
   ГоризонтальноеПоложение: "Лево",
   МаксимальнаяШирина: 500,

@@ -15,7 +15,7 @@ export const sourceSearchStringAddition: SearchStringAddition = {
 }
 
 export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition> = {
-  elementType: "SearchStringAddition",
+  elementType: "SingleSearchStringAddition",
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
   displayImportance: "High",
@@ -76,6 +76,7 @@ export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise 
 
 export const fullSearchStringAddition: Required<SearchStringAddition> = {
   ...fullSingleSearchStringAddition,
+  elementType: "SearchStringAddition",
   additionSource: "РодительскийЭлемент",
   name: "КакойТоЭлементСтрокаПоиска",
 }
@@ -86,7 +87,7 @@ export const minimalSearchStringAddition: SearchStringAddition = {
 }
 
 export const minimalSingleSearchStringAddition: SingleSearchStringAddition = {
-  elementType: "SearchStringAddition",
+  elementType: "SingleSearchStringAddition",
 }
 
 export const minimaSearchStringAddition: SearchStringAddition = {
