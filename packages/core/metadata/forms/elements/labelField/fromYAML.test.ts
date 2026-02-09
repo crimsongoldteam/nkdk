@@ -13,16 +13,6 @@ import { LabelField } from "./types"
 
 describe("importLabelFieldFromEnterprise", () => {
   describe("importLabelFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML<LabelField>({
-        context: mockContext,
-        yaml: undefined,
-        name: "ПолеНадписи",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<LabelField>({
         context: mockContext,

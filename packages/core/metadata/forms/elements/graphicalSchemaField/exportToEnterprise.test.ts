@@ -1,43 +1,22 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullGraphicalSchemaField,
   fullGraphicalSchemaFieldPartialEnterprise,
-  fullGraphicalSchemaFieldTypedEnterprise,
   minimalGraphicalSchemaField,
-  minimalGraphicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportGraphicalSchemaFieldPartialToEnterprise,
-  exportGraphicalSchemaFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { mockContext } from "~/tests/mockContext"
 
 describe("exportGraphicalSchemaFieldToEnterprise", () => {
-  describe("exportGraphicalSchemaFieldPartialToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, mockRule, fullGraphicalSchemaField)
+  it("should export all fields to Enterprise", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: fullGraphicalSchemaField })
 
-      expect(result).toEqual(fullGraphicalSchemaFieldPartialEnterprise)
-    })
-
-    it("should export minimal", () => {
-      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockContext, mockRule, minimalGraphicalSchemaField)
-
-      expect(result).toEqual(minimalGraphicalSchemaFieldPartialEnterprise)
-    })
+    expect(result).toEqual(fullGraphicalSchemaFieldPartialEnterprise)
   })
 
-  describe("exportGraphicalSchemaFieldTypedToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, mockRule, fullGraphicalSchemaField)
+  it("should export minimal", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: minimalGraphicalSchemaField })
 
-      expect(result).toEqual(fullGraphicalSchemaFieldTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockContext, mockRule, undefined)
-
-      expect(result).toBeUndefined()
-    })
+    expect(result).toBeUndefined()
   })
 })

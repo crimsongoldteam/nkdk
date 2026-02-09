@@ -43,7 +43,7 @@ export const importPropertyFromEnterprise = (params: {
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
-  yaml: ToTypedEnterpriseType<T>
+  yaml: ToTypedEnterpriseType<T> & { События?: Record<string, string> }
   name: string
 }): T {
   const { context, yaml: yaml, name } = params
@@ -74,6 +74,9 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
     }
   }
 
+  const events = importEventsFromYAML(rules.events, "События" in yaml ? yaml.События : undefined)
+  Object.assign(result, events)
+
   return result as T
 }
 
@@ -90,7 +93,7 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
   return importElementFromYAML({
     context: params.context,
     rules: rules,
-    yaml: params.yaml,
+    yaml: params.yaml as ToPartialEnterpriseType<T> & { События?: Record<string, string> },
     elementType: params.elementType,
     source: params.source,
   })
@@ -100,7 +103,7 @@ export function importElementFromYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   rules: ElementRule<T>
   elementType: FormElementType
-  yaml: ToPartialEnterpriseType<T> | undefined
+  yaml: (ToPartialEnterpriseType<T> & { События?: Record<string, string> }) | undefined
   source?: T
 }): T | undefined {
   const { context, rules, yaml, source, elementType } = params
@@ -132,5 +135,28 @@ export function importElementFromYAML<T extends BaseElement>(params: {
     }
   }
 
+  const events = importEventsFromYAML(rules.events, "События" in yaml ? yaml.События : undefined)
+  Object.assign(result, events)
+
   return result
+}
+
+const importEventsFromYAML = (
+  rules: Record<string, string> | undefined,
+  yamlEvents: Record<string, string> | undefined
+): { events?: Record<string, string> } => {
+  if (!rules || !yamlEvents) {
+    return {}
+  }
+
+  const result: Record<string, string> = {}
+
+  for (const [ruleKey, enterpriseName] of Object.entries(rules)) {
+    const eventValue = yamlEvents[enterpriseName]
+    if (eventValue === undefined) continue
+
+    result[ruleKey] = eventValue
+  }
+
+  return { events: result }
 }

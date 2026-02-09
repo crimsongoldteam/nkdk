@@ -1,20 +1,14 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import {
-  TypeDescription,
-  TypeDescriptionEnterprise,
-  TypeDescriptionXML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { NamedElement } from "../baseElement/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface GraphicalSchemaField extends NamedElement {
   elementType: "GraphicalSchemaField"
@@ -82,64 +76,6 @@ export interface GraphicalSchemaField extends NamedElement {
   }
 }
 
-export interface GraphicalSchemaFieldXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BorderColor?: ColorXML
-  Edit?: boolean
-  Height?: number
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  Output?: SE.UseOutput
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  Width?: number
-  AutoCellHeight?: boolean
-  CellHyperlink?: boolean
-  ContextMenu: ContextMenuXML
-  DataPath?: string
-  DefaultItem?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  EditMode?: SE.ColumnEditMode
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  FixingInTable?: SE.FixingInTable
-  FooterBackColor?: ColorXML
-  FooterDataPath?: string
-  FooterFont?: FontXML
-  FooterHorizontalAlign?: SE.ItemHorizontalLocation
-  FooterPicture?: PictureXML
-  FooterText?: I8nTextXML
-  FooterTextColor?: ColorXML
-  HeaderHorizontalAlign?: SE.ItemHorizontalLocation
-  HeaderPicture?: PictureXML
-  HorizontalAlign?: SE.ItemHorizontalLocation
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  ReadOnly?: boolean
-  Shortcut?: string
-  ShowInFooter?: boolean
-  ShowInHeader?: boolean
-  SkipOnInput?: boolean
-  AssociatedTableElementId?: MetadataValueXML
-  Title?: I8nTextXML
-  TitleBackColor?: ColorXML
-  TitleFont?: FontXML
-  TitleHeight?: number
-  TitleLocation?: SE.FormItemTitleLocation
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormFieldType
-  TypeRestriction?: TypeDescriptionXML
-  VerticalAlign?: SE.ItemVerticalAlign
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  Visible?: boolean
-  WarningOnEdit?: I8nTextXML
-  WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  Events?: EventsXML
-}
-
 export interface GraphicalSchemaFieldPartialEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
@@ -204,8 +140,4 @@ export interface GraphicalSchemaFieldPartialEnterprise {
     ПослеЗаписи?: string
     ПриАктивизации?: string
   }
-}
-
-export interface GraphicalSchemaFieldTypedEnterprise extends GraphicalSchemaFieldPartialEnterprise {
-  Тип: "ПолеГрафическойСхемы"
 }

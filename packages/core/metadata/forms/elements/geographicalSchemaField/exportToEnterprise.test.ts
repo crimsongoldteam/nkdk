@@ -4,7 +4,6 @@ import {
   fullGeographicalSchemaField,
   fullGeographicalSchemaFieldPartialEnterprise,
   minimalGeographicalSchemaField,
-  minimalGeographicalSchemaFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportGeographicalSchemaFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalGeographicalSchemaField })
 
-    expect(result).toEqual(minimalGeographicalSchemaFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

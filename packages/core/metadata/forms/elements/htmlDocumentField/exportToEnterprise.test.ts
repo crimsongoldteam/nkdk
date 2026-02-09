@@ -1,40 +1,22 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullHtmlDocumentField,
   fullHtmlDocumentFieldPartialEnterprise,
-  fullHtmlDocumentFieldTypedEnterprise,
   minimalHtmlDocumentField,
-  minimalHtmlDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/htmlDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportHTMLDocumentFieldToEnterprise", () => {
-  describe("exportElementToPartialYAML", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportElementToPartialYAML({ context: mockContext, element: fullHtmlDocumentField })
+  it("should export all fields to Enterprise", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: fullHtmlDocumentField })
 
-      expect(result).toEqual(fullHtmlDocumentFieldPartialEnterprise)
-    })
-
-    it("should export minimal", () => {
-      const result = exportElementToPartialYAML({ context: mockContext, element: minimalHtmlDocumentField })
-
-      expect(result).toEqual(minimalHtmlDocumentFieldPartialEnterprise)
-    })
+    expect(result).toEqual(fullHtmlDocumentFieldPartialEnterprise)
   })
 
-  describe("exportElementToTypedYAML", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: fullHtmlDocumentField })
+  it("should export minimal", () => {
+    const result = exportElementToPartialYAML({ context: mockContext, element: minimalHtmlDocumentField })
 
-      expect(result).toEqual(fullHtmlDocumentFieldTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
-
-      expect(result).toBeUndefined()
-    })
+    expect(result).toBeUndefined()
   })
 })

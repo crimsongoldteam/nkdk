@@ -1,7 +1,6 @@
 import {
   HTMLDocumentField,
   HTMLDocumentFieldPartialEnterprise,
-  HTMLDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -163,19 +162,9 @@ export const fullHtmlDocumentFieldPartialEnterprise: HTMLDocumentFieldPartialEnt
   },
 }
 
-export const fullHtmlDocumentFieldTypedEnterprise: HTMLDocumentFieldTypedEnterprise = {
-  ...fullHtmlDocumentFieldPartialEnterprise,
-  Тип: "ПолеHTMLДокумента",
-  Заголовок: "Поле HTML документа",
-}
-
 export const minimalHtmlDocumentField: HTMLDocumentField = {
   elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
 }
 
 export const minimalHtmlDocumentFieldPartialEnterprise: HTMLDocumentFieldPartialEnterprise = {}
-
-export const minimalHtmlDocumentFieldTypedEnterprise: HTMLDocumentFieldTypedEnterprise = {
-  Тип: "ПолеHTMLДокумента",
-}

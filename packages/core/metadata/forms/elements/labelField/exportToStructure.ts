@@ -5,7 +5,6 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
-import { PropertyRule } from "../calendarField/rules"
 import { LabelField } from "./types"
 
 const TILDE = t.Tilde.LABEL as string
@@ -13,7 +12,6 @@ const COLON = t.Colon.LABEL as string
 
 export const exportLabelFieldToStructure = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   element: LabelField
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
@@ -32,7 +30,6 @@ export const exportLabelFieldToStructure = (
 
 export const exportLabelFieldContentToStructure = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   element: LabelField
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined

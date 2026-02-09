@@ -120,7 +120,7 @@ export const LabelFieldRules: ElementRule<LabelField> = {
     format: { yaml: "Формат", type: "I8nText" },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    hyperlink: { yaml: "Гиперссылка", type: "boolean" },
+    hyperlink: { yaml: "Гиперссылка", type: "boolean", xml: "Hiperlink" },
     markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
