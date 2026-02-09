@@ -779,7 +779,7 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[], context)
     const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as FormElementTypeEnterprise
 
-    const elementType = importFormElementTypeFromEnterprise(context, undefined, otherFieldType)
+    const elementType = importFormElementTypeFromEnterprise(context, otherFieldType)
     return {
       elementType: elementType,
       name: name,

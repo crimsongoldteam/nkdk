@@ -110,7 +110,6 @@ const exportFormAttributeSettingsToXML = (
 
   if (isDynamicListSettings) {
     const settingsCopy = { ...(settings as DynamicList) }
-    // Remove @attributes if present, we'll set _xsi:type directly
     if ("@attributes" in settingsCopy) {
       delete settingsCopy["@attributes"]
     }

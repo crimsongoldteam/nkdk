@@ -77,6 +77,7 @@ describe("getAllElements", () => {
       name: "Таблица1",
       elementType: FormElementType.Table,
       autoCommandBar: {
+        elementType: FormElementType.AutoCommandBar,
         autofill: false,
         childItems: [buttonGroup],
       },

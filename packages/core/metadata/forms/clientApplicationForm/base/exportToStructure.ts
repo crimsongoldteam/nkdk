@@ -14,10 +14,10 @@ export const exportClientApplicationFormToStructure = (
     haveSimpleHorizontalGroup: false,
   }
 
-  const autoCommandBar = exportAutoCommandBarToStructure(context, undefined, element.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
   result.strings.push(...autoCommandBar.strings)
 
-  const itemsResult = exportChildItemsToStructure(context, undefined, childItems)
+  const itemsResult = exportChildItemsToStructure(context, childItems)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 

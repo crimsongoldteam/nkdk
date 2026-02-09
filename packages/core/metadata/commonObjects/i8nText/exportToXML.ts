@@ -4,6 +4,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { isEmptyI8nText } from "./helper"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
+/** @deprecated */
 export const exportI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
