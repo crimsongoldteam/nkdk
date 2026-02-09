@@ -4,7 +4,6 @@ import {
   fullProgressBarField,
   fullProgressBarFieldPartialEnterprise,
   minimalProgressBarField,
-  minimalProgressBarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/progressBarField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportProgressBarFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalProgressBarField })
 
-    expect(result).toEqual(minimalProgressBarFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

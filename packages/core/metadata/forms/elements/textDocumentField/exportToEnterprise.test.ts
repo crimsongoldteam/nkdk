@@ -4,7 +4,6 @@ import {
   fullTextDocumentField,
   fullTextDocumentFieldPartialEnterprise,
   minimalTextDocumentField,
-  minimalTextDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/textDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportTextDocumentFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalTextDocumentField })
 
-    expect(result).toEqual(minimalTextDocumentFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

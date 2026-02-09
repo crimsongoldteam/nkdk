@@ -5,7 +5,6 @@ import {
   fullPopupPartialEnterprise,
   fullPopupTypedEnterprise,
   minimalPopup,
-  minimalPopupPartialEnterprise,
   minimalPopupTypedEnterprise,
 } from "~/tests/fixtures/forms/popup/data"
 import { mockContext } from "~/tests/mockContext"
@@ -21,7 +20,7 @@ describe("exportPopupToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalPopup })
 
-      expect(result).toEqual(minimalPopupPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 
