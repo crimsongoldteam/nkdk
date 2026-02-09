@@ -7,7 +7,7 @@ export interface NamedElement extends BaseElement {
 }
 
 export interface EventedElement extends NamedElement {
-  events?: {}
+  events?: Record<string, string>
 }
 
 export interface BaseElementXML {
@@ -16,3 +16,7 @@ export interface BaseElementXML {
 }
 
 export interface BaseElementPropsEnterprise {}
+
+export interface EventedElementYAML {
+  События?: {}
+}

@@ -3,7 +3,7 @@ import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
-import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commandSet/types"
+import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commonObjects/commandSet/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 
 import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"

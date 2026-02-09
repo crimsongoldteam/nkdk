@@ -1,4 +1,4 @@
-import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commandSet/types"
+import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commonObjects/commandSet/types"
 
 export const singleCommandSet: CommandSet = ["WriteAndClose"]
 

@@ -67,6 +67,7 @@
 		<Event name="BeforeDeleteRow">ТаблицаПередУдалением</Event>
 		<Event name="BeforeEditEnd">ТаблицаПередОкончаниемРедактирования</Event>
 		<Event name="BeforeExpand">ТаблицаПередРазворачиванием</Event>
+		<Event name="BeforeLoadUserSettingsAtServer">ТаблицаПередЗагрузкойПользовательскихНастроекНаСервере</Event>
 		<Event name="BeforeRowChange">ТаблицаПередНачаломИзменения</Event>
 		<Event name="ChoiceProcessing">ТаблицаОбработкаВыбора</Event>
 		<Event name="Drag">ТаблицаПеретаскивание</Event>

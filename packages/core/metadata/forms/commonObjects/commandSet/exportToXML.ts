@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "../../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const exportCommandSetToXML = (

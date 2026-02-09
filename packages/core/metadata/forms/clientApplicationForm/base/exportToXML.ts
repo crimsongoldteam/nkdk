@@ -3,7 +3,7 @@ import { exportFormParametersToXML } from "~/metadata/commonObjects/formParamete
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUsePurposesToXML } from "~/metadata/commonObjects/usePurposes/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
+import { exportCommandSetToXML } from "~/metadata/forms/commonObjects/commandSet/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
 import { getUUID } from "~/metadata/helpers/uuid"

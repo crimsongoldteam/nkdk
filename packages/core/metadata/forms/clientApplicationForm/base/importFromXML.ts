@@ -3,7 +3,7 @@ import { importFormParametersFromXML } from "~/metadata/commonObjects/formParame
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUsePurposesFromXML } from "~/metadata/commonObjects/usePurposes/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
+import { importCommandSetFromXML } from "~/metadata/forms/commonObjects/commandSet/importFromXML"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importCommandsFromXML } from "../../commands/importFromXML"
 import { importCommandInterfaceFromXML } from "../../commonObjects/commandInterface/importFromXML"

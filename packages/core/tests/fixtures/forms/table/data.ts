@@ -84,6 +84,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
     {
       dataPath: "Таблица.Ввод",
       editMode: "EnterOnInput",
+      multipleValuesExtendedEdit: true,
       elementType: "InputField",
       name: "ТаблицаВвод",
     },
@@ -146,6 +147,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
     refreshRequestProcessing: "ТаблицаОбработкаЗапросаОбновления",
     selection: "ТаблицаВыбор",
     valueChoice: "ТаблицаВыборЗначения",
+    beforeLoadUserSettingsAtServer: "ТаблицаПередЗагрузкойПользовательскихНастроекНаСервере",
   },
   extendedTooltip: {
     elementType: "ExtendedTooltip",
@@ -415,6 +417,7 @@ export const fullTableEnterprise: TablePartialEnterprise = {
     ПриОкончанииРедактирования: "ПроцедураПриОкончанииРедактирования",
     ПриСменеТекущегоРодителя: "ПроцедураПриСменеТекущегоРодителя",
     ПроверкаПеретаскивания: "ПроцедураПроверкиПеретаскивания",
+    ПередЗагрузкойПользовательскихНастроекНаСервере: "ПроцедураПередЗагрузкойПользовательскихНастроекНаСервере",
   },
 }
 

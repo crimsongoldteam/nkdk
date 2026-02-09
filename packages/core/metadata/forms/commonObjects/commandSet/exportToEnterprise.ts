@@ -1,16 +1,16 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "../../../context/types"
 import { CommandSet, CommandSetEnterprise } from "./types"
 
-export const importCommandSetFromEnterprise = (
+export const exportCommandSetToEnterprise = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  data: CommandSetEnterprise | undefined
-): CommandSet | undefined => {
+  data: CommandSet | undefined
+): CommandSetEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: CommandSet = []
+  const result: CommandSetEnterprise = []
   for (const command of data) {
     if (command !== undefined && command !== null && command.length > 0) {
       result.push(command)
@@ -20,4 +20,4 @@ export const importCommandSetFromEnterprise = (
   return result.length > 0 ? result : undefined
 }
 
-registerTypeRule("CommandSet", "importFromEnterprise", importCommandSetFromEnterprise)
+registerTypeRule("CommandSet", "exportToEnterprise", exportCommandSetToEnterprise)

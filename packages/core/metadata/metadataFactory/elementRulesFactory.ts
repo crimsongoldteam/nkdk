@@ -82,11 +82,18 @@ type PropertiesType<T extends BaseElement, ExtraProperties extends string = neve
   Record<Exclude<keyof T, "elementType" | "name"> | ExtraProperties, PropertyRule<T>>
 >
 
+// ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
+
 export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> {
   properties: PropertiesType<T, ExtraProperties>
-  events?: T extends EventedElement
-    ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
-    : never
+  d: T extends EventedElement ? keyof T["events"][number] : undefined
+  events: T extends EventedElement
+    ? Record<keyof Required<T["events"]>, string>
+    : // Record<
+      //   Extract<keyof Required<T["events"]>, string>,
+      //   ToPartialEnterpriseType<T> extends EventedElementYAML ? keyof EventedElementYAML["События"] : never
+      // >
+      undefined
   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   alwaysExportToXML?: true
   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>

@@ -14,8 +14,8 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromPartialYAML } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
-import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importCommandInterfaceFromEnterprise } from "../../commonObjects/commandInterface/importFromEnterprise"
+import { importCommandSetFromEnterprise } from "../../commonObjects/commandSet/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/fromYAML"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
