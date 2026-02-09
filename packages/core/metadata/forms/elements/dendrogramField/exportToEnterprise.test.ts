@@ -4,7 +4,6 @@ import {
   fullDendrogramField,
   fullDendrogramFieldPartialEnterprise,
   minimalDendrogramField,
-  minimalDendrogramFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/dendrogramField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportDendrogramFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalDendrogramField })
 
-    expect(result).toEqual(minimalDendrogramFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

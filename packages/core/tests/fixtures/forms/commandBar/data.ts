@@ -1,9 +1,5 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import {
-  CommandBar,
-  CommandBarPartialEnterprise,
-  CommandBarTypedEnterprise,
-} from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar, CommandBarPartialEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
@@ -94,16 +90,6 @@ export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
   ИсточникКоманд: "Form",
-}
-
-export const fullCommandBarTypedEnterprise: CommandBarTypedEnterprise = {
-  ...fullCommandBarPartialEnterprise,
-  Тип: "КоманднаяПанель",
-  Заголовок: "Командная панель",
-}
-
-export const minimalCommandBarTypedEnterprise: CommandBarTypedEnterprise = {
-  Тип: "КоманднаяПанель",
 }
 
 export interface CommandBarStructureFixture {

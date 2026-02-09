@@ -1,4 +1,3 @@
-import { BaseElement } from "../baseElement/types"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
@@ -6,8 +5,10 @@ import { FormattedI8nText, FormattedI8nTextEnterprise } from "~/metadata/commonO
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { BaseElement } from "../baseElement/types"
 
 export interface ExtendedTooltip extends BaseElement {
+  elementType: "ExtendedTooltip"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   displayImportance?: SE.DisplayImportance

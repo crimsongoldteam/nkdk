@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullCalendarField,
   fullCalendarFieldPartialEnterprise,
   minimalCalendarField,
-  minimalCalendarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 
 describe("exportCalendarFieldToEnterprise", () => {
   describe("exportElementToPartialYAML", () => {
@@ -19,7 +18,7 @@ describe("exportCalendarFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalCalendarField })
 
-      expect(result).toEqual(minimalCalendarFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 })

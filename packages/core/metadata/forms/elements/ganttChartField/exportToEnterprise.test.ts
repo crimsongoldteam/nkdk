@@ -4,7 +4,6 @@ import {
   fullGanttChartField,
   fullGanttChartFieldPartialEnterprise,
   minimalGanttChartField,
-  minimalGanttChartFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/ganttChartField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -19,7 +18,7 @@ describe("exportGanttChartFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalGanttChartField })
 
-      expect(result).toEqual(minimalGanttChartFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 })

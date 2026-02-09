@@ -1,16 +1,13 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { EventsXML } from "~/metadata/forms/events/types"
+import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML, NamedElement } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { NamedElement } from "../baseElement/types"
+import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface CalendarField extends NamedElement {
   elementType: "CalendarField"
@@ -72,63 +69,6 @@ export interface CalendarField extends NamedElement {
   }
 }
 
-export interface CalendarFieldXML extends BaseElementXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BeginOfRepresentationPeriod?: string
-  Border?: BorderXML
-  BorderColor?: ColorXML
-  CalendarNavigation?: boolean
-  EnableDrag?: boolean
-  EnableStartDrag?: boolean
-  EndOfRepresentationPeriod?: string
-  Font?: FontXML
-  Height?: number
-  HeightInMonths?: number
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  SelectionMode?: SE.DateSelectionMode
-  ShowCurrentDate?: boolean
-  ShowMonthsPanel?: boolean
-  VerticalStretch?: boolean
-  Width?: number
-  WidthInMonths?: number
-  AutoCellHeight?: boolean
-  CellHyperlink?: boolean
-  ContextMenu: ContextMenuXML
-  DataPath?: string
-  DefaultItem?: boolean
-  _DisplayImportance?: SE.DisplayImportance
-  EditMode?: SE.ColumnEditMode
-  Enabled?: boolean
-  ExtendedTooltip: ExtendedTooltipXML
-  GroupHorizontalAlign?: SE.ItemHorizontalLocation
-  ReadOnly?: boolean
-  Shortcut?: string
-  ShowInFooter?: boolean
-  ShowInHeader?: boolean
-  SkipOnInput?: boolean
-  AssociatedTableElementId?: MetadataValueXML
-  Title?: I8nTextXML
-  TitleBackColor?: ColorXML
-  TitleFont?: FontXML
-  TitleHeight?: number
-  TitleLocation?: SE.FormItemTitleLocation
-  TitleTextColor?: ColorXML
-  ToolTip?: I8nTextXML
-  ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormFieldType
-  TypeRestriction?: TypeDescriptionXML
-  UserVisible?: UserVisibleXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  Visible?: boolean
-  WarningOnEdit?: I8nTextXML
-  WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  OnMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
-  Events?: EventsXML
-}
-
 export interface CalendarFieldPartialEnterprise {
   АвтоВысотаЯчейки?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
@@ -187,8 +127,4 @@ export interface CalendarFieldPartialEnterprise {
     ПриВыводеПериода?: string
     ПроверкаПеретаскивания?: string
   }
-}
-
-export interface CalendarFieldTypedEnterprise extends CalendarFieldPartialEnterprise {
-  Тип: "ПолеКалендаря"
 }

@@ -1,8 +1,4 @@
-import {
-  ChartField,
-  ChartFieldPartialEnterprise,
-  ChartFieldTypedEnterprise,
-} from "~/metadata/forms/elements/chartField/types"
+import { ChartField, ChartFieldPartialEnterprise } from "~/metadata/forms/elements/chartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -156,19 +152,9 @@ export const fullChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {
   },
 }
 
-export const fullChartFieldTypedEnterprise: ChartFieldTypedEnterprise = {
-  ...fullChartFieldPartialEnterprise,
-  Тип: "ПолеДиаграммы",
-  Заголовок: "Поле диаграммы",
-}
-
 export const minimalChartField: ChartField = {
   elementType: FormElementType.ChartField,
   name: "ПолеДиаграммы",
 }
 
 export const minimalChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {}
-
-export const minimalChartFieldTypedEnterprise: ChartFieldTypedEnterprise = {
-  Тип: "ПолеДиаграммы",
-}

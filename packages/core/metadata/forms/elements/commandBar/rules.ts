@@ -5,7 +5,6 @@ export type { ElementRule, PropertyRule }
 export const CommandBarRules: ElementRule<CommandBar> = {
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
@@ -32,7 +31,6 @@ export const CommandBarRules: ElementRule<CommandBar> = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartialOthers: true,
     },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },

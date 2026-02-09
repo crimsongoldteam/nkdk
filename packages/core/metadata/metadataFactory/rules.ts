@@ -36,7 +36,12 @@ import { PlannerField, PlannerFieldPartialEnterprise } from "../forms/elements/p
 import { Popup, PopupPartialEnterprise } from "../forms/elements/popup/types"
 import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "../forms/elements/progressBarField/types"
 import { RadioButtonField, RadioButtonFieldPartialEnterprise } from "../forms/elements/radioButtonField/types"
-import { SearchControlAddition, SearchControlAdditionEnterprise } from "../forms/elements/searchControlAddition/types"
+import {
+  SearchControlAddition,
+  SearchControlAdditionEnterprise,
+  SingleSearchControlAddition,
+  SingleSearchControlAdditionEnterprise,
+} from "../forms/elements/searchControlAddition/types"
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
@@ -170,9 +175,9 @@ export type TypeRules<T> = T extends Button
                                                           ? {
                                                               PartialEnterprise: SearchControlAdditionEnterprise
                                                             }
-                                                          : T extends SingleSearchStringAddition
+                                                          : T extends SingleSearchControlAddition
                                                             ? {
-                                                                PartialEnterprise: SingleSearchStringAdditionEnterprise
+                                                                PartialEnterprise: SingleSearchControlAdditionEnterprise
                                                               }
                                                             : T extends SingleSearchStringAddition
                                                               ? {
