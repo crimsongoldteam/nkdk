@@ -1,3 +1,5 @@
+import { getParentFromContext } from "~/metadata/context/helpers"
+import { FormElementType } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
 import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
@@ -39,7 +41,7 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
     },
     TableAutoCommandBar: {
       toXML: (context: ConfigurationContext, _element: AutoCommandBar) => {
-        const parentTable = context.elementContext!
+        const parentTable = getParentFromContext(context, FormElementType.Table)
         const elementId = getElementId(context)
         const elementName = getAutoCommandBarName(parentTable)
         return { id: elementId, name: elementName }

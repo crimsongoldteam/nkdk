@@ -2,6 +2,8 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getViewStatusAdditionName } from "./helper"
 import { ViewStatusAddition } from "./types"
+import { getParentFromContext } from "~/metadata/context/helpers"
+import { FormElementType } from "~/metadata/metadataFactory"
 export type { ElementRule, PropertyRule }
 
 export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionSource"> = {
@@ -52,8 +54,8 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionS
   registerAsType: {
     ViewStatusAddition: {
       toXML: (context, _element) => {
-        if (!context.elementContext) throw new Error("elementContext is not defined")
-        const parent = context.elementContext
+        if (!context.elementsTree) throw new Error("elementContext is not defined")
+        const parent = getParentFromContext(context, FormElementType.Table)
         const id = getElementId(context)
         const name = getViewStatusAdditionName(parent)
         return { name, id }

@@ -14,7 +14,7 @@ describe("exportExtendedTooltipToXML", () => {
   it("should return default when data is undefined", () => {
     const context: ConfigurationContext = {
       ...mockContext,
-      elementContext: { name: "КакойТоЭлемент" },
+      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
     }
     const expectedResult = readXMLFileAsString("forms/extendedTooltip/defaults.xml")
 
@@ -32,7 +32,7 @@ describe("exportExtendedTooltipToXML", () => {
   it("should return all fields to XML", () => {
     const context: ConfigurationContext = {
       ...mockContext,
-      elementContext: { name: "КакойТоЭлемент" },
+      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
     }
     const expectedResult = readXMLFileAsString("forms/extendedTooltip/full.xml").trimEnd()
 

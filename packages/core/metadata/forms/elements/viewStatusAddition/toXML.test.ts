@@ -14,7 +14,7 @@ describe("exportViewStatusAdditionToXML", () => {
   it("should return default when data is undefined", () => {
     const context: ConfigurationContext = {
       ...mockContext,
-      elementContext: { name: "КакойТоЭлемент" },
+      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
     }
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/minimal.xml")
 
@@ -32,7 +32,7 @@ describe("exportViewStatusAdditionToXML", () => {
   it("should return all fields to XML", () => {
     const context: ConfigurationContext = {
       ...mockContext,
-      elementContext: { name: "КакойТоЭлемент" },
+      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
     }
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/full.xml").trimEnd()
 

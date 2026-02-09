@@ -63,7 +63,9 @@ describe("exportAutoCommandBarToXML", () => {
 
 const exportToXML = (value: AutoCommandBar | undefined, type: "AutoCommandBar" | "TableAutoCommandBar"): string => {
   const context: ConfigurationContext =
-    type === "AutoCommandBar" ? mockContext : { ...mockContext, elementContext: { name: "КакойТоЭлемент" } }
+    type === "AutoCommandBar"
+      ? mockContext
+      : { ...mockContext, elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }] }
 
   const xmlData = exportPropertyToXML({
     context: context,

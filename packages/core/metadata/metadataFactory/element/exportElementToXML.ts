@@ -7,7 +7,8 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
 import { getTypeRule } from "../typeRulesFactory"
-import { ElementXML } from "../types"
+import { ElementXML, FormElementType } from "../types"
+import context from "antd/es/app/context"
 
 export const exportPropertyToXML = (params: {
   context: ConfigurationContext
@@ -46,7 +47,14 @@ export function exportElementToXML<T extends NamedElement>(params: {
 
   if (!rule) throw new Error(`Unknown element type: ${element.elementType}`)
 
-  return exportToXML<T>({ context, element, rule, id, name })
+  return exportToXML<T>({
+    context,
+    elementType: element.elementType,
+    element,
+    rule,
+    id,
+    name,
+  })
 }
 
 export function exportSingleElementToXML<T extends SingleElement>(params: {
@@ -55,34 +63,43 @@ export function exportSingleElementToXML<T extends SingleElement>(params: {
   rule: ElementRule<T>
   id: string
   name: string
+  elementType: FormElementType
 }): ElementXML {
-  const { element, context, rule, id, name } = params
-  return exportToXML<T>({ context, element, rule, id, name })
+  return exportToXML<T>(params)
 }
 
 function exportToXML<T extends BaseElement>(params: {
   context: ConfigurationContext
+  elementType: FormElementType
   element: T | undefined
   rule: ElementRule<T>
   id: string
   name: string
 }): ElementXML {
-  const { context, element, rule, id, name } = params
+  const { context, element, rule, id, name, elementType } = params
 
-  const result: any = {
+  const result: ElementXML = {
     _name: name,
     _id: id,
-  }
-
-  const currentContext: ConfigurationContext = {
-    ...context,
-    elementContext: { name: name },
   }
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
     const value = element === undefined ? undefined : (element as any)[key]
 
     const xmlKey = ruleProp.xml ?? capitalize(key)
+
+    const elementsTree: ConfigurationContext["elementsTree"] = []
+
+    if (context.elementsTree !== undefined) {
+      elementsTree.push(...context.elementsTree)
+    }
+
+    elementsTree.push({ name: name, elementType: elementType })
+
+    const currentContext: ConfigurationContext = {
+      ...context,
+      elementsTree: elementsTree,
+    }
 
     const exportedValue = exportPropertyToXML({
       context: currentContext,

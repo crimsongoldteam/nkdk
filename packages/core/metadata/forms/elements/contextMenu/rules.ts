@@ -1,3 +1,4 @@
+import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getContextMenuName } from "./helper"
@@ -23,8 +24,8 @@ export const ContextMenuRules: ElementRule<ContextMenu> = {
   registerAsType: {
     ContextMenu: {
       toXML: (context, _element) => {
-        if (!context.elementContext) throw new Error("elementContext is not defined")
-        const parent = context.elementContext
+        if (!context.elementsTree) throw new Error("elementContext is not defined")
+        const parent = getParentFromContext(context)
         const id = getElementId(context)
         const name = getContextMenuName(parent)
         return { id, name }

@@ -122,7 +122,7 @@ const registerAsTypeRegistry = <T extends BaseElement>(
     registerImportFromXML<T>(propertyType, elementType, elementRule)
     registerExportToEnterprise<T>(propertyType)
     registerImportFromEnterprise<T>(propertyType, elementType)
-    registerExportToXML<T>(propertyType, propertyRule, elementRule)
+    registerExportToXML<T>({ propertyType, propertyRule, elementRule, elementType })
   }
 }
 
@@ -182,11 +182,13 @@ const registerImportFromEnterprise = <T extends BaseElement>(
   )
 }
 
-const registerExportToXML = <T extends BaseElement>(
-  propertyType: TypeRulesNames,
-  propertyRule: RegisterAsTypeRule<T>,
+const registerExportToXML = <T extends BaseElement>(params: {
+  propertyType: TypeRulesNames
+  propertyRule: RegisterAsTypeRule<T>
   elementRule: ElementRule<T>
-): void => {
+  elementType: FormElementType
+}): void => {
+  const { propertyType, propertyRule, elementRule, elementType } = params
   const toXMLFn = propertyRule.toXML
 
   registerTypeRule(
@@ -199,6 +201,7 @@ const registerExportToXML = <T extends BaseElement>(
         context,
         element: value,
         rule: elementRule,
+        elementType: elementType,
         ...extraParams,
       })
     }

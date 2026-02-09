@@ -1,3 +1,4 @@
+import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getExtendedTooltipName } from "./helper"
@@ -63,8 +64,8 @@ export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
   registerAsType: {
     ExtendedTooltip: {
       toXML: (context, _element) => {
-        if (!context.elementContext) throw new Error("elementContext is not defined")
-        const parent = context.elementContext
+        if (!context.elementsTree) throw new Error("elementContext is not defined")
+        const parent = getParentFromContext(context)
         const id = getElementId(context)
         const name = getExtendedTooltipName(parent)
         return { id, name }
