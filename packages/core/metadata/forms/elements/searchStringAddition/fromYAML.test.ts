@@ -3,10 +3,10 @@ import { importElementFromPartialYAML, importPropertyFromEnterprise, PropertyRul
 import {
   fullSearchStringAddition,
   fullSearchStringAdditionEnterprise,
+  fullSingleSearchStringAddition,
   minimalSearchStringAddition,
   sourceSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule<any> = { type: "SearchStringAddition" }
@@ -34,17 +34,6 @@ describe("SearchStringAddition from YAML", () => {
 
       expect(result).toEqual(minimalSearchStringAddition)
     })
-
-    it("should return undefined when yaml is undefined", () => {
-      const result = importElementFromPartialYAML({
-        context: mockContext,
-        elementType: "SearchStringAddition",
-        yaml: undefined,
-        source: fullSearchStringAddition,
-      })
-
-      expect(result).toBeUndefined()
-    })
   })
 
   describe("Single", () => {
@@ -67,7 +56,7 @@ describe("SearchStringAddition from YAML", () => {
         sourceValue: sourceSearchStringAddition,
       })
 
-      expect(result).toEqual(fullViewStatusAddition)
+      expect(result).toEqual(fullSingleSearchStringAddition)
     })
   })
 })

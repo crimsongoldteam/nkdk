@@ -77,8 +77,13 @@ interface RegisterAsTypeRule<T extends BaseElement> {
   toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
 }
 
+type PropertiesType<T extends BaseElement, ExtraProperties extends string = never> = Record<
+  Extract<Omit<keyof T, "elementType">, PropertyKey> | ExtraProperties,
+  PropertyRule<T>
+>
+
 export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> {
-  properties: Partial<Record<Extract<keyof T | ExtraProperties, string>, PropertyRule<T>>>
+  properties: PropertiesType<T, ExtraProperties>
   events?: T extends EventedElement
     ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
     : never
