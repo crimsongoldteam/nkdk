@@ -91,6 +91,7 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
     context: params.context,
     rules: rules,
     yaml: params.yaml,
+    elementType: params.elementType,
     source: params.source,
   })
 }
@@ -98,14 +99,16 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
 export function importElementFromYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   rules: ElementRule<T>
+  elementType: FormElementType
   yaml: ToPartialEnterpriseType<T> | undefined
   source?: T
 }): T | undefined {
-  const { context, rules, yaml, source } = params
+  const { context, rules, yaml, source, elementType } = params
   if (yaml === undefined) return source
 
   const result: T = {
     ...(source ? source : {}),
+    elementType: elementType,
   } as T
 
   for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {

@@ -1,9 +1,5 @@
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 
-export const parentElement = {
-  name: "КакойТоЭлемент",
-}
-
 export const fullViewStatusAddition: Required<ViewStatusAddition> = {
   elementType: "ViewStatusAddition",
   autoMaxWidth: true,
@@ -61,9 +57,5 @@ export const fullViewStatusAdditionEnterprise: Required<ViewStatusAdditionEnterp
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
-
-// export const minimalViewStatusAddition: ViewStatusAddition = {
-//   elementType: "ViewStatusAddition",
-// }
 
 export const minimalViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {}

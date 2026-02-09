@@ -5,6 +5,7 @@ import {
   fullSearchStringAddition,
   fullSearchStringAdditionEnterprise,
   fullSingleSearchStringAddition,
+  fullSingleSearchStringAdditionEnterprise,
   minimalSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockContext } from "~/tests/mockContext"
@@ -26,20 +27,23 @@ describe("SearchStringAddition to YAML", () => {
       expect(result).toBeUndefined()
     })
 
-    it("should return undefined for SingleSearchStringAddition (no additionSource)", () => {
+    it("should full", () => {
       const result = exportPropertyToYAML({
         context: mockContext,
         rule: rule,
         value: fullSingleSearchStringAddition,
       })
 
-      expect(result).toBeUndefined()
+      expect(result).toHaveProperty("ОтображениеСтрокиПоиска", fullSingleSearchStringAdditionEnterprise)
     })
   })
 
   describe("Partial to YAML", () => {
     it("should export all fields to Enterprise", () => {
-      const result = exportElementToPartialYAML({ context: mockContext, element: fullSearchStringAddition })
+      const result = exportElementToPartialYAML({
+        context: mockContext,
+        element: fullSearchStringAddition,
+      })
 
       expect(result).toEqual(fullSearchStringAdditionEnterprise)
     })

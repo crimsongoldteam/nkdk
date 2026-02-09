@@ -71,13 +71,13 @@ export const fullSingleSearchStringAdditionEnterprise: SingleSearchStringAdditio
 
 export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
   ...fullSingleSearchStringAdditionEnterprise,
-  Источник: "РодительскийЭлемент",
+  Источник: "КакойТоЭлемент",
 }
 
 export const fullSearchStringAddition: Required<SearchStringAddition> = {
   ...fullSingleSearchStringAddition,
   elementType: "SearchStringAddition",
-  additionSource: "РодительскийЭлемент",
+  additionSource: "КакойТоЭлемент",
   name: "КакойТоЭлементСтрокаПоиска",
 }
 

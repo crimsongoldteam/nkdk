@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementToXML, exportPropertyToXML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
@@ -16,27 +16,22 @@ const rule: PropertyRule<any> = {
   type: "SearchStringAddition",
 }
 
+let context: ConfigurationContext
+
 describe("SearchStringAddition to XML", () => {
+  beforeEach(() => {
+    context = {
+      ...mockContext,
+      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
+    }
+  })
   describe("exportSearchStringAdditionToXML", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml").trimEnd()
 
       const xmlData = exportElementToXML({
-        context: mockContext,
+        context: context,
         element: fullSearchStringAddition,
-      })
-
-      const result = xmlExport({ SearchStringAddition: xmlData }, false)
-
-      expect(result).toEqual(expectedResult)
-    })
-
-    it("should return default when data is undefined", () => {
-      const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
-
-      const xmlData = exportElementToXML({
-        context: mockContext,
-        element: undefined,
       })
 
       const result = xmlExport({ SearchStringAddition: xmlData }, false)
@@ -47,7 +42,7 @@ describe("SearchStringAddition to XML", () => {
     it("should export minimal", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
       const xmlData = exportElementToXML({
-        context: mockContext,
+        context: context,
         element: minimalSearchStringAddition,
       })
 
@@ -57,12 +52,8 @@ describe("SearchStringAddition to XML", () => {
     })
   })
 
-  describe("exportSingleSearchStringAdditionToXML", () => {
+  describe("Single", () => {
     it("should return default when data is undefined", () => {
-      const context: ConfigurationContext = {
-        ...mockContext,
-        elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
-      }
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimalSingle.xml")
 
       const xmlData = exportPropertyToXML({
@@ -77,10 +68,6 @@ describe("SearchStringAddition to XML", () => {
     })
 
     it("should return all fields to XML", () => {
-      const context: ConfigurationContext = {
-        ...mockContext,
-        elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
-      }
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/fullSingle.xml").trimEnd()
 
       const xmlData = exportPropertyToXML({
@@ -95,10 +82,6 @@ describe("SearchStringAddition to XML", () => {
     })
 
     it("should export minimal", () => {
-      const context: ConfigurationContext = {
-        ...mockContext,
-        elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
-      }
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimalSingle.xml")
       const xmlData = exportPropertyToXML({
         context: context,

@@ -4,10 +4,11 @@ import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { BaseElement, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
-export interface SearchStringAddition {
+export interface SearchStringAddition extends NamedElement {
   elementType: "SearchStringAddition"
   additionSource?: string
   name: string
@@ -30,10 +31,8 @@ export interface SearchStringAddition {
   visible?: boolean
 }
 
-export interface SingleSearchStringAddition extends Omit<
-  SearchStringAddition,
-  "name" | "additionSource" | "elementType"
-> {
+export interface SingleSearchStringAddition
+  extends Omit<SearchStringAddition, "name" | "additionSource" | "elementType">, BaseElement {
   elementType: "SingleSearchStringAddition"
 }
 

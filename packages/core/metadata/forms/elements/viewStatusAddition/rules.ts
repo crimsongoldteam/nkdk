@@ -6,12 +6,15 @@ import { getViewStatusAdditionName } from "./helper"
 import { ViewStatusAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
+// В YAML этот элемент может быть только в свойствах, не может быть в структуре
+
 export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionSource"> = {
   properties: {
     additionSource: {
       type: "TableAdditionalSource",
       additionalSourceType: "ViewStatusRepresentation",
       fromXML: false,
+      forSingleElement: true,
     },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },

@@ -12,12 +12,16 @@ const exportTableAdditionalSourceToXML = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: string | undefined
-): TableAdditionalSourceXML => {
+): TableAdditionalSourceXML | undefined => {
   const ruleNarrow = rule as TableAdditionalSourcePropertyRule<any>
+
+  if (!ruleNarrow.forSingleElement && !value) {
+    return undefined
+  }
 
   const parent = getParentFromContext(context, FormElementType.Table)
 
-  const name = value ?? parent.name
+  const name = parent.name
 
   return { Item: name, Type: ruleNarrow.additionalSourceType }
 }

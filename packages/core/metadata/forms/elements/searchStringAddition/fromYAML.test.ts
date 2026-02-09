@@ -18,7 +18,7 @@ describe("SearchStringAddition from YAML", () => {
         context: mockContext,
         elementType: "SearchStringAddition",
         yaml: fullSearchStringAdditionEnterprise,
-        source: fullSearchStringAddition,
+        source: sourceSearchStringAddition,
       })
 
       expect(result).toEqual(fullSearchStringAddition)
@@ -29,7 +29,7 @@ describe("SearchStringAddition from YAML", () => {
         context: mockContext,
         elementType: "SearchStringAddition",
         yaml: {},
-        source: minimalSearchStringAddition,
+        source: sourceSearchStringAddition,
       })
 
       expect(result).toEqual(minimalSearchStringAddition)
@@ -42,7 +42,6 @@ describe("SearchStringAddition from YAML", () => {
         context: mockContext,
         rule: rule,
         value: undefined,
-        sourceValue: undefined,
       })
 
       expect(result).toBeUndefined()
@@ -53,7 +52,6 @@ describe("SearchStringAddition from YAML", () => {
         context: mockContext,
         rule: rule,
         value: fullSearchStringAdditionEnterprise,
-        sourceValue: sourceSearchStringAddition,
       })
 
       expect(result).toEqual(fullSingleSearchStringAddition)

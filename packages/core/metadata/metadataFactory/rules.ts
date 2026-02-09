@@ -37,7 +37,12 @@ import { Popup, PopupPartialEnterprise } from "../forms/elements/popup/types"
 import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "../forms/elements/progressBarField/types"
 import { RadioButtonField, RadioButtonFieldPartialEnterprise } from "../forms/elements/radioButtonField/types"
 import { SearchControlAddition, SearchControlAdditionEnterprise } from "../forms/elements/searchControlAddition/types"
-import { SearchStringAddition, SearchStringAdditionEnterprise } from "../forms/elements/searchStringAddition/types"
+import {
+  SearchStringAddition,
+  SearchStringAdditionEnterprise,
+  SingleSearchStringAddition,
+  SingleSearchStringAdditionEnterprise,
+} from "../forms/elements/searchStringAddition/types"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
@@ -165,33 +170,37 @@ export type TypeRules<T> = T extends Button
                                                           ? {
                                                               PartialEnterprise: SearchControlAdditionEnterprise
                                                             }
-                                                          : T extends SearchStringAddition
+                                                          : T extends SingleSearchStringAddition
                                                             ? {
-                                                                PartialEnterprise: SearchStringAdditionEnterprise
+                                                                PartialEnterprise: SingleSearchStringAdditionEnterprise
                                                               }
-                                                            : T extends TextDocumentField
+                                                            : T extends SearchStringAddition
                                                               ? {
-                                                                  PartialEnterprise: TextDocumentFieldPartialEnterprise
+                                                                  PartialEnterprise: SearchStringAdditionEnterprise
                                                                 }
-                                                              : T extends TrackBarField
+                                                              : T extends TextDocumentField
                                                                 ? {
-                                                                    PartialEnterprise: TrackBarFieldPartialEnterprise
+                                                                    PartialEnterprise: TextDocumentFieldPartialEnterprise
                                                                   }
-                                                                : T extends UsualGroup
+                                                                : T extends TrackBarField
                                                                   ? {
-                                                                      PartialEnterprise: UsualGroupPartialEnterprise
-                                                                      Preview: UsualGroupPreview
+                                                                      PartialEnterprise: TrackBarFieldPartialEnterprise
                                                                     }
-                                                                  : T extends ContextMenu
+                                                                  : T extends UsualGroup
                                                                     ? {
-                                                                        PartialEnterprise: ContextMenuEnterprise
+                                                                        PartialEnterprise: UsualGroupPartialEnterprise
+                                                                        Preview: UsualGroupPreview
                                                                       }
-                                                                    : T extends AutoCommandBar
+                                                                    : T extends ContextMenu
                                                                       ? {
-                                                                          PartialEnterprise: AutoCommandBarEnterprise
+                                                                          PartialEnterprise: ContextMenuEnterprise
                                                                         }
-                                                                      : T extends ExtendedTooltip
+                                                                      : T extends AutoCommandBar
                                                                         ? {
-                                                                            PartialEnterprise: ExtendedTooltipEnterprise
+                                                                            PartialEnterprise: AutoCommandBarEnterprise
                                                                           }
-                                                                        : never
+                                                                        : T extends ExtendedTooltip
+                                                                          ? {
+                                                                              PartialEnterprise: ExtendedTooltipEnterprise
+                                                                            }
+                                                                          : never

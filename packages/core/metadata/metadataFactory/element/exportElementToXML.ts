@@ -34,7 +34,7 @@ export const exportPropertyToXML = (params: {
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContext
-  element: T | undefined
+  element: T
 }): ElementXML | undefined {
   const { element, context } = params
 

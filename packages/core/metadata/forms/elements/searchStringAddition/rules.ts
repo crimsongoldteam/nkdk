@@ -6,7 +6,7 @@ import { getSearchStringAdditionName } from "./helper"
 import { SearchStringAddition, SingleSearchStringAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
-const commonProperties: Record<string, PropertyRule<SearchStringAddition>> = {
+const commonProperties: ElementRule<SearchStringAddition>["properties"] = {
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
   font: { yaml: "Шрифт", type: "Font" },
@@ -31,7 +31,6 @@ const commonProperties: Record<string, PropertyRule<SearchStringAddition>> = {
   title: {
     yaml: "Заголовок",
     type: "I8nText",
-    yamlPartialOthers: true,
   },
   toolTip: { yaml: "Подсказка", type: "I8nText" },
   toolTipRepresentation: {
@@ -59,6 +58,7 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
       type: "TableAdditionalSource",
       additionalSourceType: "SearchStringRepresentation",
       fromXML: false,
+      forSingleElement: true,
     },
     ...commonProperties,
   } as any,
@@ -83,7 +83,7 @@ export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
       additionalSourceType: "SearchStringRepresentation",
     },
     ...commonProperties,
-  } as any,
+  },
 }
 
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)

@@ -50,6 +50,7 @@ export interface UserVisiblePropertyRule<T extends BaseElement> extends BaseProp
 export interface TableAdditionalSourcePropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
+  forSingleElement?: true
 }
 
 export interface CleanPropertyRule<T extends BaseElement> extends BasePropertyRule<T> {
@@ -77,9 +78,8 @@ interface RegisterAsTypeRule<T extends BaseElement> {
   toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
 }
 
-type PropertiesType<T extends BaseElement, ExtraProperties extends string = never> = Record<
-  Exclude<keyof T, "elementType" | "name"> | ExtraProperties,
-  PropertyRule<T>
+type PropertiesType<T extends BaseElement, ExtraProperties extends string = never> = Partial<
+  Record<Exclude<keyof T, "elementType" | "name"> | ExtraProperties, PropertyRule<T>>
 >
 
 export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> {
