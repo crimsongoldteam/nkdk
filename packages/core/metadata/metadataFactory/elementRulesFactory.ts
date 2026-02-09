@@ -78,7 +78,7 @@ interface RegisterAsTypeRule<T extends BaseElement> {
 }
 
 type PropertiesType<T extends BaseElement, ExtraProperties extends string = never> = Record<
-  Extract<Omit<keyof T, "elementType">, PropertyKey> | ExtraProperties,
+  Exclude<keyof T, "elementType" | "name"> | ExtraProperties,
   PropertyRule<T>
 >
 

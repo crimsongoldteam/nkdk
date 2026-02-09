@@ -3,7 +3,6 @@ import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataF
 import {
   fullViewStatusAddition,
   fullViewStatusAdditionEnterprise,
-  minimalViewStatusAddition,
   minimalViewStatusAdditionEnterprise,
 } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
@@ -16,7 +15,7 @@ describe("importViewStatusAdditionFromEnterprise", () => {
       context: mockContext,
       rule: rule,
       value: fullViewStatusAdditionEnterprise,
-      sourceValue: fullViewStatusAddition,
+      sourceValue: fullViewStatusAdditionEnterprise,
     })
 
     expect(result).toEqual(fullViewStatusAddition)
@@ -27,7 +26,6 @@ describe("importViewStatusAdditionFromEnterprise", () => {
       context: mockContext,
       rule: rule,
       value: minimalViewStatusAdditionEnterprise,
-      sourceValue: minimalViewStatusAddition,
     })
 
     expect(result).toEqual(minimalViewStatusAddition)

@@ -62,8 +62,8 @@ export const fullViewStatusAdditionEnterprise: Required<ViewStatusAdditionEnterp
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
-export const minimalViewStatusAddition: ViewStatusAddition = {
-  elementType: "ViewStatusAddition",
-}
+// export const minimalViewStatusAddition: ViewStatusAddition = {
+//   elementType: "ViewStatusAddition",
+// }
 
 export const minimalViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {}

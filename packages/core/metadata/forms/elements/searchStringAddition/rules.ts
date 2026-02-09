@@ -6,6 +6,53 @@ import { getSearchStringAdditionName } from "./helper"
 import { SearchStringAddition, SingleSearchStringAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
+const commonProperties: Record<string, PropertyRule<SearchStringAddition>> = {
+  backColor: { yaml: "ЦветФона", type: "Color" },
+  borderColor: { yaml: "ЦветРамки", type: "Color" },
+  font: { yaml: "Шрифт", type: "Font" },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  textColor: { yaml: "ЦветТекста", type: "Color" },
+  width: { yaml: "Ширина", type: "number" },
+  contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+  displayImportance: {
+    yaml: "ВажностьПриОтображении",
+    xml: "_DisplayImportance",
+    type: "SystemEnumeration",
+    typeSE: "DisplayImportance",
+  },
+  enabled: { yaml: "Доступность", type: "boolean" },
+  extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+  horizontalAlignInGroup: {
+    yaml: "ГоризонтальноеПоложениеВГруппе",
+    xml: "GroupHorizontalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemHorizontalLocation",
+  },
+  title: {
+    yaml: "Заголовок",
+    type: "I8nText",
+    yamlPartialOthers: true,
+  },
+  toolTip: { yaml: "Подсказка", type: "I8nText" },
+  toolTipRepresentation: {
+    yaml: "ОтображениеПодсказки",
+    type: "SystemEnumeration",
+    typeSE: "ToolTipRepresentation",
+  },
+  userVisible: {
+    yaml: "РазрешитьИспользование",
+    yamlDeny: "ЗапретитьИспользование",
+    type: "UserVisible",
+  },
+  verticalAlignInGroup: {
+    yaml: "ВертикальноеПоложениеВГруппе",
+    xml: "GroupVerticalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemVerticalAlign",
+  },
+  visible: { yaml: "Видимость", type: "boolean" },
+}
+
 export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddition, "additionSource"> = {
   properties: {
     additionSource: {
@@ -13,51 +60,8 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
       additionalSourceType: "SearchStringRepresentation",
       fromXML: false,
     },
-    backColor: { yaml: "ЦветФона", type: "Color" },
-    borderColor: { yaml: "ЦветРамки", type: "Color" },
-    font: { yaml: "Шрифт", type: "Font" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    textColor: { yaml: "ЦветТекста", type: "Color" },
-    width: { yaml: "Ширина", type: "number" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
-    displayImportance: {
-      yaml: "ВажностьПриОтображении",
-      xml: "_DisplayImportance",
-      type: "SystemEnumeration",
-      typeSE: "DisplayImportance",
-    },
-    enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
-    horizontalAlignInGroup: {
-      yaml: "ГоризонтальноеПоложениеВГруппе",
-      xml: "GroupHorizontalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
-    title: {
-      yaml: "Заголовок",
-      type: "I8nText",
-      yamlPartialOthers: true,
-    },
-    toolTip: { yaml: "Подсказка", type: "I8nText" },
-    toolTipRepresentation: {
-      yaml: "ОтображениеПодсказки",
-      type: "SystemEnumeration",
-      typeSE: "ToolTipRepresentation",
-    },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-    },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
-    visible: { yaml: "Видимость", type: "boolean" },
-  },
+    ...commonProperties,
+  } as any,
   registerAsType: {
     SearchStringAddition: {
       toXML: (context, _element) => {
@@ -71,9 +75,6 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
   },
 }
 
-const { additionSource: _excluded, ...SingleSearchStringAdditionRulesProperties } =
-  SingleSearchStringAdditionRules.properties
-
 export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
   properties: {
     additionSource: {
@@ -81,8 +82,8 @@ export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
       type: "TableAdditionalSource",
       additionalSourceType: "SearchStringRepresentation",
     },
-    ...SingleSearchStringAdditionRulesProperties,
-  },
+    ...commonProperties,
+  } as any,
 }
 
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)
