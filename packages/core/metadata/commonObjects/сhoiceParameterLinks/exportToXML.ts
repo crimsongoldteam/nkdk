@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataSimpleValueToXML } from "../metadataValue/exportToXML"
 import { ChoiceParameterLink, ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinkXML } from "./types"
@@ -28,3 +29,5 @@ export const exportChoiceParameterLinksToXML = (
     "xr:Link": links.map((link) => exportChoiceParameterLinkToXML(context, undefined, link)),
   }
 }
+
+registerTypeRule("ChoiceParameterLinks", "exportToXML", exportChoiceParameterLinksToXML)

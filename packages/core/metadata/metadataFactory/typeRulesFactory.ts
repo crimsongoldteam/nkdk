@@ -6,6 +6,7 @@ export type TypeRulesNames =
   | "AutoCommandBar"
   | "TableAutoCommandBar"
   | "ChildItems"
+  | "ChoiceParameterLinks"
   | "boolean"
   | "string"
   | "number"

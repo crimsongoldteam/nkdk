@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/importFromXML"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
@@ -37,3 +38,5 @@ const extractDataPath = (
 
   return importMetadataSimpleValueFromXML(context, undefined, dataPath) as string | undefined
 }
+
+registerTypeRule("ChoiceParameterLinks", "importFromXML", importChoiceParameterLinksFromXML)

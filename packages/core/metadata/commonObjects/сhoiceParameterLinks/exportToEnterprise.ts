@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToEnterprise } from "../metadataField/exportToEnterprise"
 import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
@@ -18,3 +19,5 @@ export const exportChoiceParameterLinksToEnterprise = (
   }
   return result.join(", ")
 }
+
+registerTypeRule("ChoiceParameterLinks", "exportToEnterprise", exportChoiceParameterLinksToEnterprise)

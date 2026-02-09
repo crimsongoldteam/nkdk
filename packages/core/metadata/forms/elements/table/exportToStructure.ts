@@ -7,7 +7,6 @@ import { ExportToStructureContentFn, ExportToStructureFn, FormElementType } from
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"
-import { PropertyRule } from "../calendarField/rules"
 import { Table } from "./types"
 
 const V_BAR = t.VBar.LABEL as string
@@ -25,11 +24,7 @@ const formatTableColumn = (context: ConfigurationContext, column: NamedElement):
   return formatElementTitleAndName(context, column)
 }
 
-export const exportTableContentToStructure = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  element: Table
-): IFormatElementResult => {
+export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): IFormatElementResult => {
   const childItems = element.childItems ?? []
 
   const parts: string[] = []
@@ -52,7 +47,6 @@ export const exportTableContentToStructure = (
 
 export const exportTableToStructure: FormatElementFunction = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   element: NamedElement | undefined
 ): IFormatElementResult => {
   const table = element as Table

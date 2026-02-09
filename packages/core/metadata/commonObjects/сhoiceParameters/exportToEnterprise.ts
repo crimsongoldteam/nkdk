@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 import { ChoiceParameters, ChoiceParametersEnterprise } from "./types"
@@ -14,3 +15,5 @@ export const exportChoiceParametersToEnterprise = (
     data.map((param) => [param.name, exportMetadataValueToEnterprise(context, undefined, param.value)])
   )
 }
+
+registerTypeRule("ChoiceParameters", "exportToEnterprise", exportChoiceParametersToEnterprise)
