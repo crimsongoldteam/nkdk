@@ -61,7 +61,7 @@ export const ProgressBarFieldRules: ElementRule<ProgressBarField> = {
     showInFooter: { yaml: "ОтображатьВПодвале", type: "boolean" },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "string" },
+    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable" },
     title: {
       yaml: "Заголовок",
       type: "I8nText",

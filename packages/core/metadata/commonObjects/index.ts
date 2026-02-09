@@ -98,7 +98,6 @@ import "./metadataField/importFromEnterprise"
 import "./metadataField/importFromXML"
 
 import "./metadataPath/exportToEnterprise"
-// import "./metadataPath/exportToXML"
 import "./metadataPath/importFromEnterprise"
 
 import "./metadataRef/exportToEnterprise"

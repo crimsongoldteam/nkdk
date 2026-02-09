@@ -113,7 +113,7 @@ export const SpreadSheetDocumentFieldRules: ElementRule<SpreadSheetDocumentField
       type: "SystemEnumeration",
       typeSE: "DrawingSelectionShowMode",
     },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "string" },
+    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable" },
     edit: { yaml: "Редактирование", type: "boolean" },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },

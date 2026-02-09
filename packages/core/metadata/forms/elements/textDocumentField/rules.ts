@@ -111,7 +111,7 @@ export const TextDocumentFieldRules: ElementRule<TextDocumentField> = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     font: { yaml: "Шрифт", type: "Font" },
     height: { yaml: "Высота", type: "number" },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "string" },
+    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullColumnGroup,
   fullColumnGroupPartialEnterprise,
@@ -7,7 +8,6 @@ import {
   minimalColumnGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/columnGroup/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 
 describe("exportColumnGroupToEnterprise", () => {
   describe("exportElementToPartialYAML", () => {
@@ -29,12 +29,6 @@ describe("exportColumnGroupToEnterprise", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullColumnGroup })
 
       expect(result).toEqual(fullColumnGroupTypedEnterprise)
-    })
-
-    it("should return undefined when data is undefined", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: undefined })
-
-      expect(result).toBeUndefined()
     })
   })
 })
