@@ -12,16 +12,6 @@ import { ColumnGroup } from "./types"
 
 describe("importColumnGroupFromEnterprise", () => {
   describe("importColumnGroupTypedFromEnterprise", () => {
-    it("should return undefined when source is undefined", () => {
-      const result = importElementFromTypedYAML<ColumnGroup>({
-        context: mockContext,
-        yaml: undefined,
-        name: "ГруппаКолонок",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,

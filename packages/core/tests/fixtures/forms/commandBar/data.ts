@@ -22,10 +22,14 @@ export const sourceCommandBar: CommandBar = {
   },
 }
 
-export const fullCommandBar: Omit<Required<CommandBar>, "extendedTooltip"> = {
+export const fullCommandBar: Required<CommandBar> = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
   enableContentChange: true,
+  extendedTooltip: {
+    elementType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
   enabled: true,
   height: 200,
   horizontalAlignInGroup: "Center",
@@ -81,6 +85,9 @@ export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
   РазрешитьИзменениеСостава: "Истина",
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
+  РасширеннаяПодсказка: {
+    Заголовок: "Расширенная подсказка",
+  },
   СочетаниеКлавиш: "Ctrl+S",
   ТолькоПросмотр: "Ложь",
   ЦветТекстаЗаголовка: "Черный",

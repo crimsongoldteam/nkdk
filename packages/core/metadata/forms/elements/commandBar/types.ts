@@ -6,9 +6,11 @@ import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/use
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItem } from "../../collections/childItems/types"
 import { NamedElement } from "../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface CommandBar extends NamedElement {
   elementType: "CommandBar"
+  extendedTooltip?: ExtendedTooltip
   autofill?: boolean
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation
@@ -58,6 +60,5 @@ export interface CommandBarPartialEnterprise {
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
   ИсточникКоманд?: string
-
-  // ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise //Поле недоступно в конфигураторе
 }

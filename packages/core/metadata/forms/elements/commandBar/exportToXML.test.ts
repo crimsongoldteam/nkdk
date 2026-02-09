@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/exportToXML"
 import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullCommandBar, minimalCommandBar } from "~/tests/fixtures/forms/commandBar/data"
 import { mockContext } from "~/tests/mockContext"

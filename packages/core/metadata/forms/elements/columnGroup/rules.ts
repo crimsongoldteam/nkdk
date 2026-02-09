@@ -5,6 +5,7 @@ export type { ElementRule, PropertyRule }
 export const ColumnGroupRules: ElementRule<ColumnGroup> = {
   enterpriseField: "FormGroup",
   properties: {
+    childItems: { type: "ChildItems", defaultValue: [] },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",
       type: "SystemEnumeration",

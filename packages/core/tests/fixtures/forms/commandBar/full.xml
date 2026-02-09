@@ -39,7 +39,14 @@
 	<CommandSource>Form</CommandSource>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12"/>
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<GroupHorizontalAlign>Center</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>

@@ -5,6 +5,7 @@ export type { ElementRule, PropertyRule }
 export const CommandBarRules: ElementRule<CommandBar> = {
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
+    childItems: { type: "ChildItems", defaultValue: [] },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
@@ -15,9 +16,11 @@ export const CommandBarRules: ElementRule<CommandBar> = {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
+      xml: "HorizontalLocation",
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
     height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",

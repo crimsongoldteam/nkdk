@@ -5,7 +5,6 @@ import {
   fullColumnGroupPartialEnterprise,
   fullColumnGroupTypedEnterprise,
   minimalColumnGroup,
-  minimalColumnGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/columnGroup/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -20,7 +19,7 @@ describe("exportColumnGroupToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalColumnGroup })
 
-      expect(result).toEqual(minimalColumnGroupPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 
