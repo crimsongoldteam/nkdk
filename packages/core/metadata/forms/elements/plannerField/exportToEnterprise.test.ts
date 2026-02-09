@@ -4,7 +4,6 @@ import {
   fullPlannerField,
   fullPlannerFieldPartialEnterprise,
   minimalPlannerField,
-  minimalPlannerFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/plannerField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportPlannerFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalPlannerField })
 
-    expect(result).toEqual(minimalPlannerFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

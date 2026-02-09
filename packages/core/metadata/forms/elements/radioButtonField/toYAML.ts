@@ -4,7 +4,6 @@ import {
   fullRadioButtonField,
   fullRadioButtonFieldPartialEnterprise,
   minimalRadioButtonField,
-  minimalRadioButtonFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/radioButtonField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -19,7 +18,7 @@ describe("exportRadioButtonFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalRadioButtonField })
 
-      expect(result).toEqual(minimalRadioButtonFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 })

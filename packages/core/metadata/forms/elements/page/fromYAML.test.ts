@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
-import { fullPage, fullPagePartialEnterprise, minimalPage } from "~/tests/fixtures/forms/page/data"
+import {
+  fullPage,
+  fullPagePartialEnterprise,
+  minimalPage,
+  minimalPagePartialEnterprise,
+} from "~/tests/fixtures/forms/page/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importPageFromEnterprise", () => {
@@ -19,8 +24,8 @@ describe("importPageFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       elementType: FormElementType.Page,
-      yaml: fullPagePartialEnterprise,
-      source: fullPage,
+      yaml: minimalPagePartialEnterprise,
+      source: minimalPage,
     })
 
     expect(result).toEqual(minimalPage)

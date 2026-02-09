@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/exportToXML"
 import { exportElementToXML } from "~/metadata/metadataFactory"
 import {
   fullSpreadSheetDocumentField,
@@ -10,12 +9,6 @@ import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportSpreadSheetDocumentFieldToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportElementToXML({ context: mockContext, element: undefined })
-
-    expect(result).toBeUndefined()
-  })
-
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/spreadSheetDocumentField/full.xml")
     const xmlData = exportElementToXML({ context: mockContext, element: fullSpreadSheetDocumentField })

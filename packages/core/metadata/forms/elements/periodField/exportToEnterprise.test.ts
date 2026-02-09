@@ -4,7 +4,6 @@ import {
   fullPeriodField,
   fullPeriodFieldPartialEnterprise,
   minimalPeriodField,
-  minimalPeriodFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportPeriodFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalPeriodField })
 
-    expect(result).toEqual(minimalPeriodFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

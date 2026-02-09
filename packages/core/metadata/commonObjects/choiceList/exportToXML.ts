@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportFormChoiceListValueToXML } from "../metadataValue/exportToXML"
 import { ChoiceList, ChoiceListItemXML, ChoiceListXML } from "./types"
@@ -19,3 +20,5 @@ export const exportChoiceListToXML = (
     "xr:Item": items,
   }
 }
+
+registerTypeRule("ChoiceList", "exportToXML", exportChoiceListToXML)

@@ -7,7 +7,7 @@ export const RadioButtonFieldRules: ElementRule<RadioButtonField> = {
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    choiceList: { yaml: "СписокВыбора", type: "string" },
+    choiceList: { yaml: "СписокВыбора", type: "ChoiceList" },
     columnsCount: { yaml: "КоличествоКолонок", type: "number" },
     equalColumnsWidth: { yaml: "ОдинаковаяШиринаКолонок", type: "boolean" },
     font: { yaml: "Шрифт", type: "Font" },
@@ -85,7 +85,6 @@ export const RadioButtonFieldRules: ElementRule<RadioButtonField> = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartialOthers: true,
     },
     titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color" },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },

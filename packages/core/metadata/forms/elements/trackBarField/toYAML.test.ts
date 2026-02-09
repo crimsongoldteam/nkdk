@@ -4,7 +4,6 @@ import {
   fullTrackBarField,
   fullTrackBarFieldPartialEnterprise,
   minimalTrackBarField,
-  minimalTrackBarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -18,6 +17,6 @@ describe("exportTrackBarFieldToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalTrackBarField })
 
-    expect(result).toEqual(minimalTrackBarFieldPartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

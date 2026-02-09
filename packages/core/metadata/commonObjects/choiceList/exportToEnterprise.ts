@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../context/types"
 import { exportFormChoiceListValueToEnterprise } from "../metadataValue/exportToEnterprise"
 import { ChoiceList, ChoiceListEnterprise } from "./types"
@@ -12,3 +13,5 @@ export const exportChoiceListToEnterprise = (
 
   return data.map((item) => exportFormChoiceListValueToEnterprise(context, undefined, item))
 }
+
+registerTypeRule("ChoiceList", "exportToEnterprise", exportChoiceListToEnterprise)

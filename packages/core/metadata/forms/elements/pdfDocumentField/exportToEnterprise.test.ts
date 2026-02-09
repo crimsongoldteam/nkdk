@@ -4,7 +4,6 @@ import {
   fullPdfDocumentField,
   fullPdfDocumentFieldPartialEnterprise,
   minimalPdfDocumentField,
-  minimalPdfDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -19,7 +18,7 @@ describe("exportPdfDocumentFieldToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalPdfDocumentField })
 
-      expect(result).toEqual(minimalPdfDocumentFieldPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 })

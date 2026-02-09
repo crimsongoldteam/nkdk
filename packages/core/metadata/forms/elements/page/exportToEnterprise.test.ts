@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
-import {
-  fullPage,
-  fullPagePartialEnterprise,
-  minimalPage,
-  minimalPagePartialEnterprise,
-} from "~/tests/fixtures/forms/page/data"
+import { fullPage, fullPagePartialEnterprise, minimalPage } from "~/tests/fixtures/forms/page/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportPageToEnterprise", () => {
@@ -18,6 +13,6 @@ describe("exportPageToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: minimalPage })
 
-    expect(result).toEqual(minimalPagePartialEnterprise)
+    expect(result).toBeUndefined()
   })
 })

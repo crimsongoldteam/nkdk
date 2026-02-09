@@ -14,6 +14,7 @@ export type TypeRulesNames =
   | "ExtendedTooltip"
   | "ContextMenu"
   | "DynamicList"
+  | "ChoiceList"
   | "FieldsList"
   | "Font"
   | "FormattedI8nText"
