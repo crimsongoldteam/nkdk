@@ -1,6 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importCommandSetFromXML = (
   _context: ConfigurationContext,
@@ -23,3 +24,5 @@ export const importCommandSetFromXML = (
 
   return result.length > 0 ? result : undefined
 }
+
+registerTypeRule("CommandSet", "importFromXML", importCommandSetFromXML)

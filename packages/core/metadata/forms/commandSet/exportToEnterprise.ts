@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { CommandSet, CommandSetEnterprise } from "./types"
 
@@ -18,3 +19,5 @@ export const exportCommandSetToEnterprise = (
 
   return result.length > 0 ? result : undefined
 }
+
+registerTypeRule("CommandSet", "exportToEnterprise", exportCommandSetToEnterprise)
