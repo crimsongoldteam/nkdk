@@ -178,29 +178,33 @@ export type TypeRules<T> = T extends Button
                                                               ? {
                                                                   PartialEnterprise: SearchStringAdditionEnterprise
                                                                 }
-                                                              : T extends TextDocumentField
+                                                              : T extends SingleSearchStringAddition
                                                                 ? {
-                                                                    PartialEnterprise: TextDocumentFieldPartialEnterprise
+                                                                    PartialEnterprise: SingleSearchStringAdditionEnterprise
                                                                   }
-                                                                : T extends TrackBarField
+                                                                : T extends TextDocumentField
                                                                   ? {
-                                                                      PartialEnterprise: TrackBarFieldPartialEnterprise
+                                                                      PartialEnterprise: TextDocumentFieldPartialEnterprise
                                                                     }
-                                                                  : T extends UsualGroup
+                                                                  : T extends TrackBarField
                                                                     ? {
-                                                                        PartialEnterprise: UsualGroupPartialEnterprise
-                                                                        Preview: UsualGroupPreview
+                                                                        PartialEnterprise: TrackBarFieldPartialEnterprise
                                                                       }
-                                                                    : T extends ContextMenu
+                                                                    : T extends UsualGroup
                                                                       ? {
-                                                                          PartialEnterprise: ContextMenuEnterprise
+                                                                          PartialEnterprise: UsualGroupPartialEnterprise
+                                                                          Preview: UsualGroupPreview
                                                                         }
-                                                                      : T extends AutoCommandBar
+                                                                      : T extends ContextMenu
                                                                         ? {
-                                                                            PartialEnterprise: AutoCommandBarEnterprise
+                                                                            PartialEnterprise: ContextMenuEnterprise
                                                                           }
-                                                                        : T extends ExtendedTooltip
+                                                                        : T extends AutoCommandBar
                                                                           ? {
-                                                                              PartialEnterprise: ExtendedTooltipEnterprise
+                                                                              PartialEnterprise: AutoCommandBarEnterprise
                                                                             }
-                                                                          : never
+                                                                          : T extends ExtendedTooltip
+                                                                            ? {
+                                                                                PartialEnterprise: ExtendedTooltipEnterprise
+                                                                              }
+                                                                            : never

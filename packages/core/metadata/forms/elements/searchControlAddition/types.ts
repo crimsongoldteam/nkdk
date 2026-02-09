@@ -5,6 +5,7 @@ import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/typ
 import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 
 import * as SE from "~/metadata/systemEnumerations/types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBarChildItems, CommandBarChildItemsTypedEnterprise } from "../../collections/childItems/types"
 import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
@@ -35,7 +36,11 @@ export interface SearchControlAddition {
   childItems: CommandBarChildItems
 }
 
-export interface SingleSearchControlAddition extends Omit<SearchControlAddition, "name" | "additionSource"> {}
+export interface SingleSearchControlAddition
+  extends Omit<SearchControlAddition, "name" | "additionSource" | "elementType">,
+    BaseElement {
+  elementType: "SearchControlAddition"
+}
 
 export interface SearchControlAdditionEnterprise {
   Источник?: string

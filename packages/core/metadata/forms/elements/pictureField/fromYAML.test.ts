@@ -13,16 +13,6 @@ import { PictureField } from "./types"
 
 describe("importPictureFieldFromEnterprise", () => {
   describe("importPictureFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML<PictureField>({
-        context: mockContext,
-        yaml: undefined,
-        name: "ПолеКартинки",
-      })
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importElementFromTypedYAML<PictureField>({
         context: mockContext,

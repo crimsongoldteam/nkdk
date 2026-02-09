@@ -14,10 +14,6 @@ import { TypeRules } from "./rules"
 
 // // #region type associations
 
-// export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
-//   ? undefined
-//   : TypeRules<NonNullable<T>>["XML"]
-
 export type ElementXML = {
   _name: string
   _id: string
@@ -158,6 +154,7 @@ export const FormElementTypeToEnterprise = {
   FormField: "ПолеФормы",
   FormGroup: "ГруппаФормы",
   SearchControlAddition: "УправлениеПоиском",
+  SingleSearchControlAddition: "ОдиночноеУправлениеПоиском",
   SearchStringAddition: "ОтображениеСтрокиПоиска",
   SingleSearchStringAddition: "ОдиночноеОтображениеСтрокиПоиска",
   AutoCommandBar: "АвтоКоманднаяПанель",

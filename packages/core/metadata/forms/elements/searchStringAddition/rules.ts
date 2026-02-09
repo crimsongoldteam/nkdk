@@ -61,7 +61,7 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
       forSingleElement: true,
     },
     ...commonProperties,
-  } as any,
+  },
   registerAsType: {
     SearchStringAddition: {
       toXML: (context, _element) => {

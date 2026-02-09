@@ -19,7 +19,7 @@ export const sourceSearchControlAddition: SearchControlAddition = {
 }
 
 export const fullSingleSearchControlAddition: Required<SingleSearchControlAddition> = {
-  elementType: "SearchControlAddition",
+  elementType: "SingleSearchControlAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
@@ -141,6 +141,7 @@ export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterpris
 
 export const fullSearchControlAddition: Required<SearchControlAddition> = {
   ...fullSingleSearchControlAddition,
+  elementType: "SearchControlAddition",
   additionSource: "РодительскийЭлемент",
   name: "ДополнениеУправлениеПоиском",
 }
@@ -152,7 +153,7 @@ export const minimalSearchControlAddition: SearchControlAddition = {
 }
 
 export const minimalSingleSearchControlAddition: SingleSearchControlAddition = {
-  elementType: "SearchControlAddition",
+  elementType: "SingleSearchControlAddition",
   childItems: [],
 }
 

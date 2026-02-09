@@ -1,70 +1,60 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullSearchControlAddition,
-  fullSearchControlAdditionPartialEnterprise,
-  fullSearchControlAdditionTypedEnterprise,
+  fullSearchControlAdditionEnterprise,
+  fullSingleSearchControlAddition,
   minimalSearchControlAddition,
-  minimalSearchControlAdditionPartialEnterprise,
-  minimalSearchControlAdditionTypedEnterprise,
+  sourceSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
-import { SearchControlAddition } from "./types"
 
-describe("importSearchControlAdditionFromEnterprise", () => {
-  describe("importSearchControlAdditionTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importElementFromTypedYAML<SearchControlAddition>({
-        context: mockContext,
-        yaml: undefined,
-        name: "Поиск",
-      })
+const rule: PropertyRule<any> = { type: "SearchControlAddition" }
 
-      expect(result).toBeUndefined()
-    })
-
+describe("SearchControlAddition from YAML", () => {
+  describe("Partial", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importElementFromTypedYAML<SearchControlAddition>({
+      const result = importElementFromPartialYAML({
         context: mockContext,
-        yaml: fullSearchControlAdditionTypedEnterprise,
-        name: "Поиск",
+        elementType: "SearchControlAddition",
+        yaml: fullSearchControlAdditionEnterprise,
+        source: sourceSearchControlAddition,
       })
 
       expect(result).toEqual(fullSearchControlAddition)
     })
 
     it("should import minimal", () => {
-      const result = importElementFromTypedYAML<SearchControlAddition>({
+      const result = importElementFromPartialYAML({
         context: mockContext,
-        yaml: minimalSearchControlAdditionTypedEnterprise,
-        name: "Поиск",
+        elementType: "SearchControlAddition",
+        yaml: {},
+        source: sourceSearchControlAddition,
       })
 
       expect(result).toEqual(minimalSearchControlAddition)
     })
   })
 
-  describe("importSearchControlAdditionPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
-      const result = importElementFromPartialYAML({
+  describe("Single", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importPropertyFromEnterprise({
         context: mockContext,
-        elementType: FormElementType.SearchControlAddition,
-        yaml: fullSearchControlAdditionPartialEnterprise,
-        source: fullSearchControlAddition,
+        rule: rule,
+        value: undefined,
       })
 
-      expect(result).toEqual(fullSearchControlAddition)
+      expect(result).toBeUndefined()
     })
 
-    it("should import minimal", () => {
-      const result = importElementFromPartialYAML({
+    it("should export all fields to Enterprise", () => {
+      const result = importPropertyFromEnterprise({
         context: mockContext,
-        elementType: FormElementType.SearchControlAddition,
-        yaml: minimalSearchControlAdditionPartialEnterprise,
-        source: minimalSearchControlAddition,
+        rule: rule,
+        value: fullSearchControlAdditionEnterprise,
       })
 
-      expect(result).toEqual(minimalSearchControlAddition)
+      expect(result).toEqual(fullSingleSearchControlAddition)
     })
   })
 })

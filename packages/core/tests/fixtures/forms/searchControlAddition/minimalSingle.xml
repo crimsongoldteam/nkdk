@@ -1,4 +1,4 @@
-<SearchControlAddition name="ДополнениеУправлениеПоиском" id="1">
+<SearchControlAddition name="КакойТоЭлементУправлениеПоиском" id="1">
 	<AdditionSource>
 		<Item>Дополнение</Item>
 		<Type>SearchControl</Type>

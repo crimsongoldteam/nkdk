@@ -1,6 +1,6 @@
 <SearchControlAddition name="ДополнениеУправлениеПоиском" id="1" DisplayImportance="High">
 	<AdditionSource>
-		<Item>РодительскийЭлемент</Item>
+		<Item>КакойТоЭлемент</Item>
 		<Type>SearchControl</Type>
 	</AdditionSource>
 	<AutoMaxWidth>true</AutoMaxWidth>
