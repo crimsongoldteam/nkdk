@@ -9,10 +9,13 @@ import {
   minimalSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
+import { Table } from "../table/types"
 
-const rule: PropertyRule<any> = {
-  type: "SearchControlAddition",
+const rule: PropertyRule<Table> = {
+  type: "SearchStringAddition",
+  yaml: "УправлениеПоиском",
 }
+
 describe("SearchControlAddition to YAML", () => {
   describe("Single", () => {
     it("should return undefined when data is undefined", () => {
@@ -32,7 +35,7 @@ describe("SearchControlAddition to YAML", () => {
         value: fullSingleSearchControlAddition,
       })
 
-      expect(result).toEqual(fullSingleSearchControlAdditionEnterprise)
+      expect(result).toHaveProperty("УправлениеПоиском", fullSingleSearchControlAdditionEnterprise)
     })
   })
 

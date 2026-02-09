@@ -174,13 +174,13 @@ export type TypeRules<T> = T extends Button
                                                             ? {
                                                                 PartialEnterprise: SingleSearchStringAdditionEnterprise
                                                               }
-                                                            : T extends SearchStringAddition
+                                                            : T extends SingleSearchStringAddition
                                                               ? {
-                                                                  PartialEnterprise: SearchStringAdditionEnterprise
+                                                                  PartialEnterprise: SingleSearchStringAdditionEnterprise
                                                                 }
-                                                              : T extends SingleSearchStringAddition
+                                                              : T extends SearchStringAddition
                                                                 ? {
-                                                                    PartialEnterprise: SingleSearchStringAdditionEnterprise
+                                                                    PartialEnterprise: SearchStringAdditionEnterprise
                                                                   }
                                                                 : T extends TextDocumentField
                                                                   ? {

@@ -188,7 +188,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   },
   searchControl: {
     childItems: [],
-    elementType: "SearchControlAddition",
+    elementType: "SingleSearchControlAddition",
     title: {
       items: {
         ru: "Управление поиском",
@@ -198,7 +198,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   searchControlLocation: "CommandBar",
   searchOnInput: "Use",
   searchStringAddition: {
-    elementType: "SearchStringAddition",
+    elementType: "SingleSearchStringAddition",
     title: {
       items: {
         ru: "Строка поиска",

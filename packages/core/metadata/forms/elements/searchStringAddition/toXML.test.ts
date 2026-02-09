@@ -11,9 +11,11 @@ import {
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
+import { Table } from "../table/types"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule<Table> = {
   type: "SearchStringAddition",
+  yaml: "ОтображениеСтрокиПоиска",
 }
 
 let context: ConfigurationContext
@@ -25,7 +27,7 @@ describe("SearchStringAddition to XML", () => {
       elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
     }
   })
-  describe("exportSearchStringAdditionToXML", () => {
+  describe("Partial", () => {
     it("should return all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml").trimEnd()
 

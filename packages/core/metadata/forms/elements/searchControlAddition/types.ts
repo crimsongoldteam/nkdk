@@ -4,8 +4,8 @@ import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 
-import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems, CommandBarChildItemsTypedEnterprise } from "../../collections/childItems/types"
 import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
@@ -37,9 +37,8 @@ export interface SearchControlAddition {
 }
 
 export interface SingleSearchControlAddition
-  extends Omit<SearchControlAddition, "name" | "additionSource" | "elementType">,
-    BaseElement {
-  elementType: "SearchControlAddition"
+  extends Omit<SearchControlAddition, "name" | "additionSource" | "elementType">, BaseElement {
+  elementType: "SingleSearchControlAddition"
 }
 
 export interface SearchControlAdditionEnterprise {

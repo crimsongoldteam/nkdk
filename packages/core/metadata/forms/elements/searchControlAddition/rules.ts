@@ -33,7 +33,6 @@ const commonProperties: ElementRule<SearchControlAddition>["properties"] = {
   title: {
     yaml: "Заголовок",
     type: "I8nText",
-    yamlPartialOthers: true,
   },
   toolTip: { yaml: "Подсказка", type: "I8nText" },
   toolTipRepresentation: {
@@ -65,7 +64,7 @@ export const SingleSearchControlAdditionRules: ElementRule<SingleSearchControlAd
       forSingleElement: true,
     },
     ...commonProperties,
-  },
+  } as any,
   registerAsType: {
     SearchControlAddition: {
       toXML: (context, _element) => {

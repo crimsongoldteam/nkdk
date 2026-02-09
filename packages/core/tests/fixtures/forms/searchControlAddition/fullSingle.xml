@@ -1,16 +1,16 @@
-<SearchControlAddition name="ДополнениеУправлениеПоиском" id="1" DisplayImportance="High">
+<SearchControlAddition name="КакойТоЭлементУправлениеПоиском" id="1" DisplayImportance="High">
 	<AdditionSource>
-		<Item>Дополнение</Item>
+		<Item>КакойТоЭлемент</Item>
 		<Type>SearchControl</Type>
 	</AdditionSource>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BackColor>web:White</BackColor>
 	<BorderColor>web:Black</BorderColor>
-	<ContextMenu name="ДополнениеУправлениеПоискомКонтекстноеМеню" id="2" DisplayImportance="High">
+	<ContextMenu name="КакойТоЭлементУправлениеПоискомКонтекстноеМеню" id="2" DisplayImportance="High">
 		<Autofill>true</Autofill>
 	</ContextMenu>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ДополнениеУправлениеПоискомРасширеннаяПодсказка" id="3" DisplayImportance="High">
+	<ExtendedTooltip name="КакойТоЭлементУправлениеПоискомРасширеннаяПодсказка" id="3" DisplayImportance="High">
 		<AutoMaxHeight>true</AutoMaxHeight>
 		<AutoMaxWidth>true</AutoMaxWidth>
 		<Enabled>true</Enabled>
