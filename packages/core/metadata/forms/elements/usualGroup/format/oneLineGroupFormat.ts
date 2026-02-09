@@ -26,9 +26,9 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
       let itemResult: IFormatElementResult
       if (!exportFunction) {
-        itemResult = exportOtherElementToStructure(context, undefined, item as NamedElement)
+        itemResult = exportOtherElementToStructure(context, item as NamedElement)
       } else {
-        itemResult = exportFunction(context, undefined, item) as IFormatElementResult
+        itemResult = exportFunction(context, item) as IFormatElementResult
       }
       groupItems.push(itemResult.strings)
     }

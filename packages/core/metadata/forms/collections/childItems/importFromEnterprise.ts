@@ -16,27 +16,6 @@ export const importChildItemsFromPartialYAML = <To extends AllChildItem>(
   return childItems.map((item) => {
     const processedItem = importChildItemProperties(context, item, childItemsProperties)
 
-    // if ("childItems" in processedItem && processedItem.childItems && processedItem.childItems.length > 0) {
-    //   processedItem.childItems = importChildItemsFromPartialYAML(
-    //     context,
-    //     rule,
-    //     undefined,
-    //     processedItem.childItems as To[]
-    //   ) as typeof processedItem.childItems
-    // }
-
-    // if ("autoCommandBar" in processedItem && processedItem.autoCommandBar?.childItems?.length) {
-    //   processedItem.autoCommandBar = {
-    //     ...processedItem.autoCommandBar,
-    //     childItems: importChildItemsFromPartialYAML(
-    //       context,
-    //       rule,
-    //       undefined,
-    //       processedItem.autoCommandBar.childItems as To[]
-    //     ) as CommandBarChildItem[],
-    //   }
-    // }
-
     return processedItem
   })
 }
@@ -69,11 +48,6 @@ const importChildItemProperties = <To extends AllChildItem>(
     yaml: propertiesEnterprise as ToPartialEnterpriseType<To> | undefined,
     source: item,
   })!
-
-  // const fn = getOperationFunction("ImportPartialFromEnterprise", item.elementType)
-  // if (fn == undefined)
-  //   throw new Error(`ImportPartialFromEnterprise function not found for element type: ${item.elementType}`)
-  // const result = fn(context, propertiesEnterprise, item)
 
   return result as To
 }

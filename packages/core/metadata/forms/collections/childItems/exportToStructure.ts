@@ -2,12 +2,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
-import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem } from "./types"
 
 export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
   items: From[]
 ): IFormatElementResult => {
   let result: IFormatElementResult = {

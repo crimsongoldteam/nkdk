@@ -18,7 +18,7 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
   result.strings.push(header)
   // }
 
-  const lines = exportChildItemsToStructure(context, undefined, childItems)
+  const lines = exportChildItemsToStructure(context, childItems)
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)

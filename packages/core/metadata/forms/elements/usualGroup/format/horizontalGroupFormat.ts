@@ -35,9 +35,9 @@ const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): s
     const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
     let formattedItem: IFormatElementResult
     if (!exportFunction) {
-      formattedItem = exportOtherElementToStructure(context, undefined, item as NamedElement)
+      formattedItem = exportOtherElementToStructure(context, item as NamedElement)
     } else {
-      formattedItem = exportFunction(context, undefined, item) as IFormatElementResult
+      formattedItem = exportFunction(context, item) as IFormatElementResult
     }
     result.push(addSimpleIndent(formattedItem.strings))
   }
