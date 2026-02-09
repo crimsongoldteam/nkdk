@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToPreview } from "../../collections/childItems/exportToPreview"
-import { PropertyRule } from "../../elements/calendarField/rules"
 import {
   ClientApplicationForm,
   ClientApplicationFormPreview,
@@ -11,10 +10,9 @@ import {
 
 export const exportClientApplicationFormToPreview = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   form: ClientApplicationForm
 ): ClientApplicationFormPreview => {
-  const childItems = exportChildItemsToPreview(context, undefined, form.childItems)
+  const childItems = exportChildItemsToPreview(context, form.childItems)
 
   return {
     prefix: context.preview!.prefix!,

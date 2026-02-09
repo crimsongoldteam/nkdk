@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/exportToStructure"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
-import { InputField } from "../inputField/types"
-import { Page } from "../page/types"
 import { exportPagesToStructure } from "./exportToStructure"
 import { Pages } from "./types"
 
@@ -20,9 +17,9 @@ describe("exportPagesToStructure", () => {
             {
               name: "Элемент1",
               elementType: FormElementType.InputField,
-            } as InputField,
+            },
           ],
-        } as Page,
+        },
       ],
     }
 
@@ -30,7 +27,7 @@ describe("exportPagesToStructure", () => {
   /{Страница1}
     {Элемент1}: `
 
-    const result = exportPagesToStructure(mockContext, mockRule, mockElement)
+    const result = exportPagesToStructure(mockContext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

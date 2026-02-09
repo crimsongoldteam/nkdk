@@ -50,6 +50,7 @@ describe("getAllElements", () => {
       commands: [],
       childItems: [],
       autoCommandBar: {
+        elementType: FormElementType.AutoCommandBar,
         autofill: false,
         childItems: [buttonGroup],
       },

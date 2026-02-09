@@ -9,7 +9,7 @@ export const exportI8nTextToPreview = (
   _rule: PropertyRule<any>,
   text: I8nText | undefined
 ): string | undefined => {
-  return exportI8nTextDefaultToEnterprise(context, undefined, text)
+  return exportI8nTextDefaultToEnterprise(context, text)
 }
 
 registerTypeRule("I8nText", "exportToPreview", exportI8nTextToPreview)

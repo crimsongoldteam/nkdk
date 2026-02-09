@@ -1,8 +1,8 @@
-import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
 } from "~/metadata/forms/clientApplicationForm/base/types"
+import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 const fullCommandInterface: CommandInterface = {
@@ -30,6 +30,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     },
   ],
   autoCommandBar: {
+    elementType: "AutoCommandBar",
     autofill: false,
     horizontalAlign: "Left",
     childItems: [],
