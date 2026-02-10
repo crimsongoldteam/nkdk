@@ -8,9 +8,27 @@ import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportTo
 import * as SE from "../../systemEnumerations/types"
 import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./types"
 
-const exportCommandToEnterprise = (
+export const exportCommandsToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
+  data: Commands | undefined
+): CommandsEnterprise | undefined => {
+  if (!data || data.length === 0) return undefined
+
+  const result: CommandsEnterprise = {}
+
+  for (const command of data) {
+    const commandEnterprise = exportCommandToEnterprise(context, command)
+    if (commandEnterprise) {
+      result[command.name] = commandEnterprise
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined
+}
+
+const exportCommandToEnterprise = (
+  context: ConfigurationContext,
   data: Command | undefined
 ): CommandEnterprise | undefined => {
   if (!data) return undefined
@@ -49,25 +67,6 @@ const exportCommandToEnterprise = (
   })
   if (use !== undefined) {
     Object.assign(result, use)
-  }
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const exportCommandsToEnterprise = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  data: Commands | undefined
-): CommandsEnterprise | undefined => {
-  if (!data || data.length === 0) return undefined
-
-  const result: CommandsEnterprise = {}
-
-  for (const command of data) {
-    const commandEnterprise = exportCommandToEnterprise(context, undefined, command)
-    if (commandEnterprise) {
-      result[command.name] = commandEnterprise
-    }
   }
 
   return Object.keys(result).length > 0 ? result : undefined

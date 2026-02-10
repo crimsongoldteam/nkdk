@@ -12,14 +12,10 @@ export const exportCommandsToXML = (
   data: Command[] | undefined
 ): CommandXML[] | undefined => {
   if (!data || data.length === 0) return undefined
-  return data.map((value: Command) => exportCommandToXML(context, undefined, value)!)
+  return data.map((value: Command) => exportCommandToXML(context, value)!)
 }
 
-function exportCommandToXML(
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  command: Command | undefined
-): CommandXML | undefined {
+function exportCommandToXML(context: ConfigurationContext, command: Command | undefined): CommandXML | undefined {
   if (!command) return undefined
 
   const result: CommandXML = {
