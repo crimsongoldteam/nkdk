@@ -1,5 +1,5 @@
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
   backColor: {
@@ -13,7 +13,7 @@ export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
   childItems: [],
   displayImportance: "VeryHigh",
   commandSource: "FormCommandPanelGlobalCommands",
-  elementType: "Popup",
+  itemType: "Popup",
   enableContentChange: true,
   enabled: false,
   height: 19,
@@ -63,7 +63,7 @@ export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
 }
 
 export const sourcePopup: Popup = {
-  elementType: FormElementType.Popup,
+  itemType: FormElementType.Popup,
   name: "Подменю",
   childItems: [],
   title: {
@@ -106,7 +106,7 @@ export const fullPopupTypedEnterprise: PopupTypedEnterprise = {
 }
 
 export const minimalPopup: Popup = {
-  elementType: FormElementType.Popup,
+  itemType: FormElementType.Popup,
   name: "Подменю",
   childItems: [],
 }

@@ -2,11 +2,11 @@ import {
   GeographicalSchemaField,
   GeographicalSchemaFieldPartialEnterprise,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {
-  elementType: FormElementType.GeographicalSchemaField,
+  itemType: FormElementType.GeographicalSchemaField,
   name: "ПолеГеографическойСхемы",
   title: {
     items: { ru: "Поле географической схемы" },
@@ -77,12 +77,12 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -159,7 +159,7 @@ export const fullGeographicalSchemaFieldPartialEnterprise: GeographicalSchemaFie
 }
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
-  elementType: FormElementType.GeographicalSchemaField,
+  itemType: FormElementType.GeographicalSchemaField,
   name: "ПолеГеографическойСхемы",
 }
 

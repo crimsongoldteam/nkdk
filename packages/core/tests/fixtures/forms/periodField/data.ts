@@ -3,23 +3,23 @@ import {
   PeriodFieldPartialEnterprise,
   PeriodFieldTypedEnterprise,
 } from "~/metadata/forms/elements/periodField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
-  elementType: FormElementType.PeriodField,
+  itemType: FormElementType.PeriodField,
   name: "ПолеПериода",
   title: {
     items: { ru: "Поле периода" },
   },
   autoCellHeight: true,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   cellHyperlink: true,
@@ -168,7 +168,7 @@ export const fullPeriodFieldTypedEnterprise: PeriodFieldTypedEnterprise = {
 }
 
 export const minimalPeriodField: PeriodField = {
-  elementType: FormElementType.PeriodField,
+  itemType: FormElementType.PeriodField,
   name: "ПолеПериода",
 }
 

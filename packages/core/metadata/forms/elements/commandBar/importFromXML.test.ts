@@ -8,7 +8,7 @@ describe("importCommandBarFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CommandBar,
+      itemType: FormElementType.CommandBar,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importCommandBarFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CommandBar,
+      itemType: FormElementType.CommandBar,
       xml: xmlData.CommandBar,
     })
 
@@ -32,7 +32,7 @@ describe("importCommandBarFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CommandBar,
+      itemType: FormElementType.CommandBar,
       xml: xmlData.CommandBar,
     })
 

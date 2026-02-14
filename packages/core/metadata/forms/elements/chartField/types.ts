@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ChartField extends NamedElement {
-  elementType: "ChartField"
+  itemType: "ChartField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   height?: number

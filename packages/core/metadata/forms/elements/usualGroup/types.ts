@@ -13,7 +13,7 @@ import {
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface UsualGroup {
-  elementType: "UsualGroup"
+  itemType: "UsualGroup"
   name: string
   enableContentChange?: boolean
   enabled?: boolean
@@ -111,7 +111,7 @@ export interface UsualGroupTypedEnterprise extends UsualGroupPartialEnterprise {
 }
 
 export interface UsualGroupPreview {
-  ElementType: "FormGroup"
+  itemType: "FormGroup"
   Name: string
   BackColor?: ColorPreview
   Behavior?: SystemEnumerationPreview

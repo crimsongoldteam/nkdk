@@ -25,7 +25,7 @@
 //   element: LabelField
 // ): LabelFieldPreview => {
 //   const result: LabelFieldPreview = {
-//     ElementType: "FormField",
+//     itemType: "FormField",
 //     Name: element.name,
 //     Type: exportSystemEnumerationDeprecatedToPreview(context, undefined, "LabelField", "FormFieldType")!,
 //   }

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { AllChildItems } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
@@ -48,10 +48,8 @@ export const formatElements = (context: ConfigurationContext, items: AllChildIte
   for (const item of items) {
     if (
       prevItem &&
-      (separatedItems.includes(item.elementType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup) ||
-        separatedItems.includes(
-          prevItem.elementType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup
-        ))
+      (separatedItems.includes(item.itemType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup) ||
+        separatedItems.includes(prevItem.itemType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup))
     ) {
       result.strings.push("")
     }

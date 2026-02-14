@@ -3,9 +3,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { SingleElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Events, EventsXML } from "~/metadata/forms/events/types"
-import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
+import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { FormElementType } from "../metadataType/types"
+import { PropertyRule } from "../properties/types"
 import { getTypeRule } from "../typeRulesFactory"
-import { ElementXML, FormElementType } from "../types"
+import { ElementXML } from "../types"
 import { isEmptyElement } from "./helper"
 
 export const importPropertyFromXML = (params: {
@@ -29,15 +31,15 @@ export const importPropertyFromXML = (params: {
 export const importSingleElementFromXML = <T extends SingleElement>(params: {
   context: ConfigurationContext
   rule: ElementRule<T>
-  elementType: FormElementType
+  itemType: FormElementType
   xml: ElementXML
 }): T | undefined => {
-  const { context, rule, xml, elementType } = params
+  const { context, rule, xml, itemType } = params
 
   const props = importFromXML(context, xml, rule)
 
   const result = {
-    elementType: elementType,
+    itemType: itemType,
     ...(props ?? {}),
   }
   if (isEmptyElement(result)) return undefined
@@ -47,20 +49,20 @@ export const importSingleElementFromXML = <T extends SingleElement>(params: {
 
 export function importElementFromXML<T extends NamedElement>(params: {
   context: ConfigurationContext
-  elementType: FormElementType
+  itemType: FormElementType
   xml: ElementXML | undefined
 }): T | undefined {
-  const { context, elementType, xml } = params
+  const { context, itemType, xml } = params
 
   if (xml === undefined) return undefined
 
-  const rules = getElementRule<T>(elementType)
+  const rules = getElementRule<T>(itemType)
 
   const props = importFromXML(context, xml, rules)
 
   const result = {
     name: xml._name,
-    elementType: elementType,
+    itemType: itemType,
     ...props,
   } as T
 

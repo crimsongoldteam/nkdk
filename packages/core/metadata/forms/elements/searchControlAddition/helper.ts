@@ -6,5 +6,5 @@ export const getSearchControlAdditionName = (parentElement: { name: string }): s
 
 export const isHasContent = (data: SingleSearchControlAddition): boolean => {
   if (data.childItems.length > 0) return true
-  return Object.keys(data).filter((key) => key !== "childItems" && key !== "elementType").length > 0
+  return Object.keys(data).filter((key) => key !== "childItems" && key !== "itemType").length > 0
 }

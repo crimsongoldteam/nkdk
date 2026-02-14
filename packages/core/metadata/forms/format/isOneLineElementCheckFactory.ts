@@ -1,4 +1,4 @@
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckIsOneLineElementFunction } from "./types"
 
@@ -12,7 +12,7 @@ export const registerIsOneLineElementCheck = <T extends NamedElement>(
 }
 
 export const isOneLineElement = <T extends NamedElement>(element: T): boolean => {
-  const checkFunction = isOneLineElementCheckRegistry.get(element.elementType)
+  const checkFunction = isOneLineElementCheckRegistry.get(element.itemType)
 
   if (!checkFunction) return false
 

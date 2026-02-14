@@ -1,7 +1,7 @@
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullCommandBarChildItemsAllEnterprise,
   fullCommandBarChildItemsStructure,
@@ -10,11 +10,11 @@ import {
 
 export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",
-  elementType: FormElementType.BaseElement,
+  itemType: FormElementType.BaseElement,
 }
 
 export const sourceAutoCommandBar: AutoCommandBar = {
-  elementType: FormElementType.AutoCommandBar,
+  itemType: FormElementType.AutoCommandBar,
   autofill: false,
   childItems: fullCommandBarChildItemsStructure,
 }
@@ -22,7 +22,7 @@ export const sourceAutoCommandBar: AutoCommandBar = {
 export const fullAutoCommandBarAllItems = fullCommandBarChildItemsAllEnterprise
 
 export const fullAutoCommandBar: Required<AutoCommandBar> = {
-  elementType: FormElementType.AutoCommandBar,
+  itemType: FormElementType.AutoCommandBar,
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -35,7 +35,7 @@ export const fullAutoExportCommandBarEnterprise: AutoCommandBarEnterprise = {
 }
 
 export const minimalAutoCommandBar: AutoCommandBar = {
-  elementType: FormElementType.AutoCommandBar,
+  itemType: FormElementType.AutoCommandBar,
   autofill: true,
   childItems: [],
 }
@@ -50,16 +50,16 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "autofill and buttons",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: true,
       childItems: [
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка1",
           title: { items: { ru: "Номер 1" } },
         },
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка2",
           title: { items: { ru: "Номер 2" } },
         },
@@ -73,16 +73,16 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка1",
           title: { items: { ru: "Номер 1" } },
         },
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка2",
           title: { items: { ru: "Номер 2" } },
         },
@@ -96,7 +96,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without buttons",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: true,
       childItems: [],
     },
@@ -108,7 +108,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill and buttons",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [],
     },
@@ -120,21 +120,21 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with buttons",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка1",
           title: { items: { ru: "Кнопка Номер 1" } },
         },
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка2",
           title: { items: { ru: "Кнопка Номер 2" } },
         },
         {
-          elementType: FormElementType.Button,
+          itemType: FormElementType.Button,
           name: "Кнопка3",
           title: { items: { ru: "Кнопка Номер 3" } },
         },
@@ -149,11 +149,11 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with button group",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
-          elementType: FormElementType.ButtonGroup,
+          itemType: FormElementType.ButtonGroup,
           name: "ГруппаКнопок1",
           childItems: [],
           title: { items: { ru: "Группа кнопок" } },
@@ -169,11 +169,11 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with popup",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
-          elementType: FormElementType.Popup,
+          itemType: FormElementType.Popup,
           name: "Меню",
           title: { items: { ru: "Выпадающее меню" } },
           childItems: [],
@@ -188,11 +188,11 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with search control addition",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
-          elementType: FormElementType.SearchControlAddition,
+          itemType: FormElementType.SearchControlAddition,
           name: "Дополнение",
           childItems: [],
         },
@@ -206,11 +206,11 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with search string addition",
     element: {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
-          elementType: FormElementType.SearchStringAddition,
+          itemType: FormElementType.SearchStringAddition,
           name: "Дополнение",
         },
       ],

@@ -8,7 +8,7 @@ describe("importTextDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.TextDocumentField,
+      itemType: FormElementType.TextDocumentField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importTextDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.TextDocumentField,
+      itemType: FormElementType.TextDocumentField,
       xml: xmlData.TextDocumentField,
     })
 
@@ -32,7 +32,7 @@ describe("importTextDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.TextDocumentField,
+      itemType: FormElementType.TextDocumentField,
       xml: xmlData.TextDocumentField,
     })
 

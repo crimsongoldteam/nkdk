@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { mockContext } from "~/tests/mockContext"
-import { FormElementType } from "../../../metadataFactory/types"
 import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
 import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
 import { Table } from "./types"
@@ -11,19 +11,19 @@ describe("parse Table", () => {
     const mock = "| column 1 | column 2 | column 3 | {name}"
 
     const expectedResult: Table = {
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       name: "name",
       childItems: [
         {
-          elementType: FormElementType.InputField,
+          itemType: FormElementType.InputField,
           name: "column 1",
         },
         {
-          elementType: FormElementType.InputField,
+          itemType: FormElementType.InputField,
           name: "column 2",
         },
         {
-          elementType: FormElementType.InputField,
+          itemType: FormElementType.InputField,
           name: "column 3",
         },
       ],

@@ -22,11 +22,8 @@ import { SearchControlAddition } from "~/metadata/forms/elements/searchControlAd
 import { SearchStringAddition } from "~/metadata/forms/elements/searchStringAddition/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
-import {
-  FormElementType,
-  FormElementTypeEnterprise,
-  importFormElementTypeFromEnterprise,
-} from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/importFormElementTypeFromEnterprise"
+import { FormElementType, FormElementTypeEnterprise } from "~/metadata/metadataFactory/metadataType/types"
 import { NamedElement } from "../../../../elements/baseElement/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
@@ -46,7 +43,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     const result: LabelField = {
-      elementType: FormElementType.LabelField,
+      itemType: FormElementType.LabelField,
       name: name,
     }
 
@@ -67,7 +64,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     const result: LabelDecoration = {
-      elementType: "LabelDecoration",
+      itemType: "LabelDecoration",
       name: name || "",
       title: title ? { items: title.items, formatted: false } : undefined,
     }
@@ -90,7 +87,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     const result = {
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       name: name || "",
       picture: picture,
       title: title ? { items: title.items, formatted: false } : undefined,
@@ -116,7 +113,7 @@ export class Visitor extends BaseVisitor {
     const modificators = this.addInputModifiers(modifiers)
 
     const result: InputField = {
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
       name: name,
       ...modificators,
     }
@@ -173,7 +170,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     const result: Button = {
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       name: name || "",
     }
 
@@ -193,7 +190,7 @@ export class Visitor extends BaseVisitor {
 
     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
     const result: CheckBoxField = {
-      elementType: FormElementType.CheckBoxField,
+      itemType: FormElementType.CheckBoxField,
       name,
       headerHorizontalAlign: "Right",
     }
@@ -217,7 +214,7 @@ export class Visitor extends BaseVisitor {
     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 
     const result: any = {
-      elementType: FormElementType.CheckBoxField,
+      itemType: FormElementType.CheckBoxField,
       name,
     }
 
@@ -260,7 +257,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     return {
-      elementType: FormElementType.RadioButtonField,
+      itemType: FormElementType.RadioButtonField,
       name: name || "",
       id: undefined,
       choiceList: choiceList,
@@ -289,7 +286,7 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[], context) || "CommandBar"
 
     const result: CommandBar = {
-      elementType: FormElementType.CommandBar,
+      itemType: FormElementType.CommandBar,
       name: name,
       childItems: filteredChildItems,
     }
@@ -307,7 +304,7 @@ export class Visitor extends BaseVisitor {
     const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
 
     const result: AutoCommandBar = {
-      elementType: FormElementType.AutoCommandBar,
+      itemType: FormElementType.AutoCommandBar,
       autofill: autofill,
       childItems: filteredChildItems,
     }
@@ -340,7 +337,7 @@ export class Visitor extends BaseVisitor {
 
     if (hashToken) {
       return {
-        elementType: FormElementType.ButtonGroup,
+        itemType: FormElementType.ButtonGroup,
         name: name || "",
         title: title,
         childItems: [],
@@ -348,7 +345,7 @@ export class Visitor extends BaseVisitor {
     }
 
     const result: Button = {
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       name: name || "",
       title: title,
     }
@@ -363,7 +360,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     const result: ButtonGroup = {
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       name: name || "",
       title: title,
       childItems: [],
@@ -379,7 +376,7 @@ export class Visitor extends BaseVisitor {
     const title = this.createTitle(titleText, context.defaultLanguage)
 
     const result: Popup = {
-      elementType: FormElementType.Popup,
+      itemType: FormElementType.Popup,
       name: name || "",
       title: title,
       childItems: [],
@@ -401,7 +398,7 @@ export class Visitor extends BaseVisitor {
 
     if (isSearchControl) {
       const result: SearchControlAddition = {
-        elementType: FormElementType.SearchControlAddition,
+        itemType: FormElementType.SearchControlAddition,
         name: name || "",
         childItems: [],
       }
@@ -410,7 +407,7 @@ export class Visitor extends BaseVisitor {
 
     if (isSearchString) {
       const result: SearchStringAddition = {
-        elementType: FormElementType.SearchStringAddition,
+        itemType: FormElementType.SearchStringAddition,
         name: name || "",
       }
       return result
@@ -418,7 +415,7 @@ export class Visitor extends BaseVisitor {
 
     // По умолчанию возвращаем SearchControlAddition
     const result: SearchControlAddition = {
-      elementType: FormElementType.SearchControlAddition,
+      itemType: FormElementType.SearchControlAddition,
       name: name || "",
       childItems: [],
     }
@@ -466,7 +463,7 @@ export class Visitor extends BaseVisitor {
         // Checkbox field: [ ] title {name}
         if (cell.properties) {
           childItems.push({
-            elementType: FormElementType.CheckBoxField,
+            itemType: FormElementType.CheckBoxField,
             name: cell.properties,
             title: cell.title ? this.createTitle(cell.title, context.defaultLanguage) : undefined,
             checkBoxType: cell.checkBoxType,
@@ -476,7 +473,7 @@ export class Visitor extends BaseVisitor {
         // Label field: ~{name}
         if (cell.properties) {
           childItems.push({
-            elementType: FormElementType.LabelField,
+            itemType: FormElementType.LabelField,
             name: cell.properties,
           } as LabelField)
         }
@@ -484,7 +481,7 @@ export class Visitor extends BaseVisitor {
         // Column group: #{name}
         if (cell.properties) {
           childItems.push({
-            elementType: FormElementType.ColumnGroup,
+            itemType: FormElementType.ColumnGroup,
             name: cell.properties,
             childItems: [],
           } as ColumnGroup)
@@ -493,7 +490,7 @@ export class Visitor extends BaseVisitor {
         // Picture field: @{name}
         if (cell.properties) {
           childItems.push({
-            elementType: FormElementType.PictureField,
+            itemType: FormElementType.PictureField,
             name: cell.properties,
           } as PictureField)
         }
@@ -504,7 +501,7 @@ export class Visitor extends BaseVisitor {
             // Если в ячейке есть и name, и properties, это колонка
             // properties - это имя колонки, name - это заголовок
             childItems.push({
-              elementType: FormElementType.InputField,
+              itemType: FormElementType.InputField,
               name: cell.properties,
               title: this.createTitle(cell.name, context.defaultLanguage),
             } as InputField)
@@ -514,7 +511,7 @@ export class Visitor extends BaseVisitor {
           } else {
             // Если в не последней ячейке есть только properties (без name), это колонка без заголовка
             childItems.push({
-              elementType: FormElementType.InputField,
+              itemType: FormElementType.InputField,
               name: cell.properties,
             } as InputField)
           }
@@ -522,7 +519,7 @@ export class Visitor extends BaseVisitor {
           // Если в ячейке есть только name (без properties), это колонка с именем = name
           if (!isLast) {
             childItems.push({
-              elementType: FormElementType.InputField,
+              itemType: FormElementType.InputField,
               name: cell.name,
             } as InputField)
           }
@@ -532,7 +529,7 @@ export class Visitor extends BaseVisitor {
 
     return {
       name: tableName || "",
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       childItems: childItems,
     } as Table
   }
@@ -653,7 +650,7 @@ export class Visitor extends BaseVisitor {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[], context) || titleText
     return {
-      elementType: FormElementType.Pages,
+      itemType: FormElementType.Pages,
       name: name || titleText,
       title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
@@ -665,7 +662,7 @@ export class Visitor extends BaseVisitor {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[], context) || titleText
     return {
-      elementType: FormElementType.Page,
+      itemType: FormElementType.Page,
       name: name || titleText,
       title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
@@ -683,7 +680,7 @@ export class Visitor extends BaseVisitor {
 
     const result: UsualGroup = {
       name: name,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       group: "Vertical",
       childItems: [],
     }
@@ -705,7 +702,7 @@ export class Visitor extends BaseVisitor {
 
     const result: UsualGroup = {
       name: name,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       childItems: [],
     }
 
@@ -730,7 +727,7 @@ export class Visitor extends BaseVisitor {
 
     const result: UsualGroup = {
       name: name,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       childItems: [],
     }
 
@@ -779,9 +776,9 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[], context)
     const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as FormElementTypeEnterprise
 
-    const elementType = importFormElementTypeFromEnterprise(context, otherFieldType)
+    const itemType = importFormElementTypeFromEnterprise(context, otherFieldType)
     return {
-      elementType: elementType,
+      itemType: itemType,
       name: name,
     }
   }

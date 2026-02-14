@@ -13,7 +13,7 @@ describe("exportContextMenuToXML", () => {
   it("should return default when data is undefined", () => {
     const context: ConfigurationContext = {
       ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
+      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
     }
     const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
 
@@ -31,7 +31,7 @@ describe("exportContextMenuToXML", () => {
   it("should return all fields to XML", () => {
     const context: ConfigurationContext = {
       ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }],
+      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
     }
     const expectedResult = readXMLFileAsString("forms/contextMenu/full.xml").trimEnd()
 

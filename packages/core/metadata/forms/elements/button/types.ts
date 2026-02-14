@@ -9,7 +9,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Button extends NamedElement {
-  elementType: "Button"
+  itemType: "Button"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   backColor?: Color
@@ -98,7 +98,7 @@ export interface ButtonTypedEnterprise extends ButtonPartialEnterprise {
 
 export interface ButtonPreview {
   Name: string
-  ElementType: "FormButton"
+  itemType: "FormButton"
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BackColor?: ColorPreview

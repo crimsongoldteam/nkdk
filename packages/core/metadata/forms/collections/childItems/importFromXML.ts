@@ -1,11 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importElementFromXML } from "~/metadata/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { ElementXML, FormElementType } from "~/metadata/metadataFactory/types"
+import { ElementXML } from "~/metadata/metadataFactory/types"
 import { NamedElement } from "../../elements/baseElement/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 
-type XMLItem<From extends NamedElement> = Record<From["elementType"], ElementXML>
+type XMLItem<From extends NamedElement> = Record<From["itemType"], ElementXML>
 
 export const importChildItemsFromXML = <From extends NamedElement>(
   context: ConfigurationContext,
@@ -17,11 +18,11 @@ export const importChildItemsFromXML = <From extends NamedElement>(
   const items = Array.isArray(xml) ? xml : [xml]
 
   const result: From[] = items.map((item) => {
-    const elementType = Object.keys(item)[0] as FormElementType
-    const xmlValue = (item as Record<string, any>)[elementType]
+    const itemType = Object.keys(item)[0] as FormElementType
+    const xmlValue = (item as Record<string, any>)[itemType]
     return importElementFromXML({
       context: context,
-      elementType: elementType,
+      itemType: itemType,
       xml: xmlValue,
     })!
   })

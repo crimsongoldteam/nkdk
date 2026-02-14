@@ -4,10 +4,10 @@ import {
   ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
-  elementType: "ButtonGroup",
+  itemType: "ButtonGroup",
   enableContentChange: true,
   enabled: true,
   height: 200,
@@ -33,7 +33,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
   name: "ГруппаКнопок",
   childItems: [
     {
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       name: "Кнопка",
     },
   ],
@@ -43,13 +43,13 @@ export const fullButtonGroup: Required<ButtonGroup> = {
   representation: "Compact",
   commandSource: "FormCommandPanelGlobalCommands",
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
   },
 }
 
 export const fullButtonGroupSource: ButtonGroup = {
-  elementType: FormElementType.ButtonGroup,
+  itemType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   title: { items: { ru: "Группа кнопок" } },
   childItems: [],
@@ -118,7 +118,7 @@ export const fullButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
 }
 
 export const minimalButtonGroup: ButtonGroup = {
-  elementType: FormElementType.ButtonGroup,
+  itemType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   childItems: [],
 }
@@ -140,7 +140,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "with title",
     element: {
       name: "ГруппаКнопок",
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       title: { items: { ru: "Группа кнопок" } },
       childItems: [],
     },
@@ -153,7 +153,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "without title",
     element: {
       name: "ГруппаКнопок",
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       title: undefined,
       childItems: [],
     },

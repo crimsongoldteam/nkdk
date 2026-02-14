@@ -12,7 +12,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface RadioButtonField extends NamedElement {
-  elementType: "RadioButtonField"
+  itemType: "RadioButtonField"
   backColor?: Color
   borderColor?: Color
   choiceList?: ChoiceList

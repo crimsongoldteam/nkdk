@@ -16,7 +16,7 @@ describe("SearchStringAddition from YAML", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: "SearchStringAddition",
+        itemType: "SearchStringAddition",
         yaml: fullSearchStringAdditionEnterprise,
         source: sourceSearchStringAddition,
       })
@@ -27,7 +27,7 @@ describe("SearchStringAddition from YAML", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: "SearchStringAddition",
+        itemType: "SearchStringAddition",
         yaml: {},
         source: sourceSearchStringAddition,
       })

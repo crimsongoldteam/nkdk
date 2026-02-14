@@ -8,7 +8,7 @@ describe("importHtmlDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.HTMLDocumentField,
+      itemType: FormElementType.HTMLDocumentField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importHtmlDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.HTMLDocumentField,
+      itemType: FormElementType.HTMLDocumentField,
       xml: xmlData.HtmlDocumentField,
     })
 
@@ -32,7 +32,7 @@ describe("importHtmlDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.HTMLDocumentField,
+      itemType: FormElementType.HTMLDocumentField,
       xml: xmlData.HtmlDocumentField,
     })
 

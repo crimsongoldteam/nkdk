@@ -16,7 +16,7 @@
 //   element: InputField
 // ): InputFieldPreview => {
 //   const result: InputFieldPreview = {
-//     ElementType: "FormField",
+//     itemType: "FormField",
 //     Name: element.name,
 //     Type: exportSystemEnumerationDeprecatedToPreview(context, undefined, "InputField", "FormFieldType")!,
 //   }

@@ -2,11 +2,11 @@ import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {
-  elementType: FormElementType.SpreadSheetDocumentField,
+  itemType: FormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
   title: {
     items: { ru: "Поле табличного документа" },
@@ -19,12 +19,12 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
   editMode: "EnterOnInput",
   enabled: true,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   fixingInTable: "None",
@@ -217,7 +217,7 @@ export const fullSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentF
 }
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
-  elementType: FormElementType.SpreadSheetDocumentField,
+  itemType: FormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
 }
 

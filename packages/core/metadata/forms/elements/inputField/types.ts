@@ -18,7 +18,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface InputField {
-  elementType: "InputField"
+  itemType: "InputField"
   name: string
   allowInputEmptyMultipleValues?: boolean
   allowMultipleValuesDuplicates?: boolean
@@ -306,7 +306,7 @@ export interface InputFieldTypedEnterprise extends InputFieldPartialEnterprise {
 }
 
 export interface InputFieldPreview {
-  ElementType: "FormField"
+  itemType: "FormField"
   Name: string
   Type: SystemEnumerationPreview
   AllowInputEmptyMultipleValues?: boolean

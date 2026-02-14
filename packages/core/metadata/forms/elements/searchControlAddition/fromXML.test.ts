@@ -19,7 +19,7 @@ describe("SearchControlAddition from XML", () => {
 
       const result = importElementFromXML({
         context: mockContext,
-        elementType: "SearchControlAddition",
+        itemType: "SearchControlAddition",
         xml: xmlData.SearchControlAddition,
       })
 
@@ -31,7 +31,7 @@ describe("SearchControlAddition from XML", () => {
 
       const result = importElementFromXML({
         context: mockContext,
-        elementType: "SearchControlAddition",
+        itemType: "SearchControlAddition",
         xml: xmlData.SearchControlAddition,
       })
 
@@ -53,7 +53,9 @@ describe("SearchControlAddition from XML", () => {
     })
 
     it("should return undefined for defaults", () => {
-      const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/minimalSingle.xml")
+      const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>(
+        "forms/searchControlAddition/minimalSingle.xml"
+      )
 
       const result = importPropertyFromXML({
         context: mockContext,

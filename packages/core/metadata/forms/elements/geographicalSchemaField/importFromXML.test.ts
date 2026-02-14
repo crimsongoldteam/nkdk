@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
-import { fullGeographicalSchemaField, minimalGeographicalSchemaField } from "~/tests/fixtures/forms/geographicalSchemaField/data"
+import {
+  fullGeographicalSchemaField,
+  minimalGeographicalSchemaField,
+} from "~/tests/fixtures/forms/geographicalSchemaField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
@@ -8,7 +11,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.GeographicalSchemaField,
+      itemType: FormElementType.GeographicalSchemaField,
       xml: undefined,
     })
 
@@ -16,11 +19,13 @@ describe("importGeographicalSchemaFieldFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ GeographicalSchemaField: ElementXML }>("forms/geographicalSchemaField/full.xml")
+    const xmlData = readAndParseXMLFile<{ GeographicalSchemaField: ElementXML }>(
+      "forms/geographicalSchemaField/full.xml"
+    )
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.GeographicalSchemaField,
+      itemType: FormElementType.GeographicalSchemaField,
       xml: xmlData.GeographicalSchemaField,
     })
 
@@ -28,11 +33,13 @@ describe("importGeographicalSchemaFieldFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ GeographicalSchemaField: ElementXML }>("forms/geographicalSchemaField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ GeographicalSchemaField: ElementXML }>(
+      "forms/geographicalSchemaField/minimal.xml"
+    )
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.GeographicalSchemaField,
+      itemType: FormElementType.GeographicalSchemaField,
       xml: xmlData.GeographicalSchemaField,
     })
 

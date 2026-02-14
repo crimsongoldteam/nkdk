@@ -1,8 +1,8 @@
 import { Pages, PagesPartialEnterprise, PagesTypedEnterprise } from "~/metadata/forms/elements/pages/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullPages: Pages = {
-  elementType: FormElementType.Pages,
+  itemType: FormElementType.Pages,
   name: "Страницы",
   enableContentChange: true,
   enabled: true,
@@ -39,7 +39,7 @@ export const fullPages: Pages = {
 }
 
 export const fullPagesSource: Pages = {
-  elementType: FormElementType.Pages,
+  itemType: FormElementType.Pages,
   name: "Страницы",
   title: { items: { ru: "Страницы" } },
   childItems: [],
@@ -100,7 +100,7 @@ export const fullPagesTypedEnterprise: PagesTypedEnterprise = {
 }
 
 export const minimalPages: Pages = {
-  elementType: FormElementType.Pages,
+  itemType: FormElementType.Pages,
   name: "Страницы",
   childItems: [],
 }

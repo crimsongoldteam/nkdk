@@ -12,7 +12,7 @@ describe("importUsualGroupFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       yaml: fullUsualGroupPartialEnterprise,
       source: fullUsualGroup,
     })
@@ -23,7 +23,7 @@ describe("importUsualGroupFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       yaml: minimalUsualGroupPartialEnterprise,
       source: minimalUsualGroup,
     })

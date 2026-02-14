@@ -12,7 +12,7 @@ describe("importPageFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.Page,
+      itemType: FormElementType.Page,
       yaml: fullPagePartialEnterprise,
       source: fullPage,
     })
@@ -23,7 +23,7 @@ describe("importPageFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.Page,
+      itemType: FormElementType.Page,
       yaml: minimalPagePartialEnterprise,
       source: minimalPage,
     })

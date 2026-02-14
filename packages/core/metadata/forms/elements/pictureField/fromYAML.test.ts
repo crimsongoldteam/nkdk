@@ -38,7 +38,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.PictureField,
+        itemType: FormElementType.PictureField,
         yaml: fullPictureFieldPartialEnterprise,
         source: fullPictureField,
       })
@@ -49,7 +49,7 @@ describe("importPictureFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.PictureField,
+        itemType: FormElementType.PictureField,
         yaml: minimalPictureFieldPartialEnterprise,
         source: minimalPictureField,
       })

@@ -8,7 +8,7 @@ describe("importTrackBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.TrackBarField,
+      itemType: FormElementType.TrackBarField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importTrackBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.TrackBarField,
+      itemType: FormElementType.TrackBarField,
       xml: xmlData.TrackBarField,
     })
 
@@ -32,7 +32,7 @@ describe("importTrackBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.TrackBarField,
+      itemType: FormElementType.TrackBarField,
       xml: xmlData.TrackBarField,
     })
 

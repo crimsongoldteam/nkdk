@@ -12,7 +12,7 @@ describe("importPlannerFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.PlannerField,
+      itemType: FormElementType.PlannerField,
       yaml: fullPlannerFieldPartialEnterprise,
       source: fullPlannerField,
     })
@@ -23,7 +23,7 @@ describe("importPlannerFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.PlannerField,
+      itemType: FormElementType.PlannerField,
       yaml: minimalPlannerFieldPartialEnterprise,
       source: minimalPlannerField,
     })

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullPdfDocumentField,
   fullPdfDocumentFieldPartialEnterprise,
@@ -12,7 +13,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.PDFDocumentField,
+      itemType: FormElementType.PDFDocumentField,
       yaml: fullPdfDocumentFieldPartialEnterprise,
       source: fullPdfDocumentField,
     })
@@ -23,7 +24,7 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.PDFDocumentField,
+      itemType: FormElementType.PDFDocumentField,
       yaml: minimalPdfDocumentFieldPartialEnterprise,
       source: minimalPdfDocumentField,
     })

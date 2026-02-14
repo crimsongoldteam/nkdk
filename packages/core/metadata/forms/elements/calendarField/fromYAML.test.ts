@@ -12,7 +12,7 @@ describe("importCalendarFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.CalendarField,
+      itemType: FormElementType.CalendarField,
       yaml: fullCalendarFieldPartialEnterprise,
       source: fullCalendarField,
     })
@@ -23,7 +23,7 @@ describe("importCalendarFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.CalendarField,
+      itemType: FormElementType.CalendarField,
       yaml: minimalCalendarFieldPartialEnterprise,
       source: minimalCalendarField,
     })

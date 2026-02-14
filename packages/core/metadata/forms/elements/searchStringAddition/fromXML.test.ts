@@ -19,7 +19,7 @@ describe("SearchStringAddition from XML", () => {
 
       const result = importElementFromXML({
         context: mockContext,
-        elementType: "SearchStringAddition",
+        itemType: "SearchStringAddition",
         xml: xmlData.SearchStringAddition,
       })
 
@@ -31,7 +31,7 @@ describe("SearchStringAddition from XML", () => {
 
       const result = importElementFromXML({
         context: mockContext,
-        elementType: "SearchStringAddition",
+        itemType: "SearchStringAddition",
         xml: xmlData.SearchStringAddition,
       })
 

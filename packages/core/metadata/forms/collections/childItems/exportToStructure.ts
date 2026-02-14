@@ -24,13 +24,13 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     //   if (
     //     prevItem &&
     //     (separatedItems.includes(
-    //       item.elementType as
+    //       item.itemType as
     //         | typeof FormElementType.Pages
     //         | typeof FormElementType.UsualGroup
     //         | typeof FormElementType.Table
     //     ) ||
     //       separatedItems.includes(
-    //         prevItem.elementType as
+    //         prevItem.itemType as
     //           | typeof FormElementType.Pages
     //           | typeof FormElementType.UsualGroup
     //           | typeof FormElementType.Table
@@ -41,7 +41,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
 
     //   prevItem = item
 
-    const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
+    const exportFunction = getOperationFunction("ExportToStructure", item.itemType)
 
     const text = exportFunction
       ? (exportFunction(context, item) as IFormatElementResult)

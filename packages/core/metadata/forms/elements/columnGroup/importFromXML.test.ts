@@ -8,7 +8,7 @@ describe("importColumnGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ColumnGroup,
+      itemType: FormElementType.ColumnGroup,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importColumnGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ColumnGroup,
+      itemType: FormElementType.ColumnGroup,
       xml: xmlData.ColumnGroup,
     })
 
@@ -32,7 +32,7 @@ describe("importColumnGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ColumnGroup,
+      itemType: FormElementType.ColumnGroup,
       xml: xmlData.ColumnGroup,
     })
 

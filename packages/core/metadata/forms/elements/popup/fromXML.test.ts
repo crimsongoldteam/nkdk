@@ -8,7 +8,7 @@ describe("importPopupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Popup,
+      itemType: FormElementType.Popup,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPopupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Popup,
+      itemType: FormElementType.Popup,
       xml: xmlData.Popup,
     })
 
@@ -32,7 +32,7 @@ describe("importPopupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Popup,
+      itemType: FormElementType.Popup,
       xml: xmlData.Popup,
     })
 

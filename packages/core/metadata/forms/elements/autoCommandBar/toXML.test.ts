@@ -65,7 +65,7 @@ const exportToXML = (value: AutoCommandBar | undefined, type: "AutoCommandBar" |
   const context: ConfigurationContext =
     type === "AutoCommandBar"
       ? mockContext
-      : { ...mockContext, elementsTree: [{ name: "КакойТоЭлемент", elementType: "Table" }] }
+      : { ...mockContext, elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }] }
 
   const xmlData = exportPropertyToXML({
     context: context,

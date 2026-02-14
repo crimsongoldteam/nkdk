@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface CalendarField extends NamedElement {
-  elementType: "CalendarField"
+  itemType: "CalendarField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   beginOfRepresentationPeriod?: string

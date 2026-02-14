@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface GraphicalSchemaField extends NamedElement {
-  elementType: "GraphicalSchemaField"
+  itemType: "GraphicalSchemaField"
   autoCellHeight?: boolean
   cellHyperlink?: boolean
   contextMenu?: ContextMenu

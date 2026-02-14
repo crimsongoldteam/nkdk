@@ -5,11 +5,11 @@ import {
   LabelFieldTypedEnterprise,
 } from "~/metadata/forms/elements/labelField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {
-  elementType: "LabelField",
+  itemType: "LabelField",
   name: "ПолеНадписи",
   title: {
     items: { ru: "Поле надписи" },
@@ -70,12 +70,12 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -182,7 +182,7 @@ export const fullLabelFieldTypedEnterprise: LabelFieldTypedEnterprise = {
 }
 
 export const minimalLabelField: LabelField = {
-  elementType: FormElementType.LabelField,
+  itemType: FormElementType.LabelField,
   name: "ПолеНадписи",
 }
 
@@ -204,7 +204,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ПолеНадписи",
-      elementType: FormElementType.LabelField,
+      itemType: FormElementType.LabelField,
       title: { items: { ru: "Поле надписи" } },
     },
     structured: {
@@ -220,7 +220,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ПолеНадписи",
-      elementType: FormElementType.LabelField,
+      itemType: FormElementType.LabelField,
     },
     structured: {
       strings: ["~{ПолеНадписи}: "],
@@ -234,7 +234,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
 ]
 
 export const fullLabelFieldPreview: Required<LabelFieldPreview> = {
-  ElementType: "FormField",
+  itemType: "FormField",
   Name: "ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
   AutoCellHeight: true,

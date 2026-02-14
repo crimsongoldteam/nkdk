@@ -12,7 +12,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface PeriodField extends NamedElement {
-  elementType: "PeriodField"
+  itemType: "PeriodField"
   autoCellHeight?: boolean
   cellHyperlink?: boolean
   contextMenu?: ContextMenu

@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface CheckBoxField extends NamedElement {
-  elementType: "CheckBoxField"
+  itemType: "CheckBoxField"
   backColor?: Color
   borderColor?: Color
   checkBoxType?: SE.CheckBoxType

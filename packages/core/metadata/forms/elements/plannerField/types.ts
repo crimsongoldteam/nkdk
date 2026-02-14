@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface PlannerField {
-  elementType: "PlannerField"
+  itemType: "PlannerField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

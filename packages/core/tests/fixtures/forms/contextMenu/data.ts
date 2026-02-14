@@ -1,19 +1,19 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const parentElement: NamedElement = {
-  elementType: FormElementType.InputField,
+  itemType: FormElementType.InputField,
   name: "КакойТоЭлемент",
 }
 
 export const fullContextMenu: ContextMenu = {
-  elementType: "ContextMenu",
+  itemType: "ContextMenu",
   displayImportance: "High",
   autofill: true,
   childItems: [
     {
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       name: "Кнопка",
     },
   ],
@@ -30,7 +30,7 @@ export const fullContextMenuEnterprise: ContextMenuEnterprise = {
 }
 
 export const minimalContextMenu: ContextMenu = {
-  elementType: "ContextMenu",
+  itemType: "ContextMenu",
   childItems: [],
 }
 

@@ -12,7 +12,7 @@ describe("importCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.CommandBar,
+      itemType: FormElementType.CommandBar,
       yaml: fullCommandBarPartialEnterprise,
       source: fullCommandBar,
     })
@@ -23,7 +23,7 @@ describe("importCommandBarFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.CommandBar,
+      itemType: FormElementType.CommandBar,
       yaml: minimalCommandBarPartialEnterprise,
       source: minimalCommandBar,
     })

@@ -3,11 +3,11 @@ import {
   PictureFieldPartialEnterprise,
   PictureFieldTypedEnterprise,
 } from "~/metadata/forms/elements/pictureField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {
-  elementType: FormElementType.PictureField,
+  itemType: FormElementType.PictureField,
   name: "ПолеКартинки",
   title: {
     items: { ru: "Поле картинки" },
@@ -71,12 +71,12 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "ИсходнаяТаблица",
@@ -196,7 +196,7 @@ export const fullPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
 }
 
 export const minimalPictureField: PictureField = {
-  elementType: FormElementType.PictureField,
+  itemType: FormElementType.PictureField,
   name: "ПолеКартинки",
 }
 

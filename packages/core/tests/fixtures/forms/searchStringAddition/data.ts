@@ -10,12 +10,12 @@ export const parentElement = {
 }
 
 export const sourceSearchStringAddition: SearchStringAddition = {
-  elementType: "SearchStringAddition",
+  itemType: "SearchStringAddition",
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
 export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition> = {
-  elementType: "SingleSearchStringAddition",
+  itemType: "SingleSearchStringAddition",
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
   displayImportance: "High",
@@ -39,12 +39,12 @@ export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition
   visible: true,
   width: 300,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
 }
@@ -76,18 +76,18 @@ export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise 
 
 export const fullSearchStringAddition: Required<SearchStringAddition> = {
   ...fullSingleSearchStringAddition,
-  elementType: "SearchStringAddition",
+  itemType: "SearchStringAddition",
   additionSource: "КакойТоЭлемент",
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
 export const minimalSearchStringAddition: SearchStringAddition = {
-  elementType: "SearchStringAddition",
+  itemType: "SearchStringAddition",
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
 export const minimalSingleSearchStringAddition: SingleSearchStringAddition = {
-  elementType: "SingleSearchStringAddition",
+  itemType: "SingleSearchStringAddition",
 }
 
 export const minimaSearchStringAddition: SearchStringAddition = {

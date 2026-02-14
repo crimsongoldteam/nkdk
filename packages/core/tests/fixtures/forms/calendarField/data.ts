@@ -1,9 +1,9 @@
 import { CalendarField, CalendarFieldPartialEnterprise } from "~/metadata/forms/elements/calendarField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
-  elementType: FormElementType.CalendarField,
+  itemType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
   displayImportance: "High",
   autoCellHeight: true,
@@ -18,7 +18,7 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
   calendarNavigation: false,
   cellHyperlink: true,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
@@ -39,7 +39,7 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
     onPeriodOutput: "ПроцедураВыводаПериода",
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   font: { kind: "StyleItem", ref: "SmallTextFont" },
@@ -147,7 +147,7 @@ export const fullCalendarFieldPartialEnterprise: Omit<
 }
 
 export const minimalCalendarField: CalendarField = {
-  elementType: FormElementType.CalendarField,
+  itemType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
 }
 

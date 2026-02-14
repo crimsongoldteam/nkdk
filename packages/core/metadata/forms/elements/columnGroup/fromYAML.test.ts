@@ -37,7 +37,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.ColumnGroup,
+        itemType: FormElementType.ColumnGroup,
         yaml: fullColumnGroupPartialEnterprise,
         source: fullColumnGroup,
       })

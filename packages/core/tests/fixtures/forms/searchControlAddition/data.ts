@@ -5,21 +5,21 @@ import {
   SingleSearchControlAddition,
   SingleSearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const parentElement: NamedElement = {
-  elementType: FormElementType.CheckBoxField,
+  itemType: FormElementType.CheckBoxField,
   name: "Дополнение",
 }
 
 export const sourceSearchControlAddition: SearchControlAddition = {
-  elementType: "SearchControlAddition",
+  itemType: "SearchControlAddition",
   name: "ДополнениеУправлениеПоиском",
   childItems: [],
 }
 
 export const fullSingleSearchControlAddition: Required<SingleSearchControlAddition> = {
-  elementType: "SingleSearchControlAddition",
+  itemType: "SingleSearchControlAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
@@ -29,7 +29,7 @@ export const fullSingleSearchControlAddition: Required<SingleSearchControlAdditi
   textColor: { type: "WebColor", value: "Black" },
   width: 300,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     displayImportance: "High",
     autofill: true,
     childItems: [],
@@ -37,7 +37,7 @@ export const fullSingleSearchControlAddition: Required<SingleSearchControlAdditi
   displayImportance: "High",
   enabled: true,
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: {
       items: { ru: "Оформление формы" },
       formatted: false,
@@ -141,19 +141,19 @@ export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterpris
 
 export const fullSearchControlAddition: Required<SearchControlAddition> = {
   ...fullSingleSearchControlAddition,
-  elementType: "SearchControlAddition",
+  itemType: "SearchControlAddition",
   additionSource: "РодительскийЭлемент",
   name: "ДополнениеУправлениеПоиском",
 }
 
 export const minimalSearchControlAddition: SearchControlAddition = {
-  elementType: "SearchControlAddition",
+  itemType: "SearchControlAddition",
   name: "ДополнениеУправлениеПоиском",
   childItems: [],
 }
 
 export const minimalSingleSearchControlAddition: SingleSearchControlAddition = {
-  elementType: "SingleSearchControlAddition",
+  itemType: "SingleSearchControlAddition",
   childItems: [],
 }
 

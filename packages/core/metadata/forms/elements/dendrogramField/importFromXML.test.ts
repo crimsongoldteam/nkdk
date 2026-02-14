@@ -8,7 +8,7 @@ describe("importDendrogramFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.DendrogramField,
+      itemType: FormElementType.DendrogramField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importDendrogramFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.DendrogramField,
+      itemType: FormElementType.DendrogramField,
       xml: xmlData.DendrogramField,
     })
 
@@ -32,7 +32,7 @@ describe("importDendrogramFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.DendrogramField,
+      itemType: FormElementType.DendrogramField,
       xml: xmlData.DendrogramField,
     })
 

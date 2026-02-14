@@ -23,7 +23,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
 
   if (element.childItems) {
     for (const item of element.childItems) {
-      const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
+      const exportFunction = getOperationFunction("ExportToStructure", item.itemType)
       let itemResult: IFormatElementResult
       if (!exportFunction) {
         itemResult = exportOtherElementToStructure(context, item as NamedElement)

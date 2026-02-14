@@ -8,7 +8,7 @@ describe("importPlannerFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PlannerField,
+      itemType: FormElementType.PlannerField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPlannerFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PlannerField,
+      itemType: FormElementType.PlannerField,
       xml: xmlData.PlannerField,
     })
 
@@ -32,7 +32,7 @@ describe("importPlannerFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PlannerField,
+      itemType: FormElementType.PlannerField,
       xml: xmlData.PlannerField,
     })
 

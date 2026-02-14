@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface PdfDocumentField {
-  elementType: "PDFDocumentField"
+  itemType: "PDFDocumentField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

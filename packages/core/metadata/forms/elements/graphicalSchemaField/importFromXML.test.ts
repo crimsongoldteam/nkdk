@@ -8,7 +8,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.GraphicalSchemaField,
+      itemType: FormElementType.GraphicalSchemaField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.GraphicalSchemaField,
+      itemType: FormElementType.GraphicalSchemaField,
       xml: xmlData.GraphicalSchemaField,
     })
 
@@ -32,7 +32,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.GraphicalSchemaField,
+      itemType: FormElementType.GraphicalSchemaField,
       xml: xmlData.GraphicalSchemaField,
     })
 

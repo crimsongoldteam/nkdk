@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface PictureDecoration {
-  elementType: "PictureDecoration"
+  itemType: "PictureDecoration"
   name: string
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean

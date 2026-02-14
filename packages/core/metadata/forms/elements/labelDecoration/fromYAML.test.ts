@@ -7,7 +7,7 @@ describe("importLabelDecorationFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.LabelDecoration,
+      itemType: FormElementType.LabelDecoration,
       yaml: fullLabelDecorationPartialEnterprise,
       source: fullLabelDecoration,
     })

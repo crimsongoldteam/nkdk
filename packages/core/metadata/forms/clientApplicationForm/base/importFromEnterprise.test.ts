@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromEnterprise"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,
@@ -15,9 +15,9 @@ import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
 describe("importClientApplicationFormFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockContext, fullClientApplicationFormEnterprise, {
-      childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
+      childItems: [{ name: "ПолеВвода1", itemType: FormElementType.InputField }],
       autoCommandBar: {
-        elementType: "AutoCommandBar",
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [],
       },
@@ -29,12 +29,12 @@ describe("importClientApplicationFormFromEnterprise", () => {
   it("should import from form command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
     }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       childItems: [button],
     }
 
@@ -48,7 +48,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockContext, enterpriseData, {
       childItems: [],
       autoCommandBar: {
-        elementType: "AutoCommandBar",
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },
@@ -58,17 +58,17 @@ describe("importClientApplicationFormFromEnterprise", () => {
       commands: [],
       childItems: [],
       autoCommandBar: {
-        elementType: "AutoCommandBar",
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [
           {
             name: "ГруппаКнопок1",
-            elementType: FormElementType.ButtonGroup,
+            itemType: FormElementType.ButtonGroup,
             enabled: false,
             childItems: [
               {
                 name: "Кнопка1",
-                elementType: FormElementType.Button,
+                itemType: FormElementType.Button,
                 commandName: "Команда1",
               },
             ],
@@ -83,21 +83,21 @@ describe("importClientApplicationFormFromEnterprise", () => {
   it("should import from table command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
     }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       childItems: [button],
     }
 
     const table: Table = {
       name: "Таблица1",
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       multipleChoice: false,
       autoCommandBar: {
-        elementType: "AutoCommandBar",
+        itemType: "AutoCommandBar",
         autofill: true,
         childItems: [buttonGroup],
       },
@@ -121,20 +121,20 @@ describe("importClientApplicationFormFromEnterprise", () => {
       childItems: [
         {
           name: "Таблица1",
-          elementType: FormElementType.Table,
+          itemType: FormElementType.Table,
           multipleChoice: false,
           autoCommandBar: {
-            elementType: "AutoCommandBar",
+            itemType: "AutoCommandBar",
             autofill: true,
             childItems: [
               {
                 name: "ГруппаКнопок1",
-                elementType: FormElementType.ButtonGroup,
+                itemType: FormElementType.ButtonGroup,
                 enabled: false,
                 childItems: [
                   {
                     name: "Кнопка1",
-                    elementType: FormElementType.Button,
+                    itemType: FormElementType.Button,
                     commandName: "Команда1",
                   },
                 ],

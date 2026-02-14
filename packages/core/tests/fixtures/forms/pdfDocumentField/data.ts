@@ -1,9 +1,9 @@
 import { PdfDocumentField, PdfDocumentFieldPartialEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
-  elementType: "PDFDocumentField",
+  itemType: "PDFDocumentField",
   name: "ПолеPDFДокумента",
   title: {
     items: { ru: "Поле PDF документа" },
@@ -13,12 +13,12 @@ export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
   borderColor: { type: "WebColor", value: "Green" },
   currentPageNumber: 1,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   height: 200,
@@ -164,7 +164,7 @@ export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnter
 }
 
 export const minimalPdfDocumentField: PdfDocumentField = {
-  elementType: FormElementType.PDFDocumentField,
+  itemType: FormElementType.PDFDocumentField,
   name: "ПолеPDFДокумента",
 }
 

@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ProgressBarField {
-  elementType: "ProgressBarField"
+  itemType: "ProgressBarField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

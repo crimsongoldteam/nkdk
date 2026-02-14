@@ -11,7 +11,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface GanttChartField extends NamedElement {
-  elementType: "GanttChartField"
+  itemType: "GanttChartField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   height?: number

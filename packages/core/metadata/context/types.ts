@@ -2,7 +2,7 @@ import { PreviewAttributeMapItem } from "../forms/clientApplicationForm/base/typ
 import { AllChildItemsPartialEnterprise } from "../forms/collections/childItems/types"
 import { FormElementType } from "../metadataFactory"
 
-export type ContextElementTreeItem = { name: string; elementType: FormElementType }
+export type ContextElementTreeItem = { name: string; itemType: FormElementType }
 
 export interface ConfigurationContext {
   testMode?: boolean

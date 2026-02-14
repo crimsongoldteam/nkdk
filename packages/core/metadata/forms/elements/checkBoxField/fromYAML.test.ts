@@ -38,7 +38,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.CheckBoxField,
+        itemType: FormElementType.CheckBoxField,
         yaml: fullCheckBoxFieldPartialEnterprise,
         source: fullCheckBoxField,
       })
@@ -49,7 +49,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.CheckBoxField,
+        itemType: FormElementType.CheckBoxField,
         yaml: minimalCheckBoxFieldPartialEnterprise,
         source: minimalCheckBoxField,
       })

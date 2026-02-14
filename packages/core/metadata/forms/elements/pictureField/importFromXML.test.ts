@@ -8,7 +8,7 @@ describe("importPictureFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PictureField,
+      itemType: FormElementType.PictureField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPictureFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PictureField,
+      itemType: FormElementType.PictureField,
       xml: xmlData.PictureField,
     })
 
@@ -32,7 +32,7 @@ describe("importPictureFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PictureField,
+      itemType: FormElementType.PictureField,
       xml: xmlData.PictureField,
     })
 

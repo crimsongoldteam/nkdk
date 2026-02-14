@@ -4,7 +4,7 @@ export const getAutoCommandBarName = (parentElement: { name: string }): string =
   return `${parentElement.name}КоманднаяПанель`
 }
 
-const EXCLUDED_FIELDS = ["name", "elementType", "childItems"]
+const EXCLUDED_FIELDS = ["name", "itemType", "childItems"]
 
 export const isHasContent = (data: AutoCommandBar): boolean => {
   if (data.childItems.length != 0) return true

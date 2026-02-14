@@ -8,7 +8,7 @@ describe("importButtonFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importButtonFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       xml: xmlData.Button,
     })
 
@@ -32,7 +32,7 @@ describe("importButtonFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       xml: xmlData.Button,
     })
 

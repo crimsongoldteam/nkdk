@@ -12,7 +12,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.DendrogramField,
+      itemType: FormElementType.DendrogramField,
       yaml: fullDendrogramFieldPartialEnterprise,
       source: fullDendrogramField,
     })
@@ -23,7 +23,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.DendrogramField,
+      itemType: FormElementType.DendrogramField,
       yaml: minimalDendrogramFieldPartialEnterprise,
       source: minimalDendrogramField,
     })

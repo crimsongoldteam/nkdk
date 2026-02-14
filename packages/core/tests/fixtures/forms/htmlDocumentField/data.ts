@@ -2,11 +2,11 @@ import {
   HTMLDocumentField,
   HTMLDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
-  elementType: FormElementType.HTMLDocumentField,
+  itemType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
   title: {
     items: { ru: "Поле HTML документа" },
@@ -78,12 +78,12 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -163,7 +163,7 @@ export const fullHtmlDocumentFieldPartialEnterprise: HTMLDocumentFieldPartialEnt
 }
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
-  elementType: FormElementType.HTMLDocumentField,
+  itemType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
 }
 

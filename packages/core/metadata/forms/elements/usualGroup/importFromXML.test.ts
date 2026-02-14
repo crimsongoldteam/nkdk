@@ -8,7 +8,7 @@ describe("importUsualGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importUsualGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       xml: xmlData.UsualGroup,
     })
 
@@ -32,7 +32,7 @@ describe("importUsualGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.UsualGroup,
+      itemType: FormElementType.UsualGroup,
       xml: xmlData.UsualGroup,
     })
 

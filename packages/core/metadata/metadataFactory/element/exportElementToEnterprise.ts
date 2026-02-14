@@ -5,15 +5,11 @@ import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import {
-  ElementRule,
-  FormattedI8nTextPropertyRule,
-  getElementRule,
-  I8nTextPropertyRule,
-  PropertyRule,
-} from "../elementRulesFactory"
+import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { exportFormElementTypeToEnterprise } from "../exportFormElementTypeToEnterprise"
+import { FormattedI8nTextPropertyRule, I8nTextPropertyRule, PropertyRule } from "../properties/types"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
-import { exportFormElementTypeToEnterprise, ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
 export const exportPropertyToYAML = <T extends BaseElement>(params: {
   context: ConfigurationContext
@@ -75,9 +71,9 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
 }): ToTypedEnterpriseType<T> {
   const { context, element: data } = params
 
-  const rules = getElementRule<T>(data.elementType)
+  const rules = getElementRule<T>(data.itemType)
 
-  const type = exportFormElementTypeToEnterprise(context, data.elementType)
+  const type = exportFormElementTypeToEnterprise(context, data.itemType)
 
   const result: ToTypedEnterpriseType<T> = {
     Тип: type,
@@ -108,9 +104,9 @@ export function exportElementToPartialYAML<T extends BaseElement>(params: {
 }): ToPartialEnterpriseType<T> | undefined {
   const { context, element: data } = params
   if (data === undefined) return undefined
-  const elementType = data.elementType
+  const itemType = data.itemType
 
-  const rules = getElementRule<T>(elementType)
+  const rules = getElementRule<T>(itemType)
 
   return exportElementToYAML({ context, data, rules })
 }

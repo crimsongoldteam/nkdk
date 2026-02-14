@@ -1,6 +1,7 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getExtendedTooltipName } from "./helper"
 import { ExtendedTooltip } from "./types"
 export type { ElementRule, PropertyRule }

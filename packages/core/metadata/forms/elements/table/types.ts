@@ -16,7 +16,7 @@ import { SearchStringAdditionEnterprise, SingleSearchStringAddition } from "../s
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "../viewStatusAddition/types"
 
 export interface Table {
-  elementType: "Table"
+  itemType: "Table"
   name: string
   autoAddIncomplete?: boolean
   autoCommandBar?: AutoCommandBar

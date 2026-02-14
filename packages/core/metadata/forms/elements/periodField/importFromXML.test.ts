@@ -8,7 +8,7 @@ describe("importPeriodFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PeriodField,
+      itemType: FormElementType.PeriodField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPeriodFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PeriodField,
+      itemType: FormElementType.PeriodField,
       xml: xmlData.PeriodField,
     })
 
@@ -32,7 +32,7 @@ describe("importPeriodFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PeriodField,
+      itemType: FormElementType.PeriodField,
       xml: xmlData.PeriodField,
     })
 

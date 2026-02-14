@@ -5,7 +5,7 @@ import { CommandBarChildItems } from "../../collections/childItems/types"
 import { BaseElement } from "../baseElement/types"
 
 export interface AutoCommandBar extends BaseElement {
-  elementType: "AutoCommandBar"
+  itemType: "AutoCommandBar"
   autofill: boolean
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation

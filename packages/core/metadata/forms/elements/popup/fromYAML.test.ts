@@ -38,7 +38,7 @@ describe("Popup from YAML", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.Popup,
+        itemType: FormElementType.Popup,
         yaml: fullPopupPartialEnterprise,
         source: sourcePopup,
       })
@@ -49,7 +49,7 @@ describe("Popup from YAML", () => {
     // it("should import minimal", () => {
     //   const result = importElementFromPartialYAML({
     //     context: mockContext,
-    //     elementType: FormElementType.Popup,
+    //     itemType: FormElementType.Popup,
     //     yaml: minimalPopupPartialEnterprise,
     //     source: sourcePopup,
     //   })

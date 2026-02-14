@@ -7,7 +7,7 @@ describe("importTableFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       yaml: fullTableEnterprise,
       source: fullTable,
     })
@@ -18,7 +18,7 @@ describe("importTableFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       yaml: minimalTableEnterprise,
       source: minimalTable,
     })

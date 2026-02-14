@@ -16,7 +16,7 @@ describe("SearchControlAddition from YAML", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: "SearchControlAddition",
+        itemType: "SearchControlAddition",
         yaml: fullSearchControlAdditionEnterprise,
         source: sourceSearchControlAddition,
       })
@@ -27,7 +27,7 @@ describe("SearchControlAddition from YAML", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: "SearchControlAddition",
+        itemType: "SearchControlAddition",
         yaml: {},
         source: sourceSearchControlAddition,
       })

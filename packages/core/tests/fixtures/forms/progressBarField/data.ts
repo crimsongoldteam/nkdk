@@ -1,9 +1,9 @@
 import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "~/metadata/forms/elements/progressBarField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
-  elementType: FormElementType.ProgressBarField,
+  itemType: FormElementType.ProgressBarField,
   name: "ПолеИндикатора",
   title: {
     items: { ru: "Поле индикатора" },
@@ -64,12 +64,12 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -156,7 +156,7 @@ export const fullProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnter
 }
 
 export const minimalProgressBarField: ProgressBarField = {
-  elementType: FormElementType.ProgressBarField,
+  itemType: FormElementType.ProgressBarField,
   name: "ПолеИндикатора",
 }
 

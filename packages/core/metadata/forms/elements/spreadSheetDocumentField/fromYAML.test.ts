@@ -12,7 +12,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.SpreadSheetDocumentField,
+      itemType: FormElementType.SpreadSheetDocumentField,
       yaml: fullSpreadSheetDocumentFieldPartialEnterprise,
       source: fullSpreadSheetDocumentField,
     })
@@ -23,7 +23,7 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.SpreadSheetDocumentField,
+      itemType: FormElementType.SpreadSheetDocumentField,
       yaml: minimalSpreadSheetDocumentFieldPartialEnterprise,
       source: minimalSpreadSheetDocumentField,
     })

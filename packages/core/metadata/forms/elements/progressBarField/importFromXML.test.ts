@@ -8,7 +8,7 @@ describe("importProgressBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ProgressBarField,
+      itemType: FormElementType.ProgressBarField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importProgressBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ProgressBarField,
+      itemType: FormElementType.ProgressBarField,
       xml: xmlData.ProgressBarField,
     })
 
@@ -32,7 +32,7 @@ describe("importProgressBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ProgressBarField,
+      itemType: FormElementType.ProgressBarField,
       xml: xmlData.ProgressBarField,
     })
 

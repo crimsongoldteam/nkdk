@@ -1,5 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
+import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleEnterprise, type UserVisible } from "./types"

@@ -12,8 +12,8 @@ export const exportChildItemsToPreview = <From extends AllChildItem>(
 
   const result = []
   for (const item of data) {
-    const fn = getOperationFunction("ExportToPreview", item.elementType)
-    if (fn == undefined) throw new Error(`ExportToPreview function not found for element type: ${item.elementType}`)
+    const fn = getOperationFunction("ExportToPreview", item.itemType)
+    if (fn == undefined) throw new Error(`ExportToPreview function not found for element type: ${item.itemType}`)
     const resultItem = (fn as any)(context, item)
     result.push(resultItem)
   }

@@ -3,7 +3,7 @@ import {
   ClientApplicationFormEnterprise,
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 const fullCommandInterface: CommandInterface = {
   NavigationPanel: [],
@@ -30,7 +30,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     },
   ],
   autoCommandBar: {
-    elementType: "AutoCommandBar",
+    itemType: "AutoCommandBar",
     autofill: false,
     horizontalAlign: "Left",
     childItems: [],
@@ -84,7 +84,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   childItems: [
     {
       name: "ПолеВвода1",
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
     },
   ],
   events: {

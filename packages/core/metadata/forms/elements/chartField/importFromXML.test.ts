@@ -8,7 +8,7 @@ describe("importChartFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ChartField,
+      itemType: FormElementType.ChartField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importChartFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ChartField,
+      itemType: FormElementType.ChartField,
       xml: xmlData.ChartField,
     })
 
@@ -32,7 +32,7 @@ describe("importChartFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.ChartField,
+      itemType: FormElementType.ChartField,
       xml: xmlData.ChartField,
     })
 

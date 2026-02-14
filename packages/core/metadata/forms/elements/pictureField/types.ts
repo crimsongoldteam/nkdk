@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface PictureField {
-  elementType: "PictureField"
+  itemType: "PictureField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

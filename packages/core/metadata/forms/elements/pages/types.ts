@@ -9,7 +9,7 @@ import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Pages extends NamedElement {
-  elementType: "Pages"
+  itemType: "Pages"
   currentPagesState?: SE.FormPagesState
   currentRowUse?: SE.CurrentRowUse
   pagesRepresentation?: SE.FormPagesRepresentation

@@ -9,7 +9,7 @@ import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface CommandBar extends NamedElement {
-  elementType: "CommandBar"
+  itemType: "CommandBar"
   extendedTooltip?: ExtendedTooltip
   autofill?: boolean
   displayImportance?: SE.DisplayImportance

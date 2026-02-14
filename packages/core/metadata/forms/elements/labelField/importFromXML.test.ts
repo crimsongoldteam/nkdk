@@ -8,7 +8,7 @@ describe("importLabelFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.LabelField,
+      itemType: FormElementType.LabelField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importLabelFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.LabelField,
+      itemType: FormElementType.LabelField,
       xml: xmlData.LabelField,
     })
 
@@ -32,7 +32,7 @@ describe("importLabelFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.LabelField,
+      itemType: FormElementType.LabelField,
       xml: xmlData.LabelField,
     })
 

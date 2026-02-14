@@ -5,11 +5,11 @@ import {
   InputFieldTypedEnterprise,
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {
-  elementType: FormElementType.InputField,
+  itemType: FormElementType.InputField,
   name: "ПолеВвода",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -63,12 +63,12 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -358,7 +358,7 @@ export const fullInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
 }
 
 export const minimalInputField: InputField = {
-  elementType: FormElementType.InputField,
+  itemType: FormElementType.InputField,
   name: "ПолеВвода",
 }
 
@@ -379,7 +379,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ИмяПоля",
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
     },
     structured: {
@@ -391,7 +391,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ИмяПоля",
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
     },
     structured: {
       strings: ["{ИмяПоля}: "],
@@ -401,7 +401,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
 ]
 
 export const fullInputFieldPreview: Required<InputFieldPreview> = {
-  ElementType: "FormField",
+  itemType: "FormField",
   Name: "ПолеВвода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
   AllowInputEmptyMultipleValues: true,

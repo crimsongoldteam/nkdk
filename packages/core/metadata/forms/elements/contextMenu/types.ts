@@ -4,7 +4,7 @@ import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedEnterprise } f
 import { BaseElement } from "../baseElement/types"
 
 export interface ContextMenu extends BaseElement {
-  elementType: "ContextMenu"
+  itemType: "ContextMenu"
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
   childItems: CommandBarGroupChildItems

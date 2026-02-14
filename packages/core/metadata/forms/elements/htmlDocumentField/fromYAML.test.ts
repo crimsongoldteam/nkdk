@@ -12,7 +12,7 @@ describe("importHTMLDocumentFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.HTMLDocumentField,
+      itemType: FormElementType.HTMLDocumentField,
       yaml: fullHtmlDocumentFieldPartialEnterprise,
       source: fullHtmlDocumentField,
     })
@@ -23,7 +23,7 @@ describe("importHTMLDocumentFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.HTMLDocumentField,
+      itemType: FormElementType.HTMLDocumentField,
       yaml: minimalHtmlDocumentFieldPartialEnterprise,
       source: minimalHtmlDocumentField,
     })

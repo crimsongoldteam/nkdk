@@ -12,7 +12,7 @@ describe("importRadioButtonFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.RadioButtonField,
+      itemType: FormElementType.RadioButtonField,
       yaml: fullRadioButtonFieldPartialEnterprise,
       source: fullRadioButtonField,
     })
@@ -23,7 +23,7 @@ describe("importRadioButtonFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.RadioButtonField,
+      itemType: FormElementType.RadioButtonField,
       yaml: minimalRadioButtonFieldPartialEnterprise,
       source: minimalRadioButtonField,
     })

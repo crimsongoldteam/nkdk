@@ -1,9 +1,9 @@
 import { DendrogramField, DendrogramFieldPartialEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
-  elementType: FormElementType.DendrogramField,
+  itemType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
   title: {
     items: { ru: "Поле дендрограммы" },
@@ -72,12 +72,12 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   typeRestriction: { type: ["string"] },
@@ -148,7 +148,7 @@ export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterpr
 }
 
 export const minimalDendrogramField: DendrogramField = {
-  elementType: FormElementType.DendrogramField,
+  itemType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
 }
 

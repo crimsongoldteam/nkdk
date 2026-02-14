@@ -9,7 +9,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface SearchStringAddition extends NamedElement {
-  elementType: "SearchStringAddition"
+  itemType: "SearchStringAddition"
   additionSource?: string
   name: string
   backColor?: Color
@@ -32,8 +32,8 @@ export interface SearchStringAddition extends NamedElement {
 }
 
 export interface SingleSearchStringAddition
-  extends Omit<SearchStringAddition, "name" | "additionSource" | "elementType">, BaseElement {
-  elementType: "SingleSearchStringAddition"
+  extends Omit<SearchStringAddition, "name" | "additionSource" | "itemType">, BaseElement {
+  itemType: "SingleSearchStringAddition"
 }
 
 export interface SearchStringAdditionEnterprise {

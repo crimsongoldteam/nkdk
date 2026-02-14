@@ -1,10 +1,11 @@
-import { FormElementType, ItemOperationType, OperationFunction } from "./types"
+import { FormElementType } from "./metadataType/types"
+import { ItemOperationType, OperationFunction } from "./types"
 
 const operationRegistries = new Map<ItemOperationType, Map<FormElementType, OperationFunction<ItemOperationType>>>()
 
 export function registerMetadata<T extends ItemOperationType>(
   operationType: T,
-  elementType: FormElementType,
+  itemType: FormElementType,
   operationFunction: OperationFunction<T>
 ): void {
   let registry = operationRegistries.get(operationType)
@@ -12,7 +13,7 @@ export function registerMetadata<T extends ItemOperationType>(
     registry = new Map()
     operationRegistries.set(operationType, registry)
   }
-  registry.set(elementType, operationFunction)
+  registry.set(itemType, operationFunction)
 }
 
 // export const getOperationRegistry = <T extends ItemOperationType>(operationType: T): OperationFunction<T> => {

@@ -44,7 +44,7 @@ const importChildItemProperties = <To extends AllChildItem>(
 
   const result = importElementFromPartialYAML({
     context: context,
-    elementType: item.elementType,
+    itemType: item.itemType,
     yaml: propertiesEnterprise as ToPartialEnterpriseType<To> | undefined,
     source: item,
   })!

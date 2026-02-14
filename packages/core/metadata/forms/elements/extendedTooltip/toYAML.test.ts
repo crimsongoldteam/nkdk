@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { exportPropertyToYAML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
+import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { fullExtendedTooltip, fullExtendedTooltipEnterprise } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 import { Table } from "../table/types"

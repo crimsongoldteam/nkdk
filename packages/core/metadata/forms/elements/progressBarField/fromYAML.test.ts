@@ -12,7 +12,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.ProgressBarField,
+      itemType: FormElementType.ProgressBarField,
       yaml: fullProgressBarFieldPartialEnterprise,
       source: fullProgressBarField,
     })
@@ -23,7 +23,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.ProgressBarField,
+      itemType: FormElementType.ProgressBarField,
       yaml: minimalProgressBarFieldPartialEnterprise,
       source: minimalProgressBarField,
     })

@@ -3,11 +3,11 @@ import {
   PictureDecorationPartialEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
-  elementType: FormElementType.PictureDecoration,
+  itemType: FormElementType.PictureDecoration,
   name: "ДекорацияКартинки",
   title: {
     formatted: false,
@@ -55,12 +55,12 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   visible: true,
   width: 300,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   fileDragMode: "AsFile",
@@ -125,7 +125,7 @@ export const fullPictureDecorationPartialEnterprise: Required<
 }
 
 export const minimalPictureDecoration: PictureDecoration = {
-  elementType: FormElementType.PictureDecoration,
+  itemType: FormElementType.PictureDecoration,
   name: "ДекорацияКартинки",
 }
 
@@ -140,7 +140,7 @@ export interface PictureDecorationStructureFixture {
 
 export const sourcePictureDecoration: PictureDecoration = {
   name: "ДекорацияКартинки",
-  elementType: FormElementType.PictureDecoration,
+  itemType: FormElementType.PictureDecoration,
   title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
 }
 
@@ -149,7 +149,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     name: "with title",
     element: {
       name: "ИмяПоля",
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
       title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
     },
@@ -163,7 +163,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     element: {
       name: "ИмяПоля",
       picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
     },
     structured: {
       strings: ["@Печать {ИмяПоля}"],
@@ -175,7 +175,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     element: {
       name: "ИмяПоля",
       picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: false },
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
     },
     structured: {
       strings: ["@Предупреждение32 {ИмяПоля}"],
@@ -186,7 +186,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     name: "without picture",
     element: {
       name: "ИмяПоля",
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
     },
     structured: {
       strings: ["@{ИмяПоля}"],
@@ -197,7 +197,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     name: "with absolute picture",
     element: {
       name: "ИмяПоля",
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       picture: {
         type: "AbsolutePicture",
         ref: "Picture.png",

@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface LabelDecoration {
-  elementType: "LabelDecoration"
+  itemType: "LabelDecoration"
   name: string
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean

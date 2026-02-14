@@ -10,7 +10,7 @@ import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface Page extends NamedElement {
-  elementType: "Page"
+  itemType: "Page"
   backColor?: Color
   extendedTooltip?: ExtendedTooltip
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation

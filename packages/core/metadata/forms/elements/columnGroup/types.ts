@@ -10,7 +10,7 @@ import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ColumnGroup extends NamedElement {
-  elementType: "ColumnGroup"
+  itemType: "ColumnGroup"
   fixingInTable?: SE.FixingInTable
   group?: SE.ColumnsGroup
   headerDataPath?: string

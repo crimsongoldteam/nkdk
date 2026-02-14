@@ -2,11 +2,11 @@ import {
   GraphicalSchemaField,
   GraphicalSchemaFieldPartialEnterprise,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
-  elementType: FormElementType.GraphicalSchemaField,
+  itemType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
   title: {
     items: { ru: "Поле графической схемы" },
@@ -78,12 +78,12 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -163,7 +163,7 @@ export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPart
 }
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
-  elementType: FormElementType.GraphicalSchemaField,
+  itemType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
 }
 

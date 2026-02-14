@@ -8,7 +8,7 @@ export const exportChildItemsToXML = <From extends AllChildItem>(
   _context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: From[] | undefined
-): Record<From["elementType"], ElementXML>[] | undefined => {
+): Record<From["itemType"], ElementXML>[] | undefined => {
   if (!data || data.length === 0) return undefined
 
   const result = data.map((item) => {
@@ -17,7 +17,7 @@ export const exportChildItemsToXML = <From extends AllChildItem>(
       element: item,
     })!
 
-    return { [item.elementType]: value } as Record<From["elementType"], ElementXML>
+    return { [item.itemType]: value } as Record<From["itemType"], ElementXML>
   })
 
   return result

@@ -8,7 +8,7 @@ describe("importLabelDecorationFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.LabelDecoration,
+      itemType: FormElementType.LabelDecoration,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importLabelDecorationFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.LabelDecoration,
+      itemType: FormElementType.LabelDecoration,
       xml: xmlData.LabelDecoration,
     })
 
@@ -32,7 +32,7 @@ describe("importLabelDecorationFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.LabelDecoration,
+      itemType: FormElementType.LabelDecoration,
       xml: xmlData.LabelDecoration,
     })
 

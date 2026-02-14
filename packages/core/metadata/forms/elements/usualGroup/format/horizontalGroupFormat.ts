@@ -32,7 +32,7 @@ const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): s
   if (!element.childItems) return result
 
   for (const item of element.childItems) {
-    const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
+    const exportFunction = getOperationFunction("ExportToStructure", item.itemType)
     let formattedItem: IFormatElementResult
     if (!exportFunction) {
       formattedItem = exportOtherElementToStructure(context, item as NamedElement)

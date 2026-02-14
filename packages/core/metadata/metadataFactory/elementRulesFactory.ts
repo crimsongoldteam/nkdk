@@ -1,91 +1,22 @@
 import { ConfigurationContext } from "../context/types"
-import { TableAdditionalSourceTypes } from "../forms/commonObjects/tableAdditionalSource/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
 import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"
-import { exportSingleElementToXML } from "./element/exportElementToXML"
 import { importElementFromPartialYAML } from "./element/importElementFromEnterprise"
 import { importSingleElementFromXML } from "./element/importElementFromXML"
+import { exportSingleElementToXML } from "./element/toXML"
+import { FormElementType } from "./metadataType/types"
+import { MetadataItemRule, PropertyRule } from "./properties/types"
 import { registerTypeRule, TypeRulesNames } from "./typeRulesFactory"
-import { ElementXML, FormElementType, ToPartialEnterpriseType } from "./types"
-
-export type ExportCheckFn = <T extends BaseElement>(
-  context: ConfigurationContext,
-  rule: PropertyRule<T>,
-  element: T
-) => boolean
-
-interface BasePropertyRule<T extends BaseElement | never> {
-  yaml?: T extends BaseElement ? keyof ToPartialEnterpriseType<T> : string
-  xml?: string
-  toEnterprise?: false
-  toPartialYAML?: false | ExportCheckFn
-  fromXML?: false
-  defaultValue?: any
-}
-
-export interface I8nTextPropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type: "I8nText"
-  yamlPartialOthers?: true
-}
-
-export interface FormattedI8nTextPropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type: "FormattedI8nText"
-  yamlFormatted: string
-  yamlPartialOthers?: true
-  xmlWithDefaultLanguage?: true
-}
-
-export interface SystemEnumerationPropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type: "SystemEnumeration"
-
-  typeSE: string
-}
-
-export interface UserVisiblePropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type: "UserVisible"
-  yaml: T extends BaseElement ? keyof ToPartialEnterpriseType<T> : string
-  yamlDeny: string
-}
-
-export interface TableAdditionalSourcePropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type: "TableAdditionalSource"
-  additionalSourceType: TableAdditionalSourceTypes
-  forSingleElement?: true
-}
-
-export interface CleanPropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type: Exclude<
-    TypeRulesNames,
-    "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible" | "TableAdditionalSource"
-  >
-}
-
-export interface CustomExportPropertyRule<T extends BaseElement | never> extends BasePropertyRule<T> {
-  type?: never
-  exportToEnterprise: (context: ConfigurationContext, rule: PropertyRule<T>, data: any) => any
-}
-
-export type PropertyRule<T extends BaseElement | never> =
-  | SystemEnumerationPropertyRule<T>
-  | UserVisiblePropertyRule<T>
-  | I8nTextPropertyRule<T>
-  | FormattedI8nTextPropertyRule<T>
-  | CleanPropertyRule<T>
-  | CustomExportPropertyRule<T>
-  | TableAdditionalSourcePropertyRule<T>
+import { ElementXML, ToPartialEnterpriseType } from "./types"
 
 interface RegisterAsTypeRule<T extends BaseElement> {
   toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
 }
 
-type PropertiesType<T extends BaseElement, ExtraProperties extends string = never> = Partial<
-  Record<Exclude<keyof T, "elementType" | "name"> | ExtraProperties, PropertyRule<T>>
->
-
-// ? Record<Extract<keyof Extract<T, EventedElement>["events"], string>, string>
-
-export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> {
-  properties: PropertiesType<T, ExtraProperties>
+export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> extends MetadataItemRule<
+  T,
+  ExtraProperties
+> {
   events?: T extends { events?: infer P }
     ? Record<
         keyof Required<P>,
@@ -100,18 +31,18 @@ export interface ElementRule<T extends BaseElement, ExtraProperties extends stri
 const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()
 
 export function registerElementRule<T extends BaseElement>(
-  elementType: FormElementType,
+  itemType: FormElementType,
   elementRule: ElementRule<T>
 ): void {
-  elementRulesRegistry.set(elementType, elementRule)
+  elementRulesRegistry.set(itemType, elementRule)
 
-  registerAsTypeRegistry(elementType, elementRule)
+  registerAsTypeRegistry(itemType, elementRule)
 }
 
-export const getElementRule = <T extends BaseElement>(elementType: FormElementType): ElementRule<T> => {
-  const rule = elementRulesRegistry.get(elementType)
+export const getElementRule = <T extends BaseElement>(itemType: FormElementType): ElementRule<T> => {
+  const rule = elementRulesRegistry.get(itemType)
   if (!rule) {
-    throw new Error(`Unknown element type: ${elementType}`)
+    throw new Error(`Unknown element type: ${itemType}`)
   }
   return rule
 }
@@ -121,7 +52,7 @@ export const clearElementRulesRegistry = (): void => {
 }
 
 const registerAsTypeRegistry = <T extends BaseElement>(
-  elementType: FormElementType,
+  itemType: FormElementType,
   elementRule: ElementRule<T>
 ): void => {
   if (!elementRule.registerAsType) return
@@ -130,16 +61,16 @@ const registerAsTypeRegistry = <T extends BaseElement>(
     TypeRulesNames,
     RegisterAsTypeRule<T>,
   ][]) {
-    registerImportFromXML<T>(propertyType, elementType, elementRule)
+    registerImportFromXML<T>(propertyType, itemType, elementRule)
     registerExportToEnterprise<T>(propertyType)
-    registerImportFromEnterprise<T>(propertyType, elementType)
-    registerExportToXML<T>({ propertyType, propertyRule, elementRule, elementType })
+    registerImportFromEnterprise<T>(propertyType, itemType)
+    registerExportToXML<T>({ propertyType, propertyRule, elementRule, itemType })
   }
 }
 
 const registerImportFromXML = <T extends BaseElement>(
   propertyType: TypeRulesNames,
-  elementType: FormElementType,
+  itemType: FormElementType,
   elementRule: ElementRule<T>
 ): void => {
   registerTypeRule(
@@ -148,7 +79,7 @@ const registerImportFromXML = <T extends BaseElement>(
     (context: ConfigurationContext, _rule: PropertyRule<T>, xml: ElementXML): T | undefined => {
       return importSingleElementFromXML({
         context,
-        elementType: elementType,
+        itemType: itemType,
         rule: elementRule,
         xml,
       })
@@ -172,7 +103,7 @@ const registerExportToEnterprise = <T extends BaseElement>(propertyType: TypeRul
 
 const registerImportFromEnterprise = <T extends BaseElement>(
   propertyType: TypeRulesNames,
-  elementType: FormElementType
+  itemType: FormElementType
 ): void => {
   registerTypeRule(
     propertyType,
@@ -185,7 +116,7 @@ const registerImportFromEnterprise = <T extends BaseElement>(
     ): T | undefined => {
       return importElementFromPartialYAML({
         context,
-        elementType: elementType,
+        itemType: itemType,
         yaml,
         source,
       })
@@ -197,9 +128,9 @@ const registerExportToXML = <T extends BaseElement>(params: {
   propertyType: TypeRulesNames
   propertyRule: RegisterAsTypeRule<T>
   elementRule: ElementRule<T>
-  elementType: FormElementType
+  itemType: FormElementType
 }): void => {
-  const { propertyType, propertyRule, elementRule, elementType } = params
+  const { propertyType, propertyRule, elementRule, itemType } = params
   const toXMLFn = propertyRule.toXML
 
   registerTypeRule(
@@ -212,7 +143,7 @@ const registerExportToXML = <T extends BaseElement>(params: {
         context,
         element: value,
         rule: elementRule,
-        elementType: elementType,
+        itemType: itemType,
         ...extraParams,
       })
     }

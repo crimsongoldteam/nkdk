@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface SearchControlAddition {
-  elementType: "SearchControlAddition"
+  itemType: "SearchControlAddition"
   additionSource?: string
   name: string
   autoMaxWidth?: boolean
@@ -37,8 +37,8 @@ export interface SearchControlAddition {
 }
 
 export interface SingleSearchControlAddition
-  extends Omit<SearchControlAddition, "name" | "additionSource" | "elementType">, BaseElement {
-  elementType: "SingleSearchControlAddition"
+  extends Omit<SearchControlAddition, "name" | "additionSource" | "itemType">, BaseElement {
+  itemType: "SingleSearchControlAddition"
 }
 
 export interface SearchControlAdditionEnterprise {

@@ -1,8 +1,8 @@
 import { Page, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullPage: Required<Page> = {
-  elementType: FormElementType.Page,
+  itemType: FormElementType.Page,
   name: "Страница",
   enableContentChange: true,
   enabled: true,
@@ -31,7 +31,7 @@ export const fullPage: Required<Page> = {
   width: 300,
   backColor: { type: "WebColor", value: "White" },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   picture: { ref: "Picture", type: "StandardPicture", loadTransparent: true },
@@ -94,7 +94,7 @@ export const fullPagePartialEnterprise: PagePartialEnterprise = {
 }
 
 export const minimalPage: Page = {
-  elementType: FormElementType.Page,
+  itemType: FormElementType.Page,
   name: "Страница",
   childItems: [],
 }

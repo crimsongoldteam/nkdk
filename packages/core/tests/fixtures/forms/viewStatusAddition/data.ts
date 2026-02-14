@@ -1,7 +1,7 @@
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 
 export const fullViewStatusAddition: Required<ViewStatusAddition> = {
-  elementType: "ViewStatusAddition",
+  itemType: "ViewStatusAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   border: { ref: "style:ControlBorder" },
@@ -25,12 +25,12 @@ export const fullViewStatusAddition: Required<ViewStatusAddition> = {
   toolTipRepresentation: "None",
   width: 300,
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
 }

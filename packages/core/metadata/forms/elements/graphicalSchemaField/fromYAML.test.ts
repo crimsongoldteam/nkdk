@@ -12,7 +12,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.GraphicalSchemaField,
+      itemType: FormElementType.GraphicalSchemaField,
       yaml: fullGraphicalSchemaFieldPartialEnterprise,
       source: fullGraphicalSchemaField,
     })
@@ -23,7 +23,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.GraphicalSchemaField,
+      itemType: FormElementType.GraphicalSchemaField,
       yaml: minimalGraphicalSchemaFieldPartialEnterprise,
       source: minimalGraphicalSchemaField,
     })

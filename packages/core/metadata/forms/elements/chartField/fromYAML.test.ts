@@ -13,7 +13,7 @@ describe("importChartFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.ChartField,
+        itemType: FormElementType.ChartField,
         yaml: fullChartFieldPartialEnterprise,
         source: fullChartField,
       })
@@ -24,7 +24,7 @@ describe("importChartFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.ChartField,
+        itemType: FormElementType.ChartField,
         yaml: minimalChartFieldPartialEnterprise,
         source: minimalChartField,
       })

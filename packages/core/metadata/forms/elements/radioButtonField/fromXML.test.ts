@@ -8,7 +8,7 @@ describe("importRadioButtonFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.RadioButtonField,
+      itemType: FormElementType.RadioButtonField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importRadioButtonFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.RadioButtonField,
+      itemType: FormElementType.RadioButtonField,
       xml: xmlData.RadioButtonField,
     })
 
@@ -32,7 +32,7 @@ describe("importRadioButtonFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.RadioButtonField,
+      itemType: FormElementType.RadioButtonField,
       xml: xmlData.RadioButtonField,
     })
 

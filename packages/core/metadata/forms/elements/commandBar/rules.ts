@@ -1,4 +1,5 @@
-import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { CommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 

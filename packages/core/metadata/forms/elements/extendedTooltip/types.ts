@@ -8,7 +8,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement } from "../baseElement/types"
 
 export interface ExtendedTooltip extends BaseElement {
-  elementType: "ExtendedTooltip"
+  itemType: "ExtendedTooltip"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   displayImportance?: SE.DisplayImportance

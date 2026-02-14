@@ -1,5 +1,5 @@
 import { AllChildItems, AllChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export interface ChildItemsFixture {
   name: string
@@ -17,7 +17,7 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   // Single
   {
     name: "single",
-    element: [{ name: "Input1", elementType: FormElementType.InputField }],
+    element: [{ name: "Input1", itemType: FormElementType.InputField }],
     structure: ["{Input1}: "],
     xmlPath: "/childItems/single.xml",
     typedEnterprise: {
@@ -32,9 +32,9 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   {
     name: "different types",
     element: [
-      { name: "Input1", elementType: FormElementType.InputField },
-      { name: "Label2", elementType: FormElementType.LabelField },
-      { name: "Input3", elementType: FormElementType.InputField },
+      { name: "Input1", itemType: FormElementType.InputField },
+      { name: "Label2", itemType: FormElementType.LabelField },
+      { name: "Input3", itemType: FormElementType.InputField },
     ],
     structure: ["{Input1}: ", "{Label1}", "{Input3}: "],
     xmlPath: "/childItems/different.xml",

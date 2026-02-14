@@ -8,7 +8,7 @@ describe("importPictureDecorationFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPictureDecorationFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       xml: xmlData.PictureDecoration,
     })
 
@@ -32,7 +32,7 @@ describe("importPictureDecorationFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       xml: xmlData.PictureDecoration,
     })
 

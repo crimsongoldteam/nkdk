@@ -5,10 +5,10 @@ import {
   ButtonTypedEnterprise,
 } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullButton: Required<Button> = {
-  elementType: FormElementType.Button,
+  itemType: FormElementType.Button,
   autoMaxHeight: false,
   autoMaxWidth: false,
   backColor: {
@@ -27,7 +27,7 @@ export const fullButton: Required<Button> = {
   displayImportance: "VeryHigh",
   enabled: false,
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: {
       formatted: false,
       items: {
@@ -88,7 +88,7 @@ export const fullButton: Required<Button> = {
 }
 
 export const fullButtonSource: Button = {
-  elementType: FormElementType.Button,
+  itemType: FormElementType.Button,
   name: "Кнопка",
   title: { items: { ru: "Кнопка формы" } },
 }
@@ -146,7 +146,7 @@ export const fullButtonTypedEnterprise: ButtonTypedEnterprise = {
 }
 
 export const minimalButton: Button = {
-  elementType: FormElementType.Button,
+  itemType: FormElementType.Button,
   name: "ОбычнаяКнопка",
 }
 
@@ -158,7 +158,7 @@ export const minimalButtonTypedEnterprise: ButtonTypedEnterprise = {
 }
 
 export const fullButtonPreview: Required<ButtonPreview> = {
-  ElementType: "FormButton",
+  itemType: "FormButton",
   Name: "ОбычнаяКнопка",
   AutoMaxHeight: false,
   AutoMaxWidth: false,
@@ -211,7 +211,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "with title",
     element: {
       name: "Заголовок",
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
@@ -223,7 +223,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "without title",
     element: {
       name: "Кнопка",
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
       title: undefined,
     },
     structured: {

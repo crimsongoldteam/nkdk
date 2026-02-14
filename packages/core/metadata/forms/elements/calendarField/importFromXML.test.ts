@@ -8,7 +8,7 @@ describe("importCalendarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CalendarField,
+      itemType: FormElementType.CalendarField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importCalendarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CalendarField,
+      itemType: FormElementType.CalendarField,
       xml: xmlData.CalendarField,
     })
 
@@ -32,7 +32,7 @@ describe("importCalendarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CalendarField,
+      itemType: FormElementType.CalendarField,
       xml: xmlData.CalendarField,
     })
 

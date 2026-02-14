@@ -2,14 +2,12 @@ import { importFormattedI8nTextFromEnterprise } from "~/metadata/commonObjects/f
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
+import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { importFormElementTypeFromEnterprise } from "../importFormElementTypeFromEnterprise"
+import { FormElementType } from "../metadataType/types"
+import { PropertyRule } from "../properties/types"
 import { getTypeRule } from "../typeRulesFactory"
-import {
-  FormElementType,
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "../types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
 export const importPropertyFromEnterprise = (params: {
   context: ConfigurationContext
@@ -48,12 +46,12 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
 }): T {
   const { context, yaml: yaml, name } = params
 
-  const elementType = importFormElementTypeFromEnterprise(params.context, yaml.Тип)
+  const itemType = importFormElementTypeFromEnterprise(params.context, yaml.Тип)
 
-  const rules = getElementRule<T>(elementType)
+  const rules = getElementRule<T>(itemType)
 
   const result: any = {
-    elementType: elementType,
+    itemType: itemType,
     name: name,
   }
 
@@ -82,19 +80,19 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
 
 export function importElementFromPartialYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
-  elementType: FormElementType
+  itemType: FormElementType
   yaml: ToPartialEnterpriseType<T> | undefined
   source?: T
 }): T | undefined {
   if (params.yaml === undefined) return params.source
 
-  const rules = getElementRule<T>(params.elementType)
+  const rules = getElementRule<T>(params.itemType)
 
   return importElementFromYAML({
     context: params.context,
     rules: rules,
     yaml: params.yaml as ToPartialEnterpriseType<T> & { События?: Record<string, string> },
-    elementType: params.elementType,
+    itemType: params.itemType,
     source: params.source,
   })
 }
@@ -102,16 +100,16 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
 export function importElementFromYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   rules: ElementRule<T>
-  elementType: FormElementType
+  itemType: FormElementType
   yaml: (ToPartialEnterpriseType<T> & { События?: Record<string, string> }) | undefined
   source?: T
 }): T | undefined {
-  const { context, rules, yaml, source, elementType } = params
+  const { context, rules, yaml, source, itemType } = params
   if (yaml === undefined) return source
 
   const result: T = {
     ...(source ? source : {}),
-    elementType: elementType,
+    itemType: itemType,
   } as T
 
   for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {

@@ -12,7 +12,7 @@ import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface LabelField {
-  elementType: "LabelField"
+  itemType: "LabelField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean
@@ -155,7 +155,7 @@ export interface LabelFieldTypedEnterprise extends LabelFieldPartialEnterprise {
 }
 
 export interface LabelFieldPreview {
-  ElementType: "FormField"
+  itemType: "FormField"
   Name: string
   Type: SystemEnumerationPreview
   AutoCellHeight?: boolean

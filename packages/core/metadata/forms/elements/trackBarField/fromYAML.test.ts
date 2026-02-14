@@ -8,7 +8,7 @@ describe("importTrackBarFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.TrackBarField,
+        itemType: FormElementType.TrackBarField,
         yaml: fullTrackBarFieldPartialEnterprise,
         source: fullTrackBarField,
       })

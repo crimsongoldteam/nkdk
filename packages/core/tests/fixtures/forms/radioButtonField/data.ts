@@ -1,9 +1,9 @@
 import { RadioButtonField, RadioButtonFieldPartialEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
-  elementType: FormElementType.RadioButtonField,
+  itemType: FormElementType.RadioButtonField,
   name: "ПолеПереключателя",
   title: {
     items: { ru: "Поле переключателя" },
@@ -64,12 +64,12 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   },
   warningOnEditRepresentation: "DontShow",
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
   table: "Таблица",
@@ -158,7 +158,7 @@ export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnter
 }
 
 export const minimalRadioButtonField: RadioButtonField = {
-  elementType: FormElementType.RadioButtonField,
+  itemType: FormElementType.RadioButtonField,
   name: "ПолеПереключателя",
 }
 

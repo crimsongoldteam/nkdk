@@ -57,159 +57,54 @@ import { TextDocumentField, TextDocumentFieldPartialEnterprise } from "../forms/
 import { TrackBarField, TrackBarFieldPartialEnterprise } from "../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupPartialEnterprise, UsualGroupPreview } from "../forms/elements/usualGroup/types"
 
-export type TypeRules<T> = T extends Button
-  ? {
-      PartialEnterprise: ButtonPartialEnterprise
-    }
-  : T extends ButtonGroup
-    ? {
-        PartialEnterprise: ButtonGroupPartialEnterprise
-      }
-    : T extends CalendarField
-      ? {
-          PartialEnterprise: CalendarFieldPartialEnterprise
-        }
-      : T extends ChartField
-        ? {
-            PartialEnterprise: ChartFieldPartialEnterprise
-          }
-        : T extends CheckBoxField
-          ? {
-              PartialEnterprise: CheckBoxFieldPartialEnterprise
-            }
-          : T extends ColumnGroup
-            ? {
-                PartialEnterprise: ColumnGroupPartialEnterprise
-              }
-            : T extends CommandBar
-              ? {
-                  PartialEnterprise: CommandBarPartialEnterprise
-                }
-              : T extends DendrogramField
-                ? {
-                    PartialEnterprise: DendrogramFieldPartialEnterprise
-                  }
-                : T extends FormattedDocumentField
-                  ? {
-                      PartialEnterprise: FormattedDocumentFieldPartialEnterprise
-                    }
-                  : T extends GanttChartField
-                    ? {
-                        PartialEnterprise: GanttChartFieldPartialEnterprise
-                      }
-                    : T extends GeographicalSchemaField
-                      ? {
-                          PartialEnterprise: GeographicalSchemaFieldPartialEnterprise
-                        }
-                      : T extends GraphicalSchemaField
-                        ? {
-                            PartialEnterprise: GraphicalSchemaFieldPartialEnterprise
-                          }
-                        : T extends HTMLDocumentField
-                          ? {
-                              PartialEnterprise: HTMLDocumentFieldPartialEnterprise
-                            }
-                          : T extends InputField
-                            ? {
-                                Preview: InputFieldPreview
-                                PartialEnterprise: InputFieldPartialEnterprise
-                              }
-                            : T extends LabelDecoration
-                              ? {
-                                  PartialEnterprise: LabelDecorationPartialEnterprise
-                                }
-                              : T extends LabelField
-                                ? {
-                                    Preview: LabelFieldPreview
-                                    PartialEnterprise: LabelFieldPartialEnterprise
-                                  }
-                                : T extends Page
-                                  ? {
-                                      PartialEnterprise: PagePartialEnterprise
-                                    }
-                                  : T extends Pages
-                                    ? {
-                                        PartialEnterprise: PagesPartialEnterprise
-                                      }
-                                    : T extends PdfDocumentField
-                                      ? {
-                                          PartialEnterprise: PdfDocumentFieldPartialEnterprise
-                                        }
-                                      : T extends PeriodField
-                                        ? {
-                                            PartialEnterprise: PeriodFieldPartialEnterprise
-                                          }
-                                        : T extends PictureDecoration
-                                          ? {
-                                              PartialEnterprise: PictureDecorationPartialEnterprise
-                                            }
-                                          : T extends PictureField
-                                            ? {
-                                                PartialEnterprise: PictureFieldPartialEnterprise
-                                              }
-                                            : T extends PlannerField
-                                              ? {
-                                                  PartialEnterprise: PlannerFieldPartialEnterprise
-                                                }
-                                              : T extends Popup
-                                                ? {
-                                                    PartialEnterprise: PopupPartialEnterprise
-                                                  }
-                                                : T extends ProgressBarField
-                                                  ? {
-                                                      PartialEnterprise: ProgressBarFieldPartialEnterprise
-                                                    }
-                                                  : T extends RadioButtonField
-                                                    ? {
-                                                        PartialEnterprise: RadioButtonFieldPartialEnterprise
-                                                      }
-                                                    : T extends SpreadSheetDocumentField
-                                                      ? {
-                                                          PartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise
-                                                        }
-                                                      : T extends Table
-                                                        ? {
-                                                            PartialEnterprise: TablePartialEnterprise
-                                                          }
-                                                        : T extends SearchControlAddition
-                                                          ? {
-                                                              PartialEnterprise: SearchControlAdditionEnterprise
-                                                            }
-                                                          : T extends SingleSearchControlAddition
-                                                            ? {
-                                                                PartialEnterprise: SingleSearchControlAdditionEnterprise
-                                                              }
-                                                            : T extends SingleSearchStringAddition
-                                                              ? {
-                                                                  PartialEnterprise: SingleSearchStringAdditionEnterprise
-                                                                }
-                                                              : T extends SearchStringAddition
-                                                                ? {
-                                                                    PartialEnterprise: SearchStringAdditionEnterprise
-                                                                  }
-                                                                : T extends TextDocumentField
-                                                                  ? {
-                                                                      PartialEnterprise: TextDocumentFieldPartialEnterprise
-                                                                    }
-                                                                  : T extends TrackBarField
-                                                                    ? {
-                                                                        PartialEnterprise: TrackBarFieldPartialEnterprise
-                                                                      }
-                                                                    : T extends UsualGroup
-                                                                      ? {
-                                                                          PartialEnterprise: UsualGroupPartialEnterprise
-                                                                          Preview: UsualGroupPreview
-                                                                        }
-                                                                      : T extends ContextMenu
-                                                                        ? {
-                                                                            PartialEnterprise: ContextMenuEnterprise
-                                                                          }
-                                                                        : T extends AutoCommandBar
-                                                                          ? {
-                                                                              PartialEnterprise: AutoCommandBarEnterprise
-                                                                            }
-                                                                          : T extends ExtendedTooltip
-                                                                            ? {
-                                                                                PartialEnterprise: ExtendedTooltipEnterprise
-                                                                              }
-                                                                            : never
+/**
+ * Маппинг типов элементов формы к их правилам.
+ * Каждый кортеж содержит: [ТипЭлемента, { Правила }]
+ */
+type ElementRulesMap =
+  | [Button, { PartialEnterprise: ButtonPartialEnterprise }]
+  | [ButtonGroup, { PartialEnterprise: ButtonGroupPartialEnterprise }]
+  | [CalendarField, { PartialEnterprise: CalendarFieldPartialEnterprise }]
+  | [ChartField, { PartialEnterprise: ChartFieldPartialEnterprise }]
+  | [CheckBoxField, { PartialEnterprise: CheckBoxFieldPartialEnterprise }]
+  | [ColumnGroup, { PartialEnterprise: ColumnGroupPartialEnterprise }]
+  | [CommandBar, { PartialEnterprise: CommandBarPartialEnterprise }]
+  | [DendrogramField, { PartialEnterprise: DendrogramFieldPartialEnterprise }]
+  | [FormattedDocumentField, { PartialEnterprise: FormattedDocumentFieldPartialEnterprise }]
+  | [GanttChartField, { PartialEnterprise: GanttChartFieldPartialEnterprise }]
+  | [GeographicalSchemaField, { PartialEnterprise: GeographicalSchemaFieldPartialEnterprise }]
+  | [GraphicalSchemaField, { PartialEnterprise: GraphicalSchemaFieldPartialEnterprise }]
+  | [HTMLDocumentField, { PartialEnterprise: HTMLDocumentFieldPartialEnterprise }]
+  | [InputField, { Preview: InputFieldPreview; PartialEnterprise: InputFieldPartialEnterprise }]
+  | [LabelDecoration, { PartialEnterprise: LabelDecorationPartialEnterprise }]
+  | [LabelField, { Preview: LabelFieldPreview; PartialEnterprise: LabelFieldPartialEnterprise }]
+  | [Page, { PartialEnterprise: PagePartialEnterprise }]
+  | [Pages, { PartialEnterprise: PagesPartialEnterprise }]
+  | [PdfDocumentField, { PartialEnterprise: PdfDocumentFieldPartialEnterprise }]
+  | [PeriodField, { PartialEnterprise: PeriodFieldPartialEnterprise }]
+  | [PictureDecoration, { PartialEnterprise: PictureDecorationPartialEnterprise }]
+  | [PictureField, { PartialEnterprise: PictureFieldPartialEnterprise }]
+  | [PlannerField, { PartialEnterprise: PlannerFieldPartialEnterprise }]
+  | [Popup, { PartialEnterprise: PopupPartialEnterprise }]
+  | [ProgressBarField, { PartialEnterprise: ProgressBarFieldPartialEnterprise }]
+  | [RadioButtonField, { PartialEnterprise: RadioButtonFieldPartialEnterprise }]
+  | [SpreadSheetDocumentField, { PartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise }]
+  | [Table, { PartialEnterprise: TablePartialEnterprise }]
+  | [SearchControlAddition, { PartialEnterprise: SearchControlAdditionEnterprise }]
+  | [SingleSearchControlAddition, { PartialEnterprise: SingleSearchControlAdditionEnterprise }]
+  | [SingleSearchStringAddition, { PartialEnterprise: SingleSearchStringAdditionEnterprise }]
+  | [SearchStringAddition, { PartialEnterprise: SearchStringAdditionEnterprise }]
+  | [TextDocumentField, { PartialEnterprise: TextDocumentFieldPartialEnterprise }]
+  | [TrackBarField, { PartialEnterprise: TrackBarFieldPartialEnterprise }]
+  | [UsualGroup, { PartialEnterprise: UsualGroupPartialEnterprise; Preview: UsualGroupPreview }]
+  | [ContextMenu, { PartialEnterprise: ContextMenuEnterprise }]
+  | [AutoCommandBar, { PartialEnterprise: AutoCommandBarEnterprise }]
+  | [ExtendedTooltip, { PartialEnterprise: ExtendedTooltipEnterprise }]
+
+/**
+ * Извлекает правила для заданного типа элемента.
+ * Использует распределительный условный тип для поиска в ElementRulesMap.
+ */
+type ExtractRule<T, M> = M extends [T, infer R] ? R : never
+
+export type TypeRules<T> = ExtractRule<T, ElementRulesMap>

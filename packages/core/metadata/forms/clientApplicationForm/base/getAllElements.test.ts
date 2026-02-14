@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "../../../metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
@@ -13,11 +13,11 @@ describe("getAllElements", () => {
       childItems: [
         {
           name: "Группа",
-          elementType: FormElementType.UsualGroup,
+          itemType: FormElementType.UsualGroup,
           childItems: [
             {
               name: "ПолеВвода",
-              elementType: FormElementType.InputField,
+              itemType: FormElementType.InputField,
             },
           ],
         },
@@ -38,11 +38,11 @@ describe("getAllElements", () => {
   it("should return elements from form auto command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
     }
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       childItems: [button],
     }
 
@@ -50,7 +50,7 @@ describe("getAllElements", () => {
       commands: [],
       childItems: [],
       autoCommandBar: {
-        elementType: FormElementType.AutoCommandBar,
+        itemType: FormElementType.AutoCommandBar,
         autofill: false,
         childItems: [buttonGroup],
       },
@@ -66,18 +66,18 @@ describe("getAllElements", () => {
   it("should return elements from table auto command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      elementType: FormElementType.Button,
+      itemType: FormElementType.Button,
     }
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      elementType: FormElementType.ButtonGroup,
+      itemType: FormElementType.ButtonGroup,
       childItems: [button],
     }
     const table: Table = {
       name: "Таблица1",
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       autoCommandBar: {
-        elementType: FormElementType.AutoCommandBar,
+        itemType: FormElementType.AutoCommandBar,
         autofill: false,
         childItems: [buttonGroup],
       },

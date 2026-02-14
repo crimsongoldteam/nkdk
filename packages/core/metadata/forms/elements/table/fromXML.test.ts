@@ -8,7 +8,7 @@ describe("importTableFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importTableFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       xml: xmlData.Table,
     })
 
@@ -32,7 +32,7 @@ describe("importTableFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Table,
+      itemType: FormElementType.Table,
       xml: xmlData.Table,
     })
 

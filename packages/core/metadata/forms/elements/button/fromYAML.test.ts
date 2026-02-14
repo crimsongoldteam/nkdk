@@ -37,7 +37,7 @@ describe("importButtonFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        elementType: FormElementType.Button,
+        itemType: FormElementType.Button,
         yaml: fullButtonPartialEnterprise,
         source: fullButton,
       })

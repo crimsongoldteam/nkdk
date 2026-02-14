@@ -4,7 +4,7 @@ import {
   CommandBarChildItemsTypedEnterprise,
 } from "~/metadata/forms/collections/childItems/types"
 import { ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialEnterprise = {
   Кнопка1: {
@@ -33,16 +33,16 @@ export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialE
 
 export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
   {
-    elementType: FormElementType.Button,
+    itemType: FormElementType.Button,
     name: "Кнопка1",
   },
   {
-    elementType: FormElementType.ButtonGroup,
+    itemType: FormElementType.ButtonGroup,
     name: "ГруппаКнопок",
     childItems: [],
   },
   {
-    elementType: FormElementType.Popup,
+    itemType: FormElementType.Popup,
     name: "Подменю",
     childItems: [],
   },
@@ -50,29 +50,29 @@ export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
 
 export const fullCommandBarChildItemsTyped: CommandBarChildItem[] = [
   {
-    elementType: FormElementType.Button,
+    itemType: FormElementType.Button,
     name: "Кнопка1",
     commandName: "ВыполнитьКоманда1",
   },
   {
-    elementType: FormElementType.ButtonGroup,
+    itemType: FormElementType.ButtonGroup,
     name: "ГруппаКнопок",
     toolTip: { items: { ru: "Подсказка для группы кнопок" } },
     childItems: [
       {
-        elementType: FormElementType.Button,
+        itemType: FormElementType.Button,
         name: "Кнопка2",
         commandName: "ВыполнитьКоманда2",
       },
     ],
   },
   {
-    elementType: FormElementType.Popup,
+    itemType: FormElementType.Popup,
     name: "Подменю",
     toolTip: { items: { ru: "Подсказка для подменю" } },
     childItems: [
       {
-        elementType: FormElementType.Button,
+        itemType: FormElementType.Button,
         name: "Кнопка3",
         commandName: "ВыполнитьКоманда3",
       },

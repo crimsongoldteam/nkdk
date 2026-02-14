@@ -8,7 +8,7 @@ describe("importPagesFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Pages,
+      itemType: FormElementType.Pages,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPagesFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Pages,
+      itemType: FormElementType.Pages,
       xml: xmlData.Pages,
     })
 
@@ -32,7 +32,7 @@ describe("importPagesFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.Pages,
+      itemType: FormElementType.Pages,
       xml: xmlData.Pages,
     })
 

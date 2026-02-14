@@ -11,22 +11,22 @@ describe("getParentFromContext", () => {
 
   it("должен возвращать последний элемент без фильтра по типу", () => {
     const context = createContext([
-      { elementType: FormElementType.FormDecoration, name: "form1" },
-      { elementType: FormElementType.UsualGroup, name: "group1" },
-      { elementType: FormElementType.InputField, name: "field1" },
+      { itemType: FormElementType.FormDecoration, name: "form1" },
+      { itemType: FormElementType.UsualGroup, name: "group1" },
+      { itemType: FormElementType.InputField, name: "field1" },
     ])
 
     const result = getParentFromContext(context)
 
-    expect(result.elementType).toBe(FormElementType.InputField)
+    expect(result.itemType).toBe(FormElementType.InputField)
   })
 
   it("должен возвращать последний элемент с указанным типом", () => {
     const context = createContext([
-      { elementType: FormElementType.FormDecoration, name: "form1" },
-      { elementType: FormElementType.UsualGroup, name: "group1" },
-      { elementType: FormElementType.InputField, name: "field1" },
-      { elementType: FormElementType.UsualGroup, name: "group2" },
+      { itemType: FormElementType.FormDecoration, name: "form1" },
+      { itemType: FormElementType.UsualGroup, name: "group1" },
+      { itemType: FormElementType.InputField, name: "field1" },
+      { itemType: FormElementType.UsualGroup, name: "group2" },
     ])
 
     const result = getParentFromContext(context, FormElementType.UsualGroup)
@@ -36,10 +36,10 @@ describe("getParentFromContext", () => {
 
   it("должен искать с конца по начало", () => {
     const context = createContext([
-      { elementType: FormElementType.FormDecoration, name: "form1" },
-      { elementType: FormElementType.UsualGroup, name: "group1" },
-      { elementType: FormElementType.InputField, name: "field1" },
-      { elementType: FormElementType.UsualGroup, name: "group2" },
+      { itemType: FormElementType.FormDecoration, name: "form1" },
+      { itemType: FormElementType.UsualGroup, name: "group1" },
+      { itemType: FormElementType.InputField, name: "field1" },
+      { itemType: FormElementType.UsualGroup, name: "group2" },
     ])
 
     const result = getParentFromContext(context, FormElementType.UsualGroup)
@@ -61,8 +61,8 @@ describe("getParentFromContext", () => {
 
   it("должен выбрасывать ошибку если элемент с указанным типом не найден", () => {
     const context = createContext([
-      { elementType: FormElementType.FormDecoration, name: "form1" },
-      { elementType: FormElementType.InputField, name: "field1" },
+      { itemType: FormElementType.FormDecoration, name: "form1" },
+      { itemType: FormElementType.InputField, name: "field1" },
     ])
 
     expect(() => getParentFromContext(context, FormElementType.UsualGroup)).toThrow(
@@ -70,14 +70,14 @@ describe("getParentFromContext", () => {
     )
   })
 
-  it("должен возвращать любой тип если elementType не указан", () => {
+  it("должен возвращать любой тип если itemType не указан", () => {
     const context = createContext([
-      { elementType: FormElementType.FormDecoration, name: "form1" },
-      { elementType: FormElementType.UsualGroup, name: "group1" },
+      { itemType: FormElementType.FormDecoration, name: "form1" },
+      { itemType: FormElementType.UsualGroup, name: "group1" },
     ])
 
     const result = getParentFromContext(context)
 
-    expect(result.elementType).toBe(FormElementType.UsualGroup)
+    expect(result.itemType).toBe(FormElementType.UsualGroup)
   })
 })

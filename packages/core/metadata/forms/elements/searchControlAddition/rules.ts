@@ -1,7 +1,8 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { FormElementType } from "~/metadata/metadataFactory"
-import { ElementRule, PropertyRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getSearchControlAdditionName } from "./helper"
 import { SearchControlAddition, SingleSearchControlAddition } from "./types"
 export type { ElementRule, PropertyRule }

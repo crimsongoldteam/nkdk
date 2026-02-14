@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface DendrogramField extends NamedElement {
-  elementType: "DendrogramField"
+  itemType: "DendrogramField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   height?: number

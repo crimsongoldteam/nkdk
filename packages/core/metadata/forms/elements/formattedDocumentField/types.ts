@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface FormattedDocumentField extends NamedElement {
-  elementType: "FormattedDocumentField"
+  itemType: "FormattedDocumentField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   backColor?: Color

@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface TextDocumentField extends NamedElement {
-  elementType: "TextDocumentField"
+  itemType: "TextDocumentField"
   autoCellHeight?: boolean
   cellHyperlink?: boolean
   contextMenu?: ContextMenu

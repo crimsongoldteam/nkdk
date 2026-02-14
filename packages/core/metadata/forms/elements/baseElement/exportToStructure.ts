@@ -1,17 +1,17 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { exportFormElementTypeToEnterprise } from "../../../metadataFactory/types"
+import { exportFormElementTypeToEnterprise } from "~/metadata/metadataFactory/exportFormElementTypeToEnterprise"
 import { NamedElement } from "./types"
 
 export const exportOtherElementToStructure = (
   context: ConfigurationContext,
   element: NamedElement
 ): IFormatElementResult => {
-  const elementType = exportFormElementTypeToEnterprise(context, element.elementType)
+  const itemType = exportFormElementTypeToEnterprise(context, element.itemType)
 
   const result: IFormatElementResult = {
-    strings: ["?" + elementType + " " + formatElementName(element)],
+    strings: ["?" + itemType + " " + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
   }
 

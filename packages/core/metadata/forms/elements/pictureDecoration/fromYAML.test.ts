@@ -11,7 +11,7 @@ describe("importPictureDecorationFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      elementType: FormElementType.PictureDecoration,
+      itemType: FormElementType.PictureDecoration,
       yaml: fullPictureDecorationPartialEnterprise,
       source: sourcePictureDecoration,
     })
@@ -22,7 +22,7 @@ describe("importPictureDecorationFromEnterprise", () => {
   // it("should import minimal", () => {
   //   const result = importElementFromPartialYAML({
   //     context: mockContext,
-  //     elementType: FormElementType.PictureDecoration,
+  //     itemType: FormElementType.PictureDecoration,
   //     yaml: fullPictureDecorationPartialEnterprise,
   //     source: sourcePictureDecoration,
   //   })

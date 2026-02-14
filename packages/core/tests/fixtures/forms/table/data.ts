@@ -1,7 +1,7 @@
 import { TableChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export interface TableFixture {
@@ -18,31 +18,31 @@ export interface TableExportToStructureFixture {
 }
 
 export const sourceTable: Table = {
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   name: "Таблица",
   autoCommandBar: {
-    elementType: "AutoCommandBar",
+    itemType: "AutoCommandBar",
     autofill: false,
     childItems: [],
   },
   childItems: [
     {
-      elementType: "ColumnGroup",
+      itemType: "ColumnGroup",
       name: "ТаблицаГруппа1",
       title: { items: { ru: "Группа 1" } },
       childItems: [],
     },
     {
-      elementType: "CheckBoxField",
+      itemType: "CheckBoxField",
       name: "ТаблицаПолеФлажка",
       title: { items: { ru: "Поле флажка" } },
     },
     {
-      elementType: "PictureField",
+      itemType: "PictureField",
       name: "ТаблицаПолеКартинки",
     },
     {
-      elementType: "LabelField",
+      itemType: "LabelField",
       name: "ТаблицаПолеНадписи",
       title: { items: { ru: "Поле надписи" } },
     },
@@ -50,7 +50,7 @@ export const sourceTable: Table = {
 }
 
 export const fullTable: RequiredFieldsElement<Table> = {
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   name: "Таблица",
   allowGettingCurrentRowURL: true,
   allowRootChoice: true,
@@ -58,7 +58,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   autoRefreshPeriod: 30,
   autoAddIncomplete: true,
   autoCommandBar: {
-    elementType: "AutoCommandBar",
+    itemType: "AutoCommandBar",
     autofill: false,
     childItems: [],
   },
@@ -85,26 +85,26 @@ export const fullTable: RequiredFieldsElement<Table> = {
       dataPath: "Таблица.Ввод",
       editMode: "EnterOnInput",
       multipleValuesExtendedEdit: true,
-      elementType: "InputField",
+      itemType: "InputField",
       name: "ТаблицаВвод",
     },
     {
       dataPath: "Таблица.Надпись",
       editMode: "EnterOnInput",
-      elementType: "LabelField",
+      itemType: "LabelField",
       name: "ТаблицаНадпись",
     },
     {
       checkBoxType: "Auto",
       dataPath: "Таблица.Флажок",
       editMode: "EnterOnInput",
-      elementType: "CheckBoxField",
+      itemType: "CheckBoxField",
       name: "ТаблицаФлажок",
     },
     {
       dataPath: "Таблица.Картинка",
       editMode: "EnterOnInput",
-      elementType: "PictureField",
+      itemType: "PictureField",
       name: "ТаблицаКартинка",
     },
   ],
@@ -112,7 +112,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   commandBarLocation: "Top",
   commandSet: ["Add"],
   contextMenu: {
-    elementType: "ContextMenu",
+    itemType: "ContextMenu",
     autofill: false,
     childItems: [],
   },
@@ -150,7 +150,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
     beforeLoadUserSettingsAtServer: "ТаблицаПередЗагрузкойПользовательскихНастроекНаСервере",
   },
   extendedTooltip: {
-    elementType: "ExtendedTooltip",
+    itemType: "ExtendedTooltip",
     title: {
       formatted: false,
       items: {
@@ -196,7 +196,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   },
   searchControl: {
     childItems: [],
-    elementType: "SingleSearchControlAddition",
+    itemType: "SingleSearchControlAddition",
     title: {
       items: {
         ru: "Управление поиском",
@@ -206,7 +206,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   searchControlLocation: "CommandBar",
   searchOnInput: "Use",
   searchStringRepresentation: {
-    elementType: "SingleSearchStringAddition",
+    itemType: "SingleSearchStringAddition",
     title: {
       items: {
         ru: "Строка поиска",
@@ -260,7 +260,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   verticalScrollBar: "UseAlways",
   verticalStretch: false,
   viewStatusRepresentation: {
-    elementType: "ViewStatusAddition",
+    itemType: "ViewStatusAddition",
     title: {
       items: {
         ru: "Состояние просмотра",
@@ -424,7 +424,7 @@ export const fullTableChildItems: TableChildItemsPartialEnterprise = {
 }
 
 export const minimalTable: Table = {
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   name: "Таблица",
   childItems: [],
 }
@@ -433,43 +433,43 @@ export const minimalTableEnterprise: TablePartialEnterprise = {}
 
 export const oneColumnTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
     } as InputField,
   ],
 }
 
 export const twoColumnTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
     } as InputField,
     {
       name: "Колонка2",
       title: { items: { ru: "Колонка 2" } },
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
     } as InputField,
   ],
 }
 
 export const tableWithAutoCommandBar: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   autoCommandBar: {
-    elementType: "AutoCommandBar",
+    itemType: "AutoCommandBar",
     autofill: true,
     childItems: [
       {
         name: "КнопкаТаблицы",
-        elementType: "Button",
+        itemType: "Button",
         title: { items: { ru: "Кнопка 1" } },
       },
     ],
@@ -477,7 +477,7 @@ export const tableWithAutoCommandBar: Table = {
   childItems: [
     {
       name: "Колонка1",
-      elementType: "InputField",
+      itemType: "InputField",
       title: { items: { ru: "Колонка таблицы 1" } },
     },
   ],
@@ -485,57 +485,57 @@ export const tableWithAutoCommandBar: Table = {
 
 export const inputColumnTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      elementType: FormElementType.InputField,
+      itemType: FormElementType.InputField,
     } as InputField,
   ],
 }
 
 export const checkboxColumnTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Флажок" } },
-      elementType: "CheckBoxField",
+      itemType: "CheckBoxField",
     },
   ],
 }
 
 export const labelColumnTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
-      elementType: "LabelField",
+      itemType: "LabelField",
     },
   ],
 }
 
 export const pictureColumnTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
-      elementType: "PictureField",
+      itemType: "PictureField",
     },
   ],
 }
 
 export const columnGroupTable: Table = {
   name: "Таблица1",
-  elementType: FormElementType.Table,
+  itemType: FormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
-      elementType: "ColumnGroup",
+      itemType: "ColumnGroup",
       childItems: [],
     },
   ],

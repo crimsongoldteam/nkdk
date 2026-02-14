@@ -10,7 +10,7 @@ import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ButtonGroup extends NamedElement {
-  elementType: "ButtonGroup"
+  itemType: "ButtonGroup"
   extendedTooltip?: ExtendedTooltip
   representation?: SE.ButtonGroupRepresentation
   enableContentChange?: boolean

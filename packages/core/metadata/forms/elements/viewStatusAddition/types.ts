@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ViewStatusAddition extends BaseElement {
-  elementType: "ViewStatusAddition"
+  itemType: "ViewStatusAddition"
   autoMaxWidth?: boolean
   backColor?: Color
   border?: Border

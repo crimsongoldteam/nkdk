@@ -5,32 +5,33 @@ import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement
 import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementRule, getElementRule, PropertyRule } from "../elementRulesFactory"
-import { getTypeRule } from "../typeRulesFactory"
-import { ElementXML, FormElementType } from "../types"
+import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { FormElementType } from "../metadataType/types"
+import { exportPropertiesToXML } from "../properties/toXML"
+import { ElementXML } from "../types"
 
-export const exportPropertyToXML = (params: {
-  context: ConfigurationContext
-  rule: PropertyRule<any>
-  value: any
-}): any | undefined => {
-  const { context, rule, value } = params
+// export const exportPropertyToXML = (params: {
+//   context: ConfigurationContext
+//   rule: PropertyRule<any>
+//   value: any
+// }): any | undefined => {
+//   const { context, rule, value } = params
 
-  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
+//   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
-  if (!typeExportFn) {
-    if (value === rule.defaultValue) {
-      return undefined
-    }
-    return value
-  }
+//   if (!typeExportFn) {
+//     if (value === rule.defaultValue) {
+//       return undefined
+//     }
+//     return value
+//   }
 
-  const exportedValue = typeExportFn(context, rule, value)
-  if (exportedValue === rule.defaultValue) {
-    return undefined
-  }
-  return exportedValue
-}
+//   const exportedValue = typeExportFn(context, rule, value)
+//   if (exportedValue === rule.defaultValue) {
+//     return undefined
+//   }
+//   return exportedValue
+// }
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContext
@@ -42,13 +43,13 @@ export function exportElementToXML<T extends NamedElement>(params: {
 
   const name = element.name
   const id = getElementId(context)
-  const rule = getElementRule<T>(element.elementType)
+  const rule = getElementRule<T>(element.itemType)
 
-  if (!rule) throw new Error(`Unknown element type: ${element.elementType}`)
+  if (!rule) throw new Error(`Unknown element type: ${element.itemType}`)
 
   return exportToXML<T>({
     context,
-    elementType: element.elementType,
+    itemType: element.itemType,
     element,
     rule,
     id,
@@ -62,53 +63,70 @@ export function exportSingleElementToXML<T extends SingleElement>(params: {
   rule: ElementRule<T>
   id: string
   name: string
-  elementType: FormElementType
+  itemType: FormElementType
 }): ElementXML {
   return exportToXML<T>(params)
 }
 
 function exportToXML<T extends BaseElement>(params: {
   context: ConfigurationContext
-  elementType: FormElementType
+  itemType: FormElementType
   element: T | undefined
   rule: ElementRule<T>
   id: string
   name: string
 }): ElementXML {
-  const { context, element, rule, id, name, elementType } = params
+  const { context, element, rule, id, name, itemType } = params
 
   const result: ElementXML = {
     _name: name,
     _id: id,
   }
 
-  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
-    const value = element === undefined ? undefined : (element as any)[key]
-
-    const xmlKey = ruleProp.xml ?? capitalize(key)
-
-    const elementsTree: ConfigurationContext["elementsTree"] = []
-
-    if (context.elementsTree !== undefined) {
-      elementsTree.push(...context.elementsTree)
-    }
-
-    elementsTree.push({ name: name, elementType: elementType })
-
-    const currentContext: ConfigurationContext = {
-      ...context,
-      elementsTree: elementsTree,
-    }
-
-    const exportedValue = exportPropertyToXML({
-      context: currentContext,
-      rule: ruleProp,
-      value,
-    })
-
-    if (exportedValue === undefined) continue
-    result[xmlKey] = exportedValue
+  const elementsTree: ConfigurationContext["elementsTree"] = []
+  if (context.elementsTree !== undefined) {
+    elementsTree.push(...context.elementsTree)
   }
+
+  elementsTree.push({ name: name, itemType: itemType })
+
+  const currentContext: ConfigurationContext = {
+    ...context,
+    elementsTree: elementsTree,
+  }
+
+  exportPropertiesToXML({
+    context: currentContext,
+    metadataItem: element,
+    rule: rule,
+  })
+
+  // for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+  //   const value = element === undefined ? undefined : (element as any)[key]
+
+  //   const xmlKey = ruleProp.xml ?? capitalize(key)
+
+  //   const elementsTree: ConfigurationContext["elementsTree"] = []
+
+  //   if (context.elementsTree !== undefined) {
+  //     elementsTree.push(...context.elementsTree)
+  //   }
+
+  //   elementsTree.push({ name: name, itemType: itemType })
+
+  //   const currentContext: ConfigurationContext = {
+  //     ...context,
+  //     elementsTree: elementsTree,
+  //   }
+
+  //   const exportedValue = exportPropertyToXML({
+  //     context: currentContext,
+  //     rule: ruleProp,
+  //     value,
+  //   })
+
+  //   if (exportedValue === undefined) continue
+  //   result[xmlKey] = exportedValue
   // }
 
   const events = mapEventsToXML(

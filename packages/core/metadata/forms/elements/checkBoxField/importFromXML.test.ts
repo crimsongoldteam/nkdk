@@ -8,7 +8,7 @@ describe("importCheckBoxFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CheckBoxField,
+      itemType: FormElementType.CheckBoxField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importCheckBoxFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CheckBoxField,
+      itemType: FormElementType.CheckBoxField,
       xml: xmlData.CheckBoxField,
     })
 
@@ -32,7 +32,7 @@ describe("importCheckBoxFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      elementType: FormElementType.CheckBoxField,
+      itemType: FormElementType.CheckBoxField,
       xml: xmlData.CheckBoxField,
     })
 

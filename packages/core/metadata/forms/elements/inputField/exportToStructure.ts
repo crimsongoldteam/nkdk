@@ -4,7 +4,8 @@ import { formatElementName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn, FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { InputField } from "./types"
 
 // const UNDERLINE = t.Underscore.LABEL as string

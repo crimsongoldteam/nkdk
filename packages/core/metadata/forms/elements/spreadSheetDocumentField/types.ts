@@ -10,7 +10,7 @@ import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface SpreadSheetDocumentField {
-  elementType: "SpreadSheetDocumentField"
+  itemType: "SpreadSheetDocumentField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

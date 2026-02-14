@@ -9,7 +9,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
 
 export interface Popup {
-  elementType: "Popup"
+  itemType: "Popup"
   name: string
   enableContentChange?: boolean
   enabled?: boolean

@@ -1,21 +1,23 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { getElementRule, PropertyRule } from "../elementRulesFactory"
+import { getElementRule } from "../elementRulesFactory"
+import { FormElementType } from "../metadataType/types"
+import { PropertyRule } from "../properties/types"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
-import { FormElementType, ToPreviewType } from "../types"
+import { ToPreviewType } from "../types"
 
 export function exportElementToPreview<T extends NamedElement>(
   context: ConfigurationContext,
-  elementType: FormElementType,
+  itemType: FormElementType,
   data: T | undefined
 ): ToPreviewType<T> | undefined {
   if (data === undefined) return undefined
 
-  const rules = getElementRule<T>(elementType)
+  const rules = getElementRule<T>(itemType)
 
   const result: any = {
-    ElementType: rules.enterpriseField,
+    itemType: rules.enterpriseField,
     Name: data.name,
   }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { exportPropertyToYAML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/elementRulesFactory"
+import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import {
   fullViewStatusAddition,
   fullViewStatusAdditionEnterprise,
