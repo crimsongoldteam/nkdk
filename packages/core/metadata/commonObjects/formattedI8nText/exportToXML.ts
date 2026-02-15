@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms"
 import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
 import { exportI8nTextToXML } from "../i8nText/exportToXML"
 import { isEmptyI8nText } from "../i8nText/helper"
 import { FormattedI8nText, FormattedI8nTextXML } from "./types"

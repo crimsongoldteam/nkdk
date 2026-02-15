@@ -1,7 +1,7 @@
 import { format, parse } from "date-fns"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
 import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"

@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
-import { Events, EventsXML } from "./types"
+import { Events, EventsXML } from "../../metadataFactory/events/types"
 
 function toCamelCase(str: string): string {
   if (!str) return str

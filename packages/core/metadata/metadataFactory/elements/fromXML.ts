@@ -1,13 +1,14 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { Events, EventsXML } from "~/metadata/forms/events/types"
-import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { Events, EventsXML } from "~/metadata/metadataFactory/events/types"
 import { FormElementType } from "../metadataType/types"
 import { importPropertyFromXML } from "../properties/fromXML"
 import { PropertyRule } from "../properties/types"
 import { ElementXML } from "../types"
+import { getElementRule } from "./factory"
 import { isEmptyElement } from "./helper"
+import { ElementRule } from "./types"
 
 export const importSingleElementFromXML = <T extends BaseElement>(params: {
   context: ConfigurationContext

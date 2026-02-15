@@ -2,12 +2,14 @@ import { importFormattedI8nTextFromEnterprise } from "~/metadata/commonObjects/f
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { importEventsFromYAML } from "../events"
 import { importFormElementTypeFromEnterprise } from "../metadataType/fromYAML"
 import { FormElementType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"
-import { getTypeRule } from "../typeRulesFactory"
+import { getTypeRule } from "../types/types"
+import { getElementRule } from "./factory"
+import { ElementRule } from "./types"
 
 export const importPropertyFromEnterprise = (params: {
   context: ConfigurationContext
@@ -137,24 +139,4 @@ export function importElementFromYAML<T extends BaseElement>(params: {
   Object.assign(result, events)
 
   return result
-}
-
-const importEventsFromYAML = (
-  rules: Record<string, string> | undefined,
-  yamlEvents: Record<string, string> | undefined
-): { events?: Record<string, string> } => {
-  if (!rules || !yamlEvents) {
-    return {}
-  }
-
-  const result: Record<string, string> = {}
-
-  for (const [ruleKey, enterpriseName] of Object.entries(rules)) {
-    const eventValue = yamlEvents[enterpriseName]
-    if (eventValue === undefined) continue
-
-    result[ruleKey] = eventValue
-  }
-
-  return { events: result }
 }

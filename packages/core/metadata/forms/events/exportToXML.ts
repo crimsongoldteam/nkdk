@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
-import { Events, EventsXML, EventXML } from "./types"
+import { Events, EventsXML, EventXML } from "../../metadataFactory/events/types"
 
 function toPascalCase(str: string): string {
   if (!str) return str

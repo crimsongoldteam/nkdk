@@ -3,7 +3,7 @@ import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from ".."
 import { MetadataType } from "../metadataType/types"
-import { getTypeRule } from "../typeRulesFactory"
+import { getTypeRule } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<T extends MetadataItem>(params: {

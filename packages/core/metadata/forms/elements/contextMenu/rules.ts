@@ -1,6 +1,7 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { registerElementRule } from "~/metadata/metadataFactory/elements/factory"
+import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getContextMenuName } from "./helper"
 import { ContextMenu } from "./types"
 export type { ElementRule }

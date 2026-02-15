@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { MetadataType } from "../metadataType/types"
 import { ToYAML } from "../rules"
-import { TypeRulesNames } from "../typeRulesFactory"
+import { TypeRulesNames } from "../types/types"
 
 export interface MetadataItem {
   itemType: MetadataType

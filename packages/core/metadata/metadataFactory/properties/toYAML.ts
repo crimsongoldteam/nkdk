@@ -4,7 +4,7 @@ import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/ex
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from "../rules"
-import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
+import { getTypeRule, TypeRulesNames } from "../types/types"
 import {
   FormattedI8nTextPropertyRule,
   I8nTextPropertyRule,

@@ -1,5 +1,6 @@
+import { registerElementRule } from "~/metadata/metadataFactory/elements/factory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { ElementRule } from "../../../metadataFactory/elements/types"
 import { RadioButtonField } from "./types"
 export type { ElementRule, PropertyRule }
 

@@ -1,4 +1,5 @@
 import { MetadataItem } from "."
+import { ClientApplicationForm, ClientApplicationFormEnterprise } from "../forms/clientApplicationForm/base/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -116,6 +117,7 @@ type ToYAMLRule =
   | [ContextMenu, ContextMenuEnterprise]
   | [CommandBar, CommandBarPartialEnterprise]
   | [ExtendedTooltip, ExtendedTooltipEnterprise]
+  | [ClientApplicationForm, ClientApplicationFormEnterprise]
 
 type ToTypedYAMLRule =
   | [Button, ButtonTypedEnterprise]
@@ -127,4 +129,12 @@ type ToTypedYAMLRule =
   | [LabelField, LabelFieldTypedEnterprise]
   | [PictureField, PictureFieldTypedEnterprise]
 
-type ExtractRule<T extends MetadataItem, M> = T extends undefined ? undefined : (M extends [infer F, infer R] ? (F extends MetadataItem ? (F["itemType"] extends T["itemType"] ? R : never) : never) : never)
+type ExtractRule<T extends MetadataItem, M> = T extends undefined
+  ? undefined
+  : M extends [infer F, infer R]
+    ? F extends MetadataItem
+      ? F["itemType"] extends T["itemType"]
+        ? R
+        : never
+      : never
+    : never

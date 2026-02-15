@@ -1,32 +1,23 @@
-import { MetadataItemRule, PropertyRule, ToYAML } from "."
-import { ConfigurationContext } from "../context/types"
-import { BaseElement } from "../forms/elements/baseElement/types"
-import { exportElementToPartialYAML } from "./elements/exportElementToEnterprise"
-import { importElementFromPartialYAML } from "./elements/importElementFromEnterprise"
-import { importSingleElementFromXML } from "./elements/importElementFromXML"
-import { exportSingleElementToXML } from "./elements/toXML"
-import { FormElementType } from "./metadataType/types"
-import { TypeRulesNames, registerTypeRule } from "./typeRulesFactory"
-import { ElementXML } from "./types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { PropertyRule } from ".."
+import { FormElementType } from "../metadataType/types"
+import { ToYAML } from "../rules"
+import { ElementXML } from "../types"
+import { TypeRulesNames, registerTypeRule } from "../types/types"
+import { importSingleElementFromXML } from "./fromXML"
+import { importElementFromPartialYAML } from "./fromYAML"
+import { exportSingleElementToXML } from "./toXML"
+import { exportElementToPartialYAML } from "./toYAML"
+import { ElementRule, RegisterAsTypeRule } from "./types"
 
-interface RegisterAsTypeRule<T extends BaseElement> {
-  toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
+export const getElementRule = <T extends BaseElement>(itemType: FormElementType): ElementRule<T> => {
+  const rule = elementRulesRegistry.get(itemType)
+  if (!rule) {
+    throw new Error(`Unknown element type: ${itemType}`)
+  }
+  return rule
 }
-
-export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> extends MetadataItemRule<
-  T,
-  ExtraProperties
-> {
-  events?: T extends { events?: infer P }
-    ? Record<keyof Required<P>, ToYAML<T> extends { События?: infer Pyaml } ? keyof Required<Pyaml> : never>
-    : never
-  enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
-  alwaysExportToXML?: true
-
-  registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
-}
-
-const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()
 
 export function registerElementRule<T extends BaseElement>(
   itemType: FormElementType,
@@ -37,18 +28,9 @@ export function registerElementRule<T extends BaseElement>(
   registerAsTypeRegistry(itemType, elementRule)
 }
 
-export const getElementRule = <T extends BaseElement>(itemType: FormElementType): ElementRule<T> => {
-  const rule = elementRulesRegistry.get(itemType)
-  if (!rule) {
-    throw new Error(`Unknown element type: ${itemType}`)
-  }
-  return rule
-}
-
 export const clearElementRulesRegistry = (): void => {
   elementRulesRegistry.clear()
 }
-
 const registerAsTypeRegistry = <T extends BaseElement>(
   itemType: FormElementType,
   elementRule: ElementRule<T>
@@ -84,7 +66,6 @@ const registerImportFromXML = <T extends BaseElement>(
     }
   )
 }
-
 const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesNames): void => {
   registerTypeRule(
     propertyType,
@@ -138,3 +119,5 @@ const registerExportToXML = <T extends BaseElement>(params: {
     }
   )
 }
+
+const elementRulesRegistry = new Map<FormElementType, ElementRule<any>>()

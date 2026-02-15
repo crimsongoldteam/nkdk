@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import { multipleEvents, singleEvent } from "~/tests/fixtures/forms/events/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { EventsXML } from "../../metadataFactory/events/types"
 import { importEventsFromXML } from "./importFromXML"
-import { EventsXML } from "./types"
 
 describe("importEventsFromXML", () => {
   it("should return undefined for undefined input", () => {

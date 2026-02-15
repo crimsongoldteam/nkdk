@@ -1,9 +1,10 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { registerElementRule } from "~/metadata/metadataFactory/elements/factory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
-import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getAutoCommandBarName } from "./helper"
 import { AutoCommandBar } from "./types"
 export type { ElementRule, PropertyRule }

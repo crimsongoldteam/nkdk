@@ -1,5 +1,5 @@
 import { MetadataItemRule, PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../metadataFactory/elementRulesFactory"
+import { ElementRule } from "../../metadataFactory/elements/types"
 import { FormAttribute, FormAttributeColumn } from "./types"
 export type { ElementRule, PropertyRule }
 

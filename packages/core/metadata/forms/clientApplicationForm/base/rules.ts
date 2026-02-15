@@ -1,9 +1,10 @@
-import { MetadataItemRule, PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
+import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { ElementRule } from "../../../metadataFactory/elements/types"
 import { ClientApplicationForm, ClientApplicationFormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ClientApplicationFormRules: MetadataItemRule<ClientApplicationForm> = {
+export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplicationForm> = {
   tags: [ClientApplicationFormRulesTags.Form, ClientApplicationFormRulesTags.Metadata] as const,
   properties: {
     attributes: {

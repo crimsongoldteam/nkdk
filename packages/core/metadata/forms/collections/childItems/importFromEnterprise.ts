@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialEnterprise, TypedElement } from "./types"
 

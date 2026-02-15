@@ -1,4 +1,4 @@
-import { Events } from "~/metadata/forms/events/types"
+import { Events } from "~/metadata/metadataFactory/events/types"
 
 export const singleEvent: Events = {
   click: "РаспознаваниеДокументаНадписьНажатие",

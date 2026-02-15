@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
-import { Events, EventsEnterprise } from "./types"
+import { Events, EventsEnterprise } from "../../metadataFactory/events/types"
 
 const enterpriseEventNameMapping: Record<string, string> = {
   ПриИзменении: "onChange",

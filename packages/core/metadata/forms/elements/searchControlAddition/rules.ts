@@ -1,10 +1,11 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { registerElementRule } from "~/metadata/metadataFactory/elements/factory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getSearchControlAdditionName } from "./helper"
 import { SearchControlAddition, SingleSearchControlAddition } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 export type { ElementRule, PropertyRule }
 
 const commonProperties: ElementRule<SearchControlAddition>["properties"] = {

@@ -1,65 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { mapEventsToEnterprise } from "../events"
 import { exportFormElementTypeToEnterprise } from "../metadataType/toYAML"
 import { exportPropertyToYAML } from "../properties/toYAML"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"
-
-// export const exportPropertyToYAML = <T extends BaseElement>(params: {
-//   context: ConfigurationContext
-//   rule: PropertyRule<T>
-//   value: any
-//   toTyped?: true
-// }): Record<string, any> | undefined => {
-//   const { context, rule, value, toTyped } = params
-
-//   if (rule.yaml === undefined) return undefined
-
-//   if (!toTyped && rule.toPartialYAML === false) return undefined
-
-//   if (rule.type == "UserVisible") {
-//     const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
-//     return result
-//   }
-
-//   if (rule.type == "FormattedI8nText") {
-//     const tempRule: FormattedI8nTextPropertyRule<T> = {
-//       ...rule,
-//       yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
-//     }
-//     const result = exportFormattedI8nTextToYAML(context, tempRule, value)
-//     return result
-//   }
-
-//   const yamlKey = rule.yaml
-
-//   if (rule.type == "I8nText") {
-//     const tempRule: I8nTextPropertyRule<T> = {
-//       ...rule,
-//       yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
-//     }
-//     const result = exportI8nTextToYAML(context, tempRule, value)
-//     if (result === undefined) return undefined
-
-//     return { [yamlKey]: result }
-//   }
-
-//   const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
-
-//   if (!yamlKey) {
-//     return undefined
-//   }
-
-//   if (!typeExportFn) {
-//     if (value === undefined) return undefined
-//     return { [yamlKey]: value }
-//   }
-
-//   const result = typeExportFn(context, rule, value)
-//   return result ? { [yamlKey]: result } : undefined
-// }
+import { getElementRule } from "./factory"
+import { ElementRule } from "./types"
 
 export function exportElementToTypedYAML<T extends TypedElement>(params: {
   context: ConfigurationContext
@@ -140,22 +88,4 @@ export function exportElementToYAML<T extends BaseElement>(params: {
   return result as ToYAML<T>
 }
 
-function mapEventsToEnterprise(
-  rulesEvents: Record<string, string> | undefined,
-  dataEvents: Record<string, string> | undefined
-): { События?: Record<string, string> } {
-  if (!rulesEvents || !dataEvents) {
-    return {}
-  }
-
-  const result: Record<string, string> = {}
-
-  for (const [ruleKey, enterpriseName] of Object.entries(rulesEvents)) {
-    const eventValue = dataEvents[ruleKey]
-    if (eventValue === undefined) continue
-
-    result[enterpriseName] = eventValue
-  }
-
-  return { События: result }
-}
+// Moved to ../events/mapEventsToEnterprise.ts

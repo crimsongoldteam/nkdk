@@ -1,9 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
 import { ConfigurationContext } from "../../context/types"
-import {
-  exportSystemEnumerationToYAML,
-} from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color } from "./types"
 

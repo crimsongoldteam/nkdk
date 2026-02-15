@@ -1,6 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getTypeRule } from "../typeRulesFactory"
+import { getTypeRule } from "../types/types"
 import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <T extends MetadataItem>(params: {

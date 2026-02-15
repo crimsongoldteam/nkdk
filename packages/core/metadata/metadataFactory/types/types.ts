@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "../context/types"
-import { PropertyRule } from "./properties/types"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule } from "../properties/types"
 
 export type TypeRulesNames =
   | "AssociatedTable"

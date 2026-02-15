@@ -1,36 +1,13 @@
-import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementRule, getElementRule } from "../elementRulesFactory"
+import { exportEventsToXML } from "../events/toXML"
 import { FormElementType } from "../metadataType/types"
 import { exportPropertiesToXML } from "../properties/toXML"
 import { ElementXML } from "../types"
-
-// export const exportPropertyToXML = (params: {
-//   context: ConfigurationContext
-//   rule: PropertyRule<any>
-//   value: any
-// }): any | undefined => {
-//   const { context, rule, value } = params
-
-//   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
-
-//   if (!typeExportFn) {
-//     if (value === rule.defaultValue) {
-//       return undefined
-//     }
-//     return value
-//   }
-
-//   const exportedValue = typeExportFn(context, rule, value)
-//   if (exportedValue === rule.defaultValue) {
-//     return undefined
-//   }
-//   return exportedValue
-// }
+import { getElementRule } from "./factory"
+import { ElementRule } from "./types"
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContext
@@ -123,7 +100,7 @@ function exportToXML<T extends BaseElement>(params: {
   //   result[xmlKey] = exportedValue
   // }
 
-  const events = mapEventsToXML(
+  const events = exportEventsToXML(
     context,
     rule.events,
     element && "events" in element
@@ -141,30 +118,4 @@ function exportToXML<T extends BaseElement>(params: {
   return sortObject(result)
 }
 
-function mapEventsToXML(
-  _context: ConfigurationContext,
-  rulesEvents: Record<string, string> | undefined,
-  dataEvents: Record<string, string> | undefined
-): { Events?: EventsXML } {
-  if (!rulesEvents || !dataEvents || Object.keys(dataEvents).length === 0) {
-    return {}
-  }
-
-  const events: EventXML[] = []
-
-  for (const ruleKey of Object.keys(rulesEvents)) {
-    const eventName = capitalize(ruleKey)
-    const eventValue = dataEvents[ruleKey]
-    if (eventValue === undefined) continue
-
-    events.push({ _name: eventName, "#text": eventValue })
-  }
-
-  if (events.length === 0) {
-    return {}
-  }
-
-  const sortedEvents = events.sort((a, b) => a._name.localeCompare(b._name))
-
-  return { Events: { Event: sortedEvents } }
-}
+// Moved to ../events/mapEventsToXML.ts

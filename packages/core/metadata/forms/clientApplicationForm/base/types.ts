@@ -11,35 +11,6 @@ import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
 import { CommandInterface, CommandInterfaceEnterprise } from "../../commonObjects/commandInterface/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "../../elements/autoCommandBar/types"
 
-export interface ClientApplicationFormEvents {
-  collaborationSystemUsersAutoComplete?: string
-  externalEvent?: string
-  activationProcessing?: string
-  choiceProcessing?: string
-  newWriteProcessing?: string
-  uRLProcessing?: string
-  notificationProcessing?: string
-  navigationProcessing?: string
-  uRLGetProcessing?: string
-  uRLListGetProcessing?: string
-  collaborationSystemUsersChoiceFormGetProcessing?: string
-  fillCheckProcessingAtServer?: string
-  addInDetachmentOnError?: string
-  beforeLoadDataFromSettingsAtServer?: string
-  beforeClose?: string
-  beforeReopenFromOtherServer?: string
-  onPasteFromClipboard?: string
-  onLoadDataFromSettingsAtServer?: string
-  onClose?: string
-  onMainServerAvailabilityChange?: string
-  onChangeDisplaySettings?: string
-  onOpen?: string
-  onReopenFromOtherServer?: string
-  onReopen?: string
-  onCreateAtServer?: string
-  onSaveDataInSettingsAtServer?: string
-}
-
 export interface ClientApplicationForm extends MetadataItem {
   itemType: "ClientApplicationForm"
   //#region ClientApplicationForm
@@ -64,7 +35,6 @@ export interface ClientApplicationForm extends MetadataItem {
   conversationsRepresentation?: SE.FormConversationsRepresentation
   enabled?: boolean
   enterKeyBehavior?: SE.EnterKeyBehaviorType
-  events?: ClientApplicationFormEvents
   formWindowOpeningMode?: SE.FormWindowOpeningMode
   group?: SE.ChildFormItemsGroup
   height?: number
@@ -95,6 +65,35 @@ export interface ClientApplicationForm extends MetadataItem {
   includeHelpInContents?: boolean
   usePurposes?: ("PlatformApplication" | "MobilePlatformApplication")[]
   //#endregion
+
+  events?: {
+    collaborationSystemUsersAutoComplete?: string
+    externalEvent?: string
+    activationProcessing?: string
+    choiceProcessing?: string
+    newWriteProcessing?: string
+    uRLProcessing?: string
+    notificationProcessing?: string
+    navigationProcessing?: string
+    uRLGetProcessing?: string
+    uRLListGetProcessing?: string
+    collaborationSystemUsersChoiceFormGetProcessing?: string
+    fillCheckProcessingAtServer?: string
+    addInDetachmentOnError?: string
+    beforeLoadDataFromSettingsAtServer?: string
+    beforeClose?: string
+    beforeReopenFromOtherServer?: string
+    onPasteFromClipboard?: string
+    onLoadDataFromSettingsAtServer?: string
+    onClose?: string
+    onMainServerAvailabilityChange?: string
+    onChangeDisplaySettings?: string
+    onOpen?: string
+    onReopenFromOtherServer?: string
+    onReopen?: string
+    onCreateAtServer?: string
+    onSaveDataInSettingsAtServer?: string
+  }
 }
 
 export interface ClientApplicationFormXML {
