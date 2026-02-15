@@ -1,5 +1,5 @@
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
-import { ToPreviewType } from "~/metadata/metadataFactory/types"
+// import { ToPreviewType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedEnterprise } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedEnterprise } from "../../elements/buttonGroup/types"
@@ -118,7 +118,7 @@ export type GroupChildItems = GroupChildItem[]
 
 export type GroupChilItemPartialEnterprise = Record<string, ToYAML<GroupChildItem>>
 
-export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
+// export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
 
 // #endregion
 
@@ -203,4 +203,26 @@ export type TypedElementPartialEnterprise =
 
 export type SingleElement = AutoCommandBar | ContextMenu | ViewStatusAddition | ExtendedTooltip
 
-//
+// #endregion
+
+// #region OtherElement
+
+export type OtherElement =
+  | CalendarField
+  | ChartField
+  | DendrogramField
+  | FormattedDocumentField
+  | GanttChartField
+  | GeographicalSchemaField
+  | GraphicalSchemaField
+  | HTMLDocumentField
+  | PdfDocumentField
+  | PeriodField
+  | PlannerField
+  | ProgressBarField
+  | RadioButtonField
+  | SpreadSheetDocumentField
+  | TextDocumentField
+  | TrackBarField
+
+// #endregion
