@@ -1,4 +1,5 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
@@ -61,3 +62,5 @@ const exportCommandInterfaceItemToXML = (
 
   return result
 }
+
+registerTypeRule("CommandInterface", "exportToXML", exportCommandInterfaceToXML)

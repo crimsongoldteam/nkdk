@@ -1,5 +1,6 @@
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { importI8nTextFromEnterprise } from "../../commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "../../commonObjects/picture/importFromEnterprise"
 import { ConfigurationContext } from "../../context/types"
@@ -74,3 +75,5 @@ export const importCommandsFromEnterprise = (
 
   return result
 }
+
+registerTypeRule("Commands", "importFromEnterprise", importCommandsFromEnterprise)

@@ -16,3 +16,13 @@ import "./elements/exportToStructure"
 import "./elements/exportToXML"
 import "./elements/importFromEnterprise"
 import "./elements/importFromXML"
+
+import "./commands/exportToEnterprise"
+import "./commands/exportToXML"
+import "./commands/importFromEnterprise"
+import "./commands/importFromXML"
+
+import "./commonObjects/commandInterface/exportToEnterprise"
+import "./commonObjects/commandInterface/exportToXML"
+import "./commonObjects/commandInterface/importFromEnterprise"
+import "./commonObjects/commandInterface/importFromXML"

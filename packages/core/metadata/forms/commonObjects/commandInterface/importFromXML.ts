@@ -1,4 +1,5 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
@@ -55,3 +56,5 @@ const importCommandInterfaceItemFromXML = (
 
   return result
 }
+
+registerTypeRule("CommandInterface", "importFromXML", importCommandInterfaceFromXML)

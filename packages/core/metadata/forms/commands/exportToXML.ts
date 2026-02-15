@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "../../commonObjects/picture/exportToXML"
@@ -64,3 +65,5 @@ function exportCommandToXML(context: ConfigurationContext, command: Command | un
 
   return result
 }
+
+registerTypeRule("Commands", "exportToXML", exportCommandsToXML)

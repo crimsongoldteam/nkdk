@@ -1,6 +1,7 @@
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "../../context/types"
@@ -52,3 +53,5 @@ export function importCommandsFromXML(
 
   return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml)!)
 }
+
+registerTypeRule("Commands", "importFromXML", importCommandsFromXML)

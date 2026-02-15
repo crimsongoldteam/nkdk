@@ -1,4 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { StandardCommandsGroupToEnterprise } from "~/metadata/systemEnumerations/types"
@@ -59,3 +60,5 @@ const exportCommandInterfaceItemToEnterprise = (
 
   return result
 }
+
+registerTypeRule("CommandInterface", "exportToEnterprise", exportCommandInterfaceToEnterprise)

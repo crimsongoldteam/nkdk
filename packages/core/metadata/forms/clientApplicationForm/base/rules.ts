@@ -90,6 +90,7 @@ export const ClientApplicationFormRules: MetadataItemRule<ClientApplicationForm>
       yaml: "Команды",
       type: "FormCommands",
       tag: ClientApplicationFormRulesTags.Form,
+      defaultValue: [],
     },
     conversationsRepresentation: {
       yaml: "ОтображениеОбсуждений",

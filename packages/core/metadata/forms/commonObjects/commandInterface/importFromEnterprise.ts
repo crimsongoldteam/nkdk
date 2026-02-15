@@ -1,4 +1,5 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { StandardCommandsGroupFromEnterprise } from "~/metadata/systemEnumerations/types"
@@ -60,3 +61,5 @@ const importCommandInterfaceItemFromEnterprise = (
 
   return result
 }
+
+registerTypeRule("CommandInterface", "importFromEnterprise", importCommandInterfaceFromEnterprise)
