@@ -4,11 +4,11 @@ import { SingleElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Events, EventsXML } from "~/metadata/forms/events/types"
 import { ElementRule, getElementRule } from "../elementRulesFactory"
-import { FormElementType } from "../metadataType/types"
+import { FormElementType, SingleFormElementType } from "../metadataType/types"
+import { importPropertyFromXML } from "../properties/fromXML"
 import { PropertyRule } from "../properties/types"
 import { ElementXML } from "../types"
 import { isEmptyElement } from "./helper"
-import { importPropertyFromXML } from "../properties/fromXML"
 
 // export const importPropertyFromXML = (params: {
 //   context: ConfigurationContext
@@ -31,7 +31,7 @@ import { importPropertyFromXML } from "../properties/fromXML"
 export const importSingleElementFromXML = <T extends SingleElement>(params: {
   context: ConfigurationContext
   rule: ElementRule<T>
-  itemType: FormElementType
+  itemType: SingleFormElementType
   xml: ElementXML
 }): T | undefined => {
   const { context, rule, xml, itemType } = params

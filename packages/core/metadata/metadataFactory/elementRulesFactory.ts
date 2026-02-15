@@ -5,7 +5,7 @@ import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"
 import { importElementFromPartialYAML } from "./element/importElementFromEnterprise"
 import { importSingleElementFromXML } from "./element/importElementFromXML"
 import { exportSingleElementToXML } from "./element/toXML"
-import { FormElementType } from "./metadataType/types"
+import { FormElementType, SingleFormElementType } from "./metadataType/types"
 import { TypeRulesNames, registerTypeRule } from "./typeRulesFactory"
 import { ElementXML } from "./types"
 
@@ -22,6 +22,7 @@ export interface ElementRule<T extends BaseElement, ExtraProperties extends stri
     : never
   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   alwaysExportToXML?: true
+
   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
 }
 
@@ -67,7 +68,7 @@ const registerAsTypeRegistry = <T extends BaseElement>(
 
 const registerImportFromXML = <T extends BaseElement>(
   propertyType: TypeRulesNames,
-  itemType: FormElementType,
+  itemType: SingleFormElementType,
   elementRule: ElementRule<T>
 ): void => {
   registerTypeRule(

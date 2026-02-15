@@ -78,11 +78,6 @@ function exportToXML<T extends BaseElement>(params: {
 }): ElementXML {
   const { context, element, rule, id, name, itemType } = params
 
-  const result: ElementXML = {
-    _name: name,
-    _id: id,
-  }
-
   const elementsTree: ConfigurationContext["elementsTree"] = []
   if (context.elementsTree !== undefined) {
     elementsTree.push(...context.elementsTree)
@@ -95,7 +90,7 @@ function exportToXML<T extends BaseElement>(params: {
     elementsTree: elementsTree,
   }
 
-  exportPropertiesToXML({
+  const properties = exportPropertiesToXML({
     context: currentContext,
     metadataItem: element,
     rule: rule,
@@ -136,7 +131,13 @@ function exportToXML<T extends BaseElement>(params: {
       ? ((element as Record<string, unknown>).events as Record<string, string> | undefined)
       : undefined
   )
-  Object.assign(result, events)
+
+  const result: ElementXML = {
+    _name: name,
+    _id: id,
+    ...properties,
+    ...events,
+  }
 
   return sortObject(result)
 }
