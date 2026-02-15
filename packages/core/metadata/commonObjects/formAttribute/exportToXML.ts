@@ -1,21 +1,17 @@
-import { defaults } from "~/metadata/appliedObjects/metadataCatalog"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
-import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/metadataFactory"
 import { DynamicList } from "../dynamicList/types"
-import { exportFieldsListToXML } from "../fieldsList/exportToXML"
-import { exportFunctionalOptionsToXML } from "../functionalOptionsProperty/exportToXML"
-import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "../i8nText/exportToXML"
 import { TypeDescription } from "../typeDescription/types"
+import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
   FormAttributeAdditionalColumn,
   FormAttributeColumn,
-  FormAttributeColumnXML,
   FormAttributes,
-  FormAttributesXML,
   FormAttributeXML,
 } from "./types"
 
@@ -23,7 +19,7 @@ export const exportFormAttributesToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: FormAttributes | undefined
-): FormAttributesXML | undefined => {
+): ElementXML[] | undefined => {
   if (!data || data.length === 0) return undefined
 
   const result = data.map((value: FormAttribute) => exportFormAttributeToXML(context, undefined, value))
@@ -35,65 +31,74 @@ const exportFormAttributeToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: FormAttribute
-): FormAttributeXML => {
-  const mergedData = { ...defaults, ...data }
+): ElementXML => {
+  // const mergedData = { ...defaults, ...data }
+
+  const id = getElementId(context)
+
+  const properties = exportPropertiesToXML({
+    context,
+    metadataItem: data,
+    rule: FormAttributeRules,
+  })
 
   const result: FormAttributeXML = {
-    _name: mergedData.name,
-    _id: getElementId(context),
+    _name: data.name,
+    _id: id,
+    ...properties,
   }
 
-  if (mergedData.columns && mergedData.columns.length > 0) {
-    result.Columns = {
-      Column: exportFormAttributeColumnsToXML(context, undefined, mergedData.columns),
-    }
-  }
+  // if (mergedData.columns && mergedData.columns.length > 0) {
+  //   result.Columns = {
+  //     Column: exportFormAttributeColumnsToXML(context, undefined, mergedData.columns),
+  //   }
+  // }
 
-  if (mergedData.additionalColumns && mergedData.additionalColumns.length > 0) {
-    const additionalColumnsXML = exportFormAttributeAdditionalColumnsToXML(
-      context,
-      undefined,
-      mergedData.additionalColumns
-    )
-    if (!result.Columns) {
-      result.Columns = { Column: [] }
-    }
-    result.Columns.AdditionalColumns = additionalColumnsXML
-  }
+  // if (mergedData.additionalColumns && mergedData.additionalColumns.length > 0) {
+  //   const additionalColumnsXML = exportFormAttributeAdditionalColumnsToXML(
+  //     context,
+  //     undefined,
+  //     mergedData.additionalColumns
+  //   )
+  //   if (!result.Columns) {
+  //     result.Columns = { Column: [] }
+  //   }
+  //   result.Columns.AdditionalColumns = additionalColumnsXML
+  // }
 
-  const edit = exportUserVisibleToXML(context, undefined, mergedData.edit)
-  if (edit) result.Edit = edit
+  // const edit = exportUserVisibleToXML(context, undefined, mergedData.edit)
+  // if (edit) result.Edit = edit
 
-  if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
+  // if (mergedData.fillCheck !== undefined) result.FillCheck = mergedData.fillCheck
 
-  const functionalOptions = exportFunctionalOptionsToXML(context, undefined, mergedData.functionalOptions)
-  if (functionalOptions) result.FunctionalOptions = functionalOptions
+  // const functionalOptions = exportFunctionalOptionsToXML(context, undefined, mergedData.functionalOptions)
+  // if (functionalOptions) result.FunctionalOptions = functionalOptions
 
-  if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
+  // if (mergedData.mainAttribute !== undefined) result.MainAttribute = mergedData.mainAttribute
 
-  const save = exportFieldsListToXML(context, undefined, mergedData.save)
-  if (save) result.Save = save
+  // const save = exportFieldsListToXML(context, undefined, mergedData.save)
+  // if (save) result.Save = save
 
-  if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
+  // if (mergedData.storedData !== undefined) result.SavedData = mergedData.storedData
 
-  const settings = exportFormAttributeSettingsToXML(context, undefined, mergedData.settings, mergedData.valueType)
-  if (settings) {
-    result.Settings = settings
-  }
+  // const settings = exportFormAttributeSettingsToXML(context, undefined, mergedData.settings, mergedData.valueType)
+  // if (settings) {
+  //   result.Settings = settings
+  // }
 
-  const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, mergedData.title)
-  if (title) result.Title = title
+  // const title = exportI8nTextToXMLWithDefaultLanguage(context, undefined, mergedData.title)
+  // if (title) result.Title = title
 
-  const type = exportTypeDescriptionToXML(context, undefined, mergedData.valueType)
-  if (type) result.Type = type
+  // const type = exportTypeDescriptionToXML(context, undefined, mergedData.valueType)
+  // if (type) result.Type = type
 
-  const fieldsList = exportFieldsListToXML(context, undefined, mergedData.fieldsList)
-  if (fieldsList) result.UseAlways = fieldsList
+  // const fieldsList = exportFieldsListToXML(context, undefined, mergedData.fieldsList)
+  // if (fieldsList) result.UseAlways = fieldsList
 
-  const view = exportUserVisibleToXML(context, undefined, mergedData.view)
-  if (view) result.View = view
+  // const view = exportUserVisibleToXML(context, undefined, mergedData.view)
+  // if (view) result.View = view
 
-  return result
+  return sortObject(result)
 }
 
 const exportFormAttributeSettingsToXML = (
@@ -138,37 +143,46 @@ const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   columns: FormAttributeColumn[]
-): FormAttributeColumnXML | FormAttributeColumnXML[] => {
+): ElementXML[] => {
   const result = columns.map((column) => {
-    const res: FormAttributeColumnXML = {
+    const id = getElementId(context)
+
+    const properties = exportPropertiesToXML({
+      context,
+      metadataItem: column,
+      rule: FormAttributeColumnRules,
+    })
+
+    return {
       _name: column.name,
-      _id: getElementId(context),
+      _id: id,
+      ...properties,
     }
 
-    if (column.columns && column.columns.length > 0) {
-      res.Column = exportFormAttributeColumnsToXML(context, undefined, column.columns)
-    }
+    // if (column.columns && column.columns.length > 0) {
+    //   res.Column = exportFormAttributeColumnsToXML(context, undefined, column.columns)
+    // }
 
-    const title = exportI8nTextToXML(context, { type: "I8nText" }, column.title)
-    if (title) res.Title = title
+    // const title = exportI8nTextToXML(context, { type: "I8nText" }, column.title)
+    // if (title) res.Title = title
 
-    const type = exportTypeDescriptionToXML(context, undefined, column.type)
-    if (type) res.Type = type
+    // const type = exportTypeDescriptionToXML(context, undefined, column.type)
+    // if (type) res.Type = type
 
-    const view = exportUserVisibleToXML(context, undefined, column.view)
-    if (view) res.View = view
+    // const view = exportUserVisibleToXML(context, undefined, column.view)
+    // if (view) res.View = view
 
-    const edit = exportUserVisibleToXML(context, undefined, column.edit)
-    if (edit) res.Edit = edit
+    // const edit = exportUserVisibleToXML(context, undefined, column.edit)
+    // if (edit) res.Edit = edit
 
-    if (column.fillCheck) {
-      res.FillCheck = column.fillCheck
-    }
+    // if (column.fillCheck) {
+    //   res.FillCheck = column.fillCheck
+    // }
 
-    const functionalOptions = exportFunctionalOptionsToXML(context, undefined, column.functionalOptions)
-    if (functionalOptions) res.FunctionalOptions = functionalOptions
+    // const functionalOptions = exportFunctionalOptionsToXML(context, undefined, column.functionalOptions)
+    // if (functionalOptions) res.FunctionalOptions = functionalOptions
 
-    return res
+    // return res
   })
 
   return result.length === 1 ? result[0] : result
@@ -184,3 +198,7 @@ const exportFormAttributeAdditionalColumnsToXML = (
     Column: exportFormAttributeColumnsToXML(context, undefined, additionalColumn.columns),
   }))
 }
+
+registerTypeRule("FormAttributes", "exportToXML", exportFormAttributesToXML)
+registerTypeRule("FormAttributeColumns", "exportToXML", exportFormAttributeColumnsToXML)
+registerTypeRule("FormAttributeAdditionalColumns", "exportToXML", exportFormAttributeAdditionalColumnsToXML)

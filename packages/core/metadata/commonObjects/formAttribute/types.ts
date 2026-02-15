@@ -13,6 +13,7 @@ import {
   UserVisibleEnterprise,
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
+import { MetadataItem } from "~/metadata/metadataFactory"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 import { StringboolEnterprise } from "../boolean/types"
 import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
@@ -28,7 +29,8 @@ export interface FormAttributeAdditionalColumn {
   columns: FormAttributeColumn[]
 }
 
-export interface FormAttribute {
+export interface FormAttribute extends MetadataItem {
+  itemType: "FormAttribute"
   name: string
   title: I8nText
   valueType?: TypeDescription
@@ -38,14 +40,15 @@ export interface FormAttribute {
   edit?: UserVisible
   fillCheck?: FillChecking
   settings?: TypeDescription | DynamicList
-  columns?: FormAttributeColumn[]
-  additionalColumns?: FormAttributeAdditionalColumn[]
+  columns: FormAttributeColumn[]
+  additionalColumns: FormAttributeAdditionalColumn[]
   functionalOptions?: FunctionalOptions
   fieldsList?: FieldsList
   save?: FieldsList
 }
 
 export interface FormAttributeColumn {
+  itemType: "FormAttributeColumn"
   name: string
   id: string
   title?: I8nText
@@ -53,7 +56,7 @@ export interface FormAttributeColumn {
   view?: UserVisible
   edit?: UserVisible
   fillCheck?: FillChecking
-  columns?: FormAttributeColumn[]
+  // columns?: FormAttributeColumn[]
   functionalOptions?: FunctionalOptions
 }
 

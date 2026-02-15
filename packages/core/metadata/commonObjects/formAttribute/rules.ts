@@ -1,18 +1,18 @@
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule, registerElementRule } from "../../metadataFactory/elementRulesFactory"
-import { FormAttribute } from "./types"
+import { MetadataItemRule, PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { ElementRule } from "../../metadataFactory/elementRulesFactory"
+import { FormAttribute, FormAttributeColumn } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const FormAttributeRules: ElementRule<FormAttribute> = {
+export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
   properties: {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartialOthers: true,
     },
     valueType: {
       yaml: "Тип",
       type: "TypeDescription",
+      xml: "Type",
     },
     mainAttribute: {
       yaml: "ОсновнойРеквизит",
@@ -36,7 +36,8 @@ export const FormAttributeRules: ElementRule<FormAttribute> = {
     },
     fillCheck: {
       yaml: "ПроверкаЗаполнения",
-      type: "FillChecking",
+      type: "SystemEnumeration",
+      typeSE: "FillChecking",
     },
     settings: {
       yaml: "Настройки",
@@ -44,19 +45,22 @@ export const FormAttributeRules: ElementRule<FormAttribute> = {
     },
     columns: {
       yaml: "Колонки",
-      type: "FormAttributeColumn",
+      type: "FormAttributeColumns",
+      defaultValue: [],
     },
     additionalColumns: {
       yaml: "ДополнительныеКолонки",
-      type: "FormAttributeAdditionalColumn",
+      type: "FormAttributeAdditionalColumns",
+      defaultValue: [],
     },
     functionalOptions: {
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptions",
+      type: "FunctionalOptionsProperty",
     },
     fieldsList: {
       yaml: "ИспользоватьВсегда",
       type: "FieldsList",
+      xml: "UseAlways",
     },
     save: {
       yaml: "Сохранение",
@@ -65,4 +69,37 @@ export const FormAttributeRules: ElementRule<FormAttribute> = {
   },
 }
 
-registerElementRule("FormAttribute", FormAttributeRules)
+// registerElementRule("FormAttribute", FormAttributeRules)
+
+export const FormAttributeColumnRules: MetadataItemRule<FormAttributeColumn> = {
+  properties: {
+    title: {
+      yaml: "Заголовок",
+      type: "I8nText",
+    },
+    type: {
+      yaml: "Тип",
+      type: "TypeDescription",
+      xml: "Type",
+    },
+    view: {
+      yaml: "РазрешитьПросмотр",
+      yamlDeny: "ЗапретитьПросмотр",
+      type: "UserVisible",
+    },
+    edit: {
+      yaml: "РазрешитьРедактирование",
+      yamlDeny: "ЗапретитьРедактирование",
+      type: "UserVisible",
+    },
+    fillCheck: {
+      yaml: "ПроверкаЗаполнения",
+      type: "SystemEnumeration",
+      typeSE: "FillChecking",
+    },
+    functionalOptions: {
+      yaml: "ФункциональныеОпции",
+      type: "FunctionalOptionsProperty",
+    },
+  },
+} as const

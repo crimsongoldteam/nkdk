@@ -39,6 +39,9 @@ export type TypeRulesNames =
   | "SearchStringAddition"
   | "SearchControlAddition"
   | "TableAdditionalSource"
+  | "FormAttributeColumns"
+  | "FormAttributeAdditionalColumns"
+  | "FormAttributes"
 
 type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 

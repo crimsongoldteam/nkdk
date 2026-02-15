@@ -70,4 +70,4 @@ export type FormElementType = CollectionFormElementType | SingleFormElementType
 
 // #endregion
 
-export type MetadataType = FormElementType
+export type MetadataType = FormElementType | "FormAttribute"
