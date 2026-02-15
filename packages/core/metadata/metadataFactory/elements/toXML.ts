@@ -100,19 +100,17 @@ function exportToXML<T extends BaseElement>(params: {
   //   result[xmlKey] = exportedValue
   // }
 
-  const events = exportEventsToXML(
+  const eventsResult = exportEventsToXML({
     context,
-    rule.events,
-    element && "events" in element
-      ? ((element as Record<string, unknown>).events as Record<string, string> | undefined)
-      : undefined
-  )
+    rule,
+    data: element,
+  })
 
   const result: ElementXML = {
     _name: name,
     _id: id,
     ...properties,
-    ...events,
+    ...eventsResult,
   }
 
   return sortObject(result)

@@ -1,19 +1,24 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { EventsXML, EventXML } from "~/metadata/metadataFactory/events/types"
+import { Events, EventsXML, EventXML } from "~/metadata/metadataFactory/events/types"
+import { MetadataItem, MetadataItemRule } from "../properties/types"
 
-export const exportEventsToXML = (
-  _context: ConfigurationContext,
-  rulesEvents: Record<string, string> | undefined,
-  dataEvents: Record<string, string> | undefined
-): { Events?: EventsXML } => {
-  if (!rulesEvents || !dataEvents || Object.keys(dataEvents).length === 0) {
-    return {}
-  }
+export const exportEventsToXML = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  rule: MetadataItemRule<T>
+  data: T | undefined
+}): { Events?: EventsXML } => {
+  const { rule, data } = params
+
+  if (!rule.events) return {}
+  if (!data) return {}
+  if (!("events" in data)) return {}
+
+  const dataEvents = data.events as Events
 
   const events: EventXML[] = []
 
-  for (const ruleKey of Object.keys(rulesEvents)) {
+  for (const ruleKey of Object.keys(rule)) {
     const eventName = capitalize(ruleKey)
     const eventValue = dataEvents[ruleKey]
     if (eventValue === undefined) continue

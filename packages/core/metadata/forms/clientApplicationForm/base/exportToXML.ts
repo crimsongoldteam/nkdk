@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/metadataFactory"
+import { exportEventsToXML } from "~/metadata/metadataFactory/events/toXML"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { ClientApplicationFormRules } from "./rules"
 import {
@@ -241,6 +242,8 @@ export const exportFormMetadataToXML = (
     tag: [ClientApplicationFormRulesTags.Metadata],
   })
 
+  const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data })
+
   // const properties: Partial<FormMetadataXML["Form"]["Properties"]> = {}
 
   // if (data.comment !== undefined) {
@@ -292,6 +295,7 @@ export const exportFormMetadataToXML = (
         FormType: "Managed",
         Name: name,
         ...properties,
+        ...events,
       },
     },
   }

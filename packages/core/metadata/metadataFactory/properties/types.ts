@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
+import { EventsRules } from "../events"
 import { MetadataType } from "../metadataType/types"
 import { ToYAML } from "../rules"
 import { TypeRulesNames } from "../types/types"
@@ -83,4 +84,6 @@ export interface MetadataItemRule<
 > {
   tags?: TagsType[]
   properties: PropertiesType<T, ExtraProperties>
+
+  events?: EventsRules<T>
 }
