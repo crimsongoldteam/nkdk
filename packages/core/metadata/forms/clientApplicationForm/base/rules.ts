@@ -119,6 +119,7 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       yaml: "РежимОткрытияОкнаФормы",
       type: "SystemEnumeration",
       typeSE: "FormWindowOpeningMode",
+      xml: "WindowOpeningMode",
       tag: ClientApplicationFormRulesTags.Form,
     },
     group: {

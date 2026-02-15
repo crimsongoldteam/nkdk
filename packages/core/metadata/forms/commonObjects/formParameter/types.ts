@@ -1,4 +1,8 @@
-import { TypeDescription, TypeDescriptionEnterprise, TypeDescriptionXML } from "../typeDescription/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionXML,
+} from "~/metadata/commonObjects/typeDescription/types"
 
 export interface FormParameter {
   name: string

@@ -1,29 +1,32 @@
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ExportToXMLFunctionNew, MetadataItem, registerTypeRule } from "~/metadata/metadataFactory"
-import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
-import { exportPictureToXML } from "../../commonObjects/picture/exportToXML"
-import { exportUserVisibleToXML } from "../../commonObjects/userVisible/exportToXML"
-import { ConfigurationContext } from "../../context/types"
-import { Command, CommandXML } from "./types"
+import { FormCommand, FormCommandXML } from "./types"
 
 export const exportCommandsToXML = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
-  value: Command[] | undefined
+  value: FormCommand[] | undefined
   metadataItem?: MetadataItem
-}): { Command: CommandXML[] } | undefined => {
+}): { Command: FormCommandXML[] } | undefined => {
   const { context, value: data } = params
   if (!data || data.length === 0) return undefined
 
-  const result: CommandXML[] = data.map((value: Command) => exportCommandToXML(context, value)!)
+  const result: FormCommandXML[] = data.map((value: FormCommand) => exportCommandToXML(context, value)!)
   return { Command: result }
 }
 
-function exportCommandToXML(context: ConfigurationContext, command: Command | undefined): CommandXML | undefined {
+function exportCommandToXML(
+  context: ConfigurationContext,
+  command: FormCommand | undefined
+): FormCommandXML | undefined {
   if (!command) return undefined
 
-  const result: CommandXML = {
+  const result: FormCommandXML = {
     _name: command.name,
     _id: getElementId(context),
   }

@@ -1,14 +1,23 @@
+import { Command } from "vscode"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import {
+  FormAttribute,
+  FormAttributesEnterprise,
+  FormAttributesXML,
+} from "~/metadata/commonObjects/formAttribute/types"
+import {
+  FormParameters,
+  FormParametersEnterprise,
+  FormParametersXML,
+} from "~/metadata/commonObjects/formParameter/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
 import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commonObjects/commandSet/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
-import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../../commonObjects/formParameter/types"
-import { GroupChilItemPartialEnterprise, GroupChildItem } from "../../collections/childItems/types"
-import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
+import { GroupChildItem, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
 import { CommandInterface, CommandInterfaceEnterprise } from "../../commonObjects/commandInterface/types"
+import { FormCommandsXML, FormCommandsYAML } from "../../commonObjects/formCommand/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "../../elements/autoCommandBar/types"
 
 export interface ClientApplicationForm extends MetadataItem {
@@ -163,7 +172,7 @@ export interface ClientApplicationFormXML {
   Parameters?: {
     Parameter: FormParametersXML
   }
-  Commands?: { Command: CommandsXML }
+  Commands?: { Command: FormCommandsXML }
   Events?: {
     Event: any
   }
@@ -247,7 +256,7 @@ export interface ClientApplicationFormEnterprise {
     ПриСозданииНаСервере?: string
     ПриСохраненииДанныхВНастройкахНаСервере?: string
   }
-  Команды?: CommandsEnterprise
+  Команды?: FormCommandsYAML
   Элементы?: GroupChilItemPartialEnterprise
 
   Синоним?: I8nTextEnterprise

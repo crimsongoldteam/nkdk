@@ -1,22 +1,21 @@
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
-import { importI8nTextFromEnterprise } from "../../commonObjects/i8nText/importFromEnterprise"
-import { importPictureFromEnterprise } from "../../commonObjects/picture/importFromEnterprise"
-import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
-import * as SE from "../../systemEnumerations/types"
-import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./types"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
 
 const importCommandFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   name: string,
-  data: CommandEnterprise | undefined
-): Command | undefined => {
+  data: FormCommandYAML | undefined
+): FormCommand | undefined => {
   if (!data) return undefined
 
-  const result: Command = {
+  const result: FormCommand = {
     name,
   }
 
@@ -60,14 +59,14 @@ const importCommandFromEnterprise = (
 export const importCommandsFromEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  data: CommandsEnterprise | undefined
-): Commands => {
+  data: FormCommandsYAML | undefined
+): FormCommands => {
   if (!data) return []
 
-  const result: Commands = []
+  const result: FormCommands = []
 
   for (const [name, commandData] of Object.entries(data)) {
-    const command = importCommandFromEnterprise(context, undefined, name, commandData)
+    const command = importCommandFromEnterprise(context, name, commandData)
     if (command) {
       result.push(command)
     }

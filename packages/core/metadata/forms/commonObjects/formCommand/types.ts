@@ -1,10 +1,10 @@
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "../../commonObjects/i8nText/types"
-import { MetadataSimpleValueXML } from "../../commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "../../commonObjects/userVisible/types"
-import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "../../systemEnumerations/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "~/metadata/systemEnumerations/types"
 
-export interface Command {
+export interface FormCommand {
   name: string
   title?: I8nText
   toolTip?: I8nText
@@ -18,9 +18,9 @@ export interface Command {
   table?: string
 }
 
-export type Commands = Command[]
+export type FormCommands = FormCommand[]
 
-export interface CommandXML {
+export interface FormCommandXML {
   _name: string
   _id: string
   Title?: I8nTextXML
@@ -35,9 +35,9 @@ export interface CommandXML {
   AssociatedTableElementId?: MetadataSimpleValueXML
 }
 
-export type CommandsXML = CommandXML | CommandXML[]
+export type FormCommandsXML = FormCommandXML | FormCommandXML[]
 
-export interface CommandEnterprise {
+export interface FormCommandYAML {
   Заголовок?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise
   СочетаниеКлавиш?: string
@@ -51,4 +51,4 @@ export interface CommandEnterprise {
   Таблица?: string
 }
 
-export type CommandsEnterprise = Record<string, CommandEnterprise>
+export type FormCommandsYAML = Record<string, FormCommandYAML>

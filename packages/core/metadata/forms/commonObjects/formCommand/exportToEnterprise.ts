@@ -1,21 +1,21 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportI8nTextToYAML } from "../../commonObjects/i8nText/toYAML"
-import { exportPictureToEnterprise } from "../../commonObjects/picture/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "../../commonObjects/userVisible/exportToEnterprise"
-import { UserVisibleKeysEnterprise } from "../../commonObjects/userVisible/types"
-import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
-import * as SE from "../../systemEnumerations/types"
-import { Command, CommandEnterprise, Commands, CommandsEnterprise } from "./types"
+import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/metadataFactory"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
 
 export const exportCommandsToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  data: Commands | undefined
-): CommandsEnterprise | undefined => {
+  data: FormCommands | undefined
+): FormCommandsYAML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: CommandsEnterprise = {}
+  const result: FormCommandsYAML = {}
 
   for (const command of data) {
     const commandEnterprise = exportCommandToEnterprise(context, command)
@@ -29,11 +29,11 @@ export const exportCommandsToEnterprise = (
 
 const exportCommandToEnterprise = (
   context: ConfigurationContext,
-  data: Command | undefined
-): CommandEnterprise | undefined => {
+  data: FormCommand | undefined
+): FormCommandYAML | undefined => {
   if (!data) return undefined
 
-  const result: CommandEnterprise = {}
+  const result: FormCommandYAML = {}
 
   const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
   if (title !== undefined) result.Заголовок = title

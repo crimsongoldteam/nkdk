@@ -1,16 +1,16 @@
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
+import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { importPictureFromXML } from "../../commonObjects/picture/importFromXML"
-import { importUserVisibleFromXML } from "../../commonObjects/userVisible/importFromXML"
-import { ConfigurationContext } from "../../context/types"
-import { Command, Commands, CommandsXML, CommandXML } from "./types"
+import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
 
-function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | undefined): Command | undefined {
+function importCommandFromXML(context: ConfigurationContext, xml: FormCommandXML | undefined): FormCommand | undefined {
   if (!xml) return undefined
 
-  const result: Command = {
+  const result: FormCommand = {
     name: xml._name,
   }
 
@@ -45,8 +45,8 @@ function importCommandFromXML(context: ConfigurationContext, xml: CommandXML | u
 export function importCommandsFromXML(
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  xml: CommandsXML | undefined
-): Commands {
+  xml: FormCommandsXML | undefined
+): FormCommands {
   if (!xml) return []
 
   const xmlArray = Array.isArray(xml) ? xml : [xml]

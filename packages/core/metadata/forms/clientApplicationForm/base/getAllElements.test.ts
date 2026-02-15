@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
-import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory"
 
 describe("getAllElements", () => {
   it("should return all elements", () => {
@@ -22,6 +22,7 @@ describe("getAllElements", () => {
           ],
         },
       ],
+      itemType: "ClientApplicationForm",
     }
 
     const elements = getAllElements(form)
@@ -54,6 +55,7 @@ describe("getAllElements", () => {
         autofill: false,
         childItems: [buttonGroup],
       },
+      itemType: "ClientApplicationForm",
     }
 
     const expectedElements = [buttonGroup, button]
@@ -86,6 +88,7 @@ describe("getAllElements", () => {
     const form: ClientApplicationForm = {
       commands: [],
       childItems: [table],
+      itemType: "ClientApplicationForm",
     }
 
     const expectedElements = [table, buttonGroup, button]

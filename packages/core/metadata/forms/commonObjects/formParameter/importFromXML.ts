@@ -1,7 +1,7 @@
+import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
-import { ConfigurationContext } from "../../context/types"
-import { importTypeDescriptionFromXML } from "../typeDescription/importFromXML"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
 
 export const importFormParametersFromXML = (

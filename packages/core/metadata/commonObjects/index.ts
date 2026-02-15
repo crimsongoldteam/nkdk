@@ -61,11 +61,6 @@ import "./formAttribute/exportToXML"
 import "./formAttribute/importFromEnterprise"
 import "./formAttribute/importFromXML"
 
-import "./formParameter/exportToEnterprise"
-import "./formParameter/exportToXML"
-import "./formParameter/importFromEnterprise"
-import "./formParameter/importFromXML"
-
 import "./functionalOptionsProperty/exportToEnterprise"
 import "./functionalOptionsProperty/exportToXML"
 import "./functionalOptionsProperty/importFromEnterprise"

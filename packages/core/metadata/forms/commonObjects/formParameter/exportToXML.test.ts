@@ -14,7 +14,7 @@ describe("exportFormParametersToXML", () => {
   it("should export form parameters correctly", () => {
     const expectedResult = readXMLFileAsString("formParameter/full.xml")
     const xmlData = exportFormParametersToXML(mockContext, mockRule, fullFormParameters)
-    const result = xmlExport({ Parameter: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
     expect(result).toEqual(expectedResult.trim())
   })
 })

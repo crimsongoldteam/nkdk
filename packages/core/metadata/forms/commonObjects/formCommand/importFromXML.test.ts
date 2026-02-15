@@ -3,7 +3,7 @@ import { fullCommands, minimalCommands } from "~/tests/fixtures/forms/commands/d
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandsFromXML } from "./importFromXML"
-import { CommandXML } from "./types"
+import { FormCommandXML } from "./types"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -13,14 +13,14 @@ describe("importCommandFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Command: CommandXML }>("forms/commands/full.xml")
+    const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/full.xml")
 
     const result = importCommandsFromXML(mockContext, mockRule, xmlData.Command)
     expect(result).toEqual(fullCommands)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Command: CommandXML }>("forms/commands/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/minimal.xml")
 
     const result = importCommandsFromXML(mockContext, mockRule, xmlData.Command)
 

@@ -1,8 +1,8 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
-import { ConfigurationContext } from "../../context/types"
-import { exportTypeDescriptionToEnterprise } from "../typeDescription/exportToEnterprise"
 import { FormParameterEnterprise, FormParameters, FormParametersEnterprise } from "./types"
+import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
+import { ConfigurationContext } from "~/metadata/context/types"
 
 export const exportFormParametersToEnterprise = (
   context: ConfigurationContext,
