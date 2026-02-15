@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import {
+  CollectionFormElementType,
+  importElementFromPartialYAML,
+  importElementFromTypedYAML,
+} from "~/metadata/metadataFactory"
 import {
   fullInputField,
   fullInputFieldPartialEnterprise,
@@ -10,7 +14,6 @@ import {
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 import { InputField } from "./types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 describe("importInputFieldFromEnterprise", () => {
   describe("importInputFieldTypedFromEnterprise", () => {
@@ -39,7 +42,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: FormElementType.InputField,
+        itemType: CollectionFormElementType.InputField,
         yaml: fullInputFieldPartialEnterprise,
         source: fullInputField,
       })
@@ -50,7 +53,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: FormElementType.InputField,
+        itemType: CollectionFormElementType.InputField,
         yaml: minimalInputFieldPartialEnterprise,
         source: minimalInputField,
       })

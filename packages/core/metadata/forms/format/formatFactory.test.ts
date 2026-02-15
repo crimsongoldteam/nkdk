@@ -1,5 +1,4 @@
 import { beforeEach, expect, it, vi } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { mockContext } from "~/tests/mockContext"
 import { NamedElement } from "../elements/baseElement/types"
 import { clearFormatRegistry, formatElement, registerFormat } from "./formatFactory"
@@ -12,7 +11,7 @@ it("should register a format function", () => {
   const mockCheck = vi.fn().mockReturnValue(true)
 
   const mockData: NamedElement = {
-    itemType: FormElementType.InputField,
+    itemType: CollectionFormElementType.InputField,
     name: "InputField",
   }
 

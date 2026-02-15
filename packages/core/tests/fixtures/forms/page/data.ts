@@ -1,8 +1,7 @@
 import { Page, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullPage: Required<Page> = {
-  itemType: FormElementType.Page,
+  itemType: CollectionFormElementType.Page,
   name: "Страница",
   enableContentChange: true,
   enabled: true,
@@ -94,7 +93,7 @@ export const fullPagePartialEnterprise: PagePartialEnterprise = {
 }
 
 export const minimalPage: Page = {
-  itemType: FormElementType.Page,
+  itemType: CollectionFormElementType.Page,
   name: "Страница",
   childItems: [],
 }

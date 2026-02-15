@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPictureDecoration, minimalPictureDecoration } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importPictureDecorationFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PictureDecoration,
+      itemType: CollectionFormElementType.PictureDecoration,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPictureDecorationFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PictureDecoration,
+      itemType: CollectionFormElementType.PictureDecoration,
       xml: xmlData.PictureDecoration,
     })
 
@@ -32,7 +32,7 @@ describe("importPictureDecorationFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PictureDecoration,
+      itemType: CollectionFormElementType.PictureDecoration,
       xml: xmlData.PictureDecoration,
     })
 

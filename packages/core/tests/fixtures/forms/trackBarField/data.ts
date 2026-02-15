@@ -1,8 +1,7 @@
 import { TrackBarField, TrackBarFieldPartialEnterprise } from "~/metadata/forms/elements/trackBarField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullTrackBarField: Required<TrackBarField> = {
-  itemType: FormElementType.TrackBarField,
+  itemType: CollectionFormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -160,7 +159,7 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
 delete (fullTrackBarFieldPartialEnterprise as any).Заголовок
 
 export const minimalTrackBarField: TrackBarField = {
-  itemType: FormElementType.TrackBarField,
+  itemType: CollectionFormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
 }
 

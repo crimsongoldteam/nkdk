@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullTable, minimalTable } from "~/tests/fixtures/forms/table/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importTableFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.Table,
+      itemType: CollectionFormElementType.Table,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importTableFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.Table,
+      itemType: CollectionFormElementType.Table,
       xml: xmlData.Table,
     })
 
@@ -32,7 +32,7 @@ describe("importTableFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.Table,
+      itemType: CollectionFormElementType.Table,
       xml: xmlData.Table,
     })
 

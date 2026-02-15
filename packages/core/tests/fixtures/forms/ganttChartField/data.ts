@@ -1,9 +1,8 @@
 import { GanttChartField, GanttChartFieldPartialEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
-  itemType: FormElementType.GanttChartField,
+  itemType: CollectionFormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
   title: {
     items: { ru: "Поле диаграммы Ганта" },
@@ -168,7 +167,7 @@ export const fullGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterpr
 }
 
 export const minimalGanttChartField: GanttChartField = {
-  itemType: FormElementType.GanttChartField,
+  itemType: CollectionFormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
 }
 

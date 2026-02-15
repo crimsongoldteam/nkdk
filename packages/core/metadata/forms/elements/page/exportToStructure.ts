@@ -5,11 +5,11 @@ import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLine
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { addSimpleIndent } from "~/metadata/forms/format/wrap/addIndents"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureFn } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { NamedElement } from "../baseElement/types"
 import { Page } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const exportPageToStructure = (context: ConfigurationContext, element: NamedElement): IFormatElementResult => {
   const pageElement = element as Page
@@ -38,5 +38,5 @@ const getHeader = (context: ConfigurationContext, element: Page): string => {
   return result
 }
 
-registerIsOneLineElementCheck(FormElementType.Page, () => false)
+registerIsOneLineElementCheck(CollectionFormElementType.Page, () => false)
 registerMetadata("ExportToStructure", "Page", exportPageToStructure as ExportToStructureFn)

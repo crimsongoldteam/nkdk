@@ -5,10 +5,9 @@ import {
   ButtonTypedEnterprise,
 } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullButton: Required<Button> = {
-  itemType: FormElementType.Button,
+  itemType: CollectionFormElementType.Button,
   autoMaxHeight: false,
   autoMaxWidth: false,
   backColor: {
@@ -88,7 +87,7 @@ export const fullButton: Required<Button> = {
 }
 
 export const fullButtonSource: Button = {
-  itemType: FormElementType.Button,
+  itemType: CollectionFormElementType.Button,
   name: "Кнопка",
   title: { items: { ru: "Кнопка формы" } },
 }
@@ -146,7 +145,7 @@ export const fullButtonTypedEnterprise: ButtonTypedEnterprise = {
 }
 
 export const minimalButton: Button = {
-  itemType: FormElementType.Button,
+  itemType: CollectionFormElementType.Button,
   name: "ОбычнаяКнопка",
 }
 
@@ -211,7 +210,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "with title",
     element: {
       name: "Заголовок",
-      itemType: FormElementType.Button,
+      itemType: CollectionFormElementType.Button,
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
@@ -223,7 +222,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "without title",
     element: {
       name: "Кнопка",
-      itemType: FormElementType.Button,
+      itemType: CollectionFormElementType.Button,
       title: undefined,
     },
     structured: {

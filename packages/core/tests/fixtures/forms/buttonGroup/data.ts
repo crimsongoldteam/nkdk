@@ -4,7 +4,6 @@ import {
   ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
   itemType: "ButtonGroup",
@@ -33,7 +32,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
   name: "ГруппаКнопок",
   childItems: [
     {
-      itemType: FormElementType.Button,
+      itemType: CollectionFormElementType.Button,
       name: "Кнопка",
     },
   ],
@@ -49,7 +48,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
 }
 
 export const fullButtonGroupSource: ButtonGroup = {
-  itemType: FormElementType.ButtonGroup,
+  itemType: CollectionFormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   title: { items: { ru: "Группа кнопок" } },
   childItems: [],
@@ -118,7 +117,7 @@ export const fullButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
 }
 
 export const minimalButtonGroup: ButtonGroup = {
-  itemType: FormElementType.ButtonGroup,
+  itemType: CollectionFormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   childItems: [],
 }
@@ -140,7 +139,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "with title",
     element: {
       name: "ГруппаКнопок",
-      itemType: FormElementType.ButtonGroup,
+      itemType: CollectionFormElementType.ButtonGroup,
       title: { items: { ru: "Группа кнопок" } },
       childItems: [],
     },
@@ -153,7 +152,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "without title",
     element: {
       name: "ГруппаКнопок",
-      itemType: FormElementType.ButtonGroup,
+      itemType: CollectionFormElementType.ButtonGroup,
       title: undefined,
       childItems: [],
     },

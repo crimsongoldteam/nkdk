@@ -5,10 +5,10 @@ import {
   UsualGroupPreview,
   UsualGroupTypedEnterprise,
 } from "~/metadata/forms/elements/usualGroup/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullUsualGroup: Required<UsualGroup> = {
-  itemType: FormElementType.UsualGroup,
+  itemType: CollectionFormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
   enableContentChange: true,
   enabled: false,
@@ -68,7 +68,7 @@ export const fullUsualGroup: Required<UsualGroup> = {
 }
 
 export const fullUsualGroupSource: UsualGroup = {
-  itemType: FormElementType.UsualGroup,
+  itemType: CollectionFormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
   title: { items: { ru: "Обычная группа" } },
   childItems: [],
@@ -163,7 +163,7 @@ export const fullUsualGroupPreview: Required<UsualGroupPreview> = {
 }
 
 export const minimalUsualGroup: UsualGroup = {
-  itemType: FormElementType.UsualGroup,
+  itemType: CollectionFormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
   childItems: [],
 }
@@ -187,17 +187,17 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "one-line group without title",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       group: "Horizontal",
       showTitle: false,
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -207,17 +207,17 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "one-line group with title",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       group: "Horizontal",
       title: { items: { ru: "Заголовок группы" } },
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -227,17 +227,17 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "one-line group with empty title",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       group: "Horizontal",
       title: { items: { ru: "" } },
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -247,23 +247,23 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "horizontal group",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       group: "Horizontal",
       childItems: [
         {
           name: "ВертикальнаяГруппа1",
-          itemType: FormElementType.UsualGroup,
+          itemType: CollectionFormElementType.UsualGroup,
           group: "Vertical",
           childItems: [
             {
               name: "Элемент1",
-              itemType: FormElementType.InputField,
+              itemType: CollectionFormElementType.InputField,
             } as InputField,
           ],
         } as UsualGroup,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -276,22 +276,22 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "horizontal (if possible) group",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       childItems: [
         {
           name: "ВертикальнаяГруппа1",
-          itemType: FormElementType.UsualGroup,
+          itemType: CollectionFormElementType.UsualGroup,
           group: "Vertical",
           childItems: [
             {
               name: "Элемент1",
-              itemType: FormElementType.InputField,
+              itemType: CollectionFormElementType.InputField,
             } as InputField,
           ],
         } as UsualGroup,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -304,16 +304,16 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "one-line group (if possible) without title",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       showTitle: false,
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -323,16 +323,16 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "one-line group (if possible) with title",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       title: { items: { ru: "Заголовок группы" } },
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -342,16 +342,16 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "one-line group (if possible) with empty title",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       title: { items: { ru: "" } },
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -363,15 +363,15 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       name: "Группа",
       group: "Vertical",
       title: { items: { ru: "Заголовок группы" } },
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       childItems: [
         {
           name: "Элемент1",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          itemType: FormElementType.InputField,
+          itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
     } as UsualGroup,
@@ -383,7 +383,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "empty horizontal group",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       group: "Horizontal",
       childItems: [],
     } as UsualGroup,
@@ -393,7 +393,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "empty vertical group",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       group: "Vertical",
       childItems: [],
     } as UsualGroup,
@@ -403,7 +403,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     name: "empty horizontal (if possible) group",
     element: {
       name: "Группа",
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       childItems: [],
     } as UsualGroup,
     structured: `%#{Группа}`,

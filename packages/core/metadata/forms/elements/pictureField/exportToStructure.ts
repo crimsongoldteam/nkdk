@@ -2,11 +2,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { PropertyRule } from "../calendarField/rules"
 import { PictureField } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const AT_SYMBOL = "@"
 
@@ -37,4 +37,4 @@ registerMetadata(
   exportPictureFieldContentToStructure as ExportToStructureContentFn
 )
 registerMetadata("ExportToStructure", "PictureField", exportPictureFieldToStructure as ExportToStructureFn)
-registerIsOneLineElementCheck<PictureField>(FormElementType.PictureField, () => true)
+registerIsOneLineElementCheck<PictureField>(CollectionFormElementType.PictureField, () => true)

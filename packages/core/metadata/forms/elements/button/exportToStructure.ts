@@ -1,7 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
@@ -29,4 +28,4 @@ const formatContent = (context: ConfigurationContext, element: Button): string =
 
 registerMetadata("ExportToStructureContent", "Button", exportButtonContentToStructure as ExportToStructureContentFn)
 registerMetadata("ExportToStructure", "Button", exportButtonToStructure as ExportToStructureFn)
-registerIsOneLineElementCheck<Button>(FormElementType.Button, () => true)
+registerIsOneLineElementCheck<Button>(CollectionFormElementType.Button, () => true)

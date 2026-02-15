@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPictureField, minimalPictureField } from "~/tests/fixtures/forms/pictureField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importPictureFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PictureField,
+      itemType: CollectionFormElementType.PictureField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPictureFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PictureField,
+      itemType: CollectionFormElementType.PictureField,
       xml: xmlData.PictureField,
     })
 
@@ -32,7 +32,7 @@ describe("importPictureFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PictureField,
+      itemType: CollectionFormElementType.PictureField,
       xml: xmlData.PictureField,
     })
 

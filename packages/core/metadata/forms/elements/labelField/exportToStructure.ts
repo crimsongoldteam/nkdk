@@ -3,7 +3,6 @@ import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lex
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { LabelField } from "./types"
@@ -69,4 +68,4 @@ registerMetadata(
   exportLabelFieldContentToStructure as ExportToStructureContentFn
 )
 registerMetadata("ExportToStructure", "LabelField", exportLabelFieldToStructure as ExportToStructureFn)
-registerIsOneLineElementCheck<LabelField>(FormElementType.LabelField, () => true)
+registerIsOneLineElementCheck<LabelField>(CollectionFormElementType.LabelField, () => true)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPlannerField, minimalPlannerField } from "~/tests/fixtures/forms/plannerField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importPlannerFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PlannerField,
+      itemType: CollectionFormElementType.PlannerField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPlannerFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PlannerField,
+      itemType: CollectionFormElementType.PlannerField,
       xml: xmlData.PlannerField,
     })
 
@@ -32,7 +32,7 @@ describe("importPlannerFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PlannerField,
+      itemType: CollectionFormElementType.PlannerField,
       xml: xmlData.PlannerField,
     })
 

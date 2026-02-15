@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullInputField, minimalInputField } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importInputFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importInputFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       xml: xmlData.InputField,
     })
 
@@ -32,7 +32,7 @@ describe("importInputFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       xml: xmlData.InputField,
     })
 

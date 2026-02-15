@@ -1,9 +1,8 @@
 import { RadioButtonField, RadioButtonFieldPartialEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
-  itemType: FormElementType.RadioButtonField,
+  itemType: CollectionFormElementType.RadioButtonField,
   name: "ПолеПереключателя",
   title: {
     items: { ru: "Поле переключателя" },
@@ -158,7 +157,7 @@ export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnter
 }
 
 export const minimalRadioButtonField: RadioButtonField = {
-  itemType: FormElementType.RadioButtonField,
+  itemType: CollectionFormElementType.RadioButtonField,
   name: "ПолеПереключателя",
 }
 

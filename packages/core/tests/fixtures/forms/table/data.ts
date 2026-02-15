@@ -1,7 +1,7 @@
 import { TableChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export interface TableFixture {
@@ -18,7 +18,7 @@ export interface TableExportToStructureFixture {
 }
 
 export const sourceTable: Table = {
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   name: "Таблица",
   autoCommandBar: {
     itemType: "AutoCommandBar",
@@ -50,7 +50,7 @@ export const sourceTable: Table = {
 }
 
 export const fullTable: RequiredFieldsElement<Table> = {
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   name: "Таблица",
   allowGettingCurrentRowURL: true,
   allowRootChoice: true,
@@ -424,7 +424,7 @@ export const fullTableChildItems: TableChildItemsPartialEnterprise = {
 }
 
 export const minimalTable: Table = {
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   name: "Таблица",
   childItems: [],
 }
@@ -433,36 +433,36 @@ export const minimalTableEnterprise: TablePartialEnterprise = {}
 
 export const oneColumnTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
     } as InputField,
   ],
 }
 
 export const twoColumnTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
     } as InputField,
     {
       name: "Колонка2",
       title: { items: { ru: "Колонка 2" } },
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
     } as InputField,
   ],
 }
 
 export const tableWithAutoCommandBar: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   autoCommandBar: {
     itemType: "AutoCommandBar",
     autofill: true,
@@ -485,19 +485,19 @@ export const tableWithAutoCommandBar: Table = {
 
 export const inputColumnTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
     } as InputField,
   ],
 }
 
 export const checkboxColumnTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
@@ -509,7 +509,7 @@ export const checkboxColumnTable: Table = {
 
 export const labelColumnTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
@@ -520,7 +520,7 @@ export const labelColumnTable: Table = {
 
 export const pictureColumnTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
@@ -531,7 +531,7 @@ export const pictureColumnTable: Table = {
 
 export const columnGroupTable: Table = {
   name: "Таблица1",
-  itemType: FormElementType.Table,
+  itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { NamedElement } from "../elements/baseElement/types"
 import {
   clearIsOneLineElementCheckRegistry,
   isOneLineElement,
   registerIsOneLineElementCheck,
 } from "./isOneLineElementCheckFactory"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("isOneLineElementCheckFactory", () => {
   beforeEach(() => {
@@ -14,24 +14,24 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should register and use check function for element type", () => {
     const element: NamedElement = {
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       name: "InputField",
     }
 
     const checkFunction = (_element: NamedElement) => true
-    registerIsOneLineElementCheck(FormElementType.InputField, checkFunction)
+    registerIsOneLineElementCheck(CollectionFormElementType.InputField, checkFunction)
 
     expect(isOneLineElement(element)).toBe(true)
   })
 
   it("should clear registry correctly", () => {
     const element: NamedElement = {
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       name: "InputField",
     }
 
     const checkFunction = () => true
-    registerIsOneLineElementCheck(FormElementType.InputField, checkFunction)
+    registerIsOneLineElementCheck(CollectionFormElementType.InputField, checkFunction)
     expect(isOneLineElement(element)).toBe(true)
 
     clearIsOneLineElementCheckRegistry()
@@ -40,17 +40,17 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should work with multiple element types", () => {
     const inputField: NamedElement = {
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       name: "InputField",
     }
 
     const group: NamedElement = {
-      itemType: FormElementType.UsualGroup,
+      itemType: CollectionFormElementType.UsualGroup,
       name: "UsualGroup",
     }
 
-    registerIsOneLineElementCheck(FormElementType.InputField, () => true)
-    registerIsOneLineElementCheck(FormElementType.UsualGroup, () => false)
+    registerIsOneLineElementCheck(CollectionFormElementType.InputField, () => true)
+    registerIsOneLineElementCheck(CollectionFormElementType.UsualGroup, () => false)
 
     expect(isOneLineElement(inputField)).toBe(true)
     expect(isOneLineElement(group)).toBe(false)

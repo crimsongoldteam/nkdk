@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { mockContext } from "~/tests/mockContext"
 import { exportPagesToStructure } from "./exportToStructure"
 import { Pages } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("exportPagesToStructure", () => {
   it("should format pages", () => {
     const mockElement: Pages = {
       name: "Страницы",
-      itemType: FormElementType.Pages,
+      itemType: CollectionFormElementType.Pages,
       childItems: [
         {
           name: "Страница1",
-          itemType: FormElementType.Page,
+          itemType: CollectionFormElementType.Page,
           childItems: [
             {
               name: "Элемент1",
-              itemType: FormElementType.InputField,
+              itemType: CollectionFormElementType.InputField,
             },
           ],
         },

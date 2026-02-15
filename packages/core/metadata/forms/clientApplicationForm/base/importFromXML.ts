@@ -248,4 +248,4 @@ function importFormMetadataFromXML(
   return result
 }
 
-// registerImport(FormElementType.ClientApplicationForm, importClientApplicationFormFromXML)
+// registerImport(CollectionFormElementType.ClientApplicationForm, importClientApplicationFormFromXML)

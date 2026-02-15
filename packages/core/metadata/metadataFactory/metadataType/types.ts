@@ -1,19 +1,6 @@
-// Универсальные типы для маппинга метаданных
-import {
-  ReverseMapping,
-  IdentityMapping,
-  IdentityMappingType,
-  createIdentityMapping,
-  createReverseMapping,
-} from "../mapping"
+import { createIdentityMapping, createReverseMapping, IdentityMappingType } from "../mapping"
 
-// Re-export for backward compatibility
-export type { ReverseMapping, IdentityMapping, IdentityMappingType }
-export { createIdentityMapping, createReverseMapping }
-
-// --- FormElementType маппинги ---
-
-export const FormElementTypeToEnterprise = {
+export const FormElementTypeToYAML = {
   Button: "Кнопка",
   ButtonGroup: "ГруппаКнопок",
   CalendarField: "ПолеКалендаря",
@@ -49,33 +36,38 @@ export const FormElementTypeToEnterprise = {
   SearchStringAddition: "ОтображениеСтрокиПоиска",
 } as const
 
-export const SingleFormElementTypeToEnterprise = {
-  SingleSearchControlAddition: "ОдиночноеУправлениеПоиском",
-  SingleSearchStringAddition: "ОдиночноеОтображениеСтрокиПоиска",
-  AutoCommandBar: "АвтоКоманднаяПанель",
-  ViewStatusAddition: "СостояниеПросмотра",
-  ContextMenu: "КонтекстноеМеню",
-  ExtendedTooltip: "РасширеннаяПодсказка",
+export const SingleFormElementTypeToYAML = {
+  SingleSearchControlAddition: "SingleSearchControlAddition",
+  SingleSearchStringAddition: "SingleSearchStringAddition",
+  AutoCommandBar: "AutoCommandBar",
+  ViewStatusAddition: "ViewStatusAddition",
+  ContextMenu: "ContextMenu",
+  ExtendedTooltip: "ExtendedTooltip",
 } as const
 
-// Универсальные маппинги для FormElementTypeToEnterprise
-export const FormElementTypeFromEnterprise = createReverseMapping(FormElementTypeToEnterprise)
-export type FormElementTypeFromEnterprise = ReverseMapping<typeof FormElementTypeToEnterprise>
+// #region FormElementType
 
-export const FormElementType = createIdentityMapping(FormElementTypeToEnterprise)
-export type FormElementType = IdentityMappingType<typeof FormElementTypeToEnterprise>
+export const FormElementTypeFromYAML = createReverseMapping(FormElementTypeToYAML)
 
-export const FormElementTypeEnterprise = createIdentityMapping(FormElementTypeFromEnterprise)
-export type FormElementTypeEnterprise = IdentityMappingType<typeof FormElementTypeFromEnterprise>
+export const CollectionFormElementType = createIdentityMapping(FormElementTypeToYAML)
+export type CollectionFormElementType = IdentityMappingType<typeof FormElementTypeToYAML>
 
-// Универсальные маппинги для SingleFormElementTypeToEnterprise
-export const SingleFormElementTypeFromEnterprise = createReverseMapping(SingleFormElementTypeToEnterprise)
-export type SingleFormElementTypeFromEnterprise = ReverseMapping<typeof SingleFormElementTypeToEnterprise>
+export const FormElementTypeYAML = createIdentityMapping(FormElementTypeFromYAML)
+export type FormElementTypeYAML = IdentityMappingType<typeof FormElementTypeFromYAML>
 
-export const SingleFormElementType = createIdentityMapping(SingleFormElementTypeToEnterprise)
-export type SingleFormElementType = IdentityMappingType<typeof SingleFormElementTypeToEnterprise>
+// #endregion
 
-export const SingleFormElementTypeEnterprise = createIdentityMapping(SingleFormElementTypeFromEnterprise)
-export type SingleFormElementTypeEnterprise = IdentityMappingType<typeof SingleFormElementTypeFromEnterprise>
+// #region SingleFormElementType
 
-export type MetadataType = FormElementType | SingleFormElementType
+export const SingleFormElementType = createIdentityMapping(SingleFormElementTypeToYAML)
+export type SingleFormElementType = IdentityMappingType<typeof SingleFormElementTypeToYAML>
+
+// #endregion
+
+// #region AllFormElementType
+
+export type FormElementType = CollectionFormElementType | SingleFormElementType
+
+// #endregion
+
+export type MetadataType = FormElementType

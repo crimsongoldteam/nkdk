@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPeriodField, minimalPeriodField } from "~/tests/fixtures/forms/periodField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importPeriodFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PeriodField,
+      itemType: CollectionFormElementType.PeriodField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPeriodFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PeriodField,
+      itemType: CollectionFormElementType.PeriodField,
       xml: xmlData.PeriodField,
     })
 
@@ -32,7 +32,7 @@ describe("importPeriodFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.PeriodField,
+      itemType: CollectionFormElementType.PeriodField,
       xml: xmlData.PeriodField,
     })
 

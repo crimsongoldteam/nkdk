@@ -2,11 +2,10 @@ import {
   FormattedDocumentField,
   FormattedDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocumentField> = {
-  itemType: FormElementType.FormattedDocumentField,
+  itemType: CollectionFormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
   title: {
     items: { ru: "Поле форматированного документа" },
@@ -165,7 +164,7 @@ export const fullFormattedDocumentFieldPartialEnterprise: FormattedDocumentField
 }
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {
-  itemType: FormElementType.FormattedDocumentField,
+  itemType: CollectionFormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
 }
 

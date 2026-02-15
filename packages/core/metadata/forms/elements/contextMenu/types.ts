@@ -5,7 +5,7 @@ import { BaseElement } from "../baseElement/types"
 /
 
 export interface ContextMenu extends BaseElement {
-  itemType: FormElementType.ContextMenu
+  itemType: "ContextMenu"
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
   childItems: CommandBarGroupChildItems

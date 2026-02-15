@@ -2,11 +2,10 @@ import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {
-  itemType: FormElementType.SpreadSheetDocumentField,
+  itemType: CollectionFormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
   title: {
     items: { ru: "Поле табличного документа" },
@@ -217,7 +216,7 @@ export const fullSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentF
 }
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
-  itemType: FormElementType.SpreadSheetDocumentField,
+  itemType: CollectionFormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
 }
 

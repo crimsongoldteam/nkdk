@@ -2,11 +2,10 @@ import {
   GraphicalSchemaField,
   GraphicalSchemaFieldPartialEnterprise,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
-  itemType: FormElementType.GraphicalSchemaField,
+  itemType: CollectionFormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
   title: {
     items: { ru: "Поле графической схемы" },
@@ -163,7 +162,7 @@ export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPart
 }
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
-  itemType: FormElementType.GraphicalSchemaField,
+  itemType: CollectionFormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
 }
 

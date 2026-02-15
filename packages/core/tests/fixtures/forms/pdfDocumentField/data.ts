@@ -1,5 +1,4 @@
 import { PdfDocumentField, PdfDocumentFieldPartialEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
@@ -164,7 +163,7 @@ export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnter
 }
 
 export const minimalPdfDocumentField: PdfDocumentField = {
-  itemType: FormElementType.PDFDocumentField,
+  itemType: CollectionFormElementType.PDFDocumentField,
   name: "ПолеPDFДокумента",
 }
 

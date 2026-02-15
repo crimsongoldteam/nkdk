@@ -4,7 +4,6 @@ import { AllChildItem, AllChildItems } from "~/metadata/forms/collections/childI
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Table } from "~/metadata/forms/elements/table/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
@@ -16,7 +15,7 @@ export const parseElement = (context: ConfigurationContext, element: TreeNode): 
 
   addChildItemsToResult(context, cst, element)
 
-  if (cst.itemType === FormElementType.Table && element.autoCommandBar) {
+  if (cst.itemType === CollectionFormElementType.Table && element.autoCommandBar) {
     cst.autoCommandBar = parseAutoCommandBar(context, element.autoCommandBar)
   }
 

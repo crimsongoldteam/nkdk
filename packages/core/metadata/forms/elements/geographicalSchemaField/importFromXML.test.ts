@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import {
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,
@@ -11,7 +11,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.GeographicalSchemaField,
+      itemType: CollectionFormElementType.GeographicalSchemaField,
       xml: undefined,
     })
 
@@ -25,7 +25,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.GeographicalSchemaField,
+      itemType: CollectionFormElementType.GeographicalSchemaField,
       xml: xmlData.GeographicalSchemaField,
     })
 
@@ -39,7 +39,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.GeographicalSchemaField,
+      itemType: CollectionFormElementType.GeographicalSchemaField,
       xml: xmlData.GeographicalSchemaField,
     })
 

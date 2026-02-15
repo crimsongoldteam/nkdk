@@ -4,7 +4,6 @@ import { formatElementName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { InputField } from "./types"
 
@@ -74,4 +73,4 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
 // }
 
 registerMetadata("ExportToStructure", "InputField", exportInputFieldToStructure as ExportToStructureFn)
-registerIsOneLineElementCheck(FormElementType.InputField, () => true)
+registerIsOneLineElementCheck(CollectionFormElementType.InputField, () => true)

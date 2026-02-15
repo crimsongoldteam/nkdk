@@ -1,4 +1,4 @@
-import { MetadataItemRule, ToYAML, PropertyRule } from "."
+import { MetadataItemRule, PropertyRule, ToYAML } from "."
 import { ConfigurationContext } from "../context/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
 import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import {
+  CollectionFormElementType,
+  importElementFromPartialYAML,
+  importElementFromTypedYAML,
+} from "~/metadata/metadataFactory"
 import {
   fullCheckBoxField,
   fullCheckBoxFieldPartialEnterprise,
@@ -38,7 +42,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: FormElementType.CheckBoxField,
+        itemType: CollectionFormElementType.CheckBoxField,
         yaml: fullCheckBoxFieldPartialEnterprise,
         source: fullCheckBoxField,
       })
@@ -49,7 +53,7 @@ describe("importCheckBoxFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: FormElementType.CheckBoxField,
+        itemType: CollectionFormElementType.CheckBoxField,
         yaml: minimalCheckBoxFieldPartialEnterprise,
         source: minimalCheckBoxField,
       })

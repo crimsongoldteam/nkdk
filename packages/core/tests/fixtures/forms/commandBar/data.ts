@@ -1,20 +1,20 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarPartialEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullCommandBarChildItemsAllEnterprise,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
 } from "../../commandBarChildItems/data"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parentElement: NamedElement = {
   name: "КоманднаяПанель",
-  itemType: FormElementType.BaseElement,
+  itemType: CollectionFormElementType.BaseElement,
 }
 
 export const sourceCommandBar: CommandBar = {
-  itemType: FormElementType.CommandBar,
+  itemType: CollectionFormElementType.CommandBar,
   name: "КоманднаяПанель",
   childItems: fullCommandBarChildItemsStructure,
   title: {
@@ -23,7 +23,7 @@ export const sourceCommandBar: CommandBar = {
 }
 
 export const fullCommandBar: Required<CommandBar> = {
-  itemType: FormElementType.CommandBar,
+  itemType: CollectionFormElementType.CommandBar,
   name: "КоманднаяПанель",
   enableContentChange: true,
   extendedTooltip: {
@@ -64,7 +64,7 @@ export const fullCommandBar: Required<CommandBar> = {
 export const fullCommandBarAllItems = fullCommandBarChildItemsAllEnterprise
 
 export const minimalCommandBar: CommandBar = {
-  itemType: FormElementType.CommandBar,
+  itemType: CollectionFormElementType.CommandBar,
   name: "КоманднаяПанель",
   childItems: [],
 }
@@ -110,20 +110,20 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with buttons",
     element: {
       name: "КоманднаяПанель",
-      itemType: FormElementType.CommandBar,
+      itemType: CollectionFormElementType.CommandBar,
       childItems: [
         {
-          itemType: FormElementType.Button,
+          itemType: CollectionFormElementType.Button,
           name: "Кнопка1",
           title: { items: { ru: "Кнопка Номер 1" } },
         },
         {
-          itemType: FormElementType.Button,
+          itemType: CollectionFormElementType.Button,
           name: "Кнопка2",
           title: { items: { ru: "Кнопка Номер 2" } },
         },
         {
-          itemType: FormElementType.Button,
+          itemType: CollectionFormElementType.Button,
           name: "Кнопка3",
           title: { items: { ru: "Кнопка Номер 3" } },
         },
@@ -139,10 +139,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with button group",
     element: {
       name: "КоманднаяПанель",
-      itemType: FormElementType.CommandBar,
+      itemType: CollectionFormElementType.CommandBar,
       childItems: [
         {
-          itemType: FormElementType.ButtonGroup,
+          itemType: CollectionFormElementType.ButtonGroup,
           name: "ГруппаКнопок1",
           childItems: [],
           title: { items: { ru: "Группа кнопок" } },
@@ -159,10 +159,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with popup",
     element: {
       name: "КоманднаяПанель",
-      itemType: FormElementType.CommandBar,
+      itemType: CollectionFormElementType.CommandBar,
       childItems: [
         {
-          itemType: FormElementType.Popup,
+          itemType: CollectionFormElementType.Popup,
           name: "Меню",
           title: { items: { ru: "Выпадающее меню" } },
           childItems: [],
@@ -178,10 +178,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with search control addition",
     element: {
       name: "КоманднаяПанель",
-      itemType: FormElementType.CommandBar,
+      itemType: CollectionFormElementType.CommandBar,
       childItems: [
         {
-          itemType: FormElementType.SearchControlAddition,
+          itemType: CollectionFormElementType.SearchControlAddition,
           name: "Дополнение",
           childItems: [],
         },
@@ -196,10 +196,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with search string addition",
     element: {
       name: "КоманднаяПанель",
-      itemType: FormElementType.CommandBar,
+      itemType: CollectionFormElementType.CommandBar,
       childItems: [
         {
-          itemType: FormElementType.SearchStringAddition,
+          itemType: CollectionFormElementType.SearchStringAddition,
           name: "Дополнение",
         },
       ],

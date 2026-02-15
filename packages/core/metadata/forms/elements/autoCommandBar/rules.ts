@@ -1,11 +1,11 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
-import { FormElementType } from "~/metadata/metadataFactory"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
 import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getAutoCommandBarName } from "./helper"
-import { AutoCommandBar } from "./types"
+import { AutoCommandBar, AutoCommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
@@ -42,7 +42,7 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
     },
     TableAutoCommandBar: {
       toXML: (context: ConfigurationContext, _element: AutoCommandBar) => {
-        const parentTable = getParentFromContext(context, FormElementType.Table)
+        const parentTable = getParentFromContext(context, CollectionFormElementType.Table)
         const elementId = getElementId(context)
         const elementName = getAutoCommandBarName(parentTable)
         return { id: elementId, name: elementName }

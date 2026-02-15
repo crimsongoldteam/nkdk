@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromEnterprise"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,
@@ -11,11 +10,12 @@ import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
 import { importClientApplicationFormFromEnterprise } from "./importFromEnterprise"
 import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("importClientApplicationFormFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockContext, fullClientApplicationFormEnterprise, {
-      childItems: [{ name: "ПолеВвода1", itemType: FormElementType.InputField }],
+      childItems: [{ name: "ПолеВвода1", itemType: CollectionFormElementType.InputField }],
       autoCommandBar: {
         itemType: "AutoCommandBar",
         autofill: false,
@@ -29,12 +29,12 @@ describe("importClientApplicationFormFromEnterprise", () => {
   it("should import from form command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      itemType: FormElementType.Button,
+      itemType: CollectionFormElementType.Button,
     }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      itemType: FormElementType.ButtonGroup,
+      itemType: CollectionFormElementType.ButtonGroup,
       childItems: [button],
     }
 
@@ -63,12 +63,12 @@ describe("importClientApplicationFormFromEnterprise", () => {
         childItems: [
           {
             name: "ГруппаКнопок1",
-            itemType: FormElementType.ButtonGroup,
+            itemType: CollectionFormElementType.ButtonGroup,
             enabled: false,
             childItems: [
               {
                 name: "Кнопка1",
-                itemType: FormElementType.Button,
+                itemType: CollectionFormElementType.Button,
                 commandName: "Команда1",
               },
             ],
@@ -83,18 +83,18 @@ describe("importClientApplicationFormFromEnterprise", () => {
   it("should import from table command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      itemType: FormElementType.Button,
+      itemType: CollectionFormElementType.Button,
     }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      itemType: FormElementType.ButtonGroup,
+      itemType: CollectionFormElementType.ButtonGroup,
       childItems: [button],
     }
 
     const table: Table = {
       name: "Таблица1",
-      itemType: FormElementType.Table,
+      itemType: CollectionFormElementType.Table,
       multipleChoice: false,
       autoCommandBar: {
         itemType: "AutoCommandBar",
@@ -121,7 +121,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       childItems: [
         {
           name: "Таблица1",
-          itemType: FormElementType.Table,
+          itemType: CollectionFormElementType.Table,
           multipleChoice: false,
           autoCommandBar: {
             itemType: "AutoCommandBar",
@@ -129,12 +129,12 @@ describe("importClientApplicationFormFromEnterprise", () => {
             childItems: [
               {
                 name: "ГруппаКнопок1",
-                itemType: FormElementType.ButtonGroup,
+                itemType: CollectionFormElementType.ButtonGroup,
                 enabled: false,
                 childItems: [
                   {
                     name: "Кнопка1",
-                    itemType: FormElementType.Button,
+                    itemType: CollectionFormElementType.Button,
                     commandName: "Команда1",
                   },
                 ],

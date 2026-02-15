@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import { fullLabelDecoration, fullLabelDecorationPartialEnterprise } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -7,7 +7,7 @@ describe("importLabelDecorationFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.LabelDecoration,
+      itemType: CollectionFormElementType.LabelDecoration,
       yaml: fullLabelDecorationPartialEnterprise,
       source: fullLabelDecoration,
     })

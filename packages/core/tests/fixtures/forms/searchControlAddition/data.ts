@@ -5,10 +5,9 @@ import {
   SingleSearchControlAddition,
   SingleSearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const parentElement: NamedElement = {
-  itemType: FormElementType.CheckBoxField,
+  itemType: CollectionFormElementType.CheckBoxField,
   name: "Дополнение",
 }
 

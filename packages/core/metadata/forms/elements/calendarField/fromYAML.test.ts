@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullCalendarField,
   fullCalendarFieldPartialEnterprise,
@@ -12,7 +12,7 @@ describe("importCalendarFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.CalendarField,
+      itemType: CollectionFormElementType.CalendarField,
       yaml: fullCalendarFieldPartialEnterprise,
       source: fullCalendarField,
     })
@@ -23,7 +23,7 @@ describe("importCalendarFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.CalendarField,
+      itemType: CollectionFormElementType.CalendarField,
       yaml: minimalCalendarFieldPartialEnterprise,
       source: minimalCalendarField,
     })

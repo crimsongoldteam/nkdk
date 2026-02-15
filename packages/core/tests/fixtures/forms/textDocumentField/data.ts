@@ -2,11 +2,10 @@ import {
   TextDocumentField,
   TextDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/textDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
-  itemType: FormElementType.TextDocumentField,
+  itemType: CollectionFormElementType.TextDocumentField,
   name: "ПолеТекстовогоДокумента",
   title: {
     items: { ru: "Поле текстового документа" },
@@ -167,7 +166,7 @@ export const fullTextDocumentFieldPartialEnterprise: TextDocumentFieldPartialEnt
 }
 
 export const minimalTextDocumentField: TextDocumentField = {
-  itemType: FormElementType.TextDocumentField,
+  itemType: CollectionFormElementType.TextDocumentField,
   name: "ПолеТекстовогоДокумента",
 }
 

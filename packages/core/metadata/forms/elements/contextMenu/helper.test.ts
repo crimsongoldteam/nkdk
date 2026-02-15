@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { NamedElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 
 describe("getContextMenuName", () => {
   it("should generate context menu name from parent element", () => {
     const parentElement: NamedElement = {
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       name: "КакойТоЭлемент",
     }
 
@@ -17,7 +16,7 @@ describe("getContextMenuName", () => {
 
   it("should handle different parent element names", () => {
     const parentElement: NamedElement = {
-      itemType: FormElementType.Button,
+      itemType: CollectionFormElementType.Button,
       name: "Кнопка",
     }
 

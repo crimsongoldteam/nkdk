@@ -3,7 +3,7 @@ import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule } from "../elementRulesFactory"
-import { importFormElementTypeFromEnterprise } from "../metadataType/importFormElementTypeFromEnterprise"
+import { importFormElementTypeFromEnterprise } from "../metadataType/fromYAML"
 import { FormElementType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"

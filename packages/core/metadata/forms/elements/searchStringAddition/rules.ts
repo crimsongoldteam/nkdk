@@ -1,6 +1,5 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { FormElementType } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getSearchStringAdditionName } from "./helper"
@@ -67,7 +66,7 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
     SearchStringAddition: {
       toXML: (context, _element) => {
         if (!context.elementsTree) throw new Error("elementContext is not defined")
-        const parent = getParentFromContext(context, FormElementType.Table)
+        const parent = getParentFromContext(context, CollectionFormElementType.Table)
         const id = getElementId(context)
         const name = getSearchStringAdditionName(parent)
         return { name, id }

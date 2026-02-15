@@ -4,7 +4,7 @@ import {
   CommandBarChildItemsTypedEnterprise,
 } from "~/metadata/forms/collections/childItems/types"
 import { ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialEnterprise = {
   Кнопка1: {
@@ -33,16 +33,16 @@ export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialE
 
 export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
   {
-    itemType: FormElementType.Button,
+    itemType: CollectionFormElementType.Button,
     name: "Кнопка1",
   },
   {
-    itemType: FormElementType.ButtonGroup,
+    itemType: CollectionFormElementType.ButtonGroup,
     name: "ГруппаКнопок",
     childItems: [],
   },
   {
-    itemType: FormElementType.Popup,
+    itemType: CollectionFormElementType.Popup,
     name: "Подменю",
     childItems: [],
   },
@@ -50,29 +50,29 @@ export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
 
 export const fullCommandBarChildItemsTyped: CommandBarChildItem[] = [
   {
-    itemType: FormElementType.Button,
+    itemType: CollectionFormElementType.Button,
     name: "Кнопка1",
     commandName: "ВыполнитьКоманда1",
   },
   {
-    itemType: FormElementType.ButtonGroup,
+    itemType: CollectionFormElementType.ButtonGroup,
     name: "ГруппаКнопок",
     toolTip: { items: { ru: "Подсказка для группы кнопок" } },
     childItems: [
       {
-        itemType: FormElementType.Button,
+        itemType: CollectionFormElementType.Button,
         name: "Кнопка2",
         commandName: "ВыполнитьКоманда2",
       },
     ],
   },
   {
-    itemType: FormElementType.Popup,
+    itemType: CollectionFormElementType.Popup,
     name: "Подменю",
     toolTip: { items: { ru: "Подсказка для подменю" } },
     childItems: [
       {
-        itemType: FormElementType.Button,
+        itemType: CollectionFormElementType.Button,
         name: "Кнопка3",
         commandName: "ВыполнитьКоманда3",
       },

@@ -1,9 +1,8 @@
 import { DendrogramField, DendrogramFieldPartialEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
-  itemType: FormElementType.DendrogramField,
+  itemType: CollectionFormElementType.DendrogramField,
   name: "ПолеДендрограммы",
   title: {
     items: { ru: "Поле дендрограммы" },
@@ -148,7 +147,7 @@ export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterpr
 }
 
 export const minimalDendrogramField: DendrogramField = {
-  itemType: FormElementType.DendrogramField,
+  itemType: CollectionFormElementType.DendrogramField,
   name: "ПолеДендрограммы",
 }
 

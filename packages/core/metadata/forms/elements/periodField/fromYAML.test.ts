@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullPeriodField,
   fullPeriodFieldPartialEnterprise,
@@ -12,7 +12,7 @@ describe("importPeriodFieldFromEnterprise", () => {
   it("should return undefined when source is undefined", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.PeriodField,
+      itemType: CollectionFormElementType.PeriodField,
       yaml: undefined,
       source: undefined,
     })
@@ -23,7 +23,7 @@ describe("importPeriodFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.PeriodField,
+      itemType: CollectionFormElementType.PeriodField,
       yaml: fullPeriodFieldPartialEnterprise,
       source: fullPeriodField,
     })
@@ -34,7 +34,7 @@ describe("importPeriodFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.PeriodField,
+      itemType: CollectionFormElementType.PeriodField,
       yaml: minimalPeriodFieldPartialEnterprise,
       source: minimalPeriodField,
     })

@@ -1,5 +1,4 @@
 import { PlannerField, PlannerFieldPartialEnterprise } from "~/metadata/forms/elements/plannerField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
@@ -198,7 +197,7 @@ export const fullPlannerFieldPartialEnterprise: PlannerFieldPartialEnterprise = 
 }
 
 export const minimalPlannerField: PlannerField = {
-  itemType: FormElementType.PlannerField,
+  itemType: CollectionFormElementType.PlannerField,
   name: "ПолеПланировщика",
 }
 

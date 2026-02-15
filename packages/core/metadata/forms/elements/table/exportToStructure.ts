@@ -3,12 +3,12 @@ import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lex
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureContentFn, ExportToStructureFn } from "../../../metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"
 import { Table } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const V_BAR = t.VBar.LABEL as string
 
@@ -66,6 +66,6 @@ export const exportTableToStructure: FormatElementFunction = (
   return result
 }
 
-registerIsOneLineElementCheck(FormElementType.Table, () => false)
+registerIsOneLineElementCheck(CollectionFormElementType.Table, () => false)
 registerMetadata("ExportToStructureContent", "Table", exportTableContentToStructure as ExportToStructureContentFn)
 registerMetadata("ExportToStructure", "Table", exportTableToStructure as ExportToStructureFn)

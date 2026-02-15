@@ -1,18 +1,17 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const defaultExtendedTooltip: ExtendedTooltip = {
   itemType: "ExtendedTooltip",
 }
 
 export const parentElement: NamedElement = {
-  itemType: FormElementType.InputField,
+  itemType: CollectionFormElementType.InputField,
   name: "КакойТоЭлемент",
 }
 
 export const otherParentElement: NamedElement = {
-  itemType: FormElementType.InputField,
+  itemType: CollectionFormElementType.InputField,
   name: "ДругойЭлемент",
 }
 

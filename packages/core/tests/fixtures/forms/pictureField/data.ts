@@ -3,11 +3,10 @@ import {
   PictureFieldPartialEnterprise,
   PictureFieldTypedEnterprise,
 } from "~/metadata/forms/elements/pictureField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {
-  itemType: FormElementType.PictureField,
+  itemType: CollectionFormElementType.PictureField,
   name: "ПолеКартинки",
   title: {
     items: { ru: "Поле картинки" },
@@ -196,7 +195,7 @@ export const fullPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
 }
 
 export const minimalPictureField: PictureField = {
-  itemType: FormElementType.PictureField,
+  itemType: CollectionFormElementType.PictureField,
   name: "ПолеКартинки",
 }
 

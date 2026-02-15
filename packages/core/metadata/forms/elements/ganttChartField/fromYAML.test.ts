@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import {
+  CollectionFormElementType,
+  CollectionFormElementType,
+  importElementFromPartialYAML,
+} from "~/metadata/metadataFactory"
 import {
   fullGanttChartField,
   fullGanttChartFieldPartialEnterprise,
@@ -12,7 +16,7 @@ describe("importGanttChartFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.GanttChartField,
+      itemType: CollectionFormElementType.GanttChartField,
       yaml: fullGanttChartFieldPartialEnterprise,
       source: fullGanttChartField,
     })
@@ -23,7 +27,7 @@ describe("importGanttChartFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.GanttChartField,
+      itemType: CollectionFormElementType.GanttChartField,
       yaml: minimalGanttChartFieldPartialEnterprise,
       source: minimalGanttChartField,
     })

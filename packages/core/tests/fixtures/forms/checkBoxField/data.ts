@@ -4,11 +4,11 @@ import {
   CheckBoxFieldTypedEnterprise,
 } from "~/metadata/forms/elements/checkBoxField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
-  itemType: FormElementType.CheckBoxField,
+  itemType: CollectionFormElementType.CheckBoxField,
   name: "Флажок",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -161,7 +161,7 @@ export const fullCheckBoxFieldTypedEnterprise: CheckBoxFieldTypedEnterprise = {
 }
 
 export const minimalCheckBoxField: CheckBoxField = {
-  itemType: FormElementType.CheckBoxField,
+  itemType: CollectionFormElementType.CheckBoxField,
   name: "Флажок",
 }
 
@@ -182,7 +182,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "left titled",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
@@ -194,7 +194,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "left titled without title",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
     },
     structured: {
       strings: ["{Флажок} [ ]"],
@@ -205,7 +205,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "right titled",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
       title: { items: { ru: "Заголовок флажка" } },
     },
@@ -218,7 +218,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "right titled without title",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
     },
     structured: {
@@ -230,7 +230,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "left titled switch",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
     },
@@ -243,7 +243,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "left titled switch without title",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       checkBoxType: "Switch",
     },
     structured: {
@@ -255,7 +255,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "right titled switch",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
@@ -269,7 +269,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     name: "right titled switch without title",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
       checkBoxType: "Switch",
     },
@@ -285,7 +285,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
     name: "left titled",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
@@ -297,7 +297,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
     name: "left titled without title",
     element: {
       name: "Флажок",
-      itemType: FormElementType.CheckBoxField,
+      itemType: CollectionFormElementType.CheckBoxField,
     },
     structured: {
       strings: ["[ ] {Флажок}"],

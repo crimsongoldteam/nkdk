@@ -5,11 +5,10 @@ import {
   InputFieldTypedEnterprise,
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {
-  itemType: FormElementType.InputField,
+  itemType: CollectionFormElementType.InputField,
   name: "ПолеВвода",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -358,7 +357,7 @@ export const fullInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
 }
 
 export const minimalInputField: InputField = {
-  itemType: FormElementType.InputField,
+  itemType: CollectionFormElementType.InputField,
   name: "ПолеВвода",
 }
 
@@ -379,7 +378,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ИмяПоля",
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
       title: { items: { ru: "Поле" } },
     },
     structured: {
@@ -391,7 +390,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ИмяПоля",
-      itemType: FormElementType.InputField,
+      itemType: CollectionFormElementType.InputField,
     },
     structured: {
       strings: ["{ИмяПоля}: "],

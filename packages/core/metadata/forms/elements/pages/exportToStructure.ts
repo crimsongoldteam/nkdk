@@ -3,7 +3,6 @@ import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lex
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { ExportToStructureFn } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
@@ -42,5 +41,5 @@ const getHeader = (element: Pages): string => {
   return result
 }
 
-registerIsOneLineElementCheck(FormElementType.Pages, () => false)
+registerIsOneLineElementCheck(CollectionFormElementType.Pages, () => false)
 registerMetadata("ExportToStructure", "Pages", exportPagesToStructure as ExportToStructureFn)

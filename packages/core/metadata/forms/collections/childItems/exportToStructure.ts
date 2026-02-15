@@ -14,10 +14,10 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
   }
 
   // const separatedItems: readonly (
-  //   | typeof FormElementType.Pages
-  //   | typeof FormElementType.UsualGroup
-  //   | typeof FormElementType.Table
-  // )[] = [FormElementType.Pages, FormElementType.UsualGroup, FormElementType.Table]
+  //   | typeof CollectionFormElementType.Pages
+  //   | typeof CollectionFormElementType.UsualGroup
+  //   | typeof CollectionFormElementType.Table
+  // )[] = [CollectionFormElementType.Pages, CollectionFormElementType.UsualGroup, CollectionFormElementType.Table]
 
   // let prevItem: NamedElement | null = null
   for (const item of items) {
@@ -25,15 +25,15 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     //     prevItem &&
     //     (separatedItems.includes(
     //       item.itemType as
-    //         | typeof FormElementType.Pages
-    //         | typeof FormElementType.UsualGroup
-    //         | typeof FormElementType.Table
+    //         | typeof CollectionFormElementType.Pages
+    //         | typeof CollectionFormElementType.UsualGroup
+    //         | typeof CollectionFormElementType.Table
     //     ) ||
     //       separatedItems.includes(
     //         prevItem.itemType as
-    //           | typeof FormElementType.Pages
-    //           | typeof FormElementType.UsualGroup
-    //           | typeof FormElementType.Table
+    //           | typeof CollectionFormElementType.Pages
+    //           | typeof CollectionFormElementType.UsualGroup
+    //           | typeof CollectionFormElementType.Table
     //       ))
     //   ) {
     //     result.strings.push("")

@@ -2,11 +2,11 @@ import {
   HTMLDocumentField,
   HTMLDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
-  itemType: FormElementType.HTMLDocumentField,
+  itemType: CollectionFormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
   title: {
     items: { ru: "Поле HTML документа" },
@@ -163,7 +163,7 @@ export const fullHtmlDocumentFieldPartialEnterprise: HTMLDocumentFieldPartialEnt
 }
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
-  itemType: FormElementType.HTMLDocumentField,
+  itemType: CollectionFormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
 }
 

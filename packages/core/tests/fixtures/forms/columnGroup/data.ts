@@ -3,10 +3,9 @@ import {
   ColumnGroupPartialEnterprise,
   ColumnGroupTypedEnterprise,
 } from "~/metadata/forms/elements/columnGroup/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 export const fullColumnGroup: ColumnGroup = {
-  itemType: FormElementType.ColumnGroup,
+  itemType: CollectionFormElementType.ColumnGroup,
   name: "ГруппаКолонок",
   enableContentChange: true,
   enabled: true,
@@ -110,7 +109,7 @@ export const fullColumnGroupTypedEnterprise: ColumnGroupTypedEnterprise = {
 }
 
 export const minimalColumnGroup: ColumnGroup = {
-  itemType: FormElementType.ColumnGroup,
+  itemType: CollectionFormElementType.ColumnGroup,
   name: "ГруппаКолонок",
   childItems: [],
 }

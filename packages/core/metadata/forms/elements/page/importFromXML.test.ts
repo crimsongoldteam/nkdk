@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, FormElementType, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPage, minimalPage } from "~/tests/fixtures/forms/page/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importPageFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.Page,
+      itemType: CollectionFormElementType.Page,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPageFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.Page,
+      itemType: CollectionFormElementType.Page,
       xml: xmlData.Page,
     })
 
@@ -32,7 +32,7 @@ describe("importPageFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: FormElementType.Page,
+      itemType: CollectionFormElementType.Page,
       xml: xmlData.Page,
     })
 

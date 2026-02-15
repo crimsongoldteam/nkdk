@@ -3,11 +3,10 @@ import {
   PeriodFieldPartialEnterprise,
   PeriodFieldTypedEnterprise,
 } from "~/metadata/forms/elements/periodField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
-  itemType: FormElementType.PeriodField,
+  itemType: CollectionFormElementType.PeriodField,
   name: "ПолеПериода",
   title: {
     items: { ru: "Поле периода" },
@@ -168,7 +167,7 @@ export const fullPeriodFieldTypedEnterprise: PeriodFieldTypedEnterprise = {
 }
 
 export const minimalPeriodField: PeriodField = {
-  itemType: FormElementType.PeriodField,
+  itemType: CollectionFormElementType.PeriodField,
   name: "ПолеПериода",
 }
 

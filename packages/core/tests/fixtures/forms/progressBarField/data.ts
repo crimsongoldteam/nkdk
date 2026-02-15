@@ -1,9 +1,8 @@
 import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "~/metadata/forms/elements/progressBarField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
-  itemType: FormElementType.ProgressBarField,
+  itemType: CollectionFormElementType.ProgressBarField,
   name: "ПолеИндикатора",
   title: {
     items: { ru: "Поле индикатора" },
@@ -156,7 +155,7 @@ export const fullProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnter
 }
 
 export const minimalProgressBarField: ProgressBarField = {
-  itemType: FormElementType.ProgressBarField,
+  itemType: CollectionFormElementType.ProgressBarField,
   name: "ПолеИндикатора",
 }
 

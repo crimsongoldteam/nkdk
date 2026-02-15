@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { AllChildItems } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 type FormatRegistry = {
   format: FormatElementFunction
@@ -39,17 +39,21 @@ export const formatElements = (context: ConfigurationContext, items: AllChildIte
     haveSimpleHorizontalGroup: false,
   }
 
-  const separatedItems: readonly (typeof FormElementType.Pages | typeof FormElementType.UsualGroup)[] = [
-    FormElementType.Pages,
-    FormElementType.UsualGroup,
-  ]
+  const separatedItems: readonly (
+    | typeof CollectionFormElementType.Pages
+    | typeof CollectionFormElementType.UsualGroup
+  )[] = [CollectionFormElementType.Pages, CollectionFormElementType.UsualGroup]
 
   let prevItem: NamedElement | null = null
   for (const item of items) {
     if (
       prevItem &&
-      (separatedItems.includes(item.itemType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup) ||
-        separatedItems.includes(prevItem.itemType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup))
+      (separatedItems.includes(
+        item.itemType as typeof CollectionFormElementType.Pages | typeof CollectionFormElementType.UsualGroup
+      ) ||
+        separatedItems.includes(
+          prevItem.itemType as typeof CollectionFormElementType.Pages | typeof CollectionFormElementType.UsualGroup
+        ))
     ) {
       result.strings.push("")
     }

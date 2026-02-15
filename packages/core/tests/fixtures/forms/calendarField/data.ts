@@ -1,9 +1,8 @@
 import { CalendarField, CalendarFieldPartialEnterprise } from "~/metadata/forms/elements/calendarField/types"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
-  itemType: FormElementType.CalendarField,
+  itemType: CollectionFormElementType.CalendarField,
   name: "ПолеКалендаря",
   displayImportance: "High",
   autoCellHeight: true,
@@ -147,7 +146,7 @@ export const fullCalendarFieldPartialEnterprise: Omit<
 }
 
 export const minimalCalendarField: CalendarField = {
-  itemType: FormElementType.CalendarField,
+  itemType: CollectionFormElementType.CalendarField,
   name: "ПолеКалендаря",
 }
 

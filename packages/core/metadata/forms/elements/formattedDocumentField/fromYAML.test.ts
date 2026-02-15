@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullFormattedDocumentField,
   fullFormattedDocumentFieldPartialEnterprise,
@@ -12,7 +12,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.FormattedDocumentField,
+      itemType: CollectionFormElementType.FormattedDocumentField,
       yaml: fullFormattedDocumentFieldPartialEnterprise,
       source: fullFormattedDocumentField,
     })
@@ -23,7 +23,7 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.FormattedDocumentField,
+      itemType: CollectionFormElementType.FormattedDocumentField,
       yaml: minimalFormattedDocumentFieldPartialEnterprise,
       source: minimalFormattedDocumentField,
     })

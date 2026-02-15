@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullProgressBarField,
   fullProgressBarFieldPartialEnterprise,
@@ -12,7 +12,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.ProgressBarField,
+      itemType: CollectionFormElementType.ProgressBarField,
       yaml: fullProgressBarFieldPartialEnterprise,
       source: fullProgressBarField,
     })
@@ -23,7 +23,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: FormElementType.ProgressBarField,
+      itemType: CollectionFormElementType.ProgressBarField,
       yaml: minimalProgressBarFieldPartialEnterprise,
       source: minimalProgressBarField,
     })
