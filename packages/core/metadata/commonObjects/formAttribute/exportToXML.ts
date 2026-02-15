@@ -3,7 +3,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/metadataFactory"
+import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/metadataFactory"
 import { DynamicList } from "../dynamicList/types"
 import { TypeDescription } from "../typeDescription/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
@@ -104,7 +104,7 @@ const exportFormAttributeToXML = (
 
 const exportFormAttributeSettingsToXML = (params: {
   context: ConfigurationContext
-  _rule: PropertyRule<any> | undefined
+  rule: PropertyRule<any> | undefined
   value: FormAttribute["settings"]
   metadataItem: FormAttribute
 }): FormAttributeXML["Settings"] => {
@@ -188,4 +188,4 @@ const exportFormAttributeAdditionalColumnsToXML = (
 registerTypeRule("FormAttributes", "exportToXML", exportFormAttributesToXML)
 registerTypeRule("FormAttributeColumns", "exportToXML", exportFormAttributeColumnsToXML)
 registerTypeRule("FormAttributeAdditionalColumns", "exportToXML", exportFormAttributeAdditionalColumnsToXML)
-registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML)
+registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML as ExportToXMLFunctionNew)

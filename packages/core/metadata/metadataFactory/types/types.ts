@@ -47,12 +47,16 @@ export type TypeRulesNames =
   | "FormAttributes"
   | "FormAttributeSettings"
 
-type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
+export type ExportToXMLFunction = (
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  value: any
+) => any | undefined
 
-type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
+export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: PropertyRule<T>
-  item: T
+  metadataItem: T
   value: any
 }) => any | undefined
 
@@ -99,6 +103,7 @@ const typeRulesRegistry = new Map<
   | ImportFromXMLFunction
   | ExportToXMLFunction
   | ExportToPreviewFunction
+  | ExportToXMLFunctionNew
 >()
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
@@ -112,7 +117,7 @@ type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFrom
   : O extends "exportToEnterprise"
     ? ExportToEnterpriseFunction | undefined
     : O extends "exportToXML"
-      ? ExportToXMLFunction | undefined
+      ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToPreview"
@@ -136,7 +141,7 @@ export const getTypeRule = <O extends TypeRulesOperations>(
   : O extends "exportToEnterprise"
     ? ExportToEnterpriseFunction | undefined
     : O extends "exportToXML"
-      ? ExportToXMLFunction | undefined
+      ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToPreview"

@@ -1,6 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getTypeRule } from "../types/types"
+import { ExportToXMLFunction, ExportToXMLFunctionNew, getTypeRule } from "../types/types"
 import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <T extends MetadataItem>(params: {
@@ -29,6 +29,7 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
       context: currentContext,
       rule: ruleProp,
       value,
+      metadataItem,
     })
 
     if (exportedValue === undefined) continue
@@ -42,8 +43,9 @@ export const exportPropertyToXML = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
   value: any
+  metadataItem?: any
 }): any | undefined => {
-  const { context, rule, value } = params
+  const { context, rule, value, metadataItem } = params
 
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
@@ -54,7 +56,20 @@ export const exportPropertyToXML = (params: {
     return value
   }
 
-  const exportedValue = typeExportFn(context, rule, value)
+  if (typeExportFn.length === 1) {
+    const exportedValue = (typeExportFn as ExportToXMLFunctionNew)({
+      context,
+      rule,
+      value,
+      metadataItem,
+    })
+    if (exportedValue === rule.defaultValue) {
+      return undefined
+    }
+    return exportedValue
+  }
+
+  const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value)
   if (exportedValue === rule.defaultValue) {
     return undefined
   }
