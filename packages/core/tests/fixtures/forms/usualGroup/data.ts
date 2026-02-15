@@ -74,7 +74,9 @@ export const fullUsualGroupSource: UsualGroup = {
   childItems: [],
 }
 
-export const fullUsualGroupPartialEnterprise: Required<UsualGroupPartialEnterprise> = {
+export const fullUsualGroupPartialEnterprise: Required<
+  Omit<UsualGroupPartialEnterprise, "Заголовок" | "ЗапретитьИспользование">
+> = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Ложь",
   Высота: 200,

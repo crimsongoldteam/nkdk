@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementTypeToYAML, FormElementTypeYAML, MetadataType } from "./types"
+import { CollectionFormElementType, FormElementTypeToYAML, FormElementTypeYAML } from "./types"
 
 export const exportFormElementTypeToEnterprise = (
   _context: ConfigurationContext,
-  element: MetadataType
+  element: CollectionFormElementType
 ): FormElementTypeYAML => {
   return FormElementTypeToYAML[element]
 }

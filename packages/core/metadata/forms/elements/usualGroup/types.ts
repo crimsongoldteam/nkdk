@@ -101,7 +101,7 @@ export interface UsualGroupPartialEnterprise {
   Формат?: I8nTextEnterprise
   ЦветФона?: ColorEnterprise
   ЦветФонаЗаголовкаСкрытогоОтображения?: ColorEnterprise
-  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  // ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
 }
 
 export interface UsualGroupTypedEnterprise extends UsualGroupPartialEnterprise {
