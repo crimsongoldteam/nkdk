@@ -1,4 +1,5 @@
 import { PdfDocumentField, PdfDocumentFieldPartialEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {

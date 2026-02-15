@@ -2,6 +2,7 @@ import {
   GeographicalSchemaField,
   GeographicalSchemaFieldPartialEnterprise,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {

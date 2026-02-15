@@ -8,6 +8,7 @@ import { exportChildItemsToStructure } from "../../collections/childItems/export
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { addSimpleIndent } from "../../format/wrap/addIndents"
 import { Pages } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 

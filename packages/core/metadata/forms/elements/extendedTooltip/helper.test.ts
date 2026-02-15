@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { NamedElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("getExtendedTooltipName", () => {
   it("should generate extended tooltip name from parent element", () => {

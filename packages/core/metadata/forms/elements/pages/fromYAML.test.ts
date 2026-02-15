@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import { fullPages, fullPagesPartialEnterprise } from "~/tests/fixtures/forms/pages/data"
 import { mockContext } from "~/tests/mockContext"
 

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import {
+  CollectionFormElementType,
+  importElementFromPartialYAML,
+  importElementFromTypedYAML,
+} from "~/metadata/metadataFactory"
 import {
   fullPopup,
   fullPopupPartialEnterprise,

@@ -2,6 +2,7 @@ import {
   FormattedDocumentField,
   FormattedDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocumentField> = {

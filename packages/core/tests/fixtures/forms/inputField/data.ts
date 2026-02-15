@@ -5,6 +5,7 @@ import {
   InputFieldTypedEnterprise,
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {

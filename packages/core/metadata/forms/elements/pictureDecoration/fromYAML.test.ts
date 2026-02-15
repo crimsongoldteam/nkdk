@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullPictureDecoration,
   fullPictureDecorationPartialEnterprise,

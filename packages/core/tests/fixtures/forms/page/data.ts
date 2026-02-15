@@ -1,4 +1,5 @@
 import { Page, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPage: Required<Page> = {
   itemType: CollectionFormElementType.Page,

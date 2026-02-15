@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  CollectionFormElementType,
-  CollectionFormElementType,
-  importElementFromPartialYAML,
-} from "~/metadata/metadataFactory"
+import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullGanttChartField,
   fullGanttChartFieldPartialEnterprise,

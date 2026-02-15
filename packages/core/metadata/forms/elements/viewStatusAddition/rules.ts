@@ -4,6 +4,7 @@ import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getViewStatusAdditionName } from "./helper"
 import { ViewStatusAddition } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 export type { ElementRule, PropertyRule }
 
 // В YAML этот элемент может быть только в свойствах, не может быть в структуре

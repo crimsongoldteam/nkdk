@@ -3,6 +3,7 @@ import {
   PeriodFieldPartialEnterprise,
   PeriodFieldTypedEnterprise,
 } from "~/metadata/forms/elements/periodField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {

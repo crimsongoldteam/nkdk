@@ -4,6 +4,7 @@ import {
   ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
   itemType: "ButtonGroup",

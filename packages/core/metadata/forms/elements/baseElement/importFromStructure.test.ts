@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
 import { parseElement } from "../../collections/childItems/parser/elementsParser/parse"
 import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"

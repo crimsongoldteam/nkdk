@@ -3,6 +3,7 @@ import { mockContext } from "~/tests/mockContext"
 import { InputField } from "../inputField/types"
 import { exportPageToStructure } from "./exportToStructure"
 import { Page } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("exportPageToStructure", () => {
   it("should format page", () => {

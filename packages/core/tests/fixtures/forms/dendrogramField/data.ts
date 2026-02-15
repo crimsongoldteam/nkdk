@@ -1,4 +1,5 @@
 import { DendrogramField, DendrogramFieldPartialEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {

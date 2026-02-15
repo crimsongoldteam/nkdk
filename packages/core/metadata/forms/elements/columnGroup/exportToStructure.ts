@@ -7,6 +7,7 @@ import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/meta
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { PropertyRule } from "../calendarField/rules"
 import { ColumnGroup } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const HASH = t.Hash.LABEL as string
 

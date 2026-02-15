@@ -2,6 +2,7 @@ import {
   TextDocumentField,
   TextDocumentFieldPartialEnterprise,
 } from "~/metadata/forms/elements/textDocumentField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {

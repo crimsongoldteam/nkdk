@@ -6,6 +6,7 @@ import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { PropertyRule } from "../calendarField/rules"
 import { LabelDecoration } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const exportLabelDecorationToStructure = (
   context: ConfigurationContext,

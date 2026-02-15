@@ -1,4 +1,5 @@
 import { GanttChartField, GanttChartFieldPartialEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {

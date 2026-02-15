@@ -4,6 +4,7 @@ import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getSearchStringAdditionName } from "./helper"
 import { SearchStringAddition, SingleSearchStringAddition } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 export type { ElementRule, PropertyRule }
 
 const commonProperties: ElementRule<SearchStringAddition>["properties"] = {

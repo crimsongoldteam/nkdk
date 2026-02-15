@@ -5,7 +5,7 @@ import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
 import { ElementRule, registerElementRule } from "../../../metadataFactory/elementRulesFactory"
 import { getAutoCommandBarName } from "./helper"
-import { AutoCommandBar, AutoCommandBar } from "./types"
+import { AutoCommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {

@@ -2,6 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { NamedElement } from "../elements/baseElement/types"
 import { clearFormatRegistry, formatElement, registerFormat } from "./formatFactory"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 beforeEach(() => {
   clearFormatRegistry()
 })

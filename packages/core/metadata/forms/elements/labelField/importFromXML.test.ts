@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullLabelField, minimalLabelField } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

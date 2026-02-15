@@ -1,4 +1,5 @@
 import { PlannerField, PlannerFieldPartialEnterprise } from "~/metadata/forms/elements/plannerField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPlannerField: RequiredFieldsElement<PlannerField> = {

@@ -1,16 +1,16 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarPartialEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   fullCommandBarChildItemsAllEnterprise,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
 } from "../../commandBarChildItems/data"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parentElement: NamedElement = {
   name: "КоманднаяПанель",
-  itemType: CollectionFormElementType.BaseElement,
+  itemType: CollectionFormElementType.Table,
 }
 
 export const sourceCommandBar: CommandBar = {

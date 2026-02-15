@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import {
   fullFormattedDocumentField,
   minimalFormattedDocumentField,

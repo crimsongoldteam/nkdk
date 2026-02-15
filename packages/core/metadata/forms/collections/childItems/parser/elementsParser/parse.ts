@@ -7,6 +7,7 @@ import { Table } from "~/metadata/forms/elements/table/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parseElement = (context: ConfigurationContext, element: TreeNode): AllChildItem => {
   const ast = parseByElementType(element)

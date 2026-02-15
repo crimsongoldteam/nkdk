@@ -1,5 +1,6 @@
 import { LabelDecoration, LabelDecorationPartialEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {

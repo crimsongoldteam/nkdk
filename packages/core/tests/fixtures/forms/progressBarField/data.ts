@@ -1,4 +1,5 @@
 import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "~/metadata/forms/elements/progressBarField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {

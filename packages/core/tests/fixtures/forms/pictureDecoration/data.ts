@@ -3,6 +3,7 @@ import {
   PictureDecorationPartialEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {

@@ -3,6 +3,7 @@ import {
   PictureFieldPartialEnterprise,
   PictureFieldTypedEnterprise,
 } from "~/metadata/forms/elements/pictureField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {

@@ -1,4 +1,5 @@
 import { CalendarField, CalendarFieldPartialEnterprise } from "~/metadata/forms/elements/calendarField/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCalendarField: RequiredFieldsElement<CalendarField> = {

@@ -10,7 +10,7 @@ import {
 
 export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",
-  itemType: CollectionFormElementType.BaseElement,
+  itemType: CollectionFormElementType.Table,
 }
 
 export const sourceAutoCommandBar: AutoCommandBar = {

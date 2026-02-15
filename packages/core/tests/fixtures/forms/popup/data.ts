@@ -1,4 +1,5 @@
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
   backColor: {

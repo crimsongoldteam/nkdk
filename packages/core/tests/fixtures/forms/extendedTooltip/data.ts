@@ -1,5 +1,6 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const defaultExtendedTooltip: ExtendedTooltip = {
   itemType: "ExtendedTooltip",

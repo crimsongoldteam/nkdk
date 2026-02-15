@@ -22,7 +22,6 @@ import { SearchControlAddition } from "~/metadata/forms/elements/searchControlAd
 import { SearchStringAddition } from "~/metadata/forms/elements/searchStringAddition/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/importFormElementTypeFromEnterprise"
 import {
   CollectionFormElementType,
   FormElementTypeYAML,

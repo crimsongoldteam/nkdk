@@ -6,6 +6,7 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { InputField } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 // const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string

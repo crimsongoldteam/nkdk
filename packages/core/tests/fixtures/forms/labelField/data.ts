@@ -5,6 +5,7 @@ import {
   LabelFieldTypedEnterprise,
 } from "~/metadata/forms/elements/labelField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {
