@@ -1,6 +1,5 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { SingleElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { EventsXML, EventXML } from "~/metadata/forms/events/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -57,7 +56,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
   })
 }
 
-export function exportSingleElementToXML<T extends SingleElement>(params: {
+export function exportSingleElementToXML<T extends BaseElement>(params: {
   context: ConfigurationContext
   element: T | undefined
   rule: ElementRule<T>

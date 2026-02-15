@@ -5,7 +5,7 @@ import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"
 import { importElementFromPartialYAML } from "./element/importElementFromEnterprise"
 import { importSingleElementFromXML } from "./element/importElementFromXML"
 import { exportSingleElementToXML } from "./element/toXML"
-import { FormElementType, SingleFormElementType } from "./metadataType/types"
+import { FormElementType } from "./metadataType/types"
 import { TypeRulesNames, registerTypeRule } from "./typeRulesFactory"
 import { ElementXML } from "./types"
 
@@ -68,7 +68,7 @@ const registerAsTypeRegistry = <T extends BaseElement>(
 
 const registerImportFromXML = <T extends BaseElement>(
   propertyType: TypeRulesNames,
-  itemType: SingleFormElementType,
+  itemType: FormElementType,
   elementRule: ElementRule<T>
 ): void => {
   registerTypeRule(

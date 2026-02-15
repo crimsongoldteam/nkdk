@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { OtherElement } from "~/metadata/forms/collections/childItems/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { addSimpleIndent } from "~/metadata/forms/format/wrap/addIndents"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
-import { NamedElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
 const horizontalGroupPrefix = "%"
@@ -35,7 +35,7 @@ const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): s
     const exportFunction = getOperationFunction("ExportToStructure", item.itemType)
     let formattedItem: IFormatElementResult
     if (!exportFunction) {
-      formattedItem = exportOtherElementToStructure(context, item as NamedElement)
+      formattedItem = exportOtherElementToStructure(context, item as OtherElement)
     } else {
       formattedItem = exportFunction(context, item) as IFormatElementResult
     }
