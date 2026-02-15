@@ -20,7 +20,7 @@ export type TypeRulesNames =
   | "FieldsList"
   | "Font"
   | "FormattedI8nText"
-  | "FormParameter"
+  | "FormParameters"
   | "FunctionalOptionsProperty"
   | "I8nText"
   | "IndexField"

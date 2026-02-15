@@ -34,4 +34,4 @@ const importFormParameterFromXML = (
   return result
 }
 
-registerTypeRule("FormParameter", "importFromXML", importFormParametersFromXML)
+registerTypeRule("FormParameters", "importFromXML", importFormParametersFromXML)

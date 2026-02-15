@@ -27,4 +27,4 @@ export const importFormParametersFromEnterprise = (
   })
 }
 
-registerTypeRule("FormParameter", "importFromEnterprise", importFormParametersFromEnterprise)
+registerTypeRule("FormParameters", "importFromEnterprise", importFormParametersFromEnterprise)

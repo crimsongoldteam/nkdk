@@ -1,20 +1,15 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
-import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commonObjects/commandSet/types"
+import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commonObjects/commandSet/types"
+import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../../commonObjects/formParameter/types"
-import { GroupChilItemPartialEnterprise, GroupChildItem, GroupChildItemXML } from "../../collections/childItems/types"
+import { GroupChilItemPartialEnterprise, GroupChildItem } from "../../collections/childItems/types"
 import { Command, CommandsEnterprise, CommandsXML } from "../../commands/types"
-import {
-  CommandInterface,
-  CommandInterfaceEnterprise,
-  CommandInterfaceXML,
-} from "../../commonObjects/commandInterface/types"
-import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../../elements/autoCommandBar/types"
-import { EventsXML } from "../../events/types"
+import { CommandInterface, CommandInterfaceEnterprise } from "../../commonObjects/commandInterface/types"
+import { AutoCommandBar, AutoCommandBarEnterprise } from "../../elements/autoCommandBar/types"
 
 export interface ClientApplicationFormEvents {
   collaborationSystemUsersAutoComplete?: string
@@ -45,7 +40,8 @@ export interface ClientApplicationFormEvents {
   onSaveDataInSettingsAtServer?: string
 }
 
-export interface ClientApplicationForm {
+export interface ClientApplicationForm extends MetadataItem {
+  itemType: "ClientApplicationForm"
   //#region ClientApplicationForm
   attributes?: FormAttribute[]
   autoCommandBar?: AutoCommandBar
@@ -120,48 +116,48 @@ export interface ClientApplicationFormXML {
   "_xmlns:xs"?: string
   "_xmlns:xsi"?: string
   _version?: string
-  AutoFillCheck?: boolean
-  AutoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
-  AutoTitle?: boolean
-  AutoURL?: boolean
-  ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  ChildItemsVerticalAlign?: SE.ItemVerticalAlign
-  CloseOnChoice?: boolean
-  CloseOnOwnerClose?: boolean
-  CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
-  CommandBarLocation?: SE.FormCommandBarLabelLocation
-  CommandInterface?: CommandInterfaceXML
-  ConversationsRepresentation?: SE.FormConversationsRepresentation
-  Customizable?: boolean
-  Enabled?: boolean
-  EnterKeyBehavior?: SE.EnterKeyBehaviorType
-  WindowOpeningMode?: SE.FormWindowOpeningMode
-  Group?: SE.ChildFormItemsGroup
-  Height?: number
-  HorizontalSpacing?: SE.FormItemSpacing
-  ItemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
-  ModalMode?: boolean
-  Modified?: boolean
-  PurposeUseKey?: string
-  ReadOnly?: boolean
-  SaveDataInSettings?: SE.SaveFormDataInSettings
-  SavedInSettingsDataModified?: boolean
-  Scale?: number
-  ShowCloseButton?: boolean
-  ShowTitle?: boolean
-  SlaveItemsWidth?: SE.ChildFormItemsWidth
-  Title?: I8nTextXML
-  UsedFormServer?: SE.UsedServer
-  VerticalScroll?: SE.VerticalFormScroll
-  VerticalSpacing?: SE.FormItemSpacing
-  Width?: number
-  WindowOptionsKey?: string
-  CommandSet?: CommandSetXML
-  UseForFoldersAndItems?: SE.FoldersAndItemsUse
-  AutoCommandBar: AutoCommandBarXML
-  SaveWindowSettings?: boolean
-  Events?: EventsXML
-  ChildItems?: GroupChildItemXML[] | GroupChildItemXML
+  // AutoFillCheck?: boolean
+  // AutoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
+  // AutoTitle?: boolean
+  // AutoURL?: boolean
+  // ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
+  // ChildItemsVerticalAlign?: SE.ItemVerticalAlign
+  // CloseOnChoice?: boolean
+  // CloseOnOwnerClose?: boolean
+  // CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  // CommandBarLocation?: SE.FormCommandBarLabelLocation
+  // CommandInterface?: CommandInterfaceXML
+  // ConversationsRepresentation?: SE.FormConversationsRepresentation
+  // Customizable?: boolean
+  // Enabled?: boolean
+  // EnterKeyBehavior?: SE.EnterKeyBehaviorType
+  // WindowOpeningMode?: SE.FormWindowOpeningMode
+  // Group?: SE.ChildFormItemsGroup
+  // Height?: number
+  // HorizontalSpacing?: SE.FormItemSpacing
+  // ItemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+  // ModalMode?: boolean
+  // Modified?: boolean
+  // PurposeUseKey?: string
+  // ReadOnly?: boolean
+  // SaveDataInSettings?: SE.SaveFormDataInSettings
+  // SavedInSettingsDataModified?: boolean
+  // Scale?: number
+  // ShowCloseButton?: boolean
+  // ShowTitle?: boolean
+  // SlaveItemsWidth?: SE.ChildFormItemsWidth
+  // Title?: I8nTextXML
+  // UsedFormServer?: SE.UsedServer
+  // VerticalScroll?: SE.VerticalFormScroll
+  // VerticalSpacing?: SE.FormItemSpacing
+  // Width?: number
+  // WindowOptionsKey?: string
+  // CommandSet?: CommandSetXML
+  // UseForFoldersAndItems?: SE.FoldersAndItemsUse
+  // AutoCommandBar: AutoCommandBarXML
+  // SaveWindowSettings?: boolean
+  // Events?: EventsXML
+  // ChildItems?: GroupChildItemXML[] | GroupChildItemXML
   Attributes?: {
     Attribute: FormAttributesXML
   }
@@ -169,6 +165,16 @@ export interface ClientApplicationFormXML {
     Parameter: FormParametersXML
   }
   Commands?: { Command: CommandsXML }
+  Events?: {
+    Event: any
+  }
+  ChildItems?: {
+    ChildItem: any
+  }
+  AutoCommandBar?: {
+    CommandBar: any
+  }
+  [key: string]: any
 }
 
 export interface ClientApplicationFormEnterprise {
@@ -272,16 +278,7 @@ export interface FormMetadataXML {
   _version?: string
   Form: {
     _uuid?: string
-    Properties: {
-      Name: string
-      Synonym?: I8nTextXML
-      Comment?: string
-      FormType: "Managed"
-      IncludeHelpInContents?: boolean
-      UsePurposes?: {
-        "v8:Value": MetadataSimpleValueXML | MetadataSimpleValueXML[]
-      }
-    }
+    Properties: Record<string, any>
   }
 }
 
@@ -309,3 +306,8 @@ export interface PreviewAttributeMapItem {
 }
 
 export type PreviewAttributesMap = Record<string, PreviewAttributeMapItem>
+
+export const ClientApplicationFormRulesTags = {
+  Form: "Form",
+  Metadata: "Metadata",
+} as const

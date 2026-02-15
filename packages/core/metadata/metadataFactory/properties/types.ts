@@ -8,13 +8,14 @@ export interface MetadataItem {
   itemType: MetadataType
 }
 
-interface BasePropertyRule<T extends MetadataItem | never> {
+interface BasePropertyRule<T extends MetadataItem | never, TagsType extends string = string> {
   yaml?: T extends MetadataItem ? keyof ToYAML<T> : string
   xml?: string
   toEnterprise?: false
   toPartialYAML?: false
   fromXML?: false
   defaultValue?: any
+  tag?: TagsType
 }
 
 export interface I8nTextPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
@@ -75,6 +76,11 @@ export interface ItemXML {
   [key: string]: any
 }
 
-export interface MetadataItemRule<T extends MetadataItem, ExtraProperties extends string = never> {
+export interface MetadataItemRule<
+  T extends MetadataItem,
+  ExtraProperties extends string = never,
+  TagsType extends string = string,
+> {
+  tags?: TagsType[]
   properties: PropertiesType<T, ExtraProperties>
 }

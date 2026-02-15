@@ -34,4 +34,4 @@ const exportFormParameterToXML = (
   return result
 }
 
-registerTypeRule("FormParameter", "exportToXML", exportFormParametersToXML)
+registerTypeRule("FormParameters", "exportToXML", exportFormParametersToXML)

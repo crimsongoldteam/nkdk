@@ -1,0 +1,290 @@
+import { MetadataItemRule, PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { ElementRule } from "../../../metadataFactory/elementRulesFactory"
+import { ClientApplicationForm, ClientApplicationFormRulesTags } from "./types"
+export type { ElementRule, PropertyRule }
+
+export const ClientApplicationFormRules: MetadataItemRule<ClientApplicationForm> = {
+  tags: [ClientApplicationFormRulesTags.Form, ClientApplicationFormRulesTags.Metadata] as const,
+  properties: {
+    attributes: {
+      yaml: "Реквизиты",
+      type: "FormAttributes",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    autoCommandBar: {
+      yaml: "КоманднаяПанель",
+      type: "AutoCommandBar",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    autoFillCheck: {
+      yaml: "ПроверятьЗаполнениеАвтоматически",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    autoSaveDataInSettings: {
+      yaml: "АвтоматическоеСохранениеДанныхВНастройках",
+      type: "SystemEnumeration",
+      typeSE: "AutoSaveFormDataInSettings",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    autoTitle: {
+      yaml: "АвтоЗаголовок",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    autoURL: {
+      yaml: "АвтоНавигационнаяСсылка",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    childItems: {
+      yaml: "Элементы",
+      type: "ChildItems",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    childItemsHorizontalAlign: {
+      yaml: "ГоризонтальноеПоложениеПодчиненных",
+      type: "SystemEnumeration",
+      typeSE: "ItemHorizontalLocation",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    childItemsVerticalAlign: {
+      yaml: "ВертикальноеПоложениеПодчиненных",
+      type: "SystemEnumeration",
+      typeSE: "ItemVerticalAlign",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    closeOnChoice: {
+      yaml: "ЗакрыватьПриВыборе",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    closeOnOwnerClose: {
+      yaml: "ЗакрыватьПриЗакрытииВладельца",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    collapseItemsByImportance: {
+      yaml: "СворачиваниеЭлементовПоВажности",
+      type: "SystemEnumeration",
+      typeSE: "CollapseFormItemsByImportance",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    commandBarLocation: {
+      yaml: "ПоложениеКоманднойПанели",
+      type: "SystemEnumeration",
+      typeSE: "FormCommandBarLabelLocation",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    commandInterface: {
+      yaml: "ИнтерфейсКоманды",
+      type: "CommandInterface",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    commandSet: {
+      yaml: "СоставКоманд",
+      type: "CommandSet",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    commands: {
+      yaml: "Команды",
+      type: "FormCommands",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    conversationsRepresentation: {
+      yaml: "ОтображениеОбсуждений",
+      type: "SystemEnumeration",
+      typeSE: "FormConversationsRepresentation",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    customizable: {
+      yaml: "РазрешитьИзменятьФорму",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    enabled: {
+      yaml: "Доступность",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    enterKeyBehavior: {
+      yaml: "ПоведениеКлавишиEnter",
+      type: "SystemEnumeration",
+      typeSE: "EnterKeyBehaviorType",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    formWindowOpeningMode: {
+      yaml: "РежимОткрытияОкнаФормы",
+      type: "SystemEnumeration",
+      typeSE: "FormWindowOpeningMode",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    group: {
+      yaml: "Группировка",
+      type: "SystemEnumeration",
+      typeSE: "ChildFormItemsGroup",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    height: {
+      yaml: "Высота",
+      type: "number",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    horizontalSpacing: {
+      yaml: "ГоризонтальныйИнтервал",
+      type: "SystemEnumeration",
+      typeSE: "FormItemSpacing",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    itemsAndTitlesAlign: {
+      yaml: "ВыравниваниеЭлементовИЗаголовков",
+      type: "SystemEnumeration",
+      typeSE: "ItemsAndTitlesAlignVariant",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    modalMode: {
+      yaml: "МодальныйРежим",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    modified: {
+      yaml: "Модифицированность",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    parameters: {
+      yaml: "Параметры",
+      type: "FormParameters",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    purposeUseKey: {
+      yaml: "КлючНазначенияИспользования",
+      type: "string",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    readOnly: {
+      yaml: "ТолькоПросмотр",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    saveDataInSettings: {
+      yaml: "СохранениеДанныхВНастройках",
+      type: "SystemEnumeration",
+      typeSE: "SaveFormDataInSettings",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    savedInSettingsDataModified: {
+      yaml: "СохраняемыеВНастройкахДанныеМодифицированы",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    scale: {
+      yaml: "Масштаб",
+      type: "number",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    saveWindowSettings: {
+      yaml: "СохранятьНастройкиОкна",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    showCloseButton: {
+      yaml: "ОтображатьКнопкуЗакрытия",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    showTitle: {
+      yaml: "ОтображатьЗаголовок",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    slaveItemsWidth: {
+      yaml: "ШиринаПодчиненныхЭлементов",
+      type: "SystemEnumeration",
+      typeSE: "ChildFormItemsWidth",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    title: {
+      yaml: "Заголовок",
+      type: "I8nText",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    usedFormServer: {
+      yaml: "ИспользуемыйСерверФормы",
+      type: "SystemEnumeration",
+      typeSE: "UsedServer",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    verticalScroll: {
+      yaml: "ВертикальнаяПрокрутка",
+      type: "SystemEnumeration",
+      typeSE: "VerticalFormScroll",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    verticalSpacing: {
+      yaml: "ВертикальныйИнтервал",
+      type: "SystemEnumeration",
+      typeSE: "FormItemSpacing",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    width: {
+      yaml: "Ширина",
+      type: "number",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    windowOptionsKey: {
+      yaml: "КлючСохраненияПоложенияОкна",
+      type: "string",
+      tag: ClientApplicationFormRulesTags.Form,
+    },
+    // FormMetadata properties
+    synonim: {
+      yaml: "Синоним",
+      type: "I8nText",
+      tag: ClientApplicationFormRulesTags.Metadata,
+    },
+    comment: {
+      yaml: "Комментарий",
+      type: "string",
+      tag: ClientApplicationFormRulesTags.Metadata,
+    },
+    includeHelpInContents: {
+      yaml: "ВключатьСправкуВСодержание",
+      type: "boolean",
+      tag: ClientApplicationFormRulesTags.Metadata,
+    },
+    usePurposes: {
+      yaml: "НазначенияИспользования",
+      type: "UsePurposes",
+      tag: ClientApplicationFormRulesTags.Metadata,
+    },
+  },
+  events: {
+    collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",
+    externalEvent: "ВнешнееСобытие",
+    activationProcessing: "ОбработкаАктивизации",
+    choiceProcessing: "ОбработкаВыбора",
+    newWriteProcessing: "ОбработкаЗаписиНового",
+    uRLProcessing: "ОбработкаНавигационнойСсылки",
+    notificationProcessing: "ОбработкаОповещения",
+    navigationProcessing: "ОбработкаПерехода",
+    uRLGetProcessing: "ОбработкаПолученияНавигационнойСсылки",
+    uRLListGetProcessing: "ОбработкаПолученияСпискаНавигационныхСсылок",
+    collaborationSystemUsersChoiceFormGetProcessing: "ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия",
+    fillCheckProcessingAtServer: "ОбработкаПроверкиЗаполненияНаСервере",
+    addInDetachmentOnError: "ОтключениеВнешнейКомпонентыПриОшибке",
+    beforeLoadDataFromSettingsAtServer: "ПередЗагрузкойДанныхИзНастроекНаСервере",
+    beforeClose: "ПередЗакрытием",
+    beforeReopenFromOtherServer: "ПередПереоткрытиемСДругогоСервера",
+    onPasteFromClipboard: "ПриВставкеИзБуфераОбмена",
+    onLoadDataFromSettingsAtServer: "ПриЗагрузкеДанныхИзНастроекНаСервере",
+    onClose: "ПриЗакрытии",
+    onMainServerAvailabilityChange: "ПриИзмененииДоступностиОсновногоСервера",
+    onChangeDisplaySettings: "ПриИзмененииПараметровЭкрана",
+    onOpen: "ПриОткрытии",
+    onReopenFromOtherServer: "ПриПереоткрытииСДругогоСервера",
+    onReopen: "ПриПовторномОткрытии",
+    onCreateAtServer: "ПриСозданииНаСервере",
+    onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
+  },
+}

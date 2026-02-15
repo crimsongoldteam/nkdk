@@ -30,4 +30,4 @@ export const exportFormParametersToEnterprise = (
   return result
 }
 
-registerTypeRule("FormParameter", "exportToEnterprise", exportFormParametersToEnterprise)
+registerTypeRule("FormParameters", "exportToEnterprise", exportFormParametersToEnterprise)

@@ -1,284 +1,278 @@
-import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttribute/exportToEnterprise"
-import { exportFormParametersToEnterprise } from "~/metadata/commonObjects/formParameter/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { exportUsePurposesToEnterprise } from "~/metadata/commonObjects/usePurposes/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
-  ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/base/types"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { exportChildItemsToPartialYAML } from "../../collections/childItems/exportToEnterprise"
-import { exportCommandsToEnterprise } from "../../commands/exportToEnterprise"
-import { exportCommandInterfaceToEnterprise } from "../../commonObjects/commandInterface/exportToEnterprise"
-import { exportCommandSetToEnterprise } from "../../commonObjects/commandSet/exportToEnterprise"
-import { PropertyRule } from "../../elements/calendarField/rules"
-import { getAllElements } from "./getAllElements"
+import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
+import { ClientApplicationFormRules } from "./rules"
 
-const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {
-  collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",
-  externalEvent: "ВнешнееСобытие",
-  activationProcessing: "ОбработкаАктивизации",
-  choiceProcessing: "ОбработкаВыбора",
-  newWriteProcessing: "ОбработкаЗаписиНового",
-  uRLProcessing: "ОбработкаНавигационнойСсылки",
-  notificationProcessing: "ОбработкаОповещения",
-  navigationProcessing: "ОбработкаПерехода",
-  uRLGetProcessing: "ОбработкаПолученияНавигационнойСсылки",
-  uRLListGetProcessing: "ОбработкаПолученияСпискаНавигационныхСсылок",
-  collaborationSystemUsersChoiceFormGetProcessing: "ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия",
-  fillCheckProcessingAtServer: "ОбработкаПроверкиЗаполненияНаСервере",
-  addInDetachmentOnError: "ОтключениеВнешнейКомпонентыПриОшибке",
-  beforeLoadDataFromSettingsAtServer: "ПередЗагрузкойДанныхИзНастроекНаСервере",
-  beforeClose: "ПередЗакрытием",
-  beforeReopenFromOtherServer: "ПередПереоткрытиемСДругогоСервера",
-  onPasteFromClipboard: "ПриВставкеИзБуфераОбмена",
-  onLoadDataFromSettingsAtServer: "ПриЗагрузкеДанныхИзНастроекНаСервере",
-  onClose: "ПриЗакрытии",
-  onMainServerAvailabilityChange: "ПриИзмененииДоступностиОсновногоСервера",
-  onChangeDisplaySettings: "ПриИзмененииПараметровЭкрана",
-  onOpen: "ПриОткрытии",
-  onReopenFromOtherServer: "ПриПереоткрытииСДругогоСервера",
-  onReopen: "ПриПовторномОткрытии",
-  onCreateAtServer: "ПриСозданииНаСервере",
-  onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
-}
+// const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {
+//   collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",
+//   externalEvent: "ВнешнееСобытие",
+//   activationProcessing: "ОбработкаАктивизации",
+//   choiceProcessing: "ОбработкаВыбора",
+//   newWriteProcessing: "ОбработкаЗаписиНового",
+//   uRLProcessing: "ОбработкаНавигационнойСсылки",
+//   notificationProcessing: "ОбработкаОповещения",
+//   navigationProcessing: "ОбработкаПерехода",
+//   uRLGetProcessing: "ОбработкаПолученияНавигационнойСсылки",
+//   uRLListGetProcessing: "ОбработкаПолученияСпискаНавигационныхСсылок",
+//   collaborationSystemUsersChoiceFormGetProcessing: "ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия",
+//   fillCheckProcessingAtServer: "ОбработкаПроверкиЗаполненияНаСервере",
+//   addInDetachmentOnError: "ОтключениеВнешнейКомпонентыПриОшибке",
+//   beforeLoadDataFromSettingsAtServer: "ПередЗагрузкойДанныхИзНастроекНаСервере",
+//   beforeClose: "ПередЗакрытием",
+//   beforeReopenFromOtherServer: "ПередПереоткрытиемСДругогоСервера",
+//   onPasteFromClipboard: "ПриВставкеИзБуфераОбмена",
+//   onLoadDataFromSettingsAtServer: "ПриЗагрузкеДанныхИзНастроекНаСервере",
+//   onClose: "ПриЗакрытии",
+//   onMainServerAvailabilityChange: "ПриИзмененииДоступностиОсновногоСервера",
+//   onChangeDisplaySettings: "ПриИзмененииПараметровЭкрана",
+//   onOpen: "ПриОткрытии",
+//   onReopenFromOtherServer: "ПриПереоткрытииСДругогоСервера",
+//   onReopen: "ПриПовторномОткрытии",
+//   onCreateAtServer: "ПриСозданииНаСервере",
+//   onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
+// }
 
-const exportClientApplicationFormEventsToEnterprise = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  data: ClientApplicationFormEvents | undefined
-): ClientApplicationFormEnterprise["События"] | undefined => {
-  if (!data || Object.keys(data).length === 0) return undefined
+// const exportClientApplicationFormEventsToEnterprise = (
+//   _context: ConfigurationContext,
+//   _rule: PropertyRule<any>,
+//   data: ClientApplicationFormEvents | undefined
+// ): ClientApplicationFormEnterprise["События"] | undefined => {
+//   if (!data || Object.keys(data).length === 0) return undefined
 
-  const result: ClientApplicationFormEnterprise["События"] = {}
+//     const result: ClientApplicationFormEnterprise["События"] = {}
 
-  for (const [eventName, eventValue] of Object.entries(data)) {
-    const enterpriseEventName = clientApplicationFormEventNameMapping[eventName as keyof ClientApplicationFormEvents]
-    if (enterpriseEventName && eventValue) {
-      ;(result as Record<string, string>)[enterpriseEventName] = eventValue
-    }
-  }
+//     for (const [eventName, eventValue] of Object.entries(data)) {
+//       const enterpriseEventName = clientApplicationFormEventNameMapping[eventName as keyof ClientApplicationFormEvents]
+//       if (enterpriseEventName && eventValue) {
+//         ;(result as Record<string, string>)[enterpriseEventName] = eventValue
+//       }
+//     }
 
-  return Object.keys(result).length > 0 ? result : undefined
-}
+//     return Object.keys(result).length > 0 ? result : undefined
+//   }
 
 export const exportClientApplicationFormToEnterprise = (
   context: ConfigurationContext,
-  data: ClientApplicationForm | undefined
+  data: ClientApplicationForm
 ): ClientApplicationFormEnterprise | undefined => {
-  if (!data) return undefined
-
-  const result: ClientApplicationFormEnterprise = {}
-
-  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, data.synonim)
-  if (synonym !== undefined) result.Синоним = synonym
-
-  if (data.comment !== undefined) result.Комментарий = data.comment
-
-  const includeHelpInContents = exportBooleanToEnterprise(context, undefined, data.includeHelpInContents)
-  if (includeHelpInContents !== undefined) result.ВключатьСправкуВСодержание = includeHelpInContents
-
-  const usePurposes = exportUsePurposesToEnterprise(context, undefined, data.usePurposes)
-  if (usePurposes !== undefined) result.НазначенияИспользования = usePurposes
-
-  const autoTitle = exportBooleanToEnterprise(context, undefined, data.autoTitle)
-  if (autoTitle !== undefined) result.АвтоЗаголовок = autoTitle
-
-  const autoSaveDataInSettings = exportSystemEnumerationToYAML<SE.AutoSaveFormDataInSettingsEnterprise>(
+  const result = exportPropertiesToYAML({
     context,
-    { type: "SystemEnumeration", typeSE: "AutoSaveFormDataInSettings" },
-    data.autoSaveDataInSettings
-  )
-  if (autoSaveDataInSettings !== undefined) result.АвтоматическоеСохранениеДанныхВНастройках = autoSaveDataInSettings
+    data: data,
+    rules: ClientApplicationFormRules,
+  })
 
-  const autoURL = exportBooleanToEnterprise(context, undefined, data.autoURL)
-  if (autoURL !== undefined) result.АвтоНавигационнаяСсылка = autoURL
+  //   if (!data) return undefined
 
-  const saveWindowSettings = exportBooleanToEnterprise(context, undefined, data.saveWindowSettings)
-  if (saveWindowSettings !== undefined) result.СохранятьНастройкиОкна = saveWindowSettings
+  //   const result: ClientApplicationFormEnterprise = {}
 
-  const verticalScroll = exportSystemEnumerationToYAML<SE.VerticalFormScrollEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "VerticalFormScroll" },
-    data.verticalScroll
-  )
-  if (verticalScroll !== undefined) result.ВертикальнаяПрокрутка = verticalScroll
+  //   const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, data.synonim)
+  //   if (synonym !== undefined) result.Синоним = synonym
 
-  const childItemsVerticalAlign = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
-    data.childItemsVerticalAlign
-  )
-  if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
+  //   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const verticalSpacing = exportSystemEnumerationToYAML<SE.FormItemSpacingEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FormItemSpacing" },
-    data.verticalSpacing
-  )
-  if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
+  //   const includeHelpInContents = exportBooleanToEnterprise(context, undefined, data.includeHelpInContents)
+  //   if (includeHelpInContents !== undefined) result.ВключатьСправкуВСодержание = includeHelpInContents
 
-  const itemsAndTitlesAlign = exportSystemEnumerationToYAML<SE.ItemsAndTitlesAlignVariantEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "ItemsAndTitlesAlignVariant" },
-    data.itemsAndTitlesAlign
-  )
-  if (itemsAndTitlesAlign !== undefined) result.ВыравниваниеЭлементовИЗаголовков = itemsAndTitlesAlign
+  //   const usePurposes = exportUsePurposesToEnterprise(context, undefined, data.usePurposes)
+  //   if (usePurposes !== undefined) result.НазначенияИспользования = usePurposes
 
-  if (data.height !== undefined) result.Высота = data.height
+  //   const autoTitle = exportBooleanToEnterprise(context, undefined, data.autoTitle)
+  //   if (autoTitle !== undefined) result.АвтоЗаголовок = autoTitle
 
-  const childItemsHorizontalAlign = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
-    data.childItemsHorizontalAlign
-  )
-  if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
+  //   const autoSaveDataInSettings = exportSystemEnumerationToYAML<SE.AutoSaveFormDataInSettingsEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "AutoSaveFormDataInSettings" },
+  //     data.autoSaveDataInSettings
+  //   )
+  //   if (autoSaveDataInSettings !== undefined) result.АвтоматическоеСохранениеДанныхВНастройках = autoSaveDataInSettings
 
-  const horizontalSpacing = exportSystemEnumerationToYAML<SE.FormItemSpacingEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FormItemSpacing" },
-    data.horizontalSpacing
-  )
-  if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
+  //   const autoURL = exportBooleanToEnterprise(context, undefined, data.autoURL)
+  //   if (autoURL !== undefined) result.АвтоНавигационнаяСсылка = autoURL
 
-  const group = exportSystemEnumerationToYAML<SE.ChildFormItemsGroupEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "ChildFormItemsGroup" },
-    data.group
-  )
-  if (group !== undefined) result.Группировка = group
+  //   const saveWindowSettings = exportBooleanToEnterprise(context, undefined, data.saveWindowSettings)
+  //   if (saveWindowSettings !== undefined) result.СохранятьНастройкиОкна = saveWindowSettings
 
-  const customizable = exportBooleanToEnterprise(context, undefined, data.customizable)
-  if (customizable !== undefined) result.РазрешитьИзменятьФорму = customizable
+  //   const verticalScroll = exportSystemEnumerationToYAML<SE.VerticalFormScrollEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "VerticalFormScroll" },
+  //     data.verticalScroll
+  //   )
+  //   if (verticalScroll !== undefined) result.ВертикальнаяПрокрутка = verticalScroll
 
-  const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
-  if (enabled !== undefined) result.Доступность = enabled
+  //   const childItemsVerticalAlign = exportSystemEnumerationToYAML<SE.ItemVerticalAlignEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "ItemVerticalAlign" },
+  //     data.childItemsVerticalAlign
+  //   )
+  //   if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
 
-  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
-  if (title !== undefined) result.Заголовок = title
+  //   const verticalSpacing = exportSystemEnumerationToYAML<SE.FormItemSpacingEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "FormItemSpacing" },
+  //     data.verticalSpacing
+  //   )
+  //   if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
 
-  const closeOnChoice = exportBooleanToEnterprise(context, undefined, data.closeOnChoice)
-  if (closeOnChoice !== undefined) result.ЗакрыватьПриВыборе = closeOnChoice
+  //   const itemsAndTitlesAlign = exportSystemEnumerationToYAML<SE.ItemsAndTitlesAlignVariantEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "ItemsAndTitlesAlignVariant" },
+  //     data.itemsAndTitlesAlign
+  //   )
+  //   if (itemsAndTitlesAlign !== undefined) result.ВыравниваниеЭлементовИЗаголовков = itemsAndTitlesAlign
 
-  const closeOnOwnerClose = exportBooleanToEnterprise(context, undefined, data.closeOnOwnerClose)
-  if (closeOnOwnerClose !== undefined) result.ЗакрыватьПриЗакрытииВладельца = closeOnOwnerClose
+  //   if (data.height !== undefined) result.Высота = data.height
 
-  const usedFormServer = exportSystemEnumerationToYAML<SE.UsedServerEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "UsedServer" },
-    data.usedFormServer
-  )
-  if (usedFormServer !== undefined) result.ИспользуемыйСерверФормы = usedFormServer
+  //   const childItemsHorizontalAlign = exportSystemEnumerationToYAML<SE.ItemHorizontalLocationEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "ItemHorizontalLocation" },
+  //     data.childItemsHorizontalAlign
+  //   )
+  //   if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
 
-  const commandInterface = exportCommandInterfaceToEnterprise(context, undefined, data.commandInterface)
-  if (commandInterface !== undefined) result.ИнтерфейсКоманды = commandInterface
+  //   const horizontalSpacing = exportSystemEnumerationToYAML<SE.FormItemSpacingEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "FormItemSpacing" },
+  //     data.horizontalSpacing
+  //   )
+  //   if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
 
-  if (data.purposeUseKey !== undefined) result.КлючНазначенияИспользования = data.purposeUseKey
+  //   const group = exportSystemEnumerationToYAML<SE.ChildFormItemsGroupEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "ChildFormItemsGroup" },
+  //     data.group
+  //   )
+  //   if (group !== undefined) result.Группировка = group
 
-  if (data.windowOptionsKey !== undefined) result.КлючСохраненияПоложенияОкна = data.windowOptionsKey
+  //   const customizable = exportBooleanToEnterprise(context, undefined, data.customizable)
+  //   if (customizable !== undefined) result.РазрешитьИзменятьФорму = customizable
 
-  const autoCommandBar = exportAutoCommandBarToEnterprise(context, undefined, data.autoCommandBar)
-  if (autoCommandBar !== undefined) result.КоманднаяПанель = autoCommandBar
+  //   const enabled = exportBooleanToEnterprise(context, undefined, data.enabled)
+  //   if (enabled !== undefined) result.Доступность = enabled
 
-  const commands = exportCommandsToEnterprise(context, undefined, data.commands)
-  if (commands !== undefined) result.Команды = commands
+  //   const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
+  //   if (title !== undefined) result.Заголовок = title
 
-  if (data.scale !== undefined) result.Масштаб = data.scale
+  //   const closeOnChoice = exportBooleanToEnterprise(context, undefined, data.closeOnChoice)
+  //   if (closeOnChoice !== undefined) result.ЗакрыватьПриВыборе = closeOnChoice
 
-  const modalMode = exportBooleanToEnterprise(context, undefined, data.modalMode)
-  if (modalMode !== undefined) result.МодальныйРежим = modalMode
+  //   const closeOnOwnerClose = exportBooleanToEnterprise(context, undefined, data.closeOnOwnerClose)
+  //   if (closeOnOwnerClose !== undefined) result.ЗакрыватьПриЗакрытииВладельца = closeOnOwnerClose
 
-  const modified = exportBooleanToEnterprise(context, undefined, data.modified)
-  if (modified !== undefined) result.Модифицированность = modified
+  //   const usedFormServer = exportSystemEnumerationToYAML<SE.UsedServerEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "UsedServer" },
+  //     data.usedFormServer
+  //   )
+  //   if (usedFormServer !== undefined) result.ИспользуемыйСерверФормы = usedFormServer
 
-  // if (data.url !== undefined) result.НавигационнаяСсылка = data.url
+  //   const commandInterface = exportCommandInterfaceToEnterprise(context, undefined, data.commandInterface)
+  //   if (commandInterface !== undefined) result.ИнтерфейсКоманды = commandInterface
 
-  const showTitle = exportBooleanToEnterprise(context, undefined, data.showTitle)
-  if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle
+  //   if (data.purposeUseKey !== undefined) result.КлючНазначенияИспользования = data.purposeUseKey
 
-  const showCloseButton = exportBooleanToEnterprise(context, undefined, data.showCloseButton)
-  if (showCloseButton !== undefined) result.ОтображатьКнопкуЗакрытия = showCloseButton
+  //   if (data.windowOptionsKey !== undefined) result.КлючСохраненияПоложенияОкна = data.windowOptionsKey
 
-  const conversationsRepresentation = exportSystemEnumerationToYAML<SE.FormConversationsRepresentationEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FormConversationsRepresentation" },
-    data.conversationsRepresentation
-  )
-  if (conversationsRepresentation !== undefined) result.ОтображениеОбсуждений = conversationsRepresentation
+  //   const autoCommandBar = exportAutoCommandBarToEnterprise(context, undefined, data.autoCommandBar)
+  //   if (autoCommandBar !== undefined) result.КоманднаяПанель = autoCommandBar
 
-  const enterKeyBehavior = exportSystemEnumerationToYAML<SE.EnterKeyBehaviorTypeEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "EnterKeyBehaviorType" },
-    data.enterKeyBehavior
-  )
-  if (enterKeyBehavior !== undefined) result.ПоведениеКлавишиEnter = enterKeyBehavior
+  //   const commands = exportCommandsToEnterprise(context, undefined, data.commands)
+  //   if (commands !== undefined) result.Команды = commands
 
-  const commandBarLocation = exportSystemEnumerationToYAML<SE.FormCommandBarLabelLocationEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FormCommandBarLabelLocation" },
-    data.commandBarLocation
-  )
-  if (commandBarLocation !== undefined) result.ПоложениеКоманднойПанели = commandBarLocation
+  //   if (data.scale !== undefined) result.Масштаб = data.scale
 
-  const autoFillCheck = exportBooleanToEnterprise(context, undefined, data.autoFillCheck)
-  if (autoFillCheck !== undefined) result.ПроверятьЗаполнениеАвтоматически = autoFillCheck
+  //   const modalMode = exportBooleanToEnterprise(context, undefined, data.modalMode)
+  //   if (modalMode !== undefined) result.МодальныйРежим = modalMode
 
-  const formWindowOpeningMode = exportSystemEnumerationToYAML<SE.FormWindowOpeningModeEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FormWindowOpeningMode" },
-    data.formWindowOpeningMode
-  )
-  if (formWindowOpeningMode !== undefined) result.РежимОткрытияОкнаФормы = formWindowOpeningMode
+  //   const modified = exportBooleanToEnterprise(context, undefined, data.modified)
+  //   if (modified !== undefined) result.Модифицированность = modified
 
-  const collapseItemsByImportance = exportSystemEnumerationToYAML<SE.CollapseFormItemsByImportanceEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "CollapseFormItemsByImportance" },
-    data.collapseItemsByImportance
-  )
-  if (collapseItemsByImportance !== undefined) result.СворачиваниеЭлементовПоВажности = collapseItemsByImportance
+  //   // if (data.url !== undefined) result.НавигационнаяСсылка = data.url
 
-  const commandSet = exportCommandSetToEnterprise(context, undefined, data.commandSet)
-  if (commandSet !== undefined) result.СоставКоманд = commandSet
+  //   const showTitle = exportBooleanToEnterprise(context, undefined, data.showTitle)
+  //   if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle
 
-  const saveDataInSettings = exportSystemEnumerationToYAML<SE.SaveFormDataInSettingsEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "SaveFormDataInSettings" },
-    data.saveDataInSettings
-  )
-  if (saveDataInSettings !== undefined) result.СохранениеДанныхВНастройках = saveDataInSettings
+  //   const showCloseButton = exportBooleanToEnterprise(context, undefined, data.showCloseButton)
+  //   if (showCloseButton !== undefined) result.ОтображатьКнопкуЗакрытия = showCloseButton
 
-  const savedInSettingsDataModified = exportBooleanToEnterprise(context, undefined, data.savedInSettingsDataModified)
-  if (savedInSettingsDataModified !== undefined)
-    result.СохраняемыеВНастройкахДанныеМодифицированы = savedInSettingsDataModified
+  //   const conversationsRepresentation = exportSystemEnumerationToYAML<SE.FormConversationsRepresentationEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "FormConversationsRepresentation" },
+  //     data.conversationsRepresentation
+  //   )
+  //   if (conversationsRepresentation !== undefined) result.ОтображениеОбсуждений = conversationsRepresentation
 
-  const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
-  if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+  //   const enterKeyBehavior = exportSystemEnumerationToYAML<SE.EnterKeyBehaviorTypeEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "EnterKeyBehaviorType" },
+  //     data.enterKeyBehavior
+  //   )
+  //   if (enterKeyBehavior !== undefined) result.ПоведениеКлавишиEnter = enterKeyBehavior
 
-  if (data.width !== undefined) result.Ширина = data.width
+  //   const commandBarLocation = exportSystemEnumerationToYAML<SE.FormCommandBarLabelLocationEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "FormCommandBarLabelLocation" },
+  //     data.commandBarLocation
+  //   )
+  //   if (commandBarLocation !== undefined) result.ПоложениеКоманднойПанели = commandBarLocation
 
-  const slaveItemsWidth = exportSystemEnumerationToYAML<SE.ChildFormItemsWidthEnterprise>(
-    context,
-    { type: "SystemEnumeration", typeSE: "ChildFormItemsWidth" },
-    data.slaveItemsWidth
-  )
-  if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
+  //   const autoFillCheck = exportBooleanToEnterprise(context, undefined, data.autoFillCheck)
+  //   if (autoFillCheck !== undefined) result.ПроверятьЗаполнениеАвтоматически = autoFillCheck
 
-  const attributes = exportFormAttributesToEnterprise(context, undefined, data.attributes)
-  if (attributes !== undefined) result.Реквизиты = attributes
+  //   const formWindowOpeningMode = exportSystemEnumerationToYAML<SE.FormWindowOpeningModeEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "FormWindowOpeningMode" },
+  //     data.formWindowOpeningMode
+  //   )
+  //   if (formWindowOpeningMode !== undefined) result.РежимОткрытияОкнаФормы = formWindowOpeningMode
 
-  const parameters = exportFormParametersToEnterprise(context, undefined, data.parameters)
-  if (parameters !== undefined) result.Параметры = parameters
+  //   const collapseItemsByImportance = exportSystemEnumerationToYAML<SE.CollapseFormItemsByImportanceEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "CollapseFormItemsByImportance" },
+  //     data.collapseItemsByImportance
+  //   )
+  //   if (collapseItemsByImportance !== undefined) result.СворачиваниеЭлементовПоВажности = collapseItemsByImportance
 
-  const events = exportClientApplicationFormEventsToEnterprise(context, undefined, data.events)
-  if (events !== undefined) result.События = events
+  //   const commandSet = exportCommandSetToEnterprise(context, undefined, data.commandSet)
+  //   if (commandSet !== undefined) result.СоставКоманд = commandSet
 
-  const allElements = getAllElements(data)
-  const childItems = exportChildItemsToPartialYAML(context, undefined, allElements)
-  if (childItems !== undefined) result.Элементы = childItems
+  //   const saveDataInSettings = exportSystemEnumerationToYAML<SE.SaveFormDataInSettingsEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "SaveFormDataInSettings" },
+  //     data.saveDataInSettings
+  //   )
+  //   if (saveDataInSettings !== undefined) result.СохранениеДанныхВНастройках = saveDataInSettings
+
+  //   const savedInSettingsDataModified = exportBooleanToEnterprise(context, undefined, data.savedInSettingsDataModified)
+  //   if (savedInSettingsDataModified !== undefined)
+  //     result.СохраняемыеВНастройкахДанныеМодифицированы = savedInSettingsDataModified
+
+  //   const readOnly = exportBooleanToEnterprise(context, undefined, data.readOnly)
+  //   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+
+  //   if (data.width !== undefined) result.Ширина = data.width
+
+  //   const slaveItemsWidth = exportSystemEnumerationToYAML<SE.ChildFormItemsWidthEnterprise>(
+  //     context,
+  //     { type: "SystemEnumeration", typeSE: "ChildFormItemsWidth" },
+  //     data.slaveItemsWidth
+  //   )
+  //   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
+
+  //   const attributes = exportFormAttributesToEnterprise(context, undefined, data.attributes)
+  //   if (attributes !== undefined) result.Реквизиты = attributes
+
+  //   const parameters = exportFormParametersToEnterprise(context, undefined, data.parameters)
+  //   if (parameters !== undefined) result.Параметры = parameters
+
+  //   const events = exportClientApplicationFormEventsToEnterprise(context, undefined, data.events)
+  //   if (events !== undefined) result.События = events
+
+  //   const allElements = getAllElements(data)
+  //   const childItems = exportChildItemsToPartialYAML(context, undefined, allElements)
+  //   if (childItems !== undefined) result.Элементы = childItems
 
   return result
 }

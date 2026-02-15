@@ -7,12 +7,15 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   metadataItem: T | undefined
   rule: MetadataItemRule<T>
+  tag?: MetadataItemRule<T>["tags"]
 }): ItemXML => {
-  const { context, metadataItem, rule } = params
+  const { context, metadataItem, rule, tag: tag } = params
 
   const result: ItemXML = {}
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+    if (tag && (!ruleProp.tag || !tag.includes(ruleProp.tag))) continue
+
     const currentContext: ConfigurationContext = {
       ...context,
       elementsTree: context.elementsTree ? [...context.elementsTree] : undefined,
