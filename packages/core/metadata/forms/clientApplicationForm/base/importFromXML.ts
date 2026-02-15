@@ -229,7 +229,7 @@ function importFormMetadataFromXML(
 
   const synonim = importI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)
   if (synonim !== undefined) {
-    result.synonim = synonim
+    result.synonym = synonim
   }
 
   if (props.Comment !== undefined) {

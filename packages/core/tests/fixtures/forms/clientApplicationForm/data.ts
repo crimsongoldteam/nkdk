@@ -117,7 +117,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     onCreateAtServer: "Процедура24",
     onSaveDataInSettingsAtServer: "Процедура25",
   },
-  synonim: { items: { ru: "Синоним формы" } },
+  synonym: { items: { ru: "Синоним формы" } },
   comment: "Комментарий к форме",
   includeHelpInContents: true,
   usePurposes: ["PlatformApplication", "MobilePlatformApplication"],

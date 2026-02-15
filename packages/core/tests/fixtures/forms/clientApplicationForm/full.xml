@@ -28,6 +28,16 @@
 	<CloseOnOwnerClose>false</CloseOnOwnerClose>
 	<CollapseItemsByImportance>Use</CollapseItemsByImportance>
 	<CommandBarLocation>Top</CommandBarLocation>
+	<CommandInterface>
+		<CommandBar>
+			<Item>
+				<Command>Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn</Command>
+				<Type>Auto</Type>
+				<Index>0</Index>
+				<DefaultVisible>false</DefaultVisible>
+			</Item>
+		</CommandBar>
+	</CommandInterface>
 	<Commands>
 		<Command name="Команда1" id="5">
 			<Title>
@@ -41,16 +51,6 @@
 	<CommandSet>
 		<ExcludedCommand>WriteAndClose</ExcludedCommand>
 	</CommandSet>
-	<CommandInterface>
-		<CommandBar>
-			<Item>
-				<Command>Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn</Command>
-				<Type>Auto</Type>
-				<Index>0</Index>
-				<DefaultVisible>false</DefaultVisible>
-			</Item>
-		</CommandBar>
-	</CommandInterface>
 	<ConversationsRepresentation>Show</ConversationsRepresentation>
 	<Customizable>false</Customizable>
 	<Enabled>true</Enabled>

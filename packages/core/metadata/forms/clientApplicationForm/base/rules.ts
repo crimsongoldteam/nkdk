@@ -241,7 +241,7 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       tag: ClientApplicationFormRulesTags.Form,
     },
     // FormMetadata properties
-    synonim: {
+    synonym: {
       yaml: "Синоним",
       type: "I8nText",
       tag: ClientApplicationFormRulesTags.Metadata,

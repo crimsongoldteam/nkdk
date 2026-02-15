@@ -15,10 +15,11 @@ export const exportEventsToXML = <T extends MetadataItem>(params: {
   if (!("events" in data)) return {}
 
   const dataEvents = data.events as Events
+  const ruleEvents = rule.events
 
   const events: EventXML[] = []
 
-  for (const ruleKey of Object.keys(rule)) {
+  for (const ruleKey of Object.keys(ruleEvents)) {
     const eventName = capitalize(ruleKey)
     const eventValue = dataEvents[ruleKey]
     if (eventValue === undefined) continue

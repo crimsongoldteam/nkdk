@@ -18,188 +18,6 @@ export const exportClientApplicationFormToXML = (
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
 
-  // const attributes = exportFormAttributesToXML(context, undefined, data.attributes)
-  // if (attributes !== undefined) {
-  //   result.Attributes = { Attribute: attributes }
-  // }
-
-  // result.AutoCommandBar = exportFormAutoCommandBarToXML(context, undefined, data.autoCommandBar)
-
-  // if (data.autoFillCheck !== undefined) {
-  //   result.AutoFillCheck = data.autoFillCheck
-  // }
-
-  // if (data.autoSaveDataInSettings !== undefined) {
-  //   result.AutoSaveDataInSettings = data.autoSaveDataInSettings
-  // }
-
-  // if (data.autoTitle !== undefined) {
-  //   result.AutoTitle = data.autoTitle
-  // }
-
-  // if (data.autoURL !== undefined) {
-  //   result.AutoURL = data.autoURL
-  // }
-
-  // const childItems = exportChildItemsToXML(context, undefined, data.childItems)
-  // if (childItems !== undefined) {
-  //   result.ChildItems = childItems
-  // }
-
-  // if (data.childItemsHorizontalAlign !== undefined) {
-  //   result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
-  // }
-
-  // if (data.childItemsVerticalAlign !== undefined) {
-  //   result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
-  // }
-
-  // if (data.closeOnChoice !== undefined) {
-  //   result.CloseOnChoice = data.closeOnChoice
-  // }
-
-  // if (data.closeOnOwnerClose !== undefined) {
-  //   result.CloseOnOwnerClose = data.closeOnOwnerClose
-  // }
-
-  // if (data.collapseItemsByImportance !== undefined) {
-  //   result.CollapseItemsByImportance = data.collapseItemsByImportance
-  // }
-
-  // if (data.commandBarLocation !== undefined) {
-  //   result.CommandBarLocation = data.commandBarLocation
-  // }
-
-  // const commands = exportCommandsToXML(context, undefined, data.commands)
-  // if (commands !== undefined) {
-  //   result.Commands = { Command: commands }
-  // }
-
-  // const commandSet = exportCommandSetToXML(context, undefined, data.commandSet)
-  // if (commandSet !== undefined) {
-  //   result.CommandSet = commandSet
-  // }
-
-  // const commandInterface = exportCommandInterfaceToXML(context, undefined, data.commandInterface)
-  // if (commandInterface !== undefined) {
-  //   result.CommandInterface = commandInterface
-  // }
-
-  // if (data.conversationsRepresentation !== undefined) {
-  //   result.ConversationsRepresentation = data.conversationsRepresentation
-  // }
-
-  // if (data.customizable !== undefined) {
-  //   result.Customizable = data.customizable
-  // }
-
-  // if (data.enabled !== undefined) {
-  //   result.Enabled = data.enabled
-  // }
-
-  // if (data.enterKeyBehavior !== undefined) {
-  //   result.EnterKeyBehavior = data.enterKeyBehavior
-  // }
-
-  // const events = exportEventsToXML(context, undefined, data.events as Events | undefined)
-  // if (events !== undefined) {
-  //   result.Events = events
-  // }
-
-  // if (data.group !== undefined) {
-  //   result.Group = data.group
-  // }
-
-  // if (data.height !== undefined) {
-  //   result.Height = data.height
-  // }
-
-  // if (data.horizontalSpacing !== undefined) {
-  //   result.HorizontalSpacing = data.horizontalSpacing
-  // }
-
-  // if (data.itemsAndTitlesAlign !== undefined) {
-  //   result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
-  // }
-
-  // if (data.modalMode !== undefined) {
-  //   result.ModalMode = data.modalMode
-  // }
-
-  // if (data.modified !== undefined) {
-  //   result.Modified = data.modified
-  // }
-
-  // const parameters = exportFormParametersToXML(context, undefined, data.parameters)
-  // if (parameters !== undefined) {
-  //   result.Parameters = { Parameter: parameters }
-  // }
-
-  // if (data.purposeUseKey !== undefined) {
-  //   result.PurposeUseKey = data.purposeUseKey
-  // }
-
-  // if (data.readOnly !== undefined) {
-  //   result.ReadOnly = data.readOnly
-  // }
-
-  // if (data.saveDataInSettings !== undefined) {
-  //   result.SaveDataInSettings = data.saveDataInSettings
-  // }
-
-  // if (data.savedInSettingsDataModified !== undefined) {
-  //   result.SavedInSettingsDataModified = data.savedInSettingsDataModified
-  // }
-
-  // if (data.saveWindowSettings !== undefined) {
-  //   result.SaveWindowSettings = data.saveWindowSettings
-  // }
-
-  // if (data.scale !== undefined) {
-  //   result.Scale = data.scale
-  // }
-
-  // if (data.showCloseButton !== undefined) {
-  //   result.ShowCloseButton = data.showCloseButton
-  // }
-
-  // if (data.showTitle !== undefined) {
-  //   result.ShowTitle = data.showTitle
-  // }
-
-  // if (data.slaveItemsWidth !== undefined) {
-  //   result.SlaveItemsWidth = data.slaveItemsWidth
-  // }
-
-  // const title = exportI8nTextToXML(context, { type: "I8nText" }, data.title)
-  // if (title !== undefined) {
-  //   result.Title = title
-  // }
-
-  // if (data.usedFormServer !== undefined) {
-  //   result.UsedFormServer = data.usedFormServer
-  // }
-
-  // if (data.verticalScroll !== undefined) {
-  //   result.VerticalScroll = data.verticalScroll
-  // }
-
-  // if (data.verticalSpacing !== undefined) {
-  //   result.VerticalSpacing = data.verticalSpacing
-  // }
-
-  // if (data.width !== undefined) {
-  //   result.Width = data.width
-  // }
-
-  // if (data.formWindowOpeningMode !== undefined) {
-  //   result.WindowOpeningMode = data.formWindowOpeningMode
-  // }
-
-  // if (data.windowOptionsKey !== undefined) {
-  //   result.WindowOptionsKey = data.windowOptionsKey
-  // }
-
   const properties = exportPropertiesToXML({
     context,
     metadataItem: data,
@@ -209,7 +27,7 @@ export const exportClientApplicationFormToXML = (
 
   const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data })
 
-  return {
+  const result = {
     _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
     "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
@@ -228,9 +46,11 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.20",
-    ...sortObject(properties),
+    ...properties,
     ...events,
   }
+
+  return sortObject(result)
 }
 
 export const exportFormMetadataToXML = (
@@ -272,7 +92,7 @@ export const exportFormMetadataToXML = (
 
   // result.Form.Properties = properties as FormMetadataXML["Form"]["Properties"]
 
-  return {
+  const result = {
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
     "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
@@ -293,12 +113,13 @@ export const exportFormMetadataToXML = (
     _version: "2.20",
     Form: {
       _uuid: getUUID(context),
-      Properties: {
+      Properties: sortObject({
         FormType: "Managed",
         Name: name,
         ...properties,
-        ...events,
-      },
+      }),
     },
   }
+
+  return result
 }

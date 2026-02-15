@@ -69,7 +69,7 @@ export interface ClientApplicationForm extends MetadataItem {
   //#endregion
 
   //#region FormMetadata
-  synonim?: I8nText
+  synonym?: I8nText
   comment?: string
   includeHelpInContents?: boolean
   usePurposes?: ("PlatformApplication" | "MobilePlatformApplication")[]

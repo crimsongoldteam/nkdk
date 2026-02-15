@@ -257,7 +257,7 @@ export const importClientApplicationFormFromEnterprise = (
   if (parameters !== undefined) result.parameters = parameters
 
   const synonim = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним)
-  if (synonim !== undefined) result.synonim = synonim
+  if (synonim !== undefined) result.synonym = synonim
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
 

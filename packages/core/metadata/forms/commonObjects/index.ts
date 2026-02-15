@@ -6,6 +6,11 @@ import "./commandSet/exportToXML"
 import "./commandSet/importFromEnterprise"
 import "./commandSet/importFromXML"
 
+import "./commandInterface/exportToEnterprise"
+import "./commandInterface/exportToXML"
+import "./commandInterface/importFromEnterprise"
+import "./commandInterface/importFromXML"
+
 import "./formCommand/exportToEnterprise"
 import "./formCommand/exportToXML"
 import "./formCommand/importFromEnterprise"
