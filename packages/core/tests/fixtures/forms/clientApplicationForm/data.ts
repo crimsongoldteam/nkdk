@@ -42,6 +42,9 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
       valueType: { type: ["CatalogRef.ТестоваяОбработка"] },
       mainAttribute: true,
       title: { items: { ru: "" } },
+      itemType: "FormAttribute",
+      columns: [],
+      additionalColumns: [],
     },
   ],
   autoTitle: true,
@@ -118,6 +121,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   comment: "Комментарий к форме",
   includeHelpInContents: true,
   usePurposes: ["PlatformApplication", "MobilePlatformApplication"],
+  itemType: "ClientApplicationForm",
 }
 
 export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {
@@ -225,6 +229,7 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
 export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],
   commands: [],
+  itemType: "ClientApplicationForm",
 }
 
 export const minimalClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {}

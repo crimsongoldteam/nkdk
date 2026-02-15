@@ -9,24 +9,6 @@ import { PropertyRule } from "../properties/types"
 import { ElementXML } from "../types"
 import { isEmptyElement } from "./helper"
 
-// export const importPropertyFromXML = (params: {
-//   context: ConfigurationContext
-//   rule: PropertyRule<any>
-//   value: any
-// }): any => {
-//   const { context, rule, value } = params
-
-//   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
-
-//   if (!typeImportFn) {
-//     return value
-//   }
-
-//   const result = typeImportFn(context, rule, value)
-
-//   return result
-// }
-
 export const importSingleElementFromXML = <T extends BaseElement>(params: {
   context: ConfigurationContext
   rule: ElementRule<T>
@@ -103,7 +85,7 @@ const importEventsFromXML = <T extends EventedElement>(
   const result: Events = {}
   for (const key of Object.keys(rulesEvents)) {
     const xmlKey = capitalize(key)
-    const xmlEvent = events.find((e) => e._name === xmlKey)
+    const xmlEvent = events.find((e: { _name: string }) => e._name === xmlKey)
 
     if (!xmlEvent) continue
     const eventValue = xmlEvent["#text"]
