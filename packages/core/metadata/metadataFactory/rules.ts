@@ -127,6 +127,4 @@ type ToTypedYAMLRule =
   | [LabelField, LabelFieldTypedEnterprise]
   | [PictureField, PictureFieldTypedEnterprise]
 
-type ExtractRule<T extends MetadataItem, M> = M extends [T, infer R] ? R : never
-
-type l = ToTypedYAML<TrackBarField>
+type ExtractRule<T extends MetadataItem, M> = T extends undefined ? undefined : (M extends [infer F, infer R] ? (F extends MetadataItem ? (F["itemType"] extends T["itemType"] ? R : never) : never) : never)

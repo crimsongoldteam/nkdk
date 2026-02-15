@@ -1,5 +1,19 @@
+// Универсальные типы для маппинга метаданных
+import {
+  ReverseMapping,
+  IdentityMapping,
+  IdentityMappingType,
+  createIdentityMapping,
+  createReverseMapping,
+} from "../mapping"
+
+// Re-export for backward compatibility
+export type { ReverseMapping, IdentityMapping, IdentityMappingType }
+export { createIdentityMapping, createReverseMapping }
+
+// --- FormElementType маппинги ---
+
 export const FormElementTypeToEnterprise = {
-  BaseElement: "БазовыйЭлемент",
   Button: "Кнопка",
   ButtonGroup: "ГруппаКнопок",
   CalendarField: "ПолеКалендаря",
@@ -32,8 +46,11 @@ export const FormElementTypeToEnterprise = {
   TrackBarField: "ПолеПолосыПрокрутки",
   UsualGroup: "Группа",
   SearchControlAddition: "УправлениеПоиском",
-  SingleSearchControlAddition: "ОдиночноеУправлениеПоиском",
   SearchStringAddition: "ОтображениеСтрокиПоиска",
+} as const
+
+export const SingleFormElementTypeToEnterprise = {
+  SingleSearchControlAddition: "ОдиночноеУправлениеПоиском",
   SingleSearchStringAddition: "ОдиночноеОтображениеСтрокиПоиска",
   AutoCommandBar: "АвтоКоманднаяПанель",
   ViewStatusAddition: "СостояниеПросмотра",
@@ -41,28 +58,24 @@ export const FormElementTypeToEnterprise = {
   ExtendedTooltip: "РасширеннаяПодсказка",
 } as const
 
-export const FormElementTypeFromEnterprise = Object.fromEntries(
-  Object.entries(FormElementTypeToEnterprise).map(([key, value]) => [value, key])
-) as {
-  [V in (typeof FormElementTypeToEnterprise)[keyof typeof FormElementTypeToEnterprise]]: {
-    [K in keyof typeof FormElementTypeToEnterprise]: (typeof FormElementTypeToEnterprise)[K] extends V ? K : never
-  }[keyof typeof FormElementTypeToEnterprise]
-}
+// Универсальные маппинги для FormElementTypeToEnterprise
+export const FormElementTypeFromEnterprise = createReverseMapping(FormElementTypeToEnterprise)
+export type FormElementTypeFromEnterprise = ReverseMapping<typeof FormElementTypeToEnterprise>
 
-export const FormElementType = Object.fromEntries(
-  Object.keys(FormElementTypeToEnterprise).map((key) => [key, key])
-) as {
-  [K in keyof typeof FormElementTypeToEnterprise]: K
-}
+export const FormElementType = createIdentityMapping(FormElementTypeToEnterprise)
+export type FormElementType = IdentityMappingType<typeof FormElementTypeToEnterprise>
 
-export type FormElementType = (typeof FormElementType)[keyof typeof FormElementType]
+export const FormElementTypeEnterprise = createIdentityMapping(FormElementTypeFromEnterprise)
+export type FormElementTypeEnterprise = IdentityMappingType<typeof FormElementTypeFromEnterprise>
 
-export const FormElementTypeEnterprise = Object.fromEntries(
-  Object.keys(FormElementTypeFromEnterprise).map((key) => [key, key])
-) as {
-  [K in keyof typeof FormElementTypeFromEnterprise]: K
-}
+// Универсальные маппинги для SingleFormElementTypeToEnterprise
+export const SingleFormElementTypeFromEnterprise = createReverseMapping(SingleFormElementTypeToEnterprise)
+export type SingleFormElementTypeFromEnterprise = ReverseMapping<typeof SingleFormElementTypeToEnterprise>
 
-export type FormElementTypeEnterprise = (typeof FormElementTypeEnterprise)[keyof typeof FormElementTypeEnterprise]
+export const SingleFormElementType = createIdentityMapping(SingleFormElementTypeToEnterprise)
+export type SingleFormElementType = IdentityMappingType<typeof SingleFormElementTypeToEnterprise>
 
-export type MetadataType = FormElementType
+export const SingleFormElementTypeEnterprise = createIdentityMapping(SingleFormElementTypeFromEnterprise)
+export type SingleFormElementTypeEnterprise = IdentityMappingType<typeof SingleFormElementTypeFromEnterprise>
+
+export type MetadataType = FormElementType | SingleFormElementType

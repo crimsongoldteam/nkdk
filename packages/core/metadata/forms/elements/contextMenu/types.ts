@@ -2,9 +2,10 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
 import { BaseElement } from "../baseElement/types"
+/
 
 export interface ContextMenu extends BaseElement {
-  itemType: "ContextMenu"
+  itemType: FormElementType.ContextMenu
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
   childItems: CommandBarGroupChildItems

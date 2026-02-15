@@ -139,3 +139,7 @@ export interface TrackBarFieldPartialEnterprise {
   ШрифтЗаголовка?: FontEnterprise
   ШрифтПодвала?: FontEnterprise
 }
+
+export interface TrackBarFieldTypedEnterprise extends TrackBarFieldPartialEnterprise {
+  Тип: "ПолеПолосыПрокрутки"
+}

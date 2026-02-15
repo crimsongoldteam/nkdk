@@ -1,3 +1,4 @@
+import { MetadataItemRule, ToYAML, PropertyRule } from "."
 import { ConfigurationContext } from "../context/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
 import { exportElementToPartialYAML } from "./element/exportElementToEnterprise"
@@ -5,9 +6,7 @@ import { importElementFromPartialYAML } from "./element/importElementFromEnterpr
 import { importSingleElementFromXML } from "./element/importElementFromXML"
 import { exportSingleElementToXML } from "./element/toXML"
 import { FormElementType } from "./metadataType/types"
-import { MetadataItemRule, PropertyRule } from "./properties/types"
-import { ToYAML } from "./rules"
-import { registerTypeRule, TypeRulesNames } from "./typeRulesFactory"
+import { TypeRulesNames, registerTypeRule } from "./typeRulesFactory"
 import { ElementXML } from "./types"
 
 interface RegisterAsTypeRule<T extends BaseElement> {
