@@ -1,15 +1,15 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { MetadataType } from "../metadataType/types"
+import { ToYAML } from "../rules"
 import { TypeRulesNames } from "../typeRulesFactory"
-import { ToPartialEnterpriseType } from "../types"
 
 export interface MetadataItem {
   itemType: MetadataType
 }
 
 interface BasePropertyRule<T extends MetadataItem | never> {
-  yaml?: T extends MetadataItem ? keyof ToPartialEnterpriseType<T> : string
+  yaml?: T extends MetadataItem ? keyof ToYAML<T> : string
   xml?: string
   toEnterprise?: false
   toPartialYAML?: false
@@ -36,7 +36,7 @@ export interface SystemEnumerationPropertyRule<T extends MetadataItem | never> e
 
 export interface UserVisiblePropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
   type: "UserVisible"
-  yaml: T extends MetadataItem ? keyof ToPartialEnterpriseType<T> : string
+  yaml: T extends MetadataItem ? keyof ToYAML<T> : string
   yamlDeny: string
 }
 

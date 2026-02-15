@@ -6,8 +6,9 @@ import { importSingleElementFromXML } from "./element/importElementFromXML"
 import { exportSingleElementToXML } from "./element/toXML"
 import { FormElementType } from "./metadataType/types"
 import { MetadataItemRule, PropertyRule } from "./properties/types"
+import { ToYAML } from "./rules"
 import { registerTypeRule, TypeRulesNames } from "./typeRulesFactory"
-import { ElementXML, ToPartialEnterpriseType } from "./types"
+import { ElementXML } from "./types"
 
 interface RegisterAsTypeRule<T extends BaseElement> {
   toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
@@ -18,10 +19,7 @@ export interface ElementRule<T extends BaseElement, ExtraProperties extends stri
   ExtraProperties
 > {
   events?: T extends { events?: infer P }
-    ? Record<
-        keyof Required<P>,
-        ToPartialEnterpriseType<T> extends { События?: infer Pyaml } ? keyof Required<Pyaml> : never
-      >
+    ? Record<keyof Required<P>, ToYAML<T> extends { События?: infer Pyaml } ? keyof Required<Pyaml> : never>
     : never
   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   alwaysExportToXML?: true
@@ -91,11 +89,7 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesName
   registerTypeRule(
     propertyType,
     "exportToEnterprise",
-    (
-      context: ConfigurationContext,
-      _rule: PropertyRule<T>,
-      data: T | undefined
-    ): ToPartialEnterpriseType<T> | undefined => {
+    (context: ConfigurationContext, _rule: PropertyRule<T>, data: T | undefined): ToYAML<T> | undefined => {
       return exportElementToPartialYAML({ context, element: data })
     }
   )
@@ -108,12 +102,7 @@ const registerImportFromYAML = <T extends BaseElement>(
   registerTypeRule(
     propertyType,
     "importFromEnterprise",
-    (
-      context: ConfigurationContext,
-      _rule: PropertyRule<T>,
-      yaml: ToPartialEnterpriseType<T> | undefined,
-      source?: T
-    ): T | undefined => {
+    (context: ConfigurationContext, _rule: PropertyRule<T>, yaml: ToYAML<T> | undefined, source?: T): T | undefined => {
       return importElementFromPartialYAML({
         context,
         itemType: itemType,

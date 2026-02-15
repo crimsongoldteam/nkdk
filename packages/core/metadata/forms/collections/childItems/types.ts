@@ -1,4 +1,5 @@
-import { ToPartialEnterpriseType, ToPreviewType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
+import { ToPreviewType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedEnterprise } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedEnterprise } from "../../elements/buttonGroup/types"
@@ -78,7 +79,7 @@ export type AllChildItems = ChildItem[]
 
 export type AllChildItem = ChildItem
 
-export type AllChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<AllChildItem>>
+export type AllChildItemsPartialEnterprise = Record<string, ToYAML<AllChildItem>>
 
 // #endregion
 
@@ -115,7 +116,7 @@ export type GroupChildItem =
 
 export type GroupChildItems = GroupChildItem[]
 
-export type GroupChilItemPartialEnterprise = Record<string, ToPartialEnterpriseType<GroupChildItem>>
+export type GroupChilItemPartialEnterprise = Record<string, ToYAML<GroupChildItem>>
 
 export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
 
@@ -126,9 +127,9 @@ export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
 export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
 export type CommandBarChildItems = CommandBarChildItem[]
 
-export type CommandBarChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<CommandBarChildItem>>
+export type CommandBarChildItemsPartialEnterprise = Record<string, ToYAML<CommandBarChildItem>>
 
-export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<Button | ButtonGroup | Popup>>
+export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedYAML<Button | ButtonGroup | Popup>>
 
 // #endregion
 
@@ -137,12 +138,9 @@ export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedEnterpri
 export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
 export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
 
-export type CommandBarGroupChildItemsPartialEnterprise = Record<
-  string,
-  ToPartialEnterpriseType<CommandBarGroupChildItem>
->
+export type CommandBarGroupChildItemsPartialEnterprise = Record<string, ToYAML<CommandBarGroupChildItem>>
 
-export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<CommandBarGroupChildItem>>
+export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedYAML<CommandBarGroupChildItem>>
 
 // #endregion
 
@@ -151,7 +149,7 @@ export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedEnt
 export type PagesChildItem = Page
 export type PagesChildItems = PagesChildItem[]
 
-export type PagesChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<PagesChildItem>>
+export type PagesChildItemsPartialEnterprise = Record<string, ToYAML<PagesChildItem>>
 // export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<PagesChildItem>>
 
 // #endregion
@@ -174,7 +172,7 @@ export type TableChildItemTypedEnterprise =
 
 export type TableChildItemsTypedEnterprise = Record<string, TableChildItemTypedEnterprise>
 
-export type TableChildItemsPartialEnterprise = Record<string, ToPartialEnterpriseType<TableChildItem>>
+export type TableChildItemsPartialEnterprise = Record<string, ToYAML<TableChildItem>>
 
 // #endregion
 

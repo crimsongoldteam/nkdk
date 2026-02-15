@@ -1,14 +1,14 @@
 import { importFormattedI8nTextFromEnterprise } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToPartialEnterpriseType } from ".."
+import { ToYAML } from ".."
 import { MetadataType } from "../metadataType/types"
 import { getTypeRule } from "../typeRulesFactory"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
-  yaml: ToPartialEnterpriseType<T>
+  yaml: ToYAML<T>
   metadataType: MetadataType
   rules: MetadataItemRule<T>
   source?: T

@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
+import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { mockContext } from "~/tests/mockContext"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, TypedElement } from "./types"
@@ -10,10 +10,10 @@ export const exportChildItemsToTypedYAML = <From extends TypedElement>(
   _context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: From[] | undefined
-): Record<string, ToTypedEnterpriseType<From>> | undefined => {
+): Record<string, ToTypedYAML<From>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Record<string, ToTypedEnterpriseType<From>> = {}
+  const result: Record<string, ToTypedYAML<From>> = {}
   for (const item of data) {
     const value = exportElementToTypedYAML({
       context: mockContext,
@@ -30,10 +30,10 @@ export const exportChildItemsToPartialYAML = <From extends AllChildItem>(
   _context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: From[] | undefined
-): Record<string, ToPartialEnterpriseType<From>> | undefined => {
+): Record<string, ToYAML<From>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Record<string, ToPartialEnterpriseType<From>> = {}
+  const result: Record<string, ToYAML<From>> = {}
   for (const item of data) {
     const value = exportElementToPartialYAML({
       context: mockContext,

@@ -3,8 +3,8 @@ import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ToYAML } from "../rules"
 import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
-import { ToPartialEnterpriseType } from "../types"
 import {
   FormattedI8nTextPropertyRule,
   I8nTextPropertyRule,
@@ -17,7 +17,7 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   data: T | undefined
   rules: MetadataItemRule<T>
-}): ToPartialEnterpriseType<T> | undefined {
+}): ToYAML<T> | undefined {
   const { context, data, rules } = params
   if (data === undefined) return undefined
 
@@ -33,7 +33,7 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
     Object.assign(result, exportedValues)
   }
 
-  return result as ToPartialEnterpriseType<T>
+  return result as ToYAML<T>
 }
 
 export const exportPropertyToYAML = <T extends MetadataItem>(params: {

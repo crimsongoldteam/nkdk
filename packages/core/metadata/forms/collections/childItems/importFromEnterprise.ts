@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/typeRulesFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialEnterprise, TypedElement } from "./types"
 
@@ -23,7 +23,7 @@ export const importChildItemsFromPartialYAML = <To extends AllChildItem>(
 export const importChildItemsTypedFromEnterprise = <To extends TypedElement>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  allProperties?: Record<string, ToTypedEnterpriseType<To>>
+  allProperties?: Record<string, ToTypedYAML<To>>
 ): To[] => {
   if (!allProperties) return []
 
@@ -45,7 +45,7 @@ const importChildItemProperties = <To extends AllChildItem>(
   const result = importElementFromPartialYAML({
     context: context,
     itemType: item.itemType,
-    yaml: propertiesEnterprise as ToPartialEnterpriseType<To> | undefined,
+    yaml: propertiesEnterprise as ToYAML<To> | undefined,
     source: item,
   })!
 
