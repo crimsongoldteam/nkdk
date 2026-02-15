@@ -62,8 +62,8 @@ const registerAsTypeRegistry = <T extends BaseElement>(
     RegisterAsTypeRule<T>,
   ][]) {
     registerImportFromXML<T>(propertyType, itemType, elementRule)
-    registerExportToEnterprise<T>(propertyType)
-    registerImportFromEnterprise<T>(propertyType, itemType)
+    registerExportToYAML<T>(propertyType)
+    registerImportFromYAML<T>(propertyType, itemType)
     registerExportToXML<T>({ propertyType, propertyRule, elementRule, itemType })
   }
 }
@@ -87,7 +87,7 @@ const registerImportFromXML = <T extends BaseElement>(
   )
 }
 
-const registerExportToEnterprise = <T extends BaseElement>(propertyType: TypeRulesNames): void => {
+const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesNames): void => {
   registerTypeRule(
     propertyType,
     "exportToEnterprise",
@@ -101,7 +101,7 @@ const registerExportToEnterprise = <T extends BaseElement>(propertyType: TypeRul
   )
 }
 
-const registerImportFromEnterprise = <T extends BaseElement>(
+const registerImportFromYAML = <T extends BaseElement>(
   propertyType: TypeRulesNames,
   itemType: FormElementType
 ): void => {

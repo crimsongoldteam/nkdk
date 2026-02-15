@@ -3,11 +3,11 @@ import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule } from "../elementRulesFactory"
-import { importFormElementTypeFromEnterprise } from "../importFormElementTypeFromEnterprise"
 import { FormElementType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { getTypeRule } from "../typeRulesFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
+import { importFormElementTypeFromEnterprise } from "../metadataType/importFormElementTypeFromEnterprise"
 
 export const importPropertyFromEnterprise = (params: {
   context: ConfigurationContext

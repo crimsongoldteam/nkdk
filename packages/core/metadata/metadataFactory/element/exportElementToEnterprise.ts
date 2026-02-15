@@ -1,69 +1,64 @@
-import { exportFormattedI8nTextToYAML } from "~/metadata/commonObjects/formattedI8nText/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { UserVisible } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ElementRule, getElementRule } from "../elementRulesFactory"
-import { exportFormElementTypeToEnterprise } from "../exportFormElementTypeToEnterprise"
-import { FormattedI8nTextPropertyRule, I8nTextPropertyRule, PropertyRule } from "../properties/types"
-import { getTypeRule, TypeRulesNames } from "../typeRulesFactory"
+import { exportFormElementTypeToEnterprise } from "../metadataType/exportFormElementTypeToEnterprise"
+import { PropertyRule } from "../properties/types"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "../types"
 
-export const exportPropertyToYAML = <T extends BaseElement>(params: {
-  context: ConfigurationContext
-  rule: PropertyRule<T>
-  value: any
-  toTyped?: true
-}): Record<string, any> | undefined => {
-  const { context, rule, value, toTyped } = params
+// export const exportPropertyToYAML = <T extends BaseElement>(params: {
+//   context: ConfigurationContext
+//   rule: PropertyRule<T>
+//   value: any
+//   toTyped?: true
+// }): Record<string, any> | undefined => {
+//   const { context, rule, value, toTyped } = params
 
-  if (rule.yaml === undefined) return undefined
+//   if (rule.yaml === undefined) return undefined
 
-  if (!toTyped && rule.toPartialYAML === false) return undefined
+//   if (!toTyped && rule.toPartialYAML === false) return undefined
 
-  if (rule.type == "UserVisible") {
-    const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
-    return result
-  }
+//   if (rule.type == "UserVisible") {
+//     const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
+//     return result
+//   }
 
-  if (rule.type == "FormattedI8nText") {
-    const tempRule: FormattedI8nTextPropertyRule<T> = {
-      ...rule,
-      yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
-    }
-    const result = exportFormattedI8nTextToYAML(context, tempRule, value)
-    return result
-  }
+//   if (rule.type == "FormattedI8nText") {
+//     const tempRule: FormattedI8nTextPropertyRule<T> = {
+//       ...rule,
+//       yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
+//     }
+//     const result = exportFormattedI8nTextToYAML(context, tempRule, value)
+//     return result
+//   }
 
-  const yamlKey = rule.yaml
+//   const yamlKey = rule.yaml
 
-  if (rule.type == "I8nText") {
-    const tempRule: I8nTextPropertyRule<T> = {
-      ...rule,
-      yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
-    }
-    const result = exportI8nTextToYAML(context, tempRule, value)
-    if (result === undefined) return undefined
+//   if (rule.type == "I8nText") {
+//     const tempRule: I8nTextPropertyRule<T> = {
+//       ...rule,
+//       yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
+//     }
+//     const result = exportI8nTextToYAML(context, tempRule, value)
+//     if (result === undefined) return undefined
 
-    return { [yamlKey]: result }
-  }
+//     return { [yamlKey]: result }
+//   }
 
-  const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
+//   const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
 
-  if (!yamlKey) {
-    return undefined
-  }
+//   if (!yamlKey) {
+//     return undefined
+//   }
 
-  if (!typeExportFn) {
-    if (value === undefined) return undefined
-    return { [yamlKey]: value }
-  }
+//   if (!typeExportFn) {
+//     if (value === undefined) return undefined
+//     return { [yamlKey]: value }
+//   }
 
-  const result = typeExportFn(context, rule, value)
-  return result ? { [yamlKey]: result } : undefined
-}
+//   const result = typeExportFn(context, rule, value)
+//   return result ? { [yamlKey]: result } : undefined
+// }
 
 export function exportElementToTypedYAML<T extends TypedElement>(params: {
   context: ConfigurationContext

@@ -57,11 +57,7 @@ import { TextDocumentField, TextDocumentFieldPartialEnterprise } from "../forms/
 import { TrackBarField, TrackBarFieldPartialEnterprise } from "../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupPartialEnterprise, UsualGroupPreview } from "../forms/elements/usualGroup/types"
 
-/**
- * Маппинг типов элементов формы к их правилам.
- * Каждый кортеж содержит: [ТипЭлемента, { Правила }]
- */
-type ElementRulesMap =
+type MetadataItemRulesMap =
   | [Button, { PartialEnterprise: ButtonPartialEnterprise }]
   | [ButtonGroup, { PartialEnterprise: ButtonGroupPartialEnterprise }]
   | [CalendarField, { PartialEnterprise: CalendarFieldPartialEnterprise }]
@@ -107,4 +103,4 @@ type ElementRulesMap =
  */
 type ExtractRule<T, M> = M extends [T, infer R] ? R : never
 
-export type TypeRules<T> = ExtractRule<T, ElementRulesMap>
+export type TypeRules<T> = ExtractRule<T, MetadataItemRulesMap>

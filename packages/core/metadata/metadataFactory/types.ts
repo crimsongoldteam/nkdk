@@ -22,8 +22,8 @@ export type ElementXML = {
 
 export type ToPartialEnterpriseType<T> = T extends undefined
   ? undefined
-  : "PartialEnterprise" extends keyof TypeRules<NonNullable<T>>
-    ? TypeRules<NonNullable<T>>["PartialEnterprise"]
+  : TypeRules<NonNullable<T>> extends { PartialEnterprise: infer P }
+    ? P
     : never
 
 export type ToTypedEnterpriseType<T extends TypedElement> = T extends Button

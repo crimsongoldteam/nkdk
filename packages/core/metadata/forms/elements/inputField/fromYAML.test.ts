@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType, importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullInputField,
   fullInputFieldPartialEnterprise,
@@ -10,6 +10,7 @@ import {
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 import { InputField } from "./types"
+import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 
 describe("importInputFieldFromEnterprise", () => {
   describe("importInputFieldTypedFromEnterprise", () => {

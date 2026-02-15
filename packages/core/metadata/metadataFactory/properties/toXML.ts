@@ -13,12 +13,17 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   const result: ItemXML = {}
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+    const currentContext: ConfigurationContext = {
+      ...context,
+      elementsTree: context.elementsTree ? [...context.elementsTree] : undefined,
+    }
+
     const value = metadataItem === undefined ? undefined : (metadataItem as any)[key]
 
     const xmlKey = ruleProp.xml ?? capitalize(key)
 
     const exportedValue = exportPropertyToXML({
-      context: context,
+      context: currentContext,
       rule: ruleProp,
       value,
     })

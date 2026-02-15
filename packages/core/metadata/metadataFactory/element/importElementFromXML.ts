@@ -6,27 +6,27 @@ import { Events, EventsXML } from "~/metadata/forms/events/types"
 import { ElementRule, getElementRule } from "../elementRulesFactory"
 import { FormElementType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
-import { getTypeRule } from "../typeRulesFactory"
 import { ElementXML } from "../types"
 import { isEmptyElement } from "./helper"
+import { importPropertyFromXML } from "../properties/fromXML"
 
-export const importPropertyFromXML = (params: {
-  context: ConfigurationContext
-  rule: PropertyRule<any>
-  value: any
-}): any => {
-  const { context, rule, value } = params
+// export const importPropertyFromXML = (params: {
+//   context: ConfigurationContext
+//   rule: PropertyRule<any>
+//   value: any
+// }): any => {
+//   const { context, rule, value } = params
 
-  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
+//   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
-  if (!typeImportFn) {
-    return value
-  }
+//   if (!typeImportFn) {
+//     return value
+//   }
 
-  const result = typeImportFn(context, rule, value)
+//   const result = typeImportFn(context, rule, value)
 
-  return result
-}
+//   return result
+// }
 
 export const importSingleElementFromXML = <T extends SingleElement>(params: {
   context: ConfigurationContext

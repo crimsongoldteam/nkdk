@@ -31,7 +31,6 @@ export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never> ex
 
 export interface SystemEnumerationPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
   type: "SystemEnumeration"
-
   typeSE: string
 }
 
