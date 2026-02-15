@@ -1,4 +1,4 @@
-import { AutoCommandBar, AutoCommandBarEnterprise } from "../forms/elements/autoCommandBar/types"
+import { MetadataItem } from "."
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -73,9 +73,9 @@ import { TextDocumentField, TextDocumentFieldPartialEnterprise } from "../forms/
 import { TrackBarField, TrackBarFieldPartialEnterprise } from "../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupPartialEnterprise } from "../forms/elements/usualGroup/types"
 
-export type ToYAML<T> = ExtractRule<T, ToYAMLRule>
+export type ToYAML<T extends MetadataItem> = ExtractRule<T, ToYAMLRule>
 
-export type ToTypedYAML<T> = ExtractRule<T, ToTypedYAMLRule>
+export type ToTypedYAML<T extends MetadataItem> = ExtractRule<T, ToTypedYAMLRule>
 
 type ToYAMLRule =
   | [Button, ButtonPartialEnterprise]
@@ -114,7 +114,7 @@ type ToYAMLRule =
   | [TrackBarField, TrackBarFieldPartialEnterprise]
   | [UsualGroup, UsualGroupPartialEnterprise]
   | [ContextMenu, ContextMenuEnterprise]
-  | [AutoCommandBar, AutoCommandBarEnterprise]
+  | [CommandBar, CommandBarPartialEnterprise]
   | [ExtendedTooltip, ExtendedTooltipEnterprise]
 
 type ToTypedYAMLRule =
@@ -127,4 +127,6 @@ type ToTypedYAMLRule =
   | [LabelField, LabelFieldTypedEnterprise]
   | [PictureField, PictureFieldTypedEnterprise]
 
-type ExtractRule<T, M> = M extends [T, infer R] ? R : never
+type ExtractRule<T extends MetadataItem, M> = M extends [T, infer R] ? R : never
+
+type l = ToTypedYAML<TrackBarField>

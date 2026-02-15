@@ -1,6 +1,4 @@
-import { name } from "assert"
 import { FormElementType } from "../metadataFactory"
-import { MetadataItem } from "../metadataFactory/properties/types"
 import { ConfigurationContext, ContextElementTreeItem } from "./types"
 
 export const getParentFromContext = (
@@ -20,24 +18,4 @@ export const getParentFromContext = (
   }
 
   throw new Error("Parent element not found in context")
-}
-
-export const getCurrentContext = (
-  context: ConfigurationContext,
-  metadataItem: MetadataItem | undefined
-): ConfigurationContext => {
-  const elementsTree: ConfigurationContext["elementsTree"] = []
-
-  if (context.elementsTree !== undefined) {
-    elementsTree.push(...context.elementsTree)
-  }
-
-  if (metadataItem !== undefined) {
-    elementsTree.push({ name: name, itemType: metadataItem.itemType })
-  }
-
-  return {
-    ...context,
-    elementsTree: elementsTree,
-  }
 }

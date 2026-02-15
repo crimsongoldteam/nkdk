@@ -62,7 +62,6 @@ export interface UsualGroup {
 export interface UsualGroupPartialEnterprise {
   Таблица?: string
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormGroupTypeEnterprise
   Видимость?: StringboolEnterprise
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
