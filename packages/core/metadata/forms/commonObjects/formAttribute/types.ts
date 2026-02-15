@@ -1,3 +1,11 @@
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/commonObjects/dynamicList/types"
+import { FieldsList, FieldsListEnterprise, FieldsListXML } from "~/metadata/commonObjects/fieldsList/types"
+import {
+  FunctionalOptions,
+  FunctionalOptionsEnterprise,
+  FunctionalOptionsXML,
+} from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import {
   TypeDescription,
@@ -15,14 +23,6 @@ import {
 } from "~/metadata/commonObjects/userVisible/types"
 import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
-import { StringboolEnterprise } from "../boolean/types"
-import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
-import { FieldsList, FieldsListEnterprise, FieldsListXML } from "../fieldsList/types"
-import {
-  FunctionalOptions,
-  FunctionalOptionsEnterprise,
-  FunctionalOptionsXML,
-} from "../functionalOptionsProperty/types"
 
 export interface FormAttributeAdditionalColumn {
   table: string
@@ -50,7 +50,7 @@ export interface FormAttribute extends MetadataItem {
 export interface FormAttributeColumn extends MetadataItem {
   itemType: "FormAttributeColumn"
   name: string
-  id: string
+  // id: string
   title?: I8nText
   type?: TypeDescription
   view?: UserVisible

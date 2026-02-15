@@ -5,12 +5,7 @@ import { exportPropertiesToXML } from "~/metadata/metadataFactory"
 import { exportEventsToXML } from "~/metadata/metadataFactory/events/toXML"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { ClientApplicationFormRules } from "./rules"
-import {
-  ClientApplicationForm,
-  ClientApplicationFormRulesTags,
-  ClientApplicationFormXML,
-  FormMetadataXML,
-} from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,
@@ -22,7 +17,7 @@ export const exportClientApplicationFormToXML = (
     context,
     metadataItem: data,
     rule: ClientApplicationFormRules,
-    tag: [ClientApplicationFormRulesTags.Form],
+    tag: [FormRulesTags.Form],
   })
 
   const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data })
@@ -63,7 +58,7 @@ export const exportFormMetadataToXML = (
     context,
     metadataItem: data,
     rule: ClientApplicationFormRules,
-    tag: [ClientApplicationFormRulesTags.Metadata],
+    tag: [FormRulesTags.Metadata],
   })
 
   // const properties: Partial<FormMetadataXML["Form"]["Properties"]> = {}

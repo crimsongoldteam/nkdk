@@ -1,5 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportDynamicListToEnterprise } from "~/metadata/commonObjects/dynamicList/exportToEnterprise"
+import { DynamicList } from "~/metadata/commonObjects/dynamicList/types"
+import { exportFieldsListToEnterprise } from "~/metadata/commonObjects/fieldsList/exportToEnterprise"
 import {
   FormAttribute,
   FormAttributeAdditionalColumn,
@@ -9,7 +11,9 @@ import {
   FormAttributes,
   FormAttributesEnterprise,
 } from "~/metadata/commonObjects/formAttribute/types"
+import { exportFunctionalOptionsToEnterprise } from "~/metadata/commonObjects/functionalOptionsProperty/exportToEnterprise"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
+import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
@@ -20,13 +24,9 @@ import {
 } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import { FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
-import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
-import { DynamicList } from "../dynamicList/types"
-import { exportFieldsListToEnterprise } from "../fieldsList/exportToEnterprise"
-import { exportFunctionalOptionsToEnterprise } from "../functionalOptionsProperty/exportToEnterprise"
-import { I8nTextEnterprise } from "../i8nText/types"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,

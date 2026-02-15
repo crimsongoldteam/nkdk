@@ -17,6 +17,7 @@ interface BasePropertyRule<T extends MetadataItem | never, TagsType extends stri
   fromXML?: false
   defaultValue?: any
   tag?: TagsType
+  description?: string
 }
 
 export interface I8nTextPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {

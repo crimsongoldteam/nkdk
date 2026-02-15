@@ -20,6 +20,8 @@ export const importSingleElementFromXML = <T extends BaseElement>(params: {
 
   const props = importFromXML(context, xml, rule)
 
+  if (props === undefined) return undefined
+
   const result = {
     itemType: itemType,
     ...(props ?? {}),
@@ -56,6 +58,8 @@ export function importFromXML<T extends BaseElement>(
   xml: any,
   rules: ElementRule<T>
 ): Partial<T> | undefined {
+  if (xml === undefined) return undefined
+
   const result: Partial<T> = {}
   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
     if (rule.fromXML === false) continue

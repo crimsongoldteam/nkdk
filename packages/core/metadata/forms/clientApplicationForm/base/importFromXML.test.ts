@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromXML"
 import {
   fullClientApplicationForm,
   minimalClientApplicationForm,

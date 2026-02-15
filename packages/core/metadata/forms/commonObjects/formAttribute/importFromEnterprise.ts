@@ -1,4 +1,6 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importDynamicListFromEnterprise } from "~/metadata/commonObjects/dynamicList/importFromEnterprise"
+import { importFieldsListFromEnterprise } from "~/metadata/commonObjects/fieldsList/importFromEnterprise"
 import {
   FormAttribute,
   FormAttributeAdditionalColumn,
@@ -8,6 +10,9 @@ import {
   FormAttributes,
   FormAttributesEnterprise,
 } from "~/metadata/commonObjects/formAttribute/types"
+import { importFunctionalOptionsFromEnterprise } from "~/metadata/commonObjects/functionalOptionsProperty/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { I8nTextEnterprise, I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import {
   importUserVisibleFromEnterprise,
@@ -20,11 +25,6 @@ import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import { FillChecking } from "~/metadata/systemEnumerations/types"
-import { importDynamicListFromEnterprise } from "../dynamicList/importFromEnterprise"
-import { importFieldsListFromEnterprise } from "../fieldsList/importFromEnterprise"
-import { importFunctionalOptionsFromEnterprise } from "../functionalOptionsProperty/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
-import { I8nText, I8nTextEnterprise } from "../i8nText/types"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,

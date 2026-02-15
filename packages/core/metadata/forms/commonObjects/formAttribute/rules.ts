@@ -1,7 +1,6 @@
-import { MetadataItemRule, PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../metadataFactory/elements/types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { MetadataItemRule } from "~/metadata/metadataFactory/properties/types"
 import { FormAttribute, FormAttributeColumn } from "./types"
-export type { ElementRule, PropertyRule }
 
 export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
   properties: {
@@ -9,6 +8,11 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       yaml: "Заголовок",
       type: "I8nText",
       skipEmptyToXML: true,
+      defaultValue: (context: ConfigurationContext) => {
+        return {
+          items: { [context.defaultLanguage]: "" },
+        }
+      },
     },
     valueType: {
       yaml: "Тип",

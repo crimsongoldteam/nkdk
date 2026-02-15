@@ -315,7 +315,7 @@ export interface PreviewAttributeMapItem {
 
 export type PreviewAttributesMap = Record<string, PreviewAttributeMapItem>
 
-export const ClientApplicationFormRulesTags = {
+export const FormRulesTags = {
   Form: "Form",
   Metadata: "Metadata",
 } as const

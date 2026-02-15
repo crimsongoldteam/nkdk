@@ -56,11 +56,6 @@ import "./formattedI8nText/exportToXML"
 import "./formattedI8nText/importFromEnterprise"
 import "./formattedI8nText/importFromXML"
 
-import "./formAttribute/exportToEnterprise"
-import "./formAttribute/exportToXML"
-import "./formAttribute/importFromEnterprise"
-import "./formAttribute/importFromXML"
-
 import "./functionalOptionsProperty/exportToEnterprise"
 import "./functionalOptionsProperty/exportToXML"
 import "./functionalOptionsProperty/importFromEnterprise"

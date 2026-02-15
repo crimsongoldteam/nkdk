@@ -1,6 +1,6 @@
-import { Command, CommandsEnterprise } from "~/metadata/forms/commands/types"
+import { FormCommand, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 
-export const fullCommands: Required<Command>[] = [
+export const fullFormCommands: Required<FormCommand>[] = [
   {
     name: "СоставКомплектаПодобратьФайлы",
     title: { items: { ru: "Файлы" } },
@@ -23,7 +23,7 @@ export const fullCommands: Required<Command>[] = [
   },
 ]
 
-export const fullCommandsEnterprise: CommandsEnterprise = {
+export const fullFormCommandsEnterprise: FormCommandsYAML = {
   СоставКомплектаПодобратьФайлы: {
     Заголовок: "Файлы",
     Подсказка: "Состав комплекта подобрать файлы",
@@ -38,12 +38,12 @@ export const fullCommandsEnterprise: CommandsEnterprise = {
   },
 }
 
-export const minimalCommands: Command[] = [
+export const minimalFormCommands: FormCommand[] = [
   {
     name: "СоставКомплектаПодобратьФайлы",
   },
 ]
 
-export const minimalCommandEnterprise: CommandsEnterprise = {
+export const minimalFormCommandEnterprise: FormCommandsYAML = {
   СоставКомплектаПодобратьФайлы: {},
 }

@@ -3,19 +3,24 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
-export const importPropertiesFromXML = <T extends MetadataItem>(
-  context: ConfigurationContext,
-  xml: any,
-  rules: MetadataItemRule<T>
-): Partial<T> | undefined => {
+export const importPropertiesFromXML = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  xml: any
+  rule: MetadataItemRule<T>
+  tags?: MetadataItemRule<T>["tags"]
+}): Partial<T> | undefined => {
+  const { context, xml, rule } = params
+
+  if (!xml) return undefined
+
   const result: Partial<T> = {}
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
-    if (rule.fromXML === false) continue
-    const xmlKey = rule.xml ?? capitalize(key)
+  for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+    if (currentRule.fromXML === false) continue
+    const xmlKey = currentRule.xml ?? capitalize(key)
 
     const xmlValue = (xml as any)[xmlKey]
 
-    const value = importPropertyFromXML({ context, rule, value: xmlValue })
+    const value = importPropertyFromXML({ context, rule: currentRule, value: xmlValue })
 
     if (value === undefined) continue
     ;(result as any)[key] = value
@@ -23,6 +28,7 @@ export const importPropertiesFromXML = <T extends MetadataItem>(
 
   return result
 }
+
 export const importPropertyFromXML = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
@@ -33,10 +39,22 @@ export const importPropertyFromXML = (params: {
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
   if (!typeImportFn) {
-    return value
+    return getValueOrDefault(context, rule, value)
   }
 
   const result = typeImportFn(context, rule, value)
 
-  return result
+  return getValueOrDefault(context, rule, result)
+}
+
+const getValueOrDefault = (context: ConfigurationContext, rule: PropertyRule<any>, value: any): any => {
+  if (value !== undefined) {
+    return value
+  }
+
+  if (typeof rule.defaultValue === "function") {
+    return rule.defaultValue(context)
+  }
+
+  return rule.defaultValue
 }
