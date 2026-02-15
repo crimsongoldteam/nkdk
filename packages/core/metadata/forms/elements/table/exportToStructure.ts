@@ -4,7 +4,6 @@ import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/f
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureContentFn, ExportToStructureFn } from "../../../metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"

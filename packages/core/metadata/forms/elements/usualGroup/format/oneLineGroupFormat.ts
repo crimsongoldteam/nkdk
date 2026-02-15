@@ -3,8 +3,8 @@ import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/f
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
-import { NamedElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
+import { OtherElement } from "~/metadata/forms/collections/childItems/types"
 
 const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
@@ -26,7 +26,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       const exportFunction = getOperationFunction("ExportToStructure", item.itemType)
       let itemResult: IFormatElementResult
       if (!exportFunction) {
-        itemResult = exportOtherElementToStructure(context, item as NamedElement)
+        itemResult = exportOtherElementToStructure(context, item as OtherElement)
       } else {
         itemResult = exportFunction(context, item) as IFormatElementResult
       }
