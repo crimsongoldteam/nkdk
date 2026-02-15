@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule } from "../properties/types"
+import { MetadataItem, PropertyRule } from "../properties/types"
 
 export type TypeRulesNames =
   | "AssociatedTable"
@@ -45,8 +45,16 @@ export type TypeRulesNames =
   | "FormAttributeColumns"
   | "FormAttributeAdditionalColumns"
   | "FormAttributes"
+  | "FormAttributeSettings"
 
 type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
+
+type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  rule: PropertyRule<T>
+  item: T
+  value: any
+}) => any | undefined
 
 type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 
@@ -71,7 +79,7 @@ type ExportToPreviewFunction = (
 
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
-  exportToXML?: ExportToXMLFunction
+  exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
   importFromEnterprise?: ImportFromEnterpriseFunction
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToPreview?: ExportToPreviewFunction

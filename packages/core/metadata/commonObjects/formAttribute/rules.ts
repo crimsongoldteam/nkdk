@@ -8,6 +8,7 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
+      skipEmptyToXML: true,
     },
     valueType: {
       yaml: "Тип",
@@ -41,7 +42,7 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
     },
     settings: {
       yaml: "Настройки",
-      type: "TypeDescription",
+      type: "FormAttributeSettings",
     },
     columns: {
       yaml: "Колонки",
@@ -51,6 +52,7 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
     additionalColumns: {
       yaml: "ДополнительныеКолонки",
       type: "FormAttributeAdditionalColumns",
+      xml: "Columns",
       defaultValue: [],
     },
     functionalOptions: {

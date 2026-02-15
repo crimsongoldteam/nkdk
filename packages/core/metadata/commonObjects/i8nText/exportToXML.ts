@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { I8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
 import { isEmptyI8nText } from "./helper"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
@@ -20,11 +21,17 @@ export const exportI8nTextToXMLWithDefaultLanguage = (
 }
 
 export const exportI8nTextToXML = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
+
+  const narrowRule = rule as I8nTextPropertyRule<any>
+
+  if (narrowRule.skipEmptyToXML && isEmptyI8nText(context, data)) {
+    return undefined
+  }
 
   const v8Items: I8nTextLanguageXML[] = []
   Object.entries(data.items).forEach(([lang, content]) => {

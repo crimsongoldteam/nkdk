@@ -26,7 +26,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, fullFormAttributes)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -36,7 +36,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, minimalFormAttributes)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -46,7 +46,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, multipleFormAttributes)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -56,7 +56,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, choiceListFormAttribute)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -66,7 +66,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, withEmptySettingsFormAttribute)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -76,7 +76,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, withDynamicListFormAttribute)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -87,7 +87,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, tableWithColumnsFormAttribute)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -98,7 +98,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, treeWithColumnFormAttribute)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
@@ -109,7 +109,7 @@ describe("exportFormAttributesToXML", () => {
 
     const xmlData = exportFormAttributesToXML(mockContext, mockRule, withAdditionalColumnFormAttribute)
 
-    const result = xmlExport({ Attribute: xmlData }, false)
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })

@@ -22,6 +22,7 @@ interface BasePropertyRule<T extends MetadataItem | never, TagsType extends stri
 export interface I8nTextPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
   type: "I8nText"
   yamlPartialOthers?: true
+  skipEmptyToXML?: true
 }
 
 export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {

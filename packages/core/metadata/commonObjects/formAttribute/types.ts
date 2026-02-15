@@ -13,7 +13,7 @@ import {
   UserVisibleEnterprise,
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItem } from "~/metadata/metadataFactory"
+import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 import { StringboolEnterprise } from "../boolean/types"
 import { DynamicList, DynamicListEnterprise, DynamicListXML } from "../dynamicList/types"
@@ -47,7 +47,7 @@ export interface FormAttribute extends MetadataItem {
   save?: FieldsList
 }
 
-export interface FormAttributeColumn {
+export interface FormAttributeColumn extends MetadataItem {
   itemType: "FormAttributeColumn"
   name: string
   id: string
@@ -78,7 +78,7 @@ export interface FormAttributeColumnXML {
 
 export interface FormAttributeAdditionalColumnXML {
   _table: string
-  Column: FormAttributeColumnXML | FormAttributeColumnXML[]
+  Column?: ElementXML[]
 }
 
 export interface FormAttributeXML {

@@ -34,6 +34,7 @@ describe("exportToXML", () => {
       expect(result).toEqual(expectedResult)
     })
   })
+
   describe("exportFormMetadataToXML", () => {
     it("should export all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/clientApplicationForm/fullMetadata.xml")

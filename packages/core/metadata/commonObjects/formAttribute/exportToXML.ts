@@ -10,6 +10,7 @@ import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
   FormAttributeAdditionalColumn,
+  FormAttributeAdditionalColumnXML,
   FormAttributeColumn,
   FormAttributes,
   FormAttributeXML,
@@ -19,12 +20,12 @@ export const exportFormAttributesToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: FormAttributes | undefined
-): ElementXML[] | undefined => {
+): { Attribute: ElementXML[] } | undefined => {
   if (!data || data.length === 0) return undefined
 
   const result = data.map((value: FormAttribute) => exportFormAttributeToXML(context, undefined, value))
 
-  return result
+  return { Attribute: result }
 }
 
 const exportFormAttributeToXML = (
@@ -101,20 +102,24 @@ const exportFormAttributeToXML = (
   return sortObject(result)
 }
 
-const exportFormAttributeSettingsToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  settings: FormAttribute["settings"],
-  valueType: FormAttribute["valueType"]
-): FormAttributeXML["Settings"] => {
+const exportFormAttributeSettingsToXML = (params: {
+  context: ConfigurationContext
+  _rule: PropertyRule<any> | undefined
+  value: FormAttribute["settings"]
+  metadataItem: FormAttribute
+}): FormAttributeXML["Settings"] => {
+  const { context, value, metadataItem } = params
+
+  const valueType = metadataItem.valueType
+
   const isValueListType = valueType?.type.includes("ValueListType")
   const isDynamicListValueType = valueType?.type.includes("DynamicList")
 
   const isDynamicListSettings =
-    settings !== undefined && ("@attributes" in settings || (isDynamicListValueType && !("type" in settings)))
+    value !== undefined && ("@attributes" in value || (isDynamicListValueType && !("type" in value)))
 
   if (isDynamicListSettings) {
-    const settingsCopy = { ...(settings as DynamicList) }
+    const settingsCopy = { ...(value as DynamicList) }
     if ("@attributes" in settingsCopy) {
       delete settingsCopy["@attributes"]
     }
@@ -123,11 +128,7 @@ const exportFormAttributeSettingsToXML = (
       ...settingsCopy,
     }
   } else {
-    const typeDescriptionSettings = exportTypeDescriptionToXML(
-      context,
-      undefined,
-      settings as TypeDescription | undefined
-    )
+    const typeDescriptionSettings = exportTypeDescriptionToXML(context, undefined, value as TypeDescription | undefined)
     if (typeDescriptionSettings || isValueListType) {
       return {
         "_xsi:type": "v8:TypeDescription",
@@ -141,9 +142,9 @@ const exportFormAttributeSettingsToXML = (
 
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule<any>,
   columns: FormAttributeColumn[]
-): ElementXML[] => {
+): { Column: ElementXML[] } | undefined => {
   const result = columns.map((column) => {
     const id = getElementId(context)
 
@@ -158,47 +159,33 @@ const exportFormAttributeColumnsToXML = (
       _id: id,
       ...properties,
     }
-
-    // if (column.columns && column.columns.length > 0) {
-    //   res.Column = exportFormAttributeColumnsToXML(context, undefined, column.columns)
-    // }
-
-    // const title = exportI8nTextToXML(context, { type: "I8nText" }, column.title)
-    // if (title) res.Title = title
-
-    // const type = exportTypeDescriptionToXML(context, undefined, column.type)
-    // if (type) res.Type = type
-
-    // const view = exportUserVisibleToXML(context, undefined, column.view)
-    // if (view) res.View = view
-
-    // const edit = exportUserVisibleToXML(context, undefined, column.edit)
-    // if (edit) res.Edit = edit
-
-    // if (column.fillCheck) {
-    //   res.FillCheck = column.fillCheck
-    // }
-
-    // const functionalOptions = exportFunctionalOptionsToXML(context, undefined, column.functionalOptions)
-    // if (functionalOptions) res.FunctionalOptions = functionalOptions
-
-    // return res
   })
 
-  return result.length === 1 ? result[0] : result
+  if (result.length === 0) return undefined
+
+  return { Column: result }
 }
 
 const exportFormAttributeAdditionalColumnsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  rule: PropertyRule<any>,
   additionalColumns: FormAttributeAdditionalColumn[]
-) => {
-  return additionalColumns.map((additionalColumn) => ({
-    _table: additionalColumn.table,
-    Column: exportFormAttributeColumnsToXML(context, undefined, additionalColumn.columns),
-  }))
+): { AdditionalColumns: FormAttributeAdditionalColumnXML[] } | undefined => {
+  const result: FormAttributeAdditionalColumnXML[] = additionalColumns.map((additionalColumn) => {
+    const columns = exportFormAttributeColumnsToXML(context, rule, additionalColumn.columns)
+
+    return {
+      _table: additionalColumn.table,
+      ...(columns ? { Column: columns.Column } : {}),
+    }
+  })
+
+  if (result.length === 0) return undefined
+
+  return { AdditionalColumns: result }
 }
 
 registerTypeRule("FormAttributes", "exportToXML", exportFormAttributesToXML)
 registerTypeRule("FormAttributeColumns", "exportToXML", exportFormAttributeColumnsToXML)
 registerTypeRule("FormAttributeAdditionalColumns", "exportToXML", exportFormAttributeAdditionalColumnsToXML)
+registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML)

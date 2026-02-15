@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/metadataFactory"
 import { exportEventsToXML } from "~/metadata/metadataFactory/events/toXML"
@@ -206,6 +207,8 @@ export const exportClientApplicationFormToXML = (
     tag: [ClientApplicationFormRulesTags.Form],
   })
 
+  const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data })
+
   return {
     _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
@@ -225,7 +228,8 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.20",
-    ...properties,
+    ...sortObject(properties),
+    ...events,
   }
 }
 
@@ -241,8 +245,6 @@ export const exportFormMetadataToXML = (
     rule: ClientApplicationFormRules,
     tag: [ClientApplicationFormRulesTags.Metadata],
   })
-
-  const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data })
 
   // const properties: Partial<FormMetadataXML["Form"]["Properties"]> = {}
 
