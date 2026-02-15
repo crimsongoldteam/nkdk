@@ -5,6 +5,7 @@ import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/meta
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { Button } from "./types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export function exportButtonToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = wrapButtonContent(formatContent(context, element))

@@ -2,13 +2,13 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn } from "../../../metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"
 import { Table } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const V_BAR = t.VBar.LABEL as string
 

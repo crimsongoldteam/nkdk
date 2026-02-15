@@ -3,10 +3,10 @@ import { ItemOperationType, OperationFunction } from "./types"
 
 const operationRegistries = new Map<ItemOperationType, Map<FormElementType, OperationFunction<ItemOperationType>>>()
 
-export function registerMetadata<T extends ItemOperationType>(
+export function registerMetadata<T extends any>(
   operationType: T,
   itemType: FormElementType,
-  operationFunction: OperationFunction<T>
+  operationFunction: any
 ): void {
   let registry = operationRegistries.get(operationType)
   if (!registry) {
