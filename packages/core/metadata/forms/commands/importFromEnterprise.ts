@@ -76,4 +76,4 @@ export const importCommandsFromEnterprise = (
   return result
 }
 
-registerTypeRule("Commands", "importFromEnterprise", importCommandsFromEnterprise)
+registerTypeRule("FormCommands", "importFromEnterprise", importCommandsFromEnterprise)

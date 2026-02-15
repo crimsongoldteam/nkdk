@@ -56,7 +56,7 @@ export type ExportToXMLFunction = (
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: PropertyRule<T>
-  metadataItem: T
+  metadataItem?: T
   value: any
 }) => any | undefined
 

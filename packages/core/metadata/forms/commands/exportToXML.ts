@@ -1,19 +1,23 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { ExportToXMLFunctionNew, MetadataItem, registerTypeRule } from "~/metadata/metadataFactory"
 import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "../../commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "../../commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "../../context/types"
 import { Command, CommandXML } from "./types"
 
-export const exportCommandsToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  data: Command[] | undefined
-): CommandXML[] | undefined => {
+export const exportCommandsToXML = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: Command[] | undefined
+  metadataItem?: MetadataItem
+}): { Command: CommandXML[] } | undefined => {
+  const { context, value: data } = params
   if (!data || data.length === 0) return undefined
-  return data.map((value: Command) => exportCommandToXML(context, value)!)
+
+  const result: CommandXML[] = data.map((value: Command) => exportCommandToXML(context, value)!)
+  return { Command: result }
 }
 
 function exportCommandToXML(context: ConfigurationContext, command: Command | undefined): CommandXML | undefined {
@@ -66,4 +70,4 @@ function exportCommandToXML(context: ConfigurationContext, command: Command | un
   return result
 }
 
-registerTypeRule("Commands", "exportToXML", exportCommandsToXML)
+registerTypeRule("FormCommands", "exportToXML", exportCommandsToXML as ExportToXMLFunctionNew)

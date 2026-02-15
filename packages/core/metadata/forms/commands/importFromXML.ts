@@ -54,4 +54,4 @@ export function importCommandsFromXML(
   return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml)!)
 }
 
-registerTypeRule("Commands", "importFromXML", importCommandsFromXML)
+registerTypeRule("FormCommands", "importFromXML", importCommandsFromXML)
