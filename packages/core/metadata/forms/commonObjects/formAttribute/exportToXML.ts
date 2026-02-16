@@ -5,7 +5,6 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/metadataFactory"
 import { DynamicList } from "../dynamicList/types"
-import { TypeDescription } from "../typeDescription/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -15,6 +14,7 @@ import {
   FormAttributes,
   FormAttributeXML,
 } from "./types"
+import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,

@@ -1,5 +1,4 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importDynamicListFromEnterprise } from "~/metadata/commonObjects/dynamicList/importFromEnterprise"
 import { importFieldsListFromEnterprise } from "~/metadata/commonObjects/fieldsList/importFromEnterprise"
 import {
   FormAttribute,
@@ -12,7 +11,7 @@ import {
 } from "~/metadata/commonObjects/formAttribute/types"
 import { importFunctionalOptionsFromEnterprise } from "~/metadata/commonObjects/functionalOptionsProperty/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
-import { I8nTextEnterprise, I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import {
   importUserVisibleFromEnterprise,
@@ -20,6 +19,7 @@ import {
 } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importDynamicListFromEnterprise } from "~/metadata/forms/commonObjects/dynamicList/importFromEnterprise"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"

@@ -1,6 +1,4 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportDynamicListToEnterprise } from "~/metadata/commonObjects/dynamicList/exportToEnterprise"
-import { DynamicList } from "~/metadata/commonObjects/dynamicList/types"
 import { exportFieldsListToEnterprise } from "~/metadata/commonObjects/fieldsList/exportToEnterprise"
 import {
   FormAttribute,
@@ -23,6 +21,8 @@ import {
   UserVisibleKeysEnterprise,
 } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportDynamicListToEnterprise } from "~/metadata/forms/commonObjects/dynamicList/exportToEnterprise"
+import { DynamicList } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"

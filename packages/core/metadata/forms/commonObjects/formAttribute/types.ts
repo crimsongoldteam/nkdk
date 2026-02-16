@@ -1,5 +1,4 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/commonObjects/dynamicList/types"
 import { FieldsList, FieldsListEnterprise, FieldsListXML } from "~/metadata/commonObjects/fieldsList/types"
 import {
   FunctionalOptions,
@@ -21,6 +20,7 @@ import {
   UserVisibleEnterprise,
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
+import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 
