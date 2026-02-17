@@ -1,9 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { FormattedI8nTextPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
 import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "../i8nText/toYAML"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
-import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory/properties/types"
 
 export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
   context: ConfigurationContext,

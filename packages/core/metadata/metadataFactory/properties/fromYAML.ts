@@ -1,4 +1,3 @@
-import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from ".."
 import { MetadataType } from "../metadataType/types"
@@ -49,11 +48,6 @@ export const importPropertyFromYAML = (params: {
   sourceValue?: any
 }): any => {
   const { context, rule, value, sourceValue, yaml } = params
-
-  if (yaml && rule.type === "FormattedI8nText") {
-    const yamlFormatted = yaml[rule.yamlFormatted]
-    return importFormattedI8nTextFromYAML(context, rule, value, yamlFormatted)
-  }
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
 

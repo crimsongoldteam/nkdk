@@ -1,6 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { FormattedI8nTextPropertyRule, ImportFromYAMLFunctionNew, registerTypeRule } from "~/metadata/metadataFactory"
+import {
+  FormattedI8nTextPropertyRule,
+  ImportFromYAMLFunctionNew,
+  PropertyRule,
+  registerTypeRule,
+} from "~/metadata/metadataFactory"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
@@ -28,7 +32,7 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
   }
 
   if (text !== undefined || formattedText !== undefined) {
-    const otherLanguages = importFromEnterprise(context, rule, text, formattedText)!
+    const otherLanguages = importFromYAML(context, rule, text, formattedText)!
     result.items = { ...result.items, ...otherLanguages.items }
     result.formatted = otherLanguages.formatted
   }
@@ -38,7 +42,7 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
   return result
 }
 
-const importFromEnterprise = (
+const importFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   text: FormattedI8nTextEnterprise | undefined,

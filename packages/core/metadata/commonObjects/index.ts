@@ -53,7 +53,7 @@ import "./font/importFromXML"
 
 import "./formattedI8nText/exportToEnterprise"
 import "./formattedI8nText/exportToXML"
-import "./formattedI8nText/importFromEnterprise"
+import "./formattedI8nText/fromYAML"
 import "./formattedI8nText/importFromXML"
 
 import "./functionalOptionsProperty/exportToEnterprise"

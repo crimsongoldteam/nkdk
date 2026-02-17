@@ -3,7 +3,7 @@ import { ItemOperationType, OperationFunction } from "./types"
 
 const operationRegistries = new Map<ItemOperationType, Map<FormElementType, OperationFunction<ItemOperationType>>>()
 
-export function registerMetadata<T extends any>(
+export function registerMetadata<T extends "ExportToStructure" | "ExportToStructureContent">(
   operationType: T,
   itemType: FormElementType,
   operationFunction: any

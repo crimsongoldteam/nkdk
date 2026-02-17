@@ -1,4 +1,4 @@
-import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
+import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/fromYAML"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
