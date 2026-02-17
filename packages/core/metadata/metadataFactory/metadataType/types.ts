@@ -70,4 +70,10 @@ export type FormElementType = CollectionFormElementType | SingleFormElementType
 
 // #endregion
 
-export type MetadataType = FormElementType | "FormAttribute" | "ClientApplicationForm" | "FormAttributeColumn"
+export type MetadataType =
+  | FormElementType
+  | "FormAttribute"
+  | "ClientApplicationForm"
+  | "FormAttributeColumn"
+  | "CommandInterface"
+  | "CommandInterfaceItem"

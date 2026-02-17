@@ -8,8 +8,14 @@ export const exportI8nTextToYAML = (
   rule: PropertyRule<any>,
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
-  if ((rule as I8nTextPropertyRule<any>).yamlPartialOthers) {
-    return exportI8nTextOtherToEnterprise(context, title)
+  if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
+
+  const i8nRule = rule as I8nTextPropertyRule<any>
+  const toTyped = context.exportToYAML?.toTyped
+  const yamlPartialOthers = toTyped ? undefined : i8nRule.yamlPartialOthers
+
+  if (yamlPartialOthers) {
+    return exportI8nTextOtherToYAML(context, title)
   }
 
   return exportFullI8nTextToYAML(context, title)
@@ -42,7 +48,7 @@ const exportFullI8nTextToYAML = (
   return items
 }
 
-const exportI8nTextOtherToEnterprise = (
+const exportI8nTextOtherToYAML = (
   context: ConfigurationContext,
   text: I8nText | undefined
 ): I8nTextEnterprise | undefined => {

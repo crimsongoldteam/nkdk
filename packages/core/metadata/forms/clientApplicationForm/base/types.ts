@@ -1,23 +1,14 @@
-import { Command } from "vscode"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import {
-  FormAttribute,
-  FormAttributesEnterprise,
-  FormAttributesXML,
-} from "~/metadata/commonObjects/formAttribute/types"
-import {
-  FormParameters,
-  FormParametersEnterprise,
-  FormParametersXML,
-} from "~/metadata/commonObjects/formParameter/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
-import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commonObjects/commandSet/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { GroupChildItem, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
 import { CommandInterface, CommandInterfaceEnterprise } from "../../commonObjects/commandInterface/types"
-import { FormCommandsXML, FormCommandsYAML } from "../../commonObjects/formCommand/types"
+import { CommandSet, CommandSetEnterprise } from "../../commonObjects/commandSet/types"
+import { FormAttribute, FormAttributesXML, FormAttributesEnterprise } from "../../commonObjects/formAttribute/types"
+import { FormCommand, FormCommandsXML, FormCommandsYAML } from "../../commonObjects/formCommand/types"
+import { FormParameters, FormParametersXML, FormParametersEnterprise } from "../../commonObjects/formParameter/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "../../elements/autoCommandBar/types"
 
 export interface ClientApplicationForm extends MetadataItem {
@@ -40,7 +31,7 @@ export interface ClientApplicationForm extends MetadataItem {
   customizable?: boolean
   commandBarLocation?: SE.FormCommandBarLabelLocation
   commandSet?: CommandSet
-  commands: Command[]
+  commands: FormCommand[]
   conversationsRepresentation?: SE.FormConversationsRepresentation
   enabled?: boolean
   enterKeyBehavior?: SE.EnterKeyBehaviorType

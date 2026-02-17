@@ -14,6 +14,7 @@ describe("exportCommandInterfaceToEnterprise", () => {
     const result = exportCommandInterfaceToEnterprise(mockContext, mockRule, {
       NavigationPanel: [],
       CommandBar: [],
+      itemType: "CommandInterface",
     })
 
     expect(result).toBeUndefined()

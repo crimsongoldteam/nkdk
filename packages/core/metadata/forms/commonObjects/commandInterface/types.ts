@@ -1,15 +1,18 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 //#region inner
 
-export interface CommandInterface {
+export interface CommandInterface extends MetadataItem {
+  itemType: "CommandInterface"
   NavigationPanel: CommandInterfaceItems
   CommandBar: CommandInterfaceItems
 }
 
-export interface CommandInterfaceItem {
+export interface CommandInterfaceItem extends MetadataItem {
+  itemType: "CommandInterfaceItem"
   command: string
   type?: string
   commandGroup?: SE.StandardCommandsGroup

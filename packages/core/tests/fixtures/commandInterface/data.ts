@@ -1,18 +1,21 @@
 import { CommandInterface, CommandInterfaceEnterprise } from "~/metadata/forms/commonObjects/commandInterface/types"
 
 export const fullCommandInterface: CommandInterface = {
+  itemType: "CommandInterface",
   NavigationPanel: [
     {
       command: "Catalog.ПодчиненныйСправочник.StandardCommand.OpenByValue",
       type: "Auto",
       commandGroup: "FormNavigationPanelGoTo",
       defaultVisible: true,
+      itemType: "CommandInterfaceItem",
     },
     {
       command: "Catalog.ПримерСправочник.Command.КомандаСправочник2",
       type: "Auto",
       commandGroup: "FormNavigationPanelGoTo",
       defaultVisible: false,
+      itemType: "CommandInterfaceItem",
     },
     {
       command: "Catalog.ПримерСправочник.Command.КомандаСправоник",
@@ -28,6 +31,7 @@ export const fullCommandInterface: CommandInterface = {
           },
         ],
       },
+      itemType: "CommandInterfaceItem",
     },
   ],
   CommandBar: [
@@ -35,6 +39,7 @@ export const fullCommandInterface: CommandInterface = {
       command: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
       type: "Auto",
       defaultVisible: false,
+      itemType: "CommandInterfaceItem",
     },
   ],
 }
@@ -59,7 +64,7 @@ export const fullCommandInterfaceEnterprise: CommandInterfaceEnterprise = {
       ГруппаКоманд: "ПанельНавигацииФормыПерейти",
       Автовидимость: "Ложь",
       РазрешитьИспользование: {
-        "Администратор": "Истина",
+        Администратор: "Истина",
       },
     },
   ],

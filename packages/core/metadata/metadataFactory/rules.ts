@@ -1,5 +1,17 @@
 import { MetadataItem } from "."
 import { ClientApplicationForm, ClientApplicationFormEnterprise } from "../forms/clientApplicationForm/base/types"
+import {
+  CommandInterface,
+  CommandInterfaceEnterprise,
+  CommandInterfaceItem,
+  CommandInterfaceItemEnterprise,
+} from "../forms/commonObjects/commandInterface/types"
+import {
+  FormAttribute,
+  FormAttributeColumn,
+  FormAttributeColumnEnterprise,
+  FormAttributeEnterprise,
+} from "../forms/commonObjects/formAttribute/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -117,7 +129,12 @@ type ToYAMLRule =
   | [ContextMenu, ContextMenuEnterprise]
   | [CommandBar, CommandBarPartialEnterprise]
   | [ExtendedTooltip, ExtendedTooltipEnterprise]
+  // etc
   | [ClientApplicationForm, ClientApplicationFormEnterprise]
+  | [FormAttribute, FormAttributeEnterprise]
+  | [FormAttributeColumn, FormAttributeColumnEnterprise]
+  | [CommandInterface, CommandInterfaceEnterprise]
+  | [CommandInterfaceItem, CommandInterfaceItemEnterprise]
 
 type ToTypedYAMLRule =
   | [Button, ButtonTypedEnterprise]
@@ -129,11 +146,11 @@ type ToTypedYAMLRule =
   | [LabelField, LabelFieldTypedEnterprise]
   | [PictureField, PictureFieldTypedEnterprise]
 
-type ExtractRule<T extends MetadataItem, M> = T extends undefined
+type ExtractRule<T extends MetadataItem | undefined, M> = T extends undefined
   ? undefined
   : M extends [infer F, infer R]
     ? F extends MetadataItem
-      ? F["itemType"] extends T["itemType"]
+      ? F["itemType"] extends NonNullable<T>["itemType"]
         ? R
         : never
       : never

@@ -37,13 +37,13 @@ export const importUserVisibleFromEnterprise = (
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: UserVisibleEnterprise | undefined
   source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined
 }): UserVisible | undefined => {
   const { context, rule, value: valueAllow, yaml } = params
-  const userVisibleRule = rule as UserVisiblePropertyRule<any>
+  const userVisibleRule = rule as UserVisiblePropertyRule
 
   const valueDeny = yaml?.[userVisibleRule.yamlDeny] as Record<string, StringboolEnterprise> | undefined
   if (valueAllow === undefined && valueDeny === undefined) {

@@ -9,8 +9,10 @@ export interface MetadataItem {
   itemType: MetadataType
 }
 
-interface BasePropertyRule<T extends MetadataItem | never, TagsType extends string = string> {
-  yaml?: T extends MetadataItem ? keyof ToYAML<T> : string
+type YAMLKey<T extends MetadataItem | never> = Extract<keyof ToYAML<T>, string>
+
+interface BasePropertyRule<T extends MetadataItem | never = never, TagsType extends string = string> {
+  yaml?: YAMLKey<T>
   xml?: string
   toEnterprise?: false
   toPartialYAML?: false
@@ -21,49 +23,49 @@ interface BasePropertyRule<T extends MetadataItem | never, TagsType extends stri
   description?: string
 }
 
-export interface I8nTextPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface I8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "I8nText"
   yamlPartialOthers?: true
   skipEmptyToXML?: true
 }
 
-export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "FormattedI8nText"
   yamlFormatted: string
   yamlPartialOthers?: true
   xmlWithDefaultLanguage?: true
 }
 
-export interface SystemEnumerationPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface SystemEnumerationPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "SystemEnumeration"
   typeSE: string
 }
 
-export interface UserVisiblePropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface UserVisiblePropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "UserVisible"
-  yaml: T extends MetadataItem ? keyof ToYAML<T> : string
-  yamlDeny: string
+  yaml: YAMLKey<T>
+  yamlDeny: YAMLKey<T>
 }
 
-export interface TableAdditionalSourcePropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface TableAdditionalSourcePropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
   forSingleElement?: true
 }
 
-export interface CleanPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface CleanPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: Exclude<
     TypeRulesNames,
     "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible" | "TableAdditionalSource"
   >
 }
 
-export interface CustomExportPropertyRule<T extends MetadataItem | never> extends BasePropertyRule<T> {
+export interface CustomExportPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type?: never
   exportToEnterprise: (context: ConfigurationContext, rule: PropertyRule<T>, data: any) => any
 }
 
-export type PropertyRule<T extends MetadataItem | never> =
+export type PropertyRule<T extends MetadataItem | never = never> =
   | SystemEnumerationPropertyRule<T>
   | UserVisiblePropertyRule<T>
   | I8nTextPropertyRule<T>

@@ -1,22 +1,17 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importFormAttributesFromEnterprise } from "~/metadata/commonObjects/formAttribute/importFromEnterprise"
-import { importFormParametersFromEnterprise } from "~/metadata/commonObjects/formParameter/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUsePurposesFromEnterprise } from "~/metadata/commonObjects/usePurposes/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  ClientApplicationForm,
-  ClientApplicationFormEnterprise,
-  ClientApplicationFormEvents,
-} from "~/metadata/forms/clientApplicationForm/base/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromPartialYAML } from "../../collections/childItems/importFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
-import { importCommandsFromEnterprise } from "../../commands/importFromEnterprise"
 import { importCommandInterfaceFromEnterprise } from "../../commonObjects/commandInterface/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "../../commonObjects/commandSet/importFromEnterprise"
-import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/fromYAML"
+import { importFormAttributesFromEnterprise } from "../../commonObjects/formAttribute/importFromEnterprise"
+import { importCommandsFromEnterprise } from "../../commonObjects/formCommand/importFromEnterprise"
+import { importFormParametersFromEnterprise } from "../../commonObjects/formParameter/importFromEnterprise"
+import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",

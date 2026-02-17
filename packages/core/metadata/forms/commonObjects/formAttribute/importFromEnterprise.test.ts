@@ -77,32 +77,13 @@ describe("importFormAttributesFromEnterprise", () => {
   it("should import table with columns", () => {
     const result = importFormAttributesFromEnterprise(mockContext, mockRule, tableWithColumnsFormAttributeEnterprise)
 
-    // Reset IDs for comparison since Enterprise doesn't provide them
-    const expected = tableWithColumnsFormAttribute.map((attr) => ({
-      ...attr,
-      columns: attr.columns?.map((col) => ({ ...col, id: "" })),
-    }))
-
-    expect(result).toEqual(expected)
+    expect(result).toEqual(tableWithColumnsFormAttribute)
   })
 
   it("should import tree with column", () => {
     const result = importFormAttributesFromEnterprise(mockContext, mockRule, treeWithColumnFormAttributeEnterprise)
 
-    // Reset IDs recursively for comparison
-    const resetIds = (columns?: any[]): any[] | undefined =>
-      columns?.map((col) => {
-        const res = { ...col, id: "" }
-        if (col.columns) res.columns = resetIds(col.columns)
-        return res
-      })
-
-    const expected = treeWithColumnFormAttribute.map((attr) => ({
-      ...attr,
-      columns: resetIds(attr.columns),
-    }))
-
-    expect(result).toEqual(expected)
+    expect(result).toEqual(treeWithColumnFormAttribute)
   })
 
   it("should import with functional options", () => {
@@ -122,15 +103,6 @@ describe("importFormAttributesFromEnterprise", () => {
       withAdditionalColumnFormAttributeEnterprise
     )
 
-    // Reset IDs for comparison since Enterprise doesn't provide them
-    const expected = withAdditionalColumnFormAttribute.map((attr) => ({
-      ...attr,
-      additionalColumns: attr.additionalColumns?.map((ac) => ({
-        ...ac,
-        columns: ac.columns.map((col) => ({ ...col, id: "" })),
-      })),
-    }))
-
-    expect(result).toEqual(expected)
+    expect(result).toEqual(withAdditionalColumnFormAttribute)
   })
 })

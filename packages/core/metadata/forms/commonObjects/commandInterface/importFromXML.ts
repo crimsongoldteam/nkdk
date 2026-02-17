@@ -14,6 +14,7 @@ export const importCommandInterfaceFromXML = (
   const result: CommandInterface = {
     NavigationPanel: [],
     CommandBar: [],
+    itemType: "CommandInterface",
   }
 
   if (xml.NavigationPanel?.Item) {
@@ -41,6 +42,7 @@ const importCommandInterfaceItemFromXML = (
     command: item.Command,
     type: item.Type,
     defaultVisible: item.DefaultVisible ?? true,
+    itemType: "CommandInterfaceItem",
   }
 
   if (item.CommandGroup) {

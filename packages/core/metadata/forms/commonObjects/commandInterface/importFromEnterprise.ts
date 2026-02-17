@@ -14,7 +14,7 @@ import {
 
 export const importCommandInterfaceFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandInterfaceEnterprise | undefined
 ): CommandInterface | undefined => {
   if (!data) return undefined
@@ -22,6 +22,7 @@ export const importCommandInterfaceFromEnterprise = (
   const result: CommandInterface = {
     NavigationPanel: [],
     CommandBar: [],
+    itemType: "CommandInterface",
   }
 
   if (data.ПанельНавигации && data.ПанельНавигации.length > 0) {
@@ -43,18 +44,19 @@ const importCommandInterfaceItemFromEnterprise = (
     command: item.Команда,
     type: item.Тип,
     defaultVisible: importBooleanFromEnterprise(context, undefined, item.Автовидимость)!,
+    itemType: "CommandInterfaceItem",
   }
 
   if (item.ГруппаКоманд) {
     result.commandGroup = StandardCommandsGroupFromEnterprise[item.ГруппаКоманд]
   }
 
-  const visible = importUserVisibleFromYAML(
+  const visible = importUserVisibleFromYAML<CommandInterfaceItem>({
     context,
-    { type: "UserVisible", yaml: UserVisibleKeysEnterprise.Allow, yamlDeny: UserVisibleKeysEnterprise.Deny },
-    item[UserVisibleKeysEnterprise.Allow],
-    item[UserVisibleKeysEnterprise.Deny]
-  )
+    rule: { type: "UserVisible", yaml: UserVisibleKeysEnterprise.Allow, yamlDeny: UserVisibleKeysEnterprise.Deny },
+    value: item[UserVisibleKeysEnterprise.Allow],
+    yaml: item,
+  })
   if (visible) {
     result.visible = visible
   }

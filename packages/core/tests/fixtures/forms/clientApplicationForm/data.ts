@@ -12,8 +12,10 @@ const fullCommandInterface: CommandInterface = {
       command: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
       type: "Auto",
       defaultVisible: false,
+      itemType: "CommandInterfaceItem",
     },
   ],
+  itemType: "CommandInterface",
 }
 
 export const fullClientApplicationForm: Required<ClientApplicationForm> = {

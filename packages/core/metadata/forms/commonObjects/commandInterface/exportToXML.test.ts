@@ -16,6 +16,7 @@ describe("exportCommandInterfaceToXML", () => {
     const result = exportCommandInterfaceToXML(mockContext, mockRule, {
       NavigationPanel: [],
       CommandBar: [],
+      itemType: "CommandInterface",
     })
 
     expect(result).toBeUndefined()

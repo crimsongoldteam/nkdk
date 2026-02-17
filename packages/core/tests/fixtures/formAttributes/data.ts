@@ -1,4 +1,4 @@
-import { FormAttributes, FormAttributesEnterprise } from "~/metadata/commonObjects/formAttribute/types"
+import { FormAttributes, FormAttributesEnterprise } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { fullDynamicList } from "../dynamicList/data"
 
 //#region FullFormAttributes
@@ -304,13 +304,11 @@ export const tableWithColumnsFormAttribute: FormAttributes = [
     columns: [
       {
         name: "Колонка1",
-        id: "2",
         type: { type: ["boolean"] },
         itemType: "FormAttributeColumn",
       },
       {
         name: "Колонка2",
-        id: "3",
         type: { type: ["boolean"] },
         itemType: "FormAttributeColumn",
       },
@@ -347,7 +345,6 @@ export const treeWithColumnFormAttribute: FormAttributes = [
     columns: [
       {
         name: "Колонка1",
-        id: "2",
         title: { items: { ru: "abc" } },
         type: { type: ["string"] },
         view: { common: false, values: [] },
@@ -419,7 +416,6 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
         columns: [
           {
             name: "КолонкаТаблицы",
-            id: "2",
             title: { items: { ru: "Описание колонки" } },
             type: { type: ["string"] },
             itemType: "FormAttributeColumn",

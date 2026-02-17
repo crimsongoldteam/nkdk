@@ -1,12 +1,3 @@
-import {
-  FormAttribute,
-  FormAttributeAdditionalColumn,
-  FormAttributeColumn,
-  FormAttributeColumnEnterprise,
-  FormAttributeEnterprise,
-  FormAttributes,
-  FormAttributesEnterprise,
-} from "~/metadata/commonObjects/formAttribute/types"
 import { importFunctionalOptionsFromEnterprise } from "~/metadata/commonObjects/functionalOptionsProperty/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
@@ -20,6 +11,15 @@ import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import { FillChecking } from "~/metadata/systemEnumerations/types"
 import { FormAttributeRules } from "./rules"
+import {
+  FormAttributesEnterprise,
+  FormAttributes,
+  FormAttributeEnterprise,
+  FormAttribute,
+  FormAttributeColumnEnterprise,
+  FormAttributeColumn,
+  FormAttributeAdditionalColumn,
+} from "./types"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,

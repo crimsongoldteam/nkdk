@@ -15,4 +15,14 @@ export interface ConfigurationContext {
   }
 
   elementsTree?: Array<ContextElementTreeItem>
+
+  exportToYAML?: FormExportToYAMLContext
+}
+
+export interface FormExportToYAMLContext {
+  toTyped: boolean
+}
+
+export interface FormImportFromYAMLContext {
+  allElements?: AllChildItemsPartialEnterprise
 }

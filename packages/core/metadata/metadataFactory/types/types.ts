@@ -62,7 +62,7 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
 
 type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 
-export type ImportFromYAMLFunctionNew = <T extends MetadataItem>(params: {
+export type ImportFromYAMLFunctionNew = <T extends MetadataItem | never = never>(params: {
   context: ConfigurationContext
   rule: PropertyRule<T>
   yaml?: any
