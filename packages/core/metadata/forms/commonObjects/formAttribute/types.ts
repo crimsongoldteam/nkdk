@@ -32,6 +32,7 @@ export interface FormAttribute extends MetadataItem {
   itemType: "FormAttribute"
   name: string
   title: I8nText
+  type?: TypeDescription
   valueType?: TypeDescription
   mainAttribute?: boolean
   storedData?: boolean

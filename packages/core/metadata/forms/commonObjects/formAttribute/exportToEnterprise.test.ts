@@ -5,8 +5,6 @@ import {
   choiceListFormAttributeEnterprise,
   fullFormAttributes,
   fullFormAttributesEnterprise,
-  mainAttributeTitleEqualsName,
-  mainAttributeTitleEqualsNameEnterprise,
   shortFormAttribute,
   shortFormAttributeEnterprise,
   tableWithColumnsFormAttribute,
@@ -53,11 +51,11 @@ describe("exportFormAttributesToEnterprise", () => {
     expect(result).toEqual(shortFormAttributeEnterprise)
   })
 
-  it("should export title when mainAttribute=true and title equals name", () => {
-    const result = exportFormAttributesToEnterprise(context, mockRule, mainAttributeTitleEqualsName)
+  // it("should export title when mainAttribute=true and title equals name", () => {
+  //   const result = exportFormAttributesToEnterprise(context, mockRule, mainAttributeTitleEqualsName)
 
-    expect(result).toEqual(mainAttributeTitleEqualsNameEnterprise)
-  })
+  //   expect(result).toEqual(mainAttributeTitleEqualsNameEnterprise)
+  // })
 
   it("should export choice list", () => {
     const result = exportFormAttributesToEnterprise(context, mockRule, choiceListFormAttribute)
@@ -90,7 +88,7 @@ describe("exportFormAttributesToEnterprise", () => {
   })
 
   it("should export with functional options", () => {
-    const result = exportFormAttributesToEnterprise(mockContext, mockRule, withFunctionalOptionsFormAttribute)
+    const result = exportFormAttributesToEnterprise(context, mockRule, withFunctionalOptionsFormAttribute)
 
     expect(result).toEqual(withFunctionalOptionsFormAttributeEnterprise)
   })

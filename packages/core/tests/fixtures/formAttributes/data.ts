@@ -7,7 +7,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
   {
     name: "Объект",
     title: { items: { ru: "" } },
-    valueType: {
+    type: {
       type: ["decimal"],
     },
     mainAttribute: true,
@@ -36,7 +36,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
   {
     name: "ТестовыйАтрибут",
     title: { items: { ru: "Заголовок атрибута" } },
-    valueType: {
+    type: {
       type: ["string"],
     },
     storedData: true,
@@ -66,6 +66,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
 export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
   Объект: {
     Тип: "Число",
+    Заголовок: "",
     ОсновнойРеквизит: "Истина",
     СохраняемыеДанные: "Истина",
     РазрешитьРедактирование: {
@@ -105,7 +106,7 @@ export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
 export const minimalFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
-    valueType: {
+    type: {
       type: ["string"],
     },
     title: { items: { ru: "" } },
@@ -123,7 +124,7 @@ export const multipleFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут1",
     title: { items: { ru: "Атрибут 1" } },
-    valueType: {
+    type: {
       type: ["string"],
     },
     itemType: "FormAttribute",
@@ -133,7 +134,7 @@ export const multipleFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут2",
     title: { items: { ru: "Атрибут 2" } },
-    valueType: {
+    type: {
       type: ["string"],
     },
     itemType: "FormAttribute",
@@ -150,7 +151,7 @@ export const shortFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
     title: { items: { ru: "Тестовый атрибут" } },
-    valueType: {
+    type: {
       type: ["string"],
     },
     itemType: "FormAttribute",
@@ -197,7 +198,7 @@ export const mainAttributeTitleEqualsName: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
     title: { items: { ru: "Тестовый атрибут" } },
-    valueType: {
+    type: {
       type: ["string"],
     },
     mainAttribute: true,
@@ -221,7 +222,7 @@ export const withStoredDataFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
     title: { items: { ru: "Тестовый атрибут" } },
-    valueType: {
+    type: {
       type: ["string"],
       stringQualifiers: { length: 0, allowedLength: "Variable" },
     },
@@ -236,12 +237,12 @@ export const withStoredDataFormAttribute: FormAttributes = [
 //#region ChoiceList
 export const choiceListFormAttribute: FormAttributes = [
   {
-    settings: {
+    valueType: {
       type: ["CatalogRef.ДоговорыКонтрагентов"],
     },
     name: "ВыбранныеЗначения",
     title: { items: { ru: "Выбранные значения" } },
-    valueType: {
+    type: {
       type: ["ValueListType"],
     },
     itemType: "FormAttribute",
@@ -265,7 +266,7 @@ export const withEmptySettingsFormAttribute: FormAttributes = [
   {
     name: "ВыбранныеЗначения",
     title: { items: { ru: "Выбранные значения" } },
-    valueType: { type: ["ValueListType"] },
+    type: { type: ["ValueListType"] },
     itemType: "FormAttribute",
     columns: [],
     additionalColumns: [],
@@ -282,7 +283,7 @@ export const withDynamicListFormAttribute: FormAttributes = [
   {
     name: "ВыбранныеЗначения",
     title: { items: { ru: "Выбранные значения" } },
-    valueType: { type: ["DynamicList"] },
+    type: { type: ["DynamicList"] },
     settings: fullDynamicList,
     itemType: "FormAttribute",
     columns: [],
@@ -304,7 +305,7 @@ export const tableWithColumnsFormAttribute: FormAttributes = [
   {
     name: "Таблица",
     title: { items: { ru: "" } },
-    valueType: { type: ["ValueTable"] },
+    type: { type: ["ValueTable"] },
     columns: [
       {
         name: "Колонка1",
@@ -345,7 +346,7 @@ export const treeWithColumnFormAttribute: FormAttributes = [
   {
     name: "Дерево",
     title: { items: { ru: "" } },
-    valueType: { type: ["ValueTree"] },
+    type: { type: ["ValueTree"] },
     columns: [
       {
         name: "Колонка1",
@@ -388,7 +389,7 @@ export const withFunctionalOptionsFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
     title: { items: { ru: "Заголовок" } },
-    valueType: { type: ["string"] },
+    type: { type: ["string"] },
     functionalOptions: ["FunctionalOption.ФункциональнаяОпция1"],
     itemType: "FormAttribute",
     columns: [],
@@ -411,8 +412,7 @@ export const withFunctionalOptionsFormAttributeEnterprise: FormAttributesEnterpr
 export const withAdditionalColumnFormAttribute: FormAttributes = [
   {
     name: "Объект",
-    mainAttribute: true,
-    valueType: { type: ["string"] },
+    type: { type: ["string"] },
     title: { items: { ru: "" } },
     additionalColumns: [
       {
@@ -434,8 +434,8 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
 
 export const withAdditionalColumnFormAttributeEnterprise: FormAttributesEnterprise = {
   Объект: {
+    Заголовок: "",
     Тип: "Строка",
-    ОсновнойРеквизит: "Истина",
     ДополнительныеКолонки: {
       КакаяТоТаблица: {
         КолонкаТаблицы: {

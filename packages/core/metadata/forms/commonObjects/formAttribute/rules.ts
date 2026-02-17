@@ -13,13 +13,19 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
           items: { [context.defaultLanguage]: "" },
         }
       },
+
       excludeIfEqualNameYAML: true,
     },
-    valueType: {
+    type: {
       yaml: "Тип",
       type: "TypeDescription",
       xml: "Type",
       useAsShortValueYAML: true,
+    },
+    valueType: {
+      yaml: "ТипЗначения",
+      type: "TypeDescription",
+      xml: "Settings",
     },
     mainAttribute: {
       yaml: "ОсновнойРеквизит",
@@ -46,10 +52,10 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
     },
-    settings: {
-      yaml: "ТипЗначения",
-      type: "FormAttributeSettings",
-    },
+    // settings: {
+    //   yaml: "ДинамическийСписок",
+    //   type: "TypeDescription",
+    // },
     columns: {
       yaml: "Колонки",
       type: "FormAttributeColumns",

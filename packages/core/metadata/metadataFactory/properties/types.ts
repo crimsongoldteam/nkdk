@@ -20,6 +20,10 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
    * Название в xml, если не заполнено - будет использован ключ
    */
   xml?: string
+
+  /**
+   * Передавать значение в форму в 1С
+   */
   toEnterprise?: false
   toPartialYAML?: false
   fromXML?: false

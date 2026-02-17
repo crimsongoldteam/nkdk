@@ -18,7 +18,6 @@
 			</Column>
 		</AdditionalColumns>
 	</Columns>
-	<MainAttribute>true</MainAttribute>
 	<Type>
 		<v8:Type>xs:string</v8:Type>
 		<v8:StringQualifiers>

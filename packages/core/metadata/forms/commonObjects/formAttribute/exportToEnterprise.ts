@@ -231,3 +231,8 @@ const exportFormAttributeAdditionalColumnsToEnterprise = (
 
 registerTypeRule("FormAttributes", "exportToEnterprise", exportFormAttributesToEnterprise)
 registerTypeRule("FormAttributeColumns", "exportToEnterprise", exportFormAttributeColumnsToEnterprise)
+registerTypeRule(
+  "FormAttributeAdditionalColumns",
+  "exportToEnterprise",
+  exportFormAttributeAdditionalColumnsToEnterprise
+)
