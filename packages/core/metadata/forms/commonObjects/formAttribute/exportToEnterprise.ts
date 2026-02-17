@@ -1,5 +1,8 @@
-import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportFieldsListToEnterprise } from "~/metadata/commonObjects/fieldsList/exportToEnterprise"
+import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/metadataFactory"
+import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
   FormAttributeAdditionalColumn,
@@ -8,25 +11,7 @@ import {
   FormAttributeEnterprise,
   FormAttributes,
   FormAttributesEnterprise,
-} from "~/metadata/commonObjects/formAttribute/types"
-import { exportFunctionalOptionsToEnterprise } from "~/metadata/commonObjects/functionalOptionsProperty/exportToEnterprise"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import {
-  UserEditKeysEnterprise,
-  UserViewKeysEnterprise,
-  UserVisibleKeysEnterprise,
-} from "~/metadata/commonObjects/userVisible/types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportDynamicListToEnterprise } from "~/metadata/forms/commonObjects/dynamicList/exportToEnterprise"
-import { DynamicList } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
-import { FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
+} from "./types"
 
 export const exportFormAttributesToEnterprise = (
   context: ConfigurationContext,
@@ -45,91 +30,81 @@ const exportFormAttributeToEnterprise = (
   _rule: PropertyRule<any> | undefined,
   data: FormAttribute
 ): FormAttributeEnterprise | TypeDescriptionEnterprise => {
-  const type = exportTypeDescriptionToEnterprise(context, undefined, data.valueType)
-
-  const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
-  const title = computeTitleForExport(context, undefined, data, filteredTitle)
-
-  if (canUseShortFormat(data, title)) {
-    return type!
-  }
-
-  const result: FormAttributeEnterprise = {}
-
-  if (type !== undefined) result.Тип = type
-
-  if (title !== undefined) result.Заголовок = title
-
-  const mainAttribute = exportBooleanToEnterprise(context, undefined, data.mainAttribute)
-  if (mainAttribute !== undefined) result.ОсновнойРеквизит = mainAttribute
-
-  const storedData = exportBooleanToEnterprise(context, undefined, data.storedData)
-  if (storedData !== undefined) result.СохраняемыеДанные = storedData
-
-  const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
+  const result = exportPropertiesToYAML({
     context,
-    { type: "SystemEnumeration", typeSE: "FillChecking" },
-    data.fillCheck
-  )
-  if (fillCheck) result.ПроверкаЗаполнения = fillCheck
+    data: data,
+    rules: FormAttributeRules,
+  })!
 
-  const view = exportUserVisibleToEnterprise(context, undefined, data.view, {
-    allow: UserVisibleKeysEnterprise.Allow,
-    deny: UserVisibleKeysEnterprise.Deny,
-  })
-  if (view) Object.assign(result, view)
+  return result
 
-  if (JSON.stringify(data.view) !== JSON.stringify(data.edit)) {
-    const edit = exportUserVisibleToEnterprise(context, undefined, data.edit, {
-      allow: UserEditKeysEnterprise.Allow,
-      deny: UserEditKeysEnterprise.Deny,
-    })
-    if (edit) Object.assign(result, edit)
-  }
-
-  if (data.settings !== undefined) {
-    // Check if valueType is DynamicList or if settings has @attributes (indicating it's a DynamicList)
-    const isDynamicListValueType = data.valueType?.type.includes("DynamicList")
-    const isDynamicListSettings =
-      "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
-
-    if (isDynamicListSettings) {
-      const dynamicList = exportDynamicListToEnterprise(context, undefined, data.settings as DynamicList)
-      if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
-    } else if ("type" in data.settings) {
-      const settings = exportTypeDescriptionToEnterprise(context, undefined, data.settings as TypeDescription)
-      if (settings !== undefined) result.ТипЗначения = settings
-    }
-  }
-
-  if (data.columns && data.columns.length > 0) {
-    result.Колонки = exportFormAttributeColumnsToEnterprise(context, undefined, data.columns)
-  }
-
-  if (data.additionalColumns && data.additionalColumns.length > 0) {
-    result.ДополнительныеКолонки = exportFormAttributeAdditionalColumnsToEnterprise(
-      context,
-      undefined,
-      data.additionalColumns
-    )
-  }
-
-  const functionalOptions = exportFunctionalOptionsToEnterprise(context, undefined, data.functionalOptions)
-  if (functionalOptions) {
-    result.ФункциональныеОпции = functionalOptions
-  }
-
-  const fieldsList = exportFieldsListToEnterprise(context, undefined, data.fieldsList)
-  if (fieldsList) {
-    result.ИспользоватьВсегда = fieldsList
-  }
-
-  const save = exportFieldsListToEnterprise(context, undefined, data.save)
-  if (save) {
-    result.Сохранение = save
-  }
-
-  return result as FormAttributeEnterprise
+  // const type = exportTypeDescriptionToEnterprise(context, undefined, data.valueType)
+  // const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
+  // const title = computeTitleForExport(context, undefined, data, filteredTitle)
+  // if (canUseShortFormat(data, title)) {
+  //   return type!
+  // }
+  // const result: FormAttributeEnterprise = {}
+  // if (type !== undefined) result.Тип = type
+  // if (title !== undefined) result.Заголовок = title
+  // const mainAttribute = exportBooleanToEnterprise(context, undefined, data.mainAttribute)
+  // if (mainAttribute !== undefined) result.ОсновнойРеквизит = mainAttribute
+  // const storedData = exportBooleanToEnterprise(context, undefined, data.storedData)
+  // if (storedData !== undefined) result.СохраняемыеДанные = storedData
+  // const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
+  //   context,
+  //   { type: "SystemEnumeration", typeSE: "FillChecking" },
+  //   data.fillCheck
+  // )
+  // if (fillCheck) result.ПроверкаЗаполнения = fillCheck
+  // const view = exportUserVisibleToEnterprise(context, undefined, data.view, {
+  //   allow: UserVisibleKeysEnterprise.Allow,
+  //   deny: UserVisibleKeysEnterprise.Deny,
+  // })
+  // if (view) Object.assign(result, view)
+  // if (JSON.stringify(data.view) !== JSON.stringify(data.edit)) {
+  //   const edit = exportUserVisibleToEnterprise(context, undefined, data.edit, {
+  //     allow: UserEditKeysEnterprise.Allow,
+  //     deny: UserEditKeysEnterprise.Deny,
+  //   })
+  //   if (edit) Object.assign(result, edit)
+  // }
+  // if (data.settings !== undefined) {
+  //   // Check if valueType is DynamicList or if settings has @attributes (indicating it's a DynamicList)
+  //   const isDynamicListValueType = data.valueType?.type.includes("DynamicList")
+  //   const isDynamicListSettings =
+  //     "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
+  //   if (isDynamicListSettings) {
+  //     const dynamicList = exportDynamicListToEnterprise(context, undefined, data.settings as DynamicList)
+  //     if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
+  //   } else if ("type" in data.settings) {
+  //     const settings = exportTypeDescriptionToEnterprise(context, undefined, data.settings as TypeDescription)
+  //     if (settings !== undefined) result.ТипЗначения = settings
+  //   }
+  // }
+  // if (data.columns && data.columns.length > 0) {
+  //   result.Колонки = exportFormAttributeColumnsToEnterprise(context, undefined, data.columns)
+  // }
+  // if (data.additionalColumns && data.additionalColumns.length > 0) {
+  //   result.ДополнительныеКолонки = exportFormAttributeAdditionalColumnsToEnterprise(
+  //     context,
+  //     undefined,
+  //     data.additionalColumns
+  //   )
+  // }
+  // const functionalOptions = exportFunctionalOptionsToEnterprise(context, undefined, data.functionalOptions)
+  // if (functionalOptions) {
+  //   result.ФункциональныеОпции = functionalOptions
+  // }
+  // const fieldsList = exportFieldsListToEnterprise(context, undefined, data.fieldsList)
+  // if (fieldsList) {
+  //   result.ИспользоватьВсегда = fieldsList
+  // }
+  // const save = exportFieldsListToEnterprise(context, undefined, data.save)
+  // if (save) {
+  //   result.Сохранение = save
+  // }
+  // return result as FormAttributeEnterprise
 }
 
 const exportFormAttributeColumnsToEnterprise = (
@@ -147,41 +122,46 @@ const exportFormAttributeColumnToEnterprise = (
   _rule: PropertyRule<any> | undefined,
   column: FormAttributeColumn
 ): FormAttributeColumnEnterprise => {
-  const result: FormAttributeColumnEnterprise = {}
-
-  const title = exportI8nTextToYAML(context, { type: "I8nText" }, column.title)
-  if (title) result.Заголовок = title
-
-  const type = exportTypeDescriptionToEnterprise(context, undefined, column.type)
-  if (type) result.Тип = type
-
-  const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
+  const result = exportPropertiesToYAML({
     context,
-    { type: "SystemEnumeration", typeSE: "FillChecking" },
-    column.fillCheck
-  )
-  if (fillCheck) result.ПроверкаЗаполнения = fillCheck
+    data: column,
+    rules: FormAttributeColumnRules,
+  })!
 
-  const view = exportUserVisibleToEnterprise(context, undefined, column.view, {
-    allow: UserViewKeysEnterprise.Allow,
-    deny: UserViewKeysEnterprise.Deny,
-  })
-  if (view) Object.assign(result, view)
+  return result
+  // const title = exportI8nTextToYAML(context, { type: "I8nText" }, column.title)
+  // if (title) result.Заголовок = title
 
-  const edit = exportUserVisibleToEnterprise(context, undefined, column.edit, {
-    allow: UserEditKeysEnterprise.Allow,
-    deny: UserEditKeysEnterprise.Deny,
-  })
-  if (edit) Object.assign(result, edit)
+  // const type = exportTypeDescriptionToEnterprise(context, undefined, column.type)
+  // if (type) result.Тип = type
 
-  if (column.columns && column.columns.length > 0) {
-    result.Колонки = exportFormAttributeColumnsToEnterprise(context, undefined, column.columns)
-  }
+  // const fillCheck = exportSystemEnumerationToYAML<FillCheckingEnterprise>(
+  //   context,
+  //   { type: "SystemEnumeration", typeSE: "FillChecking" },
+  //   column.fillCheck
+  // )
+  // if (fillCheck) result.ПроверкаЗаполнения = fillCheck
 
-  const functionalOptions = exportFunctionalOptionsToEnterprise(context, undefined, column.functionalOptions)
-  if (functionalOptions) {
-    result.ФункциональныеОпции = functionalOptions
-  }
+  // const view = exportUserVisibleToEnterprise(context, undefined, column.view, {
+  //   allow: UserViewKeysEnterprise.Allow,
+  //   deny: UserViewKeysEnterprise.Deny,
+  // })
+  // if (view) Object.assign(result, view)
+
+  // const edit = exportUserVisibleToEnterprise(context, undefined, column.edit, {
+  //   allow: UserEditKeysEnterprise.Allow,
+  //   deny: UserEditKeysEnterprise.Deny,
+  // })
+  // if (edit) Object.assign(result, edit)
+
+  // if (column.columns && column.columns.length > 0) {
+  //   result.Колонки = exportFormAttributeColumnsToEnterprise(context, undefined, column.columns)
+  // }
+
+  // const functionalOptions = exportFunctionalOptionsToEnterprise(context, undefined, column.functionalOptions)
+  // if (functionalOptions) {
+  //   result.ФункциональныеОпции = functionalOptions
+  // }
 
   return result
 }
@@ -199,52 +179,55 @@ const exportFormAttributeAdditionalColumnsToEnterprise = (
   )
 }
 
-/**
- * Вычисляет заголовок для экспорта в enterprise с учетом mainAttribute.
- * Если mainAttribute = true:
- * - Если заголовок пустой ("") - не выводить Заголовок
- * - Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой) - вывести заголовок
- * Иначе - обычная логика
- */
-const computeTitleForExport = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  data: FormAttribute,
-  filteredTitle: ReturnType<typeof extractDifferentSynonymPart>
-): I8nTextEnterprise | undefined => {
-  const defaultLanguage = context.defaultLanguage
-  const defaultTitle = data.title?.items[defaultLanguage]
+// /**
+//  * Вычисляет заголовок для экспорта в enterprise с учетом mainAttribute.
+//  * Если mainAttribute = true:
+//  * - Если заголовок пустой ("") - не выводить Заголовок
+//  * - Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой) - вывести заголовок
+//  * Иначе - обычная логика
+//  */
+// const computeTitleForExport = (
+//   context: ConfigurationContext,
+//   _rule: PropertyRule<any> | undefined,
+//   data: FormAttribute,
+//   filteredTitle: ReturnType<typeof excludeNameFromI8nText>
+// ): I8nTextEnterprise | undefined => {
+//   const defaultLanguage = context.defaultLanguage
+//   const defaultTitle = data.title?.items[defaultLanguage]
 
-  // Если mainAttribute = true
-  if (data.mainAttribute === true) {
-    // Если заголовок пустой - не выводить
-    if (defaultTitle === "") {
-      return undefined
-    }
-    // Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой)
-    if (filteredTitle === undefined && data.title && defaultTitle !== undefined) {
-      return exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
-    }
-  }
+//   // Если mainAttribute = true
+//   if (data.mainAttribute === true) {
+//     // Если заголовок пустой - не выводить
+//     if (defaultTitle === "") {
+//       return undefined
+//     }
+//     // Если заголовок равен имени (filteredTitle === undefined, но data.title существует и не пустой)
+//     if (filteredTitle === undefined && data.title && defaultTitle !== undefined) {
+//       return exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
+//     }
+//   }
 
-  // Обычная логика
-  return exportI8nTextToYAML(context, { type: "I8nText" }, filteredTitle)
-}
+//   // Обычная логика
+//   return exportI8nTextToYAML(context, { type: "I8nText" }, filteredTitle)
+// }
 
-const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {
-  if (title !== undefined) return false
-  if (data.settings !== undefined) return false
-  if (data.columns !== undefined && data.columns.length > 0) return false
-  if (data.additionalColumns !== undefined && data.additionalColumns.length > 0) return false
-  if (data.functionalOptions !== undefined && data.functionalOptions.length > 0) return false
-  const filteredData = Object.fromEntries(
-    Object.entries(data).filter(
-      ([key, value]) =>
-        value !== undefined &&
-        !["name", "id", "valueType", "title", "settings", "columns", "additionalColumns", "functionalOptions"].includes(
-          key
-        )
-    )
-  )
-  return Object.keys(filteredData).length === 0
-}
+// const canUseShortFormat = (data: FormAttribute, title: I8nTextEnterprise | undefined): boolean => {
+//   if (title !== undefined) return false
+//   if (data.settings !== undefined) return false
+//   if (data.columns !== undefined && data.columns.length > 0) return false
+//   if (data.additionalColumns !== undefined && data.additionalColumns.length > 0) return false
+//   if (data.functionalOptions !== undefined && data.functionalOptions.length > 0) return false
+//   const filteredData = Object.fromEntries(
+//     Object.entries(data).filter(
+//       ([key, value]) =>
+//         value !== undefined &&
+//         !["name", "id", "valueType", "title", "settings", "columns", "additionalColumns", "functionalOptions"].includes(
+//           key
+//         )
+//     )
+//   )
+//   return Object.keys(filteredData).length === 0
+// }
+
+registerTypeRule("FormAttributes", "exportToEnterprise", exportFormAttributesToEnterprise)
+registerTypeRule("FormAttributeColumns", "exportToEnterprise", exportFormAttributeColumnsToEnterprise)

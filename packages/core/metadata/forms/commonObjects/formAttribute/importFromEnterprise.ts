@@ -2,6 +2,7 @@ import { importFunctionalOptionsFromEnterprise } from "~/metadata/commonObjects/
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -12,13 +13,13 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import { FillChecking } from "~/metadata/systemEnumerations/types"
 import { FormAttributeRules } from "./rules"
 import {
-  FormAttributesEnterprise,
-  FormAttributes,
-  FormAttributeEnterprise,
   FormAttribute,
-  FormAttributeColumnEnterprise,
-  FormAttributeColumn,
   FormAttributeAdditionalColumn,
+  FormAttributeColumn,
+  FormAttributeColumnEnterprise,
+  FormAttributeEnterprise,
+  FormAttributes,
+  FormAttributesEnterprise,
 } from "./types"
 
 export const importFormAttributesFromEnterprise = (
@@ -35,7 +36,7 @@ const importFormAttributeFromEnterprise = (
   context: ConfigurationContext,
   data: FormAttributeEnterprise,
   name: string
-): FormAttribute => {
+): FormAttribute | TypeDescriptionEnterprise => {
   const properties = importPropertiesFromYAML({
     context: context,
     yaml: data,
@@ -44,10 +45,8 @@ const importFormAttributeFromEnterprise = (
   })
 
   const result: FormAttribute = {
-    itemType: "FormAttribute",
-    name,
-    title: properties!.title!,
     ...properties,
+    name,
   }
 
   return result

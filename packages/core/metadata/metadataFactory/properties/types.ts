@@ -12,7 +12,13 @@ export interface MetadataItem {
 type YAMLKey<T extends MetadataItem | never> = Extract<keyof ToYAML<T>, string>
 
 interface BasePropertyRule<T extends MetadataItem | never = never, TagsType extends string = string> {
+  /**
+   * Название ключа в yaml
+   */
   yaml?: YAMLKey<T>
+  /**
+   * Название в xml, если не заполнено - будет использован ключ
+   */
   xml?: string
   toEnterprise?: false
   toPartialYAML?: false
@@ -20,13 +26,22 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   defaultValue?: any
   xmlDefaultValue?: any
   tag?: TagsType
-  description?: string
+
+  /**
+   * Если все поля пустые - это поле будет выгружено как значение
+   */
+  useAsShortValueYAML?: true
 }
 
 export interface I8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "I8nText"
   yamlPartialOthers?: true
   skipEmptyToXML?: true
+
+  /**
+   * Если значение поля приведенное к pascalCase равно имени элемента - поле не будет выгружено в yaml
+   */
+  excludeIfEqualNameYAML?: true
 }
 
 export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
@@ -87,6 +102,8 @@ export interface MetadataItemRule<
   ExtraProperties extends string = never,
   TagsType extends string = string,
 > {
+  useAsShortValueYAML: true
+
   tags?: TagsType[]
   properties: PropertiesType<T, ExtraProperties>
 

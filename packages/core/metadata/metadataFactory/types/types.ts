@@ -87,6 +87,13 @@ export type ExportToEnterpriseFunction = (
   value: any | undefined
 ) => any | undefined
 
+export type ExportToYAMLFunctionNew = <T extends MetadataItem | never = never>(params: {
+  context: ConfigurationContext
+  rule: PropertyRule<T>
+  value: any
+  name?: string
+}) => any | undefined
+
 export type ExportToPreviewFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
@@ -97,7 +104,7 @@ export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
   importFromEnterprise?: ImportFromEnterpriseFunction | ImportFromYAMLFunctionNew
-  exportToEnterprise?: ExportToEnterpriseFunction
+  exportToEnterprise?: ExportToEnterpriseFunction | ExportToYAMLFunctionNew
   exportToPreview?: ExportToPreviewFunction
 }
 
@@ -117,7 +124,7 @@ export const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOper
 export type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromEnterprise"
   ? ImportFromYAMLFunctionNew | ImportFromEnterpriseFunction | undefined
   : O extends "exportToEnterprise"
-    ? ExportToEnterpriseFunction | undefined
+    ? ExportToEnterpriseFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"

@@ -9,7 +9,7 @@ import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
+import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
@@ -41,7 +41,7 @@ export const exportMetadataCommandToEnterprise = (
     group = exportMetadataItemLinkToEnterprise(context, undefined, data.group)
   }
 
-  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
+  const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
   const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {

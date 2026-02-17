@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { mapEventsToEnterprise } from "../events"
+import { exportEventsToYAML } from "../events"
 import { exportFormElementTypeToEnterprise } from "../metadataType/toYAML"
 import { exportPropertyToYAML } from "../properties/toYAML"
 import { PropertyRule } from "../properties/types"
@@ -40,7 +40,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
     Object.assign(result, exportedValues)
   }
 
-  const events = mapEventsToEnterprise(
+  const events = exportEventsToYAML(
     rules.events,
     "events" in data ? (data.events as Record<string, string>) : undefined
   )
@@ -82,7 +82,7 @@ export function exportElementToYAML<T extends BaseElement>(params: {
     Object.assign(result, exportedValues)
   }
 
-  const events = mapEventsToEnterprise(
+  const events = exportEventsToYAML(
     rules.events,
     "events" in data ? (data.events as Record<string, string>) : undefined
   )

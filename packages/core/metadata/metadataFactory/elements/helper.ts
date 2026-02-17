@@ -1,6 +1,6 @@
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement as MetadataItem } from "~/metadata/forms/elements/baseElement/types"
 
-export const isEmptyElement = (element: BaseElement | undefined): boolean => {
+export const isEmptyMetadataItem = (element: MetadataItem | undefined): boolean => {
   if (!element) return true
 
   for (const [key, value] of Object.entries(element) as [string, any][]) {

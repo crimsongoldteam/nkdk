@@ -1,5 +1,5 @@
 export { importEventsFromXML } from "./fromXML"
 export { importEventsFromYAML } from "./fromYAML"
-export { exportEventsToXML as mapEventsToXML } from "./toXML"
-export { exportEventsToYAML as mapEventsToEnterprise } from "./toYAML"
+export { exportEventsToXML } from "./toXML"
+export { exportEventsToYAML } from "./toYAML"
 export * from "./types"

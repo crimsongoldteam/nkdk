@@ -7,7 +7,7 @@ import { importPropertyFromXML } from "../properties/fromXML"
 import { PropertyRule } from "../properties/types"
 import { ElementXML } from "../types"
 import { getElementRule } from "./factory"
-import { isEmptyElement } from "./helper"
+import { isEmptyMetadataItem } from "./helper"
 import { ElementRule } from "./types"
 
 export const importSingleElementFromXML = <T extends BaseElement>(params: {
@@ -26,7 +26,7 @@ export const importSingleElementFromXML = <T extends BaseElement>(params: {
     itemType: itemType,
     ...(props ?? {}),
   }
-  if (isEmptyElement(result)) return undefined
+  if (isEmptyMetadataItem(result)) return undefined
 
   return result as T | undefined
 }

@@ -2,7 +2,7 @@ import { I8nText, I8nTextEnterprise } from "../commonObjects/i8nText/types"
 import { ConfigurationContext } from "../context/types"
 import { canConvertToPascalCase, splitPascalCase } from "./canConvertToPascalCase"
 
-export const extractDifferentSynonymPart = (
+export const excludeNameFromI8nText = (
   context: ConfigurationContext,
   synonym: I8nText,
   name: string

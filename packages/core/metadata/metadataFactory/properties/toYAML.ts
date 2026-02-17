@@ -1,8 +1,21 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from "../rules"
 import { getTypeRule } from "../types/factory"
-import { TypeRulesNames } from "../types/types"
+import { ExportToEnterpriseFunction, ExportToYAMLFunctionNew, TypeRulesNames } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+
+// type ExtractRule<T extends MetadataItem | undefined, M> = T extends undefined
+//   ? undefined
+//   : M extends [infer F, infer R]
+//     ? F extends MetadataItem
+//       ? F["itemType"] extends NonNullable<T>["itemType"]
+//         ? R
+//         : never
+//       : never
+//     : never
+
+// type ShortValue<T extends MetadataItem, R extends MetadataItemRule> =
+//   M extends R["properties"]["useAsShortValueYAML" extends true, infer ]
 
 export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
@@ -14,15 +27,36 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
 
   const result = {}
 
-  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+  let shortValue = undefined
+  let canUseShortFormat: boolean = true
+
+  for (const [key, rule] of Object.entries(rules.properties) as [Extract<keyof T, string>, PropertyRule<T>][]) {
     const value = data[key]
 
-    const exportedValues = exportPropertyToYAML({ context, rule, value })
+    const exportedValues = exportPropertyToYAML({
+      context,
+      rule,
+      value,
+      name: "name" in data ? (data["name"] as string) : undefined,
+    })
 
     if (exportedValues == undefined) continue
 
     Object.assign(result, exportedValues)
+
+    if (rule.useAsShortValueYAML) {
+      const keys = Object.keys(exportedValues)
+      if (keys.length === 1) {
+        shortValue = exportedValues[keys[0]]
+      } else {
+        canUseShortFormat = false
+      }
+    } else {
+      canUseShortFormat = false
+    }
   }
+
+  if (canUseShortFormat) return shortValue
 
   return result as ToYAML<T>
 }
@@ -31,8 +65,9 @@ export const exportPropertyToYAML = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: PropertyRule<T>
   value: any
+  name?: string
 }): Record<string, any> | undefined => {
-  const { context, rule, value } = params
+  const { context, rule, value, name } = params
 
   if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
 
@@ -75,7 +110,18 @@ export const exportPropertyToYAML = <T extends MetadataItem>(params: {
 
   if (!typeExportFn) return getExportToYAMLResult(rule, yamlKey, value)
 
-  const result = typeExportFn(context, rule, value)
+  if (typeExportFn.length === 1) {
+    const exportedValue = (typeExportFn as ExportToYAMLFunctionNew)({
+      context,
+      rule,
+      value,
+      name: name,
+    })
+
+    return getExportToYAMLResult(rule, yamlKey, exportedValue)
+  }
+
+  const result = (typeExportFn as ExportToEnterpriseFunction)(context, rule, value)
   return getExportToYAMLResult(rule, yamlKey, result)
 }
 
@@ -87,5 +133,10 @@ const getExportToYAMLResult = (
   if (rule.type == "UserVisible" || rule.type == "FormattedI8nText") {
     return value
   }
+
+  if (Array.isArray(value) && value.length === 0) return undefined
+
+  if (isObject(value) && value.length === 0) return undefined
+
   return value ? { [yamlKey]: value } : undefined
 }

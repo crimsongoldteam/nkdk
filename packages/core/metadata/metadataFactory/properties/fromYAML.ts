@@ -12,10 +12,12 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   metadataType: MetadataType
   rules: MetadataItemRule<T>
   source?: T
-}): Partial<T> {
-  const { context, yaml, source, rules } = params
+}): T {
+  const { context, yaml, source, rules, metadataType } = params
 
-  const result: T = {} as T
+  const result: T = {
+    itemType: metadataType,
+  } as T
 
   for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     const yamlKey = curRule.yaml

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { fullCommands, minimalCommands } from "~/tests/fixtures/forms/commands/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandsFromXML } from "./importFromXML"

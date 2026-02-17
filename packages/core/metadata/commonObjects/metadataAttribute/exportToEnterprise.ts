@@ -15,7 +15,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
+import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
@@ -41,7 +41,7 @@ const exportMetadataAttributeToEnterprise = (
 ): MetadataAttributeEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)!
 
-  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
+  const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
   const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {

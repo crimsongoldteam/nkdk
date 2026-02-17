@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/importFromEnterprise"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   fullClientApplicationForm,

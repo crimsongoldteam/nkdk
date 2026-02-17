@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
-import { addDefaultLanguageNameToSynonym, extractDifferentSynonymPart } from "./synonymHelpers"
+import { addDefaultLanguageNameToSynonym, excludeNameFromI8nText } from "./synonymHelpers"
 
 describe("extractDifferentSynonymParts", () => {
   it("should return undefined when synonym is equal to name", () => {
-    const result = extractDifferentSynonymPart(mockContext, { items: { ru: "Тестовый реквизит" } }, "ТестовыйРеквизит")
+    const result = excludeNameFromI8nText(mockContext, { items: { ru: "Тестовый реквизит" } }, "ТестовыйРеквизит")
     expect(result).toBeUndefined()
   })
 
   it("should return synonym part when synonym is not equal to name in different language", () => {
-    const result = extractDifferentSynonymPart(mockContext, { items: { ru: "Другой реквизит" } }, "ТестовыйРеквизит")
+    const result = excludeNameFromI8nText(mockContext, { items: { ru: "Другой реквизит" } }, "ТестовыйРеквизит")
     expect(result).toEqual({ items: { ru: "Другой реквизит" } })
   })
 
   it("should extract only default language synonym part", () => {
-    const result = extractDifferentSynonymPart(
+    const result = excludeNameFromI8nText(
       mockContext,
       { items: { ru: "Тестовый реквизит", en: "Тестовый реквизит" } },
       "ТестовыйРеквизит"
@@ -23,7 +23,7 @@ describe("extractDifferentSynonymParts", () => {
   })
 
   it("should return synonym part when synonym is not equal to name in same language", () => {
-    const result = extractDifferentSynonymPart(
+    const result = excludeNameFromI8nText(
       mockContext,
       { items: { ru: "Тестовый реквизит", en: "Test attribute" } },
       "ТестовыйРеквизит"

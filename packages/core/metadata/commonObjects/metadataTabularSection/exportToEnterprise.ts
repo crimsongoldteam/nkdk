@@ -9,7 +9,7 @@ import {
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
+import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -20,7 +20,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
 
-  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
+  const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
   const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
 
   const result: MetadataTabularSectionEnterprise = {}
