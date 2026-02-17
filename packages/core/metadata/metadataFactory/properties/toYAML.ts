@@ -136,7 +136,8 @@ const getExportToYAMLResult = (
 
   if (Array.isArray(value) && value.length === 0) return undefined
 
-  if (isObject(value) && value.length === 0) return undefined
+  if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0)
+    return undefined
 
   return value ? { [yamlKey]: value } : undefined
 }

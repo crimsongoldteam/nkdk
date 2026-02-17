@@ -102,8 +102,6 @@ export interface MetadataItemRule<
   ExtraProperties extends string = never,
   TagsType extends string = string,
 > {
-  useAsShortValueYAML: true
-
   tags?: TagsType[]
   properties: PropertiesType<T, ExtraProperties>
 
