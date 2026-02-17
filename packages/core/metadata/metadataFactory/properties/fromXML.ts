@@ -1,6 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getTypeRule } from "../types/types"
+import { getTypeRule } from "../types/factory"
 import { getValueOrDefault } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 

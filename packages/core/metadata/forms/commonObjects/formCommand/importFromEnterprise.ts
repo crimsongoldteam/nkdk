@@ -3,7 +3,7 @@ import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"

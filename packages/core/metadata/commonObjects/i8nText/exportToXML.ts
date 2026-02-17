@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { I8nTextPropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { isEmptyI8nText } from "./helper"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 

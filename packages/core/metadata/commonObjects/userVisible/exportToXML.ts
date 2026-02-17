@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { MetadataItem } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 

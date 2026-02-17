@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromEnterprise"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,
@@ -10,7 +11,6 @@ import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
 import { importClientApplicationFormFromEnterprise } from "./importFromEnterprise"
 import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("importClientApplicationFormFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
@@ -75,6 +75,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
           },
         ],
       },
+      itemType: "ClientApplicationForm",
     }
 
     expect(result).toEqual(expectedResult)
@@ -144,6 +145,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
           childItems: [],
         },
       ],
+      itemType: "ClientApplicationForm",
     }
 
     expect(result).toEqual(expectedResult)

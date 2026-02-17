@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { I8nTextPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToYAML = (

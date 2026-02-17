@@ -55,6 +55,7 @@ export const importClientApplicationFormFromEnterprise = (
   const result: ClientApplicationForm = {
     commands: importCommandsFromEnterprise(context, undefined, data.Команды),
     childItems: [],
+    itemType: "ClientApplicationForm",
   }
 
   const autoTitle = importBooleanFromEnterprise(context, undefined, data.АвтоЗаголовок)

@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from "../rules"
-import { getTypeRule, TypeRulesNames } from "../types/types"
+import { getTypeRule } from "../types/factory"
+import { TypeRulesNames } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function exportPropertiesToYAML<T extends MetadataItem>(params: {

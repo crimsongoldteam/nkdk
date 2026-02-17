@@ -1,7 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from ".."
 import { MetadataType } from "../metadataType/types"
-import { getTypeRule, ImportFromEnterpriseFunction, ImportFromYAMLFunctionNew } from "../types/types"
+import { getTypeRule } from "../types/factory"
+import { ImportFromEnterpriseFunction, ImportFromYAMLFunctionNew } from "../types/types"
 import { getValueOrDefault } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 

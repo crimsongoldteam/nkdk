@@ -1,5 +1,3 @@
-import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/fromYAML"
-import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { importEventsFromYAML } from "../events"
@@ -7,39 +5,9 @@ import { importFormElementTypeFromEnterprise } from "../metadataType/fromYAML"
 import { FormElementType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"
-import { getTypeRule } from "../types/types"
 import { getElementRule } from "./factory"
 import { ElementRule } from "./types"
-
-export const importPropertyFromEnterprise = (params: {
-  context: ConfigurationContext
-  rule: PropertyRule<any>
-  value: any
-  yaml?: any
-  sourceValue?: any
-}): any => {
-  const { context, rule, value, sourceValue, yaml } = params
-
-  if (yaml && rule.type === "UserVisible") {
-    const yamlValueDeny = yaml[rule.yamlDeny]
-    return importUserVisibleFromYAML(context, rule, value, yamlValueDeny)
-  }
-
-  if (yaml && rule.type === "FormattedI8nText") {
-    const yamlFormatted = yaml[rule.yamlFormatted]
-    return importFormattedI8nTextFromYAML(context, rule, value, yamlFormatted)
-  }
-
-  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
-
-  if (!typeImportFn) {
-    return value ?? sourceValue
-  }
-
-  const result = typeImportFn(context, rule, value, sourceValue)
-
-  return result ?? sourceValue
-}
+import { importPropertyFromYAML } from "../properties/fromYAML"
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
@@ -62,7 +30,7 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
 
     const yamlValue = yaml[yamlKey]
 
-    const importedValue = importPropertyFromEnterprise({
+    const importedValue = importPropertyFromYAML({
       context,
       rule: rule,
       yaml: yaml,
@@ -99,7 +67,7 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
   })
 }
 
-export function importElementFromYAML<T extends BaseElement>(params: {
+function importElementFromYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   rules: ElementRule<T>
   itemType: FormElementType
@@ -122,7 +90,7 @@ export function importElementFromYAML<T extends BaseElement>(params: {
 
     const yamlValue = (yaml as any)[yamlKey]
 
-    const importedValue = importPropertyFromEnterprise({
+    const importedValue = importPropertyFromYAML({
       context,
       rule: curRule,
       value: yamlValue,

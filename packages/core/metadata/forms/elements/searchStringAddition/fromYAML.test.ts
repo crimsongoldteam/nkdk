@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML, importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullSearchStringAddition,
   fullSearchStringAdditionEnterprise,
@@ -38,7 +38,7 @@ describe("SearchStringAddition from YAML", () => {
 
   describe("Single", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importPropertyFromEnterprise({
+      const result = importPropertyFromYAML({
         context: mockContext,
         rule: rule,
         value: undefined,
@@ -48,7 +48,7 @@ describe("SearchStringAddition from YAML", () => {
     })
 
     it("should export all fields to Enterprise", () => {
-      const result = importPropertyFromEnterprise({
+      const result = importPropertyFromYAML({
         context: mockContext,
         rule: rule,
         value: fullSearchStringAdditionEnterprise,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullAutoCommandBar,
   fullAutoExportCommandBarEnterprise,
@@ -11,7 +11,7 @@ const rule: PropertyRule<any> = { type: "AutoCommandBar" }
 
 describe("importAutoCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importPropertyFromEnterprise({
+    const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
       value: fullAutoExportCommandBarEnterprise,
@@ -22,7 +22,7 @@ describe("importAutoCommandBarFromEnterprise", () => {
   })
 
   it("should import minimal", () => {
-    const result = importPropertyFromEnterprise({
+    const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
       value: undefined,

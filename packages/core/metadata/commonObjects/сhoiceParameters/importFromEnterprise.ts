@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise"
 import { ChoiceParameters, ChoiceParametersEnterprise } from "./types"

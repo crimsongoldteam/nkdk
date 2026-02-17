@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
-import { FormParameter, FormParameters, FormParametersEnterprise } from "./types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { FormParameter, FormParameters, FormParametersEnterprise } from "./types"
 
 export const importFormParametersFromEnterprise = (
   context: ConfigurationContext,

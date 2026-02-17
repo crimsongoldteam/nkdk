@@ -23,10 +23,17 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
     Тип: type,
   } as ToTypedYAML<T>
 
+  const currentContext: ConfigurationContext = {
+    ...context,
+    exportToYAML: {
+      toTyped: true,
+    },
+  }
+
   for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     const value = data[key]
 
-    const exportedValues = exportPropertyToYAML({ context, rule, value, toTyped: true })
+    const exportedValues = exportPropertyToYAML({ context: currentContext, rule, value })
 
     if (exportedValues == undefined) continue
 

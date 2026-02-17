@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullViewStatusAddition,
   fullViewStatusAdditionEnterprise,
@@ -10,7 +10,7 @@ const rule: PropertyRule<any> = { type: "ViewStatusAddition" }
 
 describe("importViewStatusAdditionFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importPropertyFromEnterprise({
+    const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
       value: fullViewStatusAdditionEnterprise,

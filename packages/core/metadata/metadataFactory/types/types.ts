@@ -60,7 +60,11 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   value: any
 }) => any | undefined
 
-type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
+export type ImportFromXMLFunction = (
+  context: ConfigurationContext,
+  rule: PropertyRule<any>,
+  value: any
+) => any | undefined
 
 export type ImportFromYAMLFunctionNew = <T extends MetadataItem | never = never>(params: {
   context: ConfigurationContext
@@ -77,13 +81,13 @@ export type ImportFromEnterpriseFunction = (
   source?: any
 ) => any | undefined
 
-type ExportToEnterpriseFunction = (
+export type ExportToEnterpriseFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined
 ) => any | undefined
 
-type ExportToPreviewFunction = (
+export type ExportToPreviewFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined
@@ -97,31 +101,20 @@ export interface TypeRule {
   exportToPreview?: ExportToPreviewFunction
 }
 
-type TypeRulesOperations =
+export type TypeRulesOperations =
   | "importFromXML"
   | "exportToXML"
   | "importFromEnterprise"
   | "exportToEnterprise"
   | "exportToPreview"
 
-const typeRulesRegistry = new Map<
-  string,
-  | ImportFromEnterpriseFunction
-  | ExportToEnterpriseFunction
-  | ImportFromXMLFunction
-  | ExportToXMLFunction
-  | ExportToPreviewFunction
-  | ExportToXMLFunctionNew
-  | ImportFromYAMLFunctionNew
->()
-
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
 
-const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations): TypeRuleKey => {
+export const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations): TypeRuleKey => {
   return `${type}:${operation}`
 }
 
-type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromEnterprise"
+export type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromEnterprise"
   ? ImportFromYAMLFunctionNew | ImportFromEnterpriseFunction | undefined
   : O extends "exportToEnterprise"
     ? ExportToEnterpriseFunction | undefined
@@ -132,35 +125,3 @@ type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFrom
         : O extends "exportToPreview"
           ? ExportToPreviewFunction | undefined
           : never
-
-export const registerTypeRule = <O extends TypeRulesOperations>(
-  type: TypeRulesNames,
-  operation: O,
-  ruleFunction: NonNullable<ImportExportFunction<O>>
-) => {
-  const key = createRegistryKey(type, operation)
-  typeRulesRegistry.set(key, ruleFunction)
-}
-
-export const getTypeRule = <O extends TypeRulesOperations>(
-  type: TypeRulesNames,
-  operation: O
-): O extends "importFromEnterprise"
-  ? ImportFromEnterpriseFunction | ImportFromYAMLFunctionNew | undefined
-  : O extends "exportToEnterprise"
-    ? ExportToEnterpriseFunction | undefined
-    : O extends "exportToXML"
-      ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
-      : O extends "importFromXML"
-        ? ImportFromXMLFunction | undefined
-        : O extends "exportToPreview"
-          ? ExportToPreviewFunction | undefined
-          : never => {
-  const key = createRegistryKey(type, operation)
-  const result = typeRulesRegistry.get(key)
-  return result as any
-}
-
-export const clearTypeRulesRegistry = (): void => {
-  typeRulesRegistry.clear()
-}

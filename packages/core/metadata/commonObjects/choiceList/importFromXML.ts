@@ -2,7 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importFormChoiceListValueFromXML } from "../metadataValue/importFromXML"
 import { ChoiceList, ChoiceListXML } from "./types"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 
 export const importChoiceListFromXML = (
   context: ConfigurationContext,

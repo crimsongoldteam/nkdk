@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportFormChoiceListValueToEnterprise } from "../metadataValue/exportToEnterprise"
 import { ChoiceList, ChoiceListEnterprise } from "./types"

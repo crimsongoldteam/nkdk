@@ -1,7 +1,7 @@
 import { format } from "date-fns"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { exportMetadataValueStringToEnterprise as exportMetadataPathValueToEnterprise } from "../metadataPath/exportToEnterprise"
 import {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromEnterprise, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullExtendedTooltip,
   fullExtendedTooltipEnterprise,
@@ -12,7 +12,7 @@ const rule: PropertyRule<any> = { type: "ExtendedTooltip" }
 
 describe("importExtendedTooltipFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importPropertyFromEnterprise({
+    const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
       value: fullExtendedTooltipEnterprise,
@@ -23,7 +23,7 @@ describe("importExtendedTooltipFromEnterprise", () => {
   })
 
   it("should import minimal", () => {
-    const result = importPropertyFromEnterprise({
+    const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
       value: minimalExtendedTooltipEnterprise,

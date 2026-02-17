@@ -10,6 +10,7 @@ describe("exportClientApplicationFormToPreview", () => {
     const form: ClientApplicationForm = {
       childItems: [fullInputField],
       commands: [],
+      itemType: "ClientApplicationForm",
     }
 
     const context = {

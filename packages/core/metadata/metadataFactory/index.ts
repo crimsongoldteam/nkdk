@@ -7,6 +7,8 @@ export * from "./metadataFactory"
 export * from "./properties/types"
 export * from "./rules"
 export * from "./types"
+
+export * from "./types/factory"
 export * from "./types/types"
 
 export * from "./metadataType/types"

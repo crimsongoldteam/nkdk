@@ -1,4 +1,4 @@
-import { FormParameters, FormParametersEnterprise } from "~/metadata/commonObjects/formParameter/types"
+import { FormParameters, FormParametersEnterprise } from "~/metadata/forms/commonObjects/formParameter/types"
 
 export const fullFormParameters: FormParameters = [
   {

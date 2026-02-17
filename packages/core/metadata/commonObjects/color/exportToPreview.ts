@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../context/types"
 import { Color, ColorPreview } from "./types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 
 export const exportColorToPreview = (
   _context: ConfigurationContext,
