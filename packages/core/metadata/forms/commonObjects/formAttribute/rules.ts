@@ -84,6 +84,12 @@ export const FormAttributeColumnRules: MetadataItemRule<FormAttributeColumn> = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
+      excludeIfEqualNameYAML: true,
+      defaultValue: (context: ConfigurationContext) => {
+        return {
+          items: { [context.defaultLanguage]: "" },
+        }
+      },
     },
     type: {
       yaml: "Тип",

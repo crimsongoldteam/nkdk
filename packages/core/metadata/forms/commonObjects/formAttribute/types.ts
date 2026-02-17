@@ -17,7 +17,6 @@ import {
   UserViewEnterprise,
   UserViewKeysEnterprise,
   UserVisible,
-  UserVisibleEnterprise,
   UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
 import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -137,7 +136,6 @@ export interface FormAttributeEnterprise {
   ДополнительныеКолонки?: Record<string, Record<string, FormAttributeColumnEnterprise>>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
   ИспользоватьВсегда?: FieldsListEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
   ПроверкаЗаполнения?: FillCheckingEnterprise
   Сохранение?: FieldsListEnterprise
 }

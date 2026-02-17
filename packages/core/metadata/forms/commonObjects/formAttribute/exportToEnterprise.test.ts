@@ -26,6 +26,7 @@ import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportFormAttributesToEnterprise } from "./exportToEnterprise"
 
 let context: ConfigurationContext
+
 describe("exportFormAttributesToEnterprise", () => {
   beforeEach(() => {
     context = {
