@@ -1,5 +1,3 @@
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importFieldsListFromEnterprise } from "~/metadata/commonObjects/fieldsList/importFromEnterprise"
 import {
   FormAttribute,
   FormAttributeAdditionalColumn,
@@ -13,18 +11,15 @@ import { importFunctionalOptionsFromEnterprise } from "~/metadata/commonObjects/
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import {
-  importUserVisibleFromEnterprise,
-  importUserVisibleFromYAML,
-} from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserEditKeysEnterprise, UserViewKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importDynamicListFromEnterprise } from "~/metadata/forms/commonObjects/dynamicList/importFromEnterprise"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { addDefaultLanguageNameToSynonym, isSynonymEqualToName } from "~/metadata/helpers/synonymHelpers"
+import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import { FillChecking } from "~/metadata/systemEnumerations/types"
+import { FormAttributeRules } from "./rules"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
@@ -33,93 +28,106 @@ export const importFormAttributesFromEnterprise = (
 ): FormAttributes | undefined => {
   if (!data) return undefined
 
-  return Object.entries(data)
-    .map(([name, value]) => importFormAttributeFromEnterprise(context, undefined, value, name))
-    .filter((item): item is FormAttribute => item !== undefined)
+  return Object.entries(data).map(([name, value]) => importFormAttributeFromEnterprise(context, value, name))
 }
 
 const importFormAttributeFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  data: FormAttributeEnterprise | string | string[],
+  data: FormAttributeEnterprise,
   name: string
-): FormAttribute | undefined => {
-  if (typeof data === "string" || Array.isArray(data)) {
-    const type = importTypeDescriptionFromEnterprise(context, undefined, data)!
-
-    return {
-      name,
-      valueType: type,
-      title: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
-    }
-  }
-
-  const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
-
-  const mainAttribute = importBooleanFromEnterprise(context, undefined, data.ОсновнойРеквизит)
-  const title = computeTitleForImport(context, data.Заголовок, name, mainAttribute)
+): FormAttribute => {
+  const properties = importPropertiesFromYAML({
+    context: context,
+    yaml: data,
+    metadataType: "FormAttribute",
+    rules: FormAttributeRules,
+  })
 
   const result: FormAttribute = {
+    itemType: "FormAttribute",
     name,
-    valueType: type!,
-    title,
+    title: properties!.title!,
+    ...properties,
   }
 
-  if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
-  const storedData = importBooleanFromEnterprise(context, undefined, data.СохраняемыеДанные)
-  if (storedData !== undefined) result.storedData = storedData
+  return result
 
-  const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FillChecking" },
-    data.ПроверкаЗаполнения
-  )
-  if (fillCheck) result.fillCheck = fillCheck
+  // if (typeof data === "string" || Array.isArray(data)) {
+  //   const type = importTypeDescriptionFromEnterprise(context, undefined, data)!
 
-  const view = importUserVisibleFromEnterprise(
-    context,
-    undefined,
-    data[UserViewKeysEnterprise.Allow] ?? (data[UserViewKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
-    data[UserViewKeysEnterprise.Deny]
-  )
-  if (view) result.view = view
+  //   return {
+  //     name,
+  //     valueType: type,
+  //     title: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
+  //   }
+  // }
 
-  const edit = importUserVisibleFromYAML(
-    context,
-    { type: "UserVisible", yaml: UserEditKeysEnterprise.Allow, yamlDeny: UserEditKeysEnterprise.Deny },
-    data[UserEditKeysEnterprise.Allow],
-    data[UserEditKeysEnterprise.Deny]
-  )
-  if (edit) result.edit = edit
+  // const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
 
-  if (data.ДинамическийСписок !== undefined) {
-    const dynamicList = importDynamicListFromEnterprise(context, undefined, data.ДинамическийСписок)
-    if (dynamicList !== undefined) result.settings = dynamicList
-  } else {
-    const settings = importTypeDescriptionFromEnterprise(context, undefined, data.ТипЗначения)
-    if (settings !== undefined) result.settings = settings
-  }
+  // const mainAttribute = importBooleanFromEnterprise(context, undefined, data.ОсновнойРеквизит)
+  // const title = computeTitleForImport(context, data.Заголовок, name, mainAttribute)
 
-  if (data.Колонки) {
-    result.columns = importFormAttributeColumnsFromEnterprise(context, undefined, data.Колонки)
-  }
+  // const result: FormAttribute = {
+  //   name,
+  //   valueType: type!,
+  //   title,
+  // }
 
-  if (data.ДополнительныеКолонки) {
-    result.additionalColumns = importFormAttributeAdditionalColumnsFromEnterprise(
-      context,
-      undefined,
-      data.ДополнительныеКолонки
-    )
-  }
+  // if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
+  // const storedData = importBooleanFromEnterprise(context, undefined, data.СохраняемыеДанные)
+  // if (storedData !== undefined) result.storedData = storedData
 
-  const functionalOptions = importFunctionalOptionsFromEnterprise(context, undefined, data.ФункциональныеОпции)
-  if (functionalOptions) result.functionalOptions = functionalOptions
+  // const fillCheck = importSystemEnumerationFromYAML<FillChecking>(
+  //   context,
+  //   { type: "SystemEnumeration", typeSE: "FillChecking" },
+  //   data.ПроверкаЗаполнения
+  // )
+  // if (fillCheck) result.fillCheck = fillCheck
 
-  const fieldsList = importFieldsListFromEnterprise(context, undefined, data.ИспользоватьВсегда)
-  if (fieldsList) result.fieldsList = fieldsList
+  // const view = importUserVisibleFromEnterprise(
+  //   context,
+  //   undefined,
+  //   data[UserViewKeysEnterprise.Allow] ?? (data[UserViewKeysEnterprise.Deny] ? undefined : data.РазрешитьИспользование),
+  //   data[UserViewKeysEnterprise.Deny]
+  // )
+  // if (view) result.view = view
 
-  const save = importFieldsListFromEnterprise(context, undefined, data.Сохранение)
-  if (save) result.save = save
+  // const edit = importUserVisibleFromYAML(
+  //   context,
+  //   { type: "UserVisible", yaml: UserEditKeysEnterprise.Allow, yamlDeny: UserEditKeysEnterprise.Deny },
+  //   data[UserEditKeysEnterprise.Allow],
+  //   data[UserEditKeysEnterprise.Deny]
+  // )
+  // if (edit) result.edit = edit
+
+  // if (data.ДинамическийСписок !== undefined) {
+  //   const dynamicList = importDynamicListFromEnterprise(context, undefined, data.ДинамическийСписок)
+  //   if (dynamicList !== undefined) result.settings = dynamicList
+  // } else {
+  //   const settings = importTypeDescriptionFromEnterprise(context, undefined, data.ТипЗначения)
+  //   if (settings !== undefined) result.settings = settings
+  // }
+
+  // if (data.Колонки) {
+  //   result.columns = importFormAttributeColumnsFromEnterprise(context, undefined, data.Колонки)
+  // }
+
+  // if (data.ДополнительныеКолонки) {
+  //   result.additionalColumns = importFormAttributeAdditionalColumnsFromEnterprise(
+  //     context,
+  //     undefined,
+  //     data.ДополнительныеКолонки
+  //   )
+  // }
+
+  // const functionalOptions = importFunctionalOptionsFromEnterprise(context, undefined, data.ФункциональныеОпции)
+  // if (functionalOptions) result.functionalOptions = functionalOptions
+
+  // const fieldsList = importFieldsListFromEnterprise(context, undefined, data.ИспользоватьВсегда)
+  // if (fieldsList) result.fieldsList = fieldsList
+
+  // const save = importFieldsListFromEnterprise(context, undefined, data.Сохранение)
+  // if (save) result.save = save
 
   return result
 }

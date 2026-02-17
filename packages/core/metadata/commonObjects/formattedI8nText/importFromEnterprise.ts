@@ -1,16 +1,21 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { FormattedI8nTextPropertyRule, ImportFromYAMLFunctionNew, registerTypeRule } from "~/metadata/metadataFactory"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
-export const importFormattedI8nTextFromEnterprise = (
-  context: ConfigurationContext,
-  rule: PropertyRule<any>,
-  text: FormattedI8nTextEnterprise | undefined,
-  formattedText: FormattedI8nTextEnterprise | undefined,
+export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: FormattedI8nTextEnterprise | undefined
+  yaml?: Record<string, any> | undefined
   source?: I8nText | undefined
-): FormattedI8nText | undefined => {
+}): FormattedI8nText | undefined => {
+  const { context, rule, value: text, yaml, source } = params
+  const narrowRule = rule as FormattedI8nTextPropertyRule<any>
+  const formattedText = yaml ? yaml[narrowRule.yamlFormatted] : undefined
+
   if (source === undefined && text === undefined && formattedText === undefined) return undefined
 
   const result: FormattedI8nText = {
@@ -52,4 +57,4 @@ const importFromEnterprise = (
   return result
 }
 
-// registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromEnterprise)
+registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromYAML)

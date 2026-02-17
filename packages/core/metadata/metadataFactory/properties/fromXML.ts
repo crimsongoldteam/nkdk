@@ -1,6 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../types/types"
+import { getValueOrDefault } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const importPropertiesFromXML = <T extends MetadataItem>(params: {
@@ -45,16 +46,4 @@ export const importPropertyFromXML = (params: {
   const result = typeImportFn(context, rule, value)
 
   return getValueOrDefault(context, rule, result)
-}
-
-const getValueOrDefault = (context: ConfigurationContext, rule: PropertyRule<any>, value: any): any => {
-  if (value !== undefined) {
-    return value
-  }
-
-  if (typeof rule.defaultValue === "function") {
-    return rule.defaultValue(context)
-  }
-
-  return rule.defaultValue
 }

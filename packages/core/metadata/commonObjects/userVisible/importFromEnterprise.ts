@@ -1,9 +1,9 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { UserVisiblePropertyRule } from "~/metadata/metadataFactory"
+import { ImportFromYAMLFunctionNew, registerTypeRule, UserVisiblePropertyRule } from "~/metadata/metadataFactory"
 import { ConfigurationContext } from "../../context/types"
-import { type UserVisible } from "./types"
+import { UserVisibleEnterprise, type UserVisible } from "./types"
 
 /** @deprecated */
 export const importUserVisibleFromEnterprise = (
@@ -22,10 +22,10 @@ export const importUserVisibleFromEnterprise = (
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
-    const parsedValue = importBooleanFromEnterprise(context, undefined, val)!
+    const parsedValue = importBooleanFromEnterprise(context, undefined, val)
     return {
       name,
-      value: parsedValue,
+      value: parsedValue!,
     }
   })
 
@@ -35,12 +35,17 @@ export const importUserVisibleFromEnterprise = (
   }
 }
 
-export const importUserVisibleFromYAML = (
-  context: ConfigurationContext,
-  _rule: UserVisiblePropertyRule<any>,
-  valueAllow: Record<string, StringboolEnterprise> | undefined,
-  valueDeny: Record<string, StringboolEnterprise> | undefined
-): UserVisible | undefined => {
+export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: UserVisibleEnterprise | undefined
+  source?: UserVisible | undefined
+  yaml?: Record<string, any> | undefined
+}): UserVisible | undefined => {
+  const { context, rule, value: valueAllow, yaml } = params
+  const userVisibleRule = rule as UserVisiblePropertyRule<any>
+
+  const valueDeny = yaml?.[userVisibleRule.yamlDeny] as Record<string, StringboolEnterprise> | undefined
   if (valueAllow === undefined && valueDeny === undefined) {
     return undefined
   }
@@ -51,10 +56,10 @@ export const importUserVisibleFromYAML = (
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
-    const parsedValue = importBooleanFromEnterprise(context, undefined, val)!
+    const parsedValue = importBooleanFromEnterprise(context, undefined, val)
     return {
       name,
-      value: parsedValue,
+      value: parsedValue!,
     }
   })
 
@@ -63,3 +68,5 @@ export const importUserVisibleFromYAML = (
     values,
   }
 }
+
+registerTypeRule("UserVisible", "importFromEnterprise", importUserVisibleFromYAML)

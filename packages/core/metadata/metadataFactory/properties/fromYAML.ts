@@ -1,9 +1,9 @@
-import { importFormattedI8nTextFromEnterprise } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
-import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from ".."
 import { MetadataType } from "../metadataType/types"
-import { getTypeRule } from "../types/types"
+import { getTypeRule, ImportFromEnterpriseFunction, ImportFromYAMLFunctionNew } from "../types/types"
+import { getValueOrDefault } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<T extends MetadataItem>(params: {
@@ -50,23 +50,29 @@ export const importPropertyFromYAML = (params: {
 }): any => {
   const { context, rule, value, sourceValue, yaml } = params
 
-  if (yaml && rule.type === "UserVisible") {
-    const yamlValueDeny = yaml[rule.yamlDeny]
-    return importUserVisibleFromYAML(context, rule, value, yamlValueDeny)
-  }
-
   if (yaml && rule.type === "FormattedI8nText") {
     const yamlFormatted = yaml[rule.yamlFormatted]
-    return importFormattedI8nTextFromEnterprise(context, rule, value, yamlFormatted)
+    return importFormattedI8nTextFromYAML(context, rule, value, yamlFormatted)
   }
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
 
   if (!typeImportFn) {
-    return value ?? sourceValue
+    return getValueOrDefault(context, rule, value ?? sourceValue)
   }
 
-  const result = typeImportFn(context, rule, value, sourceValue)
+  if (typeImportFn.length === 1) {
+    const importedValue = (typeImportFn as ImportFromYAMLFunctionNew)({
+      context,
+      rule,
+      value,
+      source: sourceValue,
+      yaml,
+    })
+    return getValueOrDefault(context, rule, importedValue ?? sourceValue)
+  }
 
-  return result ?? sourceValue
+  const result = (typeImportFn as ImportFromEnterpriseFunction)(context, rule, value, sourceValue)
+
+  return getValueOrDefault(context, rule, result ?? sourceValue)
 }

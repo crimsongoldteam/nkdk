@@ -1,4 +1,4 @@
-import { importFormattedI8nTextFromEnterprise } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
+import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/importFromEnterprise"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
@@ -27,7 +27,7 @@ export const importPropertyFromEnterprise = (params: {
 
   if (yaml && rule.type === "FormattedI8nText") {
     const yamlFormatted = yaml[rule.yamlFormatted]
-    return importFormattedI8nTextFromEnterprise(context, rule, value, yamlFormatted)
+    return importFormattedI8nTextFromYAML(context, rule, value, yamlFormatted)
   }
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined

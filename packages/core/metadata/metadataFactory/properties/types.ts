@@ -16,6 +16,7 @@ interface BasePropertyRule<T extends MetadataItem | never, TagsType extends stri
   toPartialYAML?: false
   fromXML?: false
   defaultValue?: any
+  xmlDefaultValue?: any
   tag?: TagsType
   description?: string
 }

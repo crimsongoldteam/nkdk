@@ -1,6 +1,9 @@
+import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/metadataFactory"
+import { importDynamicListFromXML } from "../dynamicList/importFromXML"
+import { DynamicListXML } from "../dynamicList/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -38,7 +41,19 @@ const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttr
   const result: FormAttribute = {
     itemType: "FormAttribute",
     name: xml._name,
+    title: properties!.title!,
     ...properties,
+  }
+
+  if (xml.Settings !== undefined) {
+    const settingsAsAny = xml.Settings as any
+    if (settingsAsAny["_xsi:type"] === "DynamicList" || settingsAsAny["_xsi:type"] === "v8:DynamicList") {
+      const dynamicList = importDynamicListFromXML(context, undefined, xml.Settings as DynamicListXML)
+      if (dynamicList !== undefined) result.settings = dynamicList
+    } else {
+      const settings = importTypeDescriptionFromXML(context, undefined, xml.Settings)
+      if (settings !== undefined) result.settings = settings
+    }
   }
 
   // const valueType = importTypeDescriptionFromXML(context, undefined, props.Type)!

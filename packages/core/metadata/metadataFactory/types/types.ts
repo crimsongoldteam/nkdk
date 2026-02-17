@@ -62,7 +62,15 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
 
 type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule<any>, value: any) => any | undefined
 
-type ImportFromEnterpriseFunction = (
+export type ImportFromYAMLFunctionNew = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  rule: PropertyRule<T>
+  yaml?: any
+  source?: any
+  value: any
+}) => any | undefined
+
+export type ImportFromEnterpriseFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined,
@@ -84,7 +92,7 @@ type ExportToPreviewFunction = (
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
-  importFromEnterprise?: ImportFromEnterpriseFunction
+  importFromEnterprise?: ImportFromEnterpriseFunction | ImportFromYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToPreview?: ExportToPreviewFunction
 }
@@ -104,6 +112,7 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunction
   | ExportToPreviewFunction
   | ExportToXMLFunctionNew
+  | ImportFromYAMLFunctionNew
 >()
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
@@ -113,7 +122,7 @@ const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations)
 }
 
 type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromEnterprise"
-  ? ImportFromEnterpriseFunction | undefined
+  ? ImportFromYAMLFunctionNew | ImportFromEnterpriseFunction | undefined
   : O extends "exportToEnterprise"
     ? ExportToEnterpriseFunction | undefined
     : O extends "exportToXML"
@@ -137,7 +146,7 @@ export const getTypeRule = <O extends TypeRulesOperations>(
   type: TypeRulesNames,
   operation: O
 ): O extends "importFromEnterprise"
-  ? ImportFromEnterpriseFunction | undefined
+  ? ImportFromEnterpriseFunction | ImportFromYAMLFunctionNew | undefined
   : O extends "exportToEnterprise"
     ? ExportToEnterpriseFunction | undefined
     : O extends "exportToXML"
