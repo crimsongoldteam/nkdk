@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { fullFormCommands, minimalFormCommands } from "~/tests/fixtures/forms/commands/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandsFromXML } from "./importFromXML"
@@ -15,7 +16,7 @@ describe("importCommandFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/full.xml")
 
     const result = importCommandsFromXML(mockContext, mockRule, xmlData.Command)
-    expect(result).toEqual(fullCommands)
+    expect(result).toEqual(fullFormCommands)
   })
 
   it("should import minimal", () => {
@@ -23,6 +24,6 @@ describe("importCommandFromXML", () => {
 
     const result = importCommandsFromXML(mockContext, mockRule, xmlData.Command)
 
-    expect(result).toEqual(minimalCommands)
+    expect(result).toEqual(minimalFormCommands)
   })
 })

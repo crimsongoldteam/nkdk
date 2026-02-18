@@ -22,6 +22,6 @@ import "./formParameter/importFromEnterprise"
 import "./formParameter/importFromXML"
 
 import "./formAttribute/fromXML"
-import "./formAttribute/importFromEnterprise"
+import "./formAttribute/fromYAML"
 import "./formAttribute/toXML"
 import "./formAttribute/toYAML"

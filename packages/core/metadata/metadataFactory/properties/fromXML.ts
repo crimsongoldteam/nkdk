@@ -41,10 +41,10 @@ export const importPropertyFromXML = (params: {
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
   if (!typeImportFn) {
-    return getValueOrDefault({ context, rule, value, name })
+    return getValueOrDefault({ context, rule, value, name, operation: "importFromXML" })
   }
 
   const result = typeImportFn(context, rule, value)
 
-  return getValueOrDefault({ context, rule, value: result, name })
+  return getValueOrDefault({ context, rule, value: result, name, operation: "importFromXML" })
 }

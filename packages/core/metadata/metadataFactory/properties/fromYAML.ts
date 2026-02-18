@@ -36,6 +36,7 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     const yamlKey = curRule.yaml
     if (yamlKey === undefined) continue
+    if (curRule.fromYAML === false) continue
 
     const sourceValue = source ? source[key] : undefined
 
@@ -71,7 +72,13 @@ export const importPropertyFromYAML = (params: {
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
 
   if (!typeImportFn) {
-    return getValueOrDefault({ context, rule, value: value ?? sourceValue, name })
+    return getValueOrDefault({
+      context,
+      rule,
+      value: value ?? sourceValue,
+      name,
+      operation: "importFromEnterprise",
+    })
   }
 
   if (typeImportFn.length === 1) {
@@ -83,12 +90,24 @@ export const importPropertyFromYAML = (params: {
       yaml,
       name,
     })
-    return getValueOrDefault({ context, rule, value: importedValue ?? sourceValue, name })
+    return getValueOrDefault({
+      context,
+      rule,
+      value: importedValue ?? sourceValue,
+      name,
+      operation: "importFromEnterprise",
+    })
   }
 
   const result = (typeImportFn as ImportFromEnterpriseFunction)(context, rule, value, sourceValue)
 
-  return getValueOrDefault({ context, rule, value: result ?? sourceValue, name })
+  return getValueOrDefault({
+    context,
+    rule,
+    value: result ?? sourceValue,
+    name,
+    operation: "importFromEnterprise",
+  })
 }
 
 function handleShortFormatYAML<T extends MetadataItem>(params: {

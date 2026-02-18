@@ -17,6 +17,7 @@ export interface ConfigurationContext {
   elementsTree?: Array<ContextElementTreeItem>
 
   exportToYAML?: FormExportToYAMLContext
+  // formAttributeImportFromYAML?: FormAttributeImportFromYAMLContext
 }
 
 export interface FormExportToYAMLContext {
@@ -26,3 +27,7 @@ export interface FormExportToYAMLContext {
 export interface FormImportFromYAMLContext {
   allElements?: AllChildItemsPartialEnterprise
 }
+
+// export interface FormAttributeImportFromYAMLContext {
+//   isFormObject: boolean
+// }

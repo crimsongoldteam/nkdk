@@ -4,7 +4,7 @@ import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/table
 import { EventsRules } from "../events"
 import { MetadataType } from "../metadataType/types"
 import { ToYAML } from "../rules"
-import { TypeRulesNames } from "../types/types"
+import { TypeRulesNames, TypeRulesOperations } from "../types/types"
 
 export interface MetadataItem {
   itemType: MetadataType
@@ -30,6 +30,7 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   toEnterprise?: false
   toPartialYAML?: false
   fromXML?: false
+  fromYAML?: false
   defaultValue?: any | DefaultValueFunction
   xmlDefaultValue?: any
   tag?: TagsType
@@ -40,7 +41,11 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   useAsShortValueYAML?: true
 }
 
-type I8nTextDefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => I8nText
+type I8nTextDefaultValueFunction = (params: {
+  context: ConfigurationContext
+  name?: string
+  operation: TypeRulesOperations
+}) => I8nText
 
 export interface I8nTextPropertyRule<T extends MetadataItem | never = never> extends Omit<
   BasePropertyRule<T>,

@@ -128,7 +128,6 @@ export interface FormAttributeYAML {
   [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
   [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
   Колонки?: FormAttributeColumnsYAML
-  // ДополнительныеКолонки?: Record<string, Record<string, FormAttributeColumnEnterprise>>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
   ИспользоватьВсегда?: FieldsListEnterprise
   ПроверкаЗаполнения?: FillCheckingEnterprise

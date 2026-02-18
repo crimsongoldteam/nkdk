@@ -22,7 +22,7 @@ import {
   withFunctionalOptionsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importFormAttributesFromEnterprise } from "./importFromEnterprise"
+import { importFormAttributesFromEnterprise } from "./fromYAML"
 
 describe("importFormAttributesFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {

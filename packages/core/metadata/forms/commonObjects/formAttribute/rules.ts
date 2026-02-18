@@ -8,7 +8,12 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       yaml: "Заголовок",
       type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: ({ context, name }) => {
+      defaultValue: ({ context, name, operation }) => {
+        if (operation === "importFromXML") {
+          return {
+            items: { [context.defaultLanguage]: "" },
+          }
+        }
         if (name === undefined) throw new Error("name is required for title default value")
         return {
           items: { [context.defaultLanguage]: splitPascalCase(name) },
@@ -53,21 +58,13 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
     },
-    // settings: {
-    //   yaml: "ДинамическийСписок",
-    //   type: "TypeDescription",
-    // },
     columns: {
       yaml: "Колонки",
       type: "FormAttributeColumns",
+      fromYAML: false,
       defaultValue: [],
     },
-    // additionalColumns: {
-    //   yaml: "ДополнительныеКолонки",
-    //   type: "FormAttributeAdditionalColumns",
-    //   xml: "Columns",
-    //   defaultValue: [],
-    // },
+
     functionalOptions: {
       yaml: "ФункциональныеОпции",
       type: "FunctionalOptionsProperty",
