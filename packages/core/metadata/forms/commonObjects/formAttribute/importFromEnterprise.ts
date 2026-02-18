@@ -1,4 +1,4 @@
-import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/metadataFactory"
@@ -20,19 +20,39 @@ export const importFormAttributesFromEnterprise = (
 ): FormAttributes | undefined => {
   if (!data) return undefined
 
-  return Object.entries(data).map(([name, value]) => importFormAttributeFromEnterprise(context, value, name))
+  const results = Object.entries(data).map(([name, value]) => importFormAttributeFromEnterprise(context, value, name))
+  // .filter(
+  //   (item): item is FormAttribute => item !== undefined && "itemType" in item && item.itemType === "FormAttribute"
+  // )
+
+  return results.length > 0 ? results : undefined
 }
 
 const importFormAttributeFromEnterprise = (
   context: ConfigurationContext,
-  data: FormAttributeYAML,
+  data: FormAttributeYAML | TypeDescriptionEnterprise,
   name: string
-): FormAttribute | TypeDescription => {
+): FormAttribute => {
+  // if (typeof data === "string") {
+  //   const typeValue = importTypeDescriptionFromEnterprise(context, undefined, data)!
+
+  //   const result: FormAttribute = {
+  //     itemType: "FormAttribute",
+  //     title: { items: { [context.defaultLanguage]: name } },
+  //     columns: [],
+  //     type: typeValue,
+  //     name,
+  //   }
+
+  //   return result
+  // }
+
   const properties = importPropertiesFromYAML({
     context: context,
-    yaml: data,
+    yaml: data as FormAttributeYAML,
     metadataType: "FormAttribute",
     rules: FormAttributeRules,
+    name,
   })
 
   const result: FormAttribute = {
@@ -66,6 +86,7 @@ const importFormAttributeColumnFromEnterprise = (
     yaml: data,
     metadataType: "FormAttributeColumn",
     rules: FormAttributeColumnRules,
+    name,
   })
 
   const result: FormAttributeColumn = {

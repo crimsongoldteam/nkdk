@@ -12,8 +12,9 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   metadataType: MetadataType
   rules: MetadataItemRule<T>
   source?: T
+  name?: string
 }): T {
-  const { context, yaml, source, rules, metadataType } = params
+  const { context, yaml, source, rules, metadataType, name } = params
 
   const result: T = {
     itemType: metadataType,
@@ -22,8 +23,10 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   const shortFormatResult = handleShortFormatYAML({
     context,
     yaml,
+    metadataType,
     rules,
     result,
+    name,
   })
 
   if (shortFormatResult) {
@@ -44,6 +47,7 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
       value: yamlValue,
       yaml: yaml,
       sourceValue,
+      name,
     })
 
     if (importedValue !== undefined) {
@@ -60,13 +64,14 @@ export const importPropertyFromYAML = (params: {
   value: any
   yaml?: any
   sourceValue?: any
+  name?: string
 }): any => {
-  const { context, rule, value, sourceValue, yaml } = params
+  const { context, rule, value, sourceValue, yaml, name } = params
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
 
   if (!typeImportFn) {
-    return getValueOrDefault(context, rule, value ?? sourceValue)
+    return getValueOrDefault({ context, rule, value: value ?? sourceValue, name })
   }
 
   if (typeImportFn.length === 1) {
@@ -76,22 +81,25 @@ export const importPropertyFromYAML = (params: {
       value,
       source: sourceValue,
       yaml,
+      name,
     })
-    return getValueOrDefault(context, rule, importedValue ?? sourceValue)
+    return getValueOrDefault({ context, rule, value: importedValue ?? sourceValue, name })
   }
 
   const result = (typeImportFn as ImportFromEnterpriseFunction)(context, rule, value, sourceValue)
 
-  return getValueOrDefault(context, rule, result ?? sourceValue)
+  return getValueOrDefault({ context, rule, value: result ?? sourceValue, name })
 }
 
 function handleShortFormatYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   yaml: ToYAML<T>
+  metadataType: MetadataType
   rules: MetadataItemRule<T>
   result: T
+  name?: string
 }): T | undefined {
-  const { context, yaml, rules, result } = params
+  const { context, yaml, rules, result, name, metadataType } = params
 
   if (typeof yaml !== "string") {
     return undefined
@@ -116,11 +124,20 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
     rule: shortFormatRule,
     value: yaml,
     yaml: yaml,
+    name,
   })
 
-  if (importedValue !== undefined) {
-    result[propertyKey] = importedValue
+  const source: T = {
+    itemType: result.itemType,
+    [propertyKey]: importedValue,
   }
 
-  return result
+  return importPropertiesFromYAML({
+    context,
+    rules,
+    metadataType,
+    name,
+    source: source,
+    yaml: {},
+  })
 }

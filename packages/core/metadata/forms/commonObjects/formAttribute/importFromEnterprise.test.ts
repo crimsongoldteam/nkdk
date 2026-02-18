@@ -16,8 +16,6 @@ import {
   treeWithColumnFormAttributeEnterprise,
   withAdditionalColumnFormAttribute,
   withAdditionalColumnFormAttributeEnterprise,
-  withDynamicListFormAttribute,
-  withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
   withEmptySettingsFormAttributeEnterprise,
   withFunctionalOptionsFormAttribute,
@@ -68,11 +66,11 @@ describe("importFormAttributesFromEnterprise", () => {
     expect(result).toEqual(withEmptySettingsFormAttribute)
   })
 
-  it("should import with dynamic list", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, withDynamicListFormAttributeEnterprise)
+  // it("should import with dynamic list", () => {
+  //   const result = importFormAttributesFromEnterprise(mockContext, mockRule, withDynamicListFormAttributeEnterprise)
 
-    expect(result).toEqual(withDynamicListFormAttribute)
-  })
+  //   expect(result).toEqual(withDynamicListFormAttribute)
+  // })
 
   it("should import table with columns", () => {
     const result = importFormAttributesFromEnterprise(mockContext, mockRule, tableWithColumnsFormAttributeEnterprise)

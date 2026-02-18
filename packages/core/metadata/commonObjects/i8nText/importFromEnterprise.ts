@@ -1,15 +1,19 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
+import { I8nTextPropertyRule, ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { I8nText, I8nTextEnterprise } from "./types"
 
-export const importI8nTextFromEnterprise = (
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  data: I8nTextEnterprise | undefined,
+export const importI8nTextFromEnterprise: ImportFromYAMLFunctionNew = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: I8nTextEnterprise | undefined
   source?: I8nText | undefined
-): I8nText | undefined => {
-  if (source === undefined && data === undefined) return undefined
+  name?: string
+}): I8nText | undefined => {
+  const { context, rule, value, source, name } = params
+  if (source === undefined && value === undefined) return undefined
+  const i8nRule = rule as I8nTextPropertyRule<any>
 
   const result: I8nText = {
     items: {},
@@ -19,12 +23,17 @@ export const importI8nTextFromEnterprise = (
     result.items = { ...result.items, ...source.items }
   }
 
-  if (data !== undefined) {
-    const otherLanguages = importFromEnterprise(context, data)!
+  if (value !== undefined) {
+    const otherLanguages = importFromEnterprise(context, value)!
     result.items = { ...result.items, ...otherLanguages.items }
   }
 
   if (Object.keys(result.items).length === 0) return undefined
+
+  if (i8nRule.excludeIfEqualNameYAML) {
+    if (name === undefined) throw new Error("name is required for excludeIfEqualNameYAML")
+    return addDefaultLanguageNameToSynonym(context, result, name)
+  }
 
   return result
 }

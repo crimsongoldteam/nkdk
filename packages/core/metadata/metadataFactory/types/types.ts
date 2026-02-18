@@ -72,6 +72,7 @@ export type ImportFromYAMLFunctionNew = <T extends MetadataItem | never = never>
   yaml?: any
   source?: any
   value: any
+  name?: string
 }) => any | undefined
 
 export type ImportFromEnterpriseFunction = (

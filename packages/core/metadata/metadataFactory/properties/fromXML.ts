@@ -21,7 +21,7 @@ export const importPropertiesFromXML = <T extends MetadataItem>(params: {
 
     const xmlValue = (xml as any)[xmlKey]
 
-    const value = importPropertyFromXML({ context, rule: currentRule, value: xmlValue })
+    const value = importPropertyFromXML({ context, rule: currentRule, value: xmlValue, name: key })
 
     if (value === undefined) continue
     ;(result as any)[key] = value
@@ -34,16 +34,17 @@ export const importPropertyFromXML = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
   value: any
+  name?: string
 }): any => {
-  const { context, rule, value } = params
+  const { context, rule, value, name } = params
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
   if (!typeImportFn) {
-    return getValueOrDefault(context, rule, value)
+    return getValueOrDefault({ context, rule, value, name })
   }
 
   const result = typeImportFn(context, rule, value)
 
-  return getValueOrDefault(context, rule, result)
+  return getValueOrDefault({ context, rule, value: result, name })
 }

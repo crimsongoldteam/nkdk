@@ -1,3 +1,4 @@
+import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { EventsRules } from "../events"
@@ -10,6 +11,8 @@ export interface MetadataItem {
 }
 
 type YAMLKey<T extends MetadataItem | never> = Extract<keyof ToYAML<T>, string>
+
+type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
 interface BasePropertyRule<T extends MetadataItem | never = never, TagsType extends string = string> {
   /**
@@ -27,7 +30,7 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   toEnterprise?: false
   toPartialYAML?: false
   fromXML?: false
-  defaultValue?: any
+  defaultValue?: any | DefaultValueFunction
   xmlDefaultValue?: any
   tag?: TagsType
 
@@ -37,7 +40,12 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   useAsShortValueYAML?: true
 }
 
-export interface I8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+type I8nTextDefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => I8nText
+
+export interface I8nTextPropertyRule<T extends MetadataItem | never = never> extends Omit<
+  BasePropertyRule<T>,
+  "defaultValue"
+> {
   type: "I8nText"
   yamlPartialOthers?: true
   skipEmptyToXML?: true
@@ -46,6 +54,7 @@ export interface I8nTextPropertyRule<T extends MetadataItem | never = never> ext
    * Если значение поля приведенное к pascalCase равно имени элемента - поле не будет выгружено в yaml
    */
   excludeIfEqualNameYAML?: true
+  defaultValue?: I8nText | I8nTextDefaultValueFunction
 }
 
 export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {

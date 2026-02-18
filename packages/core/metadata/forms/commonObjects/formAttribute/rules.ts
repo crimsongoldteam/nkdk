@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { MetadataItemRule } from "~/metadata/metadataFactory/properties/types"
 import { FormAttribute, FormAttributeColumn } from "./types"
 
@@ -8,9 +8,10 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       yaml: "Заголовок",
       type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: (context: ConfigurationContext) => {
+      defaultValue: ({ context, name }) => {
+        if (name === undefined) throw new Error("name is required for title default value")
         return {
-          items: { [context.defaultLanguage]: "" },
+          items: { [context.defaultLanguage]: splitPascalCase(name) },
         }
       },
 
