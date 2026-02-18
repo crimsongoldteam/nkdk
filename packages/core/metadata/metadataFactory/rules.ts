@@ -9,8 +9,8 @@ import {
 import {
   FormAttribute,
   FormAttributeColumn,
-  FormAttributeColumnEnterprise,
-  FormAttributeEnterprise,
+  FormAttributeColumnYAML,
+  FormAttributeYAML,
 } from "../forms/commonObjects/formAttribute/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "../forms/elements/button/types"
 import {
@@ -131,8 +131,8 @@ type ToYAMLRule =
   | [ExtendedTooltip, ExtendedTooltipEnterprise]
   // etc
   | [ClientApplicationForm, ClientApplicationFormEnterprise]
-  | [FormAttribute, FormAttributeEnterprise]
-  | [FormAttributeColumn, FormAttributeColumnEnterprise]
+  | [FormAttribute, FormAttributeYAML]
+  | [FormAttributeColumn, FormAttributeColumnYAML]
   | [CommandInterface, CommandInterfaceEnterprise]
   | [CommandInterfaceItem, CommandInterfaceItemEnterprise]
 

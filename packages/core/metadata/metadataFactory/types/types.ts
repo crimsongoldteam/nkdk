@@ -43,7 +43,7 @@ export type TypeRulesNames =
   | "SearchControlAddition"
   | "TableAdditionalSource"
   | "FormAttributeColumns"
-  | "FormAttributeAdditionalColumns"
+  // | "FormAttributeAdditionalColumns"
   | "FormAttributes"
   | "FormAttributeSettings"
 

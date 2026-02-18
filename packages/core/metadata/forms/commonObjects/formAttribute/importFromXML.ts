@@ -4,8 +4,11 @@ import { importPropertiesFromXML, registerTypeRule } from "~/metadata/metadataFa
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
-  FormAttributeAdditionalColumn,
+  FormAttributeAdditionalColumns,
+  FormAttributeAdditionalColumnXML,
   FormAttributeColumn,
+  FormAttributeColumns,
+  FormAttributeColumnsXML,
   FormAttributeColumnXML,
   FormAttributes,
   FormAttributesXML,
@@ -25,10 +28,6 @@ export const importFormAttributesFromXML = (
 }
 
 const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {
-  // const title = importI8nTextFromXML(context, { type: "I8nText" }, props.Title) ?? {
-  //   items: { [context.defaultLanguage]: "" },
-  // }
-
   const properties = importPropertiesFromXML({
     context: context,
     xml,
@@ -39,68 +38,9 @@ const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttr
     itemType: "FormAttribute",
     name: xml._name,
     title: properties!.title!,
+    columns: [],
     ...properties,
   }
-
-  // if (xml.Settings !== undefined) {
-  //   const settingsAsAny = xml.Settings as any
-  //   if (settingsAsAny["_xsi:type"] === "DynamicList" || settingsAsAny["_xsi:type"] === "v8:DynamicList") {
-  //     const dynamicList = importDynamicListFromXML(context, undefined, xml.Settings as DynamicListXML)
-  //     if (dynamicList !== undefined) result.settings = dynamicList
-  //   } else {
-  //     const settings = importTypeDescriptionFromXML(context, undefined, xml.Settings)
-  //     if (settings !== undefined) result.settings = settings
-  //   }
-  // }
-
-  // const valueType = importTypeDescriptionFromXML(context, undefined, props.Type)!
-  // result.valueType = valueType
-
-  // const mainAttribute = importBooleanFromXML(context, undefined, props.MainAttribute)
-  // if (mainAttribute !== undefined) result.mainAttribute = mainAttribute
-
-  // const storedData = importBooleanFromXML(context, undefined, props.SavedData)
-  // if (storedData !== undefined) result.storedData = storedData
-
-  // if (props.FillCheck !== undefined) result.fillCheck = props.FillCheck
-
-  // const view = importUserVisibleFromXML(context, undefined, props.View ?? props.Use)
-  // if (view) result.view = view
-
-  // const edit = importUserVisibleFromXML(context, undefined, props.Edit ?? props.Use)
-  // if (edit) result.edit = edit
-
-  // // Check if Settings is a DynamicList (has _xsi:type indicating DynamicList) or TypeDescription
-  // if (props.Settings !== undefined) {
-  //   const settingsAsAny = props.Settings as any
-  //   if (settingsAsAny["_xsi:type"] === "DynamicList" || settingsAsAny["_xsi:type"] === "v8:DynamicList") {
-  //     const dynamicList = importDynamicListFromXML(context, undefined, props.Settings as DynamicListXML)
-  //     if (dynamicList !== undefined) result.settings = dynamicList
-  //   } else {
-  //     const settings = importTypeDescriptionFromXML(context, undefined, props.Settings)
-  //     if (settings !== undefined) result.settings = settings
-  //   }
-  // }
-
-  // if (props.Columns !== undefined) {
-  //   result.columns = importFormAttributeColumnsFromXML(context, undefined, props.Columns.Column)
-  //   if (props.Columns.AdditionalColumns !== undefined) {
-  //     result.additionalColumns = importFormAttributeAdditionalColumnsFromXML(
-  //       context,
-  //       undefined,
-  //       props.Columns.AdditionalColumns
-  //     )
-  //   }
-  // }
-
-  // const functionalOptions = importFunctionalOptionsFromXML(context, undefined, props.FunctionalOptions)
-  // if (functionalOptions !== undefined) result.functionalOptions = functionalOptions
-
-  // const fieldsList = importFieldsListFromXML(context, undefined, props.UseAlways)
-  // if (fieldsList !== undefined) result.fieldsList = fieldsList
-
-  // const save = importFieldsListFromXML(context, undefined, props.Save)
-  // if (save !== undefined) result.save = save
 
   return result
 }
@@ -108,9 +48,22 @@ const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttr
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
-): FormAttributeColumn[] | undefined => {
+  xml: FormAttributeColumnsXML | undefined
+): FormAttributeColumns | undefined => {
   if (!xml) return undefined
+
+  const isAdditional = xml.AdditionalColumns !== undefined
+
+  if (isAdditional) return importAdditionalColumnsFromXML(context, xml.AdditionalColumns)
+
+  return importColumnsFromXML(context, xml.Column)
+}
+
+const importColumnsFromXML = (
+  context: ConfigurationContext,
+  xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
+): FormAttributeColumn[] => {
+  if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
 
@@ -131,25 +84,19 @@ const importFormAttributeColumnsFromXML = (
   })
 }
 
-const importFormAttributeAdditionalColumnsFromXML = (
+const importAdditionalColumnsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  xml:
-    | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }
-    | { _table: string; Column: FormAttributeColumnXML | FormAttributeColumnXML[] }[]
-    | undefined
-): FormAttributeAdditionalColumn[] | undefined => {
-  if (!xml) return undefined
+  xml: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[] | undefined
+): FormAttributeAdditionalColumns[] => {
+  if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
 
   return items.map((item) => ({
     table: item._table,
-    columns: importFormAttributeColumnsFromXML(context, undefined, item.Column)!,
+    columns: importColumnsFromXML(context, item.Column ?? [])!,
   }))
 }
 
 registerTypeRule("FormAttributes", "importFromXML", importFormAttributesFromXML)
 registerTypeRule("FormAttributeColumns", "importFromXML", importFormAttributeColumnsFromXML)
-// registerTypeRule("FormAttributeAdditionalColumns", "importFromXML", exportFormAttributeAdditionalColumnsToXML)
-// registerTypeRule("FormAttributeSettings", "importFromXML", exportFormAttributeSettingsToXML as ExportToXMLFunctionNew)

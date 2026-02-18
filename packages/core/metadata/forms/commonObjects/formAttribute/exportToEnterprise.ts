@@ -7,8 +7,8 @@ import {
   FormAttribute,
   FormAttributeAdditionalColumn,
   FormAttributeColumn,
-  FormAttributeColumnEnterprise,
-  FormAttributeEnterprise,
+  FormAttributeColumnYAML,
+  FormAttributeYAML,
   FormAttributes,
   FormAttributesEnterprise,
 } from "./types"
@@ -29,7 +29,7 @@ const exportFormAttributeToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: FormAttribute
-): FormAttributeEnterprise | TypeDescriptionEnterprise => {
+): FormAttributeYAML | TypeDescriptionEnterprise => {
   const result = exportPropertiesToYAML({
     context,
     data: data,
@@ -111,7 +111,7 @@ const exportFormAttributeColumnsToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   columns: FormAttributeColumn[]
-): Record<string, FormAttributeColumnEnterprise> => {
+): Record<string, FormAttributeColumnYAML> => {
   return Object.fromEntries(
     columns.map((column) => [column.name, exportFormAttributeColumnToEnterprise(context, undefined, column)])
   )
@@ -121,7 +121,7 @@ const exportFormAttributeColumnToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   column: FormAttributeColumn
-): FormAttributeColumnEnterprise => {
+): FormAttributeColumnYAML => {
   const result = exportPropertiesToYAML({
     context,
     data: column,
@@ -170,7 +170,7 @@ const exportFormAttributeAdditionalColumnsToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   additionalColumns: FormAttributeAdditionalColumn[]
-): Record<string, Record<string, FormAttributeColumnEnterprise>> => {
+): Record<string, Record<string, FormAttributeColumnYAML>> => {
   return Object.fromEntries(
     additionalColumns.map((additionalColumn) => [
       additionalColumn.table.split(".").pop()!,

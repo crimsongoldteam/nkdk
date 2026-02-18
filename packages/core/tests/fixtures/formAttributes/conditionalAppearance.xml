@@ -1,5 +1,5 @@
 <Attributes>
-		<ConditionalAppearance>
-			<dcsset:item/>
-		</ConditionalAppearance>
-	</Attributes>
+	<ConditionalAppearance>
+		<dcsset:item/>
+	</ConditionalAppearance>
+</Attributes>

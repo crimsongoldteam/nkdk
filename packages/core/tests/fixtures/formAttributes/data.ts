@@ -31,7 +31,6 @@ export const fullFormAttributes: Required<FormAttributes> = [
     save: ["Объект"],
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
   {
     name: "ТестовыйАтрибут",
@@ -59,7 +58,6 @@ export const fullFormAttributes: Required<FormAttributes> = [
     fieldsList: ["Список.Ref"],
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -112,7 +110,6 @@ export const minimalFormAttributes: FormAttributes = [
     title: { items: { ru: "" } },
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -129,7 +126,6 @@ export const multipleFormAttributes: FormAttributes = [
     },
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
   {
     name: "ТестовыйАтрибут2",
@@ -139,7 +135,6 @@ export const multipleFormAttributes: FormAttributes = [
     },
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -156,7 +151,6 @@ export const shortFormAttribute: FormAttributes = [
     },
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -187,7 +181,6 @@ export const withMainAttributeFormAttribute: FormAttributes = [
     mainAttribute: true,
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 //#endregion
@@ -204,7 +197,6 @@ export const mainAttributeTitleEqualsName: FormAttributes = [
     mainAttribute: true,
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -229,7 +221,6 @@ export const withStoredDataFormAttribute: FormAttributes = [
     storedData: true,
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 //#endregion
@@ -247,7 +238,6 @@ export const choiceListFormAttribute: FormAttributes = [
     },
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -269,7 +259,6 @@ export const withEmptySettingsFormAttribute: FormAttributes = [
     type: { type: ["ValueListType"] },
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -287,7 +276,6 @@ export const withDynamicListFormAttribute: FormAttributes = [
     settings: fullDynamicList,
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -319,7 +307,6 @@ export const tableWithColumnsFormAttribute: FormAttributes = [
       },
     ],
     itemType: "FormAttribute",
-    additionalColumns: [],
   },
 ]
 
@@ -360,7 +347,6 @@ export const treeWithColumnFormAttribute: FormAttributes = [
     ],
     fieldsList: ["Дерево.Колонка1"],
     itemType: "FormAttribute",
-    additionalColumns: [],
   },
 ]
 
@@ -393,7 +379,6 @@ export const withFunctionalOptionsFormAttribute: FormAttributes = [
     functionalOptions: ["FunctionalOption.ФункциональнаяОпция1"],
     itemType: "FormAttribute",
     columns: [],
-    additionalColumns: [],
   },
 ]
 
@@ -414,7 +399,7 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
     name: "Объект",
     type: { type: ["string"] },
     title: { items: { ru: "" } },
-    additionalColumns: [
+    columns: [
       {
         table: "КакаяТоТаблица",
         columns: [
@@ -428,7 +413,6 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
       },
     ],
     itemType: "FormAttribute",
-    columns: [],
   },
 ]
 
@@ -436,7 +420,7 @@ export const withAdditionalColumnFormAttributeEnterprise: FormAttributesEnterpri
   Объект: {
     Заголовок: "",
     Тип: "Строка",
-    ДополнительныеКолонки: {
+    Колонки: {
       КакаяТоТаблица: {
         КолонкаТаблицы: {
           Заголовок: "Описание колонки",

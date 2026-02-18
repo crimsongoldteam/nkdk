@@ -61,12 +61,12 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       type: "FormAttributeColumns",
       defaultValue: [],
     },
-    additionalColumns: {
-      yaml: "ДополнительныеКолонки",
-      type: "FormAttributeAdditionalColumns",
-      xml: "Columns",
-      defaultValue: [],
-    },
+    // additionalColumns: {
+    //   yaml: "ДополнительныеКолонки",
+    //   type: "FormAttributeAdditionalColumns",
+    //   xml: "Columns",
+    //   defaultValue: [],
+    // },
     functionalOptions: {
       yaml: "ФункциональныеОпции",
       type: "FunctionalOptionsProperty",
@@ -83,19 +83,17 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
   },
 }
 
-// registerElementRule("FormAttribute", FormAttributeRules)
-
 export const FormAttributeColumnRules: MetadataItemRule<FormAttributeColumn> = {
   properties: {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
       excludeIfEqualNameYAML: true,
-      defaultValue: (context: ConfigurationContext) => {
-        return {
-          items: { [context.defaultLanguage]: "" },
-        }
-      },
+      // defaultValue: (context: ConfigurationContext) => {
+      //   return {
+      //     items: { [context.defaultLanguage]: "" },
+      //   }
+      // },
     },
     type: {
       yaml: "Тип",

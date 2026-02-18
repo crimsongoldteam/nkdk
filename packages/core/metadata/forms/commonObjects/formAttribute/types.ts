@@ -1,25 +1,19 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { FieldsList, FieldsListEnterprise, FieldsListXML } from "~/metadata/commonObjects/fieldsList/types"
+import { FieldsList, FieldsListEnterprise } from "~/metadata/commonObjects/fieldsList/types"
 import {
   FunctionalOptions,
   FunctionalOptionsEnterprise,
-  FunctionalOptionsXML,
 } from "~/metadata/commonObjects/functionalOptionsProperty/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import {
-  TypeDescription,
-  TypeDescriptionEnterprise,
-  TypeDescriptionXML,
-} from "~/metadata/commonObjects/typeDescription/types"
+import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserEditEnterprise,
   UserEditKeysEnterprise,
   UserViewEnterprise,
   UserViewKeysEnterprise,
   UserVisible,
-  UserVisibleXML,
 } from "~/metadata/commonObjects/userVisible/types"
-import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { DynamicList, DynamicListEnterprise } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 
@@ -40,8 +34,7 @@ export interface FormAttribute extends MetadataItem {
   edit?: UserVisible
   fillCheck?: FillChecking
   settings?: TypeDescription | DynamicList
-  columns: FormAttributeColumn[]
-  additionalColumns: FormAttributeAdditionalColumn[]
+  columns: FormAttributeColumns
   functionalOptions?: FunctionalOptions
   fieldsList?: FieldsList
   save?: FieldsList
@@ -50,63 +43,59 @@ export interface FormAttribute extends MetadataItem {
 export interface FormAttributeColumn extends MetadataItem {
   itemType: "FormAttributeColumn"
   name: string
-  // id: string
   title?: I8nText
   type?: TypeDescription
   view?: UserVisible
   edit?: UserVisible
   fillCheck?: FillChecking
-  // columns?: FormAttributeColumn[]
   functionalOptions?: FunctionalOptions
 }
 
-interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
-  "_xsi:type": "v8:TypeDescription"
+export interface FormAttributeAdditionalColumns {
+  table: string
+  columns: FormAttributeColumn[]
 }
+export type FormAttributeColumns = FormAttributeColumn[] | FormAttributeAdditionalColumns[]
 
-export interface FormAttributeColumnXML {
-  _name: string
-  _id: string
-  Title?: I8nTextXML
-  Type?: TypeDescriptionXML
-  View?: UserVisibleXML
-  Edit?: UserVisibleXML
-  FillCheck?: FillChecking
-  Column?: FormAttributeColumnXML | FormAttributeColumnXML[]
-  FunctionalOptions?: FunctionalOptionsXML
-}
+// export interface FormAttributeAdditionalColumn extends MetadataItem {
+//   itemType: "FormAttributeAdditionalColumn"
+//   name: string
+//   // table: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   functionalOptions?: FunctionalOptions
+// }
+
+// interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
+//   "_xsi:type": "v8:TypeDescription"
+// }
+
+export interface FormAttributeColumnXML extends ElementXML {}
 
 export interface FormAttributeAdditionalColumnXML {
   _table: string
-  Column?: ElementXML[]
+  Column?: FormAttributeColumnXML[]
 }
 
-export interface FormAttributeXML {
-  _name: string
-  _id: string
-  Settings?: SettingsTypeDescriptionXML | DynamicListXML
-  Title?: I8nTextXML
-  Type?: TypeDescriptionXML
-  MainAttribute?: boolean
-  SavedData?: boolean
-  FillCheck?: FillChecking
-  View?: UserVisibleXML
-  Edit?: UserVisibleXML
-  Columns?: {
-    Column: FormAttributeColumnXML | FormAttributeColumnXML[]
-    AdditionalColumns?: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[]
-  }
-  FunctionalOptions?: FunctionalOptionsXML
-  UseAlways?: FieldsListXML
-  Use?: UserVisibleXML
-  Save?: FieldsListXML
+export interface FormAttributeColumnsXML {
+  Column?: FormAttributeColumnXML | FormAttributeColumnXML[]
+  AdditionalColumns?: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[]
+}
+
+export interface FormAttributeXML extends ElementXML {
+  Columns?: FormAttributeColumnsXML
+
+  [key: string]: object | undefined
 }
 
 export interface ConditionalAppearanceXML {
   ConditionalAppearance: Record<string, unknown>
 }
 
-export interface FormAttributeColumnEnterprise {
+export interface FormAttributeColumnYAML {
   Заголовок?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise
   ПроверкаЗаполнения?: FillCheckingEnterprise
@@ -114,15 +103,15 @@ export interface FormAttributeColumnEnterprise {
   [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
   [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
   [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
-  Колонки?: Record<string, FormAttributeColumnEnterprise>
+  Колонки?: Record<string, FormAttributeColumnYAML>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
 }
 
-export interface FormAttributeAdditionalColumnEnterprise {
-  [tableName: string]: Record<string, FormAttributeColumnEnterprise>
+export interface FormAttributeAdditionalColumnYAML {
+  [tableName: string]: Record<string, FormAttributeColumnYAML>
 }
 
-export interface FormAttributeEnterprise {
+export interface FormAttributeYAML {
   Заголовок?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise
   ТипЗначения?: TypeDescriptionEnterprise
@@ -133,8 +122,8 @@ export interface FormAttributeEnterprise {
   [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
   [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
   [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
-  Колонки?: Record<string, FormAttributeColumnEnterprise>
-  ДополнительныеКолонки?: Record<string, Record<string, FormAttributeColumnEnterprise>>
+  Колонки?: Record<string, FormAttributeColumnYAML> | FormAttributeAdditionalColumnYAML
+  // ДополнительныеКолонки?: Record<string, Record<string, FormAttributeColumnEnterprise>>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
   ИспользоватьВсегда?: FieldsListEnterprise
   ПроверкаЗаполнения?: FillCheckingEnterprise
@@ -145,4 +134,4 @@ export type FormAttributes = FormAttribute[]
 
 export type FormAttributesXML = (FormAttributeXML | ConditionalAppearanceXML)[]
 
-export type FormAttributesEnterprise = Record<string, FormAttributeEnterprise | TypeDescriptionEnterprise>
+export type FormAttributesEnterprise = Record<string, FormAttributeYAML | TypeDescriptionEnterprise>
