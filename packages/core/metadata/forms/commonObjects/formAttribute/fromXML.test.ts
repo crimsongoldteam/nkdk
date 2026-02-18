@@ -12,7 +12,7 @@ import {
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importFormAttributesFromXML } from "./importFromXML"
+import { importFormAttributesFromXML } from "./fromXML"
 import { FormAttributesXML } from "./types"
 
 describe("importFormAttributesFromXML", () => {

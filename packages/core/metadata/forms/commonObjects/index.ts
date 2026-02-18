@@ -23,5 +23,5 @@ import "./formParameter/importFromXML"
 
 import "./formAttribute/exportToEnterprise"
 import "./formAttribute/exportToXML"
+import "./formAttribute/fromXML"
 import "./formAttribute/importFromEnterprise"
-import "./formAttribute/importFromXML"

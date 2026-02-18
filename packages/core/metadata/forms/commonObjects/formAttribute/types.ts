@@ -87,8 +87,6 @@ export interface FormAttributeColumnsXML {
 
 export interface FormAttributeXML extends ElementXML {
   Columns?: FormAttributeColumnsXML
-
-  [key: string]: object | undefined
 }
 
 export interface ConditionalAppearanceXML {
@@ -111,6 +109,8 @@ export interface FormAttributeAdditionalColumnYAML {
   [tableName: string]: Record<string, FormAttributeColumnYAML>
 }
 
+export type FormAttributeColumnsYAML = Record<string, FormAttributeColumnYAML> | FormAttributeAdditionalColumnYAML
+
 export interface FormAttributeYAML {
   Заголовок?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise
@@ -122,7 +122,7 @@ export interface FormAttributeYAML {
   [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
   [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
   [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
-  Колонки?: Record<string, FormAttributeColumnYAML> | FormAttributeAdditionalColumnYAML
+  Колонки?: FormAttributeColumnsYAML
   // ДополнительныеКолонки?: Record<string, Record<string, FormAttributeColumnEnterprise>>
   ФункциональныеОпции?: FunctionalOptionsEnterprise
   ИспользоватьВсегда?: FieldsListEnterprise
