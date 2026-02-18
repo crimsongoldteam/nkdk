@@ -4,19 +4,6 @@ import { getTypeRule } from "../types/factory"
 import { ExportToEnterpriseFunction, ExportToYAMLFunctionNew, TypeRulesNames } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
-// type ExtractRule<T extends MetadataItem | undefined, M> = T extends undefined
-//   ? undefined
-//   : M extends [infer F, infer R]
-//     ? F extends MetadataItem
-//       ? F["itemType"] extends NonNullable<T>["itemType"]
-//         ? R
-//         : never
-//       : never
-//     : never
-
-// type ShortValue<T extends MetadataItem, R extends MetadataItemRule> =
-//   M extends R["properties"]["useAsShortValueYAML" extends true, infer ]
-
 export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   data: T | undefined
@@ -46,7 +33,7 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
 
     if (rule.useAsShortValueYAML) {
       const keys = Object.keys(exportedValues)
-      if (keys.length === 1) {
+      if (keys.length === 1 && typeof exportedValues[keys[0]] === "string") {
         shortValue = exportedValues[keys[0]]
       } else {
         canUseShortFormat = false

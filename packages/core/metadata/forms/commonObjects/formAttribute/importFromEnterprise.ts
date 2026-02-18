@@ -1,4 +1,4 @@
-import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/metadataFactory"
@@ -27,7 +27,7 @@ const importFormAttributeFromEnterprise = (
   context: ConfigurationContext,
   data: FormAttributeYAML,
   name: string
-): FormAttribute | TypeDescriptionEnterprise => {
+): FormAttribute | TypeDescription => {
   const properties = importPropertiesFromYAML({
     context: context,
     yaml: data,
@@ -46,11 +46,13 @@ const importFormAttributeFromEnterprise = (
 const importFormAttributeColumnsFromEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: Record<string, FormAttributeColumnYAML>
+  data: Record<string, FormAttributeColumnYAML> | undefined
 ): FormAttributeColumn[] => {
-  return Object.entries(data).map(([name, value]) =>
-    importFormAttributeColumnFromEnterprise(context, undefined, value, name)
-  )
+  if (!data) return []
+
+  return Object.entries(data)
+    .map(([name, value]) => importFormAttributeColumnFromEnterprise(context, undefined, value, name))
+    .filter((item): item is FormAttributeColumn => item !== undefined)
 }
 
 const importFormAttributeColumnFromEnterprise = (

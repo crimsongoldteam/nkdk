@@ -31,6 +31,7 @@ export interface FormAttribute extends MetadataItem {
   name: string
   title: I8nText
   type?: TypeDescription
+  columns: FormAttributeColumns
   valueType?: TypeDescription
   mainAttribute?: boolean
   storedData?: boolean
@@ -38,7 +39,6 @@ export interface FormAttribute extends MetadataItem {
   edit?: UserVisible
   fillCheck?: FillChecking
   settings?: TypeDescription | DynamicList
-  columns: FormAttributeColumns
   functionalOptions?: FunctionalOptions
   fieldsList?: FieldsList
   save?: FieldsList

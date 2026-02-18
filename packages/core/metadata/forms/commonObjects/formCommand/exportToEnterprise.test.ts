@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullCommands, fullCommandsEnterprise, minimalCommands } from "~/tests/fixtures/forms/commands/data"
+import { fullFormCommands, fullFormCommandsEnterprise, minimalFormCommands } from "~/tests/fixtures/forms/commands/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportCommandsToEnterprise } from "./exportToEnterprise"
 
@@ -11,13 +11,13 @@ describe("exportCommandToEnterprise", () => {
   })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportCommandsToEnterprise(mockContext, mockRule, fullCommands)
+    const result = exportCommandsToEnterprise(mockContext, mockRule, fullFormCommands)
 
-    expect(result).toEqual(fullCommandsEnterprise)
+    expect(result).toEqual(fullFormCommandsEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportCommandsToEnterprise(mockContext, mockRule, minimalCommands)
+    const result = exportCommandsToEnterprise(mockContext, mockRule, minimalFormCommands)
 
     expect(result).toBeUndefined()
   })

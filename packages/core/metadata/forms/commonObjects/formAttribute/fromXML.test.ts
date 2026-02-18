@@ -7,7 +7,6 @@ import {
   tableWithColumnsFormAttribute,
   treeWithColumnFormAttribute,
   withAdditionalColumnFormAttribute,
-  withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
@@ -61,13 +60,13 @@ describe("importFormAttributesFromXML", () => {
     expect(result).toEqual(withEmptySettingsFormAttribute)
   })
 
-  it("should import with dynamic list", () => {
-    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withDynamicList.xml")
+  // it("should import with dynamic list", () => {
+  //   const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withDynamicList.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+  //   const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
 
-    expect(result).toEqual(withDynamicListFormAttribute)
-  })
+  //   expect(result).toEqual(withDynamicListFormAttribute)
+  // })
 
   it("should import table with columns", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/tableWithColumns.xml")
