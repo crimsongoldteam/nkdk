@@ -3,7 +3,7 @@ import { importMetadataCommandsFromEnterprise } from "~/metadata/appliedObjects/
 import { importAdditionalIndexesFromEnterprise } from "~/metadata/commonObjects/additionalIndex/importFromEnterprise"
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importCharacteristicsDescriptionsFromEnterprise } from "~/metadata/commonObjects/characteristicsDescription/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importMetadataAttributesFromEnterprise } from "~/metadata/commonObjects/metadataAttribute/importFromEnterprise"
 import { importMetadataFieldsFromEnterprise } from "~/metadata/commonObjects/metadataField/importFromEnterprise"
 import { importMetadataItemLinksFromEnterprise } from "~/metadata/commonObjects/metadataRef/importFromEnterprise"
@@ -13,9 +13,7 @@ import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/co
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import {
-  importSystemEnumerationFromYAML,
-} from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
@@ -31,7 +29,7 @@ export const importMetadataCatalogFromEnterprise = (
     name,
   }
 
-  const synonym = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним)
+  const synonym = importI8nTextFromYAML(context, { type: "I8nText" }, data.Синоним)
   if (synonym !== undefined) result.synonym = synonym
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
@@ -182,16 +180,16 @@ export const importMetadataCatalogFromEnterprise = (
   const dataLockFields = importMetadataFieldsFromEnterprise(context, undefined, data.ПоляБлокировкиДанных)
   if (dataLockFields !== undefined) result.dataLockFields = dataLockFields
 
-  const explanation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Пояснение)
+  const explanation = importI8nTextFromYAML(context, { type: "I8nText" }, data.Пояснение)
   if (explanation !== undefined) result.explanation = explanation
 
   const predefined = importPredefinedItemsFromEnterprise(context, undefined, data.Предопределенные)
   if (predefined !== undefined) result.predefined = predefined
 
-  const objectPresentation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ПредставлениеОбъекта)
+  const objectPresentation = importI8nTextFromYAML(context, { type: "I8nText" }, data.ПредставлениеОбъекта)
   if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
 
-  const listPresentation = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ПредставлениеСписка)
+  const listPresentation = importI8nTextFromYAML(context, { type: "I8nText" }, data.ПредставлениеСписка)
   if (listPresentation !== undefined) result.listPresentation = listPresentation
 
   const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
@@ -201,14 +199,10 @@ export const importMetadataCatalogFromEnterprise = (
   )
   if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const extendedObjectPresentation = importI8nTextFromEnterprise(
-    context,
-    undefined,
-    data.РасширенноеПредставлениеОбъекта
-  )
+  const extendedObjectPresentation = importI8nTextFromYAML(context, undefined, data.РасширенноеПредставлениеОбъекта)
   if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
 
-  const extendedListPresentation = importI8nTextFromEnterprise(
+  const extendedListPresentation = importI8nTextFromYAML(
     context,
     { type: "I8nText" },
     data.РасширенноеПредставлениеСписка

@@ -6,6 +6,17 @@ export const mockContext: ConfigurationContext = {
   defaultLanguage: "ru",
   testMode: true,
 }
+
+export const mockContextToYAML: ConfigurationContext = {
+  ...mockContext,
+  exportToYAML: { toTyped: false },
+}
+
+export const mockContextToTypedYAML: ConfigurationContext = {
+  ...mockContext,
+  exportToYAML: { toTyped: true },
+}
+
 export const mockRule: PropertyRule<Table> = {
   yaml: "Шапка",
   type: "string",

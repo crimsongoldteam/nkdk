@@ -1,6 +1,7 @@
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
-import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
@@ -19,10 +20,10 @@ const importCommandFromEnterprise = (
     name,
   }
 
-  const title = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Заголовок)
+  const title = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Заголовок })
   if (title !== undefined) result.title = title
 
-  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
+  const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
   if (toolTip !== undefined) result.toolTip = toolTip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
@@ -45,12 +46,12 @@ const importCommandFromEnterprise = (
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const use = importUserVisibleFromEnterprise(
+  const use = importUserVisibleFromYAML({
     context,
-    undefined,
-    data.РазрешитьИспользование,
-    data.ЗапретитьИспользование
-  )
+    rule: { type: "UserVisible", yaml: UserVisibleKeysEnterprise.Allow, yamlDeny: UserVisibleKeysEnterprise.Deny },
+    value: data.РазрешитьИспользование,
+    yaml: data,
+  })
   if (use !== undefined) result.use = use
 
   return result

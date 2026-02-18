@@ -30,7 +30,7 @@ const exportToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
 
   if (!rule.yaml) throw Error(`Rule must have yaml property`)
 
-  const exported = exportI8nTextToYAML(context, rule, text)
+  const exported = exportI8nTextToYAML({ context, rule, value: text })
   if (exported === undefined) return {}
 
   if (text.formatted) {
@@ -62,7 +62,7 @@ export const exportFormattedI8nTextToEnterprise = <Key extends string, Formatted
 ): { [K in Key | FormattedKey]?: FormattedI8nTextEnterprise } => {
   if (!title) return {}
 
-  const exported = exportI8nTextToYAML(context, { type: "I8nText" }, title)
+  const exported = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: title })
   if (exported === undefined) return {}
 
   if (title.formatted) {

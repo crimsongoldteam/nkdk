@@ -4,7 +4,7 @@ import { I8nTextPropertyRule, ImportFromYAMLFunctionNew, PropertyRule } from "~/
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { I8nText, I8nTextEnterprise } from "./types"
 
-export const importI8nTextFromEnterprise: ImportFromYAMLFunctionNew = (params: {
+export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
   value: I8nTextEnterprise | undefined
@@ -57,4 +57,4 @@ const importFromEnterprise = (
   }
 }
 
-registerTypeRule("I8nText", "importFromEnterprise", importI8nTextFromEnterprise)
+registerTypeRule("I8nText", "importFromEnterprise", importI8nTextFromYAML)

@@ -6,7 +6,7 @@ import {
   MetadataCommandsEnterprise,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -59,7 +59,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const synonym = addDefaultLanguageNameToSynonym(
     context,
-    importI8nTextFromEnterprise(context, { type: "I8nText" }, fullData.Синоним),
+    importI8nTextFromYAML(context, { type: "I8nText" }, fullData.Синоним),
     name
   )
 
@@ -103,7 +103,7 @@ export const importMetadataCommandFromEnterprise = (
 
   if (fullData.СочетаниеКлавиш !== undefined) result.shortcut = fullData.СочетаниеКлавиш
 
-  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, fullData.Подсказка)
+  const toolTip = importI8nTextFromYAML(context, { type: "I8nText" }, fullData.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(

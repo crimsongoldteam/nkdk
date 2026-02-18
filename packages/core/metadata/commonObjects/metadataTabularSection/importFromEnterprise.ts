@@ -1,4 +1,4 @@
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importMetadataAttributesFromEnterprise } from "~/metadata/commonObjects/metadataAttribute/importFromEnterprise"
 import {
   MetadataTabularSection,
@@ -27,7 +27,7 @@ export const importMetadataTabularSectionFromEnterprise = (
     name,
     synonym: addDefaultLanguageNameToSynonym(
       context,
-      importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним),
+      importI8nTextFromYAML(context, { type: "I8nText" }, data.Синоним),
       name
     ),
   }
@@ -57,7 +57,7 @@ export const importMetadataTabularSectionFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
+  const toolTip = importI8nTextFromYAML(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(

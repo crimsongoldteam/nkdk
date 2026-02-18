@@ -5,7 +5,7 @@ import {
   PropertyRule,
   registerTypeRule,
 } from "~/metadata/metadataFactory"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "../i8nText/importFromEnterprise"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
@@ -51,7 +51,7 @@ const importFromYAML = (
   if (text === undefined && formattedText === undefined) return undefined
 
   const textValue = formattedText ? formattedText : text
-  const textResult = importI8nTextFromEnterprise(context, rule, textValue)!
+  const textResult = importI8nTextFromYAML({ context, rule, value: textValue })!
 
   const result: FormattedI8nText = {
     formatted: formattedText !== undefined,

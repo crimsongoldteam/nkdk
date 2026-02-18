@@ -1,22 +1,24 @@
 import { describe, expect, it } from "vitest"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockContextToYAML, mockRule } from "~/tests/mockContext"
 import {
   exportFormattedI8nTextDefaultToEnterprise,
   exportFormattedI8nTextOtherToEnterprise,
-  exportFormattedI8nTextToEnterprise,
+  exportFormattedI8nTextToYAML,
 } from "./exportToEnterprise"
 
 describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextToEnterprise(
-          mockContext,
-          mockRule,
-          fixture.text,
-          "Title",
-          "FormattedTitle"
+        const result = exportFormattedI8nTextToYAML<any>(
+          mockContextToYAML,
+          {
+            type: "FormattedI8nText",
+            yaml: "Title",
+            yamlFormatted: "FormattedTitle",
+          },
+          fixture.text
         )
 
         if (fixture.text?.formatted) {
@@ -32,7 +34,7 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextDefaultToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export default: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextDefaultToEnterprise(mockContext, mockRule, fixture.text)
+        const result = exportFormattedI8nTextDefaultToEnterprise(mockContextToYAML, mockRule, fixture.text)
 
         expect(result).toEqual(fixture.enterpriseDefaultLanguage)
       })
@@ -43,7 +45,7 @@ describe("exportFormattedI8nTextToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export other: ${fixture.name}`, () => {
         const result = exportFormattedI8nTextOtherToEnterprise(
-          mockContext,
+          mockContextToYAML,
           mockRule,
           fixture.text,
           "Title",

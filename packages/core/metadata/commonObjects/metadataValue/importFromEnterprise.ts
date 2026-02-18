@@ -3,7 +3,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "../i8nText/importFromEnterprise"
 import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import {
   MetadataFixedArrayValueEnterprise,
@@ -153,7 +153,7 @@ export const importFormChoiceListValueFromEnterprise = (
     const parsed = formulaFormatParser(data)
     // Если formula пустая, значит это формат (presentation) без значения
     const value = parsed.formula ? importMetadataValueFromEnterprise(context, undefined, parsed.formula) : undefined
-    const presentation = importI8nTextFromEnterprise(context, { type: "I8nText" }, parsed.parameters[0])
+    const presentation = importI8nTextFromYAML(context, { type: "I8nText" }, parsed.parameters[0])
 
     return {
       type: "formChoiceListDesTimeValue",
@@ -164,7 +164,7 @@ export const importFormChoiceListValueFromEnterprise = (
   const value = importMetadataValueFromEnterprise(context, undefined, data.Значение)!
   return {
     type: "formChoiceListDesTimeValue",
-    presentation: importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Представление),
+    presentation: importI8nTextFromYAML(context, { type: "I8nText" }, data.Представление),
     value: value,
   }
 }

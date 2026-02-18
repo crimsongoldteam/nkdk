@@ -15,7 +15,7 @@ import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
+import { importI8nTextFromYAML } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
 import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
 import { getDefaultsAttribute } from "./defaults"
@@ -53,7 +53,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const synonym = addDefaultLanguageNameToSynonym(
     context,
-    importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Синоним),
+    importI8nTextFromYAML(context, { type: "I8nText" }, data.Синоним),
     name
   )
 
@@ -135,7 +135,7 @@ const importMetadataAttributeFromEnterprise = (
   const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
-  const toolTip = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Подсказка)
+  const toolTip = importI8nTextFromYAML(context, { type: "I8nText" }, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const binaryDataStorageLocationUseField = importBooleanFromEnterprise(
@@ -188,10 +188,10 @@ const importMetadataAttributeFromEnterprise = (
 
   if (data.ФормаВыбора !== undefined) result.choiceForm = data.ФормаВыбора
 
-  const format = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.Формат)
+  const format = importI8nTextFromYAML(context, { type: "I8nText" }, data.Формат)
   if (format !== undefined) result.format = format
 
-  const editFormat = importI8nTextFromEnterprise(context, { type: "I8nText" }, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromYAML(context, { type: "I8nText" }, data.ФорматРедактирования)
   if (editFormat !== undefined) result.editFormat = editFormat
 
   const defaults = getDefaultsAttribute(context, result)
