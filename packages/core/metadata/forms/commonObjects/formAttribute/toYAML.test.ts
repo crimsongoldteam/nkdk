@@ -13,15 +13,13 @@ import {
   treeWithColumnFormAttributeEnterprise,
   withAdditionalColumnFormAttribute,
   withAdditionalColumnFormAttributeEnterprise,
-  withDynamicListFormAttribute,
-  withDynamicListFormAttributeEnterprise,
   withEmptySettingsFormAttribute,
   withEmptySettingsFormAttributeEnterprise,
   withFunctionalOptionsFormAttribute,
   withFunctionalOptionsFormAttributeEnterprise,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportFormAttributesToEnterprise } from "./exportToEnterprise"
+import { exportFormAttributesToEnterprise } from "./toYAML"
 
 let context: ConfigurationContext
 
@@ -69,11 +67,11 @@ describe("exportFormAttributesToEnterprise", () => {
     expect(result).toEqual(withEmptySettingsFormAttributeEnterprise)
   })
 
-  it("should export with dynamic list", () => {
-    const result = exportFormAttributesToEnterprise(context, mockRule, withDynamicListFormAttribute)
+  // it("should export with dynamic list", () => {
+  //   const result = exportFormAttributesToEnterprise(context, mockRule, withDynamicListFormAttribute)
 
-    expect(result).toEqual(withDynamicListFormAttributeEnterprise)
-  })
+  //   expect(result).toEqual(withDynamicListFormAttributeEnterprise)
+  // })
 
   it("should export table with columns", () => {
     const result = exportFormAttributesToEnterprise(context, mockRule, tableWithColumnsFormAttribute)

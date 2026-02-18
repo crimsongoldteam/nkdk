@@ -36,8 +36,6 @@ const exportFormAttributeToXML = (
   _rule: PropertyRule<any> | undefined,
   data: FormAttribute
 ): ElementXML => {
-  // const mergedData = { ...defaults, ...data }
-
   const id = getElementId(context)
 
   const properties = exportPropertiesToXML({
@@ -51,6 +49,8 @@ const exportFormAttributeToXML = (
     _id: id,
     ...properties,
   }
+
+  // if "ValueList" data.type?.type ?? []
 
   // const settings = exportFormAttributeSettingsToXML(context, undefined, mergedData.settings, mergedData.valueType)
   // if (settings) {
@@ -100,7 +100,7 @@ const exportFormAttributeSettingsToXML = (params: {
 
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  _rule: PropertyRule<any>,
   columns: FormAttributeColumns
 ): FormAttributeColumnsXML | undefined => {
   if (columns.length === 0) return undefined
@@ -108,7 +108,7 @@ const exportFormAttributeColumnsToXML = (
   const isAdditionalColumns = "table" in columns[0]
 
   if (isAdditionalColumns) {
-    return exportAdditionalColumnsToXML(context, rule, columns as FormAttributeAdditionalColumn[])
+    return exportAdditionalColumnsToXML(context, columns as FormAttributeAdditionalColumn[])
   }
 
   return exportColumnsToXML(context, columns as FormAttributeColumn[])
@@ -141,7 +141,6 @@ const exportColumnsToXML = (
 
 const exportAdditionalColumnsToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
   additionalColumns: FormAttributeAdditionalColumn[]
 ): { AdditionalColumns: FormAttributeAdditionalColumnXML[] } | undefined => {
   const result: FormAttributeAdditionalColumnXML[] = additionalColumns.map((additionalColumn) => {

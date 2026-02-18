@@ -5,7 +5,11 @@ import {
   FunctionalOptionsEnterprise,
 } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionXML,
+} from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserEditEnterprise,
   UserEditKeysEnterprise,
@@ -13,7 +17,7 @@ import {
   UserViewKeysEnterprise,
   UserVisible,
 } from "~/metadata/commonObjects/userVisible/types"
-import { DynamicList, DynamicListEnterprise } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
 import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
 
@@ -69,9 +73,9 @@ export type FormAttributeColumns = FormAttributeColumn[] | FormAttributeAddition
 //   functionalOptions?: FunctionalOptions
 // }
 
-// interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
-//   "_xsi:type": "v8:TypeDescription"
-// }
+interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
+  "_xsi:type": "v8:TypeDescription"
+}
 
 export interface FormAttributeColumnXML extends ElementXML {}
 
@@ -87,6 +91,7 @@ export interface FormAttributeColumnsXML {
 
 export interface FormAttributeXML extends ElementXML {
   Columns?: FormAttributeColumnsXML
+  Settings?: SettingsTypeDescriptionXML | DynamicListXML
 }
 
 export interface ConditionalAppearanceXML {

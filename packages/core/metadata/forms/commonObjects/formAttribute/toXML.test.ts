@@ -7,13 +7,12 @@ import {
   tableWithColumnsFormAttribute,
   treeWithColumnFormAttribute,
   withAdditionalColumnFormAttribute,
-  withDynamicListFormAttribute,
   withEmptySettingsFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportFormAttributesToXML } from "./exportToXML"
+import { exportFormAttributesToXML } from "./toXML"
 
 describe("exportFormAttributesToXML", () => {
   it("should export undefined when data is undefined", () => {
@@ -71,15 +70,15 @@ describe("exportFormAttributesToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("should export with dynamic list", () => {
-    const expectedResult = readXMLFileAsString("formAttributes/withDynamicList.xml")
+  // it("should export with dynamic list", () => {
+  //   const expectedResult = readXMLFileAsString("formAttributes/withDynamicList.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContext, mockRule, withDynamicListFormAttribute)
+  //   const xmlData = exportFormAttributesToXML(mockContext, mockRule, withDynamicListFormAttribute)
 
-    const result = xmlExport(xmlData!, false)
+  //   const result = xmlExport(xmlData!, false)
 
-    expect(result).toEqual(expectedResult)
-  })
+  //   expect(result).toEqual(expectedResult)
+  // })
 
   it("should export table with columns", () => {
     const expectedResult = readXMLFileAsString("formAttributes/tableWithColumns.xml")

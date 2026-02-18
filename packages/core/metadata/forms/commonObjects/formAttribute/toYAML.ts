@@ -56,6 +56,10 @@ const exportFormAttributeToEnterprise = (
   // }
 }
 
+const isAdditionalColumns = (columns: FormAttributeColumns): columns is FormAttributeAdditionalColumns[] => {
+  return columns.length > 0 && "table" in columns[0]
+}
+
 const exportFormAttributeColumnsToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
@@ -63,14 +67,8 @@ const exportFormAttributeColumnsToEnterprise = (
 ): FormAttributeColumnsYAML | undefined => {
   if (columns.length === 0) return undefined
 
-  const first = columns[0]
-  if (first.table !== undefined) {
-    return exportAdditionalColumnsToEnterprise(context, undefined, [
-      {
-        table: first.table,
-        columns,
-      },
-    ])
+  if (isAdditionalColumns(columns)) {
+    return exportAdditionalColumnsToEnterprise(context, undefined, columns)
   }
 
   return exportColumnsToEnterprise(context, undefined, columns)
@@ -104,11 +102,11 @@ const exportAdditionalColumnsToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   additionalColumns: FormAttributeAdditionalColumns[]
-): Record<string, Record<string, FormAttributeAdditionalColumnYAML>> => {
+): FormAttributeAdditionalColumnYAML => {
   return Object.fromEntries(
     additionalColumns.map((additionalColumn) => [
       additionalColumn.table.split(".").pop()!,
-      exportFormAttributeColumnsToEnterprise(context, undefined, additionalColumn.columns),
+      exportColumnsToEnterprise(context, undefined, additionalColumn.columns),
     ])
   )
 }
