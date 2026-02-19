@@ -77,3 +77,5 @@ export type MetadataType =
   | "FormAttributeColumn"
   | "CommandInterface"
   | "CommandInterfaceItem"
+  | "FormCommand"
+  | "MetadataCatalog"

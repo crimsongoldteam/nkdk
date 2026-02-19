@@ -18,13 +18,14 @@ import {
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  xml: FormAttributesXML | undefined
+  xml: { Attribute: FormAttributesXML } | undefined
 ): FormAttributes | undefined => {
-  if (!xml) return undefined
+  if (!xml || !xml.Attribute) return undefined
 
-  const items = Array.isArray(xml) ? xml : [xml]
+  const items = Array.isArray(xml.Attribute) ? xml.Attribute : [xml.Attribute]
+  const attributes = items.map((item) => importFormAttributeFromXML(context, item as FormAttributeXML))
 
-  return items.map((item) => importFormAttributeFromXML(context, item as FormAttributeXML))
+  return attributes
 }
 
 const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {

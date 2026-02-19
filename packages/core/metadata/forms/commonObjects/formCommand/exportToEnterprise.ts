@@ -35,10 +35,10 @@ const exportCommandToEnterprise = (
 
   const result: FormCommandYAML = {}
 
-  const title = exportI8nTextToYAML(context, { type: "I8nText" }, data.title)
+  const title = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.title })
   if (title !== undefined) result.Заголовок = title
 
-  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
+  const toolTip = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.toolTip })
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut

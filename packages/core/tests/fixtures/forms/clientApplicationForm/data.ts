@@ -29,6 +29,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     {
       name: "Команда1",
       title: { items: { ru: "Команда1" } },
+      itemType: "FormCommand",
     },
   ],
   autoCommandBar: {
@@ -41,12 +42,11 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   attributes: [
     {
       name: "Объект",
-      valueType: { type: ["CatalogRef.ТестоваяОбработка"] },
+      type: { type: ["CatalogRef.ТестоваяОбработка"] },
       mainAttribute: true,
       title: { items: { ru: "" } },
       itemType: "FormAttribute",
       columns: [],
-      additionalColumns: [],
     },
   ],
   autoTitle: true,

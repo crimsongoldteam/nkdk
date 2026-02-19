@@ -7,7 +7,7 @@ import {
 import { importIndexFieldsFromXML } from "~/metadata/commonObjects/indexField/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-
+import { registerTypeRule } from "~/metadata/metadataFactory"
 export const importAdditionalIndexFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
@@ -39,3 +39,5 @@ export const importAdditionalIndexesFromXML = (
 
   return xml.map((value: AdditionalIndexXML) => importAdditionalIndexFromXML(context, undefined, value)!)
 }
+
+registerTypeRule("AdditionalIndex", "importFromXML", importAdditionalIndexesFromXML)

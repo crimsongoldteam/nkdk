@@ -1,4 +1,5 @@
 import { MetadataItem } from "."
+import { MetadataCatalog, MetadataCatalogEnterprise } from "../appliedObjects/metadataCatalog"
 import { ClientApplicationForm, ClientApplicationFormEnterprise } from "../forms/clientApplicationForm/base/types"
 import {
   CommandInterface,
@@ -135,6 +136,8 @@ type ToYAMLRule =
   | [FormAttributeColumn, FormAttributeColumnYAML]
   | [CommandInterface, CommandInterfaceEnterprise]
   | [CommandInterfaceItem, CommandInterfaceItemEnterprise]
+  // metadata
+  | [MetadataCatalog, MetadataCatalogEnterprise]
 
 type ToTypedYAMLRule =
   | [Button, ButtonTypedEnterprise]

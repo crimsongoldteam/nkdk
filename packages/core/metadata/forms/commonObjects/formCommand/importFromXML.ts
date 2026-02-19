@@ -11,6 +11,7 @@ function importCommandFromXML(context: ConfigurationContext, xml: FormCommandXML
   if (!xml) return undefined
 
   const result: FormCommand = {
+    itemType: "FormCommand",
     name: xml._name,
   }
 
@@ -45,11 +46,11 @@ function importCommandFromXML(context: ConfigurationContext, xml: FormCommandXML
 export function importCommandsFromXML(
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  xml: FormCommandsXML | undefined
+  xml: { Command: FormCommandsXML } | undefined
 ): FormCommands {
-  if (!xml) return []
+  if (!xml || !xml.Command) return []
 
-  const xmlArray = Array.isArray(xml) ? xml : [xml]
+  const xmlArray = Array.isArray(xml.Command) ? xml.Command : [xml.Command]
 
   return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml)!)
 }

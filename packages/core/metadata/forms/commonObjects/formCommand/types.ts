@@ -2,9 +2,11 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { MetadataItem } from "~/metadata/metadataFactory"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "~/metadata/systemEnumerations/types"
 
-export interface FormCommand {
+export interface FormCommand extends MetadataItem {
+  itemType: "FormCommand"
   name: string
   title?: I8nText
   toolTip?: I8nText

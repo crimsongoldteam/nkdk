@@ -7,6 +7,7 @@ import {
 import { exportIndexFieldsToEnterprise } from "~/metadata/commonObjects/indexField/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportAdditionalIndexToEnterprise = (
   context: ConfigurationContext,
@@ -32,3 +33,5 @@ export const exportAdditionalIndexesToEnterprise = (
 
   return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(context, undefined, value)!)
 }
+
+registerTypeRule("AdditionalIndex", "exportToEnterprise", exportAdditionalIndexesToEnterprise)

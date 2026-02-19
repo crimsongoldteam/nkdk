@@ -7,6 +7,7 @@ import {
 import { importIndexFieldsFromEnterprise } from "~/metadata/commonObjects/indexField/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importAdditionalIndexFromEnterprise = (
   context: ConfigurationContext,
@@ -34,3 +35,5 @@ export const importAdditionalIndexesFromEnterprise = (
     .map((value: AdditionalIndexEnterprise) => importAdditionalIndexFromEnterprise(context, undefined, value)!)
     .filter((item): item is AdditionalIndex => item !== undefined)
 }
+
+registerTypeRule("AdditionalIndex", "importFromEnterprise", importAdditionalIndexesFromEnterprise)

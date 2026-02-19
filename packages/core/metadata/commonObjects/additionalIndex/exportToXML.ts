@@ -7,6 +7,7 @@ import {
 import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportAdditionalIndexToXML = (
   context: ConfigurationContext,
@@ -32,3 +33,5 @@ export const exportAdditionalIndexesToXML = (
 
   return data.map((value: AdditionalIndex) => exportAdditionalIndexToXML(context, undefined, value)!)
 }
+
+registerTypeRule("AdditionalIndex", "exportToXML", exportAdditionalIndexesToXML)

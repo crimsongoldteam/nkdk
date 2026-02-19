@@ -7,7 +7,12 @@ export type { ElementRule, PropertyRule }
 export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplicationForm> = {
   tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
   properties: {
-    attributes: { yaml: "Реквизиты", type: "FormAttributes", tag: FormRulesTags.Form },
+    // #region Form
+    attributes: {
+      yaml: "Реквизиты",
+      type: "FormAttributes",
+      tag: FormRulesTags.Form,
+    },
     autoCommandBar: { yaml: "КоманднаяПанель", type: "AutoCommandBar", tag: FormRulesTags.Form },
     autoFillCheck: {
       yaml: "ПроверятьЗаполнениеАвтоматически",
@@ -232,27 +237,33 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       type: "string",
       tag: FormRulesTags.Form,
     },
-    // FormMetadata properties
+    // #endregion
+    // #region Metadata
     synonym: {
       yaml: "Синоним",
       type: "I8nText",
       tag: FormRulesTags.Metadata,
+      xmlParents: ["Form", "Properties"],
     },
     comment: {
       yaml: "Комментарий",
       type: "string",
       tag: FormRulesTags.Metadata,
+      xmlParents: ["Form", "Properties"],
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       tag: FormRulesTags.Metadata,
+      xmlParents: ["Form", "Properties"],
     },
     usePurposes: {
       yaml: "НазначенияИспользования",
       type: "UsePurposes",
       tag: FormRulesTags.Metadata,
+      xmlParents: ["Form", "Properties"],
     },
+    // #endregion
   },
   events: {
     collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",

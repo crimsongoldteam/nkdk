@@ -3,8 +3,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Events, EventsXML } from "~/metadata/metadataFactory/events/types"
 import { FormElementType } from "../metadataType/types"
-import { importPropertyFromXML } from "../properties/fromXML"
-import { PropertyRule } from "../properties/types"
+import { importPropertiesFromXML } from "../properties/fromXML"
 import { ElementXML } from "../types"
 import { getElementRule } from "./factory"
 import { isEmptyMetadataItem } from "./helper"
@@ -60,23 +59,26 @@ export function importFromXML<T extends BaseElement>(
 ): Partial<T> | undefined {
   if (xml === undefined) return undefined
 
-  const result: Partial<T> = {}
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
-    if (rule.fromXML === false) continue
-    const xmlKey = rule.xml ?? capitalize(key)
+  const properties = importPropertiesFromXML({ context, xml, rule: rules })
+  // const result: Partial<T> = {}
+  // for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
+  //   if (rule.fromXML === false) continue
+  //   const xmlKey = rule.xml ?? capitalize(key)
 
-    const xmlValue = (xml as any)[xmlKey]
+  //   const xmlValue = (xml as any)[xmlKey]
 
-    const value = importPropertyFromXML({ context, rule, value: xmlValue })
+  //   const value = importPropertyFromXML({ context, rule, value: xmlValue })
 
-    if (value === undefined) continue
-    ;(result as any)[key] = value
-  }
+  //   if (value === undefined) continue
+  //   ;(result as any)[key] = value
+  // }
 
   const events = importEventsFromXML(rules.events, (xml as any).Events)
-  Object.assign(result, events)
 
-  return result
+  return {
+    ...properties,
+    ...events,
+  } as Partial<T>
 }
 
 const importEventsFromXML = <T extends EventedElement>(

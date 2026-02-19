@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importPropertiesFromXML } from "~/metadata/metadataFactory"
+import { importEventsFromXML } from "~/metadata/metadataFactory/events"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
@@ -15,6 +16,8 @@ export const importClientApplicationFormFromXML = (
     tags: [FormRulesTags.Form],
   })
 
+  const events = importEventsFromXML(ClientApplicationFormRules, xml.Events)
+
   const metadataProperties = importPropertiesFromXML({
     context,
     xml: xmlMetadata,
@@ -24,9 +27,8 @@ export const importClientApplicationFormFromXML = (
 
   const result: ClientApplicationForm = {
     itemType: "ClientApplicationForm",
-    commands: [],
-    childItems: [],
     ...formProperties,
+    ...events,
     ...metadataProperties,
   }
 

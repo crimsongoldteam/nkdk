@@ -5,6 +5,7 @@ import { ConfigurationContext } from "../metadata/context/types"
 export const mockContext: ConfigurationContext = {
   defaultLanguage: "ru",
   testMode: true,
+  exportToYAML: { toTyped: false },
 }
 
 export const mockContextToYAML: ConfigurationContext = {

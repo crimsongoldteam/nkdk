@@ -3,13 +3,17 @@
 import { ConfigurationContext } from "../context/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
 import { IFormatElementResult } from "../forms/format/types"
+import { EventXML } from "./events"
 
-export type ElementXML = {
+export interface ElementXML {
   _name: string
   _id: string
   [key: string]: any
 }
 
+export interface EventedXML extends ElementXML {
+  Events: EventXML[] | EventXML
+}
 // export type ToPreviewType<T> = T extends undefined
 //   ? undefined
 //   : "Preview" extends keyof TypeRules<NonNullable<T>>

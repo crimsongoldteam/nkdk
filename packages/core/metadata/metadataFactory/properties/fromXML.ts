@@ -9,17 +9,20 @@ export const importPropertiesFromXML = <T extends MetadataItem>(params: {
   xml: any
   rule: MetadataItemRule<T>
   tags?: MetadataItemRule<T>["tags"]
-}): Partial<T> | undefined => {
-  const { context, xml, rule } = params
+}): Omit<T, "itemType"> | undefined => {
+  const { context, xml, rule, tags } = params
 
   if (!xml) return undefined
 
-  const result: Partial<T> = {}
+  const result: T = {
+    // itemType: xml.itemType,
+  } as T
+
   for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
     if (currentRule.fromXML === false) continue
-    const xmlKey = currentRule.xml ?? capitalize(key)
+    if (tags && (!currentRule.tag || !tags.includes(currentRule.tag))) continue
 
-    const xmlValue = (xml as any)[xmlKey]
+    const xmlValue = getXMLValue(key, xml, currentRule)
 
     const value = importPropertyFromXML({ context, rule: currentRule, value: xmlValue, name: key })
 
@@ -28,6 +31,20 @@ export const importPropertiesFromXML = <T extends MetadataItem>(params: {
   }
 
   return result
+}
+
+const getXMLValue = (key: string, xml: any, rule: PropertyRule<any>): any => {
+  const xmlKey = rule.xml ?? capitalize(key)
+
+  if (rule.xmlParents === undefined) return xml[xmlKey]
+
+  let currentXml = xml
+  for (const xmlParent of rule.xmlParents) {
+    if (currentXml[xmlParent] === undefined) return undefined
+    currentXml = currentXml[xmlParent]
+  }
+
+  return currentXml[xmlKey]
 }
 
 export const importPropertyFromXML = (params: {

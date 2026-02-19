@@ -26,3 +26,8 @@ import "./commonObjects/commandInterface/exportToEnterprise"
 import "./commonObjects/commandInterface/exportToXML"
 import "./commonObjects/commandInterface/importFromEnterprise"
 import "./commonObjects/commandInterface/importFromXML"
+
+import "./formAttribute/exportToXML"
+import "./formAttribute/fromXML"
+import "./formAttribute/fromYAML"
+import "./formAttribute/toYAML"

@@ -1,16 +1,17 @@
 import { capitalize } from "~/helpers/capitalize"
-import { Events, EventsXML } from "~/metadata/metadataFactory/events/types"
+import { Events } from "~/metadata/metadataFactory/events/types"
 
 export const importEventsFromXML = <T extends { events?: Record<string, string> }>(
-  rulesEvents: T["events"],
-  xml: EventsXML | undefined
+  rule: T,
+  xml: any
 ): { events?: Events } => {
-  if (!xml || !rulesEvents) return {}
+  if (!xml || !rule) return {}
+  if (!("Event" in xml)) return {}
 
   const events = Array.isArray(xml.Event) ? xml.Event : [xml.Event]
 
   const result: Events = {}
-  for (const key of Object.keys(rulesEvents)) {
+  for (const key of Object.keys(rule.events ?? {})) {
     const xmlKey = capitalize(key)
     const xmlEvent = events.find((e: { _name: string }) => e._name === xmlKey)
 

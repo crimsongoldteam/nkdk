@@ -46,6 +46,9 @@ export type TypeRulesNames =
   // | "FormAttributeAdditionalColumns"
   | "FormAttributes"
   | "FormAttributeSettings"
+  | "AdditionalIndex"
+  | "MetadataAttribute"
+  | "StandardAttributeDescription"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContext,

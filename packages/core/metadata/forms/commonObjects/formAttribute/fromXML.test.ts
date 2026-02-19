@@ -23,7 +23,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import full", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/full.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(fullFormAttributes)
   })
@@ -31,7 +31,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/minimal.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(minimalFormAttributes)
   })
@@ -39,7 +39,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import multiple attributes", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/multiple.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(multipleFormAttributes)
   })
@@ -47,7 +47,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import choice list", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/choiceList.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(choiceListFormAttribute)
   })
@@ -55,7 +55,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import with empty settings", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withEmptySettings.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(withEmptySettingsFormAttribute)
   })
@@ -71,7 +71,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import table with columns", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/tableWithColumns.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(tableWithColumnsFormAttribute)
   })
@@ -79,7 +79,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import tree with column", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/treeWithColumn.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(treeWithColumnFormAttribute)
   })
@@ -87,7 +87,7 @@ describe("importFormAttributesFromXML", () => {
   it("should import with additional column", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/additionalColumn.xml")
 
-    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData.Attribute)
+    const result = importFormAttributesFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(withAdditionalColumnFormAttribute)
   })

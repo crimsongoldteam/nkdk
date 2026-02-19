@@ -2,6 +2,7 @@ import { FormCommand, FormCommandsYAML } from "~/metadata/forms/commonObjects/fo
 
 export const fullFormCommands: Required<FormCommand>[] = [
   {
+    itemType: "FormCommand",
     name: "СоставКомплектаПодобратьФайлы",
     title: { items: { ru: "Файлы" } },
     toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
@@ -40,6 +41,7 @@ export const fullFormCommandsEnterprise: FormCommandsYAML = {
 
 export const minimalFormCommands: FormCommand[] = [
   {
+    itemType: "FormCommand",
     name: "СоставКомплектаПодобратьФайлы",
   },
 ]

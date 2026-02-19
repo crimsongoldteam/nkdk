@@ -17,6 +17,7 @@ const importCommandFromEnterprise = (
   if (!data) return undefined
 
   const result: FormCommand = {
+    itemType: "FormCommand",
     name,
   }
 

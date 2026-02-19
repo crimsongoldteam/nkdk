@@ -15,14 +15,14 @@ describe("importCommandFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/full.xml")
 
-    const result = importCommandsFromXML(mockContext, mockRule, xmlData.Command)
+    const result = importCommandsFromXML(mockContext, mockRule, xmlData)
     expect(result).toEqual(fullFormCommands)
   })
 
   it("should import minimal", () => {
     const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/minimal.xml")
 
-    const result = importCommandsFromXML(mockContext, mockRule, xmlData.Command)
+    const result = importCommandsFromXML(mockContext, mockRule, xmlData)
 
     expect(result).toEqual(minimalFormCommands)
   })

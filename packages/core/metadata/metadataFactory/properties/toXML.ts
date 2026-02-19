@@ -24,8 +24,6 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
     const value = metadataItem === undefined ? undefined : (metadataItem as any)[key]
 
-    const xmlKey = ruleProp.xml ?? capitalize(key)
-
     const exportedValue = exportPropertyToXML({
       context: currentContext,
       rule: ruleProp,
@@ -33,11 +31,31 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
       metadataItem,
     })
 
-    if (exportedValue === undefined) continue
-    result[xmlKey] = exportedValue
+    setXMLValue(key, result, ruleProp, exportedValue)
   }
 
   return result
+}
+
+const setXMLValue = (key: string, xml: any, rule: PropertyRule<any>, value: any): any => {
+  if (value === undefined) return
+
+  const xmlKey = rule.xml ?? capitalize(key)
+
+  if (rule.xmlParents === undefined) {
+    xml[xmlKey] = value
+    return
+  }
+
+  let currentXml = xml
+  for (const xmlParent of rule.xmlParents) {
+    if (currentXml[xmlParent] === undefined) {
+      currentXml[xmlParent] = {}
+    }
+    currentXml = currentXml[xmlParent]
+  }
+
+  currentXml[xmlKey] = value
 }
 
 export const exportPropertyToXML = (params: {

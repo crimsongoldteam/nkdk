@@ -1,7 +1,7 @@
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
+import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/metadataFactory"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -122,3 +122,5 @@ const importFormAttributeAdditionalColumnsFromEnterprise = (
     columns: importFormAttributeColumnsFromEnterprise(context, columns) as FormAttributeColumn[],
   }))
 }
+
+registerTypeRule("FormAttributes", "importFromEnterprise", importFormAttributesFromEnterprise)

@@ -48,6 +48,7 @@ import {
   MetadataValueCollectionEnterprise,
   MetadataValueCollectionXML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
+import { MetadataItem } from "~/metadata/metadataFactory"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 
 export const MetadataCatalogStandardAttributeNames: StandartAttributeName[] = [
@@ -62,7 +63,8 @@ export const MetadataCatalogStandardAttributeNames: StandartAttributeName[] = [
   "Code",
 ]
 
-export interface MetadataCatalog {
+export interface MetadataCatalog extends MetadataItem {
+  itemType: "MetadataCatalog"
   additionalIndexes?: AdditionalIndexes
   attributes?: MetadataAttributes
   autonumbering?: boolean

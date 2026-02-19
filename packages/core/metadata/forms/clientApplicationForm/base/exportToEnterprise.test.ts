@@ -5,7 +5,7 @@ import {
   minimalClientApplicationForm,
   minimalClientApplicationFormEnterprise,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToYAML } from "~/tests/mockContext"
 import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
 
 describe("exportClientApplicationFormToEnterprise", () => {
@@ -16,13 +16,13 @@ describe("exportClientApplicationFormToEnterprise", () => {
   // })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContext, fullClientApplicationForm)
+    const result = exportClientApplicationFormToEnterprise(mockContextToYAML, fullClientApplicationForm)
 
     expect(result).toEqual(fullClientApplicationFormEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContext, minimalClientApplicationForm)
+    const result = exportClientApplicationFormToEnterprise(mockContextToYAML, minimalClientApplicationForm)
 
     expect(result).toEqual(minimalClientApplicationFormEnterprise)
   })

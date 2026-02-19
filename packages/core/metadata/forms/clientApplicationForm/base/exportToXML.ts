@@ -61,32 +61,6 @@ export const exportFormMetadataToXML = (
     tag: [FormRulesTags.Metadata],
   })
 
-  // const properties: Partial<FormMetadataXML["Form"]["Properties"]> = {}
-
-  // if (data.comment !== undefined) {
-  //   properties.Comment = data.comment
-  // }
-
-  // properties.FormType = "Managed"
-
-  // if (data.includeHelpInContents !== undefined) {
-  //   properties.IncludeHelpInContents = data.includeHelpInContents
-  // }
-
-  // properties.Name = name
-
-  // const synonym = exportI8nTextToXML(context, { type: "I8nText" }, data.synonim)
-  // if (synonym !== undefined) {
-  //   properties.Synonym = synonym
-  // }
-
-  // const usePurposes = exportUsePurposesToXML(context, undefined, data.usePurposes)
-  // if (usePurposes !== undefined) {
-  //   properties.UsePurposes = usePurposes
-  // }
-
-  // result.Form.Properties = properties as FormMetadataXML["Form"]["Properties"]
-
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
@@ -111,7 +85,7 @@ export const exportFormMetadataToXML = (
       Properties: sortObject({
         FormType: "Managed",
         Name: name,
-        ...properties,
+        ...(properties.Form?.Properties ?? {}),
       }),
     },
   }
