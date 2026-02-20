@@ -30,6 +30,8 @@ export const importClientApplicationFormFromXML = (
     ...formProperties,
     ...events,
     ...metadataProperties,
+    childItems: formProperties?.childItems ?? [],
+    commands: formProperties?.commands ?? [],
   }
 
   // const attributes = importFormAttributesFromXML(context, undefined, xml.Attributes?.Attribute)
