@@ -92,6 +92,22 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
       itemType: CollectionFormElementType.InputField,
     },
   ],
+
+  // #region Catalog
+  choiceAvailable: true,
+  useForFoldersAndItems: "Folders",
+  choiceParameters: [
+    {
+      name: "Отбор.Параметр",
+      value: {
+        type: "string",
+        value: "Значение",
+      },
+    },
+  ],
+  choiceMode: "QuickChoice",
+  // #endregion
+
   events: {
     collaborationSystemUsersAutoComplete: "Процедура1",
     externalEvent: "Процедура2",
@@ -118,6 +134,15 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     onReopenFromOtherServer: "Процедура23",
     onCreateAtServer: "Процедура24",
     onSaveDataInSettingsAtServer: "Процедура25",
+    // #region Catalog
+    valueChoice: "ВыборЗначения",
+    beforeWrite: "ПередЗаписью",
+    beforeWriteAtServer: "ПередЗаписьюНаСервере",
+    afterWrite: "ПослеЗаписи",
+    afterWriteAtServer: "ПослеЗаписиНаСервере",
+    onWriteAtServer: "ПриЗаписиНаСервере",
+    onReadAtServer: "ПриЧтенииНаСервере",
+    // #endregion
   },
   synonym: { items: { ru: "Синоним формы" } },
   comment: "Комментарий к форме",
@@ -126,7 +151,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   itemType: "ClientApplicationForm",
 }
 
-export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {
+export const fullClientApplicationFormEnterprise: Required<ClientApplicationFormEnterprise> = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
   ВключатьСправкуВСодержание: "Истина",
@@ -217,6 +242,16 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
     ПриПереоткрытииСДругогоСервера: "Процедура23",
     ПриСозданииНаСервере: "Процедура24",
     ПриСохраненииДанныхВНастройкахНаСервере: "Процедура25",
+
+    // #region Catalog
+    ВыборЗначения: "ВыборЗначения",
+    ПередЗаписью: "ПередЗаписью",
+    ПередЗаписьюНаСервере: "ПередЗаписьюНаСервере",
+    ПослеЗаписи: "ПослеЗаписи",
+    ПослеЗаписиНаСервере: "ПослеЗаписиНаСервере",
+    ПриЗаписиНаСервере: "ПриЗаписиНаСервере",
+    ПриЧтенииНаСервере: "ПриЧтенииНаСервере",
+    // #endregion
   },
   Элементы: {
     ПолеВвода1: {},
@@ -226,6 +261,14 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
       Тип: "Булево",
     },
   },
+  // #region Catalog
+  ВыборДоступен: "Истина",
+  ИспользованиеДляГруппИЭлементов: "Элементы",
+  ПараметрыВыбора: {
+    "Отбор.Параметр": '"Значение"',
+  },
+  РежимВыбора: "БыстрыйВыбор",
+  // #endregion
 }
 
 export const minimalClientApplicationForm: ClientApplicationForm = {

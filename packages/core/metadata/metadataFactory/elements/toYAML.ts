@@ -40,10 +40,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
     Object.assign(result, exportedValues)
   }
 
-  const events = exportEventsToYAML(
-    rules.events,
-    "events" in data ? (data.events as Record<string, string>) : undefined
-  )
+  const events = exportEventsToYAML({ rule: rules, data: data })
   Object.assign(result, events)
 
   return result as ToTypedYAML<T>
@@ -82,10 +79,7 @@ export function exportElementToYAML<T extends BaseElement>(params: {
     Object.assign(result, exportedValues)
   }
 
-  const events = exportEventsToYAML(
-    rules.events,
-    "events" in data ? (data.events as Record<string, string>) : undefined
-  )
+  const events = exportEventsToYAML({ rule: rules, data: data })
   Object.assign(result, events)
 
   if (Object.keys(result).length === 0) {

@@ -4,6 +4,7 @@ import {
   ClientApplicationFormEnterprise,
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
+import { exportEventsToYAML } from "~/metadata/metadataFactory/events"
 import { ClientApplicationFormRules } from "./rules"
 
 export const exportClientApplicationFormToEnterprise = (
@@ -16,9 +17,14 @@ export const exportClientApplicationFormToEnterprise = (
     rules: ClientApplicationFormRules,
   })
 
+  const events = exportEventsToYAML({
+    rule: ClientApplicationFormRules,
+    data: data,
+  })
+
   //   const allElements = getAllElements(data)
   //   const childItems = exportChildItemsToPartialYAML(context, undefined, allElements)
   //   if (childItems !== undefined) result.Элементы = childItems
 
-  return result
+  return { ...result, ...events }
 }

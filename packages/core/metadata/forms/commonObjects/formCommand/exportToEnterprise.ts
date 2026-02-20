@@ -3,7 +3,7 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
@@ -71,3 +71,5 @@ const exportCommandToEnterprise = (
 
   return Object.keys(result).length > 0 ? result : undefined
 }
+
+registerTypeRule("FormCommands", "exportToEnterprise", exportCommandsToEnterprise)
