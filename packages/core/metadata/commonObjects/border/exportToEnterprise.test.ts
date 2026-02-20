@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportBorderToEnterprise } from "./exportToEnterprise"
+import { Border, BorderEnterprise } from "./types"
 
 describe("exportBorderToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
@@ -9,16 +10,19 @@ describe("exportBorderToEnterprise", () => {
   })
 
   it("should export border to enterprise format", () => {
-    const borderData = {
+    const borderData: Border = {
       ref: "Solid",
       width: 1,
-      controlBorderType: "Solid",
+      controlBorderType: "Double",
     }
-    const result = exportBorderToEnterprise(mockContext, mockRule, borderData)
-    expect(result).toEqual({
+
+    const expectedResult: BorderEnterprise = {
       Имя: "Solid",
       Ширина: 1,
-      ТипРамки: "Сплошная",
-    })
+      ТипРамки: "Двойная",
+    }
+
+    const result = exportBorderToEnterprise(mockContext, mockRule, borderData)
+    expect(result).toEqual(expectedResult)
   })
 })

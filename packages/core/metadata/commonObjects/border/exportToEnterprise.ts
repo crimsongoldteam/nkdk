@@ -12,15 +12,21 @@ export const exportBorderToEnterprise = (
 ): BorderEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  const result: BorderEnterprise = {
     Имя: data.ref,
     Ширина: data.width,
-    ТипРамки: exportSystemEnumerationToYAML<SE.ControlBorderTypeEnterprise>(
-      context,
-      { type: "SystemEnumeration", typeSE: "ControlBorderType" },
-      data.controlBorderType
-    ),
   }
+
+  const borderType = exportSystemEnumerationToYAML<SE.ControlBorderTypeEnterprise>(
+    context,
+    { type: "SystemEnumeration", typeSE: "ControlBorderType" },
+    data.controlBorderType
+  )
+  if (borderType !== undefined) {
+    result.ТипРамки = borderType
+  }
+
+  return result
 }
 
 registerTypeRule("Border", "exportToEnterprise", exportBorderToEnterprise)

@@ -58,9 +58,13 @@
 	<Events>
 		<Event name="ActivationProcessing">Процедура3</Event>
 		<Event name="AddInDetachmentOnError">Процедура13</Event>
+		<Event name="AfterWrite">ПослеЗаписи</Event>
+		<Event name="AfterWriteAtServer">ПослеЗаписиНаСервере</Event>
 		<Event name="BeforeClose">Процедура15</Event>
 		<Event name="BeforeLoadDataFromSettingsAtServer">Процедура14</Event>
 		<Event name="BeforeReopenFromOtherServer">Процедура16</Event>
+		<Event name="BeforeWrite">ПередЗаписью</Event>
+		<Event name="BeforeWriteAtServer">ПередЗаписьюНаСервере</Event>
 		<Event name="ChoiceProcessing">Процедура4</Event>
 		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>
 		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">Процедура11</Event>
@@ -76,11 +80,14 @@
 		<Event name="OnMainServerAvailabilityChange">Процедура20</Event>
 		<Event name="OnOpen">Процедура22</Event>
 		<Event name="OnPasteFromClipboard">Процедура17</Event>
+		<Event name="OnReadAtServer">ПриЧтенииНаСервере</Event>
 		<Event name="OnReopenFromOtherServer">Процедура23</Event>
 		<Event name="OnSaveDataInSettingsAtServer">Процедура25</Event>
+		<Event name="OnWriteAtServer">ПриЗаписиНаСервере</Event>
 		<Event name="URLGetProcessing">Процедура9</Event>
 		<Event name="URLListGetProcessing">Процедура10</Event>
 		<Event name="URLProcessing">Процедура6</Event>
+		<Event name="ValueChoice">ВыборЗначения</Event>
 	</Events>
 	<Group>Horizontal</Group>
 	<Height>600</Height>

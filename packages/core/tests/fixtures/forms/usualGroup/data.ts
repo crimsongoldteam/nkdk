@@ -161,7 +161,7 @@ export const fullUsualGroupPreview: Required<UsualGroupPreview> = {
   VerticalStretch: true,
   Visible: false,
   Width: 300,
-  ChildItems: [],
+  // ChildItems: [],
 }
 
 export const minimalUsualGroup: UsualGroup = {

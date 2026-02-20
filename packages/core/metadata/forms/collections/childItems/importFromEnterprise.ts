@@ -29,7 +29,11 @@ export const importChildItemsTypedFromEnterprise = <To extends TypedElement>(
 
   const result: To[] = []
   for (const [name, item] of Object.entries(allProperties)) {
-    const resultItem = importElementFromTypedYAML({ context: context, yaml: item, name: name })!
+    const resultItem = importElementFromTypedYAML({
+      context: context,
+      yaml: item as ToTypedYAML<To> & { События?: Record<string, string> },
+      name: name,
+    })!
     result.push(resultItem)
   }
   return result

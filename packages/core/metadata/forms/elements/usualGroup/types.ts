@@ -7,7 +7,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
-  GroupChildItemsPreview,
+  // GroupChildItemsPreview,
   GroupChilItemPartialEnterprise,
 } from "../../collections/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
@@ -146,5 +146,5 @@ export interface UsualGroupPreview {
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  ChildItems: GroupChildItemsPreview
+  // ChildItems: GroupChildItemsPreview
 }

@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
@@ -12,15 +12,12 @@ import { Table } from "./types"
 const V_BAR = t.VBar.LABEL as string
 
 const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
-  // Пробуем использовать ExportToStructureContent для всех элементов
   const exportContentFunction = getOperationFunction("ExportToStructureContent", column.itemType)
   if (exportContentFunction) {
     const result = exportContentFunction(context, column) as IFormatElementResult
     return result.strings[0] || formatElementName(column)
   }
 
-  // Для остальных элементов (включая InputField) используем formatElementTitleAndName
-  // Это дает формат "title {name}" без двоеточия, что нужно для колонок таблицы
   return formatElementTitleAndName(context, column)
 }
 
