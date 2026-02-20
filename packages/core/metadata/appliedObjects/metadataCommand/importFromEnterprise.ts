@@ -17,6 +17,7 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metadataRef/importFromEnterprise"
 import { getDefaults } from "./defaults"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importMetadataCommandFromEnterprise = (
   context: ConfigurationContext,
@@ -59,7 +60,7 @@ export const importMetadataCommandFromEnterprise = (
 
   const synonym = addDefaultLanguageNameToSynonym(
     context,
-    importI8nTextFromYAML(context, { type: "I8nText" }, fullData.Синоним),
+    importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: fullData.Синоним }),
     name
   )
 
@@ -103,7 +104,7 @@ export const importMetadataCommandFromEnterprise = (
 
   if (fullData.СочетаниеКлавиш !== undefined) result.shortcut = fullData.СочетаниеКлавиш
 
-  const toolTip = importI8nTextFromYAML(context, { type: "I8nText" }, fullData.Подсказка)
+  const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: fullData.Подсказка })
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const onMainServerUnavalableBehavior = importSystemEnumerationFromYAML<SE.OnMainServerUnavalableBehavior>(
@@ -127,3 +128,5 @@ export const importMetadataCommandsFromEnterprise = (
 
   return Object.entries(data).map(([name, value]) => importMetadataCommandFromEnterprise(context, value, name)!)
 }
+
+registerTypeRule("MetadataCommands", "importFromEnterprise", importMetadataCommandsFromEnterprise)

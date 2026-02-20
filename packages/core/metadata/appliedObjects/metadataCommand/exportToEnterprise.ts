@@ -10,6 +10,7 @@ import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
+import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
@@ -17,6 +18,7 @@ import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescr
 
 export const exportMetadataCommandsToEnterprise = (
   context: ConfigurationContext,
+  _rule: PropertyRule<any>,
   data: MetadataCommands | undefined
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
@@ -42,7 +44,7 @@ export const exportMetadataCommandToEnterprise = (
   }
 
   const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
-  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
+  const synonym = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: filteredSynonym })
 
   if (canUseShortFormat(data, synonym)) {
     return group
@@ -69,7 +71,7 @@ export const exportMetadataCommandToEnterprise = (
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
+  const toolTip = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.toolTip })
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(
@@ -109,3 +111,5 @@ const canUseShortFormat = (data: MetadataCommand, synonym: I8nTextEnterprise | u
   )
   return Object.keys(filteredData).length === 0
 }
+
+registerTypeRule("MetadataCommands", "exportToEnterprise", exportMetadataCommandsToEnterprise)

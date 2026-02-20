@@ -235,7 +235,7 @@ export const TableRules: ElementRule<Table> = {
     allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean" },
     allowGettingCurrentRowURL: { yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки", type: "boolean" },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
-  },
+  } as const,
   events: {
     selection: "Выбор",
     valueChoice: "ВыборЗначения",
@@ -265,3 +265,50 @@ export const TableRules: ElementRule<Table> = {
 }
 
 registerElementRule("Table", TableRules)
+
+// type TypesMap = ["number", number] | ["string", string] | ["boolean", boolean]
+
+// type testKeys = TypesMap extends [infer First, any] ? First : never
+// type testTypes<Key extends testKeys> = Extract<TypesMap, [Key, any]>[1]
+
+// type d = testTypes<"boolean">
+
+// // const dv: d = "1"
+
+// type TestRule<T extends typeof TableRules> = {
+//   [K in keyof T["properties"]]: T["properties"][K] extends infer Prop
+//     ? Prop extends { type: infer Type }
+//       ? Type extends testKeys
+//         ? testTypes<Type>
+//         : never
+//       : never
+//     : never
+// }
+
+// type t = TestRule<typeof TableRules>
+
+// // const l: t
+
+// type TestRuleXML<T extends typeof TableRules> = {
+//   [K in keyof T["properties"] as T["properties"][K] extends { xml?: infer XMLKey }
+//     ? XMLKey extends string
+//       ? XMLKey
+//       : never
+//     : K extends string
+//       ? Capitalize<K>
+//       : never]: T["properties"][K] extends infer Prop
+//     ? Prop extends { type: infer Type }
+//       ? Type extends testKeys
+//         ? testTypes<Type> | undefined
+//         : never
+//       : never
+//     : never
+// }
+
+// type tx = TestRuleXML<typeof TableRules>
+
+// const test: tx = {
+//   AutoMaxWidth: true,
+// } // const test: tx = { _DisplayImportance: true }
+
+// test.ViewStatusAddition = "test"

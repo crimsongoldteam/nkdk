@@ -149,3 +149,8 @@ import "./userVisible/exportToEnterprise"
 import "./userVisible/exportToXML"
 import "./userVisible/importFromEnterprise"
 import "./userVisible/importFromXML"
+
+import "./metadataRef/exportToEnterprise"
+import "./metadataRef/exportToXML"
+import "./metadataRef/importFromEnterprise"
+import "./metadataRef/importFromXML"

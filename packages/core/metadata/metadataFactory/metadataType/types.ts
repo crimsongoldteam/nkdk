@@ -79,3 +79,4 @@ export type MetadataType =
   | "CommandInterfaceItem"
   | "FormCommand"
   | "MetadataCatalog"
+  | "CatalogForm"

@@ -13,6 +13,8 @@ import "~/metadata/forms/collections/childItems/importFromEnterprise"
 import "~/metadata/forms/collections/childItems/importFromStructure"
 import "~/metadata/forms/collections/childItems/importFromXML"
 
+import "~/metadata/appliedObjects"
+
 import { mockContext } from "./mockContext"
 
 beforeEach(() => {

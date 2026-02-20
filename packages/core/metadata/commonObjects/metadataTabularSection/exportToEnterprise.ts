@@ -21,7 +21,7 @@ export const exportMetadataTabularSectionToEnterprise = (
   if (!data) return undefined
 
   const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
-  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, filteredSynonym)
+  const synonym = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: filteredSynonym })
 
   const result: MetadataTabularSectionEnterprise = {}
 
@@ -38,7 +38,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
+  const toolTip = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.toolTip })
   if (toolTip !== undefined) result.Подсказка = toolTip
 
   const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(

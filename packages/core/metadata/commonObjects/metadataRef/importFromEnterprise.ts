@@ -2,6 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importMetadataItemLinkFromEnterprise = (
   context: ConfigurationContext,
@@ -24,3 +25,5 @@ export const importMetadataItemLinksFromEnterprise = (
     .map((item) => importMetadataItemLinkFromEnterprise(context, undefined, item)!)
     .filter((item): item is MetadataItemLink => item !== undefined)
 }
+
+registerTypeRule("MetadataItemLinks", "importFromEnterprise", importMetadataItemLinksFromEnterprise)

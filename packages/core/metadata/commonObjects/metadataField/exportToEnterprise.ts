@@ -24,4 +24,4 @@ export const exportMetadataFieldToEnterprise = (
   return exportMetadataFieldToEnterprisePath(context, undefined, data)
 }
 
-registerTypeRule("MetadataField", "exportToEnterprise", exportMetadataFieldToEnterprise)
+registerTypeRule("MetadataField", "exportToEnterprise", exportMetadataFieldsToEnterprise)

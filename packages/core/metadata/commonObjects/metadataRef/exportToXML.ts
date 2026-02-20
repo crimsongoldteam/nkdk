@@ -1,6 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export function exportMetadataItemLinkToXML(
   _context: ConfigurationContext,
@@ -24,3 +25,5 @@ export function exportMetadataItemLinksToXML(
 
   return data.map((value) => exportMetadataItemLinkToXML(context, undefined, value)!)
 }
+
+registerTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)

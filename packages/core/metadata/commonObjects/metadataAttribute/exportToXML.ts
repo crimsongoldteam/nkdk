@@ -17,6 +17,7 @@ import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportMetadataAttributesToXML = (
   context: ConfigurationContext,
@@ -138,3 +139,5 @@ const exportMetadataAttributeToXML = (
 
   return result
 }
+
+registerTypeRule("MetadataAttributes", "exportToXML", exportMetadataAttributesToXML)

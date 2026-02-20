@@ -47,8 +47,10 @@ export type TypeRulesNames =
   | "FormAttributes"
   | "FormAttributeSettings"
   | "AdditionalIndex"
-  | "MetadataAttribute"
+  | "MetadataAttributes"
   | "StandardAttributeDescription"
+  | "MetadataItemLinks"
+  | "MetadataCommands"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContext,

@@ -9,7 +9,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     },
     attributes: {
       yaml: "Реквизиты",
-      type: "MetadataAttribute",
+      type: "MetadataAttributes",
     },
     autonumbering: {
       yaml: "Автонумерация",
@@ -92,7 +92,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     },
     commands: {
       yaml: "Команды",
-      type: "Commands",
+      type: "MetadataCommands",
     },
     comment: {
       yaml: "Комментарий",
@@ -275,7 +275,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
-      type: "MetadataValueCollection",
+      type: "MetadataTabularSection",
     },
     updateDataHistoryImmediatelyAfterWrite: {
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",

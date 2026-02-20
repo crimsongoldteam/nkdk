@@ -9,10 +9,12 @@ import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFro
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
+import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandsFromXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule<any>,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
@@ -22,7 +24,7 @@ export const importMetadataCommandsFromXML = (
   return items.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, value)!)
 }
 
-export const importMetadataCommandFromXML = (
+const importMetadataCommandFromXML = (
   context: ConfigurationContext,
   xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
@@ -63,3 +65,5 @@ export const importMetadataCommandFromXML = (
   const defaults = getDefaults(result, context)
   return removeDefaults(result, defaults)
 }
+
+registerTypeRule("MetadataCommands", "importFromXML", importMetadataCommandsFromXML)

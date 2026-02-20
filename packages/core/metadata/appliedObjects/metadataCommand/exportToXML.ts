@@ -2,11 +2,12 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
 
-export const exportMetadataCommandToXML = (
+const exportMetadataCommandToXML = (
   context: ConfigurationContext,
   data: MetadataCommand | undefined
 ): MetadataCommandXML | undefined => {
@@ -58,9 +59,12 @@ export const exportMetadataCommandToXML = (
 
 export const exportMetadataCommandsToXML = (
   context: ConfigurationContext,
+  _rule: PropertyRule<any>,
   data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined
 
   return data.map((value: MetadataCommand) => exportMetadataCommandToXML(context, value)!)
 }
+
+registerTypeRule("MetadataCommands", "exportToXML", exportMetadataCommandsToXML)

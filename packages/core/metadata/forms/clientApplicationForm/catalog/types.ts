@@ -1,36 +1,23 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  ClientApplicationForm,
-  ClientApplicationFormEnterprise,
-  ClientApplicationFormEvents,
-  ClientApplicationFormXML,
-} from "../base/types"
+import { ClientApplicationForm, ClientApplicationFormEnterprise } from "../base/types"
 
-export interface CatalogFormEvents extends ClientApplicationFormEvents {
-  valueChoice?: string
-  beforeWrite?: string
-  beforeWriteAtServer?: string
-  afterWrite?: string
-  afterWriteAtServer?: string
-  onWriteAtServer?: string
-  onReadAtServer?: string
-}
-
-export interface CatalogForm extends ClientApplicationForm {
+export interface CatalogForm extends Omit<ClientApplicationForm, "itemType" | "events"> {
+  itemType: "CatalogForm"
   choiceAvailable?: boolean
   useForFoldersAndItems?: SE.FoldersAndItemsUse
   choiceParameters?: ChoiceParameters
   choiceMode?: SE.ChoiceMode
-  events?: CatalogFormEvents
-}
-
-export interface CatalogFormXML extends ClientApplicationFormXML {
-  ChoiceAvailable?: boolean
-  UseForFoldersAndItems?: SE.FoldersAndItemsUse
-  ChoiceParameters?: ChoiceParametersXML
-  ChoiceMode?: SE.ChoiceMode
+  events?: {
+    valueChoice?: string
+    beforeWrite?: string
+    beforeWriteAtServer?: string
+    afterWrite?: string
+    afterWriteAtServer?: string
+    onWriteAtServer?: string
+    onReadAtServer?: string
+  }
 }
 
 export interface CatalogFormEnterprise extends ClientApplicationFormEnterprise {

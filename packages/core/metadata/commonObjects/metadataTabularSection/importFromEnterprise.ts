@@ -27,7 +27,7 @@ export const importMetadataTabularSectionFromEnterprise = (
     name,
     synonym: addDefaultLanguageNameToSynonym(
       context,
-      importI8nTextFromYAML(context, { type: "I8nText" }, data.Синоним),
+      importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Синоним }),
       name
     ),
   }
@@ -57,7 +57,7 @@ export const importMetadataTabularSectionFromEnterprise = (
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
-  const toolTip = importI8nTextFromYAML(context, { type: "I8nText" }, data.Подсказка)
+  const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
   if (toolTip !== undefined) result.toolTip = toolTip
 
   const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(

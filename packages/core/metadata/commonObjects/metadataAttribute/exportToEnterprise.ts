@@ -13,6 +13,7 @@ import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/ex
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
@@ -209,3 +210,5 @@ const canUseShortFormat = (data: MetadataAttribute, synonym: I8nTextEnterprise |
   )
   return Object.keys(filteredData).length === 0
 }
+
+registerTypeRule("MetadataAttributes", "exportToEnterprise", exportMetadataAttributesToEnterprise)

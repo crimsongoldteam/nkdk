@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldStringToEnterprise } from "../metadataPath/exportToEnterprise"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
@@ -22,3 +23,5 @@ export const exportMetadataItemLinksToEnterprise = (
 
   return data.map((item) => exportMetadataItemLinkToEnterprise(_context, undefined, item)!)
 }
+
+registerTypeRule("MetadataItemLinks", "exportToEnterprise", exportMetadataItemLinksToEnterprise)

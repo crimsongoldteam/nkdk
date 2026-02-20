@@ -121,10 +121,12 @@ export const full: MetadataCatalog = {
       },
     },
   ],
+  itemType: "MetadataCatalog",
 }
 
 export const minimal: MetadataCatalog = {
   name: "Контрагенты",
+  itemType: "MetadataCatalog",
 }
 
 export const withAttributesCatalog: MetadataCatalog = {
@@ -139,6 +141,7 @@ export const withAttributesCatalog: MetadataCatalog = {
       },
     },
   ],
+  itemType: "MetadataCatalog",
 }
 
 export const withCommands: MetadataCatalog = {
@@ -163,6 +166,7 @@ export const withCommands: MetadataCatalog = {
       },
     } as any,
   ],
+  itemType: "MetadataCatalog",
 }
 
 //#endregion
