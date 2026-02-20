@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullTrackBarField,
-  fullTrackBarFieldPartialEnterprise,
+  fullTrackBarFieldPartialYAML,
   minimalTrackBarField,
 } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportTrackBarFieldToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportTrackBarFieldToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullTrackBarField })
 
-    expect(result).toEqual(fullTrackBarFieldPartialEnterprise)
+    expect(result).toEqual(fullTrackBarFieldPartialYAML)
   })
 
   it("should export minimal", () => {

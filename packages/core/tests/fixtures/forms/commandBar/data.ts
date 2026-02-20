@@ -1,9 +1,9 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarPartialEnterprise } from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
-  fullCommandBarChildItemsAllEnterprise,
+  fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
 } from "../../commandBarChildItems/data"
@@ -61,7 +61,7 @@ export const fullCommandBar: Required<CommandBar> = {
   childItems: fullCommandBarChildItemsTyped,
 }
 
-export const fullCommandBarAllItems = fullCommandBarChildItemsAllEnterprise
+export const fullCommandBarAllItems = fullCommandBarChildItemsAllYAML
 
 export const minimalCommandBar: CommandBar = {
   itemType: CollectionFormElementType.CommandBar,
@@ -69,9 +69,9 @@ export const minimalCommandBar: CommandBar = {
   childItems: [],
 }
 
-export const minimalCommandBarPartialEnterprise: CommandBarPartialEnterprise = {}
+export const minimalCommandBarPartialYAML: CommandBarPartialYAML = {}
 
-export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
+export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
   Заголовок: "Командная панель",
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",

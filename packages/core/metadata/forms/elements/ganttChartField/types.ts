@@ -1,14 +1,14 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
+import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface GanttChartField extends NamedElement {
   itemType: "GanttChartField"
@@ -80,63 +80,63 @@ export interface GanttChartField extends NamedElement {
   }
 }
 
-export interface GanttChartFieldPartialEnterprise {
-  АвтоВысотаЯчейки?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormFieldTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface GanttChartFieldPartialYAML {
+  АвтоВысотаЯчейки?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormFieldTypeYAML
+  Видимость?: StringboolYAML
   ВысотаЗаголовка?: number
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КартинкаПодвала?: PictureEnterprise
-  КартинкаШапки?: PictureEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОграничениеТипа?: TypeDescriptionEnterprise
-  ОтображатьВПодвале?: StringboolEnterprise
-  ОтображатьВШапке?: StringboolEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
+  ГиперссылкаЯчейки?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КартинкаПодвала?: PictureYAML
+  КартинкаШапки?: PictureYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОграничениеТипа?: TypeDescriptionYAML
+  ОтображатьВПодвале?: StringboolYAML
+  ОтображатьВШапке?: StringboolYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationYAML
+  Подсказка?: I8nTextYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  ПредупреждениеПриРедактировании?: I8nTextYAML
+  ПропускатьПриВводе?: StringboolYAML
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РежимРедактирования?: SE.ColumnEditModeYAML
   СочетаниеКлавиш?: string
   Таблица?: string
-  ТекстПодвала?: I8nTextEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветТекстаПодвала?: ColorEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
-  ЦветФонаПодвала?: ColorEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ШрифтПодвала?: FontEnterprise
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ВертикальныеЛинии?: StringboolEnterprise
+  ТекстПодвала?: I8nTextYAML
+  ТолькоПросмотр?: StringboolYAML
+  ФиксацияВТаблице?: SE.FixingInTableYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветТекстаПодвала?: ColorYAML
+  ЦветФонаЗаголовка?: ColorYAML
+  ЦветФонаПодвала?: ColorYAML
+  ШрифтЗаголовка?: FontYAML
+  ШрифтПодвала?: FontYAML
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  ВертикальныеЛинии?: StringboolYAML
   Высота?: number
-  ГоризонтальныеЛинии?: StringboolEnterprise
+  ГоризонтальныеЛинии?: StringboolYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ПоложениеТаблицы?: SE.GanttChartTableLocationEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РежимВыделенияЗначений?: SE.GanttChartValuesSelectionModeEnterprise
-  РежимВыделенияИнтервалов?: SE.GanttChartIntervalsSelectionModeEnterprise
+  ПоложениеТаблицы?: SE.GanttChartTableLocationYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РежимВыделенияЗначений?: SE.GanttChartValuesSelectionModeYAML
+  РежимВыделенияИнтервалов?: SE.GanttChartIntervalsSelectionModeYAML
   Ширина?: number
   События?: {
     ПриИзменении?: string

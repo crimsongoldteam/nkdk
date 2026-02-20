@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { fontEnterpriseFixtures } from "~/tests/fixtures/font/data"
+import { fontYAMLFixtures } from "~/tests/fixtures/font/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportFontToXML } from "./exportToXML"
 
 describe("exportFontToXML", () => {
-  it.each(fontEnterpriseFixtures)("should export $name font to XML", ({ font, xml }) => {
+  it.each(fontYAMLFixtures)("should export $name font to XML", ({ font, xml }) => {
     const result = { Font: exportFontToXML(mockContext, mockRule, font) }
     const xmlString = xmlExport(result, false)
 

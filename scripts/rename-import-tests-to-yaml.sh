@@ -5,7 +5,7 @@
 
 set -e
 
-BASE_DIR="/Users/nikita/git/nakidka-core/packages/core/metadata/forms/elements"
+BASE_DIR="/Users/nikita/git/nakidka-core/packages/core/"
 
 echo "Переименование файлов importFromEnterprise.test.ts -> fromYAML.test.ts..."
 

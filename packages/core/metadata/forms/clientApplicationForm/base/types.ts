@@ -1,16 +1,16 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
-import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { GroupChildItem, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
-import { CommandInterface, CommandInterfaceEnterprise } from "../../commonObjects/commandInterface/types"
-import { CommandSet, CommandSetEnterprise } from "../../commonObjects/commandSet/types"
-import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../commonObjects/formAttribute/types"
+import { GroupChildItem, GroupChilItemPartialYAML } from "../../collections/childItems/types"
+import { CommandInterface, CommandInterfaceYAML } from "../../commonObjects/commandInterface/types"
+import { CommandSet, CommandSetYAML } from "../../commonObjects/commandSet/types"
+import { FormAttribute, FormAttributesXML, FormAttributesYAML } from "../../commonObjects/formAttribute/types"
 import { FormCommand, FormCommandsXML, FormCommandsYAML } from "../../commonObjects/formCommand/types"
-import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../commonObjects/formParameter/types"
-import { AutoCommandBar, AutoCommandBarEnterprise } from "../../elements/autoCommandBar/types"
+import { FormParameters, FormParametersXML, FormParametersYAML } from "../../commonObjects/formParameter/types"
+import { AutoCommandBar, AutoCommandBarYAML } from "../../elements/autoCommandBar/types"
 
 export interface ClientApplicationForm extends MetadataItem {
   itemType: "ClientApplicationForm"
@@ -194,55 +194,55 @@ export interface ClientApplicationFormXML {
   [key: string]: any
 }
 
-export interface ClientApplicationFormEnterprise {
-  АвтоЗаголовок?: StringboolEnterprise
-  АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsEnterprise
-  АвтоНавигационнаяСсылка?: StringboolEnterprise
-  ВертикальнаяПрокрутка?: SE.VerticalFormScrollEnterprise
-  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
-  ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
+export interface ClientApplicationFormYAML {
+  АвтоЗаголовок?: StringboolYAML
+  АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsYAML
+  АвтоНавигационнаяСсылка?: StringboolYAML
+  ВертикальнаяПрокрутка?: SE.VerticalFormScrollYAML
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignYAML
+  ВертикальныйИнтервал?: SE.FormItemSpacingYAML
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantYAML
   Высота?: number
-  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
-  Группировка?: SE.ChildFormItemsGroupEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  ЗакрыватьПриВыборе?: StringboolEnterprise
-  ЗакрыватьПриЗакрытииВладельца?: StringboolEnterprise
-  ИспользуемыйСерверФормы?: SE.UsedServerEnterprise
-  ИнтерфейсКоманды?: CommandInterfaceEnterprise
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationYAML
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingYAML
+  Группировка?: SE.ChildFormItemsGroupYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  ЗакрыватьПриВыборе?: StringboolYAML
+  ЗакрыватьПриЗакрытииВладельца?: StringboolYAML
+  ИспользуемыйСерверФормы?: SE.UsedServerYAML
+  ИнтерфейсКоманды?: CommandInterfaceYAML
   КлючНазначенияИспользования?: string
   КлючСохраненияПоложенияОкна?: string
-  КоманднаяПанель?: AutoCommandBarEnterprise
+  КоманднаяПанель?: AutoCommandBarYAML
   Масштаб?: number
-  МодальныйРежим?: StringboolEnterprise
-  Модифицированность?: StringboolEnterprise
+  МодальныйРежим?: StringboolYAML
+  Модифицированность?: StringboolYAML
   // НавигационнаяСсылка?: string
-  РазрешитьИзменятьФорму?: StringboolEnterprise
-  ОтображатьЗаголовок?: StringboolEnterprise
-  ОтображатьКнопкуЗакрытия?: StringboolEnterprise
-  ОтображениеОбсуждений?: SE.FormConversationsRepresentationEnterprise
-  ПоведениеКлавишиEnter?: SE.EnterKeyBehaviorTypeEnterprise
-  ПоложениеКоманднойПанели?: SE.FormCommandBarLabelLocationEnterprise
-  ПроверятьЗаполнениеАвтоматически?: StringboolEnterprise
-  РежимОткрытияОкнаФормы?: SE.FormWindowOpeningModeEnterprise
-  СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceEnterprise
-  СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsEnterprise
-  СохраняемыеВНастройкахДанныеМодифицированы?: StringboolEnterprise
-  СоставКоманд?: CommandSetEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
+  РазрешитьИзменятьФорму?: StringboolYAML
+  ОтображатьЗаголовок?: StringboolYAML
+  ОтображатьКнопкуЗакрытия?: StringboolYAML
+  ОтображениеОбсуждений?: SE.FormConversationsRepresentationYAML
+  ПоведениеКлавишиEnter?: SE.EnterKeyBehaviorTypeYAML
+  ПоложениеКоманднойПанели?: SE.FormCommandBarLabelLocationYAML
+  ПроверятьЗаполнениеАвтоматически?: StringboolYAML
+  РежимОткрытияОкнаФормы?: SE.FormWindowOpeningModeYAML
+  СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceYAML
+  СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsYAML
+  СохраняемыеВНастройкахДанныеМодифицированы?: StringboolYAML
+  СоставКоманд?: CommandSetYAML
+  ТолькоПросмотр?: StringboolYAML
   Ширина?: number
-  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
-  СохранятьНастройкиОкна?: StringboolEnterprise
-  Реквизиты?: FormAttributesEnterprise
-  Параметры?: FormParametersEnterprise
+  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthYAML
+  СохранятьНастройкиОкна?: StringboolYAML
+  Реквизиты?: FormAttributesYAML
+  Параметры?: FormParametersYAML
 
   //#region Catalog
-  ВыборДоступен?: StringboolEnterprise
-  ИспользованиеДляГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
-  ПараметрыВыбора?: ChoiceParametersEnterprise
-  РежимВыбора?: SE.ChoiceModeEnterprise
+  ВыборДоступен?: StringboolYAML
+  ИспользованиеДляГруппИЭлементов?: SE.FoldersAndItemsUseYAML
+  ПараметрыВыбора?: ChoiceParametersYAML
+  РежимВыбора?: SE.ChoiceModeYAML
   //#endregion
 
   События?: {
@@ -284,11 +284,11 @@ export interface ClientApplicationFormEnterprise {
     // #endregion
   }
   Команды?: FormCommandsYAML
-  Элементы?: GroupChilItemPartialEnterprise
+  Элементы?: GroupChilItemPartialYAML
 
-  Синоним?: I8nTextEnterprise
+  Синоним?: I8nTextYAML
   Комментарий?: string
-  ВключатьСправкуВСодержание?: StringboolEnterprise
+  ВключатьСправкуВСодержание?: StringboolYAML
   НазначенияИспользования?: "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"
 }
 

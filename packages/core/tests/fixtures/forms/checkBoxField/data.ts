@@ -1,7 +1,7 @@
 import {
   CheckBoxField,
-  CheckBoxFieldPartialEnterprise,
-  CheckBoxFieldTypedEnterprise,
+  CheckBoxFieldPartialYAML,
+  CheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
@@ -95,7 +95,7 @@ export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
   threeState: true,
 }
 
-export const fullCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise = {
+export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -154,8 +154,8 @@ export const fullCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise 
   Шрифт: "ОбычныйШрифтТекста",
 }
 
-export const fullCheckBoxFieldTypedEnterprise: CheckBoxFieldTypedEnterprise = {
-  ...fullCheckBoxFieldPartialEnterprise,
+export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
+  ...fullCheckBoxFieldPartialYAML,
   Тип: "ПолеФлажок",
   Заголовок: "Флажок формы",
 }
@@ -165,9 +165,9 @@ export const minimalCheckBoxField: CheckBoxField = {
   name: "Флажок",
 }
 
-export const minimalCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise = {}
+export const minimalCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {}
 
-export const minimalCheckBoxFieldTypedEnterprise: CheckBoxFieldTypedEnterprise = {
+export const minimalCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
   Тип: "ПолеФлажок",
 }
 

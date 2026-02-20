@@ -1,8 +1,4 @@
-import {
-  ButtonGroup,
-  ButtonGroupPartialEnterprise,
-  ButtonGroupTypedEnterprise,
-} from "~/metadata/forms/elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupPartialYAML, ButtonGroupTypedYAML } from "~/metadata/forms/elements/buttonGroup/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
@@ -55,7 +51,7 @@ export const fullButtonGroupSource: ButtonGroup = {
   childItems: [],
 }
 
-export const fullButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise = {
+export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -85,7 +81,7 @@ export const fullButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise = {
   },
 }
 
-export const fullButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
+export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
   Тип: "ГруппаКнопок",
   Заголовок: "Группа кнопок",
   ВертикальноеПоложениеВГруппе: "Верх",
@@ -123,9 +119,9 @@ export const minimalButtonGroup: ButtonGroup = {
   childItems: [],
 }
 
-export const minimalButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise = {}
+export const minimalButtonGroupPartialYAML: ButtonGroupPartialYAML = {}
 
-export const minimalButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
+export const minimalButtonGroupTypedYAML: ButtonGroupTypedYAML = {
   Тип: "ГруппаКнопок",
 }
 

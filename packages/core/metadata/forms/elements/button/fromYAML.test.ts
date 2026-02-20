@@ -6,20 +6,20 @@ import {
 } from "~/metadata/metadataFactory"
 import {
   fullButton,
-  fullButtonPartialEnterprise,
-  fullButtonTypedEnterprise,
+  fullButtonPartialYAML,
+  fullButtonTypedYAML,
   minimalButton,
-  minimalButtonTypedEnterprise,
+  minimalButtonTypedYAML,
 } from "~/tests/fixtures/forms/button/data"
 import { mockContext } from "~/tests/mockContext"
 import { Button } from "./types"
 
-describe("importButtonFromEnterprise", () => {
-  describe("importButtonTypedFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importButtonFromYAML", () => {
+  describe("importButtonTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromTypedYAML<Button>({
         context: mockContext,
-        yaml: fullButtonTypedEnterprise,
+        yaml: fullButtonTypedYAML,
         name: "ОбычнаяКнопка",
       })
 
@@ -29,7 +29,7 @@ describe("importButtonFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<Button>({
         context: mockContext,
-        yaml: minimalButtonTypedEnterprise,
+        yaml: minimalButtonTypedYAML,
         name: "ОбычнаяКнопка",
       })
 
@@ -37,12 +37,12 @@ describe("importButtonFromEnterprise", () => {
     })
   })
 
-  describe("importButtonPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+  describe("importButtonPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.Button,
-        yaml: fullButtonPartialEnterprise,
+        yaml: fullButtonPartialYAML,
         source: fullButton,
       })
 

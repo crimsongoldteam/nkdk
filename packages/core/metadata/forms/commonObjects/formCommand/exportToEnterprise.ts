@@ -1,14 +1,14 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { exportPictureToYAML } from "~/metadata/commonObjects/picture/toYAML"
+import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/toYAML"
+import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
 
-export const exportCommandsToEnterprise = (
+export const exportCommandsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: FormCommands | undefined
@@ -18,16 +18,16 @@ export const exportCommandsToEnterprise = (
   const result: FormCommandsYAML = {}
 
   for (const command of data) {
-    const commandEnterprise = exportCommandToEnterprise(context, command)
-    if (commandEnterprise) {
-      result[command.name] = commandEnterprise
+    const commandYAML = exportCommandToYAML(context, command)
+    if (commandYAML) {
+      result[command.name] = commandYAML
     }
   }
 
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-const exportCommandToEnterprise = (
+const exportCommandToYAML = (
   context: ConfigurationContext,
   data: FormCommand | undefined
 ): FormCommandYAML | undefined => {
@@ -51,19 +51,19 @@ const exportCommandToEnterprise = (
 
   if (data.table !== undefined) result.Таблица = data.table
 
-  const picture = exportPictureToEnterprise(context, undefined, data.picture)
+  const picture = exportPictureToYAML(context, undefined, data.picture)
   if (picture !== undefined) result.Картинка = picture
 
-  const currentRowUse = exportSystemEnumerationToYAML<SE.CurrentRowUseEnterprise>(
+  const currentRowUse = exportSystemEnumerationToYAML<SE.CurrentRowUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "CurrentRowUse" },
     data.currentRowUse
   )
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
-  const use = exportUserVisibleToEnterprise(context, undefined, data.use, {
-    allow: UserVisibleKeysEnterprise.Allow,
-    deny: UserVisibleKeysEnterprise.Deny,
+  const use = exportUserVisibleToYAML(context, undefined, data.use, {
+    allow: UserVisibleKeysYAML.Allow,
+    deny: UserVisibleKeysYAML.Deny,
   })
   if (use !== undefined) {
     Object.assign(result, use)
@@ -72,4 +72,4 @@ const exportCommandToEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-registerTypeRule("FormCommands", "exportToEnterprise", exportCommandsToEnterprise)
+registerTypeRule("FormCommands", "exportToYAML", exportCommandsToYAML)

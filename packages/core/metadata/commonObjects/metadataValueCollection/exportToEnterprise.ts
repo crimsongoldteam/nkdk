@@ -1,17 +1,17 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMedatataRefToEnterprise } from "../metadataValue/exportToEnterprise"
-import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./types"
+import { exportMedatataRefToYAML } from "../metadataValue/toYAML"
+import { MetadataValueCollection, MetadataValueCollectionYAML } from "./types"
 
-export const exportMetadataValueCollectionToEnterprise = (
+export const exportMetadataValueCollectionToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataValueCollection | undefined
-): MetadataValueCollectionEnterprise | undefined => {
+): MetadataValueCollectionYAML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  return data.map((item) => exportMedatataRefToEnterprise(context, item))
+  return data.map((item) => exportMedatataRefToYAML(context, item))
 }
 
-registerTypeRule("MetadataValueCollection", "exportToEnterprise", exportMetadataValueCollectionToEnterprise)
+registerTypeRule("MetadataValueCollection", "exportToYAML", exportMetadataValueCollectionToYAML)

@@ -1,26 +1,26 @@
 import { Context } from "vm"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { convertPath } from "./helper"
-import { MetadataFieldsRulesFromEnterprise, MetadataValuesRulesFromEnterprise } from "./types"
+import { MetadataFieldsRulesFromYAML, MetadataValuesRulesFromYAML } from "./types"
 
-// export const importMetadataTypeStringFromEnterprise = (_context: Context, name: string): string | undefined => {
-//   return convertPath(MetadataTypesRulesFromEnterprise, name)
+// export const importMetadataTypeStringFromYAML = (_context: Context, name: string): string | undefined => {
+//   return convertPath(MetadataTypesRulesFromYAML, name)
 // }
 
-export const importMetadataFieldStringFromEnterprise = (
+export const importMetadataFieldStringFromYAML = (
   _context: Context,
   _rule: PropertyRule<any> | undefined,
   name: string
 ): string | undefined => {
-  return convertPath(MetadataFieldsRulesFromEnterprise, name)
+  return convertPath(MetadataFieldsRulesFromYAML, name)
 }
 
-export const importMetadataValueStringFromEnterprise = (
+export const importMetadataValueStringFromYAML = (
   _context: Context,
   _rule: PropertyRule<any> | undefined,
   name: string
 ): string | undefined => {
-  const convertedPath = convertPath(MetadataValuesRulesFromEnterprise, name)
+  const convertedPath = convertPath(MetadataValuesRulesFromYAML, name)
 
   if (convertedPath && convertedPath.startsWith("Enum.")) {
     const parts = convertedPath.split(".")

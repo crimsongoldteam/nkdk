@@ -1,8 +1,8 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importMetadataFieldFromEnterprise } from "../metadataField/importFromEnterprise"
-import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
+import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
+import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
 
 /**
  * Парсит строку вида "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
@@ -66,8 +66,8 @@ const parseChoiceParameterLinksString = (
       dataPath = content.slice(0, commaIndex).trim()
     }
 
-    // Преобразуем dataPath из Enterprise формата в XML формат
-    const xmlDataPath = importMetadataFieldFromEnterprise(context, undefined, dataPath)
+    // Преобразуем dataPath из YAML формата в XML формат
+    const xmlDataPath = importMetadataFieldFromYAML(context, undefined, dataPath)
     if (!xmlDataPath) {
       throw new Error(`Invalid dataPath: ${dataPath}`)
     }
@@ -84,14 +84,14 @@ const parseChoiceParameterLinksString = (
   return result
 }
 
-export const importChoiceParameterLinksFromEnterprise = (
+export const importChoiceParameterLinksFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule<any> | undefined,
-  data: ChoiceParameterLinksEnterprise | undefined
+  data: ChoiceParameterLinksYAML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined
 
   return parseChoiceParameterLinksString(context, rule, data)
 }
 
-registerTypeRule("ChoiceParameterLinks", "importFromEnterprise", importChoiceParameterLinksFromEnterprise)
+registerTypeRule("ChoiceParameterLinks", "importFromYAML", importChoiceParameterLinksFromYAML)

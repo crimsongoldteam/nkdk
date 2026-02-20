@@ -1,14 +1,14 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
-import { Border, BorderEnterprise } from "./types"
+import { Border, BorderYAML } from "./types"
 
-export const importBorderFromEnterprise = (
+export const importBorderFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: BorderEnterprise | undefined
+  data: BorderYAML | undefined
 ): Border | undefined => {
   if (!data) return undefined
 
@@ -34,4 +34,4 @@ export const importBorderFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-registerTypeRule("Border", "importFromEnterprise", importBorderFromEnterprise)
+registerTypeRule("Border", "importFromYAML", importBorderFromYAML)

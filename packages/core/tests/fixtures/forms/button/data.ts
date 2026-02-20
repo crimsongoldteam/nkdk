@@ -1,9 +1,4 @@
-import {
-  Button,
-  ButtonPartialEnterprise,
-  ButtonPreview,
-  ButtonTypedEnterprise,
-} from "~/metadata/forms/elements/button/types"
+import { Button, ButtonPartialYAML, ButtonPreview, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
@@ -93,9 +88,7 @@ export const fullButtonSource: Button = {
   title: { items: { ru: "Кнопка формы" } },
 }
 
-export const fullButtonPartialEnterprise: Required<
-  Omit<ButtonPartialEnterprise, "Заголовок" | "ЗапретитьИспользование">
-> = {
+export const fullButtonPartialYAML: Required<Omit<ButtonPartialYAML, "Заголовок" | "ЗапретитьИспользование">> = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   АктивизироватьПоУмолчанию: "Истина",
@@ -139,8 +132,8 @@ export const fullButtonPartialEnterprise: Required<
   Шрифт: "КрупныйШрифтТекста",
 }
 
-export const fullButtonTypedEnterprise: ButtonTypedEnterprise = {
-  ...fullButtonPartialEnterprise,
+export const fullButtonTypedYAML: ButtonTypedYAML = {
+  ...fullButtonPartialYAML,
   Тип: "Кнопка",
   Заголовок: "Заголовок кнопки",
 }
@@ -150,10 +143,10 @@ export const minimalButton: Button = {
   name: "ОбычнаяКнопка",
 }
 
-export const minimalButtonPartialEnterprise: ButtonPartialEnterprise = {}
+export const minimalButtonPartialYAML: ButtonPartialYAML = {}
 
-export const minimalButtonTypedEnterprise: ButtonTypedEnterprise = {
-  ...minimalButtonPartialEnterprise,
+export const minimalButtonTypedYAML: ButtonTypedYAML = {
+  ...minimalButtonPartialYAML,
   Тип: "Кнопка",
 }
 

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
-import { fullTable, fullTableEnterprise, minimalTable, minimalTableEnterprise } from "~/tests/fixtures/forms/table/data"
+import { fullTable, fullTableYAML, minimalTable, minimalTableYAML } from "~/tests/fixtures/forms/table/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importTableFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importTableFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.Table,
-      yaml: fullTableEnterprise,
+      yaml: fullTableYAML,
       source: fullTable,
     })
 
@@ -19,7 +19,7 @@ describe("importTableFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.Table,
-      yaml: minimalTableEnterprise,
+      yaml: minimalTableYAML,
       source: minimalTable,
     })
 

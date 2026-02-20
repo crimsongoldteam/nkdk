@@ -1,15 +1,15 @@
-import { FormattedI8nText, FormattedI8nTextEnterprise } from "~/metadata/commonObjects/formattedI8nText/types"
+import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 
 export interface FormattedI8nTextFixture {
   name: string
   text: FormattedI8nText | undefined
   textFromStructure?: I8nText | undefined
-  enterpriseText?: FormattedI8nTextEnterprise | undefined
-  enterpriseFormattedText?: FormattedI8nTextEnterprise | undefined
+  enterpriseText?: FormattedI8nTextYAML | undefined
+  enterpriseFormattedText?: FormattedI8nTextYAML | undefined
   enterpriseDefaultLanguage?: string | undefined
-  enterpriseOtherLanguagesText?: FormattedI8nTextEnterprise | undefined
-  enterpriseOtherLanguagesFormattedText?: FormattedI8nTextEnterprise | undefined
+  enterpriseOtherLanguagesText?: FormattedI8nTextYAML | undefined
+  enterpriseOtherLanguagesFormattedText?: FormattedI8nTextYAML | undefined
   xml?: string
 }
 

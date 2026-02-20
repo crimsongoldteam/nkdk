@@ -1,28 +1,28 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportSystemEnumerationToYAML } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
-import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
-import { type Picture, type PictureEnterprise, type PictureEnterpriseExtended } from "./types"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
 
-export function exportPictureToEnterprise(
+export function exportPictureToYAML(
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   picture: Picture | undefined
-): PictureEnterprise | undefined {
+): PictureYAML | undefined {
   if (!picture) return undefined
 
-  let ref: PictureEnterprise | undefined
+  let ref: PictureYAML | undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToYAML<SE.PictureLibEnterprise>(
+    const result = exportSystemEnumerationToYAML<SE.PictureLibYAML>(
       context,
       { type: "SystemEnumeration", typeSE: "PictureLib" },
       picture.ref
     )
 
-    if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
+    if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToYAML`)
 
     ref = result
   } else {
@@ -35,17 +35,17 @@ export function exportPictureToEnterprise(
   const hasTransparentPixel = !!picture.transparentPixel
 
   if (hasCustomLoadTransparent || hasTransparentPixel) {
-    const result: PictureEnterpriseExtended = { Ссылка: ref }
+    const result: PictureYAMLExtended = { Ссылка: ref }
 
     if (hasCustomLoadTransparent) {
-      result.ПрозрачныйФон = exportBooleanToEnterprise(context, undefined, picture.loadTransparent)
+      result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, picture.loadTransparent)
     }
 
     if (hasTransparentPixel) {
       result.ПрозрачныйПиксель = picture.transparentPixel
       // For pictures with transparent pixel, even if loadTransparent matches default, we need to include it
       if (result.ПрозрачныйФон === undefined) {
-        result.ПрозрачныйФон = exportBooleanToEnterprise(context, undefined, picture.loadTransparent)
+        result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, picture.loadTransparent)
       }
     }
 
@@ -55,4 +55,4 @@ export function exportPictureToEnterprise(
   return ref
 }
 
-registerTypeRule("Picture", "exportToEnterprise", exportPictureToEnterprise)
+registerTypeRule("Picture", "exportToYAML", exportPictureToYAML)

@@ -2,14 +2,14 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
 import { ExportToYAMLFunctionNew, I8nTextPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { I8nText, I8nTextEnterprise } from "./types"
+import { I8nText, I8nTextYAML } from "./types"
 
 export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
   value: I8nText | undefined
   name?: string
-}): I8nTextEnterprise | undefined => {
+}): I8nTextYAML | undefined => {
   const { context, rule, value: text, name } = params
 
   if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
@@ -27,7 +27,7 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
   return exportFullI8nTextToYAML(context, textClean)
 }
 
-export const exportI8nTextDefaultToEnterprise = (
+export const exportI8nTextDefaultToYAML = (
   context: ConfigurationContext,
   title: I8nText | undefined
 ): string | undefined => {
@@ -56,7 +56,7 @@ const getTextWithoutName = (params: {
 const exportFullI8nTextToYAML = (
   context: ConfigurationContext,
   title: I8nText | undefined
-): I8nTextEnterprise | undefined => {
+): I8nTextYAML | undefined => {
   if (!title) return undefined
   if (Object.keys(title.items).length === 0) return undefined
 
@@ -72,7 +72,7 @@ const exportFullI8nTextToYAML = (
 const exportI8nTextOtherToYAML = (
   context: ConfigurationContext,
   text: I8nText | undefined
-): I8nTextEnterprise | undefined => {
+): I8nTextYAML | undefined => {
   if (!text) return undefined
 
   const defaultLanguage = context.defaultLanguage
@@ -82,4 +82,4 @@ const exportI8nTextOtherToYAML = (
   return exportFullI8nTextToYAML(context, { items: filtredItems })
 }
 
-registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToYAML)
+registerTypeRule("I8nText", "exportToYAML", exportI8nTextToYAML)

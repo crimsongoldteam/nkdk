@@ -1,15 +1,15 @@
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
-import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
-import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
-import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
+import { importPictureFromYAML } from "~/metadata/commonObjects/picture/fromYAML"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
+import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
 
-const importCommandFromEnterprise = (
+const importCommandFromYAML = (
   context: ConfigurationContext,
   name: string,
   data: FormCommandYAML | undefined
@@ -37,7 +37,7 @@ const importCommandFromEnterprise = (
 
   if (data.Таблица !== undefined) result.table = data.Таблица
 
-  const picture = importPictureFromEnterprise(context, undefined, data.Картинка)
+  const picture = importPictureFromYAML(context, undefined, data.Картинка)
   if (picture !== undefined) result.picture = picture
 
   const currentRowUse = importSystemEnumerationFromYAML<SE.CurrentRowUse>(
@@ -49,7 +49,7 @@ const importCommandFromEnterprise = (
 
   const use = importUserVisibleFromYAML({
     context,
-    rule: { type: "UserVisible", yaml: UserVisibleKeysEnterprise.Allow, yamlDeny: UserVisibleKeysEnterprise.Deny },
+    rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Allow, yamlDeny: UserVisibleKeysYAML.Deny },
     value: data.РазрешитьИспользование,
     yaml: data,
   })
@@ -58,7 +58,7 @@ const importCommandFromEnterprise = (
   return result
 }
 
-export const importCommandsFromEnterprise = (
+export const importCommandsFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: FormCommandsYAML | undefined
@@ -68,7 +68,7 @@ export const importCommandsFromEnterprise = (
   const result: FormCommands = []
 
   for (const [name, commandData] of Object.entries(data)) {
-    const command = importCommandFromEnterprise(context, name, commandData)
+    const command = importCommandFromYAML(context, name, commandData)
     if (command) {
       result.push(command)
     }
@@ -77,4 +77,4 @@ export const importCommandsFromEnterprise = (
   return result
 }
 
-registerTypeRule("FormCommands", "importFromEnterprise", importCommandsFromEnterprise)
+registerTypeRule("FormCommands", "importFromYAML", importCommandsFromYAML)

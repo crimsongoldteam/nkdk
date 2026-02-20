@@ -1,36 +1,36 @@
 import { describe, expect, it } from "vitest"
 import {
   emptyValueChoiceList,
-  emptyValueChoiceListEnterprise,
+  emptyValueChoiceListYAML,
   oneItemChoiceList,
-  oneItemChoiceListEnterprise,
+  oneItemChoiceListYAML,
   twoItemsChoiceList,
-  twoItemsChoiceListEnterprise,
+  twoItemsChoiceListYAML,
 } from "~/tests/fixtures/choiceList/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportChoiceListToEnterprise } from "./exportToEnterprise"
+import { exportChoiceListToYAML } from "./toYAML"
 
-describe("exportChoiceListToEnterprise", () => {
+describe("exportChoiceListToYAML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceListToEnterprise(mockContext, mockRule, undefined)
+    const result = exportChoiceListToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export one item choice list", () => {
-    const result = exportChoiceListToEnterprise(mockContext, mockRule, oneItemChoiceList)
+    const result = exportChoiceListToYAML(mockContext, mockRule, oneItemChoiceList)
 
-    expect(result).toEqual(oneItemChoiceListEnterprise)
+    expect(result).toEqual(oneItemChoiceListYAML)
   })
 
   it("should export two items choice list", () => {
-    const result = exportChoiceListToEnterprise(mockContext, mockRule, twoItemsChoiceList)
+    const result = exportChoiceListToYAML(mockContext, mockRule, twoItemsChoiceList)
 
-    expect(result).toEqual(twoItemsChoiceListEnterprise)
+    expect(result).toEqual(twoItemsChoiceListYAML)
   })
 
   it("should export empty value choice list", () => {
-    const result = exportChoiceListToEnterprise(mockContext, mockRule, emptyValueChoiceList)
+    const result = exportChoiceListToYAML(mockContext, mockRule, emptyValueChoiceList)
 
-    expect(result).toEqual(emptyValueChoiceListEnterprise)
+    expect(result).toEqual(emptyValueChoiceListYAML)
   })
 })

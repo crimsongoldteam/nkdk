@@ -1,5 +1,5 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -48,20 +48,20 @@ export interface CommandInterfaceItemXML {
 
 type CommandInterfaceItems = CommandInterfaceItem[]
 
-export interface CommandInterfaceEnterprise {
-  ПанельНавигации?: CommandInterfaceItemsEnterprise
-  КоманднаяПанель?: CommandInterfaceItemsEnterprise
+export interface CommandInterfaceYAML {
+  ПанельНавигации?: CommandInterfaceItemsYAML
+  КоманднаяПанель?: CommandInterfaceItemsYAML
 }
 
-export interface CommandInterfaceItemEnterprise {
+export interface CommandInterfaceItemYAML {
   Команда: string
   Тип?: string
-  ГруппаКоманд?: SE.StandardCommandsGroupEnterprise
-  Автовидимость: StringboolEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
+  ГруппаКоманд?: SE.StandardCommandsGroupYAML
+  Автовидимость: StringboolYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
 }
 
-type CommandInterfaceItemsEnterprise = CommandInterfaceItemEnterprise[]
+type CommandInterfaceItemsYAML = CommandInterfaceItemYAML[]
 
 //#endregion

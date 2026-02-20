@@ -1,8 +1,4 @@
-import {
-  ColumnGroup,
-  ColumnGroupPartialEnterprise,
-  ColumnGroupTypedEnterprise,
-} from "~/metadata/forms/elements/columnGroup/types"
+import { ColumnGroup, ColumnGroupPartialYAML, ColumnGroupTypedYAML } from "~/metadata/forms/elements/columnGroup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullColumnGroup: ColumnGroup = {
@@ -49,7 +45,7 @@ export const fullColumnGroup: ColumnGroup = {
   childItems: [],
 }
 
-export const fullColumnGroupPartialEnterprise: ColumnGroupPartialEnterprise = {
+export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -78,7 +74,7 @@ export const fullColumnGroupPartialEnterprise: ColumnGroupPartialEnterprise = {
   ЦветФонаЗаголовка: "Синий",
 }
 
-export const fullColumnGroupTypedEnterprise: ColumnGroupTypedEnterprise = {
+export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   Тип: "ГруппаКолонок",
   Заголовок: "Группа колонок",
   ВертикальноеПоложениеВГруппе: "Верх",
@@ -115,8 +111,8 @@ export const minimalColumnGroup: ColumnGroup = {
   childItems: [],
 }
 
-export const minimalColumnGroupPartialEnterprise: ColumnGroupPartialEnterprise = {}
+export const minimalColumnGroupPartialYAML: ColumnGroupPartialYAML = {}
 
-export const minimalColumnGroupTypedEnterprise: ColumnGroupTypedEnterprise = {
+export const minimalColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   Тип: "ГруппаКолонок",
 }

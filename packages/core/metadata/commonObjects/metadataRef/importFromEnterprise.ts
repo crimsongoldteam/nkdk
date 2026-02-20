@@ -1,29 +1,29 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext } from "../../context/types"
-import { importMetadataFieldStringFromEnterprise } from "../metadataPath/importFromEnterprise"
-import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 import { registerTypeRule } from "~/metadata/metadataFactory"
+import { ConfigurationContext } from "../../context/types"
+import { importMetadataFieldStringFromYAML } from "../metadataPath/fromYAML"
+import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
-export const importMetadataItemLinkFromEnterprise = (
+export const importMetadataItemLinkFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataItemLinkEnterprise | undefined
+  data: MetadataItemLinkYAML | undefined
 ): MetadataItemLink | undefined => {
   if (!data) return undefined
 
-  return importMetadataFieldStringFromEnterprise(context, undefined, data)
+  return importMetadataFieldStringFromYAML(context, undefined, data)
 }
 
-export const importMetadataItemLinksFromEnterprise = (
+export const importMetadataItemLinksFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataItemLinksEnterprise | undefined
+  data: MetadataItemLinksYAML | undefined
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined
 
   return data
-    .map((item) => importMetadataItemLinkFromEnterprise(context, undefined, item)!)
+    .map((item) => importMetadataItemLinkFromYAML(context, undefined, item)!)
     .filter((item): item is MetadataItemLink => item !== undefined)
 }
 
-registerTypeRule("MetadataItemLinks", "importFromEnterprise", importMetadataItemLinksFromEnterprise)
+registerTypeRule("MetadataItemLinks", "importFromYAML", importMetadataItemLinksFromYAML)

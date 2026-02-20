@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportMetadataTabularSectionToEnterprise } from "./exportToEnterprise"
-import { MetadataTabularSection, MetadataTabularSectionEnterprise } from "./types"
+import { exportMetadataTabularSectionToYAML } from "./toYAML"
+import { MetadataTabularSection, MetadataTabularSectionYAML } from "./types"
 
-describe("exportMetadataTabularSectionToEnterprise", () => {
+describe("exportMetadataTabularSectionToYAML", () => {
   it("should export metadata tabular section to enterprise", () => {
     const metadataTabularSection: MetadataTabularSection = {
       name: "Контакты",
@@ -11,12 +11,12 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
       synonym: { items: { ru: "Какие-то контакты" } },
     }
 
-    const expectedResult: MetadataTabularSectionEnterprise = {
+    const expectedResult: MetadataTabularSectionYAML = {
       Синоним: "Какие-то контакты",
       ПроверкаЗаполнения: "НеПроверять",
     }
 
-    const result = exportMetadataTabularSectionToEnterprise(mockContext, mockRule, metadataTabularSection)
+    const result = exportMetadataTabularSectionToYAML(mockContext, mockRule, metadataTabularSection)
     expect(result).toEqual(expectedResult)
   })
 
@@ -27,11 +27,11 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
       synonym: { items: { ru: "История КПП" } },
     }
 
-    const expectedResult: MetadataTabularSectionEnterprise = {
+    const expectedResult: MetadataTabularSectionYAML = {
       ПроверкаЗаполнения: "НеПроверять",
     }
 
-    const result = exportMetadataTabularSectionToEnterprise(mockContext, mockRule, metadataTabularSection)
+    const result = exportMetadataTabularSectionToYAML(mockContext, mockRule, metadataTabularSection)
     expect(result).toEqual(expectedResult)
   })
 })

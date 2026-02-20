@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullRadioButtonField,
-  fullRadioButtonFieldPartialEnterprise,
+  fullRadioButtonFieldPartialYAML,
   minimalRadioButtonField,
 } from "~/tests/fixtures/forms/radioButtonField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportRadioButtonFieldToEnterprise", () => {
+describe("exportRadioButtonFieldToYAML", () => {
   describe("exportElementToPartialYAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullRadioButtonField })
 
-      expect(result).toEqual(fullRadioButtonFieldPartialEnterprise)
+      expect(result).toEqual(fullRadioButtonFieldPartialYAML)
     })
 
     it("should export minimal", () => {

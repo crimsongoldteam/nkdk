@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { DynamicList, DynamicListEnterprise } from "./types"
+import { DynamicList, DynamicListYAML } from "./types"
 
-export const importDynamicListFromEnterprise = (
+export const importDynamicListFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: DynamicListEnterprise | undefined
+  data: DynamicListYAML | undefined
 ): DynamicList | undefined => {
   return data as DynamicList
 }

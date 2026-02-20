@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { fontEnterpriseFixtures } from "~/tests/fixtures/font/data"
+import { fontYAMLFixtures } from "~/tests/fixtures/font/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importFontFromEnterprise } from "./importFromEnterprise"
+import { importFontFromYAML } from "./fromYAML"
 
-describe("importFontFromEnterprise", () => {
+describe("importFontFromYAML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importFontFromEnterprise(mockContext, mockRule, undefined)
+    const result = importFontFromYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it.each(fontEnterpriseFixtures)("should import $name font from Enterprise", ({ font, enterprise }) => {
-    const result = importFontFromEnterprise(mockContext, mockRule, enterprise)
+  it.each(fontYAMLFixtures)("should import $name font from YAML", ({ font, enterprise }) => {
+    const result = importFontFromYAML(mockContext, mockRule, enterprise)
 
     expect(result).toEqual(font)
   })

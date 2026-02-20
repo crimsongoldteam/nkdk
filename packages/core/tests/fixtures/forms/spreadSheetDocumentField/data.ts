@@ -1,6 +1,6 @@
 import {
   SpreadSheetDocumentField,
-  SpreadSheetDocumentFieldPartialEnterprise,
+  SpreadSheetDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -123,7 +123,7 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
   },
 }
 
-export const fullSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise = {
+export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
@@ -221,4 +221,4 @@ export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   name: "ПолеТабличногоДокумента",
 }
 
-export const minimalSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise = {}
+export const minimalSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {}

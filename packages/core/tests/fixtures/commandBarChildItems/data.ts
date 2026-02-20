@@ -1,16 +1,16 @@
 import {
   CommandBarChildItem,
-  CommandBarChildItemsPartialEnterprise,
-  CommandBarChildItemsTypedEnterprise,
+  CommandBarChildItemsPartialYAML,
+  CommandBarChildItemsTypedYAML,
 } from "~/metadata/forms/collections/childItems/types"
-import { ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
+import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
-export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialEnterprise = {
+export const fullCommandBarChildItemsAllYAML: CommandBarChildItemsPartialYAML = {
   Кнопка1: {
     Подсказка: "Подсказка для кнопки",
     ИмяКоманды: "ВыполнитьКоманда1",
-  } as ButtonPartialEnterprise,
+  } as ButtonPartialYAML,
   ГруппаКнопок: {
     Подсказка: "Подсказка для группы кнопок",
     ПодчиненныеЭлементы: {
@@ -18,7 +18,7 @@ export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialE
         Тип: "Кнопка",
         ИмяКоманды: "ВыполнитьКоманда2",
       },
-    } as CommandBarChildItemsTypedEnterprise,
+    } as CommandBarChildItemsTypedYAML,
   },
   Подменю: {
     Подсказка: "Подсказка для подменю",
@@ -27,7 +27,7 @@ export const fullCommandBarChildItemsAllEnterprise: CommandBarChildItemsPartialE
         Тип: "Кнопка",
         ИмяКоманды: "ВыполнитьКоманда3",
       },
-    } as CommandBarChildItemsTypedEnterprise,
+    } as CommandBarChildItemsTypedYAML,
   },
 }
 

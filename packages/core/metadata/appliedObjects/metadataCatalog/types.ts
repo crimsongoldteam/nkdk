@@ -1,52 +1,44 @@
 import {
   MetadataCommands,
-  MetadataCommandsEnterprise,
   MetadataCommandsXML,
+  MetadataCommandsYAML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import {
   AdditionalIndexes,
-  AdditionalIndexesEnterprise,
   AdditionalIndexesXML,
+  AdditionalIndexesYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import {
   CharacteristicsDescriptions,
-  CharacteristicsDescriptionsEnterprise,
   CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
-  MetadataAttributesEnterprise,
   MetadataAttributesXML,
+  MetadataAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import {
-  MetadataFields,
-  MetadataFieldsEnterprise,
-  MetadataFieldsXML,
-} from "~/metadata/commonObjects/metadataField/types"
+import { MetadataFields, MetadataFieldsXML, MetadataFieldsYAML } from "~/metadata/commonObjects/metadataField/types"
 import {
   MetadataTabularSections,
-  MetadataTabularSectionsEnterprise,
   MetadataTabularSectionsXML,
+  MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import {
-  PredefinedItems,
-  PredefinedItemsEnterprise,
-  PredefinedItemsXML,
-} from "~/metadata/commonObjects/predifined/types"
+import { PredefinedItems, PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObjects/predifined/types"
 import {
   StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionsYAML,
   StandartAttributeName,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import {
   MetadataValueCollection,
-  MetadataValueCollectionEnterprise,
   MetadataValueCollectionXML,
+  MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
@@ -234,16 +226,16 @@ export const defaults: Partial<MetadataCatalog> = {
   codeLength: 9,
 }
 
-export interface MetadataCatalogEnterprise {
-  Автонумерация?: StringboolEnterprise
-  БыстрыйВыбор?: StringboolEnterprise
-  ВводитсяНаОсновании?: MetadataValueCollectionEnterprise
-  ВводПоСтроке?: MetadataFieldsEnterprise
-  ВидИерархии?: SE.HierarchyTypeEnterprise
-  ВключатьСправкуВСодержание?: StringboolEnterprise
-  Владельцы?: MetadataValueCollectionEnterprise
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
-  ГруппыСверху?: StringboolEnterprise
+export interface MetadataCatalogYAML {
+  Автонумерация?: StringboolYAML
+  БыстрыйВыбор?: StringboolYAML
+  ВводитсяНаОсновании?: MetadataValueCollectionYAML
+  ВводПоСтроке?: MetadataFieldsYAML
+  ВидИерархии?: SE.HierarchyTypeYAML
+  ВключатьСправкуВСодержание?: StringboolYAML
+  Владельцы?: MetadataValueCollectionYAML
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolYAML
+  ГруппыСверху?: StringboolYAML
   ДлинаКода?: number
   ДлинаНаименования?: number
   ДополнительнаяФормаГруппы?: string
@@ -251,48 +243,48 @@ export interface MetadataCatalogEnterprise {
   ДополнительнаяФормаДляВыбораГруппы?: string
   ДополнительнаяФормаОбъекта?: string
   ДополнительнаяФормаСписка?: string
-  ДополнительныеИндексы?: AdditionalIndexesEnterprise
-  ДопустимаяДлинаКода?: SE.AllowedLengthEnterprise
-  Иерархический?: StringboolEnterprise
+  ДополнительныеИндексы?: AdditionalIndexesYAML
+  ДопустимаяДлинаКода?: SE.AllowedLengthYAML
+  Иерархический?: StringboolYAML
   Имя?: string
-  ИспользованиеПодчинения?: SE.SubordinationUseEnterprise
-  ИспользоватьСтандартныеКоманды?: StringboolEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
+  ИспользованиеПодчинения?: SE.SubordinationUseYAML
+  ИспользоватьСтандартныеКоманды?: StringboolYAML
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputYAML
+  ИсторияДанных?: SE.DataHistoryUseYAML
   КоличествоУровней?: number
-  Команды?: MetadataCommandsEnterprise
+  Команды?: MetadataCommandsYAML
   Комментарий?: string
-  КонтрольУникальности?: StringboolEnterprise
-  ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
-  ОграничиватьКоличествоУровней?: StringboolEnterprise
+  КонтрольУникальности?: StringboolYAML
+  ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateYAML
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolYAML
+  ОграничиватьКоличествоУровней?: StringboolYAML
   ОсновнаяФормаГруппы?: string
   ОсновнаяФормаДляВыбора?: string
   ОсновнаяФормаДляВыбораГруппы?: string
   ОсновнаяФормаОбъекта?: string
   ОсновнаяФормаСписка?: string
-  ОсновноеПредставление?: SE.CatalogMainPresentationEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  ПоляБлокировкиДанных?: MetadataFieldsEnterprise
-  Пояснение?: I8nTextEnterprise
-  Предопределенные?: PredefinedItemsEnterprise
-  ПредставлениеОбъекта?: I8nTextEnterprise
-  ПредставлениеСписка?: I8nTextEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
-  РасширенноеПредставлениеСписка?: I8nTextEnterprise
-  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
-  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
-  Реквизиты?: MetadataAttributesEnterprise
-  СерииКодов?: SE.CatalogCodesSeriesEnterprise
-  Синоним?: I8nTextEnterprise
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  СпособВыбора?: SE.ChoiceModeEnterprise
-  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
-  СпособРедактирования?: SE.EditTypeEnterprise
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
-  ТабличныеЧасти?: MetadataTabularSectionsEnterprise
-  ТипКода?: SE.CatalogCodeTypeEnterprise
-  Характеристики?: CharacteristicsDescriptionsEnterprise
+  ОсновноеПредставление?: SE.CatalogMainPresentationYAML
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
+  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringYAML
+  ПоляБлокировкиДанных?: MetadataFieldsYAML
+  Пояснение?: I8nTextYAML
+  Предопределенные?: PredefinedItemsYAML
+  ПредставлениеОбъекта?: I8nTextYAML
+  ПредставлениеСписка?: I8nTextYAML
+  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
+  РасширенноеПредставлениеОбъекта?: I8nTextYAML
+  РасширенноеПредставлениеСписка?: I8nTextYAML
+  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringYAML
+  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeYAML
+  Реквизиты?: MetadataAttributesYAML
+  СерииКодов?: SE.CatalogCodesSeriesYAML
+  Синоним?: I8nTextYAML
+  СозданиеПриВводе?: SE.CreateOnInputYAML
+  СпособВыбора?: SE.ChoiceModeYAML
+  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringYAML
+  СпособРедактирования?: SE.EditTypeYAML
+  СтандартныеРеквизиты?: StandardAttributeDescriptionsYAML
+  ТабличныеЧасти?: MetadataTabularSectionsYAML
+  ТипКода?: SE.CatalogCodeTypeYAML
+  Характеристики?: CharacteristicsDescriptionsYAML
 }

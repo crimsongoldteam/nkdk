@@ -17,10 +17,10 @@ export interface BorderXML {
   "v8ui:style"?: string | BorderStyleObject
 }
 
-export interface BorderEnterprise {
+export interface BorderYAML {
   Имя?: string
   Ширина?: number
-  ТипРамки?: SE.ControlBorderTypeEnterprise
+  ТипРамки?: SE.ControlBorderTypeYAML
 }
 
 export interface BorderPreview {

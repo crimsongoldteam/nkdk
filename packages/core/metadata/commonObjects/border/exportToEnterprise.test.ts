@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { exportBorderToEnterprise } from "./exportToEnterprise"
-import { Border, BorderEnterprise } from "./types"
+import { exportBorderToYAML } from "./toYAML"
+import { Border, BorderYAML } from "./types"
 
-describe("exportBorderToEnterprise", () => {
+describe("exportBorderToYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportBorderToEnterprise(mockContext, mockRule, undefined)
+    const result = exportBorderToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
@@ -16,13 +16,13 @@ describe("exportBorderToEnterprise", () => {
       controlBorderType: "Double",
     }
 
-    const expectedResult: BorderEnterprise = {
+    const expectedResult: BorderYAML = {
       Имя: "Solid",
       Ширина: 1,
       ТипРамки: "Двойная",
     }
 
-    const result = exportBorderToEnterprise(mockContext, mockRule, borderData)
+    const result = exportBorderToYAML(mockContext, mockRule, borderData)
     expect(result).toEqual(expectedResult)
   })
 })

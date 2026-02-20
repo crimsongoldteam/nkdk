@@ -1,4 +1,4 @@
-import { DynamicList, DynamicListEnterprise } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 
 export const fullDynamicList: DynamicList = {
   "@attributes": {
@@ -98,7 +98,7 @@ export const fullDynamicList: DynamicList = {
   },
 }
 
-export const fullDynamicListEnterprise: DynamicListEnterprise = fullDynamicList
+export const fullDynamicListYAML: DynamicListYAML = fullDynamicList
 
 export const minimalDynamicList: DynamicList = {
   "@attributes": {

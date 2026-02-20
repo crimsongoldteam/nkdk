@@ -10,8 +10,8 @@ const formattedI8nTextRule: FormattedI8nTextPropertyRule<any> = {
   yamlFormatted: "FormattedTitle",
 } as unknown as FormattedI8nTextPropertyRule<any>
 
-describe("importFormattedI8nTextFromEnterprise", () => {
-  describe("importFormattedI8nTextFromEnterprise", () => {
+describe("importFormattedI8nTextFromYAML", () => {
+  describe("importFormattedI8nTextFromYAML", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
@@ -23,7 +23,7 @@ describe("importFormattedI8nTextFromEnterprise", () => {
     })
   })
 
-  describe("importFormattedI8nTextCombinedFromEnterprise", () => {
+  describe("importFormattedI8nTextCombinedFromYAML", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,

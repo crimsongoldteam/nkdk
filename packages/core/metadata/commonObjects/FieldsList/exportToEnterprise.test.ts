@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { fullFieldsList, fullFieldsListEnterprise } from "~/tests/fixtures/fieldsList/data"
+import { fullFieldsList, fullFieldsListYAML } from "~/tests/fixtures/fieldsList/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportFieldsListToEnterprise } from "./exportToEnterprise"
+import { exportFieldsListToYAML } from "./toYAML"
 
-describe("exportFieldsListToEnterprise", () => {
+describe("exportFieldsListToYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportFieldsListToEnterprise(mockContext, mockRule, undefined)
+    const result = exportFieldsListToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const result = exportFieldsListToEnterprise(mockContext, mockRule, fullFieldsList)
+    const result = exportFieldsListToYAML(mockContext, mockRule, fullFieldsList)
 
-    expect(result).toEqual(fullFieldsListEnterprise)
+    expect(result).toEqual(fullFieldsListYAML)
   })
 })

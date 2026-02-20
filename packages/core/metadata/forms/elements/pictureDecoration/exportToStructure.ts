@@ -1,5 +1,5 @@
-import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
-import { PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { exportPictureToYAML } from "~/metadata/commonObjects/picture/toYAML"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
@@ -13,7 +13,7 @@ export const exportPictureDecorationToStructure = (
   context: ConfigurationContext,
   element: PictureDecoration
 ): IFormatElementResult => {
-  const picture: PictureEnterprise | undefined = exportPictureToEnterprise(context, undefined, element.picture)
+  const picture: PictureYAML | undefined = exportPictureToYAML(context, undefined, element.picture)
 
   const pictureString = typeof picture === "string" ? picture : ""
 

@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullProgressBarField,
-  fullProgressBarFieldPartialEnterprise,
+  fullProgressBarFieldPartialYAML,
   minimalProgressBarField,
 } from "~/tests/fixtures/forms/progressBarField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportProgressBarFieldToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportProgressBarFieldToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullProgressBarField })
 
-    expect(result).toEqual(fullProgressBarFieldPartialEnterprise)
+    expect(result).toEqual(fullProgressBarFieldPartialYAML)
   })
 
   it("should export minimal", () => {

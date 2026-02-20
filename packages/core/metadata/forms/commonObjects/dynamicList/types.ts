@@ -6,6 +6,6 @@ export type DynamicListXML = {
   [key: string]: unknown
 }
 
-export type DynamicListEnterprise = {
+export type DynamicListYAML = {
   [key: string]: unknown
 }

@@ -46,4 +46,4 @@ export const exportChildItemsToPartialYAML = <From extends AllChildItem>(
   return result
 }
 
-registerTypeRule("ChildItems", "exportToEnterprise", exportChildItemsToTypedYAML)
+registerTypeRule("ChildItems", "exportToYAML", exportChildItemsToTypedYAML)

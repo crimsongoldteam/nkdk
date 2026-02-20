@@ -1,4 +1,4 @@
-import { ChoiceList, ChoiceListEnterprise } from "~/metadata/commonObjects/choiceList/types"
+import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 
 export const oneItemChoiceList: ChoiceList = [
   {
@@ -11,7 +11,7 @@ export const oneItemChoiceList: ChoiceList = [
   },
 ]
 
-export const oneItemChoiceListEnterprise: ChoiceListEnterprise = ['"Значение1"(Значение 1)']
+export const oneItemChoiceListYAML: ChoiceListYAML = ['"Значение1"(Значение 1)']
 
 export const twoItemsChoiceList: ChoiceList = [
   {
@@ -32,7 +32,7 @@ export const twoItemsChoiceList: ChoiceList = [
   },
 ]
 
-export const twoItemsChoiceListEnterprise: ChoiceListEnterprise = ['"Значение1"(Значение 1)', "2(Значение 2)"]
+export const twoItemsChoiceListYAML: ChoiceListYAML = ['"Значение1"(Значение 1)', "2(Значение 2)"]
 
 export const emptyValueChoiceList: ChoiceList = [
   {
@@ -42,5 +42,4 @@ export const emptyValueChoiceList: ChoiceList = [
   },
 ]
 
-export const emptyValueChoiceListEnterprise: ChoiceListEnterprise = 
-  ['(Пустое значение)']
+export const emptyValueChoiceListYAML: ChoiceListYAML = ["(Пустое значение)"]

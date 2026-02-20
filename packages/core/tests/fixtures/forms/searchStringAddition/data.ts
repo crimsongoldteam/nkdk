@@ -1,8 +1,8 @@
 import {
   SearchStringAddition,
-  SearchStringAdditionEnterprise,
+  SearchStringAdditionYAML,
   SingleSearchStringAddition,
-  SingleSearchStringAdditionEnterprise,
+  SingleSearchStringAdditionYAML,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 
 export const parentElement = {
@@ -49,7 +49,7 @@ export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition
   },
 }
 
-export const fullSingleSearchStringAdditionEnterprise: SingleSearchStringAdditionEnterprise = {
+export const fullSingleSearchStringAdditionYAML: SingleSearchStringAdditionYAML = {
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Истина",
@@ -69,8 +69,8 @@ export const fullSingleSearchStringAdditionEnterprise: SingleSearchStringAdditio
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
-export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
-  ...fullSingleSearchStringAdditionEnterprise,
+export const fullSearchStringAdditionYAML: SearchStringAdditionYAML = {
+  ...fullSingleSearchStringAdditionYAML,
   Источник: "КакойТоЭлемент",
 }
 

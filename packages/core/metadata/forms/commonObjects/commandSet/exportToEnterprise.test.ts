@@ -1,29 +1,29 @@
 import { describe, expect, it } from "vitest"
 import {
   multipleCommandSet,
-  multipleCommandSetEnterprise,
+  multipleCommandSetYAML,
   singleCommandSet,
-  singleCommandSetEnterprise,
+  singleCommandSetYAML,
 } from "~/tests/fixtures/forms/commandSet/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportCommandSetToEnterprise } from "./exportToEnterprise"
+import { exportCommandSetToYAML } from "./toYAML"
 
-describe("exportCommandSetToEnterprise", () => {
+describe("exportCommandSetToYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportCommandSetToEnterprise(mockContext, mockRule, undefined)
+    const result = exportCommandSetToYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export single command set", () => {
-    const result = exportCommandSetToEnterprise(mockContext, mockRule, singleCommandSet)
+    const result = exportCommandSetToYAML(mockContext, mockRule, singleCommandSet)
 
-    expect(result).toEqual(singleCommandSetEnterprise)
+    expect(result).toEqual(singleCommandSetYAML)
   })
 
   it("should export multiple command sets", () => {
-    const result = exportCommandSetToEnterprise(mockContext, mockRule, multipleCommandSet)
+    const result = exportCommandSetToYAML(mockContext, mockRule, multipleCommandSet)
 
-    expect(result).toEqual(multipleCommandSetEnterprise)
+    expect(result).toEqual(multipleCommandSetYAML)
   })
 })

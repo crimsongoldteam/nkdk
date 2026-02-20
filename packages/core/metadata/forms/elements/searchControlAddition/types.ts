@@ -1,14 +1,14 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarChildItems, CommandBarChildItemsTypedEnterprise } from "../../collections/childItems/types"
-import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { CommandBarChildItems, CommandBarChildItemsTypedYAML } from "../../collections/childItems/types"
+import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface SearchControlAddition {
   itemType: "SearchControlAddition"
@@ -41,29 +41,29 @@ export interface SingleSearchControlAddition
   itemType: "SingleSearchControlAddition"
 }
 
-export interface SearchControlAdditionEnterprise {
+export interface SearchControlAdditionYAML {
   Источник?: string
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolYAML
   МаксимальнаяШирина?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
+  РастягиватьПоГоризонтали?: StringboolYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветФона?: ColorYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Видимость?: StringboolEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  ПодчиненныеЭлементы?: CommandBarChildItemsTypedEnterprise
+  Шрифт?: FontYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Видимость?: StringboolYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  ПодчиненныеЭлементы?: CommandBarChildItemsTypedYAML
 }
 
-export interface SingleSearchControlAdditionEnterprise extends Omit<SearchControlAdditionEnterprise, "Источник"> {}
+export interface SingleSearchControlAdditionYAML extends Omit<SearchControlAdditionYAML, "Источник"> {}

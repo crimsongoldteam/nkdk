@@ -70,7 +70,7 @@ const registerImportFromXML = <T extends BaseElement>(
 const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesNames): void => {
   registerTypeRule(
     propertyType,
-    "exportToEnterprise",
+    "exportToYAML",
     (context: ConfigurationContext, _rule: PropertyRule<T>, data: T | undefined): ToYAML<T> | undefined => {
       return exportElementToPartialYAML({ context, element: data })
     }
@@ -83,7 +83,7 @@ const registerImportFromYAML = <T extends BaseElement>(
 ): void => {
   registerTypeRule(
     propertyType,
-    "importFromEnterprise",
+    "importFromYAML",
     (context: ConfigurationContext, _rule: PropertyRule<T>, yaml: ToYAML<T> | undefined, source?: T): T | undefined => {
       return importElementFromPartialYAML({
         context,

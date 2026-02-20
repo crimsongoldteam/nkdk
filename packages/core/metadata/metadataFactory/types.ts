@@ -29,13 +29,13 @@ export interface EventedXML extends ElementXML {
 //   data: ElementXML | undefined
 // ) => To
 
-// export type ImportTypedFromEnterpriseFn = <To extends TypedElement>(
+// export type ImportTypedFromYAMLFn = <To extends TypedElement>(
 //   context: ConfigurationContext,
 //   data: ToTypedYAML<To>,
 //   name: string
 // ) => To
 
-// export type ImportPartialFromEnterpriseFn = (
+// export type ImportPartialFromYAMLFn = (
 //   context: ConfigurationContext,
 //   source: Object,
 //   data: Object | undefined
@@ -43,12 +43,12 @@ export interface EventedXML extends ElementXML {
 
 // export type ExportToXMLFn = (context: ConfigurationContext, data?: any) => any
 
-// export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
+// export type ExportPartialToYAMLFn = <From extends BaseElement | undefined>(
 //   context: ConfigurationContext,
 //   data: From
 // ) => ToYAML<From>
 
-// export type ExportTypedToEnterpriseFn = <From extends TypedElement>(
+// export type ExportTypedToYAMLFn = <From extends TypedElement>(
 //   context: ConfigurationContext,
 //   data: From
 // ) => ToTypedYAML<From>
@@ -72,11 +72,11 @@ export type ExportToStructureContentFn = <From extends BaseElement>(
 
 type fnPairs =
   // | ["ExportToXML", ExportToXMLFn]
-  // | ["ExportPartialToEnterprise", ExportPartialToEnterpriseFn]
-  // | ["ExportTypedToEnterprise", ExportTypedToEnterpriseFn]
+  // | ["ExportPartialToYAML", ExportPartialToYAMLFn]
+  // | ["ExportTypedToYAML", ExportTypedToYAMLFn]
   // | ["ImportFromXML", ImportFromXMLFn]
-  // | ["ImportPartialFromEnterprise", ImportPartialFromEnterpriseFn]
-  // | ["ImportTypedFromEnterprise", ImportTypedFromEnterpriseFn]
+  // | ["ImportPartialFromYAML", ImportPartialFromYAMLFn]
+  // | ["ImportTypedFromYAML", ImportTypedFromYAMLFn]
   ["ExportToStructure", ExportToStructureFn] | ["ExportToStructureContent", ExportToStructureContentFn]
 // | ["ExportToPreview", ExportToPreviewFn]
 

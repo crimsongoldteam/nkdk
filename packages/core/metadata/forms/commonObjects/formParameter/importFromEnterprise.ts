@@ -1,13 +1,13 @@
-import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { FormParameter, FormParameters, FormParametersEnterprise } from "./types"
+import { FormParameter, FormParameters, FormParametersYAML } from "./types"
 
-export const importFormParametersFromEnterprise = (
+export const importFormParametersFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: FormParametersEnterprise | undefined
+  data: FormParametersYAML | undefined
 ): FormParameters | undefined => {
   if (data === undefined) {
     return undefined
@@ -16,7 +16,7 @@ export const importFormParametersFromEnterprise = (
   return Object.entries(data).map(([name, parameter]) => {
     const result: FormParameter = {
       name,
-      type: importTypeDescriptionFromEnterprise(context, undefined, parameter.Тип)!,
+      type: importTypeDescriptionFromYAML(context, undefined, parameter.Тип)!,
     }
 
     if (parameter.Ключевой !== undefined) {
@@ -27,4 +27,4 @@ export const importFormParametersFromEnterprise = (
   })
 }
 
-registerTypeRule("FormParameters", "importFromEnterprise", importFormParametersFromEnterprise)
+registerTypeRule("FormParameters", "importFromYAML", importFormParametersFromYAML)

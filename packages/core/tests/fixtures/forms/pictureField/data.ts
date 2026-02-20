@@ -1,7 +1,7 @@
 import {
   PictureField,
-  PictureFieldPartialEnterprise,
-  PictureFieldTypedEnterprise,
+  PictureFieldPartialYAML,
+  PictureFieldTypedYAML,
 } from "~/metadata/forms/elements/pictureField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -115,7 +115,7 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
   },
 }
 
-export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = {
+export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
@@ -189,8 +189,8 @@ export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = 
   },
 }
 
-export const fullPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
-  ...fullPictureFieldPartialEnterprise,
+export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {
+  ...fullPictureFieldPartialYAML,
   Тип: "ПолеРисунка",
   Заголовок: "Поле картинки",
 }
@@ -200,8 +200,8 @@ export const minimalPictureField: PictureField = {
   name: "ПолеКартинки",
 }
 
-export const minimalPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = {}
+export const minimalPictureFieldPartialYAML: PictureFieldPartialYAML = {}
 
-export const minimalPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
+export const minimalPictureFieldTypedYAML: PictureFieldTypedYAML = {
   Тип: "ПолеРисунка",
 }

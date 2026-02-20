@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest"
-import { multiple, multipleEnterprise, single, singleEnterprise } from "~/tests/fixtures/metadataValueCollection/data"
+import { multiple, multipleYAML, single, singleYAML } from "~/tests/fixtures/metadataValueCollection/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataValueCollectionFromEnterprise } from "./importFromEnterprise"
+import { importMetadataValueCollectionFromYAML } from "./fromYAML"
 
-describe("importMetadataValueCollectionFromEnterprise", () => {
+describe("importMetadataValueCollectionFromYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importMetadataValueCollectionFromEnterprise(mockContext, mockRule, undefined)
+    const result = importMetadataValueCollectionFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when data is empty array", () => {
-    const result = importMetadataValueCollectionFromEnterprise(mockContext, mockRule, [])
+    const result = importMetadataValueCollectionFromYAML(mockContext, mockRule, [])
     expect(result).toBeUndefined()
   })
 
   it("should import with single value", () => {
-    const result = importMetadataValueCollectionFromEnterprise(mockContext, mockRule, singleEnterprise)
+    const result = importMetadataValueCollectionFromYAML(mockContext, mockRule, singleYAML)
 
     expect(result).toEqual(single)
   })
 
   it("should import with multiple values", () => {
-    const result = importMetadataValueCollectionFromEnterprise(mockContext, mockRule, multipleEnterprise)
+    const result = importMetadataValueCollectionFromYAML(mockContext, mockRule, multipleYAML)
 
     expect(result).toEqual(multiple)
   })

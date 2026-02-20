@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fontEnterpriseFixtures } from "~/tests/fixtures/font/data"
+import { fontYAMLFixtures } from "~/tests/fixtures/font/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFontFromXML } from "./importFromXML"
@@ -12,7 +12,7 @@ describe("importFontFromXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(fontEnterpriseFixtures)("should import $name font from XML", ({ font, xml }) => {
+  it.each(fontYAMLFixtures)("should import $name font from XML", ({ font, xml }) => {
     const xmlData = importContentFromXML<{ Font: FontXML }>(xml)
     const result = importFontFromXML(mockContext, mockRule, xmlData.Font)
 

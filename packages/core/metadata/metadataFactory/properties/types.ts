@@ -28,7 +28,7 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   /**
    * Передавать значение в форму в 1С
    */
-  toEnterprise?: false
+  toEnt?: false
   toPartialYAML?: false
   fromXML?: false
   fromYAML?: false
@@ -116,7 +116,7 @@ export interface CleanPropertyRule<T extends MetadataItem | never = never> exten
 
 export interface CustomExportPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type?: never
-  exportToEnterprise: (context: ConfigurationContext, rule: PropertyRule<T>, data: any) => any
+  exportToYAML: (context: ConfigurationContext, rule: PropertyRule<T>, data: any) => any
 }
 
 export type PropertyRule<T extends MetadataItem | never = never> =

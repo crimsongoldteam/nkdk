@@ -3,7 +3,7 @@ import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/meta
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { AllChildItem, AllChildItemsPartialEnterprise, TypedElement } from "./types"
+import { AllChildItem, AllChildItemsPartialYAML, TypedElement } from "./types"
 
 export const importChildItemsFromPartialYAML = <To extends AllChildItem>(
   context: ConfigurationContext,
@@ -20,7 +20,7 @@ export const importChildItemsFromPartialYAML = <To extends AllChildItem>(
   })
 }
 
-export const importChildItemsTypedFromEnterprise = <To extends TypedElement>(
+export const importChildItemsTypedFromYAML = <To extends TypedElement>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   allProperties?: Record<string, ToTypedYAML<To>>
@@ -42,18 +42,18 @@ export const importChildItemsTypedFromEnterprise = <To extends TypedElement>(
 const importChildItemProperties = <To extends AllChildItem>(
   context: ConfigurationContext,
   item: To,
-  allProperties: AllChildItemsPartialEnterprise
+  allProperties: AllChildItemsPartialYAML
 ): To => {
-  const propertiesEnterprise = allProperties[item.name]
+  const propertiesYAML = allProperties[item.name]
 
   const result = importElementFromPartialYAML({
     context: context,
     itemType: item.itemType,
-    yaml: propertiesEnterprise as ToYAML<To> | undefined,
+    yaml: propertiesYAML as ToYAML<To> | undefined,
     source: item,
   })!
 
   return result as To
 }
 
-registerTypeRule("ChildItems", "importFromEnterprise", importChildItemsTypedFromEnterprise)
+registerTypeRule("ChildItems", "importFromYAML", importChildItemsTypedFromYAML)

@@ -1,4 +1,4 @@
-import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
+import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
 
 // #region normalMinimalFont
 
@@ -7,7 +7,7 @@ export const normalMinimalFont: Font = {
   kind: "Absolute",
 }
 
-export const normalMinimalFontEnterprise: FontEnterprise = "Academy Engraved LET"
+export const normalMinimalFontYAML: FontYAML = "Academy Engraved LET"
 
 // #endregion
 
@@ -18,7 +18,7 @@ export const systemMinimalFont: Font = {
   kind: "WindowsFont",
 }
 
-export const systemMinimalFontEnterprise: FontEnterprise = "ANSIШрифтМоноширинный"
+export const systemMinimalFontYAML: FontYAML = "ANSIШрифтМоноширинный"
 
 // #endregion
 
@@ -29,7 +29,7 @@ export const styleMinimalFont: Font = {
   kind: "StyleItem",
 }
 
-export const styleMinimalFontEnterprise: FontEnterprise = "ОченьКрупныйШрифтТекста"
+export const styleMinimalFontYAML: FontYAML = "ОченьКрупныйШрифтТекста"
 
 // #endregion
 
@@ -47,7 +47,7 @@ export const styleFullFont: Font = {
   scale: 200,
 }
 
-export const styleFullFontEnterprise: FontEnterprise = {
+export const styleFullFontYAML: FontYAML = {
   Имя: "Times New Roman",
   Размер: 20,
   Масштаб: 200,
@@ -73,7 +73,7 @@ export const normalFullFont: Font = {
   scale: 200,
 }
 
-export const normalFullFontEnterprise: FontEnterprise = {
+export const normalFullFontYAML: FontYAML = {
   Имя: "Times New Roman",
   Размер: 20,
   Масштаб: 200,
@@ -97,7 +97,7 @@ export const systemFullFont: Font = {
   scale: 200,
 }
 
-export const systemFullFontEnterprise: FontEnterprise = {
+export const systemFullFontYAML: FontYAML = {
   Имя: "Times New Roman",
   Размер: 20,
   Масштаб: 200,
@@ -110,41 +110,41 @@ export const systemFullFontEnterprise: FontEnterprise = {
 
 // #endregion
 
-interface FontEnterpriseFixture {
+interface FontYAMLFixture {
   name: string
   xml: string
   font: Font
-  enterprise: FontEnterprise
+  enterprise: FontYAML
   preview: FontPreview
 }
 
-export const fontEnterpriseFixtures: FontEnterpriseFixture[] = [
+export const fontYAMLFixtures: FontYAMLFixture[] = [
   {
     name: "faceName",
     xml: `<Font faceName="Academy Engraved LET" kind="Absolute"/>`,
     font: normalMinimalFont,
-    enterprise: normalMinimalFontEnterprise,
+    enterprise: normalMinimalFontYAML,
     preview: { Type: "Font", Name: "Academy Engraved LET" },
   },
   {
     name: "system minimal",
     xml: `<Font ref="sys:ANSIFixedFont" kind="WindowsFont"/>`,
     font: systemMinimalFont,
-    enterprise: systemMinimalFontEnterprise,
+    enterprise: systemMinimalFontYAML,
     preview: { Type: "Font", Value: "WindowsFonts.ANSIFixedFont" },
   },
   {
     name: "style minimal",
     xml: `<Font ref="style:ExtraLargeTextFont" kind="StyleItem"/>`,
     font: styleMinimalFont,
-    enterprise: styleMinimalFontEnterprise,
+    enterprise: styleMinimalFontYAML,
     preview: { Type: "Font", Value: "StyleFonts.ExtraLargeTextFont" },
   },
   {
     name: "style full",
     xml: `<Font ref="style:LargeTextFont" faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="StyleItem" scale="200"/>`,
     font: styleFullFont,
-    enterprise: styleFullFontEnterprise,
+    enterprise: styleFullFontYAML,
     preview: {
       Type: "Font",
       Value: "StyleFonts.LargeTextFont",
@@ -161,7 +161,7 @@ export const fontEnterpriseFixtures: FontEnterpriseFixture[] = [
     name: "normal full",
     xml: `<Font faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="Absolute" scale="200"/>`,
     font: normalFullFont,
-    enterprise: normalFullFontEnterprise,
+    enterprise: normalFullFontYAML,
     preview: {
       Type: "Font",
       Name: "Times New Roman",
@@ -177,7 +177,7 @@ export const fontEnterpriseFixtures: FontEnterpriseFixture[] = [
     name: "system full",
     xml: `<Font ref="sys:SystemFont" faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont" scale="200"/>`,
     font: systemFullFont,
-    enterprise: systemFullFontEnterprise,
+    enterprise: systemFullFontYAML,
     preview: {
       Type: "Font",
       Value: "WindowsFonts.SystemFont",

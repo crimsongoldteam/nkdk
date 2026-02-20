@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullChartField,
-  fullChartFieldPartialEnterprise,
+  fullChartFieldPartialYAML,
   minimalChartField,
-  minimalChartFieldPartialEnterprise,
+  minimalChartFieldPartialYAML,
 } from "~/tests/fixtures/forms/chartField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importChartFieldFromEnterprise", () => {
-  describe("importChartFieldPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importChartFieldFromYAML", () => {
+  describe("importChartFieldPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.ChartField,
-        yaml: fullChartFieldPartialEnterprise,
+        yaml: fullChartFieldPartialYAML,
         source: fullChartField,
       })
 
@@ -25,7 +25,7 @@ describe("importChartFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.ChartField,
-        yaml: minimalChartFieldPartialEnterprise,
+        yaml: minimalChartFieldPartialYAML,
         source: minimalChartField,
       })
 

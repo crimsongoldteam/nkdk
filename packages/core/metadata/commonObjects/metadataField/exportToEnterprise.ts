@@ -1,27 +1,27 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataFieldStringToEnterprise as exportMetadataFieldToEnterprisePath } from "../metadataPath/exportToEnterprise"
-import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
+import { exportMetadataFieldStringToYAML as exportMetadataFieldToYAMLPath } from "../metadataPath/toYAML"
+import { MetadataField, MetadataFieldYAML, MetadataFields, MetadataFieldsYAML } from "./types"
 
-export const exportMetadataFieldsToEnterprise = (
+export const exportMetadataFieldsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataFields | undefined
-): MetadataFieldsEnterprise | undefined => {
+): MetadataFieldsYAML | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataFieldToEnterprise(context, undefined, item)!)
+  return data.map((item) => exportMetadataFieldToYAML(context, undefined, item)!)
 }
 
-export const exportMetadataFieldToEnterprise = (
+export const exportMetadataFieldToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataField | undefined
-): MetadataFieldEnterprise | undefined => {
+): MetadataFieldYAML | undefined => {
   if (!data) return undefined
 
-  return exportMetadataFieldToEnterprisePath(context, undefined, data)
+  return exportMetadataFieldToYAMLPath(context, undefined, data)
 }
 
-registerTypeRule("MetadataField", "exportToEnterprise", exportMetadataFieldsToEnterprise)
+registerTypeRule("MetadataField", "exportToYAML", exportMetadataFieldsToYAML)

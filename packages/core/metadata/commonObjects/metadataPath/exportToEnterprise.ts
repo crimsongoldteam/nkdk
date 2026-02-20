@@ -1,21 +1,21 @@
 import { Context } from "vm"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { convertPath } from "./helper"
-import { MetadataFieldsRulesToEnterprise, MetadataValuesRulesToEnterprise } from "./types"
+import { MetadataFieldsRulesToYAML, MetadataValuesRulesToYAML } from "./types"
 
-// export const exportMetadataTypeStringToEnterprise = (_context: Context, name: string): string | undefined => {
-//   return convertPath(MetadataTypesRulesToEnterprise, name)
+// export const exportMetadataTypeStringToYAML = (_context: Context, name: string): string | undefined => {
+//   return convertPath(MetadataTypesRulesToYAML, name)
 // }
 
-export const exportMetadataFieldStringToEnterprise = (
+export const exportMetadataFieldStringToYAML = (
   _context: Context,
   _rule: PropertyRule<any> | undefined,
   name: string
 ): string | undefined => {
-  return convertPath(MetadataFieldsRulesToEnterprise, name)
+  return convertPath(MetadataFieldsRulesToYAML, name)
 }
 
-export const exportMetadataValueStringToEnterprise = (
+export const exportMetadataValueStringToYAML = (
   _context: Context,
   _rule: PropertyRule<any> | undefined,
   name: string | undefined
@@ -28,5 +28,5 @@ export const exportMetadataValueStringToEnterprise = (
     processedPath = filteredParts.join(".")
   }
 
-  return convertPath(MetadataValuesRulesToEnterprise, processedPath)
+  return convertPath(MetadataValuesRulesToYAML, processedPath)
 }

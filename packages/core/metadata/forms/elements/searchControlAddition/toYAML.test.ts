@@ -3,9 +3,9 @@ import { exportElementToPartialYAML, exportPropertyToYAML } from "~/metadata/met
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import {
   fullSearchControlAddition,
-  fullSearchControlAdditionEnterprise,
+  fullSearchControlAdditionYAML,
   fullSingleSearchControlAddition,
-  fullSingleSearchControlAdditionEnterprise,
+  fullSingleSearchControlAdditionYAML,
   minimalSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
@@ -35,18 +35,18 @@ describe("SearchControlAddition to YAML", () => {
         value: fullSingleSearchControlAddition,
       })
 
-      expect(result).toHaveProperty("УправлениеПоиском", fullSingleSearchControlAdditionEnterprise)
+      expect(result).toHaveProperty("УправлениеПоиском", fullSingleSearchControlAdditionYAML)
     })
   })
 
   describe("Partial to YAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({
         context: mockContext,
         element: fullSearchControlAddition,
       })
 
-      expect(result).toEqual(fullSearchControlAdditionEnterprise)
+      expect(result).toEqual(fullSearchControlAdditionYAML)
     })
 
     it("should export minimal", () => {

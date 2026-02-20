@@ -4,4 +4,4 @@ export interface FieldsListXML {
   Field: string | string[]
 }
 
-export type FieldsListEnterprise = string[]
+export type FieldsListYAML = string[]

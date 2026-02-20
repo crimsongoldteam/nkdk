@@ -1,4 +1,4 @@
-import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
 
 export const fullViewStatusAddition: Required<ViewStatusAddition> = {
   itemType: "ViewStatusAddition",
@@ -35,7 +35,7 @@ export const fullViewStatusAddition: Required<ViewStatusAddition> = {
   },
 }
 
-export const fullViewStatusAdditionEnterprise: Required<ViewStatusAdditionEnterprise> = {
+export const fullViewStatusAdditionYAML: Required<ViewStatusAdditionYAML> = {
   АвтоМаксимальнаяШирина: "Истина",
   ГоризонтальноеПоложение: "Лево",
   МаксимальнаяШирина: 500,
@@ -58,4 +58,4 @@ export const fullViewStatusAdditionEnterprise: Required<ViewStatusAdditionEnterp
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
 }
 
-export const minimalViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {}
+export const minimalViewStatusAdditionYAML: ViewStatusAdditionYAML = {}

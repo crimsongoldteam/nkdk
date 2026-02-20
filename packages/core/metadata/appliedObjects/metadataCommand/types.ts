@@ -1,14 +1,14 @@
 import { tags } from "typia"
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import {
   TypeDescription,
-  TypeDescriptionEnterprise,
   TypeDescriptionXML,
+  TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataItemLink, MetadataItemLinkEnterprise } from "../../commonObjects/metadataRef/types"
+import { MetadataItemLink, MetadataItemLinkYAML } from "../../commonObjects/metadataRef/types"
 
 export interface MetadataCommand {
   commandParameterType?: TypeDescription
@@ -45,27 +45,27 @@ export interface MetadataCommandXML {
   }
 }
 
-export type MetadataCommandGroupEnterprise = SE.StandardCommandsGroupEnterprise | MetadataItemLinkEnterprise
+export type MetadataCommandGroupYAML = SE.StandardCommandsGroupYAML | MetadataItemLinkYAML
 
-export interface MetadataCommandFullEnterprise {
-  Группа?: MetadataCommandGroupEnterprise
-  ИзменяетДанные?: StringboolEnterprise
-  Картинка?: PictureEnterprise
+export interface MetadataCommandFullYAML {
+  Группа?: MetadataCommandGroupYAML
+  ИзменяетДанные?: StringboolYAML
+  Картинка?: PictureYAML
   Комментарий?: string
-  Отображение?: SE.ButtonRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  РежимИспользованияПараметра?: SE.CommandParameterUseModeEnterprise
-  Синоним?: I8nTextEnterprise
+  Отображение?: SE.ButtonRepresentationYAML
+  Подсказка?: I8nTextYAML
+  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
+  РежимИспользованияПараметра?: SE.CommandParameterUseModeYAML
+  Синоним?: I8nTextYAML
   СочетаниеКлавиш?: string
-  ТипПараметраКоманды?: TypeDescriptionEnterprise
-  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
+  ТипПараметраКоманды?: TypeDescriptionYAML
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorYAML
 }
 
-export type MetadataCommandEnterprise = MetadataCommandFullEnterprise | MetadataCommandGroupEnterprise
+export type MetadataCommandYAML = MetadataCommandFullYAML | MetadataCommandGroupYAML
 
 export type MetadataCommands = MetadataCommand[]
 
 export type MetadataCommandsXML = MetadataCommandXML | MetadataCommandXML[]
 
-export type MetadataCommandsEnterprise = Record<string, MetadataCommandEnterprise>
+export type MetadataCommandsYAML = Record<string, MetadataCommandYAML>

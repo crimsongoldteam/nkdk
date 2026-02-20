@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullGraphicalSchemaField,
-  fullGraphicalSchemaFieldPartialEnterprise,
+  fullGraphicalSchemaFieldPartialYAML,
   minimalGraphicalSchemaField,
-  minimalGraphicalSchemaFieldPartialEnterprise,
+  minimalGraphicalSchemaFieldPartialYAML,
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importGraphicalSchemaFieldFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importGraphicalSchemaFieldFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.GraphicalSchemaField,
-      yaml: fullGraphicalSchemaFieldPartialEnterprise,
+      yaml: fullGraphicalSchemaFieldPartialYAML,
       source: fullGraphicalSchemaField,
     })
 
@@ -24,7 +24,7 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.GraphicalSchemaField,
-      yaml: minimalGraphicalSchemaFieldPartialEnterprise,
+      yaml: minimalGraphicalSchemaFieldPartialYAML,
       source: minimalGraphicalSchemaField,
     })
 

@@ -1,21 +1,21 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValue, MetadataValueEnterprise, MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValue, MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
 import {
   TypeDescription,
-  TypeDescriptionEnterprise,
   TypeDescriptionXML,
+  TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
+import { TypeLink, TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import {
   ChoiceParameterLinks,
-  ChoiceParameterLinksEnterprise,
   ChoiceParameterLinksXML,
+  ChoiceParameterLinksYAML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameters/types"
+import { ChoiceParameters, ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
 
-export const StandartAttributeNameToEnterprise = {
+export const StandartAttributeNameToYAML = {
   Owner: "Владелец",
   PredefinedDataName: "ИмяПредопределенныхДанных",
   Code: "Код",
@@ -31,17 +31,16 @@ export const StandartAttributeNameToEnterprise = {
   Period: "Период",
 } as const
 
-export const StandartAttributeNameFromEnterprise = (name: string): StandartAttributeName => {
-  return Object.keys(StandartAttributeNameToEnterprise).find(
-    (key) => StandartAttributeNameToEnterprise[key as StandartAttributeName] === name
+export const StandartAttributeNameFromYAML = (name: string): StandartAttributeName => {
+  return Object.keys(StandartAttributeNameToYAML).find(
+    (key) => StandartAttributeNameToYAML[key as StandartAttributeName] === name
   ) as StandartAttributeName
 }
 
-export type StandartAttributeName = keyof typeof StandartAttributeNameToEnterprise
-export type StandartAttributeEnterprise =
-  (typeof StandartAttributeNameToEnterprise)[keyof typeof StandartAttributeNameToEnterprise]
+export type StandartAttributeName = keyof typeof StandartAttributeNameToYAML
+export type StandartAttributeYAML = (typeof StandartAttributeNameToYAML)[keyof typeof StandartAttributeNameToYAML]
 
-// export const PredefinedNameToEnterprise
+// export const PredefinedNameToYAML
 
 export interface StandardAttributeDescription {
   choiceForm?: string
@@ -103,39 +102,37 @@ export interface StandardAttributeDescriptionXML {
   "xr:TypeReductionMode"?: SE.TypeReductionMode
 }
 
-export interface StandardAttributeDescriptionEnterprise {
-  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
-  ВыделятьОтрицательные?: StringboolEnterprise
-  ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
-  ЗначениеЗаполнения?: MetadataValueEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
+export interface StandardAttributeDescriptionYAML {
+  БыстрыйВыбор?: SE.UseQuickChoiceYAML
+  ВыделятьОтрицательные?: StringboolYAML
+  ЗаполнятьИзДанныхЗаполнения?: StringboolYAML
+  ЗначениеЗаполнения?: MetadataValueYAML
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputYAML
+  ИсторияДанных?: SE.DataHistoryUseYAML
   Комментарий?: string
   МаксимальноеЗначение?: number
   Маска?: string
   МинимальноеЗначение?: number
-  МногострочныйРежим?: StringboolEnterprise
-  ПараметрыВыбора?: ChoiceParametersEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
-  РасширенноеРедактирование?: StringboolEnterprise
-  РежимПароля?: StringboolEnterprise
-  РежимСокращенияТипа?: SE.TypeReductionModeEnterprise
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
-  СвязьПоТипу?: TypeLinkEnterprise
-  Синоним?: I8nTextEnterprise
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  Тип?: TypeDescriptionEnterprise
+  МногострочныйРежим?: StringboolYAML
+  ПараметрыВыбора?: ChoiceParametersYAML
+  Подсказка?: I8nTextYAML
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
+  ПроверкаЗаполнения?: SE.FillCheckingYAML
+  РасширенноеРедактирование?: StringboolYAML
+  РежимПароля?: StringboolYAML
+  РежимСокращенияТипа?: SE.TypeReductionModeYAML
+  СвязиПараметровВыбора?: ChoiceParameterLinksYAML
+  СвязьПоТипу?: TypeLinkYAML
+  Синоним?: I8nTextYAML
+  СозданиеПриВводе?: SE.CreateOnInputYAML
+  Тип?: TypeDescriptionYAML
   ФормаВыбора?: string
-  Формат?: I8nTextEnterprise
-  ФорматРедактирования?: I8nTextEnterprise
+  Формат?: I8nTextYAML
+  ФорматРедактирования?: I8nTextYAML
 }
 
 export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
-export type StandardAttributeDescriptionsEnterprise = Partial<
-  Record<StandartAttributeEnterprise, StandardAttributeDescriptionEnterprise>
->
+export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>

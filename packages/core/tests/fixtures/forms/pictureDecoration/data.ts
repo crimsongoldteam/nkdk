@@ -1,7 +1,4 @@
-import {
-  PictureDecoration,
-  PictureDecorationPartialEnterprise,
-} from "~/metadata/forms/elements/pictureDecoration/types"
+import { PictureDecoration, PictureDecorationPartialYAML } from "~/metadata/forms/elements/pictureDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -74,8 +71,8 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   },
 }
 
-export const fullPictureDecorationPartialEnterprise: Required<
-  Omit<PictureDecorationPartialEnterprise, "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование">
+export const fullPictureDecorationPartialYAML: Required<
+  Omit<PictureDecorationPartialYAML, "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование">
 > = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -129,7 +126,7 @@ export const minimalPictureDecoration: PictureDecoration = {
   name: "ДекорацияКартинки",
 }
 
-export const minimalPictureDecorationPartialEnterprise: PictureDecorationPartialEnterprise = {}
+export const minimalPictureDecorationPartialYAML: PictureDecorationPartialYAML = {}
 
 export interface PictureDecorationStructureFixture {
   name: string

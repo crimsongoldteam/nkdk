@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullProgressBarField,
-  fullProgressBarFieldPartialEnterprise,
+  fullProgressBarFieldPartialYAML,
   minimalProgressBarField,
-  minimalProgressBarFieldPartialEnterprise,
+  minimalProgressBarFieldPartialYAML,
 } from "~/tests/fixtures/forms/progressBarField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importProgressBarFieldFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importProgressBarFieldFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.ProgressBarField,
-      yaml: fullProgressBarFieldPartialEnterprise,
+      yaml: fullProgressBarFieldPartialYAML,
       source: fullProgressBarField,
     })
 
@@ -24,7 +24,7 @@ describe("importProgressBarFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.ProgressBarField,
-      yaml: minimalProgressBarFieldPartialEnterprise,
+      yaml: minimalProgressBarFieldPartialYAML,
       source: minimalProgressBarField,
     })
 

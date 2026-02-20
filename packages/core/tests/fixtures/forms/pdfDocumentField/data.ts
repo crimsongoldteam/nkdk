@@ -1,4 +1,4 @@
-import { PdfDocumentField, PdfDocumentFieldPartialEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
+import { PdfDocumentField, PdfDocumentFieldPartialYAML } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -97,7 +97,7 @@ export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
   },
 }
 
-export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnterprise = {
+export const fullPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -168,4 +168,4 @@ export const minimalPdfDocumentField: PdfDocumentField = {
   name: "ПолеPDFДокумента",
 }
 
-export const minimalPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnterprise = {}
+export const minimalPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {}

@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullGeographicalSchemaField,
-  fullGeographicalSchemaFieldPartialEnterprise,
+  fullGeographicalSchemaFieldPartialYAML,
   minimalGeographicalSchemaField,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportGeographicalSchemaFieldToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportGeographicalSchemaFieldToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullGeographicalSchemaField })
 
-    expect(result).toEqual(fullGeographicalSchemaFieldPartialEnterprise)
+    expect(result).toEqual(fullGeographicalSchemaFieldPartialYAML)
   })
 
   it("should export minimal", () => {

@@ -1,7 +1,7 @@
 import {
   TypeDescription,
-  TypeDescriptionEnterprise,
   TypeDescriptionXML,
+  TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
 
 export interface FormParameter {
@@ -20,9 +20,9 @@ export interface FormParameterXML {
 
 export type FormParametersXML = FormParameterXML | FormParameterXML[]
 
-export interface FormParameterEnterprise {
-  Тип: TypeDescriptionEnterprise
+export interface FormParameterYAML {
+  Тип: TypeDescriptionYAML
   Ключевой?: boolean
 }
 
-export type FormParametersEnterprise = Record<string, FormParameterEnterprise>
+export type FormParametersYAML = Record<string, FormParameterYAML>

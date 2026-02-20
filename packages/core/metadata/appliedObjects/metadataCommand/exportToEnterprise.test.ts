@@ -1,26 +1,26 @@
 import { describe, expect, it } from "vitest"
 import {
   fullMetadataCommands,
-  fullMetadataCommandsEnterprise,
+  fullMetadataCommandsYAML,
   minimalMetadataCommands,
 } from "~/tests/fixtures/metadataCommand/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportMetadataCommandsToEnterprise } from "./exportToEnterprise"
+import { exportMetadataCommandsToYAML } from "./toYAML"
 
-describe("exportMetadataCommandToEnterprise", () => {
+describe("exportMetadataCommandToYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportMetadataCommandsToEnterprise(mockContext, mockRule, undefined)
+    const result = exportMetadataCommandsToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const result = exportMetadataCommandsToEnterprise(mockContext, mockRule, fullMetadataCommands)
+    const result = exportMetadataCommandsToYAML(mockContext, mockRule, fullMetadataCommands)
 
-    expect(result).toEqual(fullMetadataCommandsEnterprise)
+    expect(result).toEqual(fullMetadataCommandsYAML)
   })
 
   it("should export minimal", () => {
-    const result = exportMetadataCommandsToEnterprise(mockContext, mockRule, minimalMetadataCommands)
+    const result = exportMetadataCommandsToYAML(mockContext, mockRule, minimalMetadataCommands)
 
     expect(result).toEqual({
       Глоссарий: {

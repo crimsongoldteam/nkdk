@@ -26,10 +26,10 @@ export interface ChoiceParameterLinksXML {
 
 //#endregion
 
-//#region ChoiceParameterLinkEnterprise
+//#region ChoiceParameterLinkYAML
 
-export type ChoiceParameterLinkEnterprise = string
+export type ChoiceParameterLinkYAML = string
 
-export type ChoiceParameterLinksEnterprise = string
+export type ChoiceParameterLinksYAML = string
 
 //#endregion

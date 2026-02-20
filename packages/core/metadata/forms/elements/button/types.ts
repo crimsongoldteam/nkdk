@@ -1,12 +1,12 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElementPropsEnterprise, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { BaseElementPropsYAML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface Button extends NamedElement {
   itemType: "Button"
@@ -50,49 +50,49 @@ export interface Button extends NamedElement {
   width?: number
 }
 
-export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormButtonTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface ButtonPartialYAML extends BaseElementPropsYAML {
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormButtonTypeYAML
+  Видимость?: StringboolYAML
   Высота?: number
   ВысотаЗаголовка?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
   ИмяКоманды?: string
-  Картинка?: PictureEnterprise
-  КнопкаПоУмолчанию?: StringboolEnterprise
+  Картинка?: PictureYAML
+  КнопкаПоУмолчанию?: StringboolYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Отображение?: SE.ButtonRepresentationEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-  ОтображениеВКонтекстномМеню?: SE.ButtonLocationInContextMenuEnterprise
-  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
-  ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
-  ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  Пометка?: StringboolEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  ТолькоВоВсехДействиях?: StringboolEnterprise
-  УникальностьКоманды?: StringboolEnterprise
-  Фигура?: SE.ButtonShapeEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
+  Отображение?: SE.ButtonRepresentationYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеФигуры?: SE.ButtonShapeRepresentationYAML
+  ОтображениеВКонтекстномМеню?: SE.ButtonLocationInContextMenuYAML
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorYAML
+  ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarYAML
+  ПоложениеКартинки?: SE.FormButtonPictureLocationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  Пометка?: StringboolYAML
+  ПропускатьПриВводе?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  ТолькоВоВсехДействиях?: StringboolYAML
+  УникальностьКоманды?: StringboolYAML
+  Фигура?: SE.ButtonShapeYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветФона?: ColorYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
+  Шрифт?: FontYAML
 }
 
-export interface ButtonTypedEnterprise extends ButtonPartialEnterprise {
+export interface ButtonTypedYAML extends ButtonPartialYAML {
   Тип: "Кнопка"
 }
 

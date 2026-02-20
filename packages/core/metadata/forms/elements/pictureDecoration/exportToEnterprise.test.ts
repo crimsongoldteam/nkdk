@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullPictureDecoration,
-  fullPictureDecorationPartialEnterprise,
+  fullPictureDecorationPartialYAML,
   minimalPictureDecoration,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportPictureDecorationPartialToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportPictureDecorationPartialToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullPictureDecoration })
 
-    expect(result).toEqual(fullPictureDecorationPartialEnterprise)
+    expect(result).toEqual(fullPictureDecorationPartialYAML)
   })
 
   it("should export minimal", () => {

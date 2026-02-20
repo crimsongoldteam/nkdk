@@ -3,9 +3,9 @@ import { exportElementToPartialYAML, exportPropertyToYAML } from "~/metadata/met
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import {
   fullSearchStringAddition,
-  fullSearchStringAdditionEnterprise,
+  fullSearchStringAdditionYAML,
   fullSingleSearchStringAddition,
-  fullSingleSearchStringAdditionEnterprise,
+  fullSingleSearchStringAdditionYAML,
   minimalSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockContext } from "~/tests/mockContext"
@@ -34,18 +34,18 @@ describe("SearchStringAddition to YAML", () => {
         value: fullSingleSearchStringAddition,
       })
 
-      expect(result).toHaveProperty("ОтображениеСтрокиПоиска", fullSingleSearchStringAdditionEnterprise)
+      expect(result).toHaveProperty("ОтображениеСтрокиПоиска", fullSingleSearchStringAdditionYAML)
     })
   })
 
   describe("Partial to YAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({
         context: mockContext,
         element: fullSearchStringAddition,
       })
 
-      expect(result).toEqual(fullSearchStringAdditionEnterprise)
+      expect(result).toEqual(fullSearchStringAdditionYAML)
     })
 
     it("should export minimal", () => {

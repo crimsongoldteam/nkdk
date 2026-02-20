@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullHtmlDocumentField,
-  fullHtmlDocumentFieldPartialEnterprise,
+  fullHtmlDocumentFieldPartialYAML,
   minimalHtmlDocumentField,
 } from "~/tests/fixtures/forms/htmlDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportHTMLDocumentFieldToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportHTMLDocumentFieldToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullHtmlDocumentField })
 
-    expect(result).toEqual(fullHtmlDocumentFieldPartialEnterprise)
+    expect(result).toEqual(fullHtmlDocumentFieldPartialYAML)
   })
 
   it("should export minimal", () => {

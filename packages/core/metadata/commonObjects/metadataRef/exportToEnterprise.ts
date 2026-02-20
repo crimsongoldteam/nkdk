@@ -1,27 +1,27 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataFieldStringToEnterprise } from "../metadataPath/exportToEnterprise"
-import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
+import { exportMetadataFieldStringToYAML } from "../metadataPath/toYAML"
+import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
-export const exportMetadataItemLinkToEnterprise = (
+export const exportMetadataItemLinkToYAML = (
   context: ConfigurationContext,
   rule: PropertyRule<any> | undefined,
   data: MetadataItemLink | undefined
-): MetadataItemLinkEnterprise | undefined => {
+): MetadataItemLinkYAML | undefined => {
   if (!data) return undefined
 
-  return exportMetadataFieldStringToEnterprise(context, rule, data)
+  return exportMetadataFieldStringToYAML(context, rule, data)
 }
 
-export const exportMetadataItemLinksToEnterprise = (
+export const exportMetadataItemLinksToYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataItemLinks | undefined
-): MetadataItemLinksEnterprise | undefined => {
+): MetadataItemLinksYAML | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataItemLinkToEnterprise(_context, undefined, item)!)
+  return data.map((item) => exportMetadataItemLinkToYAML(_context, undefined, item)!)
 }
 
-registerTypeRule("MetadataItemLinks", "exportToEnterprise", exportMetadataItemLinksToEnterprise)
+registerTypeRule("MetadataItemLinks", "exportToYAML", exportMetadataItemLinksToYAML)

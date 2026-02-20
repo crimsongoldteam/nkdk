@@ -2,20 +2,20 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { getTypeFromEnterprise } from "./helper"
+import { getTypeFromYAML } from "./helper"
 import {
-  PrimitiveTypeFromEnterprise,
+  PrimitiveTypeFromYAML,
   TypeDescription,
   TypeDescriptionDateQualifiers,
-  TypeDescriptionEnterprise,
   TypeDescriptionNumberQualifiers,
   TypeDescriptionStringQualifiers,
+  TypeDescriptionYAML,
 } from "./types"
 
-export const importTypeDescriptionFromEnterprise = (
+export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  value: TypeDescriptionEnterprise | undefined
+  value: TypeDescriptionYAML | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {
     return undefined
@@ -38,7 +38,7 @@ export const importTypeDescriptionFromEnterprise = (
     const parameters = parsed.parameters
 
     if (type === "Строка" || type === "ФиксированнаяСтрока") {
-      const primitiveType = PrimitiveTypeFromEnterprise("Строка")
+      const primitiveType = PrimitiveTypeFromYAML("Строка")
       types.push(primitiveType)
       const stringQualifiers = getStringQualifiers(parameters, type)
       if (stringQualifiers) {
@@ -48,7 +48,7 @@ export const importTypeDescriptionFromEnterprise = (
     }
 
     if (type === "Число" || type === "ПоложительноеЧисло") {
-      const primitiveType = PrimitiveTypeFromEnterprise("Число")
+      const primitiveType = PrimitiveTypeFromYAML("Число")
       types.push(primitiveType)
       const numberQualifiers = getNumberQualifiers(parameters, type)
       if (numberQualifiers) {
@@ -65,7 +65,7 @@ export const importTypeDescriptionFromEnterprise = (
     }
 
     if (type === "Булево") {
-      const primitiveType = PrimitiveTypeFromEnterprise("Булево")
+      const primitiveType = PrimitiveTypeFromYAML("Булево")
       types.push(primitiveType)
       continue
     }
@@ -75,7 +75,7 @@ export const importTypeDescriptionFromEnterprise = (
     const baseType = isComplex ? type.substring(0, dotIndex) : type
     const detailType = isComplex ? type.substring(dotIndex + 1) : undefined
 
-    const metadataType = getTypeFromEnterprise(baseType)
+    const metadataType = getTypeFromYAML(baseType)
     if (metadataType) {
       if (isComplex) {
         types.push(`${metadataType}.${detailType}`)
@@ -145,4 +145,4 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers | undefi
   return { dateFractions: "Date" }
 }
 
-registerTypeRule("TypeDescription", "importFromEnterprise", importTypeDescriptionFromEnterprise)
+registerTypeRule("TypeDescription", "importFromYAML", importTypeDescriptionFromYAML)

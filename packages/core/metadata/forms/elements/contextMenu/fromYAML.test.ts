@@ -2,20 +2,20 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullContextMenu,
-  fullContextMenuEnterprise,
+  fullContextMenuYAML,
   minimalContextMenu,
-  minimalContextMenuEnterprise,
+  minimalContextMenuYAML,
 } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule<any> = { type: "ContextMenu" }
 
-describe("importContextMenuFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importContextMenuFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
-      value: fullContextMenuEnterprise,
+      value: fullContextMenuYAML,
       sourceValue: fullContextMenu,
     })
 
@@ -26,7 +26,7 @@ describe("importContextMenuFromEnterprise", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
-      value: minimalContextMenuEnterprise,
+      value: minimalContextMenuYAML,
       sourceValue: minimalContextMenu,
     })
 

@@ -186,7 +186,7 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "Картинка",
     prefix: "v8ui",
   },
-  // Enterprise namespace (no xmlns in XML)
+  // YAML namespace (no xmlns in XML)
   AccumulationRecordType: {
     enterprise: "ВидДвиженияНакопления",
     prefix: "ent",
@@ -448,7 +448,7 @@ export const TypeDescriptionPrefixes = Object.fromEntries(
   Object.values(TypeDescriptionRules).map((settings) => [settings.prefix, settings.prefix])
 ) as Record<string, string>
 
-export const TypeDescriptionRulesFromEnterprise = Object.fromEntries(
+export const TypeDescriptionRulesFromYAML = Object.fromEntries(
   Object.values(TypeDescriptionRules).map((settings) => [settings.enterprise, settings])
 ) as Record<string, TypeDescriptionRule>
 
@@ -498,7 +498,7 @@ export interface TypeDescriptionDateQualifiers {
   dateFractions?: "Date" | "Time" | "DateTime"
 }
 
-export const PrimitiveTypeToEnterprise = {
+export const PrimitiveTypeToYAML = {
   string: "Строка",
   decimal: "Число",
   date: "Дата",
@@ -506,14 +506,14 @@ export const PrimitiveTypeToEnterprise = {
   ValueStorage: "ХранилищеЗначения",
 } as const
 
-export const PrimitiveTypeFromEnterprise = (name: string): PrimitiveType => {
-  return Object.keys(PrimitiveTypeToEnterprise).find(
-    (key) => PrimitiveTypeToEnterprise[key as keyof typeof PrimitiveTypeToEnterprise] === name
+export const PrimitiveTypeFromYAML = (name: string): PrimitiveType => {
+  return Object.keys(PrimitiveTypeToYAML).find(
+    (key) => PrimitiveTypeToYAML[key as keyof typeof PrimitiveTypeToYAML] === name
   ) as PrimitiveType
 }
 
-export type PrimitiveType = keyof typeof PrimitiveTypeToEnterprise
-export type PrimitiveTypeEnterprise = (typeof PrimitiveTypeToEnterprise)[keyof typeof PrimitiveTypeToEnterprise]
+export type PrimitiveType = keyof typeof PrimitiveTypeToYAML
+export type PrimitiveTypeYAML = (typeof PrimitiveTypeToYAML)[keyof typeof PrimitiveTypeToYAML]
 
 export type TypeDescriptionType = string
 
@@ -524,7 +524,7 @@ export interface TypeDescription {
   dateQualifiers?: TypeDescriptionDateQualifiers
 }
 
-export type TypeDescriptionEnterprise = string | string[]
+export type TypeDescriptionYAML = string | string[]
 
 //#region Preview
 

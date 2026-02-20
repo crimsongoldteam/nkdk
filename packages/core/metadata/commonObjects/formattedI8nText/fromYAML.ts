@@ -5,14 +5,14 @@ import {
   PropertyRule,
   registerTypeRule,
 } from "~/metadata/metadataFactory"
-import { importI8nTextFromYAML } from "../i8nText/importFromEnterprise"
+import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { I8nText } from "../i8nText/types"
-import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
+import { FormattedI8nText, FormattedI8nTextYAML } from "./types"
 
 export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
-  value: FormattedI8nTextEnterprise | undefined
+  value: FormattedI8nTextYAML | undefined
   yaml?: Record<string, any> | undefined
   source?: I8nText | undefined
 }): FormattedI8nText | undefined => {
@@ -45,8 +45,8 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
 const importFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
-  text: FormattedI8nTextEnterprise | undefined,
-  formattedText: FormattedI8nTextEnterprise | undefined
+  text: FormattedI8nTextYAML | undefined,
+  formattedText: FormattedI8nTextYAML | undefined
 ): FormattedI8nText | undefined => {
   if (text === undefined && formattedText === undefined) return undefined
 
@@ -61,4 +61,4 @@ const importFromYAML = (
   return result
 }
 
-registerTypeRule("FormattedI8nText", "importFromEnterprise", importFormattedI8nTextFromYAML)
+registerTypeRule("FormattedI8nText", "importFromYAML", importFormattedI8nTextFromYAML)

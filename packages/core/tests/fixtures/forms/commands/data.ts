@@ -24,7 +24,7 @@ export const fullFormCommands: Required<FormCommand>[] = [
   },
 ]
 
-export const fullFormCommandsEnterprise: FormCommandsYAML = {
+export const fullFormCommandsYAML: FormCommandsYAML = {
   СоставКомплектаПодобратьФайлы: {
     Заголовок: "Файлы",
     Подсказка: "Состав комплекта подобрать файлы",
@@ -46,6 +46,6 @@ export const minimalFormCommands: FormCommand[] = [
   },
 ]
 
-export const minimalFormCommandEnterprise: FormCommandsYAML = {
+export const minimalFormCommandYAML: FormCommandsYAML = {
   СоставКомплектаПодобратьФайлы: {},
 }

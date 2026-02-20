@@ -1,25 +1,25 @@
 import "./tableAdditionalSource/fromXML"
 import "./tableAdditionalSource/toXML"
 
-import "./commandSet/exportToEnterprise"
 import "./commandSet/exportToXML"
-import "./commandSet/importFromEnterprise"
+import "./commandSet/fromYAML"
 import "./commandSet/importFromXML"
+import "./commandSet/toYAML"
 
-import "./commandInterface/exportToEnterprise"
 import "./commandInterface/exportToXML"
-import "./commandInterface/importFromEnterprise"
+import "./commandInterface/fromYAML"
 import "./commandInterface/importFromXML"
+import "./commandInterface/toYAML"
 
-import "./formCommand/exportToEnterprise"
 import "./formCommand/exportToXML"
-import "./formCommand/importFromEnterprise"
+import "./formCommand/fromYAML"
 import "./formCommand/importFromXML"
+import "./formCommand/toYAML"
 
-import "./formParameter/exportToEnterprise"
 import "./formParameter/exportToXML"
-import "./formParameter/importFromEnterprise"
+import "./formParameter/fromYAML"
 import "./formParameter/importFromXML"
+import "./formParameter/toYAML"
 
 import "./formAttribute/fromXML"
 import "./formAttribute/fromYAML"

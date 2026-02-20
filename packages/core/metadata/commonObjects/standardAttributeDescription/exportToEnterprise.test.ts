@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest"
-import { all, allEnterprise, minimal, minimalEnterprise } from "~/tests/fixtures/standartAttributeDescription/data"
+import { all, allYAML, minimal, minimalYAML } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportStandardAttributeDescriptionsToEnterprise } from "./exportToEnterprise"
+import { exportStandardAttributeDescriptionsToYAML } from "./toYAML"
 
-describe("exportStandardAttributeDescriptionToEnterprise", () => {
+describe("exportStandardAttributeDescriptionToYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockContext, mockRule, undefined)
+    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when array is empty", () => {
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockContext, mockRule, [])
+    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, [])
     expect(result).toBeUndefined()
   })
 
   it("should export all parameters to enterprise", () => {
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockContext, mockRule, all)
+    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, all)
 
-    expect(result).toEqual(allEnterprise)
+    expect(result).toEqual(allYAML)
   })
 
   it("should export with only name", () => {
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockContext, mockRule, minimal)
-    expect(result).toEqual(minimalEnterprise)
+    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, minimal)
+    expect(result).toEqual(minimalYAML)
   })
 })

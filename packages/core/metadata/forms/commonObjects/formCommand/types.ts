@@ -1,9 +1,9 @@
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
-import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "~/metadata/systemEnumerations/types"
+import { ButtonRepresentation, CurrentRowUse, CurrentRowUseYAML } from "~/metadata/systemEnumerations/types"
 
 export interface FormCommand extends MetadataItem {
   itemType: "FormCommand"
@@ -40,16 +40,16 @@ export interface FormCommandXML {
 export type FormCommandsXML = FormCommandXML | FormCommandXML[]
 
 export interface FormCommandYAML {
-  Заголовок?: I8nTextEnterprise
-  Подсказка?: I8nTextEnterprise
+  Заголовок?: I8nTextYAML
+  Подсказка?: I8nTextYAML
   СочетаниеКлавиш?: string
-  Картинка?: PictureEnterprise
+  Картинка?: PictureYAML
   Действие?: string
   ОтображениеКнопки?: ButtonRepresentation
-  ИспользованиеТекущейСтроки?: CurrentRowUseEnterprise
+  ИспользованиеТекущейСтроки?: CurrentRowUseYAML
   ИзменяемыеДанные?: boolean
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
   Таблица?: string
 }
 

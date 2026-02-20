@@ -1,4 +1,4 @@
-import { LabelDecoration, LabelDecorationPartialEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
+import { LabelDecoration, LabelDecorationPartialYAML } from "~/metadata/forms/elements/labelDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -63,7 +63,7 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
   },
 }
 
-export const fullLabelDecorationPartialEnterprise: LabelDecorationPartialEnterprise = {
+export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -112,12 +112,11 @@ export const minimalLabelDecoration: LabelDecoration = {
   name: "Заголовок",
 }
 
-export const minimalLabelDecorationPartialEnterprise: LabelDecorationPartialEnterprise = {}
+export const minimalLabelDecorationPartialYAML: LabelDecorationPartialYAML = {}
 
 // Для обратной совместимости
-export const fullLabelDecorationEnterprise: LabelDecorationPartialEnterprise = fullLabelDecorationPartialEnterprise
-export const minimalLabelDecorationEnterprise: LabelDecorationPartialEnterprise =
-  minimalLabelDecorationPartialEnterprise
+export const fullLabelDecorationYAML: LabelDecorationPartialYAML = fullLabelDecorationPartialYAML
+export const minimalLabelDecorationYAML: LabelDecorationPartialYAML = minimalLabelDecorationPartialYAML
 
 export interface LabelDecorationStructureFixture {
   name: string

@@ -1,15 +1,15 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderPreview } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
-import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Border, BorderPreview, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface LabelField {
   itemType: "LabelField"
@@ -81,68 +81,68 @@ export interface LabelField {
   }
 }
 
-export interface LabelFieldPartialEnterprise {
-  АвтоВысотаЯчейки?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormFieldTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface LabelFieldPartialYAML {
+  АвтоВысотаЯчейки?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormFieldTypeYAML
+  Видимость?: StringboolYAML
   ВысотаЗаголовка?: number
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КартинкаПодвала?: PictureEnterprise
-  КартинкаШапки?: PictureEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОграничениеТипа?: TypeDescriptionEnterprise
-  ОтображатьВПодвале?: StringboolEnterprise
-  ОтображатьВШапке?: StringboolEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
+  ГиперссылкаЯчейки?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КартинкаПодвала?: PictureYAML
+  КартинкаШапки?: PictureYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОграничениеТипа?: TypeDescriptionYAML
+  ОтображатьВПодвале?: StringboolYAML
+  ОтображатьВШапке?: StringboolYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationYAML
+  Подсказка?: I8nTextYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  ПредупреждениеПриРедактировании?: I8nTextYAML
+  ПропускатьПриВводе?: StringboolYAML
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РежимРедактирования?: SE.ColumnEditModeYAML
   СочетаниеКлавиш?: string
   Таблица?: string
-  ТекстПодвала?: I8nTextEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветТекстаПодвала?: ColorEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
-  ЦветФонаПодвала?: ColorEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ШрифтПодвала?: FontEnterprise
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ВыделятьОтрицательные?: StringboolEnterprise
+  ТекстПодвала?: I8nTextYAML
+  ТолькоПросмотр?: StringboolYAML
+  ФиксацияВТаблице?: SE.FixingInTableYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветТекстаПодвала?: ColorYAML
+  ЦветФонаЗаголовка?: ColorYAML
+  ЦветФонаПодвала?: ColorYAML
+  ШрифтЗаголовка?: FontYAML
+  ШрифтПодвала?: FontYAML
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  ВыделятьОтрицательные?: StringboolYAML
   Высота?: number
-  Гиперссылка?: StringboolEnterprise
+  Гиперссылка?: StringboolYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Рамка?: BorderEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РежимПароля?: StringboolEnterprise
-  Формат?: I8nTextEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
+  Рамка?: BorderYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РежимПароля?: StringboolYAML
+  Формат?: I8nTextYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветФона?: ColorYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
+  Шрифт?: FontYAML
   События?: {
     ПриИзменении?: string
     Нажатие?: string
@@ -150,7 +150,7 @@ export interface LabelFieldPartialEnterprise {
   }
 }
 
-export interface LabelFieldTypedEnterprise extends LabelFieldPartialEnterprise {
+export interface LabelFieldTypedYAML extends LabelFieldPartialYAML {
   Тип: "ПолеНадписи"
 }
 
@@ -214,4 +214,4 @@ export interface LabelFieldPreview {
 }
 
 // Для обратной совместимости
-export type LabelFieldEnterprise = LabelFieldPartialEnterprise
+export type LabelFieldYAML = LabelFieldPartialYAML

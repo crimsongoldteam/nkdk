@@ -1,46 +1,46 @@
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import {
   MetadataAttribute,
-  MetadataAttributeEnterprise,
+  MetadataAttributeYAML,
   MetadataAttributes,
-  MetadataAttributesEnterprise,
+  MetadataAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
-import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise.ts"
+import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
+import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
+import { importChoiceParametersFromYAML } from "~/metadata/commonObjects/сhoiceParameters/fromYAML.ts"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
 import { registerTypeRule } from "~/metadata/metadataFactory/index.ts"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importI8nTextFromYAML } from "../i8nText/importFromEnterprise.ts"
-import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
-import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
+import { importI8nTextFromYAML } from "../i8nText/fromYAML.ts"
+import { importMetadataValueFromYAML } from "../metadataValue/fromYAML.ts"
+import { importTypeLinkFromYAML } from "../typeLink/fromYAML.ts"
 import { getDefaultsAttribute } from "./defaults"
 
-export const importMetadataAttributesFromEnterprise = (
+export const importMetadataAttributesFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataAttributesEnterprise | undefined
+  data: MetadataAttributesYAML | undefined
 ): MetadataAttributes | undefined => {
   if (!data) return undefined
 
   return Object.entries(data)
-    .map(([name, value]) => importMetadataAttributeFromEnterprise(context, undefined, value, name))
+    .map(([name, value]) => importMetadataAttributeFromYAML(context, undefined, value, name))
     .filter((item): item is MetadataAttribute => item !== undefined)
 }
 
-const importMetadataAttributeFromEnterprise = (
+const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataAttributeEnterprise,
+  data: MetadataAttributeYAML,
   name: string
 ): MetadataAttribute => {
   if (typeof data === "string" || Array.isArray(data)) {
-    const type = importTypeDescriptionFromEnterprise(context, undefined, data)
+    const type = importTypeDescriptionFromYAML(context, undefined, data)
     if (!type) throw new Error("Type is required")
 
     return {
@@ -50,7 +50,7 @@ const importMetadataAttributeFromEnterprise = (
     }
   }
 
-  const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)!
+  const type = importTypeDescriptionFromYAML(context, undefined, data.Тип)!
 
   const synonym = addDefaultLanguageNameToSynonym(
     context,
@@ -78,13 +78,13 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (choiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = choiceFoldersAndItems
 
-  const markNegatives = importBooleanFromEnterprise(context, undefined, data.ВыделятьОтрицательные)
+  const markNegatives = importBooleanFromYAML(context, undefined, data.ВыделятьОтрицательные)
   if (markNegatives !== undefined) result.markNegatives = markNegatives
 
-  const fillFromFillingValue = importBooleanFromEnterprise(context, undefined, data.ЗаполнятьИзДанныхЗаполнения)
+  const fillFromFillingValue = importBooleanFromYAML(context, undefined, data.ЗаполнятьИзДанныхЗаполнения)
   if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
 
-  const fillValue = importMetadataValueFromEnterprise(context, undefined, data.ЗначениеЗаполнения)
+  const fillValue = importMetadataValueFromYAML(context, undefined, data.ЗначениеЗаполнения)
   if (fillValue !== undefined) result.fillValue = fillValue
 
   const indexing = importSystemEnumerationFromYAML<SE.Indexing>(
@@ -130,16 +130,16 @@ const importMetadataAttributeFromEnterprise = (
 
   if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
 
-  const multiLine = importBooleanFromEnterprise(context, undefined, data.МногострочныйРежим)
+  const multiLine = importBooleanFromYAML(context, undefined, data.МногострочныйРежим)
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
+  const choiceParameters = importChoiceParametersFromYAML(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
   const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const binaryDataStorageLocationUseField = importBooleanFromEnterprise(
+  const binaryDataStorageLocationUseField = importBooleanFromYAML(
     context,
     undefined,
     data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных
@@ -154,10 +154,10 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (fullTextSearch !== undefined) result.fullTextSearch = fullTextSearch
 
-  // const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
+  // const objectBelonging = importSystemEnumerationFromYAML<SE.ObjectBelonging>(
   //   context,
   //   data.ПринадлежностьОбъекта,
-  //   SE.ObjectBelongingFromEnterprise
+  //   SE.ObjectBelongingFromYAML
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
@@ -168,16 +168,16 @@ const importMetadataAttributeFromEnterprise = (
   )
   if (fillChecking !== undefined) result.fillChecking = fillChecking
 
-  const extendedEdit = importBooleanFromEnterprise(context, undefined, data.РасширенноеРедактирование)
+  const extendedEdit = importBooleanFromYAML(context, undefined, data.РасширенноеРедактирование)
   if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
 
-  const passwordMode = importBooleanFromEnterprise(context, undefined, data.РежимПароля)
+  const passwordMode = importBooleanFromYAML(context, undefined, data.РежимПароля)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
-  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, undefined, data.СвязиПараметровВыбора)
+  const choiceParameterLinks = importChoiceParameterLinksFromYAML(context, undefined, data.СвязиПараметровВыбора)
   if (choiceParameterLinks !== undefined) result.choiceParameterLinks = choiceParameterLinks
 
-  const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
+  const linkByType = importTypeLinkFromYAML(context, undefined, data.СвязьПоТипу)
   if (linkByType !== undefined) result.linkByType = linkByType
 
   const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
@@ -199,4 +199,4 @@ const importMetadataAttributeFromEnterprise = (
   return removeDefaults(result, defaults)
 }
 
-registerTypeRule("MetadataAttributes", "importFromEnterprise", importMetadataAttributesFromEnterprise)
+registerTypeRule("MetadataAttributes", "importFromYAML", importMetadataAttributesFromYAML)

@@ -2,12 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { I8nTextPropertyRule, ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { I8nText, I8nTextEnterprise } from "./types"
+import { I8nText, I8nTextYAML } from "./types"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
-  value: I8nTextEnterprise | undefined
+  value: I8nTextYAML | undefined
   source?: I8nText | undefined
   name?: string
 }): I8nText | undefined => {
@@ -24,7 +24,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   }
 
   if (value !== undefined) {
-    const otherLanguages = importFromEnterprise(context, value)!
+    const otherLanguages = importFromYAML(context, value)!
     result.items = { ...result.items, ...otherLanguages.items }
   }
 
@@ -38,10 +38,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   return result
 }
 
-const importFromEnterprise = (
-  context: ConfigurationContext,
-  data: I8nTextEnterprise | undefined
-): I8nText | undefined => {
+const importFromYAML = (context: ConfigurationContext, data: I8nTextYAML | undefined): I8nText | undefined => {
   if (data === undefined) return undefined
 
   if (typeof data === "string") {
@@ -57,4 +54,4 @@ const importFromEnterprise = (
   }
 }
 
-registerTypeRule("I8nText", "importFromEnterprise", importI8nTextFromYAML)
+registerTypeRule("I8nText", "importFromYAML", importI8nTextFromYAML)

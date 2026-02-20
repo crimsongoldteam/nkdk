@@ -1,4 +1,4 @@
-import { Page, PagePartialEnterprise } from "~/metadata/forms/elements/page/types"
+import { Page, PagePartialYAML } from "~/metadata/forms/elements/page/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPage: Required<Page> = {
@@ -54,7 +54,7 @@ export const fullPage: Required<Page> = {
   childItems: [],
 }
 
-export const fullPagePartialEnterprise: PagePartialEnterprise = {
+export const fullPagePartialYAML: PagePartialYAML = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -99,6 +99,6 @@ export const minimalPage: Page = {
   childItems: [],
 }
 
-export const minimalPagePartialEnterprise: PagePartialEnterprise = {}
+export const minimalPagePartialYAML: PagePartialYAML = {}
 
-// export const minimalPageEnterprise: PagePartialEnterprise = minimalPagePartialEnterprise
+// export const minimalPageYAML: PagePartialYAML = minimalPagePartialYAML

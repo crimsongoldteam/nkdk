@@ -1,4 +1,4 @@
-import { GanttChartField, GanttChartFieldPartialEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
+import { GanttChartField, GanttChartFieldPartialYAML } from "~/metadata/forms/elements/ganttChartField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -99,7 +99,7 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   },
 }
 
-export const fullGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterprise = {
+export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -172,4 +172,4 @@ export const minimalGanttChartField: GanttChartField = {
   name: "ПолеДиаграммыГанта",
 }
 
-export const minimalGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterprise = {}
+export const minimalGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {}

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { exportUserVisibleToEnterprise } from "./exportToEnterprise"
-import { UserVisible, UserVisibleKeysEnterprise } from "./types"
+import { exportUserVisibleToYAML } from "./toYAML"
+import { UserVisible, UserVisibleKeysYAML } from "./types"
 
-describe("exportUserVisibleToEnterprise", () => {
+describe("exportUserVisibleToYAML", () => {
   it("should format allow `use`", () => {
     const use: UserVisible = {
       common: true,
@@ -20,9 +20,9 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockContext, mockRule, use, {
-      allow: UserVisibleKeysEnterprise.Allow,
-      deny: UserVisibleKeysEnterprise.Deny,
+    const result = exportUserVisibleToYAML(mockContext, mockRule, use, {
+      allow: UserVisibleKeysYAML.Allow,
+      deny: UserVisibleKeysYAML.Deny,
     })
 
     expect(result).toEqual(expectedResult)
@@ -44,9 +44,9 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockContext, mockRule, use, {
-      allow: UserVisibleKeysEnterprise.Allow,
-      deny: UserVisibleKeysEnterprise.Deny,
+    const result = exportUserVisibleToYAML(mockContext, mockRule, use, {
+      allow: UserVisibleKeysYAML.Allow,
+      deny: UserVisibleKeysYAML.Deny,
     })
 
     expect(result).toEqual(expectedResult)

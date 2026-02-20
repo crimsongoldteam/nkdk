@@ -2,11 +2,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { ClientApplicationFormRules } from "./rules"
-import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
-export const importClientApplicationFormFromEnterprise = (
+export const importClientApplicationFormFromYAML = (
   context: ConfigurationContext,
-  data: ClientApplicationFormEnterprise,
+  data: ClientApplicationFormYAML,
   _source: ChildItemsStructureResult
 ): ClientApplicationForm => {
   const itemsContext: ConfigurationContext = {

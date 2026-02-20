@@ -1,4 +1,4 @@
-import { StringboolEnterprise } from "../boolean/types"
+import { StringboolYAML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
   _name: string
@@ -20,26 +20,26 @@ export interface UserVisible {
   values: UserVisibleValue[]
 }
 
-export const UserVisibleKeysEnterprise = {
+export const UserVisibleKeysYAML = {
   Allow: "РазрешитьИспользование",
   Deny: "ЗапретитьИспользование",
 } as const
 
-export const UserViewKeysEnterprise = {
+export const UserViewKeysYAML = {
   Allow: "РазрешитьПросмотр",
   Deny: "ЗапретитьПросмотр",
 } as const
 
-export const UserEditKeysEnterprise = {
+export const UserEditKeysYAML = {
   Allow: "РазрешитьРедактирование",
   Deny: "ЗапретитьРедактирование",
 } as const
 
-export type UserVisibleEnterprise = Record<string, StringboolEnterprise>
+export type UserVisibleYAML = Record<string, StringboolYAML>
 
-export type UserVisibleKeysEnterprise = (typeof UserVisibleKeysEnterprise)[keyof typeof UserVisibleKeysEnterprise]
+export type UserVisibleKeysYAML = (typeof UserVisibleKeysYAML)[keyof typeof UserVisibleKeysYAML]
 
-export type UserViewKeysEnterprise = (typeof UserViewKeysEnterprise)[keyof typeof UserViewKeysEnterprise]
-export type UserEditKeysEnterprise = (typeof UserEditKeysEnterprise)[keyof typeof UserEditKeysEnterprise]
-export type UserViewEnterprise = Record<string, StringboolEnterprise>
-export type UserEditEnterprise = Record<string, StringboolEnterprise>
+export type UserViewKeysYAML = (typeof UserViewKeysYAML)[keyof typeof UserViewKeysYAML]
+export type UserEditKeysYAML = (typeof UserEditKeysYAML)[keyof typeof UserEditKeysYAML]
+export type UserViewYAML = Record<string, StringboolYAML>
+export type UserEditYAML = Record<string, StringboolYAML>

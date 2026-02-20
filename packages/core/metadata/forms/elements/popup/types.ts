@@ -1,12 +1,12 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
+import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedYAML } from "../../collections/childItems/types"
 
 export interface Popup {
   itemType: "Popup"
@@ -40,38 +40,38 @@ export interface Popup {
   childItems: CommandBarGroupChildItem[]
 }
 
-export interface PopupPartialEnterprise {
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormGroupTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface PopupPartialYAML {
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormGroupTypeYAML
+  Видимость?: StringboolYAML
   Высота?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
   ИсточникКоманд?: string
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РазрешитьИзменениеСостава?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  // РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьИзменениеСостава?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  // РасширеннаяПодсказка?: ExtendedTooltipYAML
   СочетаниеКлавиш?: string
-  ТолькоПросмотр?: StringboolEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
+  ТолькоПросмотр?: StringboolYAML
+  ЦветТекстаЗаголовка?: ColorYAML
   Ширина?: number
-  ШрифтЗаголовка?: FontEnterprise
-  Картинка?: PictureEnterprise
-  Отображение?: SE.ButtonRepresentationEnterprise
-  ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-  Фигура?: SE.ButtonShapeEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
-  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
+  ШрифтЗаголовка?: FontYAML
+  Картинка?: PictureYAML
+  Отображение?: SE.ButtonRepresentationYAML
+  ОтображениеФигуры?: SE.ButtonShapeRepresentationYAML
+  Фигура?: SE.ButtonShapeYAML
+  ЦветРамки?: ColorYAML
+  ЦветФона?: ColorYAML
+  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedYAML
 }
 
-export interface PopupTypedEnterprise extends PopupPartialEnterprise {
+export interface PopupTypedYAML extends PopupPartialYAML {
   Тип: "Подменю"
 }

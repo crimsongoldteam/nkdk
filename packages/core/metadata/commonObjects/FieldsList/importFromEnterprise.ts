@@ -1,16 +1,16 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { FieldsList, FieldsListEnterprise } from "./types"
+import { FieldsList, FieldsListYAML } from "./types"
 
-export const importFieldsListFromEnterprise = (
+export const importFieldsListFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  enterprise: FieldsListEnterprise | undefined
+  enterprise: FieldsListYAML | undefined
 ): FieldsList | undefined => {
   if (!enterprise || enterprise.length === 0) return undefined
 
   return enterprise
 }
 
-registerTypeRule("FieldsList", "importFromEnterprise", importFieldsListFromEnterprise)
+registerTypeRule("FieldsList", "importFromYAML", importFieldsListFromYAML)

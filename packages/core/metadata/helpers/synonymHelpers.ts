@@ -1,4 +1,4 @@
-import { I8nText, I8nTextEnterprise } from "../commonObjects/i8nText/types"
+import { I8nText, I8nTextYAML } from "../commonObjects/i8nText/types"
 import { ConfigurationContext } from "../context/types"
 import { canConvertToPascalCase, splitPascalCase } from "./canConvertToPascalCase"
 
@@ -63,7 +63,7 @@ export const addDefaultLanguageNameToSynonym = (
   }
 }
 
-export const isSynonymEqualToName = (synonym: I8nTextEnterprise | undefined, name: string): boolean => {
+export const isSynonymEqualToName = (synonym: I8nTextYAML | undefined, name: string): boolean => {
   if (!synonym) return false
 
   // Если синоним - строка, проверяем её

@@ -1,8 +1,8 @@
 import {
   LabelField,
-  LabelFieldPartialEnterprise,
+  LabelFieldPartialYAML,
   LabelFieldPreview,
-  LabelFieldTypedEnterprise,
+  LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
@@ -106,7 +106,7 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
   },
 }
 
-export const fullLabelFieldPartialEnterprise: LabelFieldPartialEnterprise = {
+export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -175,8 +175,8 @@ export const fullLabelFieldPartialEnterprise: LabelFieldPartialEnterprise = {
   },
 }
 
-export const fullLabelFieldTypedEnterprise: LabelFieldTypedEnterprise = {
-  ...fullLabelFieldPartialEnterprise,
+export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
+  ...fullLabelFieldPartialYAML,
   Тип: "ПолеНадписи",
   Заголовок: "Поле надписи",
 }
@@ -186,9 +186,9 @@ export const minimalLabelField: LabelField = {
   name: "ПолеНадписи",
 }
 
-export const minimalLabelFieldPartialEnterprise: LabelFieldPartialEnterprise = {}
+export const minimalLabelFieldPartialYAML: LabelFieldPartialYAML = {}
 
-export const minimalLabelFieldTypedEnterprise: LabelFieldTypedEnterprise = {
+export const minimalLabelFieldTypedYAML: LabelFieldTypedYAML = {
   Тип: "ПолеНадписи",
 }
 

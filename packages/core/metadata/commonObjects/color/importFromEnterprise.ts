@@ -1,14 +1,14 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
-import { Color, ColorEnterprise } from "./types"
+import { Color, ColorYAML } from "./types"
 
-export const importColorFromEnterprise = (
+export const importColorFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: ColorEnterprise | undefined
+  data: ColorYAML | undefined
 ): Color | undefined => {
   if (!data) return undefined
 
@@ -67,4 +67,4 @@ export const importColorFromEnterprise = (
   }
 }
 
-registerTypeRule("Color", "importFromEnterprise", importColorFromEnterprise)
+registerTypeRule("Color", "importFromYAML", importColorFromYAML)

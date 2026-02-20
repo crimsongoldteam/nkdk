@@ -1,4 +1,4 @@
-import { FormAttributes, FormAttributesEnterprise } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { FormAttributes, FormAttributesYAML } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { fullDynamicList } from "../dynamicList/data"
 
 //#region FullFormAttributes
@@ -61,7 +61,7 @@ export const fullFormAttributes: Required<FormAttributes> = [
   },
 ]
 
-export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
+export const fullFormAttributesYAML: FormAttributesYAML = {
   Объект: {
     Тип: "Число",
     Заголовок: "",
@@ -154,14 +154,14 @@ export const shortFormAttribute: FormAttributes = [
   },
 ]
 
-export const shortFormAttributeEnterprise: FormAttributesEnterprise = {
+export const shortFormAttributeYAML: FormAttributesYAML = {
   ТестовыйАтрибут: "Строка",
 }
 
 //#endregion
 
-//#region MinimalEnterprise
-export const minimalFormAttributesEnterprise: FormAttributesEnterprise = {
+//#region MinimalYAML
+export const minimalFormAttributesYAML: FormAttributesYAML = {
   ТестовыйАтрибут: {
     Заголовок: "",
     Тип: "Строка",
@@ -200,7 +200,7 @@ export const mainAttributeTitleEqualsName: FormAttributes = [
   },
 ]
 
-export const mainAttributeTitleEqualsNameEnterprise: FormAttributesEnterprise = {
+export const mainAttributeTitleEqualsNameYAML: FormAttributesYAML = {
   ТестовыйАтрибут: {
     Заголовок: "Тестовый атрибут",
     Тип: "Строка",
@@ -241,7 +241,7 @@ export const choiceListFormAttribute: FormAttributes = [
   },
 ]
 
-export const choiceListFormAttributeEnterprise: FormAttributesEnterprise = {
+export const choiceListFormAttributeYAML: FormAttributesYAML = {
   ВыбранныеЗначения: {
     Тип: "СписокЗначений",
     ТипЗначения: "Справочник.ДоговорыКонтрагентов",
@@ -262,7 +262,7 @@ export const withEmptySettingsFormAttribute: FormAttributes = [
   },
 ]
 
-export const withEmptySettingsFormAttributeEnterprise: FormAttributesEnterprise = {
+export const withEmptySettingsFormAttributeYAML: FormAttributesYAML = {
   ВыбранныеЗначения: "СписокЗначений",
 }
 //#endregion
@@ -279,7 +279,7 @@ export const withDynamicListFormAttribute: FormAttributes = [
   },
 ]
 
-export const withDynamicListFormAttributeEnterprise: FormAttributesEnterprise = {
+export const withDynamicListFormAttributeYAML: FormAttributesYAML = {
   ВыбранныеЗначения: {
     Тип: "ДинамическийСписок",
     ДинамическийСписок: fullDynamicList,
@@ -310,7 +310,7 @@ export const tableWithColumnsFormAttribute: FormAttributes = [
   },
 ]
 
-export const tableWithColumnsFormAttributeEnterprise: FormAttributesEnterprise = {
+export const tableWithColumnsFormAttributeYAML: FormAttributesYAML = {
   Таблица: {
     Заголовок: "",
     Тип: "ТаблицаЗначений",
@@ -350,7 +350,7 @@ export const treeWithColumnFormAttribute: FormAttributes = [
   },
 ]
 
-export const treeWithColumnFormAttributeEnterprise: FormAttributesEnterprise = {
+export const treeWithColumnFormAttributeYAML: FormAttributesYAML = {
   Дерево: {
     Заголовок: "",
     Тип: "ДеревоЗначений",
@@ -382,7 +382,7 @@ export const withFunctionalOptionsFormAttribute: FormAttributes = [
   },
 ]
 
-export const withFunctionalOptionsFormAttributeEnterprise: FormAttributesEnterprise = {
+export const withFunctionalOptionsFormAttributeYAML: FormAttributesYAML = {
   ТестовыйАтрибут: {
     Заголовок: "Заголовок",
     Тип: "Строка",
@@ -416,7 +416,7 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
   },
 ]
 
-export const withAdditionalColumnFormAttributeEnterprise: FormAttributesEnterprise = {
+export const withAdditionalColumnFormAttributeYAML: FormAttributesYAML = {
   Объект: {
     Заголовок: "",
     Тип: "Строка",

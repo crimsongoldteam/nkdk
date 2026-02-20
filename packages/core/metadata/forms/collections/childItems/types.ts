@@ -1,12 +1,12 @@
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 // import { ToPreviewType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
-import { Button, ButtonTypedEnterprise } from "../../elements/button/types"
-import { ButtonGroup, ButtonGroupTypedEnterprise } from "../../elements/buttonGroup/types"
+import { Button, ButtonTypedYAML } from "../../elements/button/types"
+import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
 import { CalendarField } from "../../elements/calendarField/types"
 import { ChartField } from "../../elements/chartField/types"
-import { CheckBoxField, CheckBoxFieldTypedEnterprise } from "../../elements/checkBoxField/types"
-import { ColumnGroup, ColumnGroupTypedEnterprise } from "../../elements/columnGroup/types"
+import { CheckBoxField, CheckBoxFieldTypedYAML } from "../../elements/checkBoxField/types"
+import { ColumnGroup, ColumnGroupTypedYAML } from "../../elements/columnGroup/types"
 import { CommandBar } from "../../elements/commandBar/types"
 import { ContextMenu } from "../../elements/contextMenu/types"
 import { DendrogramField } from "../../elements/dendrogramField/types"
@@ -16,17 +16,17 @@ import { GanttChartField } from "../../elements/ganttChartField/types"
 import { GeographicalSchemaField } from "../../elements/geographicalSchemaField/types"
 import { GraphicalSchemaField } from "../../elements/graphicalSchemaField/types"
 import { HTMLDocumentField } from "../../elements/htmlDocumentField/types"
-import { InputField, InputFieldTypedEnterprise } from "../../elements/inputField/types"
+import { InputField, InputFieldTypedYAML } from "../../elements/inputField/types"
 import { LabelDecoration } from "../../elements/labelDecoration/types"
-import { LabelField, LabelFieldTypedEnterprise } from "../../elements/labelField/types"
+import { LabelField, LabelFieldTypedYAML } from "../../elements/labelField/types"
 import { Page } from "../../elements/page/types"
 import { Pages } from "../../elements/pages/types"
 import { PdfDocumentField } from "../../elements/pdfDocumentField/types"
 import { PeriodField } from "../../elements/periodField/types"
 import { PictureDecoration } from "../../elements/pictureDecoration/types"
-import { PictureField, PictureFieldTypedEnterprise } from "../../elements/pictureField/types"
+import { PictureField, PictureFieldTypedYAML } from "../../elements/pictureField/types"
 import { PlannerField } from "../../elements/plannerField/types"
-import { Popup, PopupTypedEnterprise } from "../../elements/popup/types"
+import { Popup, PopupTypedYAML } from "../../elements/popup/types"
 import { ProgressBarField } from "../../elements/progressBarField/types"
 import { RadioButtonField } from "../../elements/radioButtonField/types"
 import { SearchControlAddition } from "../../elements/searchControlAddition/types"
@@ -79,7 +79,7 @@ export type AllChildItems = ChildItem[]
 
 export type AllChildItem = ChildItem
 
-export type AllChildItemsPartialEnterprise = Record<string, ToYAML<AllChildItem>>
+export type AllChildItemsPartialYAML = Record<string, ToYAML<AllChildItem>>
 
 // #endregion
 
@@ -116,7 +116,7 @@ export type GroupChildItem =
 
 export type GroupChildItems = GroupChildItem[]
 
-export type GroupChilItemPartialEnterprise = Record<string, ToYAML<GroupChildItem>>
+export type GroupChilItemPartialYAML = Record<string, ToYAML<GroupChildItem>>
 
 // export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
 
@@ -127,9 +127,9 @@ export type GroupChilItemPartialEnterprise = Record<string, ToYAML<GroupChildIte
 export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
 export type CommandBarChildItems = CommandBarChildItem[]
 
-export type CommandBarChildItemsPartialEnterprise = Record<string, ToYAML<CommandBarChildItem>>
+export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem>>
 
-export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedYAML<Button | ButtonGroup | Popup>>
+export type CommandBarChildItemsTypedYAML = Record<string, ToTypedYAML<Button | ButtonGroup | Popup>>
 
 // #endregion
 
@@ -138,9 +138,9 @@ export type CommandBarChildItemsTypedEnterprise = Record<string, ToTypedYAML<But
 export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
 export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
 
-export type CommandBarGroupChildItemsPartialEnterprise = Record<string, ToYAML<CommandBarGroupChildItem>>
+export type CommandBarGroupChildItemsPartialYAML = Record<string, ToYAML<CommandBarGroupChildItem>>
 
-export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedYAML<CommandBarGroupChildItem>>
+export type CommandBarGroupChildItemsTypedYAML = Record<string, ToTypedYAML<CommandBarGroupChildItem>>
 
 // #endregion
 
@@ -149,8 +149,8 @@ export type CommandBarGroupChildItemsTypedEnterprise = Record<string, ToTypedYAM
 export type PagesChildItem = Page
 export type PagesChildItems = PagesChildItem[]
 
-export type PagesChildItemsPartialEnterprise = Record<string, ToYAML<PagesChildItem>>
-// export type PagesChildItemsTypedEnterprise = Record<string, ToTypedEnterpriseType<PagesChildItem>>
+export type PagesChildItemsPartialYAML = Record<string, ToYAML<PagesChildItem>>
+// export type PagesChildItemsTypedYAML = Record<string, ToTypedYAMLType<PagesChildItem>>
 
 // #endregion
 
@@ -164,15 +164,15 @@ export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelFie
 
 export type TableChildItems = TableChildItem[]
 
-export type TableChildItemTypedEnterprise =
-  | CheckBoxFieldTypedEnterprise
-  | ColumnGroupTypedEnterprise
-  | InputFieldTypedEnterprise
-  | LabelFieldTypedEnterprise
+export type TableChildItemTypedYAML =
+  | CheckBoxFieldTypedYAML
+  | ColumnGroupTypedYAML
+  | InputFieldTypedYAML
+  | LabelFieldTypedYAML
 
-export type TableChildItemsTypedEnterprise = Record<string, TableChildItemTypedEnterprise>
+export type TableChildItemsTypedYAML = Record<string, TableChildItemTypedYAML>
 
-export type TableChildItemsPartialEnterprise = Record<string, ToYAML<TableChildItem>>
+export type TableChildItemsPartialYAML = Record<string, ToYAML<TableChildItem>>
 
 // #endregion
 
@@ -188,15 +188,15 @@ export type TypedElement =
   | LabelField
   | PictureField
 
-export type TypedElementPartialEnterprise =
-  | ButtonTypedEnterprise
-  | ButtonGroupTypedEnterprise
-  | PopupTypedEnterprise
-  | CheckBoxFieldTypedEnterprise
-  | ColumnGroupTypedEnterprise
-  | InputFieldTypedEnterprise
-  | LabelFieldTypedEnterprise
-  | PictureFieldTypedEnterprise
+export type TypedElementPartialYAML =
+  | ButtonTypedYAML
+  | ButtonGroupTypedYAML
+  | PopupTypedYAML
+  | CheckBoxFieldTypedYAML
+  | ColumnGroupTypedYAML
+  | InputFieldTypedYAML
+  | LabelFieldTypedYAML
+  | PictureFieldTypedYAML
 // #endregion
 
 // #region SingleElement

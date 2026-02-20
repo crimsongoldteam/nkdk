@@ -1,12 +1,12 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItem } from "../../collections/childItems/types"
 import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface CommandBar extends NamedElement {
   itemType: "CommandBar"
@@ -36,29 +36,29 @@ export interface CommandBar extends NamedElement {
   childItems: CommandBarChildItem[]
 }
 
-export interface CommandBarPartialEnterprise {
-  Автозаполнение?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormGroupTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface CommandBarPartialYAML {
+  Автозаполнение?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormGroupTypeYAML
+  Видимость?: StringboolYAML
   Высота?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РазрешитьИзменениеСостава?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьИзменениеСостава?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
   СочетаниеКлавиш?: string
-  ТолькоПросмотр?: StringboolEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
+  ТолькоПросмотр?: StringboolYAML
+  ЦветТекстаЗаголовка?: ColorYAML
   Ширина?: number
-  ШрифтЗаголовка?: FontEnterprise
+  ШрифтЗаголовка?: FontYAML
   ИсточникКоманд?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise //Поле недоступно в конфигураторе
+  РасширеннаяПодсказка?: ExtendedTooltipYAML //Поле недоступно в конфигураторе
 }

@@ -1,12 +1,12 @@
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 
 export interface I8nTextFixture {
   name: string
   text: I8nText | undefined
   textFromStructure?: I8nText | undefined
-  enterpriseFull?: I8nTextEnterprise | undefined
+  enterpriseFull?: I8nTextYAML | undefined
   enterpriseDefaultLanguage?: string | undefined
-  enterpriseOtherLanguages?: I8nTextEnterprise | undefined
+  enterpriseOtherLanguages?: I8nTextYAML | undefined
   xml?: string
 }
 

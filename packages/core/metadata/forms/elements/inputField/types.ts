@@ -1,21 +1,18 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { ChoiceList, ChoiceListEnterprise } from "~/metadata/commonObjects/choiceList/types"
-import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkEnterprise } from "~/metadata/commonObjects/typeLink/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
-import {
-  ChoiceParameterLinks,
-  ChoiceParameterLinksEnterprise,
-} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
+import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
-import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface InputField {
   itemType: "InputField"
@@ -160,127 +157,127 @@ export interface InputField {
   }
 }
 
-export interface InputFieldPartialEnterprise {
-  АвтоВыборНезаполненного?: StringboolEnterprise
-  АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputEnterprise
-  АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputEnterprise
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  АвтоОтметкаНезаполненного?: StringboolEnterprise
-  АвтоОтображениеКнопкиОткрытия?: SE.AutoShowOpenButtonModeEnterprise
-  АвтоОтображениеКнопкиОчистки?: SE.AutoShowClearButtonModeEnterprise
-  АвтоПереносСтрок?: StringboolEnterprise
-  БыстрыйВыбор?: StringboolEnterprise
-  ВариантУправленияВысотой?: SE.ItemHeightControlVariantEnterprise
-  ВыбиратьТип?: StringboolEnterprise
-  ВыборГруппИЭлементов?: SE.FoldersAndItemsEnterprise
-  ВыделятьОтрицательные?: StringboolEnterprise
+export interface InputFieldPartialYAML {
+  АвтоВыборНезаполненного?: StringboolYAML
+  АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputYAML
+  АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputYAML
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  АвтоОтметкаНезаполненного?: StringboolYAML
+  АвтоОтображениеКнопкиОткрытия?: SE.AutoShowOpenButtonModeYAML
+  АвтоОтображениеКнопкиОчистки?: SE.AutoShowClearButtonModeYAML
+  АвтоПереносСтрок?: StringboolYAML
+  БыстрыйВыбор?: StringboolYAML
+  ВариантУправленияВысотой?: SE.ItemHeightControlVariantYAML
+  ВыбиратьТип?: StringboolYAML
+  ВыборГруппИЭлементов?: SE.FoldersAndItemsYAML
+  ВыделятьОтрицательные?: StringboolYAML
   Высота?: number
   ВысотаСпискаВыбора?: number
-  ГиперссылкаМножественныхЗначений?: StringboolEnterprise
-  ДоступныеТипы?: TypeDescriptionEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  КартинкаКнопкиВыбора?: PictureEnterprise
-  КартинкаМножественныхЗначений?: PictureEnterprise
-  КнопкаВыбора?: StringboolEnterprise
-  КнопкаВыпадающегоСписка?: StringboolEnterprise
-  КнопкаОткрытия?: StringboolEnterprise
-  КнопкаОчистки?: StringboolEnterprise
-  КнопкаРегулирования?: StringboolEnterprise
-  КнопкаСоздания?: StringboolEnterprise
-  КнопкаСпискаВыбора?: StringboolEnterprise
+  ГиперссылкаМножественныхЗначений?: StringboolYAML
+  ДоступныеТипы?: TypeDescriptionYAML
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputYAML
+  КартинкаКнопкиВыбора?: PictureYAML
+  КартинкаМножественныхЗначений?: PictureYAML
+  КнопкаВыбора?: StringboolYAML
+  КнопкаВыпадающегоСписка?: StringboolYAML
+  КнопкаОткрытия?: StringboolYAML
+  КнопкаОчистки?: StringboolYAML
+  КнопкаРегулирования?: StringboolYAML
+  КнопкаСоздания?: StringboolYAML
+  КнопкаСпискаВыбора?: StringboolYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   МаксимальноеЗначение?: number
   Маска?: string
   МинимальноеЗначение?: number
-  МногострочныйРежим?: StringboolEnterprise
-  ОбновлениеТекстаРедактирования?: SE.EditTextUpdateEnterprise
-  ОтметкаНезаполненного?: StringboolEnterprise
-  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: StringboolEnterprise
-  ОтображениеКнопкиВыбора?: SE.ChoiceButtonRepresentationEnterprise
-  ПараметрыВыбора?: ChoiceParametersEnterprise
-  ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintEnterprise
-  ПодсказкаВвода?: I8nTextEnterprise
-  ПроверкаПравописанияПриВводеТекста?: SE.SpellCheckingOnTextInputEnterprise
+  МногострочныйРежим?: StringboolYAML
+  ОбновлениеТекстаРедактирования?: SE.EditTextUpdateYAML
+  ОтметкаНезаполненного?: StringboolYAML
+  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: StringboolYAML
+  ОтображениеКнопкиВыбора?: SE.ChoiceButtonRepresentationYAML
+  ПараметрыВыбора?: ChoiceParametersYAML
+  ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintYAML
+  ПодсказкаВвода?: I8nTextYAML
+  ПроверкаПравописанияПриВводеТекста?: SE.SpellCheckingOnTextInputYAML
   ПутьКДаннымЗначенияМножественногоЗначения?: string
   ПутьКДаннымКартинкиМножественногоЗначения?: string
   ПутьКДаннымПредставленияМножественногоЗначения?: string
-  РазмерКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureSizeEnterprise
-  РазрешитьВводПустыхМножественныхЗначений?: StringboolEnterprise
-  РазрешитьДублированиеМножественныхЗначений?: StringboolEnterprise
-  РазрешитьСоставнойТип?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширенноеРедактирование?: StringboolEnterprise
-  РасширенноеРедактированиеМножественныхЗначений?: StringboolEnterprise
-  РедактированиеТекста?: StringboolEnterprise
-  РежимВыбораИзСписка?: StringboolEnterprise
-  РежимВыбораНезаполненного?: SE.IncompleteChoiceModeEnterprise
-  РежимПароля?: StringboolEnterprise
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
-  СвязьПоТипу?: TypeLinkEnterprise
-  СпециальныйРежимВводаТекста?: SE.SpecialTextInputModeEnterprise
-  СписокВыбора?: ChoiceListEnterprise
-  ТекстКнопкиВводаЭкраннойКлавиатуры?: SE.OnScreenKeyboardReturnKeyTextEnterprise
+  РазмерКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureSizeYAML
+  РазрешитьВводПустыхМножественныхЗначений?: StringboolYAML
+  РазрешитьДублированиеМножественныхЗначений?: StringboolYAML
+  РазрешитьСоставнойТип?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РасширенноеРедактирование?: StringboolYAML
+  РасширенноеРедактированиеМножественныхЗначений?: StringboolYAML
+  РедактированиеТекста?: StringboolYAML
+  РежимВыбораИзСписка?: StringboolYAML
+  РежимВыбораНезаполненного?: SE.IncompleteChoiceModeYAML
+  РежимПароля?: StringboolYAML
+  СвязиПараметровВыбора?: ChoiceParameterLinksYAML
+  СвязьПоТипу?: TypeLinkYAML
+  СпециальныйРежимВводаТекста?: SE.SpecialTextInputModeYAML
+  СписокВыбора?: ChoiceListYAML
+  ТекстКнопкиВводаЭкраннойКлавиатуры?: SE.OnScreenKeyboardReturnKeyTextYAML
   ТекстРедактирования?: string
-  ФигураКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureShapeEnterprise
+  ФигураКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureShapeYAML
   ФормаВыбора?: string
-  Формат?: I8nTextEnterprise
-  ФорматРедактирования?: I8nTextEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветТекстаМножественныхЗначений?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
-  ЦветФонаМножественныхЗначений?: ColorEnterprise
+  Формат?: I8nTextYAML
+  ФорматРедактирования?: I8nTextYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветТекстаМножественныхЗначений?: ColorYAML
+  ЦветФона?: ColorYAML
+  ЦветФонаМножественныхЗначений?: ColorYAML
   Ширина?: number
   ШиринаВыпадающегоСписка?: number
-  Шрифт?: FontEnterprise
-  ШрифтМножественныхЗначений?: FontEnterprise
-  АвтоВысотаЯчейки?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormFieldTypeEnterprise
-  Видимость?: StringboolEnterprise
+  Шрифт?: FontYAML
+  ШрифтМножественныхЗначений?: FontYAML
+  АвтоВысотаЯчейки?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormFieldTypeYAML
+  Видимость?: StringboolYAML
   ВысотаЗаголовка?: number
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КартинкаПодвала?: PictureEnterprise
-  КартинкаШапки?: PictureEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОграничениеТипа?: TypeDescriptionEnterprise
-  ОтображатьВПодвале?: StringboolEnterprise
-  ОтображатьВШапке?: StringboolEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
+  ГиперссылкаЯчейки?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КартинкаПодвала?: PictureYAML
+  КартинкаШапки?: PictureYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОграничениеТипа?: TypeDescriptionYAML
+  ОтображатьВПодвале?: StringboolYAML
+  ОтображатьВШапке?: StringboolYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationYAML
+  Подсказка?: I8nTextYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  ПредупреждениеПриРедактировании?: I8nTextYAML
+  ПропускатьПриВводе?: StringboolYAML
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РежимРедактирования?: SE.ColumnEditModeYAML
   СочетаниеКлавиш?: string
   Таблица?: string
-  ТекстПодвала?: I8nTextEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветТекстаПодвала?: ColorEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
-  ЦветФонаПодвала?: ColorEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ШрифтПодвала?: FontEnterprise
+  ТекстПодвала?: I8nTextYAML
+  ТолькоПросмотр?: StringboolYAML
+  ФиксацияВТаблице?: SE.FixingInTableYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветТекстаПодвала?: ColorYAML
+  ЦветФонаЗаголовка?: ColorYAML
+  ЦветФонаПодвала?: ColorYAML
+  ШрифтЗаголовка?: FontYAML
+  ШрифтПодвала?: FontYAML
   События?: {
     ПриИзменении?: string
     АвтоПодбор?: string
@@ -301,7 +298,7 @@ export interface InputFieldPartialEnterprise {
   }
 }
 
-export interface InputFieldTypedEnterprise extends InputFieldPartialEnterprise {
+export interface InputFieldTypedYAML extends InputFieldPartialYAML {
   Тип: "ПолеВвода"
 }
 

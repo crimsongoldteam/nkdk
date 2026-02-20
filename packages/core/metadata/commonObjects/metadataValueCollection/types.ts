@@ -18,10 +18,10 @@ export type MetadataValueCollectionXML = {
 
 //#endregion
 
-//#region MetadataValueCollectionEnterprise
+//#region MetadataValueCollectionYAML
 
-export type MetadataValueCollectionItemEnterprise = string
+export type MetadataValueCollectionItemYAML = string
 
-export type MetadataValueCollectionEnterprise = MetadataValueCollectionItemEnterprise[]
+export type MetadataValueCollectionYAML = MetadataValueCollectionItemYAML[]
 
 //#endregion

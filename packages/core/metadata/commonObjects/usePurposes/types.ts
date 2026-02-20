@@ -6,4 +6,4 @@ export interface UsePurposesXML {
   "v8:Value": MetadataSimpleValueXML | MetadataSimpleValueXML[]
 }
 
-export type UsePurposesEnterprise = "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"
+export type UsePurposesYAML = "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"

@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from "../rules"
 import { getTypeRule } from "../types/factory"
-import { ExportToEnterpriseFunction, ExportToYAMLFunctionNew, TypeRulesNames } from "../types/types"
+import { ExportToYAMLFunction, ExportToYAMLFunctionNew, TypeRulesNames } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function exportPropertiesToYAML<T extends MetadataItem>(params: {
@@ -93,7 +93,7 @@ export const exportPropertyToYAML = <T extends MetadataItem>(params: {
   //   return { [yamlKey]: result }
   // }
 
-  const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
+  const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToYAML")
 
   if (!typeExportFn) return getExportToYAMLResult(rule, yamlKey, value)
 
@@ -108,7 +108,7 @@ export const exportPropertyToYAML = <T extends MetadataItem>(params: {
     return getExportToYAMLResult(rule, yamlKey, exportedValue)
   }
 
-  const result = (typeExportFn as ExportToEnterpriseFunction)(context, rule, value)
+  const result = (typeExportFn as ExportToYAMLFunction)(context, rule, value)
   return getExportToYAMLResult(rule, yamlKey, result)
 }
 

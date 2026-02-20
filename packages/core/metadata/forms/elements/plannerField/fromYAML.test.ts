@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullPlannerField,
-  fullPlannerFieldPartialEnterprise,
+  fullPlannerFieldPartialYAML,
   minimalPlannerField,
-  minimalPlannerFieldPartialEnterprise,
+  minimalPlannerFieldPartialYAML,
 } from "~/tests/fixtures/forms/plannerField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importPlannerFieldFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importPlannerFieldFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.PlannerField,
-      yaml: fullPlannerFieldPartialEnterprise,
+      yaml: fullPlannerFieldPartialYAML,
       source: fullPlannerField,
     })
 
@@ -24,7 +24,7 @@ describe("importPlannerFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.PlannerField,
-      yaml: minimalPlannerFieldPartialEnterprise,
+      yaml: minimalPlannerFieldPartialYAML,
       source: minimalPlannerField,
     })
 

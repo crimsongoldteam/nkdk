@@ -1,7 +1,7 @@
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
 import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
+import { importPictureFromYAML } from "~/metadata/commonObjects/picture/fromYAML"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
@@ -22,7 +22,7 @@ import { SearchControlAddition } from "~/metadata/forms/elements/searchControlAd
 import { SearchStringAddition } from "~/metadata/forms/elements/searchStringAddition/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/metadataType/fromYAML"
+import { importFormElementTypeFromYAML } from "~/metadata/metadataFactory/metadataType/fromYAML"
 import {
   CollectionFormElementType,
   FormElementTypeYAML,
@@ -83,7 +83,7 @@ export class Visitor extends BaseVisitor {
     const pictureToken = ctx.Picture?.[0] as IToken | undefined
     const pictureRef = pictureToken?.image?.replace(/^@/, "").trim() || ""
 
-    const picture = importPictureFromEnterprise(context, undefined, pictureRef)
+    const picture = importPictureFromYAML(context, undefined, pictureRef)
 
     const titleText = joinTokens(ctx.LabelContent as IToken[])
     const name = this.visit(ctx.properties as CstNode[], context)
@@ -780,7 +780,7 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[], context)
     const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as FormElementTypeYAML
 
-    const itemType = importFormElementTypeFromEnterprise(context, otherFieldType)
+    const itemType = importFormElementTypeFromYAML(context, otherFieldType)
     return {
       itemType: itemType,
       name: name,

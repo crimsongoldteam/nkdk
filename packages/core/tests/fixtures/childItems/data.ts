@@ -1,4 +1,4 @@
-import { AllChildItems, AllChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
+import { AllChildItems, AllChildItemsPartialYAML } from "~/metadata/forms/collections/childItems/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export interface ChildItemsFixture {
@@ -6,8 +6,8 @@ export interface ChildItemsFixture {
   element?: AllChildItems
   structure?: string[]
   xmlPath?: string
-  typedEnterprise?: AllChildItemsPartialEnterprise
-  partialEnterprise?: AllChildItemsPartialEnterprise
+  typedYAML?: AllChildItemsPartialYAML
+  partialYAML?: AllChildItemsPartialYAML
 }
 
 export const childItemsFixturesTable: ChildItemsFixture[] = [
@@ -20,10 +20,10 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
     element: [{ name: "Input1", itemType: CollectionFormElementType.InputField }],
     structure: ["{Input1}: "],
     xmlPath: "/childItems/single.xml",
-    typedEnterprise: {
+    typedYAML: {
       Input1: {},
     },
-    partialEnterprise: {
+    partialYAML: {
       Input1: {},
     },
   },
@@ -41,11 +41,11 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   },
 ]
 
-export const singleChildItemsEnterprise: AllChildItemsPartialEnterprise = {
+export const singleChildItemsYAML: AllChildItemsPartialYAML = {
   Input1: {},
 }
 
-export const differentTypesChildItemsEnterprise: AllChildItemsPartialEnterprise = {
+export const differentTypesChildItemsYAML: AllChildItemsPartialYAML = {
   Input1: {},
   Label2: {},
   Input3: {},

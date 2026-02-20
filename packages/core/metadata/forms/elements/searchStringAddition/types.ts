@@ -1,12 +1,12 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement, NamedElement } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface SearchStringAddition extends NamedElement {
   itemType: "SearchStringAddition"
@@ -36,26 +36,26 @@ export interface SingleSearchStringAddition
   itemType: "SingleSearchStringAddition"
 }
 
-export interface SearchStringAdditionEnterprise {
+export interface SearchStringAdditionYAML {
   Источник?: string
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
+  РастягиватьПоГоризонтали?: StringboolYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветФона?: ColorYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Видимость?: StringboolEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  Шрифт?: FontYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Видимость?: StringboolYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
 }
 
-export interface SingleSearchStringAdditionEnterprise extends Omit<SearchStringAdditionEnterprise, "Источник"> {}
+export interface SingleSearchStringAdditionYAML extends Omit<SearchStringAdditionYAML, "Источник"> {}

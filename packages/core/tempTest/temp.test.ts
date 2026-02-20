@@ -1,17 +1,17 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
-import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/base/exportToEnterprise"
 import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
 import {
   exportClientApplicationFormToXML,
   exportFormMetadataToXML,
 } from "~/metadata/forms/clientApplicationForm/base/exportToXML"
-import { importClientApplicationFormFromEnterprise } from "~/metadata/forms/clientApplicationForm/base/importFromEnterprise"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/base/fromYAML"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/importFromXML"
+import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/base/toYAML"
 import {
-  ClientApplicationFormEnterprise,
   ClientApplicationFormXML,
+  ClientApplicationFormYAML,
   FormMetadataXML,
 } from "~/metadata/forms/clientApplicationForm/base/types"
 import { importChildItemsFromStructure } from "~/metadata/forms/collections/childItems/importFromStructure"
@@ -73,15 +73,15 @@ describe.skip("DO test", () => {
       originalFormXml.Form,
       originalFormMetadataXml.MetaDataObject
     )
-    const yamlObject = exportClientApplicationFormToEnterprise(configurationContext, form)
+    const yamlObject = exportClientApplicationFormToYAML(configurationContext, form)
     const yaml = exportToYAML(yamlObject)
     const structuredObject = exportClientApplicationFormToStructure(configurationContext, form)
     const strings = structuredObject.strings.join("\n")
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
     writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
     const childItems = importChildItemsFromStructure(configurationContext, strings)
-    const importedYaml = importFromYAML<ClientApplicationFormEnterprise>(yaml)
-    const newForm = importClientApplicationFormFromEnterprise(configurationContext, importedYaml, childItems)
+    const importedYaml = importFromYAML<ClientApplicationFormYAML>(yaml)
+    const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, childItems)
 
     const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
     const newXML = xmlExport({ Form: newXMLData })
@@ -99,17 +99,17 @@ describe.skip("DO test", () => {
   // it("should import metadata catalog from XML", () => {
   //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
   //   const xmlData = importMetadataCatalogFromXML(mockContext, mockRule, importedXml.MetaDataObject)
-  //   const exportedEnterprise = exportMetadataCatalogToEnterprise(mockContext, mockRule, xmlData)
-  //   const yamlString = exportToYAML(exportedEnterprise!)
+  //   const exportedYAML = exportMetadataCatalogToYAML(mockContext, mockRule, xmlData)
+  //   const yamlString = exportToYAML(exportedYAML!)
   //   writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
-  //   const importedYAML = importFromYAML<MetadataCatalogEnterprise>(yamlString)
-  //   const newData = importMetadataCatalogFromEnterprise(mockContext, mockRule,  importedYAML, "Номенклатура")
+  //   const importedYAML = importFromYAML<MetadataCatalogYAML>(yamlString)
+  //   const newData = importMetadataCatalogFromYAML(mockContext, mockRule,  importedYAML, "Номенклатура")
   //   const newXml = exportMetadataCatalogToXML(mockMetadataCatalogContext, newData)
   //   const newXmlString = xmlExport({ MetaDataObject: newXml })
   //   writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
   // })
   // it("should export schema ", () => {
-  //   const catalogSchema = typia.json.schemas<[MetadataCatalogEnterprise], "3.1">()
+  //   const catalogSchema = typia.json.schemas<[MetadataCatalogYAML], "3.1">()
   //   writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
   // })
 })

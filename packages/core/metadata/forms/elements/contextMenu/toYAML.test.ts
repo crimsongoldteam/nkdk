@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { exportPropertyToYAML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { fullContextMenu, fullContextMenuEnterprise } from "~/tests/fixtures/forms/contextMenu/data"
+import { fullContextMenu, fullContextMenuYAML } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 import { Table } from "../table/types"
 
@@ -10,7 +10,7 @@ const rule: PropertyRule<Table> = {
   yaml: "КонтекстноеМеню",
 }
 
-describe("exportContextMenuToEnterprise", () => {
+describe("exportContextMenuToYAML", () => {
   it("should return undefined when data is undefined", () => {
     const result = exportPropertyToYAML({
       context: mockContext,
@@ -21,13 +21,13 @@ describe("exportContextMenuToEnterprise", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should export all fields to Enterprise", () => {
+  it("should export all fields to YAML", () => {
     const result = exportPropertyToYAML({
       context: mockContext,
       rule: rule,
       value: fullContextMenu,
     })
 
-    expect(result).toHaveProperty("КонтекстноеМеню", fullContextMenuEnterprise)
+    expect(result).toHaveProperty("КонтекстноеМеню", fullContextMenuYAML)
   })
 })

@@ -1,23 +1,23 @@
-import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
+import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { FormParameterEnterprise, FormParameters, FormParametersEnterprise } from "./types"
+import { FormParameterYAML, FormParameters, FormParametersYAML } from "./types"
 
-export const exportFormParametersToEnterprise = (
+export const exportFormParametersToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   parameters: FormParameters | undefined
-): FormParametersEnterprise | undefined => {
+): FormParametersYAML | undefined => {
   if (parameters === undefined || parameters.length === 0) {
     return undefined
   }
 
-  const result: FormParametersEnterprise = {}
+  const result: FormParametersYAML = {}
 
   for (const parameter of parameters) {
-    const enterpriseParameter: FormParameterEnterprise = {
-      Тип: exportTypeDescriptionToEnterprise(context, undefined, parameter.type)!,
+    const enterpriseParameter: FormParameterYAML = {
+      Тип: exportTypeDescriptionToYAML(context, undefined, parameter.type)!,
     }
 
     if (parameter.keyParameter !== undefined) {
@@ -30,4 +30,4 @@ export const exportFormParametersToEnterprise = (
   return result
 }
 
-registerTypeRule("FormParameters", "exportToEnterprise", exportFormParametersToEnterprise)
+registerTypeRule("FormParameters", "exportToYAML", exportFormParametersToYAML)

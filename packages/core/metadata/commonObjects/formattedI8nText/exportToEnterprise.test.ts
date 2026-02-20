@@ -3,13 +3,13 @@ import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
 import { mockContext, mockContextToYAML, mockRule } from "~/tests/mockContext"
 import {
-  exportFormattedI8nTextDefaultToEnterprise,
-  exportFormattedI8nTextOtherToEnterprise,
+  exportFormattedI8nTextDefaultToYAML,
+  exportFormattedI8nTextOtherToYAML,
   exportFormattedI8nTextToYAML,
-} from "./exportToEnterprise"
+} from "./toYAML"
 
-describe("exportFormattedI8nTextToEnterprise", () => {
-  describe("exportFormattedI8nTextToEnterprise", () => {
+describe("exportFormattedI8nTextToYAML", () => {
+  describe("exportFormattedI8nTextToYAML", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
         const result = exportFormattedI8nTextToYAML<FormattedI8nTextPropertyRule<any>>({
@@ -32,20 +32,20 @@ describe("exportFormattedI8nTextToEnterprise", () => {
     })
   })
 
-  describe("exportFormattedI8nTextDefaultToEnterprise", () => {
+  describe("exportFormattedI8nTextDefaultToYAML", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export default: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextDefaultToEnterprise(mockContextToYAML, mockRule, fixture.text)
+        const result = exportFormattedI8nTextDefaultToYAML(mockContextToYAML, mockRule, fixture.text)
 
         expect(result).toEqual(fixture.enterpriseDefaultLanguage)
       })
     })
   })
 
-  describe("exportFormattedI8nTextOtherToEnterprise", () => {
+  describe("exportFormattedI8nTextOtherToYAML", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export other: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextOtherToEnterprise(
+        const result = exportFormattedI8nTextOtherToYAML(
           mockContextToYAML,
           mockRule,
           fixture.text,

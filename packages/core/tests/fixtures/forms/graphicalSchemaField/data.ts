@@ -1,6 +1,6 @@
 import {
   GraphicalSchemaField,
-  GraphicalSchemaFieldPartialEnterprise,
+  GraphicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -98,7 +98,7 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
   },
 }
 
-export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPartialEnterprise = {
+export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Вывод: "Разрешить",
@@ -167,4 +167,4 @@ export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   name: "ПолеГрафическойСхемы",
 }
 
-export const minimalGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPartialEnterprise = {}
+export const minimalGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {}

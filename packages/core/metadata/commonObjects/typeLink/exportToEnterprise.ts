@@ -1,25 +1,25 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataFieldToEnterprise } from "../metadataField/exportToEnterprise"
-import { TypeLink, TypeLinkEnterprise } from "./types"
+import { exportMetadataFieldToYAML } from "../metadataField/toYAML"
+import { TypeLink, TypeLinkYAML } from "./types"
 
-export const exportTypeLinkToEnterprise = (
+export const exportTypeLinkToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: TypeLink | undefined
-): TypeLinkEnterprise | undefined => {
+): TypeLinkYAML | undefined => {
   if (!data) return undefined
 
-  const dataPathEnterprise = exportMetadataFieldToEnterprise(context, undefined, data.dataPath)
-  if (!dataPathEnterprise) return undefined
+  const dataPathYAML = exportMetadataFieldToYAML(context, undefined, data.dataPath)
+  if (!dataPathYAML) return undefined
 
   // Добавляем linkItem в скобках, если он не равен 0
   if (data.linkItem !== 0) {
-    return `${dataPathEnterprise}(${data.linkItem})`
+    return `${dataPathYAML}(${data.linkItem})`
   }
 
-  return dataPathEnterprise
+  return dataPathYAML
 }
 
-registerTypeRule("TypeLink", "exportToEnterprise", exportTypeLinkToEnterprise)
+registerTypeRule("TypeLink", "exportToYAML", exportTypeLinkToYAML)

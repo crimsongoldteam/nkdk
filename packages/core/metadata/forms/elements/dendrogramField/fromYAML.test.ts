@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullDendrogramField,
-  fullDendrogramFieldPartialEnterprise,
+  fullDendrogramFieldPartialYAML,
   minimalDendrogramField,
-  minimalDendrogramFieldPartialEnterprise,
+  minimalDendrogramFieldPartialYAML,
 } from "~/tests/fixtures/forms/dendrogramField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importDendrogramFieldFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importDendrogramFieldFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.DendrogramField,
-      yaml: fullDendrogramFieldPartialEnterprise,
+      yaml: fullDendrogramFieldPartialYAML,
       source: fullDendrogramField,
     })
 
@@ -24,7 +24,7 @@ describe("importDendrogramFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.DendrogramField,
-      yaml: minimalDendrogramFieldPartialEnterprise,
+      yaml: minimalDendrogramFieldPartialYAML,
       source: minimalDendrogramField,
     })
 

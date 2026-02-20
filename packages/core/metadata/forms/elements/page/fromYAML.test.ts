@@ -1,19 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
-import {
-  fullPage,
-  fullPagePartialEnterprise,
-  minimalPage,
-  minimalPagePartialEnterprise,
-} from "~/tests/fixtures/forms/page/data"
+import { fullPage, fullPagePartialYAML, minimalPage, minimalPagePartialYAML } from "~/tests/fixtures/forms/page/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importPageFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importPageFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.Page,
-      yaml: fullPagePartialEnterprise,
+      yaml: fullPagePartialYAML,
       source: fullPage,
     })
 
@@ -24,7 +19,7 @@ describe("importPageFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.Page,
-      yaml: minimalPagePartialEnterprise,
+      yaml: minimalPagePartialYAML,
       source: minimalPage,
     })
 

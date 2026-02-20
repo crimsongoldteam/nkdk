@@ -1,4 +1,4 @@
-import { ChartField, ChartFieldPartialEnterprise } from "~/metadata/forms/elements/chartField/types"
+import { ChartField, ChartFieldPartialYAML } from "~/metadata/forms/elements/chartField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -91,7 +91,7 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
   },
 }
 
-export const fullChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {
+export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -157,4 +157,4 @@ export const minimalChartField: ChartField = {
   name: "ПолеДиаграммы",
 }
 
-export const minimalChartFieldPartialEnterprise: ChartFieldPartialEnterprise = {}
+export const minimalChartFieldPartialYAML: ChartFieldPartialYAML = {}

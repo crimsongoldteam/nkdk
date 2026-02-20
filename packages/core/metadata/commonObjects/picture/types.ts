@@ -1,5 +1,5 @@
 import * as SE from "../../systemEnumerations/types"
-import { StringboolEnterprise } from "../boolean/types"
+import { StringboolYAML } from "../boolean/types"
 
 export interface PictureXML {
   "xr:Ref"?: string
@@ -21,15 +21,15 @@ export interface Picture {
   }
 }
 
-export type PictureEnterpriseRef = string | SE.PictureLibEnterprise
+export type PictureYAMLRef = string | SE.PictureLibYAML
 
-export interface PictureEnterpriseExtended {
-  Ссылка: PictureEnterpriseRef
-  ПрозрачныйФон?: StringboolEnterprise
+export interface PictureYAMLExtended {
+  Ссылка: PictureYAMLRef
+  ПрозрачныйФон?: StringboolYAML
   ПрозрачныйПиксель?: { x: number; y: number }
 }
 
-export type PictureEnterprise = PictureEnterpriseRef | PictureEnterpriseExtended
+export type PictureYAML = PictureYAMLRef | PictureYAMLExtended
 
 export interface PredifinedPicturePreview {
   Type: "Picture"

@@ -4,7 +4,7 @@ export const getTypeDescriptionRule = (type: string): TypeDescriptionRule | unde
   return TypeDescriptionRules[type]
 }
 
-export const getTypeFromEnterprise = (enterprise: string): string | undefined => {
+export const getTypeFromYAML = (enterprise: string): string | undefined => {
   // Find the key (type) that corresponds to this enterprise value
   for (const [type, rule] of Object.entries(TypeDescriptionRules)) {
     if (rule.enterprise === enterprise) {

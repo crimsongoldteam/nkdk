@@ -1,7 +1,7 @@
 import {
   MetadataFormChoiceListValue,
-  MetadataFormChoiceListValueEnterprise,
   MetadataFormChoiceListValueXML,
+  MetadataFormChoiceListValueYAML,
 } from "../metadataValue/types"
 
 //#region ChoiceList
@@ -23,8 +23,8 @@ export interface ChoiceListXML {
 
 //#endregion
 
-//#region ChoiceListEnterprise
+//#region ChoiceListYAML
 
-export type ChoiceListEnterprise = MetadataFormChoiceListValueEnterprise[]
+export type ChoiceListYAML = MetadataFormChoiceListValueYAML[]
 
 //#endregion

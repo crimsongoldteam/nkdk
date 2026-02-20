@@ -1,4 +1,4 @@
-import { MetadataAttributes, MetadataAttributesEnterprise } from "~/metadata/commonObjects/metadataAttribute/types"
+import { MetadataAttributes, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 
 //#region FullMetadataAttributes
 export const fullMetadataAttributes: MetadataAttributes = [
@@ -57,7 +57,7 @@ export const fullMetadataAttributes: MetadataAttributes = [
   },
 ]
 
-export const fullMetadataAttributesEnterprise: MetadataAttributesEnterprise = {
+export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит: {
     Тип: "Строка",
     Синоним: "Какой-то тестовый реквизит",
@@ -102,7 +102,7 @@ export const minimalMetadataAttributes: MetadataAttributes = [
   },
 ]
 
-export const minimalMetadataAttributesEnterprise: MetadataAttributesEnterprise = {
+export const minimalMetadataAttributesYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит: { Тип: "Строка", Синоним: "" },
 }
 //#endregion
@@ -131,7 +131,7 @@ export const shortMetadataAttribute: MetadataAttributes = [
   },
 ]
 
-export const shortMetadataAttributeEnterprise: MetadataAttributesEnterprise = {
+export const shortMetadataAttributeYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит: "Строка",
 }
 //#endregion
@@ -152,7 +152,7 @@ export const skipSynonymFromMetadataAttribute: MetadataAttributes = [
   },
 ]
 
-export const skipSynonymFromMetadataAttributeEnterprise: MetadataAttributesEnterprise = {
+export const skipSynonymFromMetadataAttributeYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит1: { Тип: "Строка", Комментарий: "Комментарий к реквизиту" },
   ТестовыйРеквизит2: { Тип: "Строка", БыстрыйВыбор: "НеИспользовать" },
 }
@@ -167,7 +167,7 @@ export const shortMultilanguageMetadataAttribute: MetadataAttributes = [
   },
 ]
 
-export const shortMultilanguageMetadataAttributeEnterprise: MetadataAttributesEnterprise = {
+export const shortMultilanguageMetadataAttributeYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } },
 }
 //#endregion

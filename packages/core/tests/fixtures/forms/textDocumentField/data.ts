@@ -1,7 +1,4 @@
-import {
-  TextDocumentField,
-  TextDocumentFieldPartialEnterprise,
-} from "~/metadata/forms/elements/textDocumentField/types"
+import { TextDocumentField, TextDocumentFieldPartialYAML } from "~/metadata/forms/elements/textDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -99,7 +96,7 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
   },
 }
 
-export const fullTextDocumentFieldPartialEnterprise: TextDocumentFieldPartialEnterprise = {
+export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -171,4 +168,4 @@ export const minimalTextDocumentField: TextDocumentField = {
   name: "ПолеТекстовогоДокумента",
 }
 
-export const minimalTextDocumentFieldPartialEnterprise: TextDocumentFieldPartialEnterprise = {}
+export const minimalTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {}

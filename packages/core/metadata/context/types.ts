@@ -1,5 +1,5 @@
 import { PreviewAttributeMapItem } from "../forms/clientApplicationForm/base/types"
-import { AllChildItemsPartialEnterprise } from "../forms/collections/childItems/types"
+import { AllChildItemsPartialYAML } from "../forms/collections/childItems/types"
 import { FormElementType } from "../metadataFactory"
 
 export type ContextElementTreeItem = { name: string; itemType: FormElementType }
@@ -8,7 +8,7 @@ export interface ConfigurationContext {
   testMode?: boolean
   defaultLanguage: string
   context?: object
-  allElements?: AllChildItemsPartialEnterprise
+  allElements?: AllChildItemsPartialYAML
   preview?: {
     prefix: string
     attributes: Record<string, PreviewAttributeMapItem>
@@ -25,7 +25,7 @@ export interface FormExportToYAMLContext {
 }
 
 export interface FormImportFromYAMLContext {
-  allElements?: AllChildItemsPartialEnterprise
+  allElements?: AllChildItemsPartialYAML
 }
 
 // export interface FormAttributeImportFromYAMLContext {

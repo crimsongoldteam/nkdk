@@ -1,7 +1,4 @@
-import {
-  ClientApplicationForm,
-  ClientApplicationFormEnterprise,
-} from "~/metadata/forms/clientApplicationForm/base/types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/base/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
@@ -151,7 +148,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   itemType: "ClientApplicationForm",
 }
 
-export const fullClientApplicationFormEnterprise: Required<ClientApplicationFormEnterprise> = {
+export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
   ВключатьСправкуВСодержание: "Истина",
@@ -277,4 +274,4 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   itemType: "ClientApplicationForm",
 }
 
-export const minimalClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {}
+export const minimalClientApplicationFormYAML: ClientApplicationFormYAML = {}

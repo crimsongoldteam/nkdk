@@ -1,8 +1,8 @@
 import {
   CharacteristicsDescription,
-  CharacteristicsDescriptionEnterprise,
+  CharacteristicsDescriptionYAML,
   CharacteristicsDescriptions,
-  CharacteristicsDescriptionsEnterprise,
+  CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 
 export const singleSimple: CharacteristicsDescription = {
@@ -13,7 +13,7 @@ export const singleSimple: CharacteristicsDescription = {
   multipleValuesUseField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный",
 }
 
-export const singleSimpleEnterprise: CharacteristicsDescriptionEnterprise = {
+export const singleSimpleYAML: CharacteristicsDescriptionYAML = {
   ВидыХарактеристик: "ПланВидовХарактеристик.РеквизитыДляСписка",
   ПолеКлюча: "ПланВидовХарактеристик.РеквизитыДляСписка.СтандартныйРеквизит.Ссылка",
   ПолеОтбораВидов: "ПланВидовХарактеристик.РеквизитыДляСписка.СтандартныйРеквизит.ИмяПредопределенныхДанных",
@@ -48,7 +48,7 @@ export const multiple: CharacteristicsDescriptions = [
   },
 ]
 
-export const multipleEnterprise: CharacteristicsDescriptionsEnterprise = [
+export const multipleYAML: CharacteristicsDescriptionsYAML = [
   {
     ВидыХарактеристик: "Справочник.НаборыДополнительныхРеквизитовИСведений.ТабличнаяЧасть.ДополнительныеРеквизиты",
     ЗначенияХарактеристик: "Справочник.Номенклатура.ТабличнаяЧасть.ДополнительныеРеквизиты",

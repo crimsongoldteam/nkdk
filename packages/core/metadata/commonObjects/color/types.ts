@@ -7,7 +7,7 @@ export interface Color {
 
 export type ColorXML = string
 
-export type ColorEnterprise = string
+export type ColorYAML = string
 
 export const ColorPrefixToType: Record<string, "StyleItem" | "WindowsColor" | "WebColor"> = {
   style: "StyleItem",

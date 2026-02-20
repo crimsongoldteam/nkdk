@@ -5,7 +5,7 @@ import { SystemEnumerationPropertyRule } from "../metadataFactory"
 import { registerTypeRule } from "../metadataFactory/types/factory"
 
 /** @deprecated */
-export const importSystemEnumerationFromEnterprise = <T extends string>(
+export const importSystemEnumerationFromYAML = <T extends string>(
   _context: ConfigurationContext,
   _rule: PropertyRule<any>,
   value: string | undefined,
@@ -23,10 +23,10 @@ export const importSystemEnumerationFromYAML = <T extends string>(
 ): T | undefined => {
   if (!value) return undefined
 
-  const enumeration = (SE as Record<string, Record<string, string>>)[rule!.typeSE! + "FromEnterprise"]
+  const enumeration = (SE as Record<string, Record<string, string>>)[rule!.typeSE! + "FromYAML"]
 
   if (!enumeration) throw new Error(`Enumeration ${rule!.typeSE} not found`)
   return enumeration[value] as T
 }
 
-registerTypeRule("SystemEnumeration", "importFromEnterprise", importSystemEnumerationFromYAML as any)
+registerTypeRule("SystemEnumeration", "importFromYAML", importSystemEnumerationFromYAML as any)

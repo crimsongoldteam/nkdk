@@ -1,5 +1,5 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface MetadataDocumentNumerator {
@@ -26,14 +26,14 @@ export interface MetadataDocumentNumeratorXML {
   Synonym?: I8nTextXML
 }
 
-export interface MetadataDocumentNumeratorEnterprise {
+export interface MetadataDocumentNumeratorYAML {
   ДлинаНомера?: number
-  ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
+  ДопустимаяДлинаНомера?: SE.AllowedLengthYAML
   Имя?: string
   Комментарий?: string
-  КонтрольУникальности?: StringboolEnterprise
-  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  Синоним?: I8nTextEnterprise
-  ТипНомера?: SE.DocumentNumberTypeEnterprise
+  КонтрольУникальности?: StringboolYAML
+  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityYAML
+  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
+  Синоним?: I8nTextYAML
+  ТипНомера?: SE.DocumentNumberTypeYAML
 }

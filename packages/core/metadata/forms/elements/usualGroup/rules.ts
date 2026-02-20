@@ -100,7 +100,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
       type: "AssociatedTable",
-      toEnterprise: false,
+      toEnt: false,
     },
     throughAlign: {
       yaml: "СквозноеВыравнивание",
@@ -126,7 +126,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
-      toEnterprise: false,
+      toEnt: false,
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",

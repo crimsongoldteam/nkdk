@@ -1,17 +1,17 @@
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
-  MetadataAttributesEnterprise,
   MetadataAttributesXML,
+  MetadataAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
   StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
-import { MetadataNameEnterprise } from "../metadataName/types"
+import { MetadataNameYAML } from "../metadataName/types"
 
 export interface MetadataTabularSection {
   attributes?: MetadataAttributes
@@ -50,20 +50,20 @@ export interface MetadataTabularSectionXML {
   }
 }
 
-export interface MetadataTabularSectionEnterprise {
+export interface MetadataTabularSectionYAML {
   ДлинаНомераСтроки?: number
-  Использование?: SE.AttributeUseEnterprise
+  Использование?: SE.AttributeUseYAML
   Комментарий?: string
-  Подсказка?: I8nTextEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
-  Реквизиты?: MetadataAttributesEnterprise
-  Синоним?: I8nTextEnterprise
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
+  Подсказка?: I8nTextYAML
+  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
+  ПроверкаЗаполнения?: SE.FillCheckingYAML
+  Реквизиты?: MetadataAttributesYAML
+  Синоним?: I8nTextYAML
+  СтандартныеРеквизиты?: StandardAttributeDescriptionsYAML
 }
 
 export type MetadataTabularSections = MetadataTabularSection[]
 
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
-export type MetadataTabularSectionsEnterprise = Record<MetadataNameEnterprise, MetadataTabularSectionEnterprise>
+export type MetadataTabularSectionsYAML = Record<MetadataNameYAML, MetadataTabularSectionYAML>

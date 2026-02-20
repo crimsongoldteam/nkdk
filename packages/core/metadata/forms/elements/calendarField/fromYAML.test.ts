@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullCalendarField,
-  fullCalendarFieldPartialEnterprise,
+  fullCalendarFieldPartialYAML,
   minimalCalendarField,
-  minimalCalendarFieldPartialEnterprise,
+  minimalCalendarFieldPartialYAML,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importCalendarFieldFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importCalendarFieldFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.CalendarField,
-      yaml: fullCalendarFieldPartialEnterprise,
+      yaml: fullCalendarFieldPartialYAML,
       source: fullCalendarField,
     })
 
@@ -24,7 +24,7 @@ describe("importCalendarFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.CalendarField,
-      yaml: minimalCalendarFieldPartialEnterprise,
+      yaml: minimalCalendarFieldPartialYAML,
       source: minimalCalendarField,
     })
 

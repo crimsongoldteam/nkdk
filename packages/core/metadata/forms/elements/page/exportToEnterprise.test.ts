@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
-import { fullPage, fullPagePartialEnterprise, minimalPage } from "~/tests/fixtures/forms/page/data"
+import { fullPage, fullPagePartialYAML, minimalPage } from "~/tests/fixtures/forms/page/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportPageToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportPageToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullPage })
 
-    expect(result).toEqual(fullPagePartialEnterprise)
+    expect(result).toEqual(fullPagePartialYAML)
   })
 
   it("should export minimal", () => {

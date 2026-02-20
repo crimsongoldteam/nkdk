@@ -1,6 +1,6 @@
 import { createMetadataTypesRules, createMetadataValuesRules, swapMetadataFieldsRulesKeys } from "./helper"
 
-const OtherTypeToEnterprise = {
+const OtherTypeToYAML = {
   Characteristic: "Характеристика",
 
   DefinedType: "ОпределяемыйТип",
@@ -42,7 +42,7 @@ const OtherTypeToEnterprise = {
   FunctionalOptionParameter: "ПараметрФункциональныхОпций",
 } as const
 
-export const MetadataTypeToEnterprise = {
+export const MetadataTypeToYAML = {
   Constant: "Константа",
 
   CatalogObject: "СправочникОбъект",
@@ -74,20 +74,17 @@ export const MetadataTypeToEnterprise = {
   TaskRef: "Задача",
   TaskObject: "ЗадачаОбъект",
 
-  ...OtherTypeToEnterprise,
+  ...OtherTypeToYAML,
 } as const
 
-export const MetadataTypeFromEnterprise = Object.fromEntries(
-  Object.entries(MetadataTypeToEnterprise).map(([key, value]) => [value, key])
-) as Record<
-  (typeof MetadataTypeToEnterprise)[keyof typeof MetadataTypeToEnterprise],
-  keyof typeof MetadataTypeToEnterprise
->
+export const MetadataTypeFromYAML = Object.fromEntries(
+  Object.entries(MetadataTypeToYAML).map(([key, value]) => [value, key])
+) as Record<(typeof MetadataTypeToYAML)[keyof typeof MetadataTypeToYAML], keyof typeof MetadataTypeToYAML>
 
-export type MetadataType = keyof typeof MetadataTypeToEnterprise
-export type MetadataTypeEnterprise = (typeof MetadataTypeToEnterprise)[keyof typeof MetadataTypeToEnterprise]
+export type MetadataType = keyof typeof MetadataTypeToYAML
+export type MetadataTypeYAML = (typeof MetadataTypeToYAML)[keyof typeof MetadataTypeToYAML]
 
-export const MetadataFieldTypeToEnterprise = {
+export const MetadataFieldTypeToYAML = {
   Constant: "Константа",
   Catalog: "Справочник",
   Document: "Документ",
@@ -96,19 +93,18 @@ export const MetadataFieldTypeToEnterprise = {
   BusinessProcessRoutePoint: "ТочкаМаршрутаБизнесПроцесса",
   Task: "Задача",
   ExchangePlan: "ПланОбмена",
-  ...OtherTypeToEnterprise,
+  ...OtherTypeToYAML,
 }
 
-export const MetadataFieldTypeFromEnterprise = Object.fromEntries(
-  Object.entries(MetadataFieldTypeToEnterprise).map(([key, value]) => [value, key])
+export const MetadataFieldTypeFromYAML = Object.fromEntries(
+  Object.entries(MetadataFieldTypeToYAML).map(([key, value]) => [value, key])
 ) as Record<
-  (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise],
-  keyof typeof MetadataFieldTypeToEnterprise
+  (typeof MetadataFieldTypeToYAML)[keyof typeof MetadataFieldTypeToYAML],
+  keyof typeof MetadataFieldTypeToYAML
 >
 
-export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
-export type MetadataFieldTypeEnterprise =
-  (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
+export type MetadataFieldType = keyof typeof MetadataFieldTypeToYAML
+export type MetadataFieldTypeYAML = (typeof MetadataFieldTypeToYAML)[keyof typeof MetadataFieldTypeToYAML]
 
 export type IncludeToType = "Ref" | "Both" | "Save"
 
@@ -124,7 +120,7 @@ export type MetadataFieldsRulesItem = string | MetadataMapItem
 
 export type MetadataFieldsRules = Record<string, MetadataFieldsRulesItem>
 
-export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
+export const MetadataFieldsRulesToYAML: MetadataFieldsRules = {
   Catalog: {
     name: "Справочник",
     includeToType: "Both",
@@ -258,10 +254,10 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   },
 } as const
 
-export const MetadataFieldsRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToEnterprise)!
+export const MetadataFieldsRulesFromYAML = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToYAML)!
 
-export const MetadataTypesRulesToEnterprise = createMetadataTypesRules(MetadataFieldsRulesToEnterprise)!
-export const MetadataTypesRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataTypesRulesToEnterprise)!
+export const MetadataTypesRulesToYAML = createMetadataTypesRules(MetadataFieldsRulesToYAML)!
+export const MetadataTypesRulesFromYAML = swapMetadataFieldsRulesKeys(MetadataTypesRulesToYAML)!
 
-export const MetadataValuesRulesToEnterprise = createMetadataValuesRules(MetadataFieldsRulesToEnterprise)!
-export const MetadataValuesRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataValuesRulesToEnterprise)!
+export const MetadataValuesRulesToYAML = createMetadataValuesRules(MetadataFieldsRulesToYAML)!
+export const MetadataValuesRulesFromYAML = swapMetadataFieldsRulesKeys(MetadataValuesRulesToYAML)!

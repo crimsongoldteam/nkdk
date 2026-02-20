@@ -11,4 +11,4 @@ export const exportStringToYAML = (
   return value.toString()
 }
 
-registerTypeRule("string", "exportToEnterprise", exportStringToYAML)
+registerTypeRule("string", "exportToYAML", exportStringToYAML)

@@ -1,105 +1,97 @@
 import { describe, expect, it } from "vitest"
 import {
   choiceListFormAttribute,
-  choiceListFormAttributeEnterprise,
+  choiceListFormAttributeYAML,
   fullFormAttributes,
-  fullFormAttributesEnterprise,
+  fullFormAttributesYAML,
   mainAttributeTitleEqualsName,
-  mainAttributeTitleEqualsNameEnterprise,
+  mainAttributeTitleEqualsNameYAML,
   minimalFormAttributes,
-  minimalFormAttributesEnterprise,
+  minimalFormAttributesYAML,
   shortFormAttribute,
-  shortFormAttributeEnterprise,
+  shortFormAttributeYAML,
   tableWithColumnsFormAttribute,
-  tableWithColumnsFormAttributeEnterprise,
+  tableWithColumnsFormAttributeYAML,
   treeWithColumnFormAttribute,
-  treeWithColumnFormAttributeEnterprise,
+  treeWithColumnFormAttributeYAML,
   withAdditionalColumnFormAttribute,
-  withAdditionalColumnFormAttributeEnterprise,
+  withAdditionalColumnFormAttributeYAML,
   withEmptySettingsFormAttribute,
-  withEmptySettingsFormAttributeEnterprise,
+  withEmptySettingsFormAttributeYAML,
   withFunctionalOptionsFormAttribute,
-  withFunctionalOptionsFormAttributeEnterprise,
+  withFunctionalOptionsFormAttributeYAML,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importFormAttributesFromEnterprise } from "./fromYAML"
+import { importFormAttributesFromYAML } from "./fromYAML"
 
-describe("importFormAttributesFromEnterprise", () => {
+describe("importFormAttributesFromYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, undefined)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, fullFormAttributesEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, fullFormAttributesYAML)
 
     expect(result).toEqual(fullFormAttributes)
   })
 
   it("should import minimal", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, minimalFormAttributesEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, minimalFormAttributesYAML)
 
     expect(result).toEqual(minimalFormAttributes)
   })
 
   it("should import with short format", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, shortFormAttributeEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, shortFormAttributeYAML)
 
     expect(result).toEqual(shortFormAttribute)
   })
 
   it("should import title when mainAttribute=true and title equals name", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, mainAttributeTitleEqualsNameEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, mainAttributeTitleEqualsNameYAML)
 
     expect(result).toEqual(mainAttributeTitleEqualsName)
   })
 
   it("should import choice list", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, choiceListFormAttributeEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, choiceListFormAttributeYAML)
 
     expect(result).toEqual(choiceListFormAttribute)
   })
 
   it("should import with empty settings", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, withEmptySettingsFormAttributeEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, withEmptySettingsFormAttributeYAML)
 
     expect(result).toEqual(withEmptySettingsFormAttribute)
   })
 
   // it("should import with dynamic list", () => {
-  //   const result = importFormAttributesFromEnterprise(mockContext, mockRule, withDynamicListFormAttributeEnterprise)
+  //   const result = importFormAttributesFromYAML(mockContext, mockRule, withDynamicListFormAttributeYAML)
 
   //   expect(result).toEqual(withDynamicListFormAttribute)
   // })
 
   it("should import table with columns", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, tableWithColumnsFormAttributeEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, tableWithColumnsFormAttributeYAML)
 
     expect(result).toEqual(tableWithColumnsFormAttribute)
   })
 
   it("should import tree with column", () => {
-    const result = importFormAttributesFromEnterprise(mockContext, mockRule, treeWithColumnFormAttributeEnterprise)
+    const result = importFormAttributesFromYAML(mockContext, mockRule, treeWithColumnFormAttributeYAML)
 
     expect(result).toEqual(treeWithColumnFormAttribute)
   })
 
   it("should import with functional options", () => {
-    const result = importFormAttributesFromEnterprise(
-      mockContext,
-      mockRule,
-      withFunctionalOptionsFormAttributeEnterprise
-    )
+    const result = importFormAttributesFromYAML(mockContext, mockRule, withFunctionalOptionsFormAttributeYAML)
 
     expect(result).toEqual(withFunctionalOptionsFormAttribute)
   })
 
   it("should import with additional column", () => {
-    const result = importFormAttributesFromEnterprise(
-      mockContext,
-      mockRule,
-      withAdditionalColumnFormAttributeEnterprise
-    )
+    const result = importFormAttributesFromYAML(mockContext, mockRule, withAdditionalColumnFormAttributeYAML)
 
     expect(result).toEqual(withAdditionalColumnFormAttribute)
   })

@@ -1,46 +1,43 @@
-import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import {
   MetadataAttribute,
-  MetadataAttributeEnterprise,
-  MetadataAttributeFullEnterprise,
+  MetadataAttributeFullYAML,
   MetadataAttributes,
-  MetadataAttributesEnterprise,
+  MetadataAttributesYAML,
+  MetadataAttributeYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metadataValue/exportToEnterprise"
-import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
-import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
-import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
+import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
+import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
+import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
+import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
-import { I8nTextEnterprise } from "../i8nText/types"
-import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
+import { I8nTextYAML } from "../i8nText/types"
+import { exportChoiceParametersToYAML } from "../сhoiceParameters/toYAML"
 
-export const exportMetadataAttributesToEnterprise = (
+export const exportMetadataAttributesToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataAttributes | undefined
-): MetadataAttributesEnterprise | undefined => {
+): MetadataAttributesYAML | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((value: MetadataAttribute) => [
-      value.name,
-      exportMetadataAttributeToEnterprise(context, undefined, value)!,
-    ])
+    data.map((value: MetadataAttribute) => [value.name, exportMetadataAttributeToYAML(context, undefined, value)!])
   )
 }
 
-const exportMetadataAttributeToEnterprise = (
+const exportMetadataAttributeToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataAttribute
-): MetadataAttributeEnterprise => {
-  const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)!
+): MetadataAttributeYAML => {
+  const type = exportTypeDescriptionToYAML(context, undefined, data.type)!
 
   const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
   const synonym = exportI8nTextToYAML({
@@ -54,50 +51,50 @@ const exportMetadataAttributeToEnterprise = (
     return type
   }
 
-  const result: MetadataAttributeFullEnterprise = {
+  const result: MetadataAttributeFullYAML = {
     Тип: type,
   }
 
   if (synonym !== undefined) result.Синоним = synonym
 
-  const quickChoice = exportSystemEnumerationToYAML<SE.UseQuickChoiceEnterprise>(
+  const quickChoice = exportSystemEnumerationToYAML<SE.UseQuickChoiceYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "UseQuickChoice" },
     data.quickChoice
   )
   if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
 
-  const choiceFoldersAndItems = exportSystemEnumerationToYAML<SE.FoldersAndItemsUseEnterprise>(
+  const choiceFoldersAndItems = exportSystemEnumerationToYAML<SE.FoldersAndItemsUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "FoldersAndItemsUse" },
     data.choiceFoldersAndItems
   )
   if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
 
-  const markNegatives = exportBooleanToEnterprise(context, undefined, data.markNegatives)
+  const markNegatives = exportBooleanToYAML(context, undefined, data.markNegatives)
   if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
 
-  const fillFromFillingValue = exportBooleanToEnterprise(context, undefined, data.fillFromFillingValue)
+  const fillFromFillingValue = exportBooleanToYAML(context, undefined, data.fillFromFillingValue)
   if (fillFromFillingValue !== undefined) result.ЗаполнятьИзДанныхЗаполнения = fillFromFillingValue
 
-  const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
+  const fillValue = exportMetadataValueToYAML(context, undefined, data.fillValue)
   if (fillValue !== undefined) result.ЗначениеЗаполнения = fillValue
 
-  const indexing = exportSystemEnumerationToYAML<SE.IndexingEnterprise>(
+  const indexing = exportSystemEnumerationToYAML<SE.IndexingYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "Indexing" },
     data.indexing
   )
   if (indexing !== undefined) result.Индексирование = indexing
 
-  const use = exportSystemEnumerationToYAML<SE.AttributeUseEnterprise>(
+  const use = exportSystemEnumerationToYAML<SE.AttributeUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "AttributeUse" },
     data.use
   )
   if (use !== undefined) result.Использование = use
 
-  const binaryDataStorageLocationUse = exportSystemEnumerationToYAML<SE.BinaryDataStorageLocationUseEnterprise>(
+  const binaryDataStorageLocationUse = exportSystemEnumerationToYAML<SE.BinaryDataStorageLocationUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "BinaryDataStorageLocationUse" },
     data.binaryDataStorageLocationUse
@@ -105,14 +102,14 @@ const exportMetadataAttributeToEnterprise = (
   if (binaryDataStorageLocationUse !== undefined)
     result.ИспользованиеХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUse
 
-  const choiceHistoryOnInput = exportSystemEnumerationToYAML<SE.ChoiceHistoryOnInputEnterprise>(
+  const choiceHistoryOnInput = exportSystemEnumerationToYAML<SE.ChoiceHistoryOnInputYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput" },
     data.choiceHistoryOnInput
   )
   if (choiceHistoryOnInput !== undefined) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToYAML<SE.DataHistoryUseEnterprise>(
+  const dataHistory = exportSystemEnumerationToYAML<SE.DataHistoryUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
     data.dataHistory
@@ -127,10 +124,10 @@ const exportMetadataAttributeToEnterprise = (
 
   if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
 
-  const multiLine = exportBooleanToEnterprise(context, undefined, data.multiLine)
+  const multiLine = exportBooleanToYAML(context, undefined, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToYAML(context, undefined, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
   const toolTip = exportI8nTextToYAML({
@@ -141,7 +138,7 @@ const exportMetadataAttributeToEnterprise = (
   })
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const binaryDataStorageLocationUseField = exportBooleanToEnterprise(
+  const binaryDataStorageLocationUseField = exportBooleanToYAML(
     context,
     undefined,
     data.binaryDataStorageLocationUseField
@@ -149,33 +146,33 @@ const exportMetadataAttributeToEnterprise = (
   if (binaryDataStorageLocationUseField !== undefined)
     result.ПолеИспользованияХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUseField
 
-  const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchEnterprise>(
+  const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "UseFullTextSearch" },
     data.fullTextSearch
   )
   if (fullTextSearch !== undefined) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingEnterprise>(
+  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "FillChecking" },
     data.fillChecking
   )
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
-  const extendedEdit = exportBooleanToEnterprise(context, undefined, data.extendedEdit)
+  const extendedEdit = exportBooleanToYAML(context, undefined, data.extendedEdit)
   if (extendedEdit !== undefined) result.РасширенноеРедактирование = extendedEdit
 
-  const passwordMode = exportBooleanToEnterprise(context, undefined, data.passwordMode)
+  const passwordMode = exportBooleanToYAML(context, undefined, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, undefined, data.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToYAML(context, undefined, data.choiceParameterLinks)
   if (choiceParameterLinks !== undefined) result.СвязиПараметровВыбора = choiceParameterLinks
 
-  const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
+  const linkByType = exportTypeLinkToYAML(context, undefined, data.linkByType)
   if (linkByType !== undefined) result.СвязьПоТипу = linkByType
 
-  const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
+  const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "CreateOnInput" },
     data.createOnInput
@@ -200,10 +197,10 @@ const exportMetadataAttributeToEnterprise = (
   })
   if (editFormat !== undefined) result.ФорматРедактирования = editFormat
 
-  return result as MetadataAttributeEnterprise
+  return result as MetadataAttributeYAML
 }
 
-const canUseShortFormat = (data: MetadataAttribute, synonym: I8nTextEnterprise | undefined): boolean => {
+const canUseShortFormat = (data: MetadataAttribute, synonym: I8nTextYAML | undefined): boolean => {
   if (synonym !== undefined) return false
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== undefined && !["name", "type", "synonym"].includes(key))
@@ -211,4 +208,4 @@ const canUseShortFormat = (data: MetadataAttribute, synonym: I8nTextEnterprise |
   return Object.keys(filteredData).length === 0
 }
 
-registerTypeRule("MetadataAttributes", "exportToEnterprise", exportMetadataAttributesToEnterprise)
+registerTypeRule("MetadataAttributes", "exportToYAML", exportMetadataAttributesToYAML)

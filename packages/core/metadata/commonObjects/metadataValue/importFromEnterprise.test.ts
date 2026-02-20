@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataValueFromEnterprise } from "./importFromEnterprise"
-import { MetadataValueEnterprise } from "./types"
-import { MetadataFixedArrayValueEnterprise, MetadataFormChoiceListValueEnterprise } from "./types.ts"
+import { importMetadataValueFromYAML } from "./fromYAML"
+import { MetadataValueYAML } from "./types"
+import { MetadataFixedArrayValueYAML, MetadataFormChoiceListValueYAML } from "./types.ts"
 
-describe("importMetadataValueFromEnterprise", () => {
-  it("should import string value from Enterprise", () => {
-    const data: MetadataValueEnterprise = '"Текстовое значение"'
+describe("importMetadataValueFromYAML", () => {
+  it("should import string value from YAML", () => {
+    const data: MetadataValueYAML = '"Текстовое значение"'
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "string",
@@ -16,10 +16,10 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import boolean value from Enterprise", () => {
-    const data: MetadataValueEnterprise = "Истина"
+  it("should import boolean value from YAML", () => {
+    const data: MetadataValueYAML = "Истина"
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "boolean",
@@ -27,10 +27,10 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import decimal value from Enterprise", () => {
-    const data: MetadataValueEnterprise = "0"
+  it("should import decimal value from YAML", () => {
+    const data: MetadataValueYAML = "0"
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "decimal",
@@ -38,10 +38,10 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import dateTime value from Enterprise", () => {
-    const data: MetadataValueEnterprise = "24.12.2025 12:00:00"
+  it("should import dateTime value from YAML", () => {
+    const data: MetadataValueYAML = "24.12.2025 12:00:00"
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "dateTime",
@@ -49,10 +49,10 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import enum (ref) value from Enterprise", () => {
-    const data: MetadataValueEnterprise = "Перечисление.ВидыДоговоров.СПоставщиком"
+  it("should import enum (ref) value from YAML", () => {
+    const data: MetadataValueYAML = "Перечисление.ВидыДоговоров.СПоставщиком"
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "ref",
@@ -60,10 +60,10 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import catalog (ref) value from Enterprise", () => {
-    const data: MetadataValueEnterprise = "Справочник.Пользователи.ПустаяСсылка"
+  it("should import catalog (ref) value from YAML", () => {
+    const data: MetadataValueYAML = "Справочник.Пользователи.ПустаяСсылка"
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "ref",
@@ -71,13 +71,13 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import fixedArray value from Enterprise", () => {
-    const data: MetadataFixedArrayValueEnterprise = [
+  it("should import fixedArray value from YAML", () => {
+    const data: MetadataFixedArrayValueYAML = [
       "Перечисление.ТипыСчетов.КосвенныеЗатраты",
       "Перечисление.ТипыСчетов.Расходы",
     ]
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "fixedArray",
@@ -94,10 +94,10 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import FormChoiceListDesTimeValue from Enterprise", () => {
-    const data: MetadataValueEnterprise = '"ФЛ"(Физическое лицо)'
+  it("should import FormChoiceListDesTimeValue from YAML", () => {
+    const data: MetadataValueYAML = '"ФЛ"(Физическое лицо)'
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "formChoiceListDesTimeValue",
@@ -113,8 +113,8 @@ describe("importMetadataValueFromEnterprise", () => {
     })
   })
 
-  it("should import multilanguage FormChoiceListDesTimeValue from Enterprise", () => {
-    const data: MetadataFormChoiceListValueEnterprise = {
+  it("should import multilanguage FormChoiceListDesTimeValue from YAML", () => {
+    const data: MetadataFormChoiceListValueYAML = {
       Представление: {
         ru: "Физическое лицо",
         en: "Physical person",
@@ -122,7 +122,7 @@ describe("importMetadataValueFromEnterprise", () => {
       Значение: '"ФЛ"',
     }
 
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, data)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
 
     expect(result).toEqual({
       type: "formChoiceListDesTimeValue",
@@ -140,7 +140,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should return undefined for undefined input", () => {
-    const result = importMetadataValueFromEnterprise(mockContext, mockRule, undefined)
+    const result = importMetadataValueFromYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

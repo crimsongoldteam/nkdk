@@ -1,8 +1,8 @@
-import { TypeDescription, TypeDescriptionEnterprise } from "../../../metadata/commonObjects/typeDescription/types"
+import { TypeDescription, TypeDescriptionYAML } from "../../../metadata/commonObjects/typeDescription/types"
 
 export interface TypeFixture {
   internal: TypeDescription
-  enterprise: TypeDescriptionEnterprise
+  enterprise: TypeDescriptionYAML
   xml: string
 }
 
@@ -518,7 +518,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   //#endregion
 
-  //#region Enterprise Namespace
+  //#region YAML Namespace
   {
     internal: { type: ["AccumulationRecordType"] },
     enterprise: "ВидДвиженияНакопления",

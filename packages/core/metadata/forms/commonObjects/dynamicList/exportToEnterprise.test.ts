@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, fullDynamicListEnterprise } from "~/tests/fixtures/dynamicList/data"
+import { fullDynamicList, fullDynamicListYAML } from "~/tests/fixtures/dynamicList/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportDynamicListToEnterprise } from "./exportToEnterprise"
+import { exportDynamicListToYAML } from "./toYAML"
 
-describe("exportDynamicListToEnterprise", () => {
+describe("exportDynamicListToYAML", () => {
   it("should export undefined when data is undefined", () => {
-    const result = exportDynamicListToEnterprise(mockContext, mockRule, undefined)
+    const result = exportDynamicListToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const result = exportDynamicListToEnterprise(mockContext, mockRule, fullDynamicList)
+    const result = exportDynamicListToYAML(mockContext, mockRule, fullDynamicList)
 
-    expect(result).toEqual(fullDynamicListEnterprise)
+    expect(result).toEqual(fullDynamicListYAML)
   })
 })

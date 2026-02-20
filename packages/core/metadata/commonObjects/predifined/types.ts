@@ -12,7 +12,7 @@ export interface PredefinedXML {
   IsFolder: boolean
 }
 
-export interface PredefinedEnterprise {
+export interface PredefinedYAML {
   Код: string | number
   Наименование: string
   ЭтоГруппа: boolean
@@ -20,4 +20,4 @@ export interface PredefinedEnterprise {
 
 export type PredefinedItems = Predefined[]
 export type PredefinedItemsXML = PredefinedXML[]
-export type PredefinedItemsEnterprise = Record<string, PredefinedEnterprise>
+export type PredefinedItemsYAML = Record<string, PredefinedYAML>

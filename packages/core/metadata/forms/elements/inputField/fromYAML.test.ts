@@ -6,21 +6,21 @@ import {
 } from "~/metadata/metadataFactory"
 import {
   fullInputField,
-  fullInputFieldPartialEnterprise,
-  fullInputFieldTypedEnterprise,
+  fullInputFieldPartialYAML,
+  fullInputFieldTypedYAML,
   minimalInputField,
-  minimalInputFieldPartialEnterprise,
-  minimalInputFieldTypedEnterprise,
+  minimalInputFieldPartialYAML,
+  minimalInputFieldTypedYAML,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 import { InputField } from "./types"
 
-describe("importInputFieldFromEnterprise", () => {
-  describe("importInputFieldTypedFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importInputFieldFromYAML", () => {
+  describe("importInputFieldTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromTypedYAML<InputField>({
         context: mockContext,
-        yaml: fullInputFieldTypedEnterprise,
+        yaml: fullInputFieldTypedYAML,
         name: "ПолеВвода",
       })
 
@@ -30,7 +30,7 @@ describe("importInputFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<InputField>({
         context: mockContext,
-        yaml: minimalInputFieldTypedEnterprise,
+        yaml: minimalInputFieldTypedYAML,
         name: "ПолеВвода",
       })
 
@@ -38,12 +38,12 @@ describe("importInputFieldFromEnterprise", () => {
     })
   })
 
-  describe("importInputFieldPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+  describe("importInputFieldPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.InputField,
-        yaml: fullInputFieldPartialEnterprise,
+        yaml: fullInputFieldPartialYAML,
         source: fullInputField,
       })
 
@@ -54,7 +54,7 @@ describe("importInputFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.InputField,
-        yaml: minimalInputFieldPartialEnterprise,
+        yaml: minimalInputFieldPartialYAML,
         source: minimalInputField,
       })
 

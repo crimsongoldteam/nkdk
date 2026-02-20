@@ -1,36 +1,36 @@
 import { describe, expect, it } from "vitest"
 import { pictureTestCases } from "~/tests/fixtures/picture/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importPictureFromEnterprise } from "./importFromEnterprise"
+import { importPictureFromYAML } from "./fromYAML"
 
-describe("importPictureFromEnterprise", () => {
-  describe("importPictureFromEnterprise", () => {
+describe("importPictureFromYAML", () => {
+  describe("importPictureFromYAML", () => {
     it("should return undefined for undefined input", () => {
-      const result = importPictureFromEnterprise(mockContext, mockRule, undefined)
+      const result = importPictureFromYAML(mockContext, mockRule, undefined)
 
       expect(result).toBeUndefined()
     })
 
     it.each(pictureTestCases.filter((tc) => tc.fixture && tc.enterpriseImport !== false))(
-      "should import $name from Enterprise",
-      ({ pictureEnterprise, picture }) => {
-        const result = importPictureFromEnterprise(mockContext, mockRule, pictureEnterprise)
+      "should import $name from YAML",
+      ({ pictureYAML, picture }) => {
+        const result = importPictureFromYAML(mockContext, mockRule, pictureYAML)
 
         expect(result).toEqual(picture)
       }
     )
   })
-  // describe("importPictureCombinedFromEnterprise", () => {
+  // describe("importPictureCombinedFromYAML", () => {
   //   it("should return undefined for undefined input", () => {
-  //     const result = importPictureCombinedFromEnterprise(mockContext, mockRule,  undefined, undefined)
+  //     const result = importPictureCombinedFromYAML(mockContext, mockRule,  undefined, undefined)
 
   //     expect(result).toBeUndefined()
   //   })
 
   //   it.each(pictureTestCases.filter((tc) => tc.fixture && tc.enterpriseImport !== false))(
-  //     "should import $name from Enterprise",
-  //     ({ pictureEnterprise, picture }) => {
-  //       const result = importPictureCombinedFromEnterprise(mockContext, mockRule,  pictureEnterprise)
+  //     "should import $name from YAML",
+  //     ({ pictureYAML, picture }) => {
+  //       const result = importPictureCombinedFromYAML(mockContext, mockRule,  pictureYAML)
 
   //       expect(result).toEqual(picture)
   //     }

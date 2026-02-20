@@ -1,4 +1,4 @@
-import { IndexFields, IndexFieldsEnterprise, IndexFieldsXML } from "~/metadata/commonObjects/indexField/types"
+import { IndexFields, IndexFieldsXML, IndexFieldsYAML } from "~/metadata/commonObjects/indexField/types"
 
 export interface AdditionalIndex {
   additionalFields?: IndexFields
@@ -14,10 +14,10 @@ export interface AdditionalIndexXML {
   Table?: string
 }
 
-export interface AdditionalIndexEnterprise {
-  ДополнительныеПоля?: IndexFieldsEnterprise
+export interface AdditionalIndexYAML {
+  ДополнительныеПоля?: IndexFieldsYAML
   Имя?: string
-  ИндексируемыеПоля?: IndexFieldsEnterprise
+  ИндексируемыеПоля?: IndexFieldsYAML
   Таблица?: string
 }
 
@@ -25,4 +25,4 @@ export type AdditionalIndexes = AdditionalIndex[]
 
 export type AdditionalIndexesXML = AdditionalIndexXML[]
 
-export type AdditionalIndexesEnterprise = AdditionalIndexEnterprise[]
+export type AdditionalIndexesYAML = AdditionalIndexYAML[]

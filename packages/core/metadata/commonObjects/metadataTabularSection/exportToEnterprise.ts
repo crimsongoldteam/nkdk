@@ -1,36 +1,36 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
+import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/toYAML"
 import {
   MetadataTabularSection,
-  MetadataTabularSectionEnterprise,
+  MetadataTabularSectionYAML,
   MetadataTabularSections,
-  MetadataTabularSectionsEnterprise,
+  MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
+import { exportStandardAttributeDescriptionsToYAML } from "~/metadata/commonObjects/standardAttributeDescription/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportMetadataTabularSectionToEnterprise = (
+export const exportMetadataTabularSectionToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSection | undefined
-): MetadataTabularSectionEnterprise | undefined => {
+): MetadataTabularSectionYAML | undefined => {
   if (!data) return undefined
 
   const filteredSynonym = excludeNameFromI8nText(context, data.synonym, data.name)
   const synonym = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: filteredSynonym })
 
-  const result: MetadataTabularSectionEnterprise = {}
+  const result: MetadataTabularSectionYAML = {}
 
   if (synonym !== undefined) result.Синоним = synonym
 
   if (data.lineNumberLength !== undefined) result.ДлинаНомераСтроки = data.lineNumberLength
 
-  const use = exportSystemEnumerationToYAML<SE.AttributeUseEnterprise>(
+  const use = exportSystemEnumerationToYAML<SE.AttributeUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "AttributeUse" },
     data.use
@@ -42,46 +42,42 @@ export const exportMetadataTabularSectionToEnterprise = (
   const toolTip = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.toolTip })
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingEnterprise>(
+  const objectBelonging = exportSystemEnumerationToYAML<SE.ObjectBelongingYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "ObjectBelonging" },
     data.objectBelonging
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingEnterprise>(
+  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "FillChecking" },
     data.fillChecking
   )
   if (fillChecking !== undefined) result.ПроверкаЗаполнения = fillChecking
 
-  const standardAttributes = exportStandardAttributeDescriptionsToEnterprise(
-    context,
-    undefined,
-    data.standardAttributes
-  )
+  const standardAttributes = exportStandardAttributeDescriptionsToYAML(context, undefined, data.standardAttributes)
   if (standardAttributes !== undefined) result.СтандартныеРеквизиты = standardAttributes
 
-  const attributes = exportMetadataAttributesToEnterprise(context, undefined, data.attributes)
+  const attributes = exportMetadataAttributesToYAML(context, undefined, data.attributes)
   if (attributes !== undefined) result.Реквизиты = attributes
 
   return result
 }
 
-export const exportMetadataTabularSectionsToEnterprise = (
+export const exportMetadataTabularSectionsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataTabularSections | undefined
-): MetadataTabularSectionsEnterprise | undefined => {
+): MetadataTabularSectionsYAML | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
     data.map((value: MetadataTabularSection) => [
       value.name,
-      exportMetadataTabularSectionToEnterprise(context, undefined, value)!,
+      exportMetadataTabularSectionToYAML(context, undefined, value)!,
     ])
   )
 }
 
-registerTypeRule("MetadataTabularSections", "exportToEnterprise", exportMetadataTabularSectionsToEnterprise)
+registerTypeRule("MetadataTabularSections", "exportToYAML", exportMetadataTabularSectionsToYAML)

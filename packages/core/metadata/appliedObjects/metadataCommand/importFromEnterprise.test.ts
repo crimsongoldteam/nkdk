@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest"
 import {
   defaultMetadataCommands,
-  defaultMetadataCommandsEnterprise,
+  defaultMetadataCommandsYAML,
   fullMetadataCommands,
-  fullMetadataCommandsEnterprise,
+  fullMetadataCommandsYAML,
 } from "~/tests/fixtures/metadataCommand/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataCommandsFromEnterprise } from "./importFromEnterprise"
+import { importMetadataCommandsFromYAML } from "./fromYAML"
 
-describe("importMetadataCommandFromEnterprise", () => {
+describe("importMetadataCommandFromYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importMetadataCommandsFromEnterprise(mockContext, mockRule, undefined)
+    const result = importMetadataCommandsFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importMetadataCommandsFromEnterprise(mockContext, mockRule, fullMetadataCommandsEnterprise)
+    const result = importMetadataCommandsFromYAML(mockContext, mockRule, fullMetadataCommandsYAML)
 
     expect(result).toEqual(fullMetadataCommands)
   })
 
   it("should import defaults", () => {
-    const result = importMetadataCommandsFromEnterprise(mockContext, mockRule, defaultMetadataCommandsEnterprise)
+    const result = importMetadataCommandsFromYAML(mockContext, mockRule, defaultMetadataCommandsYAML)
     expect(result).toEqual(defaultMetadataCommands)
   })
 })

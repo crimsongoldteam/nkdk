@@ -1,16 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  ClientApplicationForm,
-  ClientApplicationFormEnterprise,
-} from "~/metadata/forms/clientApplicationForm/base/types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/base/types"
 import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
 import { exportEventsToYAML } from "~/metadata/metadataFactory/events"
 import { ClientApplicationFormRules } from "./rules"
 
-export const exportClientApplicationFormToEnterprise = (
+export const exportClientApplicationFormToYAML = (
   context: ConfigurationContext,
   data: ClientApplicationForm
-): ClientApplicationFormEnterprise | undefined => {
+): ClientApplicationFormYAML | undefined => {
   const result = exportPropertiesToYAML({
     context,
     data: data,

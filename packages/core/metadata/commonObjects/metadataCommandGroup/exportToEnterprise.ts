@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
-import { MetadataCommandGroup, MetadataCommandGroupEnterprise } from "./types"
+import { MetadataCommandGroup, MetadataCommandGroupYAML } from "./types"
 
-export const exportMetadataCommandGroupToEnterprise = (
+export const exportMetadataCommandGroupToYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataCommandGroup | undefined
-): MetadataCommandGroupEnterprise | undefined => {
+): MetadataCommandGroupYAML | undefined => {
   if (!data) return undefined
 
   return "TODO"

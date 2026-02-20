@@ -1,28 +1,28 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } from "./types"
+import { IndexField, IndexFieldYAML, IndexFields, IndexFieldsYAML } from "./types"
 
-export const importIndexFieldFromEnterprise = (
+export const importIndexFieldFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: IndexFieldEnterprise | undefined
+  data: IndexFieldYAML | undefined
 ): IndexField | undefined => {
   if (!data) return undefined
 
   return data
 }
 
-export const importIndexFieldsFromEnterprise = (
+export const importIndexFieldsFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: IndexFieldsEnterprise | undefined
+  data: IndexFieldsYAML | undefined
 ): IndexFields | undefined => {
   if (!data) return undefined
 
   return data
-    .map((item) => importIndexFieldFromEnterprise(context, undefined, item)!)
+    .map((item) => importIndexFieldFromYAML(context, undefined, item)!)
     .filter((item): item is IndexField => item !== undefined)
 }
 
-registerTypeRule("IndexField", "importFromEnterprise", importIndexFieldFromEnterprise)
+registerTypeRule("IndexField", "importFromYAML", importIndexFieldFromYAML)

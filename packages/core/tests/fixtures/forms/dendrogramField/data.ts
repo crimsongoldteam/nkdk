@@ -1,4 +1,4 @@
-import { DendrogramField, DendrogramFieldPartialEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
+import { DendrogramField, DendrogramFieldPartialYAML } from "~/metadata/forms/elements/dendrogramField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -88,7 +88,7 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   },
 }
 
-export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterprise = {
+export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -152,4 +152,4 @@ export const minimalDendrogramField: DendrogramField = {
   name: "ПолеДендрограммы",
 }
 
-export const minimalDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterprise = {}
+export const minimalDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {}

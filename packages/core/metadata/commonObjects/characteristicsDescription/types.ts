@@ -1,6 +1,6 @@
-import { MetadataField, MetadataFieldEnterprise } from "~/metadata/commonObjects/metadataField/types"
-import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/metadata/commonObjects/metadataRef/types"
-import { MetadataValue, MetadataValueEnterprise, MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { MetadataField, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
+import { MetadataItemLink, MetadataItemLinkYAML } from "~/metadata/commonObjects/metadataRef/types"
+import { MetadataValue, MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
   characteristicTypes?: MetadataItemLink
@@ -36,23 +36,23 @@ export interface CharacteristicsDescriptionXML {
   }
 }
 
-export interface CharacteristicsDescriptionEnterprise {
-  ВидыХарактеристик?: MetadataItemLinkEnterprise
-  ЗначениеОтбораВидов?: MetadataValueEnterprise
-  ЗначенияХарактеристик?: MetadataItemLinkEnterprise
-  ПолеВида?: MetadataFieldEnterprise
-  ПолеЗначения?: MetadataFieldEnterprise
-  ПолеИспользованияМножественныхЗначений?: MetadataFieldEnterprise
-  ПолеКлюча?: MetadataFieldEnterprise
-  ПолеКлючаМножественныхЗначений?: MetadataFieldEnterprise
-  ПолеОбъекта?: MetadataFieldEnterprise
-  ПолеОтбораВидов?: MetadataFieldEnterprise
-  ПолеПорядкаМножественныхЗначений?: MetadataFieldEnterprise
-  ПолеПутиКДанным?: MetadataFieldEnterprise
+export interface CharacteristicsDescriptionYAML {
+  ВидыХарактеристик?: MetadataItemLinkYAML
+  ЗначениеОтбораВидов?: MetadataValueYAML
+  ЗначенияХарактеристик?: MetadataItemLinkYAML
+  ПолеВида?: MetadataFieldYAML
+  ПолеЗначения?: MetadataFieldYAML
+  ПолеИспользованияМножественныхЗначений?: MetadataFieldYAML
+  ПолеКлюча?: MetadataFieldYAML
+  ПолеКлючаМножественныхЗначений?: MetadataFieldYAML
+  ПолеОбъекта?: MetadataFieldYAML
+  ПолеОтбораВидов?: MetadataFieldYAML
+  ПолеПорядкаМножественныхЗначений?: MetadataFieldYAML
+  ПолеПутиКДанным?: MetadataFieldYAML
 }
 
 export type CharacteristicsDescriptions = CharacteristicsDescription[]
 
 export type CharacteristicsDescriptionsXML = { "xr:Characteristic": CharacteristicsDescriptionXML[] }
 
-export type CharacteristicsDescriptionsEnterprise = CharacteristicsDescriptionEnterprise[]
+export type CharacteristicsDescriptionsYAML = CharacteristicsDescriptionYAML[]

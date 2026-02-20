@@ -1,4 +1,4 @@
-import { CommandInterface, CommandInterfaceEnterprise } from "~/metadata/forms/commonObjects/commandInterface/types"
+import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
 
 export const fullCommandInterface: CommandInterface = {
   itemType: "CommandInterface",
@@ -44,7 +44,7 @@ export const fullCommandInterface: CommandInterface = {
   ],
 }
 
-export const fullCommandInterfaceEnterprise: CommandInterfaceEnterprise = {
+export const fullCommandInterfaceYAML: CommandInterfaceYAML = {
   ПанельНавигации: [
     {
       Команда: "Catalog.ПодчиненныйСправочник.StandardCommand.OpenByValue",

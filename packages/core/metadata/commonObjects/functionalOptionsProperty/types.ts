@@ -4,4 +4,4 @@ export interface FunctionalOptionsXML {
   Item: string | string[]
 }
 
-export type FunctionalOptionsEnterprise = string[]
+export type FunctionalOptionsYAML = string[]

@@ -1,13 +1,13 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Border, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { NamedElement } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface CalendarField extends NamedElement {
   itemType: "CalendarField"
@@ -69,54 +69,54 @@ export interface CalendarField extends NamedElement {
   }
 }
 
-export interface CalendarFieldPartialEnterprise {
-  АвтоВысотаЯчейки?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  Видимость?: StringboolEnterprise
+export interface CalendarFieldPartialYAML {
+  АвтоВысотаЯчейки?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  Видимость?: StringboolYAML
   Высота?: number
   ВысотаВМесяцах?: number
   ВысотаЗаголовка?: number
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
+  ГиперссылкаЯчейки?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
   КонецПериодаОтображения?: string
-  КонтекстноеМеню?: ContextMenuEnterprise
+  КонтекстноеМеню?: ContextMenuYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   НачалоПериодаОтображения?: string
-  ОтображатьПанельМесяцев?: StringboolEnterprise
-  ОтображатьТекущуюДату?: StringboolEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  ПеремещениеПоКалендарю?: StringboolEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
+  ОтображатьПанельМесяцев?: StringboolYAML
+  ОтображатьТекущуюДату?: StringboolYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationYAML
+  ПеремещениеПоКалендарю?: StringboolYAML
+  Подсказка?: I8nTextYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  ПредупреждениеПриРедактировании?: I8nTextYAML
+  ПропускатьПриВводе?: StringboolYAML
   ПутьКДанным?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  Рамка?: BorderEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РежимВыделения?: SE.DateSelectionModeEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РазрешитьНачалоПеретаскивания?: StringboolYAML
+  РазрешитьПеретаскивание?: StringboolYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  Рамка?: BorderYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РежимВыделения?: SE.DateSelectionModeYAML
   СочетаниеКлавиш?: string
-  ТолькоПросмотр?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
+  ТолькоПросмотр?: StringboolYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекстаЗаголовка?: ColorYAML
   Ширина?: number
   ШиринаВМесяцах?: number
-  Шрифт?: FontEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
+  Шрифт?: FontYAML
+  ШрифтЗаголовка?: FontYAML
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorYAML
   События?: {
     ПриИзменении?: string
     Выбор?: string

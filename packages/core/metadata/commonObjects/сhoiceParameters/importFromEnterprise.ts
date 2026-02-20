@@ -1,20 +1,20 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise"
-import { ChoiceParameters, ChoiceParametersEnterprise } from "./types"
+import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
+import { ChoiceParameters, ChoiceParametersYAML } from "./types"
 
-export const importChoiceParametersFromEnterprise = (
+export const importChoiceParametersFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: ChoiceParametersEnterprise | undefined
+  data: ChoiceParametersYAML | undefined
 ): ChoiceParameters | undefined => {
   if (!data) return undefined
 
   return Object.entries(data).map(([name, value]) => ({
     name,
-    value: importMetadataValueFromEnterprise(context, undefined, value),
+    value: importMetadataValueFromYAML(context, undefined, value),
   }))
 }
 
-registerTypeRule("ChoiceParameters", "importFromEnterprise", importChoiceParametersFromEnterprise)
+registerTypeRule("ChoiceParameters", "importFromYAML", importChoiceParametersFromYAML)

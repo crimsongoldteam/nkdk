@@ -1,32 +1,27 @@
-import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
+import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/toYAML"
+import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { StandardCommandsGroupToEnterprise } from "~/metadata/systemEnumerations/types"
+import { StandardCommandsGroupToYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import {
-  CommandInterface,
-  CommandInterfaceEnterprise,
-  CommandInterfaceItem,
-  CommandInterfaceItemEnterprise,
-} from "./types"
+import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
 
-export const exportCommandInterfaceToEnterprise = (
+export const exportCommandInterfaceToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: CommandInterface | undefined
-): CommandInterfaceEnterprise | undefined => {
+): CommandInterfaceYAML | undefined => {
   if (!data) return undefined
 
-  const result: CommandInterfaceEnterprise = {}
+  const result: CommandInterfaceYAML = {}
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
-    result.ПанельНавигации = data.NavigationPanel.map((item) => exportCommandInterfaceItemToEnterprise(context, item))
+    result.ПанельНавигации = data.NavigationPanel.map((item) => exportCommandInterfaceItemToYAML(context, item))
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
-    result.КоманднаяПанель = data.CommandBar.map((item) => exportCommandInterfaceItemToEnterprise(context, item))
+    result.КоманднаяПанель = data.CommandBar.map((item) => exportCommandInterfaceItemToYAML(context, item))
   }
 
   if (Object.keys(result).length === 0) return undefined
@@ -34,31 +29,31 @@ export const exportCommandInterfaceToEnterprise = (
   return result
 }
 
-const exportCommandInterfaceItemToEnterprise = (
+const exportCommandInterfaceItemToYAML = (
   context: ConfigurationContext,
   item: CommandInterfaceItem
-): CommandInterfaceItemEnterprise => {
-  const result: CommandInterfaceItemEnterprise = {
+): CommandInterfaceItemYAML => {
+  const result: CommandInterfaceItemYAML = {
     Команда: item.command,
     Тип: item.type,
-    Автовидимость: exportBooleanToEnterprise(context, undefined, item.defaultVisible)!,
+    Автовидимость: exportBooleanToYAML(context, undefined, item.defaultVisible)!,
   }
 
   if (item.commandGroup) {
-    result.ГруппаКоманд = StandardCommandsGroupToEnterprise[item.commandGroup]
+    result.ГруппаКоманд = StandardCommandsGroupToYAML[item.commandGroup]
   }
 
   if (item.visible && item.visible.values.length > 0) {
-    const visibleEnterprise = exportUserVisibleToEnterprise(context, undefined, item.visible, {
-      allow: UserVisibleKeysEnterprise.Allow,
-      deny: UserVisibleKeysEnterprise.Deny,
+    const visibleYAML = exportUserVisibleToYAML(context, undefined, item.visible, {
+      allow: UserVisibleKeysYAML.Allow,
+      deny: UserVisibleKeysYAML.Deny,
     })
-    if (visibleEnterprise) {
-      Object.assign(result, visibleEnterprise)
+    if (visibleYAML) {
+      Object.assign(result, visibleYAML)
     }
   }
 
   return result
 }
 
-registerTypeRule("CommandInterface", "exportToEnterprise", exportCommandInterfaceToEnterprise)
+registerTypeRule("CommandInterface", "exportToYAML", exportCommandInterfaceToYAML)

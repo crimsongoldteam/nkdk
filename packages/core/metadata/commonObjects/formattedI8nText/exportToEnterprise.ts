@@ -1,15 +1,15 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormattedI8nTextPropertyRule, PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
-import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "../i8nText/toYAML"
-import { I8nTextEnterprise } from "../i8nText/types"
-import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
+import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "../i8nText/toYAML"
+import { I8nTextYAML } from "../i8nText/types"
+import { FormattedI8nText, FormattedI8nTextYAML } from "./types"
 
 export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule<any>>(params: {
   context: ConfigurationContext
   rule: PropertyRule<any>
   value: FormattedI8nText | undefined
   name?: string
-}): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise } => {
+}): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML } => {
   const { context, rule, value: text } = params
   if (!text) return {}
 
@@ -23,7 +23,7 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
     : text
 
   return exportToYAML(context, formattedRule, filtredText) as {
-    [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise
+    [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML
   }
 }
 
@@ -31,7 +31,7 @@ const exportToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
   context: ConfigurationContext,
   rule: R,
   text: FormattedI8nText | undefined
-): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise } => {
+): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML } => {
   if (!text) return {}
 
   if (!rule.yaml) throw Error(`Rule must have yaml property`)
@@ -42,30 +42,30 @@ const exportToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
   if (text.formatted) {
     return {
       [rule.yamlFormatted]: exported,
-    } as { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise }
+    } as { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML }
   }
 
   return {
     [rule.yaml]: exported,
-  } as { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise }
+  } as { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML }
 }
 
-export const exportFormattedI8nTextDefaultToEnterprise = (
+export const exportFormattedI8nTextDefaultToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   title: FormattedI8nText | undefined
-): FormattedI8nTextEnterprise | undefined => {
-  return exportI8nTextDefaultToEnterprise(context, title)
+): FormattedI8nTextYAML | undefined => {
+  return exportI8nTextDefaultToYAML(context, title)
 }
 
 /** @deprecated */
-export const exportFormattedI8nTextToEnterprise = <Key extends string, FormattedKey extends string>(
+export const exportFormattedI8nTextToYAML = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   title: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey
-): { [K in Key | FormattedKey]?: FormattedI8nTextEnterprise } => {
+): { [K in Key | FormattedKey]?: FormattedI8nTextYAML } => {
   if (!title) return {}
 
   const exported = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: title })
@@ -74,22 +74,22 @@ export const exportFormattedI8nTextToEnterprise = <Key extends string, Formatted
   if (title.formatted) {
     return {
       [formattedKey]: exported,
-    } as { [K in Key | FormattedKey]?: I8nTextEnterprise }
+    } as { [K in Key | FormattedKey]?: I8nTextYAML }
   }
 
   return {
     [key]: exported,
-  } as { [K in Key | FormattedKey]?: I8nTextEnterprise }
+  } as { [K in Key | FormattedKey]?: I8nTextYAML }
 }
 
 /** @deprecated */
-export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, FormattedKey extends string>(
+export const exportFormattedI8nTextOtherToYAML = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   text: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey
-): { [K in Key | FormattedKey]?: FormattedI8nTextEnterprise } => {
+): { [K in Key | FormattedKey]?: FormattedI8nTextYAML } => {
   if (!text) return {}
 
   const defaultLanguage = context.defaultLanguage
@@ -98,7 +98,7 @@ export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, Form
 
   const filtrdText: FormattedI8nText = { formatted: text.formatted, items: filtredItems }
 
-  return exportFormattedI8nTextToEnterprise(context, { type: "I8nText" }, filtrdText, key, formattedKey)
+  return exportFormattedI8nTextToYAML(context, { type: "I8nText" }, filtrdText, key, formattedKey)
 }
 
-registerTypeRule("FormattedI8nText", "exportToEnterprise", exportFormattedI8nTextToYAML as any)
+registerTypeRule("FormattedI8nText", "exportToYAML", exportFormattedI8nTextToYAML as any)

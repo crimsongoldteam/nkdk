@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullCommandBar,
-  fullCommandBarPartialEnterprise,
+  fullCommandBarPartialYAML,
   minimalCommandBar,
-  minimalCommandBarPartialEnterprise,
+  minimalCommandBarPartialYAML,
 } from "~/tests/fixtures/forms/commandBar/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importCommandBarFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importCommandBarFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.CommandBar,
-      yaml: fullCommandBarPartialEnterprise,
+      yaml: fullCommandBarPartialYAML,
       source: fullCommandBar,
     })
 
@@ -24,7 +24,7 @@ describe("importCommandBarFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.CommandBar,
-      yaml: minimalCommandBarPartialEnterprise,
+      yaml: minimalCommandBarPartialYAML,
       source: minimalCommandBar,
     })
 

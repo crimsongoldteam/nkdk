@@ -1,4 +1,4 @@
-import { MetadataCommands, MetadataCommandsEnterprise } from "~/metadata/appliedObjects/metadataCommand/types"
+import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
 
 export const fullMetadataCommands: MetadataCommands = [
   {
@@ -21,7 +21,7 @@ export const fullMetadataCommands: MetadataCommands = [
   },
 ]
 
-export const fullMetadataCommandsEnterprise: MetadataCommandsEnterprise = {
+export const fullMetadataCommandsYAML: MetadataCommandsYAML = {
   Глоссарий: {
     Синоним: "Глоссарий какой-то",
     Группа: "ГруппаКоманд.КакаяТоГруппаКоманд",
@@ -53,10 +53,10 @@ export const defaultMetadataCommands: MetadataCommands = [
   },
 ]
 
-export const minimalMetadataCommandsEnterprise: MetadataCommandsEnterprise = {
+export const minimalMetadataCommandsYAML: MetadataCommandsYAML = {
   Глоссарий: "ПанельНавигацииОбычное",
 }
 
-export const defaultMetadataCommandsEnterprise: MetadataCommandsEnterprise = {
+export const defaultMetadataCommandsYAML: MetadataCommandsYAML = {
   Глоссарий: "ПанельНавигацииВажное",
 }

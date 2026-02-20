@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { UsePurposes, UsePurposesEnterprise } from "./types"
+import { UsePurposes, UsePurposesYAML } from "./types"
 
-export const importUsePurposesFromEnterprise = (
+export const importUsePurposesFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: UsePurposesEnterprise | undefined
+  data: UsePurposesYAML | undefined
 ): UsePurposes | undefined => {
   if (!data) return undefined
 
@@ -21,4 +21,4 @@ export const importUsePurposesFromEnterprise = (
   return undefined
 }
 
-registerTypeRule("UsePurposes", "importFromEnterprise", importUsePurposesFromEnterprise)
+registerTypeRule("UsePurposes", "importFromYAML", importUsePurposesFromYAML)

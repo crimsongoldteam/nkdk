@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullUsualGroup,
-  fullUsualGroupPartialEnterprise,
+  fullUsualGroupPartialYAML,
   minimalUsualGroup,
-  minimalUsualGroupPartialEnterprise,
+  minimalUsualGroupPartialYAML,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importUsualGroupFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importUsualGroupFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.UsualGroup,
-      yaml: fullUsualGroupPartialEnterprise,
+      yaml: fullUsualGroupPartialYAML,
       source: fullUsualGroup,
     })
 
@@ -24,7 +24,7 @@ describe("importUsualGroupFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.UsualGroup,
-      yaml: minimalUsualGroupPartialEnterprise,
+      yaml: minimalUsualGroupPartialYAML,
       source: minimalUsualGroup,
     })
 

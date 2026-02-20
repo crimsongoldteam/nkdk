@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullTextDocumentField,
-  fullTextDocumentFieldPartialEnterprise,
+  fullTextDocumentFieldPartialYAML,
   minimalTextDocumentField,
-  minimalTextDocumentFieldPartialEnterprise,
+  minimalTextDocumentFieldPartialYAML,
 } from "~/tests/fixtures/forms/textDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importTextDocumentFieldFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importTextDocumentFieldFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.TextDocumentField,
-      yaml: fullTextDocumentFieldPartialEnterprise,
+      yaml: fullTextDocumentFieldPartialYAML,
       source: fullTextDocumentField,
     })
 
@@ -24,7 +24,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.TextDocumentField,
-      yaml: minimalTextDocumentFieldPartialEnterprise,
+      yaml: minimalTextDocumentFieldPartialYAML,
       source: minimalTextDocumentField,
     })
 

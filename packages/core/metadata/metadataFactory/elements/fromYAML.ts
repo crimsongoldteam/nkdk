@@ -1,13 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { importEventsFromYAML } from "../events"
-import { importFormElementTypeFromEnterprise } from "../metadataType/fromYAML"
+import { importFormElementTypeFromYAML } from "../metadataType/fromYAML"
 import { FormElementType } from "../metadataType/types"
+import { importPropertyFromYAML } from "../properties/fromYAML"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"
 import { getElementRule } from "./factory"
 import { ElementRule } from "./types"
-import { importPropertyFromYAML } from "../properties/fromYAML"
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext
@@ -16,7 +16,7 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
 }): T {
   const { context, yaml: yaml, name } = params
 
-  const itemType = importFormElementTypeFromEnterprise(params.context, yaml.Тип)
+  const itemType = importFormElementTypeFromYAML(params.context, yaml.Тип)
 
   const rules = getElementRule<T>(itemType)
 

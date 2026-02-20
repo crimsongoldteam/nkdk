@@ -55,7 +55,7 @@ export const ButtonGroupRules: ElementRule<ButtonGroup> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
-      toEnterprise: false,
+      toEnt: false,
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",

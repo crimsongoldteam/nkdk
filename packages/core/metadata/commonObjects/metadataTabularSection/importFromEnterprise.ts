@@ -1,25 +1,25 @@
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
-import { importMetadataAttributesFromEnterprise } from "~/metadata/commonObjects/metadataAttribute/importFromEnterprise"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
+import { importMetadataAttributesFromYAML } from "~/metadata/commonObjects/metadataAttribute/fromYAML"
 import {
   MetadataTabularSection,
-  MetadataTabularSectionEnterprise,
+  MetadataTabularSectionYAML,
   MetadataTabularSections,
-  MetadataTabularSectionsEnterprise,
+  MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
+import { importStandardAttributeDescriptionsFromYAML } from "~/metadata/commonObjects/standardAttributeDescription/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
-export const importMetadataTabularSectionFromEnterprise = (
+export const importMetadataTabularSectionFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataTabularSectionEnterprise | undefined,
+  data: MetadataTabularSectionYAML | undefined,
   name: string
 ): MetadataTabularSection | undefined => {
   if (!data) return undefined
@@ -51,40 +51,36 @@ export const importMetadataTabularSectionFromEnterprise = (
   )
   if (use !== undefined) result.use = use
 
-  // const objectBelonging = importSystemEnumerationFromEnterprise(
+  // const objectBelonging = importSystemEnumerationFromYAML(
   //   context,
   //   data.ПринадлежностьОбъекта,
-  //   SE.ObjectBelongingFromEnterprise
+  //   SE.ObjectBelongingFromYAML
   // )
   // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
 
   const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const standardAttributes = importStandardAttributeDescriptionsFromEnterprise(
-    context,
-    undefined,
-    data.СтандартныеРеквизиты
-  )
+  const standardAttributes = importStandardAttributeDescriptionsFromYAML(context, undefined, data.СтандартныеРеквизиты)
   if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
-  const attributes = importMetadataAttributesFromEnterprise(context, undefined, data.Реквизиты)
+  const attributes = importMetadataAttributesFromYAML(context, undefined, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
   const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)
 }
 
-export const importMetadataTabularSectionsFromEnterprise = (
+export const importMetadataTabularSectionsFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataTabularSectionsEnterprise | undefined
+  data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
   if (!data) return undefined
 
   return Object.entries(data)
-    .map(([name, value]) => importMetadataTabularSectionFromEnterprise(context, undefined, value, name))
+    .map(([name, value]) => importMetadataTabularSectionFromYAML(context, undefined, value, name))
     .filter((item): item is MetadataTabularSection => item !== undefined)
 }
 
-registerTypeRule("MetadataTabularSections", "importFromEnterprise", importMetadataTabularSectionsFromEnterprise)
+registerTypeRule("MetadataTabularSections", "importFromYAML", importMetadataTabularSectionsFromYAML)

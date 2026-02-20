@@ -1,5 +1,5 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
+import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parentElement: NamedElement = {
@@ -19,7 +19,7 @@ export const fullContextMenu: ContextMenu = {
   ],
 }
 
-export const fullContextMenuEnterprise: ContextMenuEnterprise = {
+export const fullContextMenuYAML: ContextMenuYAML = {
   ВажностьПриОтображении: "Высокая",
   Автозаполнение: "Истина",
   ПодчиненныеЭлементы: {
@@ -34,4 +34,4 @@ export const minimalContextMenu: ContextMenu = {
   childItems: [],
 }
 
-export const minimalContextMenuEnterprise: ContextMenuEnterprise = {}
+export const minimalContextMenuYAML: ContextMenuYAML = {}

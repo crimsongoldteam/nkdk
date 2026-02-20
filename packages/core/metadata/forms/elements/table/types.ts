@@ -1,19 +1,19 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
-import { CommandSet, CommandSetEnterprise } from "~/metadata/forms/commonObjects/commandSet/types"
-import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
+import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 
-import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { TableChildItems } from "../../collections/childItems/types"
-import { AutoCommandBar, AutoCommandBarEnterprise } from "../autoCommandBar/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
-import { SingleSearchControlAddition, SingleSearchControlAdditionEnterprise } from "../searchControlAddition/types"
-import { SearchStringAdditionEnterprise, SingleSearchStringAddition } from "../searchStringAddition/types"
-import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "../viewStatusAddition/types"
+import { AutoCommandBar, AutoCommandBarYAML } from "../autoCommandBar/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { SingleSearchControlAddition, SingleSearchControlAdditionYAML } from "../searchControlAddition/types"
+import { SearchStringAdditionYAML, SingleSearchStringAddition } from "../searchStringAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionYAML } from "../viewStatusAddition/types"
 
 export interface Table {
   itemType: "Table"
@@ -140,96 +140,96 @@ export interface Table {
   // topLevelParent?: boolean
 }
 
-export interface TablePartialEnterprise {
-  АвтоВводНезаполненного?: StringboolEnterprise
-  АвтоВводНовойСтроки?: StringboolEnterprise
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяВысотаВСтрокахТаблицы?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  АвтоОтметкаНезаполненного?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВариантУправленияВысотой?: SE.TableHeightControlVariantEnterprise
-  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  ВертикальныеЛинии?: StringboolEnterprise
-  Видимость?: StringboolEnterprise
-  Вывод?: SE.UseOutputEnterprise
+export interface TablePartialYAML {
+  АвтоВводНезаполненного?: StringboolYAML
+  АвтоВводНовойСтроки?: StringboolYAML
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяВысотаВСтрокахТаблицы?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  АвтоОтметкаНезаполненного?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВариантУправленияВысотой?: SE.TableHeightControlVariantYAML
+  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  ВертикальныеЛинии?: StringboolYAML
+  Видимость?: StringboolYAML
+  Вывод?: SE.UseOutputYAML
   Высота?: number
   ВысотаВСтрокахТаблицы?: number
   ВысотаЗаголовка?: number
   ВысотаПодвала?: number
   ВысотаШапки?: number
-  ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальныеЛинии?: StringboolEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  ЗапросОбновления?: SE.RefreshRequestMethodEnterprise
-  ИзменятьПорядокСтрок?: StringboolEnterprise
-  ИзменятьСоставСтрок?: StringboolEnterprise
-  ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseEnterprise
-  КартинкаСтрок?: PictureEnterprise
-  Команда?: CommandSetEnterprise
-  КоманднаяПанель?: AutoCommandBarEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
+  ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  ГоризонтальныеЛинии?: StringboolYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  ЗапросОбновления?: SE.RefreshRequestMethodYAML
+  ИзменятьПорядокСтрок?: StringboolYAML
+  ИзменятьСоставСтрок?: StringboolYAML
+  ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseYAML
+  КартинкаСтрок?: PictureYAML
+  Команда?: CommandSetYAML
+  КоманднаяПанель?: AutoCommandBarYAML
+  КонтекстноеМеню?: ContextMenuYAML
   МаксимальнаяВысота?: number
   МаксимальнаяВысотаВСтрокахТаблицы?: number
   МаксимальнаяШирина?: number
-  МножественныйВыбор?: StringboolEnterprise
-  НачальноеОтображениеДерева?: SE.InitialTreeViewEnterprise
-  НачальноеОтображениеСписка?: SE.InitialListViewEnterprise
-  ОтметкаНезаполненного?: StringboolEnterprise
-  Отображение?: SE.TableRepresentationEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеСостоянияПросмотра?: ViewStatusAdditionEnterprise
-  ОтображениеСтрокиПоиска?: SearchStringAdditionEnterprise
-  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
-  ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
-  Подвал?: StringboolEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise
-  ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
-  ПоложениеСтрокиПоиска?: SE.SearchStringLocationEnterprise
-  ПоложениеУправленияПоиском?: SE.SearchControlLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
+  МножественныйВыбор?: StringboolYAML
+  НачальноеОтображениеДерева?: SE.InitialTreeViewYAML
+  НачальноеОтображениеСписка?: SE.InitialListViewYAML
+  ОтметкаНезаполненного?: StringboolYAML
+  Отображение?: SE.TableRepresentationYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеСостоянияПросмотра?: ViewStatusAdditionYAML
+  ОтображениеСтрокиПоиска?: SearchStringAdditionYAML
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorYAML
+  ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionYAML
+  Подвал?: StringboolYAML
+  Подсказка?: I8nTextYAML
+  ПоискПриВводе?: SE.SearchInTableOnInputYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationYAML
+  ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationYAML
+  ПоложениеСтрокиПоиска?: SE.SearchStringLocationYAML
+  ПоложениеУправленияПоиском?: SE.SearchControlLocationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  ПропускатьПриВводе?: StringboolYAML
   ПутьКДанным?: string
   ПутьКДаннымКартинкиСтроки?: string
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РежимВводаСтрок?: SE.TableRowInputModeEnterprise
-  РежимВыбора?: StringboolEnterprise
-  РежимВыделения?: SE.TableSelectionModeEnterprise
-  РежимВыделенияСтроки?: SE.TableRowSelectionModeEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolYAML
+  РазрешитьПеретаскивание?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РежимВводаСтрок?: SE.TableRowInputModeYAML
+  РежимВыбора?: StringboolYAML
+  РежимВыделения?: SE.TableSelectionModeYAML
+  РежимВыделенияСтроки?: SE.TableRowSelectionModeYAML
   СочетаниеКлавиш?: string
-  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  УправлениеПоиском?: SingleSearchControlAdditionEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
-  ЧередованиеЦветовСтрок?: StringboolEnterprise
-  Шапка?: StringboolEnterprise
+  СпособПеретаскиванияФайлов?: SE.FileDragModeYAML
+  ТолькоПросмотр?: StringboolYAML
+  УправлениеПоиском?: SingleSearchControlAdditionYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветФона?: ColorYAML
+  ЧередованиеЦветовСтрок?: StringboolYAML
+  Шапка?: StringboolYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  АвтоОбновление?: StringboolEnterprise
-  ВосстанавливатьТекущуюСтроку?: StringboolEnterprise
-  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
-  // ДополнительныеПараметрыСоздания?: StringboolEnterprise
-  ОбновлениеПриИзмененииДанных?: SE.UpdateOnDataChangeEnterprise
-  ОтображатьКорень?: StringboolEnterprise
+  Шрифт?: FontYAML
+  ШрифтЗаголовка?: FontYAML
+  АвтоОбновление?: StringboolYAML
+  ВосстанавливатьТекущуюСтроку?: StringboolYAML
+  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseYAML
+  // ДополнительныеПараметрыСоздания?: StringboolYAML
+  ОбновлениеПриИзмененииДанных?: SE.UpdateOnDataChangeYAML
+  ОтображатьКорень?: StringboolYAML
   ПериодАвтоОбновления?: number
-  РазрешитьВыборКорня?: StringboolEnterprise
-  РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки?: StringboolEnterprise
+  РазрешитьВыборКорня?: StringboolYAML
+  РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки?: StringboolYAML
   ГруппаПользовательскихНастроек?: string
   События?: {
     Выбор?: string

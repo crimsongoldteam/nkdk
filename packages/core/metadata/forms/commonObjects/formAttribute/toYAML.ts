@@ -1,4 +1,4 @@
-import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/metadataFactory"
@@ -13,26 +13,26 @@ import {
   FormAttributeColumnsYAML,
   FormAttributeYAML,
   FormAttributes,
-  FormAttributesEnterprise,
+  FormAttributesYAML,
 } from "./types"
 
-export const exportFormAttributesToEnterprise = (
+export const exportFormAttributesToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: FormAttributes | undefined
-): FormAttributesEnterprise | undefined => {
+): FormAttributesYAML | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((value: FormAttribute) => [value.name, exportFormAttributeToEnterprise(context, undefined, value)!])
+    data.map((value: FormAttribute) => [value.name, exportFormAttributeToYAML(context, undefined, value)!])
   )
 }
 
-const exportFormAttributeToEnterprise = (
+const exportFormAttributeToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: FormAttribute
-): FormAttributeYAML | TypeDescriptionEnterprise => {
+): FormAttributeYAML | TypeDescriptionYAML => {
   const result = exportPropertiesToYAML({
     context,
     data: data,
@@ -47,10 +47,10 @@ const exportFormAttributeToEnterprise = (
   //   const isDynamicListSettings =
   //     "@attributes" in data.settings || (isDynamicListValueType && !("type" in data.settings))
   //   if (isDynamicListSettings) {
-  //     const dynamicList = exportDynamicListToEnterprise(context, undefined, data.settings as DynamicList)
+  //     const dynamicList = exportDynamicListToYAML(context, undefined, data.settings as DynamicList)
   //     if (dynamicList !== undefined) result.ДинамическийСписок = dynamicList
   //   } else if ("type" in data.settings) {
-  //     const settings = exportTypeDescriptionToEnterprise(context, undefined, data.settings as TypeDescription)
+  //     const settings = exportTypeDescriptionToYAML(context, undefined, data.settings as TypeDescription)
   //     if (settings !== undefined) result.ТипЗначения = settings
   //   }
   // }
@@ -60,7 +60,7 @@ const isAdditionalColumns = (columns: FormAttributeColumns): columns is FormAttr
   return columns.length > 0 && "table" in columns[0]
 }
 
-const exportFormAttributeColumnsToEnterprise = (
+const exportFormAttributeColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   columns: FormAttributeColumns
@@ -68,23 +68,23 @@ const exportFormAttributeColumnsToEnterprise = (
   if (columns.length === 0) return undefined
 
   if (isAdditionalColumns(columns)) {
-    return exportAdditionalColumnsToEnterprise(context, undefined, columns)
+    return exportAdditionalColumnsToYAML(context, undefined, columns)
   }
 
-  return exportColumnsToEnterprise(context, undefined, columns)
+  return exportColumnsToYAML(context, undefined, columns)
 }
 
-const exportColumnsToEnterprise = (
+const exportColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   columns: FormAttributeColumn[]
 ): FormAttributeColumnsYAML => {
   return Object.fromEntries(
-    columns.map((column) => [column.name, exportFormAttributeColumnToEnterprise(context, undefined, column)])
+    columns.map((column) => [column.name, exportFormAttributeColumnToYAML(context, undefined, column)])
   )
 }
 
-const exportFormAttributeColumnToEnterprise = (
+const exportFormAttributeColumnToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   column: FormAttributeColumn
@@ -98,7 +98,7 @@ const exportFormAttributeColumnToEnterprise = (
   return result
 }
 
-const exportAdditionalColumnsToEnterprise = (
+const exportAdditionalColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   additionalColumns: FormAttributeAdditionalColumns[]
@@ -106,10 +106,10 @@ const exportAdditionalColumnsToEnterprise = (
   return Object.fromEntries(
     additionalColumns.map((additionalColumn) => [
       additionalColumn.table.split(".").pop()!,
-      exportColumnsToEnterprise(context, undefined, additionalColumn.columns),
+      exportColumnsToYAML(context, undefined, additionalColumn.columns),
     ])
   )
 }
 
-registerTypeRule("FormAttributes", "exportToEnterprise", exportFormAttributesToEnterprise)
-registerTypeRule("FormAttributeColumns", "exportToEnterprise", exportFormAttributeColumnsToEnterprise)
+registerTypeRule("FormAttributes", "exportToYAML", exportFormAttributesToYAML)
+registerTypeRule("FormAttributeColumns", "exportToYAML", exportFormAttributeColumnsToYAML)

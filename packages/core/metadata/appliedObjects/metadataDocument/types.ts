@@ -1,49 +1,45 @@
 import {
   MetadataCommands,
-  MetadataCommandsEnterprise,
   MetadataCommandsXML,
+  MetadataCommandsYAML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import {
   MetadataDocumentNumerator,
-  MetadataDocumentNumeratorEnterprise,
   MetadataDocumentNumeratorXML,
+  MetadataDocumentNumeratorYAML,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import {
   AdditionalIndexes,
-  AdditionalIndexesEnterprise,
   AdditionalIndexesXML,
+  AdditionalIndexesYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import {
   CharacteristicsDescriptions,
-  CharacteristicsDescriptionsEnterprise,
   CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
-  MetadataAttributesEnterprise,
   MetadataAttributesXML,
+  MetadataAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import {
-  MetadataFields,
-  MetadataFieldsEnterprise,
-  MetadataFieldsXML,
-} from "~/metadata/commonObjects/metadataField/types"
+import { MetadataFields, MetadataFieldsXML, MetadataFieldsYAML } from "~/metadata/commonObjects/metadataField/types"
 import {
   MetadataItemLinks,
-  MetadataItemLinksEnterprise,
   MetadataItemLinksXML,
+  MetadataItemLinksYAML,
 } from "~/metadata/commonObjects/metadataRef/types"
 import {
   MetadataTabularSections,
-  MetadataTabularSectionsEnterprise,
   MetadataTabularSectionsXML,
+  MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import {
   StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -155,56 +151,56 @@ export interface MetadataDocumentXML {
   UseStandardCommands?: boolean
 }
 
-export interface MetadataDocumentEnterprise {
-  Автонумерация?: StringboolEnterprise
-  ВводитсяНаОсновании?: MetadataItemLinksEnterprise
-  ВводПоСтроке?: MetadataFieldsEnterprise
-  ВключатьСправкуВСодержание?: StringboolEnterprise
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
-  Движения?: MetadataItemLinksEnterprise
+export interface MetadataDocumentYAML {
+  Автонумерация?: StringboolYAML
+  ВводитсяНаОсновании?: MetadataItemLinksYAML
+  ВводПоСтроке?: MetadataFieldsYAML
+  ВключатьСправкуВСодержание?: StringboolYAML
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolYAML
+  Движения?: MetadataItemLinksYAML
   ДлинаНомера?: number
   ДополнительнаяФормаДляВыбора?: string
   ДополнительнаяФормаОбъекта?: string
   ДополнительнаяФормаСписка?: string
-  ДополнительныеИндексы?: AdditionalIndexesEnterprise
-  ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
-  ЗаписьДвиженийПриПроведении?: SE.RegisterRecordsWritingOnPostEnterprise
-  ЗаполнениеПоследовательностей?: SE.SequenceFillingEnterprise
+  ДополнительныеИндексы?: AdditionalIndexesYAML
+  ДопустимаяДлинаНомера?: SE.AllowedLengthYAML
+  ЗаписьДвиженийПриПроведении?: SE.RegisterRecordsWritingOnPostYAML
+  ЗаполнениеПоследовательностей?: SE.SequenceFillingYAML
   Имя?: string
-  ИспользоватьСтандартныеКоманды?: StringboolEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
-  Команды?: MetadataCommandsEnterprise
+  ИспользоватьСтандартныеКоманды?: StringboolYAML
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputYAML
+  ИсторияДанных?: SE.DataHistoryUseYAML
+  Команды?: MetadataCommandsYAML
   Комментарий?: string
-  КонтрольУникальности?: StringboolEnterprise
-  Нумератор?: MetadataDocumentNumeratorEnterprise
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
-  ОперативноеПроведение?: SE.RealTimePostingEnterprise
+  КонтрольУникальности?: StringboolYAML
+  Нумератор?: MetadataDocumentNumeratorYAML
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolYAML
+  ОперативноеПроведение?: SE.RealTimePostingYAML
   ОсновнаяФормаДляВыбора?: string
   ОсновнаяФормаОбъекта?: string
   ОсновнаяФормаСписка?: string
-  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  ПоляБлокировкиДанных?: MetadataFieldsEnterprise
-  Пояснение?: I8nTextEnterprise
-  ПредставлениеОбъекта?: I8nTextEnterprise
-  ПредставлениеСписка?: I8nTextEnterprise
-  ПривилегированныйРежимПриОтменеПроведения?: StringboolEnterprise
-  ПривилегированныйРежимПриПроведении?: StringboolEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  Проведение?: SE.PostingEnterprise
-  РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
-  РасширенноеПредставлениеСписка?: I8nTextEnterprise
-  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
-  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
-  Реквизиты?: MetadataAttributesEnterprise
-  Синоним?: I8nTextEnterprise
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
-  ТабличныеЧасти?: MetadataTabularSectionsEnterprise
-  ТипНомера?: SE.DocumentNumberTypeEnterprise
-  УдалениеДвижений?: SE.RegisterRecordsDeletionEnterprise
-  Характеристики?: CharacteristicsDescriptionsEnterprise
+  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityYAML
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
+  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringYAML
+  ПоляБлокировкиДанных?: MetadataFieldsYAML
+  Пояснение?: I8nTextYAML
+  ПредставлениеОбъекта?: I8nTextYAML
+  ПредставлениеСписка?: I8nTextYAML
+  ПривилегированныйРежимПриОтменеПроведения?: StringboolYAML
+  ПривилегированныйРежимПриПроведении?: StringboolYAML
+  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
+  Проведение?: SE.PostingYAML
+  РасширенноеПредставлениеОбъекта?: I8nTextYAML
+  РасширенноеПредставлениеСписка?: I8nTextYAML
+  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringYAML
+  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeYAML
+  Реквизиты?: MetadataAttributesYAML
+  Синоним?: I8nTextYAML
+  СозданиеПриВводе?: SE.CreateOnInputYAML
+  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringYAML
+  СтандартныеРеквизиты?: StandardAttributeDescriptionsYAML
+  ТабличныеЧасти?: MetadataTabularSectionsYAML
+  ТипНомера?: SE.DocumentNumberTypeYAML
+  УдалениеДвижений?: SE.RegisterRecordsDeletionYAML
+  Характеристики?: CharacteristicsDescriptionsYAML
 }

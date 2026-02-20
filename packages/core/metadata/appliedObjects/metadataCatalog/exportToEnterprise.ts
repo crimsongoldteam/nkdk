@@ -2,13 +2,13 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
 import { MetadataCatalogRules } from "./rules"
-import { MetadataCatalog, MetadataCatalogEnterprise } from "./types"
+import { MetadataCatalog, MetadataCatalogYAML } from "./types"
 
-export const exportMetadataCatalogToEnterprise = (
+export const exportMetadataCatalogToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   data: MetadataCatalog | undefined
-): MetadataCatalogEnterprise | undefined => {
+): MetadataCatalogYAML | undefined => {
   if (!data) return undefined
 
   const result = exportPropertiesToYAML({

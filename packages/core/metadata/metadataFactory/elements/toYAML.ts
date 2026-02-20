@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/collections/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportEventsToYAML } from "../events"
-import { exportFormElementTypeToEnterprise } from "../metadataType/toYAML"
+import { exportFormElementTypeToYAML } from "../metadataType/toYAML"
 import { exportPropertyToYAML } from "../properties/toYAML"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"
@@ -17,7 +17,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
 
   const rules = getElementRule<T>(data.itemType)
 
-  const type = exportFormElementTypeToEnterprise(context, data.itemType)
+  const type = exportFormElementTypeToYAML(context, data.itemType)
 
   const result: ToTypedYAML<T> = {
     Тип: type,

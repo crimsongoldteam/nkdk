@@ -1,16 +1,16 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
-import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
-import { Font, FontEnterprise, FontFullEnterprise } from "./types"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { Font, FontFullYAML, FontYAML } from "./types"
 
-export const exportFontToEnterprise = (
+export const exportFontToYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   font: Font | undefined
-): FontEnterprise | undefined => {
+): FontYAML | undefined => {
   if (!font) return undefined
 
   const hasFullFormat =
@@ -21,9 +21,9 @@ export const exportFontToEnterprise = (
     font.strikeout !== undefined
 
   if (hasFullFormat) {
-    const kind = convertRefToEnterprise(_context, font.ref, font.kind)!
+    const kind = convertRefToYAML(_context, font.ref, font.kind)!
 
-    const result: FontFullEnterprise = {
+    const result: FontFullYAML = {
       Вид: kind,
     }
 
@@ -33,29 +33,29 @@ export const exportFontToEnterprise = (
 
     if (font.scale !== undefined) result.Масштаб = font.scale
 
-    const italicValue = exportBooleanToEnterprise(_context, undefined, font.italic)
+    const italicValue = exportBooleanToYAML(_context, undefined, font.italic)
     if (italicValue !== undefined) result.Наклонный = italicValue
 
-    const underlineValue = exportBooleanToEnterprise(_context, undefined, font.underline)
+    const underlineValue = exportBooleanToYAML(_context, undefined, font.underline)
     if (underlineValue !== undefined) result.Подчеркивание = underlineValue
 
-    const boldValue = exportBooleanToEnterprise(_context, undefined, font.bold)
+    const boldValue = exportBooleanToYAML(_context, undefined, font.bold)
     if (boldValue !== undefined) result.Полужирный = boldValue
 
-    const strikeoutValue = exportBooleanToEnterprise(_context, undefined, font.strikeout)
+    const strikeoutValue = exportBooleanToYAML(_context, undefined, font.strikeout)
     if (strikeoutValue !== undefined) result.Зачеркивание = strikeoutValue
 
     return result
   }
 
-  return font.faceName || convertRefToEnterprise(_context, font.ref, font.kind)
+  return font.faceName || convertRefToYAML(_context, font.ref, font.kind)
 }
 
-const convertRefToEnterprise = (
+const convertRefToYAML = (
   context: ConfigurationContext,
   ref: SE.StyleFonts | SE.WindowsFonts | undefined,
   kind: SE.FontType
-): SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise | undefined => {
+): SE.StyleFontsYAML | SE.WindowsFontsYAML | undefined => {
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
@@ -65,4 +65,4 @@ const convertRefToEnterprise = (
   return exportSystemEnumerationToYAML(context, { type: "SystemEnumeration", typeSE: "WindowsFonts" }, ref)
 }
 
-registerTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)
+registerTypeRule("Font", "exportToYAML", exportFontToYAML)

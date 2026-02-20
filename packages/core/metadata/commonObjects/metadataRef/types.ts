@@ -5,8 +5,8 @@ export interface MetadataItemLinkXML {
   "#text": string
 }
 
-export type MetadataItemLinkEnterprise = string
+export type MetadataItemLinkYAML = string
 
 export type MetadataItemLinks = MetadataItemLink[]
 export type MetadataItemLinksXML = MetadataItemLinkXML[]
-export type MetadataItemLinksEnterprise = MetadataItemLinkEnterprise[]
+export type MetadataItemLinksYAML = MetadataItemLinkYAML[]

@@ -1,13 +1,13 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface PlannerField {
   itemType: "PlannerField"
@@ -95,21 +95,21 @@ export interface PlannerField {
   }
 }
 
-export interface PlannerFieldPartialEnterprise {
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
+export interface PlannerFieldPartialYAML {
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
   Высота?: number
-  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: StringboolEnterprise
-  ГиперссылкаЭлементаИзмерения?: StringboolEnterprise
-  ГиперссылкаЭлементаШкалыВремени?: StringboolEnterprise
+  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: StringboolYAML
+  ГиперссылкаЭлементаИзмерения?: StringboolYAML
+  ГиперссылкаЭлементаШкалыВремени?: StringboolYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьНачалоПеретаскивания?: StringboolYAML
+  РазрешитьПеретаскивание?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
   Ширина?: number
   События?: {
     ПриИзменении?: string
@@ -136,46 +136,46 @@ export interface PlannerFieldPartialEnterprise {
     ПроверкаПеретаскивания?: string
     ПроверкаПеретаскиванияВнутри?: string
   }
-  АвтоВысотаЯчейки?: StringboolEnterprise
-  АктивизироватьПоУмолчанию?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormFieldTypeEnterprise
-  Видимость?: StringboolEnterprise
+  АвтоВысотаЯчейки?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormFieldTypeYAML
+  Видимость?: StringboolYAML
   ВысотаЗаголовка?: number
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КартинкаПодвала?: PictureEnterprise
-  КартинкаШапки?: PictureEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОграничениеТипа?: TypeDescriptionEnterprise
-  ОтображатьВПодвале?: StringboolEnterprise
-  ОтображатьВШапке?: StringboolEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
+  ГиперссылкаЯчейки?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КартинкаПодвала?: PictureYAML
+  КартинкаШапки?: PictureYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОграничениеТипа?: TypeDescriptionYAML
+  ОтображатьВПодвале?: StringboolYAML
+  ОтображатьВШапке?: StringboolYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationYAML
+  Подсказка?: I8nTextYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  ПредупреждениеПриРедактировании?: I8nTextYAML
+  ПропускатьПриВводе?: StringboolYAML
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РежимРедактирования?: SE.ColumnEditModeYAML
   СочетаниеКлавиш?: string
   Таблица?: string
-  ТекстПодвала?: I8nTextEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветТекстаПодвала?: ColorEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
-  ЦветФонаПодвала?: ColorEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ШрифтПодвала?: FontEnterprise
+  ТекстПодвала?: I8nTextYAML
+  ТолькоПросмотр?: StringboolYAML
+  ФиксацияВТаблице?: SE.FixingInTableYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветТекстаПодвала?: ColorYAML
+  ЦветФонаЗаголовка?: ColorYAML
+  ЦветФонаПодвала?: ColorYAML
+  ШрифтЗаголовка?: FontYAML
+  ШрифтПодвала?: FontYAML
 }

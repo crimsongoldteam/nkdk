@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullCalendarField,
-  fullCalendarFieldPartialEnterprise,
+  fullCalendarFieldPartialYAML,
   minimalCalendarField,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportCalendarFieldToEnterprise", () => {
+describe("exportCalendarFieldToYAML", () => {
   describe("exportElementToPartialYAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullCalendarField })
 
-      expect(result).toEqual(fullCalendarFieldPartialEnterprise)
+      expect(result).toEqual(fullCalendarFieldPartialYAML)
     })
 
     it("should export minimal", () => {

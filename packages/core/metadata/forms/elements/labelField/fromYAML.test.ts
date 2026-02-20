@@ -6,21 +6,21 @@ import {
 } from "~/metadata/metadataFactory"
 import {
   fullLabelField,
-  fullLabelFieldPartialEnterprise,
-  fullLabelFieldTypedEnterprise,
+  fullLabelFieldPartialYAML,
+  fullLabelFieldTypedYAML,
   minimalLabelField,
-  minimalLabelFieldPartialEnterprise,
-  minimalLabelFieldTypedEnterprise,
+  minimalLabelFieldPartialYAML,
+  minimalLabelFieldTypedYAML,
 } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 import { LabelField } from "./types"
 
-describe("importLabelFieldFromEnterprise", () => {
-  describe("importLabelFieldTypedFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importLabelFieldFromYAML", () => {
+  describe("importLabelFieldTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromTypedYAML<LabelField>({
         context: mockContext,
-        yaml: fullLabelFieldTypedEnterprise,
+        yaml: fullLabelFieldTypedYAML,
         name: "ПолеНадписи",
       })
 
@@ -30,7 +30,7 @@ describe("importLabelFieldFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<LabelField>({
         context: mockContext,
-        yaml: minimalLabelFieldTypedEnterprise,
+        yaml: minimalLabelFieldTypedYAML,
         name: "ПолеНадписи",
       })
 
@@ -38,12 +38,12 @@ describe("importLabelFieldFromEnterprise", () => {
     })
   })
 
-  describe("importLabelFieldPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+  describe("importLabelFieldPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.LabelField,
-        yaml: fullLabelFieldPartialEnterprise,
+        yaml: fullLabelFieldPartialYAML,
         source: fullLabelField,
       })
 
@@ -54,7 +54,7 @@ describe("importLabelFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.LabelField,
-        yaml: minimalLabelFieldPartialEnterprise,
+        yaml: minimalLabelFieldPartialYAML,
         source: minimalLabelField,
       })
 

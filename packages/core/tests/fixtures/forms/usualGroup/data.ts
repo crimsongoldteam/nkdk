@@ -1,9 +1,9 @@
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import {
   UsualGroup,
-  UsualGroupPartialEnterprise,
+  UsualGroupPartialYAML,
   UsualGroupPreview,
-  UsualGroupTypedEnterprise,
+  UsualGroupTypedYAML,
 } from "~/metadata/forms/elements/usualGroup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
@@ -74,8 +74,8 @@ export const fullUsualGroupSource: UsualGroup = {
   childItems: [],
 }
 
-export const fullUsualGroupPartialEnterprise: Required<
-  Omit<UsualGroupPartialEnterprise, "Заголовок" | "ЗапретитьИспользование" | "Группировка">
+export const fullUsualGroupPartialYAML: Required<
+  Omit<UsualGroupPartialYAML, "Заголовок" | "ЗапретитьИспользование" | "Группировка">
 > = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Ложь",
@@ -118,8 +118,8 @@ export const fullUsualGroupPartialEnterprise: Required<
   Таблица: "ИспользуемаяТаблица",
 }
 
-export const fullUsualGroupTypedEnterprise: UsualGroupTypedEnterprise = {
-  ...fullUsualGroupPartialEnterprise,
+export const fullUsualGroupTypedYAML: UsualGroupTypedYAML = {
+  ...fullUsualGroupPartialYAML,
   Тип: "Группа",
   Заголовок: "Обычная группа",
 }
@@ -170,9 +170,9 @@ export const minimalUsualGroup: UsualGroup = {
   childItems: [],
 }
 
-export const minimalUsualGroupPartialEnterprise: UsualGroupPartialEnterprise = {}
+export const minimalUsualGroupPartialYAML: UsualGroupPartialYAML = {}
 
-export const minimalUsualGroupTypedEnterprise: UsualGroupTypedEnterprise = {
+export const minimalUsualGroupTypedYAML: UsualGroupTypedYAML = {
   Тип: "Группа",
 }
 

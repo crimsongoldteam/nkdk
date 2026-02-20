@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importTypeLinkFromEnterprise } from "./importFromEnterprise"
+import { importTypeLinkFromYAML } from "./fromYAML"
 import { TypeLink } from "./types"
 
-describe("importTypeLinkFromEnterprise", () => {
+describe("importTypeLinkFromYAML", () => {
   it("should import type link without link item", () => {
     const enterpriseValue = "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит"
-    const result = importTypeLinkFromEnterprise(mockContext, mockRule, enterpriseValue)
+    const result = importTypeLinkFromYAML(mockContext, mockRule, enterpriseValue)
 
     const expected: TypeLink = {
       dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
@@ -18,7 +18,7 @@ describe("importTypeLinkFromEnterprise", () => {
 
   it("should import type link with link item", () => {
     const enterpriseValue = "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит(1)"
-    const result = importTypeLinkFromEnterprise(mockContext, mockRule, enterpriseValue)
+    const result = importTypeLinkFromYAML(mockContext, mockRule, enterpriseValue)
 
     const expected: TypeLink = {
       dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
@@ -29,7 +29,7 @@ describe("importTypeLinkFromEnterprise", () => {
   })
 
   it("should return undefined for undefined input", () => {
-    const result = importTypeLinkFromEnterprise(mockContext, mockRule, undefined)
+    const result = importTypeLinkFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 })

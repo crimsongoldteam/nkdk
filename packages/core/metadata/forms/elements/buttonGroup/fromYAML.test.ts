@@ -6,21 +6,21 @@ import {
 } from "~/metadata/metadataFactory"
 import {
   fullButtonGroup,
-  fullButtonGroupPartialEnterprise,
-  fullButtonGroupTypedEnterprise,
+  fullButtonGroupPartialYAML,
+  fullButtonGroupTypedYAML,
   minimalButtonGroup,
-  minimalButtonGroupPartialEnterprise,
-  minimalButtonGroupTypedEnterprise,
+  minimalButtonGroupPartialYAML,
+  minimalButtonGroupTypedYAML,
 } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup } from "./types"
 
-describe("importButtonGroupFromEnterprise", () => {
-  describe("importButtonGroupTypedFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importButtonGroupFromYAML", () => {
+  describe("importButtonGroupTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
-        yaml: fullButtonGroupTypedEnterprise,
+        yaml: fullButtonGroupTypedYAML,
         name: "ГруппаКнопок",
       })
 
@@ -30,7 +30,7 @@ describe("importButtonGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<ButtonGroup>({
         context: mockContext,
-        yaml: minimalButtonGroupTypedEnterprise,
+        yaml: minimalButtonGroupTypedYAML,
         name: "ГруппаКнопок",
       })
 
@@ -38,12 +38,12 @@ describe("importButtonGroupFromEnterprise", () => {
     })
   })
 
-  describe("importButtonGroupPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+  describe("importButtonGroupPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.ButtonGroup,
-        yaml: fullButtonGroupPartialEnterprise,
+        yaml: fullButtonGroupPartialYAML,
         source: fullButtonGroup,
       })
 
@@ -54,7 +54,7 @@ describe("importButtonGroupFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.ButtonGroup,
-        yaml: minimalButtonGroupPartialEnterprise,
+        yaml: minimalButtonGroupPartialYAML,
         source: minimalButtonGroup,
       })
 

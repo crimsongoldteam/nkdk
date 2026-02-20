@@ -1,6 +1,6 @@
 import {
   FormattedDocumentField,
-  FormattedDocumentFieldPartialEnterprise,
+  FormattedDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -99,7 +99,7 @@ export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocument
   },
 }
 
-export const fullFormattedDocumentFieldPartialEnterprise: FormattedDocumentFieldPartialEnterprise = {
+export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -169,4 +169,4 @@ export const minimalFormattedDocumentField: FormattedDocumentField = {
   name: "ПолеФорматированногоДокумента",
 }
 
-export const minimalFormattedDocumentFieldPartialEnterprise: FormattedDocumentFieldPartialEnterprise = {}
+export const minimalFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartialYAML = {}

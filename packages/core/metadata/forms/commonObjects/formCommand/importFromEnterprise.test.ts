@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest"
 import {
   fullFormCommands,
-  fullFormCommandsEnterprise,
-  minimalFormCommandEnterprise,
+  fullFormCommandsYAML,
+  minimalFormCommandYAML,
   minimalFormCommands,
 } from "~/tests/fixtures/forms/commands/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importCommandsFromEnterprise } from "./importFromEnterprise"
+import { importCommandsFromYAML } from "./fromYAML"
 
-describe("importCommandFromEnterprise", () => {
+describe("importCommandFromYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importCommandsFromEnterprise(mockContext, mockRule, undefined)
+    const result = importCommandsFromYAML(mockContext, mockRule, undefined)
 
     expect(result).toEqual([])
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importCommandsFromEnterprise(mockContext, mockRule, fullFormCommandsEnterprise)
+  it("should import all fields from YAML", () => {
+    const result = importCommandsFromYAML(mockContext, mockRule, fullFormCommandsYAML)
     expect(result).toEqual(fullFormCommands)
   })
 
   it("should import minimal", () => {
-    const result = importCommandsFromEnterprise(mockContext, mockRule, minimalFormCommandEnterprise)
+    const result = importCommandsFromYAML(mockContext, mockRule, minimalFormCommandYAML)
 
     expect(result).toEqual(minimalFormCommands)
   })

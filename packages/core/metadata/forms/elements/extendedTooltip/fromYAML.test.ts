@@ -2,20 +2,20 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullExtendedTooltip,
-  fullExtendedTooltipEnterprise,
+  fullExtendedTooltipYAML,
   minimalExtendedTooltip,
-  minimalExtendedTooltipEnterprise,
+  minimalExtendedTooltipYAML,
 } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule<any> = { type: "ExtendedTooltip" }
 
-describe("importExtendedTooltipFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importExtendedTooltipFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
-      value: fullExtendedTooltipEnterprise,
+      value: fullExtendedTooltipYAML,
       sourceValue: fullExtendedTooltip,
     })
 
@@ -26,7 +26,7 @@ describe("importExtendedTooltipFromEnterprise", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: rule,
-      value: minimalExtendedTooltipEnterprise,
+      value: minimalExtendedTooltipYAML,
       sourceValue: minimalExtendedTooltip,
     })
 

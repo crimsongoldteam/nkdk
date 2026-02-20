@@ -1,13 +1,13 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { UsePurposes, UsePurposesEnterprise } from "./types"
+import { UsePurposes, UsePurposesYAML } from "./types"
 
-export const exportUsePurposesToEnterprise = (
+export const exportUsePurposesToYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: UsePurposes | undefined
-): UsePurposesEnterprise | undefined => {
+): UsePurposesYAML | undefined => {
   if (!data || data.length === 0) return undefined
 
   const hasPlatform = data.includes("PlatformApplication")
@@ -22,8 +22,8 @@ export const exportUsePurposesToEnterprise = (
   }
 
   // Если только PlatformApplication, возвращаем undefined
-  // так как в Enterprise формате нет отдельного значения для только PlatformApplication
+  // так как в YAML формате нет отдельного значения для только PlatformApplication
   return undefined
 }
 
-registerTypeRule("UsePurposes", "exportToEnterprise", exportUsePurposesToEnterprise)
+registerTypeRule("UsePurposes", "exportToYAML", exportUsePurposesToYAML)

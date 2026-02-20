@@ -3,29 +3,29 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importI8nTextFromYAML } from "../i8nText/importFromEnterprise"
-import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
+import { importI8nTextFromYAML } from "../i8nText/fromYAML"
+import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
 import {
-  MetadataFixedArrayValueEnterprise,
+  MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
-  MetadataFormChoiceListValueEnterprise,
+  MetadataFormChoiceListValueYAML,
   MetadataValue,
-  MetadataValueEnterprise,
+  MetadataValueYAML,
 } from "./types"
 
-export const importMetadataValueFromEnterprise = (
+export const importMetadataValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataValueEnterprise | undefined
+  data: MetadataValueYAML | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
 
   if (typeof data === "object" && data !== null && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListValueFromEnterprise(context, undefined, data as MetadataFormChoiceListValueEnterprise)
+    return importFormChoiceListValueFromYAML(context, undefined, data as MetadataFormChoiceListValueYAML)
   }
 
   if (Array.isArray(data)) {
-    return importFixedArrayValueFromEnterprise(context, undefined, data)
+    return importFixedArrayValueFromYAML(context, undefined, data)
   }
 
   if (typeof data === "number") {
@@ -36,7 +36,7 @@ export const importMetadataValueFromEnterprise = (
   }
 
   if (typeof data === "string") {
-    return importStringValueFromEnterprise(context, undefined, data)
+    return importStringValueFromYAML(context, undefined, data)
   }
 
   throw new Error(`Invalid value ${JSON.stringify(data)}`)
@@ -58,7 +58,7 @@ const parseDateTime = (dateTime: string): string => {
   }
 }
 
-const importStringValueFromEnterprise = (
+const importStringValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: string
@@ -130,29 +130,29 @@ const importStringValueFromEnterprise = (
     }
   }
 
-  return importMetadataRefFromEnterprise(context, undefined, data)
+  return importMetadataRefFromYAML(context, undefined, data)
 }
 
-const importFixedArrayValueFromEnterprise = (
+const importFixedArrayValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataFixedArrayValueEnterprise
+  data: MetadataFixedArrayValueYAML
 ): MetadataValue => {
   return {
     type: "fixedArray",
-    value: data.map((v) => importMetadataValueFromEnterprise(context, undefined, v)!) as MetadataValue[],
+    value: data.map((v) => importMetadataValueFromYAML(context, undefined, v)!) as MetadataValue[],
   }
 }
 
-export const importFormChoiceListValueFromEnterprise = (
+export const importFormChoiceListValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: MetadataFormChoiceListValueEnterprise
+  data: MetadataFormChoiceListValueYAML
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
     const parsed = formulaFormatParser(data)
     // Если formula пустая, значит это формат (presentation) без значения
-    const value = parsed.formula ? importMetadataValueFromEnterprise(context, undefined, parsed.formula) : undefined
+    const value = parsed.formula ? importMetadataValueFromYAML(context, undefined, parsed.formula) : undefined
     const presentation = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: parsed.parameters[0] })
 
     return {
@@ -161,7 +161,7 @@ export const importFormChoiceListValueFromEnterprise = (
       value: value,
     }
   }
-  const value = importMetadataValueFromEnterprise(context, undefined, data.Значение)!
+  const value = importMetadataValueFromYAML(context, undefined, data.Значение)!
   return {
     type: "formChoiceListDesTimeValue",
     presentation: importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Представление }),
@@ -169,12 +169,12 @@ export const importFormChoiceListValueFromEnterprise = (
   }
 }
 
-export const importMetadataRefFromEnterprise = (
+export const importMetadataRefFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   value: string
 ): MetadataValue => {
-  const convertedValue = importMetadataValueStringFromEnterprise(context, undefined, value)
+  const convertedValue = importMetadataValueStringFromYAML(context, undefined, value)
   if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
 
   return {
@@ -183,4 +183,4 @@ export const importMetadataRefFromEnterprise = (
   }
 }
 
-registerTypeRule("MetadataValue", "importFromEnterprise", importMetadataValueFromEnterprise)
+registerTypeRule("MetadataValue", "importFromYAML", importMetadataValueFromYAML)

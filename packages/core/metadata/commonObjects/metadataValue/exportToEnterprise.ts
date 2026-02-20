@@ -2,39 +2,39 @@ import { format } from "date-fns"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
-import { exportMetadataValueStringToEnterprise as exportMetadataPathValueToEnterprise } from "../metadataPath/exportToEnterprise"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { exportMetadataValueStringToYAML as exportMetadataPathValueToYAML } from "../metadataPath/toYAML"
 import {
   MetadataBooleanValue,
   MetadataDateTimeValue,
   MetadataDecimalValue,
   MetadataFixedArrayValue,
-  MetadataFixedArrayValueEnterprise,
+  MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
-  MetadataFormChoiceListValueEnterprise,
+  MetadataFormChoiceListValueYAML,
   MetadataObjectRefValue,
   MetadataRefValue,
   MetadataSimpleValue,
   MetadataValue,
-  MetadataValueEnterprise,
+  MetadataValueYAML,
 } from "./types"
 
-export const exportMetadataValueToEnterprise = (
+export const exportMetadataValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataValue | undefined
-): MetadataValueEnterprise | undefined => {
+): MetadataValueYAML | undefined => {
   if (!data) return undefined
 
-  if (data.type === "fixedArray") return exportFixedArrayValueToEnterprise(context, undefined, data)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToEnterprise(context, undefined, data)
-  if (data.type === "string") return exportStringValueToEnterprise(data)
-  if (data.type === "decimal") return exportDecimalValueToEnterprise(data)
-  if (data.type === "dateTime") return exportDateTimeValueToEnterprise(data)
-  if (data.type === "boolean") return exportBooleanValueToEnterprise(context, undefined, data)
-  if (data.type === "ref") return exportRefValueToEnterprise(context, data)
-  if (data.type === "objectRef") return exportObjectRefValueToEnterprise(context, data)
-  // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToEnterprise(data)
+  if (data.type === "fixedArray") return exportFixedArrayValueToYAML(context, undefined, data)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToYAML(context, undefined, data)
+  if (data.type === "string") return exportStringValueToYAML(data)
+  if (data.type === "decimal") return exportDecimalValueToYAML(data)
+  if (data.type === "dateTime") return exportDateTimeValueToYAML(data)
+  if (data.type === "boolean") return exportBooleanValueToYAML(context, undefined, data)
+  if (data.type === "ref") return exportRefValueToYAML(context, data)
+  if (data.type === "objectRef") return exportObjectRefValueToYAML(context, data)
+  // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToYAML(data)
   throw new Error(`Invalid type ${JSON.stringify(data)}`)
 }
 
@@ -43,53 +43,48 @@ const formatDateTime = (dateTime: string): string => {
   return format(date, "dd.MM.yyyy HH:mm:ss")
 }
 
-const exportStringValueToEnterprise = (data: MetadataSimpleValue): MetadataValueEnterprise => {
+const exportStringValueToYAML = (data: MetadataSimpleValue): MetadataValueYAML => {
   return `"${data.value as string}"`
 }
 
-const exportDecimalValueToEnterprise = (data: MetadataDecimalValue): MetadataValueEnterprise => {
+const exportDecimalValueToYAML = (data: MetadataDecimalValue): MetadataValueYAML => {
   return data.value
 }
 
-const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataValueEnterprise => {
+const exportDateTimeValueToYAML = (data: MetadataDateTimeValue): MetadataValueYAML => {
   return formatDateTime(data.value)
 }
 
-const exportBooleanValueToEnterprise = (
+const exportBooleanValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataBooleanValue
-): MetadataValueEnterprise => {
-  return exportBooleanToEnterprise(context, undefined, data.value)!
+): MetadataValueYAML => {
+  return exportBooleanToYAML(context, undefined, data.value)!
 }
 
-const exportRefValueToEnterprise = (context: ConfigurationContext, data: MetadataRefValue): MetadataValueEnterprise => {
-  return exportMedatataRefToEnterprise(context, data.value)
+const exportRefValueToYAML = (context: ConfigurationContext, data: MetadataRefValue): MetadataValueYAML => {
+  return exportMedatataRefToYAML(context, data.value)
 }
 
-const exportObjectRefValueToEnterprise = (
-  context: ConfigurationContext,
-  data: MetadataObjectRefValue
-): MetadataValueEnterprise => {
-  return exportMedatataRefToEnterprise(context, data.value)
+const exportObjectRefValueToYAML = (context: ConfigurationContext, data: MetadataObjectRefValue): MetadataValueYAML => {
+  return exportMedatataRefToYAML(context, data.value)
 }
 
-const exportFixedArrayValueToEnterprise = (
+const exportFixedArrayValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataFixedArrayValue
-): MetadataValueEnterprise => {
-  return data.value.map(
-    (v) => exportMetadataValueToEnterprise(context, undefined, v)!
-  ) as MetadataFixedArrayValueEnterprise
+): MetadataValueYAML => {
+  return data.value.map((v) => exportMetadataValueToYAML(context, undefined, v)!) as MetadataFixedArrayValueYAML
 }
 
-export const exportFormChoiceListValueToEnterprise = (
+export const exportFormChoiceListValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: MetadataFormChoiceListValue
-): MetadataFormChoiceListValueEnterprise => {
-  const valueResult = exportMetadataValueToEnterprise(context, undefined, data.value)
+): MetadataFormChoiceListValueYAML => {
+  const valueResult = exportMetadataValueToYAML(context, undefined, data.value)
 
   const presentationItems = data.presentation?.items
   const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
@@ -113,10 +108,10 @@ export const exportFormChoiceListValueToEnterprise = (
   return `${valueResult}(${presentation})`
 }
 
-export const exportMedatataRefToEnterprise = (context: ConfigurationContext, value: string): string => {
-  const result = exportMetadataPathValueToEnterprise(context, undefined, value)
+export const exportMedatataRefToYAML = (context: ConfigurationContext, value: string): string => {
+  const result = exportMetadataPathValueToYAML(context, undefined, value)
   if (!result) throw new Error(`Invalid type for ref: ${value}`)
   return result
 }
 
-registerTypeRule("MetadataValue", "exportToEnterprise", exportMetadataValueToEnterprise)
+registerTypeRule("MetadataValue", "exportToYAML", exportMetadataValueToYAML)

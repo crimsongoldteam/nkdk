@@ -1,9 +1,9 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { FormattedI8nText, FormattedI8nTextEnterprise } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement } from "../baseElement/types"
 
@@ -33,29 +33,29 @@ export interface ExtendedTooltip extends BaseElement {
   width?: number
 }
 
-export interface ExtendedTooltipEnterprise {
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormDecorationTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface ExtendedTooltipYAML {
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormDecorationTypeYAML
+  Видимость?: StringboolYAML
   Высота?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: FormattedI8nTextEnterprise
-  ФорматированныйЗаголовок?: FormattedI8nTextEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: FormattedI8nTextYAML
+  ФорматированныйЗаголовок?: FormattedI8nTextYAML
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  ПропускатьПриВводе?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
   СочетаниеКлавиш?: string
-  ЦветТекста?: ColorEnterprise
+  ЦветТекста?: ColorYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
+  Шрифт?: FontYAML
 }

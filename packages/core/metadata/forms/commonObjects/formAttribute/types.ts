@@ -1,25 +1,22 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { FieldsList, FieldsListEnterprise } from "~/metadata/commonObjects/fieldsList/types"
-import {
-  FunctionalOptions,
-  FunctionalOptionsEnterprise,
-} from "~/metadata/commonObjects/functionalOptionsProperty/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
+import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   TypeDescription,
-  TypeDescriptionEnterprise,
   TypeDescriptionXML,
+  TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import {
-  UserEditEnterprise,
-  UserEditKeysEnterprise,
-  UserViewEnterprise,
-  UserViewKeysEnterprise,
+  UserEditKeysYAML,
+  UserEditYAML,
+  UserViewKeysYAML,
+  UserViewYAML,
   UserVisible,
 } from "~/metadata/commonObjects/userVisible/types"
-import { DynamicList, DynamicListEnterprise, DynamicListXML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { DynamicList, DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
-import { FillChecking, FillCheckingEnterprise } from "~/metadata/systemEnumerations/types"
+import { FillChecking, FillCheckingYAML } from "~/metadata/systemEnumerations/types"
 
 export interface FormAttributeAdditionalColumn {
   table: string
@@ -99,15 +96,15 @@ export interface ConditionalAppearanceXML {
 }
 
 export interface FormAttributeColumnYAML {
-  Заголовок?: I8nTextEnterprise
-  Тип?: TypeDescriptionEnterprise
-  ПроверкаЗаполнения?: FillCheckingEnterprise
-  [UserViewKeysEnterprise.Allow]?: UserViewEnterprise
-  [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
-  [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
-  [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
+  Заголовок?: I8nTextYAML
+  Тип?: TypeDescriptionYAML
+  ПроверкаЗаполнения?: FillCheckingYAML
+  [UserViewKeysYAML.Allow]?: UserViewYAML
+  [UserViewKeysYAML.Deny]?: UserViewYAML
+  [UserEditKeysYAML.Allow]?: UserEditYAML
+  [UserEditKeysYAML.Deny]?: UserEditYAML
   Колонки?: Record<string, FormAttributeColumnYAML>
-  ФункциональныеОпции?: FunctionalOptionsEnterprise
+  ФункциональныеОпции?: FunctionalOptionsYAML
 }
 
 export interface FormAttributeAdditionalColumnYAML {
@@ -117,25 +114,25 @@ export interface FormAttributeAdditionalColumnYAML {
 export type FormAttributeColumnsYAML = Record<string, FormAttributeColumnYAML> | FormAttributeAdditionalColumnYAML
 
 export interface FormAttributeYAML {
-  Заголовок?: I8nTextEnterprise
-  Тип?: TypeDescriptionEnterprise
-  ТипЗначения?: TypeDescriptionEnterprise
-  ОсновнойРеквизит?: StringboolEnterprise
-  СохраняемыеДанные?: StringboolEnterprise
-  ДинамическийСписок?: DynamicListEnterprise
-  [UserViewKeysEnterprise.Allow]?: UserViewEnterprise
-  [UserViewKeysEnterprise.Deny]?: UserViewEnterprise
-  [UserEditKeysEnterprise.Allow]?: UserEditEnterprise
-  [UserEditKeysEnterprise.Deny]?: UserEditEnterprise
+  Заголовок?: I8nTextYAML
+  Тип?: TypeDescriptionYAML
+  ТипЗначения?: TypeDescriptionYAML
+  ОсновнойРеквизит?: StringboolYAML
+  СохраняемыеДанные?: StringboolYAML
+  ДинамическийСписок?: DynamicListYAML
+  [UserViewKeysYAML.Allow]?: UserViewYAML
+  [UserViewKeysYAML.Deny]?: UserViewYAML
+  [UserEditKeysYAML.Allow]?: UserEditYAML
+  [UserEditKeysYAML.Deny]?: UserEditYAML
   Колонки?: FormAttributeColumnsYAML
-  ФункциональныеОпции?: FunctionalOptionsEnterprise
-  ИспользоватьВсегда?: FieldsListEnterprise
-  ПроверкаЗаполнения?: FillCheckingEnterprise
-  Сохранение?: FieldsListEnterprise
+  ФункциональныеОпции?: FunctionalOptionsYAML
+  ИспользоватьВсегда?: FieldsListYAML
+  ПроверкаЗаполнения?: FillCheckingYAML
+  Сохранение?: FieldsListYAML
 }
 
 export type FormAttributes = FormAttribute[]
 
 export type FormAttributesXML = (FormAttributeXML | ConditionalAppearanceXML)[]
 
-export type FormAttributesEnterprise = Record<string, FormAttributeYAML | TypeDescriptionEnterprise>
+export type FormAttributesYAML = Record<string, FormAttributeYAML | TypeDescriptionYAML>

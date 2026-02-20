@@ -1,12 +1,12 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PagesChildItems } from "../../collections/childItems/types"
 import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface Pages extends NamedElement {
   itemType: "Pages"
@@ -38,36 +38,36 @@ export interface Pages extends NamedElement {
   childItems: PagesChildItems
 }
 
-export interface PagesPartialEnterprise {
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormGroupTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface PagesPartialYAML {
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormGroupTypeYAML
+  Видимость?: StringboolYAML
   Высота?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РазрешитьИзменениеСостава?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьИзменениеСостава?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
   СочетаниеКлавиш?: string
-  ТолькоПросмотр?: StringboolEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
+  ТолькоПросмотр?: StringboolYAML
+  ЦветТекстаЗаголовка?: ColorYAML
   Ширина?: number
-  ШрифтЗаголовка?: FontEnterprise
-  ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
+  ШрифтЗаголовка?: FontYAML
+  ИспользованиеТекущейСтроки?: SE.CurrentRowUseYAML
   ИспользуемаяТаблица?: string
-  ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
-  ТекущееСостояниеСтраниц?: SE.FormPagesStateEnterprise
+  ОтображениеСтраниц?: SE.FormPagesRepresentationYAML
+  ТекущееСостояниеСтраниц?: SE.FormPagesStateYAML
   События?: {
     ПриСменеСтраницы?: string
   }
 }
 
-export interface PagesTypedEnterprise extends PagesPartialEnterprise {
+export interface PagesTypedYAML extends PagesPartialYAML {
   Тип: "Страницы"
 }

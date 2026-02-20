@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullPopup,
-  fullPopupPartialEnterprise,
-  fullPopupTypedEnterprise,
+  fullPopupPartialYAML,
+  fullPopupTypedYAML,
   minimalPopup,
-  minimalPopupTypedEnterprise,
+  minimalPopupTypedYAML,
 } from "~/tests/fixtures/forms/popup/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportPopupToEnterprise", () => {
+describe("exportPopupToYAML", () => {
   describe("Partial", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullPopup })
 
-      expect(result).toEqual(fullPopupPartialEnterprise)
+      expect(result).toEqual(fullPopupPartialYAML)
     })
 
     it("should export minimal", () => {
@@ -25,16 +25,16 @@ describe("exportPopupToEnterprise", () => {
   })
 
   describe("Typed", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullPopup })
 
-      expect(result).toEqual(fullPopupTypedEnterprise)
+      expect(result).toEqual(fullPopupTypedYAML)
     })
 
     it("should export minimal", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: minimalPopup })
 
-      expect(result).toEqual(minimalPopupTypedEnterprise)
+      expect(result).toEqual(minimalPopupTypedYAML)
     })
   })
 })

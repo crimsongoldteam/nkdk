@@ -11,4 +11,4 @@ export interface TypeLink {
   linkItem: number
 }
 
-export type TypeLinkEnterprise = string
+export type TypeLinkYAML = string

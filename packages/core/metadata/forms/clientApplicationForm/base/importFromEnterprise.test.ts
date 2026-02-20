@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   fullClientApplicationForm,
-  fullClientApplicationFormEnterprise,
+  fullClientApplicationFormYAML,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContext } from "~/tests/mockContext"
 import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
-import { importClientApplicationFormFromEnterprise } from "./importFromEnterprise"
-import { ClientApplicationForm, ClientApplicationFormEnterprise } from "./types"
+import { importClientApplicationFormFromYAML } from "./fromYAML"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
-describe("importClientApplicationFormFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
-    const result = importClientApplicationFormFromEnterprise(mockContext, fullClientApplicationFormEnterprise, {
+describe("importClientApplicationFormFromYAML", () => {
+  it("should import all fields from YAML", () => {
+    const result = importClientApplicationFormFromYAML(mockContext, fullClientApplicationFormYAML, {
       childItems: [{ name: "ПолеВвода1", itemType: CollectionFormElementType.InputField }],
       autoCommandBar: {
         itemType: "AutoCommandBar",
@@ -37,14 +37,14 @@ describe("importClientApplicationFormFromEnterprise", () => {
       childItems: [button],
     }
 
-    const enterpriseData: ClientApplicationFormEnterprise = {
+    const enterpriseData: ClientApplicationFormYAML = {
       Элементы: {
         Кнопка1: { ИмяКоманды: "Команда1" },
         ГруппаКнопок1: { Доступность: "Ложь" },
       },
     }
 
-    const result = importClientApplicationFormFromEnterprise(mockContext, enterpriseData, {
+    const result = importClientApplicationFormFromYAML(mockContext, enterpriseData, {
       childItems: [],
       autoCommandBar: {
         itemType: "AutoCommandBar",
@@ -104,7 +104,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       childItems: [],
     }
 
-    const enterpriseData: ClientApplicationFormEnterprise = {
+    const enterpriseData: ClientApplicationFormYAML = {
       Элементы: {
         Кнопка1: { ИмяКоманды: "Команда1" },
         ГруппаКнопок1: { Доступность: "Ложь" },
@@ -112,7 +112,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
       },
     }
 
-    const result = importClientApplicationFormFromEnterprise(mockContext, enterpriseData, {
+    const result = importClientApplicationFormFromYAML(mockContext, enterpriseData, {
       childItems: [table],
     })
 

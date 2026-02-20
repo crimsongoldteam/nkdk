@@ -1,4 +1,4 @@
-import { MetadataCatalog, MetadataCatalogEnterprise } from "~/metadata/appliedObjects/metadataCatalog/types"
+import { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/metadataCatalog/types"
 
 //#region MetadataCatalog
 
@@ -171,11 +171,11 @@ export const withCommands: MetadataCatalog = {
 
 //#endregion
 
-//#region MetadataCatalogEnterprise
+//#region MetadataCatalogYAML
 
-export const minimalEnterprise: MetadataCatalogEnterprise = {}
+export const minimalYAML: MetadataCatalogYAML = {}
 
-export const fullEnterprise: MetadataCatalogEnterprise = {
+export const fullYAML: MetadataCatalogYAML = {
   Автонумерация: "Ложь",
   БыстрыйВыбор: "Истина",
   ВводитсяНаОсновании: ["Справочник.ДругойСправочник"],

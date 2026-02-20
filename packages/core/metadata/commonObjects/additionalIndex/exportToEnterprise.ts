@@ -1,37 +1,37 @@
 import {
   AdditionalIndex,
-  AdditionalIndexEnterprise,
+  AdditionalIndexYAML,
   AdditionalIndexes,
-  AdditionalIndexesEnterprise,
+  AdditionalIndexesYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
-import { exportIndexFieldsToEnterprise } from "~/metadata/commonObjects/indexField/exportToEnterprise"
+import { exportIndexFieldsToYAML } from "~/metadata/commonObjects/indexField/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory"
 
-export const exportAdditionalIndexToEnterprise = (
+export const exportAdditionalIndexToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: AdditionalIndex | undefined
-): AdditionalIndexEnterprise | undefined => {
+): AdditionalIndexYAML | undefined => {
   if (!data) return undefined
 
   return {
-    ДополнительныеПоля: exportIndexFieldsToEnterprise(context, undefined, data.additionalFields),
+    ДополнительныеПоля: exportIndexFieldsToYAML(context, undefined, data.additionalFields),
     Имя: data.name,
-    ИндексируемыеПоля: exportIndexFieldsToEnterprise(context, undefined, data.indexedFields),
+    ИндексируемыеПоля: exportIndexFieldsToYAML(context, undefined, data.indexedFields),
     Таблица: data.table,
   }
 }
 
-export const exportAdditionalIndexesToEnterprise = (
+export const exportAdditionalIndexesToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: AdditionalIndexes | undefined
-): AdditionalIndexesEnterprise | undefined => {
+): AdditionalIndexesYAML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(context, undefined, value)!)
+  return data.map((value: AdditionalIndex) => exportAdditionalIndexToYAML(context, undefined, value)!)
 }
 
-registerTypeRule("AdditionalIndex", "exportToEnterprise", exportAdditionalIndexesToEnterprise)
+registerTypeRule("AdditionalIndex", "exportToYAML", exportAdditionalIndexesToYAML)

@@ -26,7 +26,7 @@ export const ButtonRules: ElementRule<Button> = {
     extendedTooltip: {
       yaml: "РасширеннаяПодсказка",
       type: "ExtendedTooltip",
-      toEnterprise: false,
+      toEnt: false,
     },
     font: { yaml: "Шрифт", type: "Font" },
     height: { yaml: "Высота", type: "number" },
@@ -65,7 +65,7 @@ export const ButtonRules: ElementRule<Button> = {
       yaml: "ОтображениеВКонтекстномМеню",
       type: "SystemEnumeration",
       typeSE: "ButtonLocationInContextMenu",
-      toEnterprise: false,
+      toEnt: false,
     },
     shape: {
       yaml: "Фигура",
@@ -99,7 +99,7 @@ export const ButtonRules: ElementRule<Button> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
-      toEnterprise: false,
+      toEnt: false,
     },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",

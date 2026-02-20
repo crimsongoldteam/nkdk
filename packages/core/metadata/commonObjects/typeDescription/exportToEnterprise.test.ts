@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { typeFixturesTable } from "../../../tests/fixtures/typeDescription/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
+import { exportTypeDescriptionToYAML } from "./toYAML"
 
-describe("exportTypeDescriptionToEnterprise", () => {
+describe("exportTypeDescriptionToYAML", () => {
   it("should format undefined type description", () => {
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, undefined)
+    const result = exportTypeDescriptionToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
-  it.each(typeFixturesTable)("should export composite type to Enterprise: $enterprise", ({ internal, enterprise }) => {
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, internal)
+  it.each(typeFixturesTable)("should export composite type to YAML: $enterprise", ({ internal, enterprise }) => {
+    const result = exportTypeDescriptionToYAML(mockContext, mockRule, internal)
     expect(result).toEqual(enterprise)
   })
 })

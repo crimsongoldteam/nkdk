@@ -1,6 +1,6 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedEnterprise } from "../../collections/childItems/types"
+import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../collections/childItems/types"
 import { BaseElement } from "../baseElement/types"
 
 export interface ContextMenu extends BaseElement {
@@ -10,8 +10,8 @@ export interface ContextMenu extends BaseElement {
   childItems: CommandBarGroupChildItems
 }
 
-export interface ContextMenuEnterprise {
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Автозаполнение?: StringboolEnterprise
-  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedEnterprise
+export interface ContextMenuYAML {
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  Автозаполнение?: StringboolYAML
+  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedYAML
 }

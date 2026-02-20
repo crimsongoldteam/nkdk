@@ -1,8 +1,4 @@
-import {
-  PeriodField,
-  PeriodFieldPartialEnterprise,
-  PeriodFieldTypedEnterprise,
-} from "~/metadata/forms/elements/periodField/types"
+import { PeriodField, PeriodFieldPartialYAML, PeriodFieldTypedYAML } from "~/metadata/forms/elements/periodField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -99,7 +95,7 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   },
 }
 
-export const fullPeriodFieldPartialEnterprise: PeriodFieldPartialEnterprise = {
+export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -161,8 +157,8 @@ export const fullPeriodFieldPartialEnterprise: PeriodFieldPartialEnterprise = {
   },
 }
 
-export const fullPeriodFieldTypedEnterprise: PeriodFieldTypedEnterprise = {
-  ...fullPeriodFieldPartialEnterprise,
+export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
+  ...fullPeriodFieldPartialYAML,
   Тип: "ПолеПериода",
   Заголовок: "Поле периода",
 }
@@ -172,8 +168,8 @@ export const minimalPeriodField: PeriodField = {
   name: "ПолеПериода",
 }
 
-export const minimalPeriodFieldPartialEnterprise: PeriodFieldPartialEnterprise = {}
+export const minimalPeriodFieldPartialYAML: PeriodFieldPartialYAML = {}
 
-export const minimalPeriodFieldTypedEnterprise: PeriodFieldTypedEnterprise = {
+export const minimalPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
   Тип: "ПолеПериода",
 }

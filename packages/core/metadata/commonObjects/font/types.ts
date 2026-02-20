@@ -1,5 +1,5 @@
 import * as SE from "~/metadata/systemEnumerations/types"
-import { StringboolEnterprise } from "../boolean/types"
+import { StringboolYAML } from "../boolean/types"
 
 export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFonts> = {
   "style:LargeTextFont": "LargeTextFont",
@@ -44,20 +44,20 @@ export interface Font {
   strikeout?: boolean
 }
 
-export interface FontFullEnterprise {
-  Вид?: SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise
+export interface FontFullYAML {
+  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML
   Имя?: string
   Масштаб?: number
   Размер?: number
-  Наклонный?: StringboolEnterprise
-  Подчеркивание?: StringboolEnterprise
-  Полужирный?: StringboolEnterprise
-  Зачеркивание?: StringboolEnterprise
+  Наклонный?: StringboolYAML
+  Подчеркивание?: StringboolYAML
+  Полужирный?: StringboolYAML
+  Зачеркивание?: StringboolYAML
 }
 
-export type FontCompactEnterprise = string
+export type FontCompactYAML = string
 
-export type FontEnterprise = FontFullEnterprise | FontCompactEnterprise
+export type FontYAML = FontFullYAML | FontCompactYAML
 
 export interface FontPreview {
   Type: "Font"

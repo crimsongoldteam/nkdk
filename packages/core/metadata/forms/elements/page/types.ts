@@ -1,13 +1,13 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { GroupChildItems } from "../../collections/childItems/types"
 import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface Page extends NamedElement {
   itemType: "Page"
@@ -49,41 +49,41 @@ export interface Page extends NamedElement {
   childItems: GroupChildItems
 }
 
-export interface PagePartialEnterprise {
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormGroupTypeEnterprise
-  Видимость?: StringboolEnterprise
+export interface PagePartialYAML {
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormGroupTypeYAML
+  Видимость?: StringboolYAML
   Высота?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РазрешитьИзменениеСостава?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьИзменениеСостава?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
   СочетаниеКлавиш?: string
-  ТолькоПросмотр?: StringboolEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
+  ТолькоПросмотр?: StringboolYAML
+  ЦветТекстаЗаголовка?: ColorYAML
   Ширина?: number
-  ШрифтЗаголовка?: FontEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальнаяПрокруткаПриСжатии?: StringboolEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
-  ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
-  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
-  Группировка?: SE.ChildFormItemsGroupEnterprise
-  Картинка?: PictureEnterprise
-  ОтображатьЗаголовок?: StringboolEnterprise
+  ШрифтЗаголовка?: FontYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальнаяПрокруткаПриСжатии?: StringboolYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignYAML
+  ВертикальныйИнтервал?: SE.FormItemSpacingYAML
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantYAML
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationYAML
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingYAML
+  Группировка?: SE.ChildFormItemsGroupYAML
+  Картинка?: PictureYAML
+  ОтображатьЗаголовок?: StringboolYAML
   ПутьКДаннымЗаголовка?: string
-  СкроллПриСжатии?: StringboolEnterprise
-  Формат?: I8nTextEnterprise
-  ЦветФона?: ColorEnterprise
-  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  СкроллПриСжатии?: StringboolYAML
+  Формат?: I8nTextYAML
+  ЦветФона?: ColorYAML
+  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthYAML
 }

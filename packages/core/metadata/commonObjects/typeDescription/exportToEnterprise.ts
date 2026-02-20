@@ -2,13 +2,13 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { getTypeDescriptionRule } from "./helper"
-import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise } from "./types"
+import { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./types"
 
-export const exportTypeDescriptionToEnterprise = (
+export const exportTypeDescriptionToYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   typeDescription: TypeDescription | undefined
-): TypeDescriptionEnterprise | undefined => {
+): TypeDescriptionYAML | undefined => {
   if (!typeDescription) {
     return undefined
   }
@@ -65,25 +65,25 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
     if (typeDescription.stringQualifiers) {
       return formatStringQualifier(typeDescription.stringQualifiers)
     }
-    return PrimitiveTypeToEnterprise.string
+    return PrimitiveTypeToYAML.string
   }
 
   if (type === "decimal") {
     if (typeDescription.numberQualifiers) {
       return formatNumberQualifier(typeDescription.numberQualifiers)
     }
-    return PrimitiveTypeToEnterprise.decimal
+    return PrimitiveTypeToYAML.decimal
   }
 
   if (type === "date" || type === "dateTime") {
     if (typeDescription.dateQualifiers) {
       return formatDateQualifier(typeDescription.dateQualifiers)
     }
-    return PrimitiveTypeToEnterprise.date
+    return PrimitiveTypeToYAML.date
   }
 
   if (type === "boolean") {
-    return PrimitiveTypeToEnterprise.boolean
+    return PrimitiveTypeToYAML.boolean
   }
 
   const dotIndex = type.indexOf(".")
@@ -101,4 +101,4 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   return rule.enterprise
 }
 
-registerTypeRule("TypeDescription", "exportToEnterprise", exportTypeDescriptionToEnterprise)
+registerTypeRule("TypeDescription", "exportToYAML", exportTypeDescriptionToYAML)

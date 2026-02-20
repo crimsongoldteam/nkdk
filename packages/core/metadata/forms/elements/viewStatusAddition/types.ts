@@ -1,13 +1,13 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Border, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement } from "../baseElement/types"
-import { ContextMenu, ContextMenuEnterprise } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface ViewStatusAddition extends BaseElement {
   itemType: "ViewStatusAddition"
@@ -37,25 +37,25 @@ export interface ViewStatusAddition extends BaseElement {
   // visible?: boolean
 }
 
-export interface ViewStatusAdditionEnterprise {
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
+export interface ViewStatusAdditionYAML {
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
   МаксимальнаяШирина?: number
-  Рамка?: BorderEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
-  ЦветФонаКнопок?: ColorEnterprise
+  Рамка?: BorderYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  ЦветРамки?: ColorYAML
+  ЦветТекста?: ColorYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветФона?: ColorYAML
+  ЦветФонаКнопок?: ColorYAML
   Ширина?: number
-  Шрифт?: FontEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  КонтекстноеМеню?: ContextMenuEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  Шрифт?: FontYAML
+  ШрифтЗаголовка?: FontYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
 }

@@ -1,4 +1,4 @@
-import { PlannerField, PlannerFieldPartialEnterprise } from "~/metadata/forms/elements/plannerField/types"
+import { PlannerField, PlannerFieldPartialYAML } from "~/metadata/forms/elements/plannerField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -114,7 +114,7 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
   },
 }
 
-export const fullPlannerFieldPartialEnterprise: PlannerFieldPartialEnterprise = {
+export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -202,4 +202,4 @@ export const minimalPlannerField: PlannerField = {
   name: "ПолеПланировщика",
 }
 
-export const minimalPlannerFieldPartialEnterprise: PlannerFieldPartialEnterprise = {}
+export const minimalPlannerFieldPartialYAML: PlannerFieldPartialYAML = {}

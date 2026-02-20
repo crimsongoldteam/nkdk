@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullColumnGroup,
-  fullColumnGroupPartialEnterprise,
-  fullColumnGroupTypedEnterprise,
+  fullColumnGroupPartialYAML,
+  fullColumnGroupTypedYAML,
   minimalColumnGroup,
 } from "~/tests/fixtures/forms/columnGroup/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportColumnGroupToEnterprise", () => {
+describe("exportColumnGroupToYAML", () => {
   describe("exportElementToPartialYAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullColumnGroup })
 
-      expect(result).toEqual(fullColumnGroupPartialEnterprise)
+      expect(result).toEqual(fullColumnGroupPartialYAML)
     })
 
     it("should export minimal", () => {
@@ -24,10 +24,10 @@ describe("exportColumnGroupToEnterprise", () => {
   })
 
   describe("exportElementToTypedYAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullColumnGroup })
 
-      expect(result).toEqual(fullColumnGroupTypedEnterprise)
+      expect(result).toEqual(fullColumnGroupTypedYAML)
     })
   })
 })

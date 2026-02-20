@@ -2,77 +2,77 @@ import { describe, expect, it } from "vitest"
 
 import {
   enumChoiceParameter,
-  enumChoiceParametersEnterprise,
+  enumChoiceParametersYAML,
   fixedArrayChoiceParameter,
-  fixedArrayChoiceParametersEnterprise,
+  fixedArrayChoiceParametersYAML,
   multipleChoiceParameters,
-  multipleChoiceParametersEnterprise,
+  multipleChoiceParametersYAML,
   nilChoiceParameters,
-  nilChoiceParametersEnterprise,
+  nilChoiceParametersYAML,
   singleChoiceParameter,
-  singleChoiceParametersEnterprise,
+  singleChoiceParametersYAML,
   stringChoiceParameter,
-  stringChoiceParametersEnterprise,
+  stringChoiceParametersYAML,
   withoutOneValueChoiceParameter,
-  withoutOneValueChoiceParametersEnterprise,
+  withoutOneValueChoiceParametersYAML,
   withoutValueChoiceParameter,
-  withoutValueChoiceParametersEnterprise,
+  withoutValueChoiceParametersYAML,
 } from "~/tests/fixtures/choiceParameters/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportChoiceParametersToEnterprise } from "./exportToEnterprise"
+import { exportChoiceParametersToYAML } from "./toYAML"
 
-describe("exportChoiceParametersToEnterprise", () => {
+describe("exportChoiceParametersToYAML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, undefined)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export single choice parameter to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, singleChoiceParameter)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, singleChoiceParameter)
 
-    expect(result).toEqual(singleChoiceParametersEnterprise)
+    expect(result).toEqual(singleChoiceParametersYAML)
   })
 
   it("should export multiple choice parameters to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, multipleChoiceParameters)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, multipleChoiceParameters)
 
-    expect(result).toEqual(multipleChoiceParametersEnterprise)
+    expect(result).toEqual(multipleChoiceParametersYAML)
   })
 
   it("should export choice parameters with enum value to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, enumChoiceParameter)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, enumChoiceParameter)
 
-    expect(result).toEqual(enumChoiceParametersEnterprise)
+    expect(result).toEqual(enumChoiceParametersYAML)
   })
 
   it("should export choice parameters with string value to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, stringChoiceParameter)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, stringChoiceParameter)
 
-    expect(result).toEqual(stringChoiceParametersEnterprise)
+    expect(result).toEqual(stringChoiceParametersYAML)
   })
 
   it("should export choice parameters with fixedArray value to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, fixedArrayChoiceParameter)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, fixedArrayChoiceParameter)
 
-    expect(result).toEqual(fixedArrayChoiceParametersEnterprise)
+    expect(result).toEqual(fixedArrayChoiceParametersYAML)
   })
 
   it("should export choice parameters with nil value to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, nilChoiceParameters)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, nilChoiceParameters)
 
-    expect(result).toEqual(nilChoiceParametersEnterprise)
+    expect(result).toEqual(nilChoiceParametersYAML)
   })
 
   it("should export choice parameters without value to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, withoutValueChoiceParameter)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, withoutValueChoiceParameter)
 
-    expect(result).toEqual(withoutValueChoiceParametersEnterprise)
+    expect(result).toEqual(withoutValueChoiceParametersYAML)
   })
 
   it("should export choice parameters without one value to enterprise", () => {
-    const result = exportChoiceParametersToEnterprise(mockContext, mockRule, withoutOneValueChoiceParameter)
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, withoutOneValueChoiceParameter)
 
-    expect(result).toEqual(withoutOneValueChoiceParametersEnterprise)
+    expect(result).toEqual(withoutOneValueChoiceParametersYAML)
   })
 })

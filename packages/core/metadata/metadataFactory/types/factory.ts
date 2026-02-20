@@ -1,12 +1,12 @@
 import {
-  ExportToEnterpriseFunction,
   ExportToPreviewFunction,
   ExportToXMLFunction,
   ExportToXMLFunctionNew,
+  ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
   ImportExportFunction,
-  ImportFromEnterpriseFunction,
   ImportFromXMLFunction,
+  ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
   TypeRulesNames,
   TypeRulesOperations,
@@ -15,8 +15,8 @@ import {
 
 const typeRulesRegistry = new Map<
   string,
-  | ImportFromEnterpriseFunction
-  | ExportToEnterpriseFunction
+  | ImportFromYAMLFunction
+  | ExportToYAMLFunction
   | ImportFromXMLFunction
   | ExportToXMLFunction
   | ExportToPreviewFunction
@@ -37,10 +37,10 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
 export const getTypeRule = <O extends TypeRulesOperations>(
   type: TypeRulesNames,
   operation: O
-): O extends "importFromEnterprise"
-  ? ImportFromEnterpriseFunction | ImportFromYAMLFunctionNew | undefined
-  : O extends "exportToEnterprise"
-    ? ExportToEnterpriseFunction | ExportToYAMLFunctionNew | undefined
+): O extends "importFromYAML"
+  ? ImportFromYAMLFunction | ImportFromYAMLFunctionNew | undefined
+  : O extends "exportToYAML"
+    ? ExportToYAMLFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"

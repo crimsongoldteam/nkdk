@@ -1,26 +1,26 @@
 import { tags } from "typia"
-import { StringboolEnterprise, StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataSimpleValueXML,
   MetadataValue,
-  MetadataValueEnterprise,
   MetadataValueXML,
+  MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
 import {
   TypeDescription,
-  TypeDescriptionEnterprise,
   TypeDescriptionXML,
+  TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
+import { TypeLink, TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import {
   ChoiceParameterLinks,
-  ChoiceParameterLinksEnterprise,
   ChoiceParameterLinksXML,
+  ChoiceParameterLinksYAML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataNameEnterprise } from "../metadataName/types"
-import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameters/types"
+import { MetadataNameYAML } from "../metadataName/types"
+import { ChoiceParameters, ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
 
 export interface MetadataAttribute {
   binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
@@ -95,45 +95,45 @@ export interface MetadataAttributeXML {
   }
 }
 
-export interface MetadataAttributeFullEnterprise {
-  Тип: TypeDescriptionEnterprise
-  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
-  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
-  ВыделятьОтрицательные?: StringboolEnterprise
-  ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
-  ЗначениеЗаполнения?: MetadataValueEnterprise
+export interface MetadataAttributeFullYAML {
+  Тип: TypeDescriptionYAML
+  БыстрыйВыбор?: SE.UseQuickChoiceYAML
+  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseYAML
+  ВыделятьОтрицательные?: StringboolYAML
+  ЗаполнятьИзДанныхЗаполнения?: StringboolYAML
+  ЗначениеЗаполнения?: MetadataValueYAML
   Имя?: string
-  Индексирование?: SE.IndexingEnterprise
-  Использование?: SE.AttributeUseEnterprise
-  ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
+  Индексирование?: SE.IndexingYAML
+  Использование?: SE.AttributeUseYAML
+  ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseYAML
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputYAML
+  ИсторияДанных?: SE.DataHistoryUseYAML
   Комментарий?: string
   МаксимальноеЗначение?: number
   Маска?: string
   МинимальноеЗначение?: number
-  МногострочныйРежим?: StringboolEnterprise
-  ПараметрыВыбора?: ChoiceParametersEnterprise
-  Подсказка?: I8nTextEnterprise
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
-  РасширенноеРедактирование?: StringboolEnterprise
-  РежимПароля?: StringboolEnterprise
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
-  СвязьПоТипу?: TypeLinkEnterprise
-  Синоним?: I8nTextEnterprise
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
+  МногострочныйРежим?: StringboolYAML
+  ПараметрыВыбора?: ChoiceParametersYAML
+  Подсказка?: I8nTextYAML
+  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolYAML
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
+  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
+  ПроверкаЗаполнения?: SE.FillCheckingYAML
+  РасширенноеРедактирование?: StringboolYAML
+  РежимПароля?: StringboolYAML
+  СвязиПараметровВыбора?: ChoiceParameterLinksYAML
+  СвязьПоТипу?: TypeLinkYAML
+  Синоним?: I8nTextYAML
+  СозданиеПриВводе?: SE.CreateOnInputYAML
   ФормаВыбора?: string
-  Формат?: I8nTextEnterprise
-  ФорматРедактирования?: I8nTextEnterprise
+  Формат?: I8nTextYAML
+  ФорматРедактирования?: I8nTextYAML
 }
 
-export type MetadataAttributeEnterprise = MetadataAttributeFullEnterprise | TypeDescriptionEnterprise
+export type MetadataAttributeYAML = MetadataAttributeFullYAML | TypeDescriptionYAML
 
 export type MetadataAttributes = MetadataAttribute[]
 
 export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[]
 
-export type MetadataAttributesEnterprise = Record<MetadataNameEnterprise, MetadataAttributeEnterprise>
+export type MetadataAttributesYAML = Record<MetadataNameYAML, MetadataAttributeYAML>

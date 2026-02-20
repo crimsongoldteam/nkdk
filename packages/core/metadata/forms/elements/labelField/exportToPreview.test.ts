@@ -1,7 +1,7 @@
 import { describe, it } from "vitest"
 
 describe("exportLabelFieldToPreview", () => {
-  it.skip("should export all fields to Enterprise", () => {
+  it.skip("should export all fields to YAML", () => {
     // const context = {
     //   ...mockContext,
     //   preview: {

@@ -1,5 +1,5 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems } from "../../collections/childItems/types"
 import { BaseElement } from "../baseElement/types"
@@ -12,10 +12,10 @@ export interface AutoCommandBar extends BaseElement {
   childItems: CommandBarChildItems
 }
 
-export interface AutoCommandBarEnterprise {
-  Автозаполнение?: StringboolEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
+export interface AutoCommandBarYAML {
+  Автозаполнение?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
 }

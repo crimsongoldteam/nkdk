@@ -4,7 +4,7 @@ import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportPictureToPreview } from "./exportToPreview"
 
 describe("exportPictureToPreview", () => {
-  it.each(pictureTestCases)("should import $name from Enterprise", ({ picture, preview }) => {
+  it.each(pictureTestCases)("should import $name from YAML", ({ picture, preview }) => {
     const result = exportPictureToPreview(mockContext, mockRule, picture)
 
     expect(result).toEqual(preview)

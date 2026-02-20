@@ -1,4 +1,4 @@
-import { Pages, PagesPartialEnterprise, PagesTypedEnterprise } from "~/metadata/forms/elements/pages/types"
+import { Pages, PagesPartialYAML, PagesTypedYAML } from "~/metadata/forms/elements/pages/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPages: Pages = {
@@ -45,7 +45,7 @@ export const fullPagesSource: Pages = {
   childItems: [],
 }
 
-export const fullPagesPartialEnterprise: PagesPartialEnterprise = {
+export const fullPagesPartialYAML: PagesPartialYAML = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -71,7 +71,7 @@ export const fullPagesPartialEnterprise: PagesPartialEnterprise = {
   },
 }
 
-export const fullPagesTypedEnterprise: PagesTypedEnterprise = {
+export const fullPagesTypedYAML: PagesTypedYAML = {
   Тип: "Страницы",
   Заголовок: "Страницы",
   ВертикальноеПоложениеВГруппе: "Верх",
@@ -105,8 +105,8 @@ export const minimalPages: Pages = {
   childItems: [],
 }
 
-export const minimalPagesPartialEnterprise: PagesPartialEnterprise = {}
+export const minimalPagesPartialYAML: PagesPartialYAML = {}
 
-export const minimalPagesTypedEnterprise: PagesTypedEnterprise = {
+export const minimalPagesTypedYAML: PagesTypedYAML = {
   Тип: "Страницы",
 }

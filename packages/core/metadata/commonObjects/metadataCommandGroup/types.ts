@@ -5,4 +5,4 @@ export interface MetadataCommandGroupXML {
   "#text": string
 }
 
-export type MetadataCommandGroupEnterprise = string
+export type MetadataCommandGroupYAML = string

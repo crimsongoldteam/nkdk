@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportChoiceParameterLinksToEnterprise } from "./exportToEnterprise"
+import { exportChoiceParameterLinksToYAML } from "./toYAML"
 import { ChoiceParameterLinks } from "./types"
 
-describe("exportToEnterprise", () => {
+describe("exportToYAML", () => {
   it("should export single link", () => {
     const mock: ChoiceParameterLinks = [
       {
@@ -13,7 +13,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mockContext, mockRule, mock)
+    const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
     expect(result).toEqual(
       "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
     )
@@ -33,7 +33,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mockContext, mockRule, mock)
+    const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
     expect(result).toEqual(
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
     )
@@ -48,7 +48,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mockContext, mockRule, mock)
+    const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
     expect(result).toEqual("Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)")
   })
 })

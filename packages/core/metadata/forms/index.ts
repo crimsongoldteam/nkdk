@@ -6,21 +6,21 @@ export { importChildItemsFromStructure } from "./collections/childItems/importFr
 export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/factory"
 export type { ElementRule } from "../metadataFactory/elements/types"
 
-import "./elements/exportToEnterprise"
 import "./elements/exportToStructure"
 import "./elements/exportToXML"
-import "./elements/importFromEnterprise"
+import "./elements/fromYAML"
 import "./elements/importFromXML"
+import "./elements/toYAML"
 
-import "./commands/exportToEnterprise"
 import "./commands/exportToXML"
-import "./commands/importFromEnterprise"
+import "./commands/fromYAML"
 import "./commands/importFromXML"
+import "./commands/toYAML"
 
-import "./commonObjects/commandInterface/exportToEnterprise"
 import "./commonObjects/commandInterface/exportToXML"
-import "./commonObjects/commandInterface/importFromEnterprise"
+import "./commonObjects/commandInterface/fromYAML"
 import "./commonObjects/commandInterface/importFromXML"
+import "./commonObjects/commandInterface/toYAML"
 
 import "./formAttribute/exportToXML"
 import "./formAttribute/fromXML"

@@ -6,10 +6,10 @@ import {
 } from "~/metadata/metadataFactory"
 import {
   fullPopup,
-  fullPopupPartialEnterprise,
-  fullPopupTypedEnterprise,
+  fullPopupPartialYAML,
+  fullPopupTypedYAML,
   minimalPopup,
-  minimalPopupTypedEnterprise,
+  minimalPopupTypedYAML,
   sourcePopup,
 } from "~/tests/fixtures/forms/popup/data"
 import { mockContext } from "~/tests/mockContext"
@@ -17,10 +17,10 @@ import { Popup } from "./types"
 
 describe("Popup from YAML", () => {
   describe("Typed", () => {
-    it("should import all fields from Enterprise", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
-        yaml: fullPopupTypedEnterprise,
+        yaml: fullPopupTypedYAML,
         name: "Подменю",
       })
 
@@ -30,7 +30,7 @@ describe("Popup from YAML", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<Popup>({
         context: mockContext,
-        yaml: minimalPopupTypedEnterprise,
+        yaml: minimalPopupTypedYAML,
         name: "Подменю",
       })
 
@@ -39,11 +39,11 @@ describe("Popup from YAML", () => {
   })
 
   describe("Partial", () => {
-    it("should import all fields from Enterprise", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.Popup,
-        yaml: fullPopupPartialEnterprise,
+        yaml: fullPopupPartialYAML,
         source: sourcePopup,
       })
 
@@ -54,7 +54,7 @@ describe("Popup from YAML", () => {
     //   const result = importElementFromPartialYAML({
     //     context: mockContext,
     //     itemType: CollectionFormElementType.Popup,
-    //     yaml: minimalPopupPartialEnterprise,
+    //     yaml: minimalPopupPartialYAML,
     //     source: sourcePopup,
     //   })
 

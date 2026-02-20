@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from ".."
 import { MetadataType } from "../metadataType/types"
 import { getTypeRule } from "../types/factory"
-import { ImportFromEnterpriseFunction, ImportFromYAMLFunctionNew } from "../types/types"
+import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "../types/types"
 import { getValueOrDefault } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
@@ -69,7 +69,7 @@ export const importPropertyFromYAML = (params: {
 }): any => {
   const { context, rule, value, sourceValue, yaml, name } = params
 
-  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromEnterprise") : undefined
+  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromYAML") : undefined
 
   if (!typeImportFn) {
     return getValueOrDefault({
@@ -77,7 +77,7 @@ export const importPropertyFromYAML = (params: {
       rule,
       value: value ?? sourceValue,
       name,
-      operation: "importFromEnterprise",
+      operation: "importFromYAML",
     })
   }
 
@@ -95,18 +95,18 @@ export const importPropertyFromYAML = (params: {
       rule,
       value: importedValue ?? sourceValue,
       name,
-      operation: "importFromEnterprise",
+      operation: "importFromYAML",
     })
   }
 
-  const result = (typeImportFn as ImportFromEnterpriseFunction)(context, rule, value, sourceValue)
+  const result = (typeImportFn as ImportFromYAMLFunction)(context, rule, value, sourceValue)
 
   return getValueOrDefault({
     context,
     rule,
     value: result ?? sourceValue,
     name,
-    operation: "importFromEnterprise",
+    operation: "importFromYAML",
   })
 }
 

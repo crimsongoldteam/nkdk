@@ -1,40 +1,40 @@
-import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metadataValue/exportToEnterprise"
+import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
 import {
   StandardAttributeDescription,
-  StandardAttributeDescriptionEnterprise,
+  StandardAttributeDescriptionYAML,
   StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
-  StandartAttributeEnterprise,
+  StandardAttributeDescriptionsYAML,
   StandartAttributeName,
-  StandartAttributeNameToEnterprise,
+  StandartAttributeNameToYAML,
+  StandartAttributeYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
-import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
-import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
+import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
+import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
+import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 import { registerTypeRule } from "~/metadata/metadataFactory"
+import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/toYAML"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { exportChoiceParametersToYAML } from "../сhoiceParameters/toYAML"
 
-export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeName): StandartAttributeEnterprise => {
-  return StandartAttributeNameToEnterprise[name]
+export const exportStandartAttributeNameToYAML = (name: StandartAttributeName): StandartAttributeYAML => {
+  return StandartAttributeNameToYAML[name]
 }
 
-export const exportStandardAttributeDescriptionsToEnterprise = (
+export const exportStandardAttributeDescriptionsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: StandardAttributeDescriptions | undefined
-): StandardAttributeDescriptionsEnterprise | undefined => {
+): StandardAttributeDescriptionsYAML | undefined => {
   if (!data) return undefined
 
-  const result: StandardAttributeDescriptionsEnterprise = Object.fromEntries(
+  const result: StandardAttributeDescriptionsYAML = Object.fromEntries(
     data.map((value: StandardAttributeDescription) => [
-      StandartAttributeNameToEnterprise[value.name],
-      exportStandardAttributeDescriptionToEnterprise(context, undefined, value)!,
+      StandartAttributeNameToYAML[value.name],
+      exportStandardAttributeDescriptionToYAML(context, undefined, value)!,
     ])
   )
 
@@ -43,37 +43,37 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
   return result
 }
 
-const exportStandardAttributeDescriptionToEnterprise = (
+const exportStandardAttributeDescriptionToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: StandardAttributeDescription
-): StandardAttributeDescriptionEnterprise => {
-  const result: StandardAttributeDescriptionEnterprise = {}
+): StandardAttributeDescriptionYAML => {
+  const result: StandardAttributeDescriptionYAML = {}
 
-  const quickChoice = exportSystemEnumerationToYAML<SE.UseQuickChoiceEnterprise>(
+  const quickChoice = exportSystemEnumerationToYAML<SE.UseQuickChoiceYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "UseQuickChoice" },
     data.quickChoice
   )
   if (quickChoice) result.БыстрыйВыбор = quickChoice
 
-  const markNegatives = exportBooleanToEnterprise(context, undefined, data.markNegatives)
+  const markNegatives = exportBooleanToYAML(context, undefined, data.markNegatives)
   if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
 
-  const fillFromFillingValue = exportBooleanToEnterprise(context, undefined, data.fillFromFillingValue)
+  const fillFromFillingValue = exportBooleanToYAML(context, undefined, data.fillFromFillingValue)
   if (fillFromFillingValue !== undefined) result.ЗаполнятьИзДанныхЗаполнения = fillFromFillingValue
 
-  const fillValue = exportMetadataValueToEnterprise(context, undefined, data.fillValue)
+  const fillValue = exportMetadataValueToYAML(context, undefined, data.fillValue)
   if (fillValue) result.ЗначениеЗаполнения = fillValue
 
-  const choiceHistoryOnInput = exportSystemEnumerationToYAML<SE.ChoiceHistoryOnInputEnterprise>(
+  const choiceHistoryOnInput = exportSystemEnumerationToYAML<SE.ChoiceHistoryOnInputYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput" },
     data.choiceHistoryOnInput
   )
   if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToYAML<SE.DataHistoryUseEnterprise>(
+  const dataHistory = exportSystemEnumerationToYAML<SE.DataHistoryUseYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
     data.dataHistory
@@ -85,59 +85,59 @@ const exportStandardAttributeDescriptionToEnterprise = (
   if (data.mask) result.Маска = data.mask
   if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
 
-  const multiLine = exportBooleanToEnterprise(context, undefined, data.multiLine)
+  const multiLine = exportBooleanToYAML(context, undefined, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToYAML(context, undefined, data.choiceParameters)
   if (choiceParameters) result.ПараметрыВыбора = choiceParameters
 
   const toolTip = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.toolTip })
   if (toolTip) result.Подсказка = toolTip
 
-  const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchEnterprise>(
+  const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "UseFullTextSearch" },
     data.fullTextSearch
   )
   if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingEnterprise>(
+  const fillChecking = exportSystemEnumerationToYAML<SE.FillCheckingYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "FillChecking" },
     data.fillChecking
   )
   if (fillChecking) result.ПроверкаЗаполнения = fillChecking
 
-  const extendedEdit = exportBooleanToEnterprise(context, undefined, data.extendedEdit)
+  const extendedEdit = exportBooleanToYAML(context, undefined, data.extendedEdit)
   if (extendedEdit !== undefined) result.РасширенноеРедактирование = extendedEdit
 
-  const passwordMode = exportBooleanToEnterprise(context, undefined, data.passwordMode)
+  const passwordMode = exportBooleanToYAML(context, undefined, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const typeReductionMode = exportSystemEnumerationToYAML<SE.TypeReductionModeEnterprise>(
+  const typeReductionMode = exportSystemEnumerationToYAML<SE.TypeReductionModeYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "TypeReductionMode" },
     data.typeReductionMode
   )
   if (typeReductionMode) result.РежимСокращенияТипа = typeReductionMode
 
-  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, undefined, data.choiceParameterLinks)
+  const choiceParameterLinks = exportChoiceParameterLinksToYAML(context, undefined, data.choiceParameterLinks)
   if (choiceParameterLinks) result.СвязиПараметровВыбора = choiceParameterLinks
 
-  const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
+  const linkByType = exportTypeLinkToYAML(context, undefined, data.linkByType)
   if (linkByType) result.СвязьПоТипу = linkByType
 
   const synonym = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.synonym })
   if (synonym) result.Синоним = synonym
 
-  const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
+  const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputYAML>(
     context,
     { type: "SystemEnumeration", typeSE: "CreateOnInput" },
     data.createOnInput
   )
   if (createOnInput) result.СозданиеПриВводе = createOnInput
 
-  const type = exportTypeDescriptionToEnterprise(context, undefined, data.type)
+  const type = exportTypeDescriptionToYAML(context, undefined, data.type)
   if (type) result.Тип = type
 
   if (data.choiceForm) result.ФормаВыбора = data.choiceForm
@@ -151,4 +151,4 @@ const exportStandardAttributeDescriptionToEnterprise = (
   return result
 }
 
-registerTypeRule("StandardAttributeDescription", "exportToEnterprise", exportStandardAttributeDescriptionsToEnterprise)
+registerTypeRule("StandardAttributeDescription", "exportToYAML", exportStandardAttributeDescriptionsToYAML)

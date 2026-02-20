@@ -1,4 +1,4 @@
-import { RadioButtonField, RadioButtonFieldPartialEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
+import { RadioButtonField, RadioButtonFieldPartialYAML } from "~/metadata/forms/elements/radioButtonField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -97,7 +97,7 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   },
 }
 
-export const fullRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnterprise = {
+export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
   Заголовок: "Поле переключателя",
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
@@ -162,4 +162,4 @@ export const minimalRadioButtonField: RadioButtonField = {
   name: "ПолеПереключателя",
 }
 
-export const minimalRadioButtonFieldPartialEnterprise: RadioButtonFieldPartialEnterprise = {}
+export const minimalRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {}

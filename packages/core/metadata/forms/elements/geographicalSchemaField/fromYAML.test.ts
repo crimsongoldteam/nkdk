@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullGeographicalSchemaField,
-  fullGeographicalSchemaFieldPartialEnterprise,
+  fullGeographicalSchemaFieldPartialYAML,
   minimalGeographicalSchemaField,
-  minimalGeographicalSchemaFieldPartialEnterprise,
+  minimalGeographicalSchemaFieldPartialYAML,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importGeographicalSchemaFieldFromEnterprise", () => {
-  describe("importGeographicalSchemaFieldPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importGeographicalSchemaFieldFromYAML", () => {
+  describe("importGeographicalSchemaFieldPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.GeographicalSchemaField,
-        yaml: fullGeographicalSchemaFieldPartialEnterprise,
+        yaml: fullGeographicalSchemaFieldPartialYAML,
         source: fullGeographicalSchemaField,
       })
 
@@ -25,7 +25,7 @@ describe("importGeographicalSchemaFieldFromEnterprise", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.GeographicalSchemaField,
-        yaml: minimalGeographicalSchemaFieldPartialEnterprise,
+        yaml: minimalGeographicalSchemaFieldPartialYAML,
         source: minimalGeographicalSchemaField,
       })
 

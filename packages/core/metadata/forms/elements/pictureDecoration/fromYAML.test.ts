@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullPictureDecoration,
-  fullPictureDecorationPartialEnterprise,
+  fullPictureDecorationPartialYAML,
   sourcePictureDecoration,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importPictureDecorationFromEnterprise", () => {
-  it("should import all fields from Enterprise", () => {
+describe("importPictureDecorationFromYAML", () => {
+  it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
       itemType: CollectionFormElementType.PictureDecoration,
-      yaml: fullPictureDecorationPartialEnterprise,
+      yaml: fullPictureDecorationPartialYAML,
       source: sourcePictureDecoration,
     })
 
@@ -23,7 +23,7 @@ describe("importPictureDecorationFromEnterprise", () => {
   //   const result = importElementFromPartialYAML({
   //     context: mockContext,
   //     itemType: CollectionFormElementType.PictureDecoration,
-  //     yaml: fullPictureDecorationPartialEnterprise,
+  //     yaml: fullPictureDecorationPartialYAML,
   //     source: sourcePictureDecoration,
   //   })
 

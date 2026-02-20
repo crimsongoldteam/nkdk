@@ -1,10 +1,10 @@
-import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
+import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
 
 export interface ColorTestCase {
   name: string
   color: Color
-  colorEnterprise: ColorEnterprise
-  enterpriseExpected: ColorEnterprise
+  colorYAML: ColorYAML
+  enterpriseExpected: ColorYAML
   fixture: string | undefined
 }
 
@@ -15,8 +15,8 @@ export const colorTestCases: readonly ColorTestCase[] = [
       type: "Absolute",
       value: "#C3C0C3",
     } as Color,
-    colorEnterprise: "#C3C0C3" as ColorEnterprise,
-    enterpriseExpected: "#C3C0C3" as ColorEnterprise,
+    colorYAML: "#C3C0C3" as ColorYAML,
+    enterpriseExpected: "#C3C0C3" as ColorYAML,
     fixture: "color/absolute.xml",
   },
   {
@@ -25,8 +25,8 @@ export const colorTestCases: readonly ColorTestCase[] = [
       type: "WindowsColor",
       value: "ButtonLightShadow",
     } as Color,
-    colorEnterprise: "ТеньКнопкиСветлая" as ColorEnterprise,
-    enterpriseExpected: "ТеньКнопкиСветлая" as ColorEnterprise,
+    colorYAML: "ТеньКнопкиСветлая" as ColorYAML,
+    enterpriseExpected: "ТеньКнопкиСветлая" as ColorYAML,
     fixture: "color/win.xml",
   },
   {
@@ -35,8 +35,8 @@ export const colorTestCases: readonly ColorTestCase[] = [
       type: "WebColor",
       value: "AliceBlue",
     } as Color,
-    colorEnterprise: "АкварельноСиний" as ColorEnterprise,
-    enterpriseExpected: "АкварельноСиний" as ColorEnterprise,
+    colorYAML: "АкварельноСиний" as ColorYAML,
+    enterpriseExpected: "АкварельноСиний" as ColorYAML,
     fixture: "color/web.xml",
   },
   {
@@ -45,8 +45,8 @@ export const colorTestCases: readonly ColorTestCase[] = [
       type: "StyleItem",
       value: "SpecialTextColor",
     } as Color,
-    colorEnterprise: "ЦветОсобогоТекста" as ColorEnterprise,
-    enterpriseExpected: "ЦветОсобогоТекста" as ColorEnterprise,
+    colorYAML: "ЦветОсобогоТекста" as ColorYAML,
+    enterpriseExpected: "ЦветОсобогоТекста" as ColorYAML,
     fixture: "color/style.xml",
   },
   {
@@ -55,8 +55,8 @@ export const colorTestCases: readonly ColorTestCase[] = [
       type: "StyleItem",
       value: "ПоясняющийТекст",
     } as Color,
-    colorEnterprise: "ЭлементСтиля.ПоясняющийТекст" as ColorEnterprise,
-    enterpriseExpected: "ЭлементСтиля.ПоясняющийТекст" as ColorEnterprise,
+    colorYAML: "ЭлементСтиля.ПоясняющийТекст" as ColorYAML,
+    enterpriseExpected: "ЭлементСтиля.ПоясняющийТекст" as ColorYAML,
     fixture: "color/customStyle.xml",
   },
 ] as const

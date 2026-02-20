@@ -1,5 +1,5 @@
 import { I8nText, I8nTextXML } from "../i8nText/types"
-import { I8nTextEnterprise } from "../i8nText/types.ts"
+import { I8nTextYAML } from "../i8nText/types.ts"
 
 //#region MetadataValue
 
@@ -106,22 +106,19 @@ export type MetadataValueXML = MetadataSimpleValueXML | MetadataFixedArrayValueX
 
 //#endregion
 
-//#region MetadataValueEnterprise
+//#region MetadataValueYAML
 
-export type MetadataSingleValueEnterprise = string | number
+export type MetadataSingleValueYAML = string | number
 
-export type MetadataFixedArrayValueEnterprise = MetadataSingleValueEnterprise[]
+export type MetadataFixedArrayValueYAML = MetadataSingleValueYAML[]
 
-export interface MetadataFormChoiceListComplexValueEnterprise {
-  Представление: I8nTextEnterprise
-  Значение: MetadataValueEnterprise
+export interface MetadataFormChoiceListComplexValueYAML {
+  Представление: I8nTextYAML
+  Значение: MetadataValueYAML
 }
 
-export type MetadataFormChoiceListValueEnterprise = MetadataFormChoiceListComplexValueEnterprise | string
+export type MetadataFormChoiceListValueYAML = MetadataFormChoiceListComplexValueYAML | string
 
-export type MetadataValueEnterprise =
-  | MetadataSingleValueEnterprise
-  | MetadataFixedArrayValueEnterprise
-  | MetadataFormChoiceListValueEnterprise
+export type MetadataValueYAML = MetadataSingleValueYAML | MetadataFixedArrayValueYAML | MetadataFormChoiceListValueYAML
 
 //#endregion

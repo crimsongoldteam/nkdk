@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullLabelField,
-  fullLabelFieldPartialEnterprise,
-  fullLabelFieldTypedEnterprise,
+  fullLabelFieldPartialYAML,
+  fullLabelFieldTypedYAML,
   minimalLabelField,
 } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportLabelFieldToEnterprise", () => {
+describe("exportLabelFieldToYAML", () => {
   describe("Partial", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullLabelField })
 
-      expect(result).toEqual(fullLabelFieldPartialEnterprise)
+      expect(result).toEqual(fullLabelFieldPartialYAML)
     })
 
     it("should export minimal", () => {
@@ -24,10 +24,10 @@ describe("exportLabelFieldToEnterprise", () => {
   })
 
   describe("Typed", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullLabelField })
 
-      expect(result).toEqual(fullLabelFieldTypedEnterprise)
+      expect(result).toEqual(fullLabelFieldTypedYAML)
     })
   })
 })

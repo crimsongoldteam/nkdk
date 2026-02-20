@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest"
-import { all, allEnterprise, minimal, minimalEnterprise } from "~/tests/fixtures/standartAttributeDescription/data"
+import { all, allYAML, minimal, minimalYAML } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importStandardAttributeDescriptionsFromEnterprise } from "./importFromEnterprise"
+import { importStandardAttributeDescriptionsFromYAML } from "./fromYAML"
 
-describe("importStandardAttributeDescriptionFromEnterprise", () => {
+describe("importStandardAttributeDescriptionFromYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importStandardAttributeDescriptionsFromEnterprise(mockContext, mockRule, undefined)
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when object is empty", () => {
-    const result = importStandardAttributeDescriptionsFromEnterprise(mockContext, mockRule, {})
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, {})
     expect(result).toBeUndefined()
   })
 
   it("should import all parameters from enterprise", () => {
-    const result = importStandardAttributeDescriptionsFromEnterprise(mockContext, mockRule, allEnterprise)
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, allYAML)
 
     expect(result).toEqual(all)
   })
 
   it("should import with only name", () => {
-    const result = importStandardAttributeDescriptionsFromEnterprise(mockContext, mockRule, minimalEnterprise)
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, minimalYAML)
     expect(result).toEqual(minimal)
   })
 })

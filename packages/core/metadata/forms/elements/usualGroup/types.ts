@@ -1,16 +1,16 @@
-import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorPreview } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontPreview } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
   // GroupChildItemsPreview,
-  GroupChilItemPartialEnterprise,
+  GroupChilItemPartialYAML,
 } from "../../collections/childItems/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface UsualGroup {
   itemType: "UsualGroup"
@@ -59,54 +59,54 @@ export interface UsualGroup {
   childItems: GroupChildItems
 }
 
-export interface UsualGroupPartialEnterprise {
+export interface UsualGroupPartialYAML {
   Таблица?: string
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Видимость?: StringboolEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Видимость?: StringboolYAML
   Высота?: number
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Доступность?: StringboolEnterprise
-  Заголовок?: I8nTextEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Подсказка?: I8nTextEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
-  РазрешитьИзменениеСостава?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  Подсказка?: I8nTextYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьИзменениеСостава?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
   СочетаниеКлавиш?: string
-  ТолькоПросмотр?: StringboolEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
+  ТолькоПросмотр?: StringboolYAML
+  ЦветТекстаЗаголовка?: ColorYAML
   Ширина?: number
-  ШрифтЗаголовка?: FontEnterprise
-  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
-  ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
-  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
-  Группировка?: SE.ChildFormItemsGroupEnterprise
-  ЗаголовокСвернутогоОтображения?: I8nTextEnterprise
-  ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
-  Объединенная?: StringboolEnterprise
-  ОтображатьЗаголовок?: StringboolEnterprise
-  ОтображатьОтступСлева?: StringboolEnterprise
-  Отображение?: SE.UsualGroupRepresentationEnterprise
-  ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
-  Поведение?: SE.UsualGroupBehaviorEnterprise
+  ШрифтЗаголовка?: FontYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignYAML
+  ВертикальныйИнтервал?: SE.FormItemSpacingYAML
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantYAML
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationYAML
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingYAML
+  Группировка?: SE.ChildFormItemsGroupYAML
+  ЗаголовокСвернутогоОтображения?: I8nTextYAML
+  ИспользованиеТекущейСтроки?: SE.CurrentRowUseYAML
+  Объединенная?: StringboolYAML
+  ОтображатьЗаголовок?: StringboolYAML
+  ОтображатьОтступСлева?: StringboolYAML
+  Отображение?: SE.UsualGroupRepresentationYAML
+  ОтображениеУправления?: SE.UsualGroupControlRepresentationYAML
+  Поведение?: SE.UsualGroupBehaviorYAML
   ПутьКДаннымЗаголовка?: string
-  СквозноеВыравнивание?: SE.ThroughAlignEnterprise
-  Свернута?: StringboolEnterprise
-  Формат?: I8nTextEnterprise
-  ЦветФона?: ColorEnterprise
-  ЦветФонаЗаголовкаСкрытогоОтображения?: ColorEnterprise
-  // ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  СквозноеВыравнивание?: SE.ThroughAlignYAML
+  Свернута?: StringboolYAML
+  Формат?: I8nTextYAML
+  ЦветФона?: ColorYAML
+  ЦветФонаЗаголовкаСкрытогоОтображения?: ColorYAML
+  // ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthYAML
 }
 
-export interface UsualGroupTypedEnterprise extends UsualGroupPartialEnterprise {
+export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
   Тип: "Группа"
-  ПодчиненныеЭлементы?: GroupChilItemPartialEnterprise
+  ПодчиненныеЭлементы?: GroupChilItemPartialYAML
 }
 
 export interface UsualGroupPreview {

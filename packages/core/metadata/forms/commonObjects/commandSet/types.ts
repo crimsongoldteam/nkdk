@@ -4,4 +4,4 @@ export interface CommandSetXML {
 
 export type CommandSet = string[]
 
-export type CommandSetEnterprise = string[]
+export type CommandSetYAML = string[]

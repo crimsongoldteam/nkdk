@@ -1,9 +1,9 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   SearchControlAddition,
-  SearchControlAdditionEnterprise,
+  SearchControlAdditionYAML,
   SingleSearchControlAddition,
-  SingleSearchControlAdditionEnterprise,
+  SingleSearchControlAdditionYAML,
 } from "~/metadata/forms/elements/searchControlAddition/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
@@ -86,7 +86,7 @@ export const fullSingleSearchControlAddition: Required<SingleSearchControlAdditi
   childItems: [],
 }
 
-export const fullSingleSearchControlAdditionEnterprise: SingleSearchControlAdditionEnterprise = {
+export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAML = {
   АвтоМаксимальнаяШирина: "Истина",
   МаксимальнаяШирина: 400,
   РастягиватьПоГоризонтали: "Истина",
@@ -134,8 +134,8 @@ export const fullSingleSearchControlAdditionEnterprise: SingleSearchControlAddit
   },
 }
 
-export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {
-  ...fullSingleSearchControlAdditionEnterprise,
+export const fullSearchControlAdditionYAML: SearchControlAdditionYAML = {
+  ...fullSingleSearchControlAdditionYAML,
   Источник: "РодительскийЭлемент",
 }
 
@@ -157,4 +157,4 @@ export const minimalSingleSearchControlAddition: SingleSearchControlAddition = {
   childItems: [],
 }
 
-export const minimalSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {}
+export const minimalSearchControlAdditionYAML: SearchControlAdditionYAML = {}

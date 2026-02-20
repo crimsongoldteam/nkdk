@@ -1,13 +1,13 @@
-import { TableChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
+import { TableChildItemsPartialYAML } from "~/metadata/forms/collections/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
-import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
+import { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export interface TableFixture {
   name: string
   table: Table
-  tableEnterprise: TablePartialEnterprise
+  tableYAML: TablePartialYAML
   xml: string
 }
 
@@ -272,7 +272,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   width: 1,
 }
 
-export const fullTableEnterprise: TablePartialEnterprise = {
+export const fullTableYAML: TablePartialYAML = {
   АвтоВводНезаполненного: "Истина",
   АвтоВводНовойСтроки: "Истина",
   АвтоМаксимальнаяВысота: "Ложь",
@@ -398,7 +398,7 @@ export const fullTableEnterprise: TablePartialEnterprise = {
   ШрифтЗаголовка: "МелкийШрифтТекста",
 }
 
-export const fullTableChildItems: TableChildItemsPartialEnterprise = {
+export const fullTableChildItems: TableChildItemsPartialYAML = {
   ТаблицаГруппа1: {
     ПодчиненныеЭлементы: {
       ТаблицаПолеВвода: {
@@ -429,7 +429,7 @@ export const minimalTable: Table = {
   childItems: [],
 }
 
-export const minimalTableEnterprise: TablePartialEnterprise = {}
+export const minimalTableYAML: TablePartialYAML = {}
 
 export const oneColumnTable: Table = {
   name: "Таблица1",

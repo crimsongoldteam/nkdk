@@ -1,9 +1,9 @@
-import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
+import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
-  fullCommandBarChildItemsAllEnterprise,
+  fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
 } from "../../commandBarChildItems/data"
@@ -19,7 +19,7 @@ export const sourceAutoCommandBar: AutoCommandBar = {
   childItems: fullCommandBarChildItemsStructure,
 }
 
-export const fullAutoCommandBarAllItems = fullCommandBarChildItemsAllEnterprise
+export const fullAutoCommandBarAllItems = fullCommandBarChildItemsAllYAML
 
 export const fullAutoCommandBar: Required<AutoCommandBar> = {
   itemType: SingleFormElementType.AutoCommandBar,
@@ -29,7 +29,7 @@ export const fullAutoCommandBar: Required<AutoCommandBar> = {
   childItems: fullCommandBarChildItemsTyped,
 }
 
-export const fullAutoExportCommandBarEnterprise: AutoCommandBarEnterprise = {
+export const fullAutoExportCommandBarYAML: AutoCommandBarYAML = {
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
 }

@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importBooleanFromEnterprise } from "./importFromEnterprise"
+import { importBooleanFromYAML } from "./fromYAML"
 
-describe("importBooleanFromEnterprise", () => {
+describe("importBooleanFromYAML", () => {
   it("should return undefined when value is undefined", () => {
-    const result = importBooleanFromEnterprise(mockContext, mockRule, undefined)
+    const result = importBooleanFromYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should return true when value is 'Истина'", () => {
-    const result = importBooleanFromEnterprise(mockContext, mockRule, "Истина")
+    const result = importBooleanFromYAML(mockContext, mockRule, "Истина")
 
     expect(result).toBe(true)
   })
 
   it("should return false when value is 'Ложь'", () => {
-    const result = importBooleanFromEnterprise(mockContext, mockRule, "Ложь")
+    const result = importBooleanFromYAML(mockContext, mockRule, "Ложь")
 
     expect(result).toBe(false)
   })

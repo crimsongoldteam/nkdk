@@ -20,7 +20,7 @@ export interface BaseElementXML {
   _id: string
 }
 
-export interface BaseElementPropsEnterprise {}
+export interface BaseElementPropsYAML {}
 
 export interface EventedElementYAML {
   События?: {}

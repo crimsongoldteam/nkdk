@@ -1,47 +1,43 @@
 import { describe, expect, it } from "vitest"
 import {
   fullMetadataAttributes,
-  fullMetadataAttributesEnterprise,
+  fullMetadataAttributesYAML,
   minimalMetadataAttributes,
-  minimalMetadataAttributesEnterprise,
+  minimalMetadataAttributesYAML,
   shortMetadataAttribute,
-  shortMetadataAttributeEnterprise,
+  shortMetadataAttributeYAML,
   shortMultilanguageMetadataAttribute,
-  shortMultilanguageMetadataAttributeEnterprise,
+  shortMultilanguageMetadataAttributeYAML,
 } from "~/tests/fixtures/metadataAttribute/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataAttributesFromEnterprise } from "./importFromEnterprise"
+import { importMetadataAttributesFromYAML } from "./fromYAML"
 
-describe("importMetadataAttributeFromEnterprise", () => {
+describe("importMetadataAttributeFromYAML", () => {
   it("shouldreturn undefined when data is undefined", () => {
-    const result = importMetadataAttributesFromEnterprise(mockContext, mockRule, undefined)
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importMetadataAttributesFromEnterprise(mockContext, mockRule, fullMetadataAttributesEnterprise)
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, fullMetadataAttributesYAML)
 
     expect(result).toEqual(fullMetadataAttributes)
   })
 
   it("should import minimal", () => {
-    const result = importMetadataAttributesFromEnterprise(mockContext, mockRule, minimalMetadataAttributesEnterprise)
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, minimalMetadataAttributesYAML)
 
     expect(result).toEqual(minimalMetadataAttributes)
   })
 
   it("should import with short format", () => {
-    const result = importMetadataAttributesFromEnterprise(mockContext, mockRule, shortMetadataAttributeEnterprise)
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, shortMetadataAttributeYAML)
 
     expect(result).toEqual(shortMetadataAttribute)
   })
 
   it("should import short multilanguage format", () => {
-    const result = importMetadataAttributesFromEnterprise(
-      mockContext,
-      mockRule,
-      shortMultilanguageMetadataAttributeEnterprise
-    )
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, shortMultilanguageMetadataAttributeYAML)
 
     expect(result).toEqual(shortMultilanguageMetadataAttribute)
   })

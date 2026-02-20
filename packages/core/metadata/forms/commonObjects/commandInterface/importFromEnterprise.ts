@@ -1,21 +1,16 @@
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
-import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
+import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
+import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { StandardCommandsGroupFromEnterprise } from "~/metadata/systemEnumerations/types"
+import { StandardCommandsGroupFromYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import {
-  CommandInterface,
-  CommandInterfaceEnterprise,
-  CommandInterfaceItem,
-  CommandInterfaceItemEnterprise,
-} from "./types"
+import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
 
-export const importCommandInterfaceFromEnterprise = (
+export const importCommandInterfaceFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
-  data: CommandInterfaceEnterprise | undefined
+  data: CommandInterfaceYAML | undefined
 ): CommandInterface | undefined => {
   if (!data) return undefined
 
@@ -26,35 +21,35 @@ export const importCommandInterfaceFromEnterprise = (
   }
 
   if (data.ПанельНавигации && data.ПанельНавигации.length > 0) {
-    result.NavigationPanel = data.ПанельНавигации.map((item) => importCommandInterfaceItemFromEnterprise(context, item))
+    result.NavigationPanel = data.ПанельНавигации.map((item) => importCommandInterfaceItemFromYAML(context, item))
   }
 
   if (data.КоманднаяПанель && data.КоманднаяПанель.length > 0) {
-    result.CommandBar = data.КоманднаяПанель.map((item) => importCommandInterfaceItemFromEnterprise(context, item))
+    result.CommandBar = data.КоманднаяПанель.map((item) => importCommandInterfaceItemFromYAML(context, item))
   }
 
   return result
 }
 
-const importCommandInterfaceItemFromEnterprise = (
+const importCommandInterfaceItemFromYAML = (
   context: ConfigurationContext,
-  item: CommandInterfaceItemEnterprise
+  item: CommandInterfaceItemYAML
 ): CommandInterfaceItem => {
   const result: CommandInterfaceItem = {
     command: item.Команда,
     type: item.Тип,
-    defaultVisible: importBooleanFromEnterprise(context, undefined, item.Автовидимость)!,
+    defaultVisible: importBooleanFromYAML(context, undefined, item.Автовидимость)!,
     itemType: "CommandInterfaceItem",
   }
 
   if (item.ГруппаКоманд) {
-    result.commandGroup = StandardCommandsGroupFromEnterprise[item.ГруппаКоманд]
+    result.commandGroup = StandardCommandsGroupFromYAML[item.ГруппаКоманд]
   }
 
   const visible = importUserVisibleFromYAML<CommandInterfaceItem>({
     context,
-    rule: { type: "UserVisible", yaml: UserVisibleKeysEnterprise.Allow, yamlDeny: UserVisibleKeysEnterprise.Deny },
-    value: item[UserVisibleKeysEnterprise.Allow],
+    rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Allow, yamlDeny: UserVisibleKeysYAML.Deny },
+    value: item[UserVisibleKeysYAML.Allow],
     yaml: item,
   })
   if (visible) {
@@ -64,4 +59,4 @@ const importCommandInterfaceItemFromEnterprise = (
   return result
 }
 
-registerTypeRule("CommandInterface", "importFromEnterprise", importCommandInterfaceFromEnterprise)
+registerTypeRule("CommandInterface", "importFromYAML", importCommandInterfaceFromYAML)

@@ -1,12 +1,12 @@
 export {
-  exportMetadataCatalogToEnterprise,
   exportMetadataCatalogToXML,
-  importMetadataCatalogFromEnterprise,
+  exportMetadataCatalogToYAML,
   importMetadataCatalogFromXML,
+  importMetadataCatalogFromYAML,
   type MetadataCatalog,
   type MetadataCatalogContext,
-  type MetadataCatalogEnterprise,
   type MetadataCatalogXML,
+  type MetadataCatalogYAML,
 } from "./metadata/appliedObjects/metadataCatalog/index"
 export { exportFormMetadataToXML, importChildItemsFromStructure } from "./metadata/forms/index"
 export type { FormMetadataXML } from "./metadata/forms/index"

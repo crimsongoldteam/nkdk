@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { importUserVisibleFromEnterprise } from "./importFromEnterprise"
+import { importUserVisibleFromYAML } from "./fromYAML"
 
-describe("importUserVisibleFromEnterprise", () => {
+describe("importUserVisibleFromYAML", () => {
   it("should parse UserVisible with allow usage and values", () => {
     const mock = {
       "Role.Администратор": "Истина" as const,
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = importUserVisibleFromEnterprise(mockContext, mockRule, mock, undefined)
+    const result = importUserVisibleFromYAML(mockContext, mockRule, mock, undefined)
 
     expect(result).toEqual({
       common: true,
@@ -25,7 +25,7 @@ describe("importUserVisibleFromEnterprise", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = importUserVisibleFromEnterprise(mockContext, mockRule, undefined, mock)
+    const result = importUserVisibleFromYAML(mockContext, mockRule, undefined, mock)
 
     expect(result).toEqual({
       common: false,

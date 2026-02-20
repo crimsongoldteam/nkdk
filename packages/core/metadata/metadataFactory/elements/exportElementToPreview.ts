@@ -22,7 +22,7 @@
 //   }
 
 //   for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
-//     if (rule.toEnterprise === false) continue
+//     if (rule.toYAML === false) continue
 
 //     const value = (data as any)[key]
 

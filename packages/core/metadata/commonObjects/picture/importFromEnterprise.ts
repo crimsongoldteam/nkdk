@@ -1,16 +1,16 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importSystemEnumerationFromYAML } from "../../systemEnumerations/importFromEnterprise"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
-import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
-import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
+import { importBooleanFromYAML } from "../boolean/fromYAML"
+import { Picture, PictureYAML, PictureYAMLExtended } from "./types"
 
-export const importPictureCombinedFromEnterprise = (
+export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   picture: Picture | undefined,
-  yaml: PictureEnterprise | undefined
+  yaml: PictureYAML | undefined
 ): Picture | undefined => {
   if (picture === undefined && yaml === undefined) return undefined
 
@@ -18,7 +18,7 @@ export const importPictureCombinedFromEnterprise = (
     return picture
   }
 
-  const yamlPicture = importPictureFromEnterprise(context, undefined, yaml)!
+  const yamlPicture = importPictureFromYAML(context, undefined, yaml)!
 
   if (picture === undefined) {
     return yamlPicture
@@ -30,20 +30,20 @@ export const importPictureCombinedFromEnterprise = (
   }
 }
 
-export const importPictureFromEnterprise = (
+export const importPictureFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: PictureEnterprise | undefined
+  data: PictureYAML | undefined
 ): Picture | undefined => {
   if (!data) return undefined
 
-  let ref: string | SE.PictureLibEnterprise
+  let ref: string | SE.PictureLibYAML
   let loadTransparent: boolean
   let transparentPixel: { x: number; y: number } | undefined
 
-  if (isPictureEnterpriseExtended(data)) {
+  if (isPictureYAMLExtended(data)) {
     ref = data.Ссылка
-    loadTransparent = importBooleanFromEnterprise(context, undefined, data.ПрозрачныйФон)!
+    loadTransparent = importBooleanFromYAML(context, undefined, data.ПрозрачныйФон)!
     transparentPixel = data.ПрозрачныйПиксель
   } else {
     ref = data
@@ -69,12 +69,12 @@ export const importPictureFromEnterprise = (
   )
 }
 
-function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEnterpriseExtended {
+function isPictureYAMLExtended(data: PictureYAML): data is PictureYAMLExtended {
   return typeof data !== "string"
 }
 
 function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
-  if (ref in SE.PictureLibFromEnterprise) {
+  if (ref in SE.PictureLibFromYAML) {
     return importSystemEnumerationFromYAML<SE.PictureLib>(
       context,
       { type: "SystemEnumeration", typeSE: "PictureLib" },
@@ -93,4 +93,4 @@ function createPicture(
   return { ref, type, loadTransparent, transparentPixel }
 }
 
-registerTypeRule("Picture", "importFromEnterprise", importPictureFromEnterprise)
+registerTypeRule("Picture", "importFromYAML", importPictureFromYAML)

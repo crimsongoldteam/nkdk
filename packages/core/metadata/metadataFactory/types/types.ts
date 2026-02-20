@@ -82,14 +82,14 @@ export type ImportFromYAMLFunctionNew = <T extends MetadataItem | never = never>
   name?: string
 }) => any | undefined
 
-export type ImportFromEnterpriseFunction = (
+export type ImportFromYAMLFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined,
   source?: any
 ) => any | undefined
 
-export type ExportToEnterpriseFunction = (
+export type ExportToYAMLFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined
@@ -111,16 +111,16 @@ export type ExportToPreviewFunction = (
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
-  importFromEnterprise?: ImportFromEnterpriseFunction | ImportFromYAMLFunctionNew
-  exportToEnterprise?: ExportToEnterpriseFunction | ExportToYAMLFunctionNew
+  importFromYAML?: ImportFromYAMLFunction | ImportFromYAMLFunctionNew
+  exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToPreview?: ExportToPreviewFunction
 }
 
 export type TypeRulesOperations =
   | "importFromXML"
   | "exportToXML"
-  | "importFromEnterprise"
-  | "exportToEnterprise"
+  | "importFromYAML"
+  | "exportToYAML"
   | "exportToPreview"
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
@@ -129,10 +129,10 @@ export const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOper
   return `${type}:${operation}`
 }
 
-export type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromEnterprise"
-  ? ImportFromYAMLFunctionNew | ImportFromEnterpriseFunction | undefined
-  : O extends "exportToEnterprise"
-    ? ExportToEnterpriseFunction | ExportToYAMLFunctionNew | undefined
+export type ImportExportFunction<O extends TypeRulesOperations> = O extends "importFromYAML"
+  ? ImportFromYAMLFunctionNew | ImportFromYAMLFunction | undefined
+  : O extends "exportToYAML"
+    ? ExportToYAMLFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"

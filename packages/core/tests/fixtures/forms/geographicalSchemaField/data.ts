@@ -1,6 +1,6 @@
 import {
   GeographicalSchemaField,
-  GeographicalSchemaFieldPartialEnterprise,
+  GeographicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -96,7 +96,7 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
   },
 }
 
-export const fullGeographicalSchemaFieldPartialEnterprise: GeographicalSchemaFieldPartialEnterprise = {
+export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -163,4 +163,4 @@ export const minimalGeographicalSchemaField: GeographicalSchemaField = {
   name: "ПолеГеографическойСхемы",
 }
 
-export const minimalGeographicalSchemaFieldPartialEnterprise: GeographicalSchemaFieldPartialEnterprise = {}
+export const minimalGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPartialYAML = {}

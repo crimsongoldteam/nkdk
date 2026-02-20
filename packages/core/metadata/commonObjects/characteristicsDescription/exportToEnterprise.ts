@@ -1,47 +1,47 @@
 import {
   CharacteristicsDescription,
-  CharacteristicsDescriptionEnterprise,
+  CharacteristicsDescriptionYAML,
   CharacteristicsDescriptions,
-  CharacteristicsDescriptionsEnterprise,
+  CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
-import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
-import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
+import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
+import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
+import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 
-export const exportCharacteristicsDescriptionToEnterprise = (
+export const exportCharacteristicsDescriptionToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: CharacteristicsDescription | undefined
-): CharacteristicsDescriptionEnterprise | undefined => {
+): CharacteristicsDescriptionYAML | undefined => {
   if (!data) return undefined
 
-  const result: CharacteristicsDescriptionEnterprise = {}
+  const result: CharacteristicsDescriptionYAML = {}
 
   if (data.characteristicTypes) {
-    result.ВидыХарактеристик = exportMetadataItemLinkToEnterprise(context, undefined, data.characteristicTypes)
+    result.ВидыХарактеристик = exportMetadataItemLinkToYAML(context, undefined, data.characteristicTypes)
   }
 
   if (data.typesFilterValue) {
-    result.ЗначениеОтбораВидов = exportMetadataValueToEnterprise(context, undefined, data.typesFilterValue)
+    result.ЗначениеОтбораВидов = exportMetadataValueToYAML(context, undefined, data.typesFilterValue)
   }
 
   if (data.characteristicValues) {
-    result.ЗначенияХарактеристик = exportMetadataItemLinkToEnterprise(context, undefined, data.characteristicValues)
+    result.ЗначенияХарактеристик = exportMetadataItemLinkToYAML(context, undefined, data.characteristicValues)
   }
 
   if (data.typeField) {
-    result.ПолеВида = exportMetadataFieldToEnterprise(context, undefined, data.typeField)
+    result.ПолеВида = exportMetadataFieldToYAML(context, undefined, data.typeField)
   }
 
   if (data.valueField) {
-    result.ПолеЗначения = exportMetadataFieldToEnterprise(context, undefined, data.valueField)
+    result.ПолеЗначения = exportMetadataFieldToYAML(context, undefined, data.valueField)
   }
 
   if (data.multipleValuesUseField) {
-    result.ПолеИспользованияМножественныхЗначений = exportMetadataFieldToEnterprise(
+    result.ПолеИспользованияМножественныхЗначений = exportMetadataFieldToYAML(
       context,
       undefined,
       data.multipleValuesUseField
@@ -49,27 +49,23 @@ export const exportCharacteristicsDescriptionToEnterprise = (
   }
 
   if (data.keyField) {
-    result.ПолеКлюча = exportMetadataFieldToEnterprise(context, undefined, data.keyField)
+    result.ПолеКлюча = exportMetadataFieldToYAML(context, undefined, data.keyField)
   }
 
   if (data.multipleValuesKeyField) {
-    result.ПолеКлючаМножественныхЗначений = exportMetadataFieldToEnterprise(
-      context,
-      undefined,
-      data.multipleValuesKeyField
-    )
+    result.ПолеКлючаМножественныхЗначений = exportMetadataFieldToYAML(context, undefined, data.multipleValuesKeyField)
   }
 
   if (data.objectField) {
-    result.ПолеОбъекта = exportMetadataFieldToEnterprise(context, undefined, data.objectField)
+    result.ПолеОбъекта = exportMetadataFieldToYAML(context, undefined, data.objectField)
   }
 
   if (data.typesFilterField) {
-    result.ПолеОтбораВидов = exportMetadataFieldToEnterprise(context, undefined, data.typesFilterField)
+    result.ПолеОтбораВидов = exportMetadataFieldToYAML(context, undefined, data.typesFilterField)
   }
 
   if (data.multipleValuesOrderField) {
-    result.ПолеПорядкаМножественныхЗначений = exportMetadataFieldToEnterprise(
+    result.ПолеПорядкаМножественныхЗначений = exportMetadataFieldToYAML(
       context,
       undefined,
       data.multipleValuesOrderField
@@ -77,22 +73,22 @@ export const exportCharacteristicsDescriptionToEnterprise = (
   }
 
   if (data.dataPathField) {
-    result.ПолеПутиКДанным = exportMetadataFieldToEnterprise(context, undefined, data.dataPathField)
+    result.ПолеПутиКДанным = exportMetadataFieldToYAML(context, undefined, data.dataPathField)
   }
 
   return result
 }
 
-export const exportCharacteristicsDescriptionsToEnterprise = (
+export const exportCharacteristicsDescriptionsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   data: CharacteristicsDescriptions | undefined
-): CharacteristicsDescriptionsEnterprise | undefined => {
+): CharacteristicsDescriptionsYAML | undefined => {
   if (!data) return undefined
 
   return data.map(
-    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(context, undefined, value)!
+    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToYAML(context, undefined, value)!
   )
 }
 
-registerTypeRule("CharacteristicsDescription", "exportToEnterprise", exportCharacteristicsDescriptionsToEnterprise)
+registerTypeRule("CharacteristicsDescription", "exportToYAML", exportCharacteristicsDescriptionsToYAML)

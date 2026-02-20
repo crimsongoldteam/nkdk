@@ -6,20 +6,20 @@ import {
 } from "~/metadata/metadataFactory"
 import {
   fullColumnGroup,
-  fullColumnGroupPartialEnterprise,
-  fullColumnGroupTypedEnterprise,
+  fullColumnGroupPartialYAML,
+  fullColumnGroupTypedYAML,
   minimalColumnGroup,
-  minimalColumnGroupTypedEnterprise,
+  minimalColumnGroupTypedYAML,
 } from "~/tests/fixtures/forms/columnGroup/data"
 import { mockContext } from "~/tests/mockContext"
 import { ColumnGroup } from "./types"
 
-describe("importColumnGroupFromEnterprise", () => {
-  describe("importColumnGroupTypedFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+describe("importColumnGroupFromYAML", () => {
+  describe("importColumnGroupTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
-        yaml: fullColumnGroupTypedEnterprise,
+        yaml: fullColumnGroupTypedYAML,
         name: "ГруппаКолонок",
       })
 
@@ -29,7 +29,7 @@ describe("importColumnGroupFromEnterprise", () => {
     it("should import minimal", () => {
       const result = importElementFromTypedYAML<ColumnGroup>({
         context: mockContext,
-        yaml: minimalColumnGroupTypedEnterprise,
+        yaml: minimalColumnGroupTypedYAML,
         name: "ГруппаКолонок",
       })
 
@@ -37,12 +37,12 @@ describe("importColumnGroupFromEnterprise", () => {
     })
   })
 
-  describe("importColumnGroupPartialFromEnterprise", () => {
-    it("should import all fields from Enterprise", () => {
+  describe("importColumnGroupPartialFromYAML", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: CollectionFormElementType.ColumnGroup,
-        yaml: fullColumnGroupPartialEnterprise,
+        yaml: fullColumnGroupPartialYAML,
         source: fullColumnGroup,
       })
 

@@ -1,6 +1,6 @@
 import {
   StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
+  StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 
 export const all: StandardAttributeDescriptions = [
@@ -58,7 +58,7 @@ export const all: StandardAttributeDescriptions = [
   },
 ]
 
-export const allEnterprise: StandardAttributeDescriptionsEnterprise = {
+export const allYAML: StandardAttributeDescriptionsYAML = {
   ИмяПредопределенныхДанных: {
     Синоним: "Какой-то синоним",
     ПроверкаЗаполнения: "ВыдаватьОшибку",
@@ -97,7 +97,7 @@ export const minimal: StandardAttributeDescriptions = [
   },
 ]
 
-export const minimalEnterprise: StandardAttributeDescriptionsEnterprise = {
+export const minimalYAML: StandardAttributeDescriptionsYAML = {
   ИмяПредопределенныхДанных: {},
 }
 

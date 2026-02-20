@@ -2,80 +2,76 @@ import { describe, expect, it } from "vitest"
 
 import {
   enumChoiceParameter,
-  enumChoiceParametersEnterprise,
+  enumChoiceParametersYAML,
   fixedArrayChoiceParameter,
-  fixedArrayChoiceParametersEnterprise,
+  fixedArrayChoiceParametersYAML,
   multipleChoiceParameters,
-  multipleChoiceParametersEnterprise,
+  multipleChoiceParametersYAML,
   nilChoiceParameters,
-  nilChoiceParametersEnterprise,
+  nilChoiceParametersYAML,
   singleChoiceParameter,
-  singleChoiceParametersEnterprise,
+  singleChoiceParametersYAML,
   stringChoiceParameter,
-  stringChoiceParametersEnterprise,
+  stringChoiceParametersYAML,
   withoutOneValueChoiceParameter,
-  withoutOneValueChoiceParametersEnterprise,
+  withoutOneValueChoiceParametersYAML,
   withoutValueChoiceParameter,
-  withoutValueChoiceParametersEnterprise,
+  withoutValueChoiceParametersYAML,
 } from "~/tests/fixtures/choiceParameters/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importChoiceParametersFromEnterprise } from "./importFromEnterprise"
+import { importChoiceParametersFromYAML } from "./fromYAML"
 
-describe("importChoiceParametersFromEnterprise", () => {
+describe("importChoiceParametersFromYAML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, undefined)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should import single choice parameter from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, singleChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, singleChoiceParametersYAML)
 
     expect(result).toEqual(singleChoiceParameter)
   })
 
   it("should import multiple choice parameters from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, multipleChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, multipleChoiceParametersYAML)
 
     expect(result).toEqual(multipleChoiceParameters)
   })
 
   it("should import choice parameters with enum value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, enumChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, enumChoiceParametersYAML)
 
     expect(result).toEqual(enumChoiceParameter)
   })
 
   it("should import choice parameters with string value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, stringChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, stringChoiceParametersYAML)
 
     expect(result).toEqual(stringChoiceParameter)
   })
 
   it("should import choice parameters with fixedArray value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, fixedArrayChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, fixedArrayChoiceParametersYAML)
 
     expect(result).toEqual(fixedArrayChoiceParameter)
   })
 
   it("should import choice parameters with nil value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, nilChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, nilChoiceParametersYAML)
 
     expect(result).toEqual(nilChoiceParameters)
   })
 
   it("should import choice parameters without value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(mockContext, mockRule, withoutValueChoiceParametersEnterprise)
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, withoutValueChoiceParametersYAML)
 
     expect(result).toEqual(withoutValueChoiceParameter)
   })
 
   it("should import choice parameters without one value from enterprise", () => {
-    const result = importChoiceParametersFromEnterprise(
-      mockContext,
-      mockRule,
-      withoutOneValueChoiceParametersEnterprise
-    )
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, withoutOneValueChoiceParametersYAML)
 
     expect(result).toEqual(withoutOneValueChoiceParameter)
   })

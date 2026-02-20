@@ -2,7 +2,7 @@ export interface I8nText {
   items: Record<string, string>
 }
 
-export type I8nTextEnterprise = string | Record<string, string>
+export type I8nTextYAML = string | Record<string, string>
 
 export interface I8nTextLanguageXML {
   "v8:lang": string

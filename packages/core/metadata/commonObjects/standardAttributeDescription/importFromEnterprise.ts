@@ -1,36 +1,36 @@
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
-import { importMetadataValueFromEnterprise } from "~/metadata/commonObjects/metadataValue/importFromEnterprise"
+import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
+import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
+import { importMetadataValueFromYAML } from "~/metadata/commonObjects/metadataValue/fromYAML"
 import {
   StandardAttributeDescription,
-  StandardAttributeDescriptionEnterprise,
+  StandardAttributeDescriptionYAML,
   StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
-  StandartAttributeNameFromEnterprise,
+  StandardAttributeDescriptionsYAML,
+  StandartAttributeNameFromYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
-import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
+import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
+import { importTypeLinkFromYAML } from "~/metadata/commonObjects/typeLink/fromYAML"
+import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { importChoiceParametersFromEnterprise } from "../сhoiceParameters/importFromEnterprise"
-import { getDefaults } from "./defaults"
 import { registerTypeRule } from "~/metadata/metadataFactory"
+import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { importChoiceParametersFromYAML } from "../сhoiceParameters/fromYAML"
+import { getDefaults } from "./defaults"
 
-export const importStandardAttributeDescriptionsFromEnterprise = (
+export const importStandardAttributeDescriptionsFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: StandardAttributeDescriptionsEnterprise | undefined
+  data: StandardAttributeDescriptionsYAML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!data) return undefined
 
   const result: StandardAttributeDescriptions = []
 
   Object.entries(data).forEach(([name, value]) => {
-    result.push(importStandardAttributeDescriptionFromEnterprise(context, undefined, value, name)!)
+    result.push(importStandardAttributeDescriptionFromYAML(context, undefined, value, name)!)
   })
 
   if (result.length === 0) return undefined
@@ -38,14 +38,14 @@ export const importStandardAttributeDescriptionsFromEnterprise = (
   return result
 }
 
-const importStandardAttributeDescriptionFromEnterprise = (
+const importStandardAttributeDescriptionFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  data: StandardAttributeDescriptionEnterprise,
+  data: StandardAttributeDescriptionYAML,
   name: string
 ): StandardAttributeDescription => {
   const result: StandardAttributeDescription = {
-    name: StandartAttributeNameFromEnterprise(name),
+    name: StandartAttributeNameFromYAML(name),
   }
 
   const quickChoice = importSystemEnumerationFromYAML<SE.UseQuickChoice>(
@@ -55,13 +55,13 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (quickChoice) result.quickChoice = quickChoice
 
-  const markNegatives = importBooleanFromEnterprise(context, undefined, data.ВыделятьОтрицательные)
+  const markNegatives = importBooleanFromYAML(context, undefined, data.ВыделятьОтрицательные)
   if (markNegatives !== undefined) result.markNegatives = markNegatives
 
-  const fillFromFillingValue = importBooleanFromEnterprise(context, undefined, data.ЗаполнятьИзДанныхЗаполнения)
+  const fillFromFillingValue = importBooleanFromYAML(context, undefined, data.ЗаполнятьИзДанныхЗаполнения)
   if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
 
-  const fillValue = importMetadataValueFromEnterprise(context, undefined, data.ЗначениеЗаполнения)
+  const fillValue = importMetadataValueFromYAML(context, undefined, data.ЗначениеЗаполнения)
   if (fillValue) result.fillValue = fillValue
 
   const choiceHistoryOnInput = importSystemEnumerationFromYAML<SE.ChoiceHistoryOnInput>(
@@ -83,10 +83,10 @@ const importStandardAttributeDescriptionFromEnterprise = (
   if (data.Маска) result.mask = data.Маска
   if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
 
-  const multiLine = importBooleanFromEnterprise(context, undefined, data.МногострочныйРежим)
+  const multiLine = importBooleanFromYAML(context, undefined, data.МногострочныйРежим)
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
+  const choiceParameters = importChoiceParametersFromYAML(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters) result.choiceParameters = choiceParameters
 
   const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
@@ -106,10 +106,10 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (fillChecking) result.fillChecking = fillChecking
 
-  const extendedEdit = importBooleanFromEnterprise(context, undefined, data.РасширенноеРедактирование)
+  const extendedEdit = importBooleanFromYAML(context, undefined, data.РасширенноеРедактирование)
   if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
 
-  const passwordMode = importBooleanFromEnterprise(context, undefined, data.РежимПароля)
+  const passwordMode = importBooleanFromYAML(context, undefined, data.РежимПароля)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 
   const typeReductionMode = importSystemEnumerationFromYAML<SE.TypeReductionMode>(
@@ -119,10 +119,10 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (typeReductionMode) result.typeReductionMode = typeReductionMode
 
-  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, undefined, data.СвязиПараметровВыбора)
+  const choiceParameterLinks = importChoiceParameterLinksFromYAML(context, undefined, data.СвязиПараметровВыбора)
   if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
 
-  const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
+  const linkByType = importTypeLinkFromYAML(context, undefined, data.СвязьПоТипу)
   if (linkByType) result.linkByType = linkByType
 
   const synonym = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Синоним })
@@ -135,7 +135,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   )
   if (createOnInput) result.createOnInput = createOnInput
 
-  const type = importTypeDescriptionFromEnterprise(context, undefined, data.Тип)
+  const type = importTypeDescriptionFromYAML(context, undefined, data.Тип)
   if (type) result.type = type
 
   if (data.ФормаВыбора) result.choiceForm = data.ФормаВыбора
@@ -150,8 +150,4 @@ const importStandardAttributeDescriptionFromEnterprise = (
   return removeDefaults(result, defaults)
 }
 
-registerTypeRule(
-  "StandardAttributeDescription",
-  "importFromEnterprise",
-  importStandardAttributeDescriptionsFromEnterprise
-)
+registerTypeRule("StandardAttributeDescription", "importFromYAML", importStandardAttributeDescriptionsFromYAML)

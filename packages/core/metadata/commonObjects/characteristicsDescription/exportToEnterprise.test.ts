@@ -1,37 +1,34 @@
 import { describe, expect, it } from "vitest"
 import {
   multiple,
-  multipleEnterprise,
+  multipleYAML,
   singleSimple,
-  singleSimpleEnterprise,
+  singleSimpleYAML,
 } from "~/tests/fixtures/characteristicsDescription/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import {
-  exportCharacteristicsDescriptionToEnterprise,
-  exportCharacteristicsDescriptionsToEnterprise,
-} from "./exportToEnterprise"
+import { exportCharacteristicsDescriptionToYAML, exportCharacteristicsDescriptionsToYAML } from "./toYAML"
 
-describe("exportCharacteristicsDescriptionToEnterprise", () => {
+describe("exportCharacteristicsDescriptionToYAML", () => {
   it("should export single characteristic", () => {
-    const result = exportCharacteristicsDescriptionToEnterprise(mockContext, mockRule, singleSimple)
+    const result = exportCharacteristicsDescriptionToYAML(mockContext, mockRule, singleSimple)
 
-    expect(result).toEqual(singleSimpleEnterprise)
+    expect(result).toEqual(singleSimpleYAML)
   })
 
   it("should export multiple characteristics", () => {
-    const result = exportCharacteristicsDescriptionsToEnterprise(mockContext, mockRule, multiple)
+    const result = exportCharacteristicsDescriptionsToYAML(mockContext, mockRule, multiple)
 
-    expect(result).toEqual(multipleEnterprise)
+    expect(result).toEqual(multipleYAML)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportCharacteristicsDescriptionToEnterprise(mockContext, mockRule, undefined)
+    const result = exportCharacteristicsDescriptionToYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should return undefined for undefined array input", () => {
-    const result = exportCharacteristicsDescriptionsToEnterprise(mockContext, mockRule, undefined)
+    const result = exportCharacteristicsDescriptionsToYAML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

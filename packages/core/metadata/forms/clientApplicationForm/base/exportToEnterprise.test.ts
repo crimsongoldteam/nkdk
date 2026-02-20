@@ -1,29 +1,29 @@
 import { describe, expect, it } from "vitest"
 import {
   fullClientApplicationForm,
-  fullClientApplicationFormEnterprise,
+  fullClientApplicationFormYAML,
   minimalClientApplicationForm,
-  minimalClientApplicationFormEnterprise,
+  minimalClientApplicationFormYAML,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContextToYAML } from "~/tests/mockContext"
-import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
+import { exportClientApplicationFormToYAML } from "./toYAML"
 
-describe("exportClientApplicationFormToEnterprise", () => {
+describe("exportClientApplicationFormToYAML", () => {
   // it("should return undefined when data is undefined", () => {
-  //   const result = exportClientApplicationFormToEnterprise(mockContext, undefined)
+  //   const result = exportClientApplicationFormToYAML(mockContext, undefined)
 
   //   expect(result).toBeUndefined()
   // })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContextToYAML, fullClientApplicationForm)
+  it("should export all fields to YAML", () => {
+    const result = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
 
-    expect(result).toEqual(fullClientApplicationFormEnterprise)
+    expect(result).toEqual(fullClientApplicationFormYAML)
   })
 
   it("should export minimal", () => {
-    const result = exportClientApplicationFormToEnterprise(mockContextToYAML, minimalClientApplicationForm)
+    const result = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
 
-    expect(result).toEqual(minimalClientApplicationFormEnterprise)
+    expect(result).toEqual(minimalClientApplicationFormYAML)
   })
 })

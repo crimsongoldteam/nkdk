@@ -1,4 +1,4 @@
-import { TrackBarField, TrackBarFieldPartialEnterprise } from "~/metadata/forms/elements/trackBarField/types"
+import { TrackBarField, TrackBarFieldPartialYAML } from "~/metadata/forms/elements/trackBarField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullTrackBarField: Required<TrackBarField> = {
@@ -93,7 +93,7 @@ export const fullTrackBarField: Required<TrackBarField> = {
   width: 200,
 }
 
-export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise = {
+export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -156,12 +156,12 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
   Таблица: "Таблица",
 }
 
-// Удаляем Заголовок, так как exportFormFieldPropsToEnterprise не экспортирует его
-delete (fullTrackBarFieldPartialEnterprise as any).Заголовок
+// Удаляем Заголовок, так как exportFormFieldPropsToYAML не экспортирует его
+delete (fullTrackBarFieldPartialYAML as any).Заголовок
 
 export const minimalTrackBarField: TrackBarField = {
   itemType: CollectionFormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
 }
 
-export const minimalTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise = {}
+export const minimalTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {}

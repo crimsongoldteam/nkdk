@@ -1,23 +1,23 @@
 // #region SystemEnumerations
 
-export const DynamicListSearchStringViewModeToEnterprise = {
+export const DynamicListSearchStringViewModeToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
   ShowOnUsingFullTextSearch: "ОтображатьПриИспользованииПолнотекстовогоПоиска",
 } as const
 
-export const DynamicListSearchStringViewModeFromEnterprise = {
+export const DynamicListSearchStringViewModeFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
   ОтображатьПриИспользованииПолнотекстовогоПоиска: "ShowOnUsingFullTextSearch",
 } as const
 
-export type DynamicListSearchStringViewMode = keyof typeof DynamicListSearchStringViewModeToEnterprise
-export type DynamicListSearchStringViewModeEnterprise = keyof typeof DynamicListSearchStringViewModeFromEnterprise
+export type DynamicListSearchStringViewMode = keyof typeof DynamicListSearchStringViewModeToYAML
+export type DynamicListSearchStringViewModeYAML = keyof typeof DynamicListSearchStringViewModeFromYAML
 
-export const XDTOFacetTypeToEnterprise = {
+export const XDTOFacetTypeToYAML = {
   Length: "Длина",
   MaxInclusive: "МаксВключающее",
   MaxLength: "МаксДлина",
@@ -32,7 +32,7 @@ export const XDTOFacetTypeToEnterprise = {
   FractionDigits: "РазрядовДробнойЧасти",
 } as const
 
-export const XDTOFacetTypeFromEnterprise = {
+export const XDTOFacetTypeFromYAML = {
   Длина: "Length",
   МаксВключающее: "MaxInclusive",
   МаксДлина: "MaxLength",
@@ -47,40 +47,40 @@ export const XDTOFacetTypeFromEnterprise = {
   РазрядовДробнойЧасти: "FractionDigits",
 } as const
 
-export type XDTOFacetType = keyof typeof XDTOFacetTypeToEnterprise
-export type XDTOFacetTypeEnterprise = keyof typeof XDTOFacetTypeFromEnterprise
+export type XDTOFacetType = keyof typeof XDTOFacetTypeToYAML
+export type XDTOFacetTypeYAML = keyof typeof XDTOFacetTypeFromYAML
 
-export const XMLFormToEnterprise = {
+export const XMLFormToYAML = {
   Attribute: "Атрибут",
   Text: "Текст",
   Element: "Элемент",
 } as const
 
-export const XMLFormFromEnterprise = {
+export const XMLFormFromYAML = {
   Атрибут: "Attribute",
   Текст: "Text",
   Элемент: "Element",
 } as const
 
-export type XMLForm = keyof typeof XMLFormToEnterprise
-export type XMLFormEnterprise = keyof typeof XMLFormFromEnterprise
+export type XMLForm = keyof typeof XMLFormToYAML
+export type XMLFormYAML = keyof typeof XMLFormFromYAML
 
-export const WSParameterDirectionToEnterprise = {
+export const WSParameterDirectionToYAML = {
   In: "Входной",
   InOut: "ВходнойВыходной",
   Out: "Выходной",
 } as const
 
-export const WSParameterDirectionFromEnterprise = {
+export const WSParameterDirectionFromYAML = {
   Входной: "In",
   ВходнойВыходной: "InOut",
   Выходной: "Out",
 } as const
 
-export type WSParameterDirection = keyof typeof WSParameterDirectionToEnterprise
-export type WSParameterDirectionEnterprise = keyof typeof WSParameterDirectionFromEnterprise
+export type WSParameterDirection = keyof typeof WSParameterDirectionToYAML
+export type WSParameterDirectionYAML = keyof typeof WSParameterDirectionFromYAML
 
-export const DOMBuilderActionToEnterprise = {
+export const DOMBuilderActionToYAML = {
   InsertBefore: "ВставитьПеред",
   InsertAfter: "ВставитьПосле",
   AppendAsChildren: "ДобавитьКакДочерние",
@@ -88,7 +88,7 @@ export const DOMBuilderActionToEnterprise = {
   ReplaceChildren: "ЗаменитьДочерние",
 } as const
 
-export const DOMBuilderActionFromEnterprise = {
+export const DOMBuilderActionFromYAML = {
   ВставитьПеред: "InsertBefore",
   ВставитьПосле: "InsertAfter",
   ДобавитьКакДочерние: "AppendAsChildren",
@@ -96,10 +96,10 @@ export const DOMBuilderActionFromEnterprise = {
   ЗаменитьДочерние: "ReplaceChildren",
 } as const
 
-export type DOMBuilderAction = keyof typeof DOMBuilderActionToEnterprise
-export type DOMBuilderActionEnterprise = keyof typeof DOMBuilderActionFromEnterprise
+export type DOMBuilderAction = keyof typeof DOMBuilderActionToYAML
+export type DOMBuilderActionYAML = keyof typeof DOMBuilderActionFromYAML
 
-export const DOMDocumentPositionToEnterprise = {
+export const DOMDocumentPositionToYAML = {
   ImplementationSpecific: "ЗависитОтРеализации",
   Disconnected: "Отсоединен",
   Preceding: "Предшествует",
@@ -108,7 +108,7 @@ export const DOMDocumentPositionToEnterprise = {
   ContainedBy: "Содержится",
 } as const
 
-export const DOMDocumentPositionFromEnterprise = {
+export const DOMDocumentPositionFromYAML = {
   ЗависитОтРеализации: "ImplementationSpecific",
   Отсоединен: "Disconnected",
   Предшествует: "Preceding",
@@ -117,10 +117,10 @@ export const DOMDocumentPositionFromEnterprise = {
   Содержится: "ContainedBy",
 } as const
 
-export type DOMDocumentPosition = keyof typeof DOMDocumentPositionToEnterprise
-export type DOMDocumentPositionEnterprise = keyof typeof DOMDocumentPositionFromEnterprise
+export type DOMDocumentPosition = keyof typeof DOMDocumentPositionToYAML
+export type DOMDocumentPositionYAML = keyof typeof DOMDocumentPositionFromYAML
 
-export const DOMNodeFilterParametersToEnterprise = {
+export const DOMNodeFilterParametersToYAML = {
   ShowAttribute: "ОтображатьАтрибут",
   ShowAll: "ОтображатьВсе",
   ShowDocument: "ОтображатьДокумент",
@@ -136,7 +136,7 @@ export const DOMNodeFilterParametersToEnterprise = {
   ShowElement: "ОтображатьЭлемент",
 } as const
 
-export const DOMNodeFilterParametersFromEnterprise = {
+export const DOMNodeFilterParametersFromYAML = {
   ОтображатьАтрибут: "ShowAttribute",
   ОтображатьВсе: "ShowAll",
   ОтображатьДокумент: "ShowDocument",
@@ -152,10 +152,10 @@ export const DOMNodeFilterParametersFromEnterprise = {
   ОтображатьЭлемент: "ShowElement",
 } as const
 
-export type DOMNodeFilterParameters = keyof typeof DOMNodeFilterParametersToEnterprise
-export type DOMNodeFilterParametersEnterprise = keyof typeof DOMNodeFilterParametersFromEnterprise
+export type DOMNodeFilterParameters = keyof typeof DOMNodeFilterParametersToYAML
+export type DOMNodeFilterParametersYAML = keyof typeof DOMNodeFilterParametersFromYAML
 
-export const DOMNodeTypeToEnterprise = {
+export const DOMNodeTypeToYAML = {
   Attribute: "Атрибут",
   Document: "Документ",
   ProcessingInstruction: "ИнструкцияОбработки",
@@ -171,7 +171,7 @@ export const DOMNodeTypeToEnterprise = {
   Element: "Элемент",
 } as const
 
-export const DOMNodeTypeFromEnterprise = {
+export const DOMNodeTypeFromYAML = {
   Атрибут: "Attribute",
   Документ: "Document",
   ИнструкцияОбработки: "ProcessingInstruction",
@@ -187,10 +187,10 @@ export const DOMNodeTypeFromEnterprise = {
   Элемент: "Element",
 } as const
 
-export type DOMNodeType = keyof typeof DOMNodeTypeToEnterprise
-export type DOMNodeTypeEnterprise = keyof typeof DOMNodeTypeFromEnterprise
+export type DOMNodeType = keyof typeof DOMNodeTypeToYAML
+export type DOMNodeTypeYAML = keyof typeof DOMNodeTypeFromYAML
 
-export const DOMXPathResultTypeToEnterprise = {
+export const DOMXPathResultTypeToYAML = {
   Boolean: "Булево",
   Any: "Любой",
   AnyUnorderedNode: "ЛюбойНеупорядоченныйУзел",
@@ -203,7 +203,7 @@ export const DOMXPathResultTypeToEnterprise = {
   Number: "Число",
 } as const
 
-export const DOMXPathResultTypeFromEnterprise = {
+export const DOMXPathResultTypeFromYAML = {
   Булево: "Boolean",
   Любой: "Any",
   ЛюбойНеупорядоченныйУзел: "AnyUnorderedNode",
@@ -216,10 +216,10 @@ export const DOMXPathResultTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export type DOMXPathResultType = keyof typeof DOMXPathResultTypeToEnterprise
-export type DOMXPathResultTypeEnterprise = keyof typeof DOMXPathResultTypeFromEnterprise
+export type DOMXPathResultType = keyof typeof DOMXPathResultTypeToYAML
+export type DOMXPathResultTypeYAML = keyof typeof DOMXPathResultTypeFromYAML
 
-export const HTMLContentCategoryToEnterprise = {
+export const HTMLContentCategoryToYAML = {
   AppletTags: "AppletТеги",
   AreaTags: "AreaТеги",
   EmbedTags: "EmbedТеги",
@@ -237,7 +237,7 @@ export const HTMLContentCategoryToEnterprise = {
   EventsHandlers: "ОбработчикиСобытий",
 } as const
 
-export const HTMLContentCategoryFromEnterprise = {
+export const HTMLContentCategoryFromYAML = {
   AppletТеги: "AppletTags",
   AreaТеги: "AreaTags",
   EmbedТеги: "EmbedTags",
@@ -255,26 +255,25 @@ export const HTMLContentCategoryFromEnterprise = {
   ОбработчикиСобытий: "EventsHandlers",
 } as const
 
-export type HTMLContentCategory = keyof typeof HTMLContentCategoryToEnterprise
-export type HTMLContentCategoryEnterprise = keyof typeof HTMLContentCategoryFromEnterprise
+export type HTMLContentCategory = keyof typeof HTMLContentCategoryToYAML
+export type HTMLContentCategoryYAML = keyof typeof HTMLContentCategoryFromYAML
 
-export const DataCompositionAccountingBalanceTypeToEnterprise = {
+export const DataCompositionAccountingBalanceTypeToYAML = {
   Debit: "Дебет",
   Credit: "Кредит",
   None: "Нет",
 } as const
 
-export const DataCompositionAccountingBalanceTypeFromEnterprise = {
+export const DataCompositionAccountingBalanceTypeFromYAML = {
   Дебет: "Debit",
   Кредит: "Credit",
   Нет: "None",
 } as const
 
-export type DataCompositionAccountingBalanceType = keyof typeof DataCompositionAccountingBalanceTypeToEnterprise
-export type DataCompositionAccountingBalanceTypeEnterprise =
-  keyof typeof DataCompositionAccountingBalanceTypeFromEnterprise
+export type DataCompositionAccountingBalanceType = keyof typeof DataCompositionAccountingBalanceTypeToYAML
+export type DataCompositionAccountingBalanceTypeYAML = keyof typeof DataCompositionAccountingBalanceTypeFromYAML
 
-export const DataCompositionAreaTemplateTypeToEnterprise = {
+export const DataCompositionAreaTemplateTypeToYAML = {
   Header: "Заголовок",
   HierarchicalHeader: "ЗаголовокИерархии",
   OverallHeader: "ОбщийИтогЗаголовок",
@@ -283,7 +282,7 @@ export const DataCompositionAreaTemplateTypeToEnterprise = {
   HierarchicalFooter: "ПодвалИерархии",
 } as const
 
-export const DataCompositionAreaTemplateTypeFromEnterprise = {
+export const DataCompositionAreaTemplateTypeFromYAML = {
   Заголовок: "Header",
   ЗаголовокИерархии: "HierarchicalHeader",
   ОбщийИтогЗаголовок: "OverallHeader",
@@ -292,42 +291,42 @@ export const DataCompositionAreaTemplateTypeFromEnterprise = {
   ПодвалИерархии: "HierarchicalFooter",
 } as const
 
-export type DataCompositionAreaTemplateType = keyof typeof DataCompositionAreaTemplateTypeToEnterprise
-export type DataCompositionAreaTemplateTypeEnterprise = keyof typeof DataCompositionAreaTemplateTypeFromEnterprise
+export type DataCompositionAreaTemplateType = keyof typeof DataCompositionAreaTemplateTypeToYAML
+export type DataCompositionAreaTemplateTypeYAML = keyof typeof DataCompositionAreaTemplateTypeFromYAML
 
-export const DataCompositionAttributesPlacementToEnterprise = {
+export const DataCompositionAttributesPlacementToYAML = {
   Together: "Вместе",
   WithOwnerField: "ВместеСВладельцем",
   SpecialPosition: "ВСпециальнойПозиции",
   Separately: "Отдельно",
 } as const
 
-export const DataCompositionAttributesPlacementFromEnterprise = {
+export const DataCompositionAttributesPlacementFromYAML = {
   Вместе: "Together",
   ВместеСВладельцем: "WithOwnerField",
   ВСпециальнойПозиции: "SpecialPosition",
   Отдельно: "Separately",
 } as const
 
-export type DataCompositionAttributesPlacement = keyof typeof DataCompositionAttributesPlacementToEnterprise
-export type DataCompositionAttributesPlacementEnterprise = keyof typeof DataCompositionAttributesPlacementFromEnterprise
+export type DataCompositionAttributesPlacement = keyof typeof DataCompositionAttributesPlacementToYAML
+export type DataCompositionAttributesPlacementYAML = keyof typeof DataCompositionAttributesPlacementFromYAML
 
-export const DataCompositionBalanceTypeToEnterprise = {
+export const DataCompositionBalanceTypeToYAML = {
   ClosingBalance: "КонечныйОстаток",
   OpeningBalance: "НачальныйОстаток",
   None: "Нет",
 } as const
 
-export const DataCompositionBalanceTypeFromEnterprise = {
+export const DataCompositionBalanceTypeFromYAML = {
   КонечныйОстаток: "ClosingBalance",
   НачальныйОстаток: "OpeningBalance",
   Нет: "None",
 } as const
 
-export type DataCompositionBalanceType = keyof typeof DataCompositionBalanceTypeToEnterprise
-export type DataCompositionBalanceTypeEnterprise = keyof typeof DataCompositionBalanceTypeFromEnterprise
+export type DataCompositionBalanceType = keyof typeof DataCompositionBalanceTypeToYAML
+export type DataCompositionBalanceTypeYAML = keyof typeof DataCompositionBalanceTypeFromYAML
 
-export const DataCompositionChartLegendPlacementToEnterprise = {
+export const DataCompositionChartLegendPlacementToYAML = {
   Top: "Верх",
   Left: "Лево",
   None: "Нет",
@@ -335,7 +334,7 @@ export const DataCompositionChartLegendPlacementToEnterprise = {
   Right: "Право",
 } as const
 
-export const DataCompositionChartLegendPlacementFromEnterprise = {
+export const DataCompositionChartLegendPlacementFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Нет: "None",
@@ -343,11 +342,10 @@ export const DataCompositionChartLegendPlacementFromEnterprise = {
   Право: "Right",
 } as const
 
-export type DataCompositionChartLegendPlacement = keyof typeof DataCompositionChartLegendPlacementToEnterprise
-export type DataCompositionChartLegendPlacementEnterprise =
-  keyof typeof DataCompositionChartLegendPlacementFromEnterprise
+export type DataCompositionChartLegendPlacement = keyof typeof DataCompositionChartLegendPlacementToYAML
+export type DataCompositionChartLegendPlacementYAML = keyof typeof DataCompositionChartLegendPlacementFromYAML
 
-export const DataCompositionComparisonTypeToEnterprise = {
+export const DataCompositionComparisonTypeToYAML = {
   Greater: "Больше",
   GreaterOrEqual: "БольшеИлиРавно",
   InHierarchy: "ВИерархии",
@@ -370,7 +368,7 @@ export const DataCompositionComparisonTypeToEnterprise = {
   Contains: "Содержит",
 } as const
 
-export const DataCompositionComparisonTypeFromEnterprise = {
+export const DataCompositionComparisonTypeFromYAML = {
   Больше: "Greater",
   БольшеИлиРавно: "GreaterOrEqual",
   ВИерархии: "InHierarchy",
@@ -393,37 +391,36 @@ export const DataCompositionComparisonTypeFromEnterprise = {
   Содержит: "Contains",
 } as const
 
-export type DataCompositionComparisonType = keyof typeof DataCompositionComparisonTypeToEnterprise
-export type DataCompositionComparisonTypeEnterprise = keyof typeof DataCompositionComparisonTypeFromEnterprise
+export type DataCompositionComparisonType = keyof typeof DataCompositionComparisonTypeToYAML
+export type DataCompositionComparisonTypeYAML = keyof typeof DataCompositionComparisonTypeFromYAML
 
-export const DataCompositionConditionalAppearanceUseToEnterprise = {
+export const DataCompositionConditionalAppearanceUseToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const DataCompositionConditionalAppearanceUseFromEnterprise = {
+export const DataCompositionConditionalAppearanceUseFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type DataCompositionConditionalAppearanceUse = keyof typeof DataCompositionConditionalAppearanceUseToEnterprise
-export type DataCompositionConditionalAppearanceUseEnterprise =
-  keyof typeof DataCompositionConditionalAppearanceUseFromEnterprise
+export type DataCompositionConditionalAppearanceUse = keyof typeof DataCompositionConditionalAppearanceUseToYAML
+export type DataCompositionConditionalAppearanceUseYAML = keyof typeof DataCompositionConditionalAppearanceUseFromYAML
 
-export const DataCompositionDataSetsLinkTypeToEnterprise = {
+export const DataCompositionDataSetsLinkTypeToYAML = {
   Outer: "Внешняя",
   Inner: "Внутренняя",
 } as const
 
-export const DataCompositionDataSetsLinkTypeFromEnterprise = {
+export const DataCompositionDataSetsLinkTypeFromYAML = {
   Внешняя: "Outer",
   Внутренняя: "Inner",
 } as const
 
-export type DataCompositionDataSetsLinkType = keyof typeof DataCompositionDataSetsLinkTypeToEnterprise
-export type DataCompositionDataSetsLinkTypeEnterprise = keyof typeof DataCompositionDataSetsLinkTypeFromEnterprise
+export type DataCompositionDataSetsLinkType = keyof typeof DataCompositionDataSetsLinkTypeToYAML
+export type DataCompositionDataSetsLinkTypeYAML = keyof typeof DataCompositionDataSetsLinkTypeFromYAML
 
-export const DataCompositionDetailsProcessingActionToEnterprise = {
+export const DataCompositionDetailsProcessingActionToYAML = {
   None: "Нет",
   OpenValue: "ОткрытьЗначение",
   Filter: "Отфильтровать",
@@ -433,7 +430,7 @@ export const DataCompositionDetailsProcessingActionToEnterprise = {
   Order: "Упорядочить",
 } as const
 
-export const DataCompositionDetailsProcessingActionFromEnterprise = {
+export const DataCompositionDetailsProcessingActionFromYAML = {
   Нет: "None",
   ОткрытьЗначение: "OpenValue",
   Отфильтровать: "Filter",
@@ -443,11 +440,10 @@ export const DataCompositionDetailsProcessingActionFromEnterprise = {
   Упорядочить: "Order",
 } as const
 
-export type DataCompositionDetailsProcessingAction = keyof typeof DataCompositionDetailsProcessingActionToEnterprise
-export type DataCompositionDetailsProcessingActionEnterprise =
-  keyof typeof DataCompositionDetailsProcessingActionFromEnterprise
+export type DataCompositionDetailsProcessingAction = keyof typeof DataCompositionDetailsProcessingActionToYAML
+export type DataCompositionDetailsProcessingActionYAML = keyof typeof DataCompositionDetailsProcessingActionFromYAML
 
-export const DataCompositionFieldPlacementToEnterprise = {
+export const DataCompositionFieldPlacementToYAML = {
   Auto: "Авто",
   Vertically: "Вертикально",
   Together: "Вместе",
@@ -455,7 +451,7 @@ export const DataCompositionFieldPlacementToEnterprise = {
   SpecialColumn: "ОтдельнаяКолонка",
 } as const
 
-export const DataCompositionFieldPlacementFromEnterprise = {
+export const DataCompositionFieldPlacementFromYAML = {
   Авто: "Auto",
   Вертикально: "Vertically",
   Вместе: "Together",
@@ -463,159 +459,156 @@ export const DataCompositionFieldPlacementFromEnterprise = {
   ОтдельнаяКолонка: "SpecialColumn",
 } as const
 
-export type DataCompositionFieldPlacement = keyof typeof DataCompositionFieldPlacementToEnterprise
-export type DataCompositionFieldPlacementEnterprise = keyof typeof DataCompositionFieldPlacementFromEnterprise
+export type DataCompositionFieldPlacement = keyof typeof DataCompositionFieldPlacementToYAML
+export type DataCompositionFieldPlacementYAML = keyof typeof DataCompositionFieldPlacementFromYAML
 
-export const DataCompositionFieldsTitleTypeToEnterprise = {
+export const DataCompositionFieldsTitleTypeToYAML = {
   Auto: "Авто",
   Short: "Краткий",
   Full: "Полный",
 } as const
 
-export const DataCompositionFieldsTitleTypeFromEnterprise = {
+export const DataCompositionFieldsTitleTypeFromYAML = {
   Авто: "Auto",
   Краткий: "Short",
   Полный: "Full",
 } as const
 
-export type DataCompositionFieldsTitleType = keyof typeof DataCompositionFieldsTitleTypeToEnterprise
-export type DataCompositionFieldsTitleTypeEnterprise = keyof typeof DataCompositionFieldsTitleTypeFromEnterprise
+export type DataCompositionFieldsTitleType = keyof typeof DataCompositionFieldsTitleTypeToYAML
+export type DataCompositionFieldsTitleTypeYAML = keyof typeof DataCompositionFieldsTitleTypeFromYAML
 
-export const DataCompositionFilterApplicationTypeToEnterprise = {
+export const DataCompositionFilterApplicationTypeToYAML = {
   Hierarchy: "Иерархия",
   HierarchyOnly: "ТолькоИерархия",
   Items: "Элементы",
 } as const
 
-export const DataCompositionFilterApplicationTypeFromEnterprise = {
+export const DataCompositionFilterApplicationTypeFromYAML = {
   Иерархия: "Hierarchy",
   ТолькоИерархия: "HierarchyOnly",
   Элементы: "Items",
 } as const
 
-export type DataCompositionFilterApplicationType = keyof typeof DataCompositionFilterApplicationTypeToEnterprise
-export type DataCompositionFilterApplicationTypeEnterprise =
-  keyof typeof DataCompositionFilterApplicationTypeFromEnterprise
+export type DataCompositionFilterApplicationType = keyof typeof DataCompositionFilterApplicationTypeToYAML
+export type DataCompositionFilterApplicationTypeYAML = keyof typeof DataCompositionFilterApplicationTypeFromYAML
 
-export const DataCompositionFilterItemsGroupTypeToEnterprise = {
+export const DataCompositionFilterItemsGroupTypeToYAML = {
   AndGroup: "ГруппаИ",
   OrGroup: "ГруппаИли",
   NotGroup: "ГруппаНе",
 } as const
 
-export const DataCompositionFilterItemsGroupTypeFromEnterprise = {
+export const DataCompositionFilterItemsGroupTypeFromYAML = {
   ГруппаИ: "AndGroup",
   ГруппаИли: "OrGroup",
   ГруппаНе: "NotGroup",
 } as const
 
-export type DataCompositionFilterItemsGroupType = keyof typeof DataCompositionFilterItemsGroupTypeToEnterprise
-export type DataCompositionFilterItemsGroupTypeEnterprise =
-  keyof typeof DataCompositionFilterItemsGroupTypeFromEnterprise
+export type DataCompositionFilterItemsGroupType = keyof typeof DataCompositionFilterItemsGroupTypeToYAML
+export type DataCompositionFilterItemsGroupTypeYAML = keyof typeof DataCompositionFilterItemsGroupTypeFromYAML
 
-export const DataCompositionFixationToEnterprise = {
+export const DataCompositionFixationToYAML = {
   Auto: "Авто",
   DontUse: "НеИспользовать",
 } as const
 
-export const DataCompositionFixationFromEnterprise = {
+export const DataCompositionFixationFromYAML = {
   Авто: "Auto",
   НеИспользовать: "DontUse",
 } as const
 
-export type DataCompositionFixation = keyof typeof DataCompositionFixationToEnterprise
-export type DataCompositionFixationEnterprise = keyof typeof DataCompositionFixationFromEnterprise
+export type DataCompositionFixation = keyof typeof DataCompositionFixationToYAML
+export type DataCompositionFixationYAML = keyof typeof DataCompositionFixationFromYAML
 
-export const DataCompositionGroupFieldsPlacementToEnterprise = {
+export const DataCompositionGroupFieldsPlacementToYAML = {
   Together: "Вместе",
   Separately: "Отдельно",
   SeparatelyAndInTotalsOnly: "ОтдельноИТолькоВИтогах",
 } as const
 
-export const DataCompositionGroupFieldsPlacementFromEnterprise = {
+export const DataCompositionGroupFieldsPlacementFromYAML = {
   Вместе: "Together",
   Отдельно: "Separately",
   ОтдельноИТолькоВИтогах: "SeparatelyAndInTotalsOnly",
 } as const
 
-export type DataCompositionGroupFieldsPlacement = keyof typeof DataCompositionGroupFieldsPlacementToEnterprise
-export type DataCompositionGroupFieldsPlacementEnterprise =
-  keyof typeof DataCompositionGroupFieldsPlacementFromEnterprise
+export type DataCompositionGroupFieldsPlacement = keyof typeof DataCompositionGroupFieldsPlacementToYAML
+export type DataCompositionGroupFieldsPlacementYAML = keyof typeof DataCompositionGroupFieldsPlacementFromYAML
 
-export const DataCompositionGroupPlacementToEnterprise = {
+export const DataCompositionGroupPlacementToYAML = {
   End: "Конец",
   Begin: "Начало",
   BeginAndEnd: "НачалоИКонец",
   None: "Нет",
 } as const
 
-export const DataCompositionGroupPlacementFromEnterprise = {
+export const DataCompositionGroupPlacementFromYAML = {
   Конец: "End",
   Начало: "Begin",
   НачалоИКонец: "BeginAndEnd",
   Нет: "None",
 } as const
 
-export type DataCompositionGroupPlacement = keyof typeof DataCompositionGroupPlacementToEnterprise
-export type DataCompositionGroupPlacementEnterprise = keyof typeof DataCompositionGroupPlacementFromEnterprise
+export type DataCompositionGroupPlacement = keyof typeof DataCompositionGroupPlacementToYAML
+export type DataCompositionGroupPlacementYAML = keyof typeof DataCompositionGroupPlacementFromYAML
 
-export const DataCompositionGroupTemplateTypeToEnterprise = {
+export const DataCompositionGroupTemplateTypeToYAML = {
   Auto: "Авто",
   Vertical: "Вертикальный",
   Horizontal: "Горизонтальный",
 } as const
 
-export const DataCompositionGroupTemplateTypeFromEnterprise = {
+export const DataCompositionGroupTemplateTypeFromYAML = {
   Авто: "Auto",
   Вертикальный: "Vertical",
   Горизонтальный: "Horizontal",
 } as const
 
-export type DataCompositionGroupTemplateType = keyof typeof DataCompositionGroupTemplateTypeToEnterprise
-export type DataCompositionGroupTemplateTypeEnterprise = keyof typeof DataCompositionGroupTemplateTypeFromEnterprise
+export type DataCompositionGroupTemplateType = keyof typeof DataCompositionGroupTemplateTypeToYAML
+export type DataCompositionGroupTemplateTypeYAML = keyof typeof DataCompositionGroupTemplateTypeFromYAML
 
-export const DataCompositionGroupTypeToEnterprise = {
+export const DataCompositionGroupTypeToYAML = {
   Hierarchy: "Иерархия",
   HierarchyOnly: "ТолькоИерархия",
   Items: "Элементы",
 } as const
 
-export const DataCompositionGroupTypeFromEnterprise = {
+export const DataCompositionGroupTypeFromYAML = {
   Иерархия: "Hierarchy",
   ТолькоИерархия: "HierarchyOnly",
   Элементы: "Items",
 } as const
 
-export type DataCompositionGroupType = keyof typeof DataCompositionGroupTypeToEnterprise
-export type DataCompositionGroupTypeEnterprise = keyof typeof DataCompositionGroupTypeFromEnterprise
+export type DataCompositionGroupType = keyof typeof DataCompositionGroupTypeToYAML
+export type DataCompositionGroupTypeYAML = keyof typeof DataCompositionGroupTypeFromYAML
 
-export const DataCompositionGroupUseVariantToEnterprise = {
+export const DataCompositionGroupUseVariantToYAML = {
   Auto: "Авто",
   AdditionalInformation: "ДополнительнаяИнформация",
 } as const
 
-export const DataCompositionGroupUseVariantFromEnterprise = {
+export const DataCompositionGroupUseVariantFromYAML = {
   Авто: "Auto",
   ДополнительнаяИнформация: "AdditionalInformation",
 } as const
 
-export type DataCompositionGroupUseVariant = keyof typeof DataCompositionGroupUseVariantToEnterprise
-export type DataCompositionGroupUseVariantEnterprise = keyof typeof DataCompositionGroupUseVariantFromEnterprise
+export type DataCompositionGroupUseVariant = keyof typeof DataCompositionGroupUseVariantToYAML
+export type DataCompositionGroupUseVariantYAML = keyof typeof DataCompositionGroupUseVariantFromYAML
 
-export const DataCompositionParameterUseToEnterprise = {
+export const DataCompositionParameterUseToYAML = {
   Auto: "Авто",
   Always: "Всегда",
 } as const
 
-export const DataCompositionParameterUseFromEnterprise = {
+export const DataCompositionParameterUseFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
 } as const
 
-export type DataCompositionParameterUse = keyof typeof DataCompositionParameterUseToEnterprise
-export type DataCompositionParameterUseEnterprise = keyof typeof DataCompositionParameterUseFromEnterprise
+export type DataCompositionParameterUse = keyof typeof DataCompositionParameterUseToYAML
+export type DataCompositionParameterUseYAML = keyof typeof DataCompositionParameterUseFromYAML
 
-export const DataCompositionPeriodAdditionTypeToEnterprise = {
+export const DataCompositionPeriodAdditionTypeToYAML = {
   None: "БезДополнения",
   Year: "Год",
   YearSinceBeginOfPeriod: "ГодОтНачалаПериода",
@@ -641,7 +634,7 @@ export const DataCompositionPeriodAdditionTypeToEnterprise = {
   HourSinceBeginOfPeriod: "ЧасОтНачалаПериода",
 } as const
 
-export const DataCompositionPeriodAdditionTypeFromEnterprise = {
+export const DataCompositionPeriodAdditionTypeFromYAML = {
   БезДополнения: "None",
   Год: "Year",
   ГодОтНачалаПериода: "YearSinceBeginOfPeriod",
@@ -667,217 +660,212 @@ export const DataCompositionPeriodAdditionTypeFromEnterprise = {
   ЧасОтНачалаПериода: "HourSinceBeginOfPeriod",
 } as const
 
-export type DataCompositionPeriodAdditionType = keyof typeof DataCompositionPeriodAdditionTypeToEnterprise
-export type DataCompositionPeriodAdditionTypeEnterprise = keyof typeof DataCompositionPeriodAdditionTypeFromEnterprise
+export type DataCompositionPeriodAdditionType = keyof typeof DataCompositionPeriodAdditionTypeToYAML
+export type DataCompositionPeriodAdditionTypeYAML = keyof typeof DataCompositionPeriodAdditionTypeFromYAML
 
-export const DataCompositionPeriodTypeToEnterprise = {
+export const DataCompositionPeriodTypeToYAML = {
   Additional: "Дополнительный",
   Main: "Основной",
 } as const
 
-export const DataCompositionPeriodTypeFromEnterprise = {
+export const DataCompositionPeriodTypeFromYAML = {
   Дополнительный: "Additional",
   Основной: "Main",
 } as const
 
-export type DataCompositionPeriodType = keyof typeof DataCompositionPeriodTypeToEnterprise
-export type DataCompositionPeriodTypeEnterprise = keyof typeof DataCompositionPeriodTypeFromEnterprise
+export type DataCompositionPeriodType = keyof typeof DataCompositionPeriodTypeToYAML
+export type DataCompositionPeriodTypeYAML = keyof typeof DataCompositionPeriodTypeFromYAML
 
-export const DataCompositionPictureOutputTypeToEnterprise = {
+export const DataCompositionPictureOutputTypeToYAML = {
   Auto: "Авто",
   OutputByValue: "ВыводитьПоЗначению",
   OutputByRef: "ВыводитьПоСсылке",
   DontOutput: "НеВыводить",
 } as const
 
-export const DataCompositionPictureOutputTypeFromEnterprise = {
+export const DataCompositionPictureOutputTypeFromYAML = {
   Авто: "Auto",
   ВыводитьПоЗначению: "OutputByValue",
   ВыводитьПоСсылке: "OutputByRef",
   НеВыводить: "DontOutput",
 } as const
 
-export type DataCompositionPictureOutputType = keyof typeof DataCompositionPictureOutputTypeToEnterprise
-export type DataCompositionPictureOutputTypeEnterprise = keyof typeof DataCompositionPictureOutputTypeFromEnterprise
+export type DataCompositionPictureOutputType = keyof typeof DataCompositionPictureOutputTypeToYAML
+export type DataCompositionPictureOutputTypeYAML = keyof typeof DataCompositionPictureOutputTypeFromYAML
 
-export const DataCompositionResourcesAutoPositionToEnterprise = {
+export const DataCompositionResourcesAutoPositionToYAML = {
   DontUse: "НеИспользовать",
   AfterAllFields: "ПослеВсехПолей",
 } as const
 
-export const DataCompositionResourcesAutoPositionFromEnterprise = {
+export const DataCompositionResourcesAutoPositionFromYAML = {
   НеИспользовать: "DontUse",
   ПослеВсехПолей: "AfterAllFields",
 } as const
 
-export type DataCompositionResourcesAutoPosition = keyof typeof DataCompositionResourcesAutoPositionToEnterprise
-export type DataCompositionResourcesAutoPositionEnterprise =
-  keyof typeof DataCompositionResourcesAutoPositionFromEnterprise
+export type DataCompositionResourcesAutoPosition = keyof typeof DataCompositionResourcesAutoPositionToYAML
+export type DataCompositionResourcesAutoPositionYAML = keyof typeof DataCompositionResourcesAutoPositionFromYAML
 
-export const DataCompositionResourcesPlacementToEnterprise = {
+export const DataCompositionResourcesPlacementToYAML = {
   Vertically: "Вертикально",
   Horizontally: "Горизонтально",
 } as const
 
-export const DataCompositionResourcesPlacementFromEnterprise = {
+export const DataCompositionResourcesPlacementFromYAML = {
   Вертикально: "Vertically",
   Горизонтально: "Horizontally",
 } as const
 
-export type DataCompositionResourcesPlacement = keyof typeof DataCompositionResourcesPlacementToEnterprise
-export type DataCompositionResourcesPlacementEnterprise = keyof typeof DataCompositionResourcesPlacementFromEnterprise
+export type DataCompositionResourcesPlacement = keyof typeof DataCompositionResourcesPlacementToYAML
+export type DataCompositionResourcesPlacementYAML = keyof typeof DataCompositionResourcesPlacementFromYAML
 
-export const DataCompositionResourcesPlacementInChartToEnterprise = {
+export const DataCompositionResourcesPlacementInChartToYAML = {
   Auto: "Авто",
   Series: "Серии",
   Points: "Точки",
 } as const
 
-export const DataCompositionResourcesPlacementInChartFromEnterprise = {
+export const DataCompositionResourcesPlacementInChartFromYAML = {
   Авто: "Auto",
   Серии: "Series",
   Точки: "Points",
 } as const
 
-export type DataCompositionResourcesPlacementInChart = keyof typeof DataCompositionResourcesPlacementInChartToEnterprise
-export type DataCompositionResourcesPlacementInChartEnterprise =
-  keyof typeof DataCompositionResourcesPlacementInChartFromEnterprise
+export type DataCompositionResourcesPlacementInChart = keyof typeof DataCompositionResourcesPlacementInChartToYAML
+export type DataCompositionResourcesPlacementInChartYAML = keyof typeof DataCompositionResourcesPlacementInChartFromYAML
 
-export const DataCompositionResultItemTypeToEnterprise = {
+export const DataCompositionResultItemTypeToYAML = {
   End: "Конец",
   Begin: "Начало",
   BeginAndEnd: "НачалоИКонец",
 } as const
 
-export const DataCompositionResultItemTypeFromEnterprise = {
+export const DataCompositionResultItemTypeFromYAML = {
   Конец: "End",
   Начало: "Begin",
   НачалоИКонец: "BeginAndEnd",
 } as const
 
-export type DataCompositionResultItemType = keyof typeof DataCompositionResultItemTypeToEnterprise
-export type DataCompositionResultItemTypeEnterprise = keyof typeof DataCompositionResultItemTypeFromEnterprise
+export type DataCompositionResultItemType = keyof typeof DataCompositionResultItemTypeToYAML
+export type DataCompositionResultItemTypeYAML = keyof typeof DataCompositionResultItemTypeFromYAML
 
-export const DataCompositionResultNestedItemsLayoutToEnterprise = {
+export const DataCompositionResultNestedItemsLayoutToYAML = {
   Vertically: "Вертикально",
   Horizontally: "Горизонтально",
 } as const
 
-export const DataCompositionResultNestedItemsLayoutFromEnterprise = {
+export const DataCompositionResultNestedItemsLayoutFromYAML = {
   Вертикально: "Vertically",
   Горизонтально: "Horizontally",
 } as const
 
-export type DataCompositionResultNestedItemsLayout = keyof typeof DataCompositionResultNestedItemsLayoutToEnterprise
-export type DataCompositionResultNestedItemsLayoutEnterprise =
-  keyof typeof DataCompositionResultNestedItemsLayoutFromEnterprise
+export type DataCompositionResultNestedItemsLayout = keyof typeof DataCompositionResultNestedItemsLayoutToYAML
+export type DataCompositionResultNestedItemsLayoutYAML = keyof typeof DataCompositionResultNestedItemsLayoutFromYAML
 
-export const DataCompositionSettingsItemStateToEnterprise = {
+export const DataCompositionSettingsItemStateToYAML = {
   Enabled: "Включен",
   Disabled: "Отключен",
   DeletedByUser: "УдаленПользователем",
 } as const
 
-export const DataCompositionSettingsItemStateFromEnterprise = {
+export const DataCompositionSettingsItemStateFromYAML = {
   Включен: "Enabled",
   Отключен: "Disabled",
   УдаленПользователем: "DeletedByUser",
 } as const
 
-export type DataCompositionSettingsItemState = keyof typeof DataCompositionSettingsItemStateToEnterprise
-export type DataCompositionSettingsItemStateEnterprise = keyof typeof DataCompositionSettingsItemStateFromEnterprise
+export type DataCompositionSettingsItemState = keyof typeof DataCompositionSettingsItemStateToYAML
+export type DataCompositionSettingsItemStateYAML = keyof typeof DataCompositionSettingsItemStateFromYAML
 
-export const DataCompositionSettingsItemViewModeToEnterprise = {
+export const DataCompositionSettingsItemViewModeToYAML = {
   Auto: "Авто",
   QuickAccess: "БыстрыйДоступ",
   Inaccessible: "Недоступный",
   Normal: "Обычный",
 } as const
 
-export const DataCompositionSettingsItemViewModeFromEnterprise = {
+export const DataCompositionSettingsItemViewModeFromYAML = {
   Авто: "Auto",
   БыстрыйДоступ: "QuickAccess",
   Недоступный: "Inaccessible",
   Обычный: "Normal",
 } as const
 
-export type DataCompositionSettingsItemViewMode = keyof typeof DataCompositionSettingsItemViewModeToEnterprise
-export type DataCompositionSettingsItemViewModeEnterprise =
-  keyof typeof DataCompositionSettingsItemViewModeFromEnterprise
+export type DataCompositionSettingsItemViewMode = keyof typeof DataCompositionSettingsItemViewModeToYAML
+export type DataCompositionSettingsItemViewModeYAML = keyof typeof DataCompositionSettingsItemViewModeFromYAML
 
-export const DataCompositionSettingsRefreshMethodToEnterprise = {
+export const DataCompositionSettingsRefreshMethodToYAML = {
   Full: "Полное",
   CheckAvailability: "ПроверятьДоступность",
 } as const
 
-export const DataCompositionSettingsRefreshMethodFromEnterprise = {
+export const DataCompositionSettingsRefreshMethodFromYAML = {
   Полное: "Full",
   ПроверятьДоступность: "CheckAvailability",
 } as const
 
-export type DataCompositionSettingsRefreshMethod = keyof typeof DataCompositionSettingsRefreshMethodToEnterprise
-export type DataCompositionSettingsRefreshMethodEnterprise =
-  keyof typeof DataCompositionSettingsRefreshMethodFromEnterprise
+export type DataCompositionSettingsRefreshMethod = keyof typeof DataCompositionSettingsRefreshMethodToYAML
+export type DataCompositionSettingsRefreshMethodYAML = keyof typeof DataCompositionSettingsRefreshMethodFromYAML
 
-export const DataCompositionSettingsViewModeToEnterprise = {
+export const DataCompositionSettingsViewModeToYAML = {
   QuickAccess: "БыстрыйДоступ",
   All: "Все",
 } as const
 
-export const DataCompositionSettingsViewModeFromEnterprise = {
+export const DataCompositionSettingsViewModeFromYAML = {
   БыстрыйДоступ: "QuickAccess",
   Все: "All",
 } as const
 
-export type DataCompositionSettingsViewMode = keyof typeof DataCompositionSettingsViewModeToEnterprise
-export type DataCompositionSettingsViewModeEnterprise = keyof typeof DataCompositionSettingsViewModeFromEnterprise
+export type DataCompositionSettingsViewMode = keyof typeof DataCompositionSettingsViewModeToYAML
+export type DataCompositionSettingsViewModeYAML = keyof typeof DataCompositionSettingsViewModeFromYAML
 
-export const DataCompositionSortDirectionToEnterprise = {
+export const DataCompositionSortDirectionToYAML = {
   Asc: "Возр",
   Desc: "Убыв",
 } as const
 
-export const DataCompositionSortDirectionFromEnterprise = {
+export const DataCompositionSortDirectionFromYAML = {
   Возр: "Asc",
   Убыв: "Desc",
 } as const
 
-export type DataCompositionSortDirection = keyof typeof DataCompositionSortDirectionToEnterprise
-export type DataCompositionSortDirectionEnterprise = keyof typeof DataCompositionSortDirectionFromEnterprise
+export type DataCompositionSortDirection = keyof typeof DataCompositionSortDirectionToYAML
+export type DataCompositionSortDirectionYAML = keyof typeof DataCompositionSortDirectionFromYAML
 
-export const DataCompositionTextOutputTypeToEnterprise = {
+export const DataCompositionTextOutputTypeToYAML = {
   Auto: "Авто",
   Output: "Выводить",
   DontOutput: "НеВыводить",
 } as const
 
-export const DataCompositionTextOutputTypeFromEnterprise = {
+export const DataCompositionTextOutputTypeFromYAML = {
   Авто: "Auto",
   Выводить: "Output",
   НеВыводить: "DontOutput",
 } as const
 
-export type DataCompositionTextOutputType = keyof typeof DataCompositionTextOutputTypeToEnterprise
-export type DataCompositionTextOutputTypeEnterprise = keyof typeof DataCompositionTextOutputTypeFromEnterprise
+export type DataCompositionTextOutputType = keyof typeof DataCompositionTextOutputTypeToYAML
+export type DataCompositionTextOutputTypeYAML = keyof typeof DataCompositionTextOutputTypeFromYAML
 
-export const DataCompositionTextPlacementTypeToEnterprise = {
+export const DataCompositionTextPlacementTypeToYAML = {
   Overflow: "Выступать",
   Block: "Забивать",
   Cut: "Обрезать",
   Wrap: "Переносить",
 } as const
 
-export const DataCompositionTextPlacementTypeFromEnterprise = {
+export const DataCompositionTextPlacementTypeFromYAML = {
   Выступать: "Overflow",
   Забивать: "Block",
   Обрезать: "Cut",
   Переносить: "Wrap",
 } as const
 
-export type DataCompositionTextPlacementType = keyof typeof DataCompositionTextPlacementTypeToEnterprise
-export type DataCompositionTextPlacementTypeEnterprise = keyof typeof DataCompositionTextPlacementTypeFromEnterprise
+export type DataCompositionTextPlacementType = keyof typeof DataCompositionTextPlacementTypeToYAML
+export type DataCompositionTextPlacementTypeYAML = keyof typeof DataCompositionTextPlacementTypeFromYAML
 
-export const DataCompositionTotalPlacementToEnterprise = {
+export const DataCompositionTotalPlacementToYAML = {
   Auto: "Авто",
   End: "Конец",
   Begin: "Начало",
@@ -885,7 +873,7 @@ export const DataCompositionTotalPlacementToEnterprise = {
   None: "Нет",
 } as const
 
-export const DataCompositionTotalPlacementFromEnterprise = {
+export const DataCompositionTotalPlacementFromYAML = {
   Авто: "Auto",
   Конец: "End",
   Начало: "Begin",
@@ -893,40 +881,40 @@ export const DataCompositionTotalPlacementFromEnterprise = {
   Нет: "None",
 } as const
 
-export type DataCompositionTotalPlacement = keyof typeof DataCompositionTotalPlacementToEnterprise
-export type DataCompositionTotalPlacementEnterprise = keyof typeof DataCompositionTotalPlacementFromEnterprise
+export type DataCompositionTotalPlacement = keyof typeof DataCompositionTotalPlacementToYAML
+export type DataCompositionTotalPlacementYAML = keyof typeof DataCompositionTotalPlacementFromYAML
 
-export const OnUnavailabilityDataCompositionSettingsActionToEnterprise = {
+export const OnUnavailabilityDataCompositionSettingsActionToYAML = {
   DisableControl: "ИзменятьДоступностьПоля",
   HidePage: "СкрыватьСтраницу",
 } as const
 
-export const OnUnavailabilityDataCompositionSettingsActionFromEnterprise = {
+export const OnUnavailabilityDataCompositionSettingsActionFromYAML = {
   ИзменятьДоступностьПоля: "DisableControl",
   СкрыватьСтраницу: "HidePage",
 } as const
 
 export type OnUnavailabilityDataCompositionSettingsAction =
-  keyof typeof OnUnavailabilityDataCompositionSettingsActionToEnterprise
-export type OnUnavailabilityDataCompositionSettingsActionEnterprise =
-  keyof typeof OnUnavailabilityDataCompositionSettingsActionFromEnterprise
+  keyof typeof OnUnavailabilityDataCompositionSettingsActionToYAML
+export type OnUnavailabilityDataCompositionSettingsActionYAML =
+  keyof typeof OnUnavailabilityDataCompositionSettingsActionFromYAML
 
-export const ResultCompositionModeToEnterprise = {
+export const ResultCompositionModeToYAML = {
   Auto: "Авто",
   Directly: "Непосредственно",
   Background: "Фоновый",
 } as const
 
-export const ResultCompositionModeFromEnterprise = {
+export const ResultCompositionModeFromYAML = {
   Авто: "Auto",
   Непосредственно: "Directly",
   Фоновый: "Background",
 } as const
 
-export type ResultCompositionMode = keyof typeof ResultCompositionModeToEnterprise
-export type ResultCompositionModeEnterprise = keyof typeof ResultCompositionModeFromEnterprise
+export type ResultCompositionMode = keyof typeof ResultCompositionModeToYAML
+export type ResultCompositionModeYAML = keyof typeof ResultCompositionModeFromYAML
 
-export const SaveDataCompositionAppearanceToEnterprise = {
+export const SaveDataCompositionAppearanceToYAML = {
   Auto: "Авто",
   ForUser: "ДляПользователя",
   ForCurrentResult: "ДляТекущегоРезультата",
@@ -934,7 +922,7 @@ export const SaveDataCompositionAppearanceToEnterprise = {
   ByKeyForUser: "ПоКлючуДляПользователя",
 } as const
 
-export const SaveDataCompositionAppearanceFromEnterprise = {
+export const SaveDataCompositionAppearanceFromYAML = {
   Авто: "Auto",
   ДляПользователя: "ForUser",
   ДляТекущегоРезультата: "ForCurrentResult",
@@ -942,40 +930,40 @@ export const SaveDataCompositionAppearanceFromEnterprise = {
   ПоКлючуДляПользователя: "ByKeyForUser",
 } as const
 
-export type SaveDataCompositionAppearance = keyof typeof SaveDataCompositionAppearanceToEnterprise
-export type SaveDataCompositionAppearanceEnterprise = keyof typeof SaveDataCompositionAppearanceFromEnterprise
+export type SaveDataCompositionAppearance = keyof typeof SaveDataCompositionAppearanceToYAML
+export type SaveDataCompositionAppearanceYAML = keyof typeof SaveDataCompositionAppearanceFromYAML
 
-export const XSAttributeUseCategoryToEnterprise = {
+export const XSAttributeUseCategoryToYAML = {
   Prohibited: "Запрещено",
   Optional: "Необязательно",
   Required: "Обязательно",
 } as const
 
-export const XSAttributeUseCategoryFromEnterprise = {
+export const XSAttributeUseCategoryFromYAML = {
   Запрещено: "Prohibited",
   Необязательно: "Optional",
   Обязательно: "Required",
 } as const
 
-export type XSAttributeUseCategory = keyof typeof XSAttributeUseCategoryToEnterprise
-export type XSAttributeUseCategoryEnterprise = keyof typeof XSAttributeUseCategoryFromEnterprise
+export type XSAttributeUseCategory = keyof typeof XSAttributeUseCategoryToYAML
+export type XSAttributeUseCategoryYAML = keyof typeof XSAttributeUseCategoryFromYAML
 
-export const XSComplexFinalToEnterprise = {
+export const XSComplexFinalToYAML = {
   All: "Все",
   Restriction: "Ограничение",
   Extension: "Расширение",
 } as const
 
-export const XSComplexFinalFromEnterprise = {
+export const XSComplexFinalFromYAML = {
   Все: "All",
   Ограничение: "Restriction",
   Расширение: "Extension",
 } as const
 
-export type XSComplexFinal = keyof typeof XSComplexFinalToEnterprise
-export type XSComplexFinalEnterprise = keyof typeof XSComplexFinalFromEnterprise
+export type XSComplexFinal = keyof typeof XSComplexFinalToYAML
+export type XSComplexFinalYAML = keyof typeof XSComplexFinalFromYAML
 
-export const XSComponentTypeToEnterprise = {
+export const XSComponentTypeToYAML = {
   Annotation: "Аннотация",
   Include: "Включение",
   ModelGroup: "ГруппаМодели",
@@ -1010,7 +998,7 @@ export const XSComponentTypeToEnterprise = {
   Particle: "Фрагмент",
 } as const
 
-export const XSComponentTypeFromEnterprise = {
+export const XSComponentTypeFromYAML = {
   Аннотация: "Annotation",
   Включение: "Include",
   ГруппаМодели: "ModelGroup",
@@ -1045,154 +1033,154 @@ export const XSComponentTypeFromEnterprise = {
   Фрагмент: "Particle",
 } as const
 
-export type XSComponentType = keyof typeof XSComponentTypeToEnterprise
-export type XSComponentTypeEnterprise = keyof typeof XSComponentTypeFromEnterprise
+export type XSComponentType = keyof typeof XSComponentTypeToYAML
+export type XSComponentTypeYAML = keyof typeof XSComponentTypeFromYAML
 
-export const XSCompositorToEnterprise = {
+export const XSCompositorToYAML = {
   All: "Все",
   Choice: "Выбор",
   Sequence: "Последовательность",
 } as const
 
-export const XSCompositorFromEnterprise = {
+export const XSCompositorFromYAML = {
   Все: "All",
   Выбор: "Choice",
   Последовательность: "Sequence",
 } as const
 
-export type XSCompositor = keyof typeof XSCompositorToEnterprise
-export type XSCompositorEnterprise = keyof typeof XSCompositorFromEnterprise
+export type XSCompositor = keyof typeof XSCompositorToYAML
+export type XSCompositorYAML = keyof typeof XSCompositorFromYAML
 
-export const XSConstraintToEnterprise = {
+export const XSConstraintToYAML = {
   Default: "ПоУмолчанию",
   Fixed: "Фиксированное",
 } as const
 
-export const XSConstraintFromEnterprise = {
+export const XSConstraintFromYAML = {
   ПоУмолчанию: "Default",
   Фиксированное: "Fixed",
 } as const
 
-export type XSConstraint = keyof typeof XSConstraintToEnterprise
-export type XSConstraintEnterprise = keyof typeof XSConstraintFromEnterprise
+export type XSConstraint = keyof typeof XSConstraintToYAML
+export type XSConstraintYAML = keyof typeof XSConstraintFromYAML
 
-export const XSContentModelToEnterprise = {
+export const XSContentModelToYAML = {
   Simple: "Простая",
   Complex: "Составная",
 } as const
 
-export const XSContentModelFromEnterprise = {
+export const XSContentModelFromYAML = {
   Простая: "Simple",
   Составная: "Complex",
 } as const
 
-export type XSContentModel = keyof typeof XSContentModelToEnterprise
-export type XSContentModelEnterprise = keyof typeof XSContentModelFromEnterprise
+export type XSContentModel = keyof typeof XSContentModelToYAML
+export type XSContentModelYAML = keyof typeof XSContentModelFromYAML
 
-export const XSDerivationMethodToEnterprise = {
+export const XSDerivationMethodToYAML = {
   Restriction: "Ограничение",
   Extension: "Расширение",
 } as const
 
-export const XSDerivationMethodFromEnterprise = {
+export const XSDerivationMethodFromYAML = {
   Ограничение: "Restriction",
   Расширение: "Extension",
 } as const
 
-export type XSDerivationMethod = keyof typeof XSDerivationMethodToEnterprise
-export type XSDerivationMethodEnterprise = keyof typeof XSDerivationMethodFromEnterprise
+export type XSDerivationMethod = keyof typeof XSDerivationMethodToYAML
+export type XSDerivationMethodYAML = keyof typeof XSDerivationMethodFromYAML
 
-export const XSDisallowedSubstitutionsToEnterprise = {
+export const XSDisallowedSubstitutionsToYAML = {
   All: "Все",
   Restriction: "Ограничение",
   Substitution: "Подстановка",
   Extension: "Расширение",
 } as const
 
-export const XSDisallowedSubstitutionsFromEnterprise = {
+export const XSDisallowedSubstitutionsFromYAML = {
   Все: "All",
   Ограничение: "Restriction",
   Подстановка: "Substitution",
   Расширение: "Extension",
 } as const
 
-export type XSDisallowedSubstitutions = keyof typeof XSDisallowedSubstitutionsToEnterprise
-export type XSDisallowedSubstitutionsEnterprise = keyof typeof XSDisallowedSubstitutionsFromEnterprise
+export type XSDisallowedSubstitutions = keyof typeof XSDisallowedSubstitutionsToYAML
+export type XSDisallowedSubstitutionsYAML = keyof typeof XSDisallowedSubstitutionsFromYAML
 
-export const XSFormToEnterprise = {
+export const XSFormToYAML = {
   Qualified: "Квалифицированная",
   Unqualified: "Неквалифицированная",
 } as const
 
-export const XSFormFromEnterprise = {
+export const XSFormFromYAML = {
   Квалифицированная: "Qualified",
   Неквалифицированная: "Unqualified",
 } as const
 
-export type XSForm = keyof typeof XSFormToEnterprise
-export type XSFormEnterprise = keyof typeof XSFormFromEnterprise
+export type XSForm = keyof typeof XSFormToYAML
+export type XSFormYAML = keyof typeof XSFormFromYAML
 
-export const XSIdentityConstraintCategoryToEnterprise = {
+export const XSIdentityConstraintCategoryToYAML = {
   Key: "Ключ",
   KeyRef: "СсылкаНаКлюч",
   Unique: "Уникальность",
 } as const
 
-export const XSIdentityConstraintCategoryFromEnterprise = {
+export const XSIdentityConstraintCategoryFromYAML = {
   Ключ: "Key",
   СсылкаНаКлюч: "KeyRef",
   Уникальность: "Unique",
 } as const
 
-export type XSIdentityConstraintCategory = keyof typeof XSIdentityConstraintCategoryToEnterprise
-export type XSIdentityConstraintCategoryEnterprise = keyof typeof XSIdentityConstraintCategoryFromEnterprise
+export type XSIdentityConstraintCategory = keyof typeof XSIdentityConstraintCategoryToYAML
+export type XSIdentityConstraintCategoryYAML = keyof typeof XSIdentityConstraintCategoryFromYAML
 
-export const XSNamespaceConstraintCategoryToEnterprise = {
+export const XSNamespaceConstraintCategoryToYAML = {
   Not: "Кроме",
   Any: "Любое",
   Set: "Набор",
 } as const
 
-export const XSNamespaceConstraintCategoryFromEnterprise = {
+export const XSNamespaceConstraintCategoryFromYAML = {
   Кроме: "Not",
   Любое: "Any",
   Набор: "Set",
 } as const
 
-export type XSNamespaceConstraintCategory = keyof typeof XSNamespaceConstraintCategoryToEnterprise
-export type XSNamespaceConstraintCategoryEnterprise = keyof typeof XSNamespaceConstraintCategoryFromEnterprise
+export type XSNamespaceConstraintCategory = keyof typeof XSNamespaceConstraintCategoryToYAML
+export type XSNamespaceConstraintCategoryYAML = keyof typeof XSNamespaceConstraintCategoryFromYAML
 
-export const XSProcessContentsToEnterprise = {
+export const XSProcessContentsToYAML = {
   Skip: "Пропустить",
   Lax: "Слабая",
   Strict: "Строгая",
 } as const
 
-export const XSProcessContentsFromEnterprise = {
+export const XSProcessContentsFromYAML = {
   Пропустить: "Skip",
   Слабая: "Lax",
   Строгая: "Strict",
 } as const
 
-export type XSProcessContents = keyof typeof XSProcessContentsToEnterprise
-export type XSProcessContentsEnterprise = keyof typeof XSProcessContentsFromEnterprise
+export type XSProcessContents = keyof typeof XSProcessContentsToYAML
+export type XSProcessContentsYAML = keyof typeof XSProcessContentsFromYAML
 
-export const XSProhibitedSubstitutionsToEnterprise = {
+export const XSProhibitedSubstitutionsToYAML = {
   All: "Все",
   Restriction: "Ограничение",
   Extension: "Расширение",
 } as const
 
-export const XSProhibitedSubstitutionsFromEnterprise = {
+export const XSProhibitedSubstitutionsFromYAML = {
   Все: "All",
   Ограничение: "Restriction",
   Расширение: "Extension",
 } as const
 
-export type XSProhibitedSubstitutions = keyof typeof XSProhibitedSubstitutionsToEnterprise
-export type XSProhibitedSubstitutionsEnterprise = keyof typeof XSProhibitedSubstitutionsFromEnterprise
+export type XSProhibitedSubstitutions = keyof typeof XSProhibitedSubstitutionsToYAML
+export type XSProhibitedSubstitutionsYAML = keyof typeof XSProhibitedSubstitutionsFromYAML
 
-export const XSSchemaFinalToEnterprise = {
+export const XSSchemaFinalToYAML = {
   All: "Все",
   Union: "Объединение",
   Restriction: "Ограничение",
@@ -1200,7 +1188,7 @@ export const XSSchemaFinalToEnterprise = {
   List: "Список",
 } as const
 
-export const XSSchemaFinalFromEnterprise = {
+export const XSSchemaFinalFromYAML = {
   Все: "All",
   Объединение: "Union",
   Ограничение: "Restriction",
@@ -1208,85 +1196,85 @@ export const XSSchemaFinalFromEnterprise = {
   Список: "List",
 } as const
 
-export type XSSchemaFinal = keyof typeof XSSchemaFinalToEnterprise
-export type XSSchemaFinalEnterprise = keyof typeof XSSchemaFinalFromEnterprise
+export type XSSchemaFinal = keyof typeof XSSchemaFinalToYAML
+export type XSSchemaFinalYAML = keyof typeof XSSchemaFinalFromYAML
 
-export const XSSimpleFinalToEnterprise = {
+export const XSSimpleFinalToYAML = {
   All: "Все",
   Union: "Объединение",
   Restriction: "Ограничение",
   List: "Список",
 } as const
 
-export const XSSimpleFinalFromEnterprise = {
+export const XSSimpleFinalFromYAML = {
   Все: "All",
   Объединение: "Union",
   Ограничение: "Restriction",
   Список: "List",
 } as const
 
-export type XSSimpleFinal = keyof typeof XSSimpleFinalToEnterprise
-export type XSSimpleFinalEnterprise = keyof typeof XSSimpleFinalFromEnterprise
+export type XSSimpleFinal = keyof typeof XSSimpleFinalToYAML
+export type XSSimpleFinalYAML = keyof typeof XSSimpleFinalFromYAML
 
-export const XSSimpleTypeVarietyToEnterprise = {
+export const XSSimpleTypeVarietyToYAML = {
   Atomic: "Атомарная",
   Union: "Объединение",
   List: "Список",
 } as const
 
-export const XSSimpleTypeVarietyFromEnterprise = {
+export const XSSimpleTypeVarietyFromYAML = {
   Атомарная: "Atomic",
   Объединение: "Union",
   Список: "List",
 } as const
 
-export type XSSimpleTypeVariety = keyof typeof XSSimpleTypeVarietyToEnterprise
-export type XSSimpleTypeVarietyEnterprise = keyof typeof XSSimpleTypeVarietyFromEnterprise
+export type XSSimpleTypeVariety = keyof typeof XSSimpleTypeVarietyToYAML
+export type XSSimpleTypeVarietyYAML = keyof typeof XSSimpleTypeVarietyFromYAML
 
-export const XSSubstitutionGroupExclusionsToEnterprise = {
+export const XSSubstitutionGroupExclusionsToYAML = {
   All: "Все",
   Restriction: "Ограничение",
   Extension: "Расширение",
 } as const
 
-export const XSSubstitutionGroupExclusionsFromEnterprise = {
+export const XSSubstitutionGroupExclusionsFromYAML = {
   Все: "All",
   Ограничение: "Restriction",
   Расширение: "Extension",
 } as const
 
-export type XSSubstitutionGroupExclusions = keyof typeof XSSubstitutionGroupExclusionsToEnterprise
-export type XSSubstitutionGroupExclusionsEnterprise = keyof typeof XSSubstitutionGroupExclusionsFromEnterprise
+export type XSSubstitutionGroupExclusions = keyof typeof XSSubstitutionGroupExclusionsToYAML
+export type XSSubstitutionGroupExclusionsYAML = keyof typeof XSSubstitutionGroupExclusionsFromYAML
 
-export const XSWhitespaceHandlingToEnterprise = {
+export const XSWhitespaceHandlingToYAML = {
   Replace: "Заменять",
   Collapse: "Сворачивать",
   Preserve: "Сохранять",
 } as const
 
-export const XSWhitespaceHandlingFromEnterprise = {
+export const XSWhitespaceHandlingFromYAML = {
   Заменять: "Replace",
   Сворачивать: "Collapse",
   Сохранять: "Preserve",
 } as const
 
-export type XSWhitespaceHandling = keyof typeof XSWhitespaceHandlingToEnterprise
-export type XSWhitespaceHandlingEnterprise = keyof typeof XSWhitespaceHandlingFromEnterprise
+export type XSWhitespaceHandling = keyof typeof XSWhitespaceHandlingToYAML
+export type XSWhitespaceHandlingYAML = keyof typeof XSWhitespaceHandlingFromYAML
 
-export const XSXPathVarietyToEnterprise = {
+export const XSXPathVarietyToYAML = {
   Field: "Поле",
   Selector: "Селектор",
 } as const
 
-export const XSXPathVarietyFromEnterprise = {
+export const XSXPathVarietyFromYAML = {
   Поле: "Field",
   Селектор: "Selector",
 } as const
 
-export type XSXPathVariety = keyof typeof XSXPathVarietyToEnterprise
-export type XSXPathVarietyEnterprise = keyof typeof XSXPathVarietyFromEnterprise
+export type XSXPathVariety = keyof typeof XSXPathVarietyToYAML
+export type XSXPathVarietyYAML = keyof typeof XSXPathVarietyFromYAML
 
-export const EventLogDataStorageSplitPeriodToEnterprise = {
+export const EventLogDataStorageSplitPeriodToYAML = {
   Year: "Год",
   Day: "День",
   Quarter: "Квартал",
@@ -1296,7 +1284,7 @@ export const EventLogDataStorageSplitPeriodToEnterprise = {
   Hour: "Час",
 } as const
 
-export const EventLogDataStorageSplitPeriodFromEnterprise = {
+export const EventLogDataStorageSplitPeriodFromYAML = {
   Год: "Year",
   День: "Day",
   Квартал: "Quarter",
@@ -1306,124 +1294,124 @@ export const EventLogDataStorageSplitPeriodFromEnterprise = {
   Час: "Hour",
 } as const
 
-export type EventLogDataStorageSplitPeriod = keyof typeof EventLogDataStorageSplitPeriodToEnterprise
-export type EventLogDataStorageSplitPeriodEnterprise = keyof typeof EventLogDataStorageSplitPeriodFromEnterprise
+export type EventLogDataStorageSplitPeriod = keyof typeof EventLogDataStorageSplitPeriodToYAML
+export type EventLogDataStorageSplitPeriodYAML = keyof typeof EventLogDataStorageSplitPeriodFromYAML
 
-export const EventLogEntryTransactionModeToEnterprise = {
+export const EventLogEntryTransactionModeToYAML = {
   Independent: "Независимая",
   Transactional: "Транзакционная",
 } as const
 
-export const EventLogEntryTransactionModeFromEnterprise = {
+export const EventLogEntryTransactionModeFromYAML = {
   Независимая: "Independent",
   Транзакционная: "Transactional",
 } as const
 
-export type EventLogEntryTransactionMode = keyof typeof EventLogEntryTransactionModeToEnterprise
-export type EventLogEntryTransactionModeEnterprise = keyof typeof EventLogEntryTransactionModeFromEnterprise
+export type EventLogEntryTransactionMode = keyof typeof EventLogEntryTransactionModeToYAML
+export type EventLogEntryTransactionModeYAML = keyof typeof EventLogEntryTransactionModeFromYAML
 
-export const EventLogEntryTransactionStatusToEnterprise = {
+export const EventLogEntryTransactionStatusToYAML = {
   Committed: "Зафиксирована",
   Unfinished: "НеЗавершена",
   NotApplicable: "НетТранзакции",
   RolledBack: "Отменена",
 } as const
 
-export const EventLogEntryTransactionStatusFromEnterprise = {
+export const EventLogEntryTransactionStatusFromYAML = {
   Зафиксирована: "Committed",
   НеЗавершена: "Unfinished",
   НетТранзакции: "NotApplicable",
   Отменена: "RolledBack",
 } as const
 
-export type EventLogEntryTransactionStatus = keyof typeof EventLogEntryTransactionStatusToEnterprise
-export type EventLogEntryTransactionStatusEnterprise = keyof typeof EventLogEntryTransactionStatusFromEnterprise
+export type EventLogEntryTransactionStatus = keyof typeof EventLogEntryTransactionStatusToYAML
+export type EventLogEntryTransactionStatusYAML = keyof typeof EventLogEntryTransactionStatusFromYAML
 
-export const EventLogLevelToEnterprise = {
+export const EventLogLevelToYAML = {
   Information: "Информация",
   Error: "Ошибка",
   Warning: "Предупреждение",
   Note: "Примечание",
 } as const
 
-export const EventLogLevelFromEnterprise = {
+export const EventLogLevelFromYAML = {
   Информация: "Information",
   Ошибка: "Error",
   Предупреждение: "Warning",
   Примечание: "Note",
 } as const
 
-export type EventLogLevel = keyof typeof EventLogLevelToEnterprise
-export type EventLogLevelEnterprise = keyof typeof EventLogLevelFromEnterprise
+export type EventLogLevel = keyof typeof EventLogLevelToYAML
+export type EventLogLevelYAML = keyof typeof EventLogLevelFromYAML
 
-export const DataLockControlModeToEnterprise = {
+export const DataLockControlModeToYAML = {
   Automatic: "Автоматический",
   Managed: "Управляемый",
 } as const
 
-export const DataLockControlModeFromEnterprise = {
+export const DataLockControlModeFromYAML = {
   Автоматический: "Automatic",
   Управляемый: "Managed",
 } as const
 
-export type DataLockControlMode = keyof typeof DataLockControlModeToEnterprise
-export type DataLockControlModeEnterprise = keyof typeof DataLockControlModeFromEnterprise
+export type DataLockControlMode = keyof typeof DataLockControlModeToYAML
+export type DataLockControlModeYAML = keyof typeof DataLockControlModeFromYAML
 
-export const DataLockModeToEnterprise = {
+export const DataLockModeToYAML = {
   Exclusive: "Исключительный",
   Shared: "Разделяемый",
 } as const
 
-export const DataLockModeFromEnterprise = {
+export const DataLockModeFromYAML = {
   Исключительный: "Exclusive",
   Разделяемый: "Shared",
 } as const
 
-export type DataLockMode = keyof typeof DataLockModeToEnterprise
-export type DataLockModeEnterprise = keyof typeof DataLockModeFromEnterprise
+export type DataLockMode = keyof typeof DataLockModeToYAML
+export type DataLockModeYAML = keyof typeof DataLockModeFromYAML
 
-export const AccountTypeToEnterprise = {
+export const AccountTypeToYAML = {
   ActivePassive: "АктивноПассивный",
   Active: "Активный",
   Passive: "Пассивный",
 } as const
 
-export const AccountTypeFromEnterprise = {
+export const AccountTypeFromYAML = {
   АктивноПассивный: "ActivePassive",
   Активный: "Active",
   Пассивный: "Passive",
 } as const
 
-export type AccountType = keyof typeof AccountTypeToEnterprise
-export type AccountTypeEnterprise = keyof typeof AccountTypeFromEnterprise
+export type AccountType = keyof typeof AccountTypeToYAML
+export type AccountTypeYAML = keyof typeof AccountTypeFromYAML
 
-export const AccountingRecordTypeToEnterprise = {
+export const AccountingRecordTypeToYAML = {
   Debit: "Дебет",
   Credit: "Кредит",
 } as const
 
-export const AccountingRecordTypeFromEnterprise = {
+export const AccountingRecordTypeFromYAML = {
   Дебет: "Debit",
   Кредит: "Credit",
 } as const
 
-export type AccountingRecordType = keyof typeof AccountingRecordTypeToEnterprise
-export type AccountingRecordTypeEnterprise = keyof typeof AccountingRecordTypeFromEnterprise
+export type AccountingRecordType = keyof typeof AccountingRecordTypeToYAML
+export type AccountingRecordTypeYAML = keyof typeof AccountingRecordTypeFromYAML
 
-export const AccumulationRecordTypeToEnterprise = {
+export const AccumulationRecordTypeToYAML = {
   Receipt: "Приход",
   Expense: "Расход",
 } as const
 
-export const AccumulationRecordTypeFromEnterprise = {
+export const AccumulationRecordTypeFromYAML = {
   Приход: "Receipt",
   Расход: "Expense",
 } as const
 
-export type AccumulationRecordType = keyof typeof AccumulationRecordTypeToEnterprise
-export type AccumulationRecordTypeEnterprise = keyof typeof AccumulationRecordTypeFromEnterprise
+export type AccumulationRecordType = keyof typeof AccumulationRecordTypeToYAML
+export type AccumulationRecordTypeYAML = keyof typeof AccumulationRecordTypeFromYAML
 
-export const AccumulationRegisterAggregatePeriodicityToEnterprise = {
+export const AccumulationRegisterAggregatePeriodicityToYAML = {
   Auto: "Авто",
   Year: "Год",
   Day: "День",
@@ -1433,7 +1421,7 @@ export const AccumulationRegisterAggregatePeriodicityToEnterprise = {
   HalfYear: "Полугодие",
 } as const
 
-export const AccumulationRegisterAggregatePeriodicityFromEnterprise = {
+export const AccumulationRegisterAggregatePeriodicityFromYAML = {
   Авто: "Auto",
   Год: "Year",
   День: "Day",
@@ -1443,24 +1431,23 @@ export const AccumulationRegisterAggregatePeriodicityFromEnterprise = {
   Полугодие: "HalfYear",
 } as const
 
-export type AccumulationRegisterAggregatePeriodicity = keyof typeof AccumulationRegisterAggregatePeriodicityToEnterprise
-export type AccumulationRegisterAggregatePeriodicityEnterprise =
-  keyof typeof AccumulationRegisterAggregatePeriodicityFromEnterprise
+export type AccumulationRegisterAggregatePeriodicity = keyof typeof AccumulationRegisterAggregatePeriodicityToYAML
+export type AccumulationRegisterAggregatePeriodicityYAML = keyof typeof AccumulationRegisterAggregatePeriodicityFromYAML
 
-export const AccumulationRegisterAggregateUseToEnterprise = {
+export const AccumulationRegisterAggregateUseToYAML = {
   Auto: "Авто",
   Always: "Всегда",
 } as const
 
-export const AccumulationRegisterAggregateUseFromEnterprise = {
+export const AccumulationRegisterAggregateUseFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
 } as const
 
-export type AccumulationRegisterAggregateUse = keyof typeof AccumulationRegisterAggregateUseToEnterprise
-export type AccumulationRegisterAggregateUseEnterprise = keyof typeof AccumulationRegisterAggregateUseFromEnterprise
+export type AccumulationRegisterAggregateUse = keyof typeof AccumulationRegisterAggregateUseToYAML
+export type AccumulationRegisterAggregateUseYAML = keyof typeof AccumulationRegisterAggregateUseFromYAML
 
-export const AutoTimeModeToEnterprise = {
+export const AutoTimeModeToYAML = {
   DontUse: "НеИспользовать",
   First: "Первым",
   Last: "Последним",
@@ -1468,7 +1455,7 @@ export const AutoTimeModeToEnterprise = {
   CurrentOrLast: "ТекущееИлиПоследним",
 } as const
 
-export const AutoTimeModeFromEnterprise = {
+export const AutoTimeModeFromYAML = {
   НеИспользовать: "DontUse",
   Первым: "First",
   Последним: "Last",
@@ -1476,10 +1463,10 @@ export const AutoTimeModeFromEnterprise = {
   ТекущееИлиПоследним: "CurrentOrLast",
 } as const
 
-export type AutoTimeMode = keyof typeof AutoTimeModeToEnterprise
-export type AutoTimeModeEnterprise = keyof typeof AutoTimeModeFromEnterprise
+export type AutoTimeMode = keyof typeof AutoTimeModeToYAML
+export type AutoTimeModeYAML = keyof typeof AutoTimeModeFromYAML
 
-export const BusinessProcessRoutePointTypeToEnterprise = {
+export const BusinessProcessRoutePointTypeToYAML = {
   SubBusinessProcess: "ВложенныйБизнесПроцесс",
   Switch: "ВыборВарианта",
   Activity: "Действие",
@@ -1491,7 +1478,7 @@ export const BusinessProcessRoutePointTypeToEnterprise = {
   Condition: "Условие",
 } as const
 
-export const BusinessProcessRoutePointTypeFromEnterprise = {
+export const BusinessProcessRoutePointTypeFromYAML = {
   ВложенныйБизнесПроцесс: "SubBusinessProcess",
   ВыборВарианта: "Switch",
   Действие: "Activity",
@@ -1503,254 +1490,254 @@ export const BusinessProcessRoutePointTypeFromEnterprise = {
   Условие: "Condition",
 } as const
 
-export type BusinessProcessRoutePointType = keyof typeof BusinessProcessRoutePointTypeToEnterprise
-export type BusinessProcessRoutePointTypeEnterprise = keyof typeof BusinessProcessRoutePointTypeFromEnterprise
+export type BusinessProcessRoutePointType = keyof typeof BusinessProcessRoutePointTypeToYAML
+export type BusinessProcessRoutePointTypeYAML = keyof typeof BusinessProcessRoutePointTypeFromYAML
 
-export const CalculationRegisterPeriodTypeToEnterprise = {
+export const CalculationRegisterPeriodTypeToYAML = {
   BasePeriod: "БазовыйПериод",
   ActionPeriod: "ПериодДействия",
   RegistrationPeriod: "ПериодРегистрации",
   ActualActionPeriod: "ФактическийПериодДействия",
 } as const
 
-export const CalculationRegisterPeriodTypeFromEnterprise = {
+export const CalculationRegisterPeriodTypeFromYAML = {
   БазовыйПериод: "BasePeriod",
   ПериодДействия: "ActionPeriod",
   ПериодРегистрации: "RegistrationPeriod",
   ФактическийПериодДействия: "ActualActionPeriod",
 } as const
 
-export type CalculationRegisterPeriodType = keyof typeof CalculationRegisterPeriodTypeToEnterprise
-export type CalculationRegisterPeriodTypeEnterprise = keyof typeof CalculationRegisterPeriodTypeFromEnterprise
+export type CalculationRegisterPeriodType = keyof typeof CalculationRegisterPeriodTypeToYAML
+export type CalculationRegisterPeriodTypeYAML = keyof typeof CalculationRegisterPeriodTypeFromYAML
 
-export const DocumentPostingModeToEnterprise = {
+export const DocumentPostingModeToYAML = {
   Regular: "Неоперативный",
   RealTime: "Оперативный",
 } as const
 
-export const DocumentPostingModeFromEnterprise = {
+export const DocumentPostingModeFromYAML = {
   Неоперативный: "Regular",
   Оперативный: "RealTime",
 } as const
 
-export type DocumentPostingMode = keyof typeof DocumentPostingModeToEnterprise
-export type DocumentPostingModeEnterprise = keyof typeof DocumentPostingModeFromEnterprise
+export type DocumentPostingMode = keyof typeof DocumentPostingModeToYAML
+export type DocumentPostingModeYAML = keyof typeof DocumentPostingModeFromYAML
 
-export const DocumentWriteModeToEnterprise = {
+export const DocumentWriteModeToYAML = {
   Write: "Запись",
   UndoPosting: "ОтменаПроведения",
   Posting: "Проведение",
 } as const
 
-export const DocumentWriteModeFromEnterprise = {
+export const DocumentWriteModeFromYAML = {
   Запись: "Write",
   ОтменаПроведения: "UndoPosting",
   Проведение: "Posting",
 } as const
 
-export type DocumentWriteMode = keyof typeof DocumentWriteModeToEnterprise
-export type DocumentWriteModeEnterprise = keyof typeof DocumentWriteModeFromEnterprise
+export type DocumentWriteMode = keyof typeof DocumentWriteModeToYAML
+export type DocumentWriteModeYAML = keyof typeof DocumentWriteModeFromYAML
 
-export const FoldersAndItemsUseToEnterprise = {
+export const FoldersAndItemsUseToYAML = {
   Folders: "Группы",
   FoldersAndItems: "ГруппыИЭлементы",
   Items: "Элементы",
 } as const
 
-export const FoldersAndItemsUseFromEnterprise = {
+export const FoldersAndItemsUseFromYAML = {
   Группы: "Folders",
   ГруппыИЭлементы: "FoldersAndItems",
   Элементы: "Items",
 } as const
 
-export type FoldersAndItemsUse = keyof typeof FoldersAndItemsUseToEnterprise
-export type FoldersAndItemsUseEnterprise = keyof typeof FoldersAndItemsUseFromEnterprise
+export type FoldersAndItemsUse = keyof typeof FoldersAndItemsUseToYAML
+export type FoldersAndItemsUseYAML = keyof typeof FoldersAndItemsUseFromYAML
 
-export const PostingModeUseToEnterprise = {
+export const PostingModeUseToYAML = {
   Auto: "Авто",
   Regular: "Неоперативный",
   RealTime: "Оперативный",
 } as const
 
-export const PostingModeUseFromEnterprise = {
+export const PostingModeUseFromYAML = {
   Авто: "Auto",
   Неоперативный: "Regular",
   Оперативный: "RealTime",
 } as const
 
-export type PostingModeUse = keyof typeof PostingModeUseToEnterprise
-export type PostingModeUseEnterprise = keyof typeof PostingModeUseFromEnterprise
+export type PostingModeUse = keyof typeof PostingModeUseToYAML
+export type PostingModeUseYAML = keyof typeof PostingModeUseFromYAML
 
-export const SliceUseToEnterprise = {
+export const SliceUseToYAML = {
   DontUse: "НеИспользовать",
   First: "Первые",
   Last: "Последние",
 } as const
 
-export const SliceUseFromEnterprise = {
+export const SliceUseFromYAML = {
   НеИспользовать: "DontUse",
   Первые: "First",
   Последние: "Last",
 } as const
 
-export type SliceUse = keyof typeof SliceUseToEnterprise
-export type SliceUseEnterprise = keyof typeof SliceUseFromEnterprise
+export type SliceUse = keyof typeof SliceUseToYAML
+export type SliceUseYAML = keyof typeof SliceUseFromYAML
 
-export const BackgroundJobStateToEnterprise = {
+export const BackgroundJobStateToYAML = {
   Active: "Активно",
   Completed: "Завершено",
   Failed: "ЗавершеноАварийно",
   Canceled: "Отменено",
 } as const
 
-export const BackgroundJobStateFromEnterprise = {
+export const BackgroundJobStateFromYAML = {
   Активно: "Active",
   Завершено: "Completed",
   ЗавершеноАварийно: "Failed",
   Отменено: "Canceled",
 } as const
 
-export type BackgroundJobState = keyof typeof BackgroundJobStateToEnterprise
-export type BackgroundJobStateEnterprise = keyof typeof BackgroundJobStateFromEnterprise
+export type BackgroundJobState = keyof typeof BackgroundJobStateToYAML
+export type BackgroundJobStateYAML = keyof typeof BackgroundJobStateFromYAML
 
-export const CryptoCertificateCheckModeToEnterprise = {
+export const CryptoCertificateCheckModeToYAML = {
   IgnoreTimeValidity: "ИгнорироватьВремяДействия",
   IgnoreSignatureValidity: "ИгнорироватьДействительностьПодписи",
   IgnoreCertificateRevocationStatus: "ИгнорироватьПроверкуВСпискеОтозванныхСертификатов",
   AllowTestCertificates: "РазрешитьТестовыеСертификаты",
 } as const
 
-export const CryptoCertificateCheckModeFromEnterprise = {
+export const CryptoCertificateCheckModeFromYAML = {
   ИгнорироватьВремяДействия: "IgnoreTimeValidity",
   ИгнорироватьДействительностьПодписи: "IgnoreSignatureValidity",
   ИгнорироватьПроверкуВСпискеОтозванныхСертификатов: "IgnoreCertificateRevocationStatus",
   РазрешитьТестовыеСертификаты: "AllowTestCertificates",
 } as const
 
-export type CryptoCertificateCheckMode = keyof typeof CryptoCertificateCheckModeToEnterprise
-export type CryptoCertificateCheckModeEnterprise = keyof typeof CryptoCertificateCheckModeFromEnterprise
+export type CryptoCertificateCheckMode = keyof typeof CryptoCertificateCheckModeToYAML
+export type CryptoCertificateCheckModeYAML = keyof typeof CryptoCertificateCheckModeFromYAML
 
-export const CryptoCertificateIncludeModeToEnterprise = {
+export const CryptoCertificateIncludeModeToYAML = {
   IncludeWholeChain: "ВключатьПолнуюЦепочку",
   IncludeSubjectCertificate: "ВключатьСертификатСубъекта",
   IncludeChainWithoutRoot: "ВключатьЦепочкуБезКорневого",
   DontInclude: "НеВключать",
 } as const
 
-export const CryptoCertificateIncludeModeFromEnterprise = {
+export const CryptoCertificateIncludeModeFromYAML = {
   ВключатьПолнуюЦепочку: "IncludeWholeChain",
   ВключатьСертификатСубъекта: "IncludeSubjectCertificate",
   ВключатьЦепочкуБезКорневого: "IncludeChainWithoutRoot",
   НеВключать: "DontInclude",
 } as const
 
-export type CryptoCertificateIncludeMode = keyof typeof CryptoCertificateIncludeModeToEnterprise
-export type CryptoCertificateIncludeModeEnterprise = keyof typeof CryptoCertificateIncludeModeFromEnterprise
+export type CryptoCertificateIncludeMode = keyof typeof CryptoCertificateIncludeModeToYAML
+export type CryptoCertificateIncludeModeYAML = keyof typeof CryptoCertificateIncludeModeFromYAML
 
-export const CryptoCertificateStorePlacementToEnterprise = {
+export const CryptoCertificateStorePlacementToYAML = {
   ComputerData: "ДанныеКомпьютера",
   OSUserData: "ДанныеПользователяОС",
   ApplicationData: "ДанныеПриложения",
 } as const
 
-export const CryptoCertificateStorePlacementFromEnterprise = {
+export const CryptoCertificateStorePlacementFromYAML = {
   ДанныеКомпьютера: "ComputerData",
   ДанныеПользователяОС: "OSUserData",
   ДанныеПриложения: "ApplicationData",
 } as const
 
-export type CryptoCertificateStorePlacement = keyof typeof CryptoCertificateStorePlacementToEnterprise
-export type CryptoCertificateStorePlacementEnterprise = keyof typeof CryptoCertificateStorePlacementFromEnterprise
+export type CryptoCertificateStorePlacement = keyof typeof CryptoCertificateStorePlacementToYAML
+export type CryptoCertificateStorePlacementYAML = keyof typeof CryptoCertificateStorePlacementFromYAML
 
-export const CryptoCertificateStoreTypeToEnterprise = {
+export const CryptoCertificateStoreTypeToYAML = {
   RootCertificates: "КорневыеСертификаты",
   PersonalCertificates: "ПерсональныеСертификаты",
   RecipientCertificates: "СертификатыПолучателей",
   CertificationAuthorityCertificates: "СертификатыУдостоверяющихЦентров",
 } as const
 
-export const CryptoCertificateStoreTypeFromEnterprise = {
+export const CryptoCertificateStoreTypeFromYAML = {
   КорневыеСертификаты: "RootCertificates",
   ПерсональныеСертификаты: "PersonalCertificates",
   СертификатыПолучателей: "RecipientCertificates",
   СертификатыУдостоверяющихЦентров: "CertificationAuthorityCertificates",
 } as const
 
-export type CryptoCertificateStoreType = keyof typeof CryptoCertificateStoreTypeToEnterprise
-export type CryptoCertificateStoreTypeEnterprise = keyof typeof CryptoCertificateStoreTypeFromEnterprise
+export type CryptoCertificateStoreType = keyof typeof CryptoCertificateStoreTypeToYAML
+export type CryptoCertificateStoreTypeYAML = keyof typeof CryptoCertificateStoreTypeFromYAML
 
-export const CryptoInteractiveModeUseToEnterprise = {
+export const CryptoInteractiveModeUseToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const CryptoInteractiveModeUseFromEnterprise = {
+export const CryptoInteractiveModeUseFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type CryptoInteractiveModeUse = keyof typeof CryptoInteractiveModeUseToEnterprise
-export type CryptoInteractiveModeUseEnterprise = keyof typeof CryptoInteractiveModeUseFromEnterprise
+export type CryptoInteractiveModeUse = keyof typeof CryptoInteractiveModeUseToYAML
+export type CryptoInteractiveModeUseYAML = keyof typeof CryptoInteractiveModeUseFromYAML
 
-export const FormattedDocumentFileTypeToEnterprise = {
+export const FormattedDocumentFileTypeToYAML = {
   ANSITXT: "ANSITXT",
   HTML: "HTML",
   PDF: "PDF",
   TXT: "TXT",
 } as const
 
-export const FormattedDocumentFileTypeFromEnterprise = {
+export const FormattedDocumentFileTypeFromYAML = {
   ANSITXT: "ANSITXT",
   HTML: "HTML",
   PDF: "PDF",
   TXT: "TXT",
 } as const
 
-export type FormattedDocumentFileType = keyof typeof FormattedDocumentFileTypeToEnterprise
-export type FormattedDocumentFileTypeEnterprise = keyof typeof FormattedDocumentFileTypeFromEnterprise
+export type FormattedDocumentFileType = keyof typeof FormattedDocumentFileTypeToYAML
+export type FormattedDocumentFileTypeYAML = keyof typeof FormattedDocumentFileTypeFromYAML
 
-export const FormattedDocumentParagraphTypeToEnterprise = {
+export const FormattedDocumentParagraphTypeToYAML = {
   BulletedList: "МаркированныйСписок",
   NumberedList: "НумерованныйСписок",
   Usual: "Обычный",
 } as const
 
-export const FormattedDocumentParagraphTypeFromEnterprise = {
+export const FormattedDocumentParagraphTypeFromYAML = {
   МаркированныйСписок: "BulletedList",
   НумерованныйСписок: "NumberedList",
   Обычный: "Usual",
 } as const
 
-export type FormattedDocumentParagraphType = keyof typeof FormattedDocumentParagraphTypeToEnterprise
-export type FormattedDocumentParagraphTypeEnterprise = keyof typeof FormattedDocumentParagraphTypeFromEnterprise
+export type FormattedDocumentParagraphType = keyof typeof FormattedDocumentParagraphTypeToYAML
+export type FormattedDocumentParagraphTypeYAML = keyof typeof FormattedDocumentParagraphTypeFromYAML
 
-export const RowGotoDirectionToEnterprise = {
+export const RowGotoDirectionToYAML = {
   Up: "Вверх",
   Down: "Вниз",
 } as const
 
-export const RowGotoDirectionFromEnterprise = {
+export const RowGotoDirectionFromYAML = {
   Вверх: "Up",
   Вниз: "Down",
 } as const
 
-export type RowGotoDirection = keyof typeof RowGotoDirectionToEnterprise
-export type RowGotoDirectionEnterprise = keyof typeof RowGotoDirectionFromEnterprise
+export type RowGotoDirection = keyof typeof RowGotoDirectionToYAML
+export type RowGotoDirectionYAML = keyof typeof RowGotoDirectionFromYAML
 
-export const InternetMailAttachmentEncodingModeToEnterprise = {
+export const InternetMailAttachmentEncodingModeToYAML = {
   MIME: "MIME",
   UUEncode: "UUEncode",
 } as const
 
-export const InternetMailAttachmentEncodingModeFromEnterprise = {
+export const InternetMailAttachmentEncodingModeFromYAML = {
   MIME: "MIME",
   UUEncode: "UUEncode",
 } as const
 
-export type InternetMailAttachmentEncodingMode = keyof typeof InternetMailAttachmentEncodingModeToEnterprise
-export type InternetMailAttachmentEncodingModeEnterprise = keyof typeof InternetMailAttachmentEncodingModeFromEnterprise
+export type InternetMailAttachmentEncodingMode = keyof typeof InternetMailAttachmentEncodingModeToYAML
+export type InternetMailAttachmentEncodingModeYAML = keyof typeof InternetMailAttachmentEncodingModeFromYAML
 
-export const InternetMailMessageImportanceToEnterprise = {
+export const InternetMailMessageImportanceToYAML = {
   High: "Высокая",
   Highest: "Наивысшая",
   Lowest: "Наименьшая",
@@ -1758,7 +1745,7 @@ export const InternetMailMessageImportanceToEnterprise = {
   Normal: "Обычная",
 } as const
 
-export const InternetMailMessageImportanceFromEnterprise = {
+export const InternetMailMessageImportanceFromYAML = {
   Высокая: "High",
   Наивысшая: "Highest",
   Наименьшая: "Lowest",
@@ -1766,100 +1753,100 @@ export const InternetMailMessageImportanceFromEnterprise = {
   Обычная: "Normal",
 } as const
 
-export type InternetMailMessageImportance = keyof typeof InternetMailMessageImportanceToEnterprise
-export type InternetMailMessageImportanceEnterprise = keyof typeof InternetMailMessageImportanceFromEnterprise
+export type InternetMailMessageImportance = keyof typeof InternetMailMessageImportanceToYAML
+export type InternetMailMessageImportanceYAML = keyof typeof InternetMailMessageImportanceFromYAML
 
-export const InternetMailMessageNonASCIISymbolsEncodingModeToEnterprise = {
+export const InternetMailMessageNonASCIISymbolsEncodingModeToYAML = {
   MIME: "MIME",
   QuotedPrintable: "QuotedPrintable",
   None: "БезКодирования",
 } as const
 
-export const InternetMailMessageNonASCIISymbolsEncodingModeFromEnterprise = {
+export const InternetMailMessageNonASCIISymbolsEncodingModeFromYAML = {
   MIME: "MIME",
   QuotedPrintable: "QuotedPrintable",
   БезКодирования: "None",
 } as const
 
 export type InternetMailMessageNonASCIISymbolsEncodingMode =
-  keyof typeof InternetMailMessageNonASCIISymbolsEncodingModeToEnterprise
-export type InternetMailMessageNonASCIISymbolsEncodingModeEnterprise =
-  keyof typeof InternetMailMessageNonASCIISymbolsEncodingModeFromEnterprise
+  keyof typeof InternetMailMessageNonASCIISymbolsEncodingModeToYAML
+export type InternetMailMessageNonASCIISymbolsEncodingModeYAML =
+  keyof typeof InternetMailMessageNonASCIISymbolsEncodingModeFromYAML
 
-export const InternetMailMessageParseStatusToEnterprise = {
+export const InternetMailMessageParseStatusToYAML = {
   ErrorsDetected: "ОбнаруженыОшибки",
   ErrorsNotDetected: "ОшибокНеОбнаружено",
 } as const
 
-export const InternetMailMessageParseStatusFromEnterprise = {
+export const InternetMailMessageParseStatusFromYAML = {
   ОбнаруженыОшибки: "ErrorsDetected",
   ОшибокНеОбнаружено: "ErrorsNotDetected",
 } as const
 
-export type InternetMailMessageParseStatus = keyof typeof InternetMailMessageParseStatusToEnterprise
-export type InternetMailMessageParseStatusEnterprise = keyof typeof InternetMailMessageParseStatusFromEnterprise
+export type InternetMailMessageParseStatus = keyof typeof InternetMailMessageParseStatusToYAML
+export type InternetMailMessageParseStatusYAML = keyof typeof InternetMailMessageParseStatusFromYAML
 
-export const InternetMailProtocolToEnterprise = {
+export const InternetMailProtocolToYAML = {
   IMAP: "IMAP",
   POP3: "POP3",
   SMTP: "SMTP",
 } as const
 
-export const InternetMailProtocolFromEnterprise = {
+export const InternetMailProtocolFromYAML = {
   IMAP: "IMAP",
   POP3: "POP3",
   SMTP: "SMTP",
 } as const
 
-export type InternetMailProtocol = keyof typeof InternetMailProtocolToEnterprise
-export type InternetMailProtocolEnterprise = keyof typeof InternetMailProtocolFromEnterprise
+export type InternetMailProtocol = keyof typeof InternetMailProtocolToYAML
+export type InternetMailProtocolYAML = keyof typeof InternetMailProtocolFromYAML
 
-export const InternetMailTextProcessingToEnterprise = {
+export const InternetMailTextProcessingToYAML = {
   DontProcess: "НеОбрабатывать",
   Process: "Обрабатывать",
 } as const
 
-export const InternetMailTextProcessingFromEnterprise = {
+export const InternetMailTextProcessingFromYAML = {
   НеОбрабатывать: "DontProcess",
   Обрабатывать: "Process",
 } as const
 
-export type InternetMailTextProcessing = keyof typeof InternetMailTextProcessingToEnterprise
-export type InternetMailTextProcessingEnterprise = keyof typeof InternetMailTextProcessingFromEnterprise
+export type InternetMailTextProcessing = keyof typeof InternetMailTextProcessingToYAML
+export type InternetMailTextProcessingYAML = keyof typeof InternetMailTextProcessingFromYAML
 
-export const InternetMailTextTypeToEnterprise = {
+export const InternetMailTextTypeToYAML = {
   HTML: "HTML",
   CustomText: "ПроизвольныйТекст",
   PlainText: "ПростойТекст",
   RichText: "РазмеченныйТекст",
 } as const
 
-export const InternetMailTextTypeFromEnterprise = {
+export const InternetMailTextTypeFromYAML = {
   HTML: "HTML",
   ПроизвольныйТекст: "CustomText",
   ПростойТекст: "PlainText",
   РазмеченныйТекст: "RichText",
 } as const
 
-export type InternetMailTextType = keyof typeof InternetMailTextTypeToEnterprise
-export type InternetMailTextTypeEnterprise = keyof typeof InternetMailTextTypeFromEnterprise
+export type InternetMailTextType = keyof typeof InternetMailTextTypeToYAML
+export type InternetMailTextTypeYAML = keyof typeof InternetMailTextTypeFromYAML
 
-export const POP3AuthenticationModeToEnterprise = {
+export const POP3AuthenticationModeToYAML = {
   APOP: "APOP",
   CramMD5: "CramMD5",
   General: "Обычная",
 } as const
 
-export const POP3AuthenticationModeFromEnterprise = {
+export const POP3AuthenticationModeFromYAML = {
   APOP: "APOP",
   CramMD5: "CramMD5",
   Обычная: "General",
 } as const
 
-export type POP3AuthenticationMode = keyof typeof POP3AuthenticationModeToEnterprise
-export type POP3AuthenticationModeEnterprise = keyof typeof POP3AuthenticationModeFromEnterprise
+export type POP3AuthenticationMode = keyof typeof POP3AuthenticationModeToYAML
+export type POP3AuthenticationModeYAML = keyof typeof POP3AuthenticationModeFromYAML
 
-export const SMTPAuthenticationModeToEnterprise = {
+export const SMTPAuthenticationModeToYAML = {
   CramMD5: "CramMD5",
   Login: "Login",
   Plain: "Plain",
@@ -1867,7 +1854,7 @@ export const SMTPAuthenticationModeToEnterprise = {
   Default: "ПоУмолчанию",
 } as const
 
-export const SMTPAuthenticationModeFromEnterprise = {
+export const SMTPAuthenticationModeFromYAML = {
   CramMD5: "CramMD5",
   Login: "Login",
   Plain: "Plain",
@@ -1875,187 +1862,187 @@ export const SMTPAuthenticationModeFromEnterprise = {
   ПоУмолчанию: "Default",
 } as const
 
-export type SMTPAuthenticationMode = keyof typeof SMTPAuthenticationModeToEnterprise
-export type SMTPAuthenticationModeEnterprise = keyof typeof SMTPAuthenticationModeFromEnterprise
+export type SMTPAuthenticationMode = keyof typeof SMTPAuthenticationModeToYAML
+export type SMTPAuthenticationModeYAML = keyof typeof SMTPAuthenticationModeFromYAML
 
-export const UseInternetMailTokenAuthenticationToEnterprise = {
+export const UseInternetMailTokenAuthenticationToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const UseInternetMailTokenAuthenticationFromEnterprise = {
+export const UseInternetMailTokenAuthenticationFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type UseInternetMailTokenAuthentication = keyof typeof UseInternetMailTokenAuthenticationToEnterprise
-export type UseInternetMailTokenAuthenticationEnterprise = keyof typeof UseInternetMailTokenAuthenticationFromEnterprise
+export type UseInternetMailTokenAuthentication = keyof typeof UseInternetMailTokenAuthenticationToYAML
+export type UseInternetMailTokenAuthenticationYAML = keyof typeof UseInternetMailTokenAuthenticationFromYAML
 
-export const QueryBuilderDimensionTypeToEnterprise = {
+export const QueryBuilderDimensionTypeToYAML = {
   Hierarchy: "Иерархия",
   HierarchyOnly: "ТолькоИерархия",
   Items: "Элементы",
 } as const
 
-export const QueryBuilderDimensionTypeFromEnterprise = {
+export const QueryBuilderDimensionTypeFromYAML = {
   Иерархия: "Hierarchy",
   ТолькоИерархия: "HierarchyOnly",
   Элементы: "Items",
 } as const
 
-export type QueryBuilderDimensionType = keyof typeof QueryBuilderDimensionTypeToEnterprise
-export type QueryBuilderDimensionTypeEnterprise = keyof typeof QueryBuilderDimensionTypeFromEnterprise
+export type QueryBuilderDimensionType = keyof typeof QueryBuilderDimensionTypeToYAML
+export type QueryBuilderDimensionTypeYAML = keyof typeof QueryBuilderDimensionTypeFromYAML
 
-export const AddInConnectionTypeToEnterprise = {
+export const AddInConnectionTypeToYAML = {
   Isolated: "Изолированно",
   NotIsolated: "НеИзолированно",
 } as const
 
-export const AddInConnectionTypeFromEnterprise = {
+export const AddInConnectionTypeFromYAML = {
   Изолированно: "Isolated",
   НеИзолированно: "NotIsolated",
 } as const
 
-export type AddInConnectionType = keyof typeof AddInConnectionTypeToEnterprise
-export type AddInConnectionTypeEnterprise = keyof typeof AddInConnectionTypeFromEnterprise
+export type AddInConnectionType = keyof typeof AddInConnectionTypeToYAML
+export type AddInConnectionTypeYAML = keyof typeof AddInConnectionTypeFromYAML
 
-export const AddInTypeToEnterprise = {
+export const AddInTypeToYAML = {
   COM: "COM",
   Native: "Native",
 } as const
 
-export const AddInTypeFromEnterprise = {
+export const AddInTypeFromYAML = {
   COM: "COM",
   Native: "Native",
 } as const
 
-export type AddInType = keyof typeof AddInTypeToEnterprise
-export type AddInTypeEnterprise = keyof typeof AddInTypeFromEnterprise
+export type AddInType = keyof typeof AddInTypeToYAML
+export type AddInTypeYAML = keyof typeof AddInTypeFromYAML
 
-export const AllowedLengthToEnterprise = {
+export const AllowedLengthToYAML = {
   Variable: "Переменная",
   Fixed: "Фиксированная",
 } as const
 
-export const AllowedLengthFromEnterprise = {
+export const AllowedLengthFromYAML = {
   Переменная: "Variable",
   Фиксированная: "Fixed",
 } as const
 
-export type AllowedLength = keyof typeof AllowedLengthToEnterprise
-export type AllowedLengthEnterprise = keyof typeof AllowedLengthFromEnterprise
+export type AllowedLength = keyof typeof AllowedLengthToYAML
+export type AllowedLengthYAML = keyof typeof AllowedLengthFromYAML
 
-export const AllowedSignToEnterprise = {
+export const AllowedSignToYAML = {
   Any: "Любой",
   Nonnegative: "Неотрицательный",
 } as const
 
-export const AllowedSignFromEnterprise = {
+export const AllowedSignFromYAML = {
   Любой: "Any",
   Неотрицательный: "Nonnegative",
 } as const
 
-export type AllowedSign = keyof typeof AllowedSignToEnterprise
-export type AllowedSignEnterprise = keyof typeof AllowedSignFromEnterprise
+export type AllowedSign = keyof typeof AllowedSignToYAML
+export type AllowedSignYAML = keyof typeof AllowedSignFromYAML
 
-export const ApplicationFormsOpenningModeToEnterprise = {
+export const ApplicationFormsOpenningModeToYAML = {
   Tabs: "Закладки",
   SingleWindows: "ОтдельныеОкна",
 } as const
 
-export const ApplicationFormsOpenningModeFromEnterprise = {
+export const ApplicationFormsOpenningModeFromYAML = {
   Закладки: "Tabs",
   ОтдельныеОкна: "SingleWindows",
 } as const
 
-export type ApplicationFormsOpenningMode = keyof typeof ApplicationFormsOpenningModeToEnterprise
-export type ApplicationFormsOpenningModeEnterprise = keyof typeof ApplicationFormsOpenningModeFromEnterprise
+export type ApplicationFormsOpenningMode = keyof typeof ApplicationFormsOpenningModeToYAML
+export type ApplicationFormsOpenningModeYAML = keyof typeof ApplicationFormsOpenningModeFromYAML
 
-export const BorderTypeToEnterprise = {
+export const BorderTypeToYAML = {
   Absolute: "Абсолютная",
   StyleItem: "ЭлементСтиля",
 } as const
 
-export const BorderTypeFromEnterprise = {
+export const BorderTypeFromYAML = {
   Абсолютная: "Absolute",
   ЭлементСтиля: "StyleItem",
 } as const
 
-export type BorderType = keyof typeof BorderTypeToEnterprise
-export type BorderTypeEnterprise = keyof typeof BorderTypeFromEnterprise
+export type BorderType = keyof typeof BorderTypeToYAML
+export type BorderTypeYAML = keyof typeof BorderTypeFromYAML
 
-export const BoundaryTypeToEnterprise = {
+export const BoundaryTypeToYAML = {
   Including: "Включая",
   Excluding: "Исключая",
 } as const
 
-export const BoundaryTypeFromEnterprise = {
+export const BoundaryTypeFromYAML = {
   Включая: "Including",
   Исключая: "Excluding",
 } as const
 
-export type BoundaryType = keyof typeof BoundaryTypeToEnterprise
-export type BoundaryTypeEnterprise = keyof typeof BoundaryTypeFromEnterprise
+export type BoundaryType = keyof typeof BoundaryTypeToYAML
+export type BoundaryTypeYAML = keyof typeof BoundaryTypeFromYAML
 
-export const ByteOrderMarkUseToEnterprise = {
+export const ByteOrderMarkUseToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const ByteOrderMarkUseFromEnterprise = {
+export const ByteOrderMarkUseFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type ByteOrderMarkUse = keyof typeof ByteOrderMarkUseToEnterprise
-export type ByteOrderMarkUseEnterprise = keyof typeof ByteOrderMarkUseFromEnterprise
+export type ByteOrderMarkUse = keyof typeof ByteOrderMarkUseToYAML
+export type ByteOrderMarkUseYAML = keyof typeof ByteOrderMarkUseFromYAML
 
-export const ClientApplicationBaseFontVariantToEnterprise = {
+export const ClientApplicationBaseFontVariantToYAML = {
   Large: "Крупный",
   Normal: "Обычный",
 } as const
 
-export const ClientApplicationBaseFontVariantFromEnterprise = {
+export const ClientApplicationBaseFontVariantFromYAML = {
   Крупный: "Large",
   Обычный: "Normal",
 } as const
 
-export type ClientApplicationBaseFontVariant = keyof typeof ClientApplicationBaseFontVariantToEnterprise
-export type ClientApplicationBaseFontVariantEnterprise = keyof typeof ClientApplicationBaseFontVariantFromEnterprise
+export type ClientApplicationBaseFontVariant = keyof typeof ClientApplicationBaseFontVariantToYAML
+export type ClientApplicationBaseFontVariantYAML = keyof typeof ClientApplicationBaseFontVariantFromYAML
 
-export const ClientApplicationFormScaleVariantToEnterprise = {
+export const ClientApplicationFormScaleVariantToYAML = {
   Auto: "Авто",
   Compact: "Компактный",
   Normal: "Обычный",
 } as const
 
-export const ClientApplicationFormScaleVariantFromEnterprise = {
+export const ClientApplicationFormScaleVariantFromYAML = {
   Авто: "Auto",
   Компактный: "Compact",
   Обычный: "Normal",
 } as const
 
-export type ClientApplicationFormScaleVariant = keyof typeof ClientApplicationFormScaleVariantToEnterprise
-export type ClientApplicationFormScaleVariantEnterprise = keyof typeof ClientApplicationFormScaleVariantFromEnterprise
+export type ClientApplicationFormScaleVariant = keyof typeof ClientApplicationFormScaleVariantToYAML
+export type ClientApplicationFormScaleVariantYAML = keyof typeof ClientApplicationFormScaleVariantFromYAML
 
-export const ClientApplicationInterfaceVariantToEnterprise = {
+export const ClientApplicationInterfaceVariantToYAML = {
   Version8_2: "Версия8_2",
   Taxi: "Такси",
 } as const
 
-export const ClientApplicationInterfaceVariantFromEnterprise = {
+export const ClientApplicationInterfaceVariantFromYAML = {
   Версия8_2: "Version8_2",
   Такси: "Taxi",
 } as const
 
-export type ClientApplicationInterfaceVariant = keyof typeof ClientApplicationInterfaceVariantToEnterprise
-export type ClientApplicationInterfaceVariantEnterprise = keyof typeof ClientApplicationInterfaceVariantFromEnterprise
+export type ClientApplicationInterfaceVariant = keyof typeof ClientApplicationInterfaceVariantToYAML
+export type ClientApplicationInterfaceVariantYAML = keyof typeof ClientApplicationInterfaceVariantFromYAML
 
-export const ClientApplicationTypeToEnterprise = {
+export const ClientApplicationTypeToYAML = {
   WebClient: "ВебКлиент",
   ExternalConnection: "ВнешнееСоединение",
   MobileAppClient: "МобильноеПриложениеКлиент",
@@ -2064,7 +2051,7 @@ export const ClientApplicationTypeToEnterprise = {
   ThinClient: "ТонкийКлиент",
 } as const
 
-export const ClientApplicationTypeFromEnterprise = {
+export const ClientApplicationTypeFromYAML = {
   ВебКлиент: "WebClient",
   ВнешнееСоединение: "ExternalConnection",
   МобильноеПриложениеКлиент: "MobileAppClient",
@@ -2073,38 +2060,38 @@ export const ClientApplicationTypeFromEnterprise = {
   ТонкийКлиент: "ThinClient",
 } as const
 
-export type ClientApplicationType = keyof typeof ClientApplicationTypeToEnterprise
-export type ClientApplicationTypeEnterprise = keyof typeof ClientApplicationTypeFromEnterprise
+export type ClientApplicationType = keyof typeof ClientApplicationTypeToYAML
+export type ClientApplicationTypeYAML = keyof typeof ClientApplicationTypeFromYAML
 
-export const ClientConnectionSpeedToEnterprise = {
+export const ClientConnectionSpeedToYAML = {
   Low: "Низкая",
   Normal: "Обычная",
 } as const
 
-export const ClientConnectionSpeedFromEnterprise = {
+export const ClientConnectionSpeedFromYAML = {
   Низкая: "Low",
   Обычная: "Normal",
 } as const
 
-export type ClientConnectionSpeed = keyof typeof ClientConnectionSpeedToEnterprise
-export type ClientConnectionSpeedEnterprise = keyof typeof ClientConnectionSpeedFromEnterprise
+export type ClientConnectionSpeed = keyof typeof ClientConnectionSpeedToYAML
+export type ClientConnectionSpeedYAML = keyof typeof ClientConnectionSpeedFromYAML
 
-export const ClientRunModeToEnterprise = {
+export const ClientRunModeToYAML = {
   Auto: "Авто",
   OrdinaryApplication: "ОбычноеПриложение",
   ManagedApplication: "УправляемоеПриложение",
 } as const
 
-export const ClientRunModeFromEnterprise = {
+export const ClientRunModeFromYAML = {
   Авто: "Auto",
   ОбычноеПриложение: "OrdinaryApplication",
   УправляемоеПриложение: "ManagedApplication",
 } as const
 
-export type ClientRunMode = keyof typeof ClientRunModeToEnterprise
-export type ClientRunModeEnterprise = keyof typeof ClientRunModeFromEnterprise
+export type ClientRunMode = keyof typeof ClientRunModeToYAML
+export type ClientRunModeYAML = keyof typeof ClientRunModeFromYAML
 
-export const ColorTypeToEnterprise = {
+export const ColorTypeToYAML = {
   WebColor: "WebЦвет",
   WindowsColor: "WindowsЦвет",
   Absolute: "Абсолютный",
@@ -2112,7 +2099,7 @@ export const ColorTypeToEnterprise = {
   StyleItem: "ЭлементСтиля",
 } as const
 
-export const ColorTypeFromEnterprise = {
+export const ColorTypeFromYAML = {
   WebЦвет: "WebColor",
   WindowsЦвет: "WindowsColor",
   Абсолютный: "Absolute",
@@ -2120,10 +2107,10 @@ export const ColorTypeFromEnterprise = {
   ЭлементСтиля: "StyleItem",
 } as const
 
-export type ColorType = keyof typeof ColorTypeToEnterprise
-export type ColorTypeEnterprise = keyof typeof ColorTypeFromEnterprise
+export type ColorType = keyof typeof ColorTypeToYAML
+export type ColorTypeYAML = keyof typeof ColorTypeFromYAML
 
-export const ComparisonTypeToEnterprise = {
+export const ComparisonTypeToYAML = {
   Greater: "Больше",
   GreaterOrEqual: "БольшеИлиРавно",
   InHierarchy: "ВИерархии",
@@ -2144,7 +2131,7 @@ export const ComparisonTypeToEnterprise = {
   Contains: "Содержит",
 } as const
 
-export const ComparisonTypeFromEnterprise = {
+export const ComparisonTypeFromYAML = {
   Больше: "Greater",
   БольшеИлиРавно: "GreaterOrEqual",
   ВИерархии: "InHierarchy",
@@ -2165,130 +2152,130 @@ export const ComparisonTypeFromEnterprise = {
   Содержит: "Contains",
 } as const
 
-export type ComparisonType = keyof typeof ComparisonTypeToEnterprise
-export type ComparisonTypeEnterprise = keyof typeof ComparisonTypeFromEnterprise
+export type ComparisonType = keyof typeof ComparisonTypeToYAML
+export type ComparisonTypeYAML = keyof typeof ComparisonTypeFromYAML
 
-export const CompositeWordsSeparationModeToEnterprise = {
+export const CompositeWordsSeparationModeToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const CompositeWordsSeparationModeFromEnterprise = {
+export const CompositeWordsSeparationModeFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type CompositeWordsSeparationMode = keyof typeof CompositeWordsSeparationModeToEnterprise
-export type CompositeWordsSeparationModeEnterprise = keyof typeof CompositeWordsSeparationModeFromEnterprise
+export type CompositeWordsSeparationMode = keyof typeof CompositeWordsSeparationModeToYAML
+export type CompositeWordsSeparationModeYAML = keyof typeof CompositeWordsSeparationModeFromYAML
 
-export const ConfigurationExtensionApplicationIssueSeverityToEnterprise = {
+export const ConfigurationExtensionApplicationIssueSeverityToYAML = {
   Critical: "Критичная",
   Low: "Низкая",
   Moderate: "Обычная",
 } as const
 
-export const ConfigurationExtensionApplicationIssueSeverityFromEnterprise = {
+export const ConfigurationExtensionApplicationIssueSeverityFromYAML = {
   Критичная: "Critical",
   Низкая: "Low",
   Обычная: "Moderate",
 } as const
 
 export type ConfigurationExtensionApplicationIssueSeverity =
-  keyof typeof ConfigurationExtensionApplicationIssueSeverityToEnterprise
-export type ConfigurationExtensionApplicationIssueSeverityEnterprise =
-  keyof typeof ConfigurationExtensionApplicationIssueSeverityFromEnterprise
+  keyof typeof ConfigurationExtensionApplicationIssueSeverityToYAML
+export type ConfigurationExtensionApplicationIssueSeverityYAML =
+  keyof typeof ConfigurationExtensionApplicationIssueSeverityFromYAML
 
-export const ConfigurationExtensionScopeToEnterprise = {
+export const ConfigurationExtensionScopeToYAML = {
   InfoBase: "ИнформационнаяБаза",
   DataSeparation: "РазделениеДанных",
 } as const
 
-export const ConfigurationExtensionScopeFromEnterprise = {
+export const ConfigurationExtensionScopeFromYAML = {
   ИнформационнаяБаза: "InfoBase",
   РазделениеДанных: "DataSeparation",
 } as const
 
-export type ConfigurationExtensionScope = keyof typeof ConfigurationExtensionScopeToEnterprise
-export type ConfigurationExtensionScopeEnterprise = keyof typeof ConfigurationExtensionScopeFromEnterprise
+export type ConfigurationExtensionScope = keyof typeof ConfigurationExtensionScopeToYAML
+export type ConfigurationExtensionScopeYAML = keyof typeof ConfigurationExtensionScopeFromYAML
 
-export const ConfigurationExtensionsSourceToEnterprise = {
+export const ConfigurationExtensionsSourceToYAML = {
   Database: "БазаДанных",
   SessionApplied: "СеансАктивные",
   SessionDisabled: "СеансОтключенные",
 } as const
 
-export const ConfigurationExtensionsSourceFromEnterprise = {
+export const ConfigurationExtensionsSourceFromYAML = {
   БазаДанных: "Database",
   СеансАктивные: "SessionApplied",
   СеансОтключенные: "SessionDisabled",
 } as const
 
-export type ConfigurationExtensionsSource = keyof typeof ConfigurationExtensionsSourceToEnterprise
-export type ConfigurationExtensionsSourceEnterprise = keyof typeof ConfigurationExtensionsSourceFromEnterprise
+export type ConfigurationExtensionsSource = keyof typeof ConfigurationExtensionsSourceToYAML
+export type ConfigurationExtensionsSourceYAML = keyof typeof ConfigurationExtensionsSourceFromYAML
 
-export const DataBaseConfigurationUpdateExecutionInformationItemTypeToEnterprise = {
+export const DataBaseConfigurationUpdateExecutionInformationItemTypeToYAML = {
   Information: "Информация",
   Error: "Ошибка",
   Warning: "Предупреждение",
 } as const
 
-export const DataBaseConfigurationUpdateExecutionInformationItemTypeFromEnterprise = {
+export const DataBaseConfigurationUpdateExecutionInformationItemTypeFromYAML = {
   Информация: "Information",
   Ошибка: "Error",
   Предупреждение: "Warning",
 } as const
 
 export type DataBaseConfigurationUpdateExecutionInformationItemType =
-  keyof typeof DataBaseConfigurationUpdateExecutionInformationItemTypeToEnterprise
-export type DataBaseConfigurationUpdateExecutionInformationItemTypeEnterprise =
-  keyof typeof DataBaseConfigurationUpdateExecutionInformationItemTypeFromEnterprise
+  keyof typeof DataBaseConfigurationUpdateExecutionInformationItemTypeToYAML
+export type DataBaseConfigurationUpdateExecutionInformationItemTypeYAML =
+  keyof typeof DataBaseConfigurationUpdateExecutionInformationItemTypeFromYAML
 
-export const DataBaseConfigurationUpdateStateToEnterprise = {
+export const DataBaseConfigurationUpdateStateToYAML = {
   RefreshInProgress: "ВыполняетсяАктуализация",
   ProcessingInProgress: "ВыполняетсяОбработка",
   NotActive: "Неактивно",
 } as const
 
-export const DataBaseConfigurationUpdateStateFromEnterprise = {
+export const DataBaseConfigurationUpdateStateFromYAML = {
   ВыполняетсяАктуализация: "RefreshInProgress",
   ВыполняетсяОбработка: "ProcessingInProgress",
   Неактивно: "NotActive",
 } as const
 
-export type DataBaseConfigurationUpdateState = keyof typeof DataBaseConfigurationUpdateStateToEnterprise
-export type DataBaseConfigurationUpdateStateEnterprise = keyof typeof DataBaseConfigurationUpdateStateFromEnterprise
+export type DataBaseConfigurationUpdateState = keyof typeof DataBaseConfigurationUpdateStateToYAML
+export type DataBaseConfigurationUpdateStateYAML = keyof typeof DataBaseConfigurationUpdateStateFromYAML
 
-export const DatabaseTablespacesUseModeToEnterprise = {
+export const DatabaseTablespacesUseModeToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const DatabaseTablespacesUseModeFromEnterprise = {
+export const DatabaseTablespacesUseModeFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type DatabaseTablespacesUseMode = keyof typeof DatabaseTablespacesUseModeToEnterprise
-export type DatabaseTablespacesUseModeEnterprise = keyof typeof DatabaseTablespacesUseModeFromEnterprise
+export type DatabaseTablespacesUseMode = keyof typeof DatabaseTablespacesUseModeToYAML
+export type DatabaseTablespacesUseModeYAML = keyof typeof DatabaseTablespacesUseModeFromYAML
 
-export const DateFractionsToEnterprise = {
+export const DateFractionsToYAML = {
   Time: "Время",
   Date: "Дата",
   DateTime: "ДатаВремя",
 } as const
 
-export const DateFractionsFromEnterprise = {
+export const DateFractionsFromYAML = {
   Время: "Time",
   Дата: "Date",
   ДатаВремя: "DateTime",
 } as const
 
-export type DateFractions = keyof typeof DateFractionsToEnterprise
-export type DateFractionsEnterprise = keyof typeof DateFractionsFromEnterprise
+export type DateFractions = keyof typeof DateFractionsToYAML
+export type DateFractionsYAML = keyof typeof DateFractionsFromYAML
 
-export const DialogReturnCodeToEnterprise = {
+export const DialogReturnCodeToYAML = {
   Yes: "Да",
   No: "Нет",
   OK: "ОК",
@@ -2299,7 +2286,7 @@ export const DialogReturnCodeToEnterprise = {
   Timeout: "Таймаут",
 } as const
 
-export const DialogReturnCodeFromEnterprise = {
+export const DialogReturnCodeFromYAML = {
   Да: "Yes",
   Нет: "No",
   ОК: "OK",
@@ -2310,135 +2297,135 @@ export const DialogReturnCodeFromEnterprise = {
   Таймаут: "Timeout",
 } as const
 
-export type DialogReturnCode = keyof typeof DialogReturnCodeToEnterprise
-export type DialogReturnCodeEnterprise = keyof typeof DialogReturnCodeFromEnterprise
+export type DialogReturnCode = keyof typeof DialogReturnCodeToYAML
+export type DialogReturnCodeYAML = keyof typeof DialogReturnCodeFromYAML
 
-export const DynamicListKeyTypeToEnterprise = {
+export const DynamicListKeyTypeToYAML = {
   Auto: "Авто",
   FieldValue: "ЗначениеПоля",
   RowKey: "КлючСтроки",
   RowNumber: "НомерСтроки",
 } as const
 
-export const DynamicListKeyTypeFromEnterprise = {
+export const DynamicListKeyTypeFromYAML = {
   Авто: "Auto",
   ЗначениеПоля: "FieldValue",
   КлючСтроки: "RowKey",
   НомерСтроки: "RowNumber",
 } as const
 
-export type DynamicListKeyType = keyof typeof DynamicListKeyTypeToEnterprise
-export type DynamicListKeyTypeEnterprise = keyof typeof DynamicListKeyTypeFromEnterprise
+export type DynamicListKeyType = keyof typeof DynamicListKeyTypeToYAML
+export type DynamicListKeyTypeYAML = keyof typeof DynamicListKeyTypeFromYAML
 
-export const EnterKeyBehaviorTypeToEnterprise = {
+export const EnterKeyBehaviorTypeToYAML = {
   DefaultButton: "КнопкаПоУмолчанию",
   ControlNavigation: "ПереходПоЭлементамФормы",
 } as const
 
-export const EnterKeyBehaviorTypeFromEnterprise = {
+export const EnterKeyBehaviorTypeFromYAML = {
   КнопкаПоУмолчанию: "DefaultButton",
   ПереходПоЭлементамФормы: "ControlNavigation",
 } as const
 
-export type EnterKeyBehaviorType = keyof typeof EnterKeyBehaviorTypeToEnterprise
-export type EnterKeyBehaviorTypeEnterprise = keyof typeof EnterKeyBehaviorTypeFromEnterprise
+export type EnterKeyBehaviorType = keyof typeof EnterKeyBehaviorTypeToYAML
+export type EnterKeyBehaviorTypeYAML = keyof typeof EnterKeyBehaviorTypeFromYAML
 
-export const ExternalDataSourceStateToEnterprise = {
+export const ExternalDataSourceStateToYAML = {
   Disconnected: "Отключен",
   Connected: "Подключен",
 } as const
 
-export const ExternalDataSourceStateFromEnterprise = {
+export const ExternalDataSourceStateFromYAML = {
   Отключен: "Disconnected",
   Подключен: "Connected",
 } as const
 
-export type ExternalDataSourceState = keyof typeof ExternalDataSourceStateToEnterprise
-export type ExternalDataSourceStateEnterprise = keyof typeof ExternalDataSourceStateFromEnterprise
+export type ExternalDataSourceState = keyof typeof ExternalDataSourceStateToYAML
+export type ExternalDataSourceStateYAML = keyof typeof ExternalDataSourceStateFromYAML
 
-export const FillCheckingToEnterprise = {
+export const FillCheckingToYAML = {
   ShowError: "ВыдаватьОшибку",
   DontCheck: "НеПроверять",
 } as const
 
-export const FillCheckingFromEnterprise = {
+export const FillCheckingFromYAML = {
   ВыдаватьОшибку: "ShowError",
   НеПроверять: "DontCheck",
 } as const
 
-export type FillChecking = keyof typeof FillCheckingToEnterprise
-export type FillCheckingEnterprise = keyof typeof FillCheckingFromEnterprise
+export type FillChecking = keyof typeof FillCheckingToYAML
+export type FillCheckingYAML = keyof typeof FillCheckingFromYAML
 
-export const FontTypeToEnterprise = {
+export const FontTypeToYAML = {
   WindowsFont: "WindowsШрифт",
   Absolute: "Абсолютный",
   AutoFont: "АвтоШрифт",
   StyleItem: "ЭлементСтиля",
 } as const
 
-export const FontTypeFromEnterprise = {
+export const FontTypeFromYAML = {
   WindowsШрифт: "WindowsFont",
   Абсолютный: "Absolute",
   АвтоШрифт: "AutoFont",
   ЭлементСтиля: "StyleItem",
 } as const
 
-export type FontType = keyof typeof FontTypeToEnterprise
-export type FontTypeEnterprise = keyof typeof FontTypeFromEnterprise
+export type FontType = keyof typeof FontTypeToYAML
+export type FontTypeYAML = keyof typeof FontTypeFromYAML
 
-export const FullTextSearchMetadataUseToEnterprise = {
+export const FullTextSearchMetadataUseToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const FullTextSearchMetadataUseFromEnterprise = {
+export const FullTextSearchMetadataUseFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type FullTextSearchMetadataUse = keyof typeof FullTextSearchMetadataUseToEnterprise
-export type FullTextSearchMetadataUseEnterprise = keyof typeof FullTextSearchMetadataUseFromEnterprise
+export type FullTextSearchMetadataUse = keyof typeof FullTextSearchMetadataUseToYAML
+export type FullTextSearchMetadataUseYAML = keyof typeof FullTextSearchMetadataUseFromYAML
 
-export const FullTextSearchModeToEnterprise = {
+export const FullTextSearchModeToYAML = {
   Disable: "Запретить",
   Enable: "Разрешить",
 } as const
 
-export const FullTextSearchModeFromEnterprise = {
+export const FullTextSearchModeFromYAML = {
   Запретить: "Disable",
   Разрешить: "Enable",
 } as const
 
-export type FullTextSearchMode = keyof typeof FullTextSearchModeToEnterprise
-export type FullTextSearchModeEnterprise = keyof typeof FullTextSearchModeFromEnterprise
+export type FullTextSearchMode = keyof typeof FullTextSearchModeToYAML
+export type FullTextSearchModeYAML = keyof typeof FullTextSearchModeFromYAML
 
-export const FullTextSearchRepresentationTypeToEnterprise = {
+export const FullTextSearchRepresentationTypeToYAML = {
   HTMLText: "HTMLТекст",
   XML: "XML",
 } as const
 
-export const FullTextSearchRepresentationTypeFromEnterprise = {
+export const FullTextSearchRepresentationTypeFromYAML = {
   HTMLТекст: "HTMLText",
   XML: "XML",
 } as const
 
-export type FullTextSearchRepresentationType = keyof typeof FullTextSearchRepresentationTypeToEnterprise
-export type FullTextSearchRepresentationTypeEnterprise = keyof typeof FullTextSearchRepresentationTypeFromEnterprise
+export type FullTextSearchRepresentationType = keyof typeof FullTextSearchRepresentationTypeToYAML
+export type FullTextSearchRepresentationTypeYAML = keyof typeof FullTextSearchRepresentationTypeFromYAML
 
-export const FullTextSearchVersionToEnterprise = {
+export const FullTextSearchVersionToYAML = {
   Version1: "Версия1",
   Version2: "Версия2",
 } as const
 
-export const FullTextSearchVersionFromEnterprise = {
+export const FullTextSearchVersionFromYAML = {
   Версия1: "Version1",
   Версия2: "Version2",
 } as const
 
-export type FullTextSearchVersion = keyof typeof FullTextSearchVersionToEnterprise
-export type FullTextSearchVersionEnterprise = keyof typeof FullTextSearchVersionFromEnterprise
+export type FullTextSearchVersion = keyof typeof FullTextSearchVersionToYAML
+export type FullTextSearchVersionYAML = keyof typeof FullTextSearchVersionFromYAML
 
-export const HashFunctionToEnterprise = {
+export const HashFunctionToYAML = {
   CRC32: "CRC32",
   MD5: "MD5",
   PBKDF2SHA256: "PBKDF2SHA256",
@@ -2447,7 +2434,7 @@ export const HashFunctionToEnterprise = {
   SHA512: "SHA512",
 } as const
 
-export const HashFunctionFromEnterprise = {
+export const HashFunctionFromYAML = {
   CRC32: "CRC32",
   MD5: "MD5",
   PBKDF2SHA256: "PBKDF2SHA256",
@@ -2456,27 +2443,27 @@ export const HashFunctionFromEnterprise = {
   SHA512: "SHA512",
 } as const
 
-export type HashFunction = keyof typeof HashFunctionToEnterprise
-export type HashFunctionEnterprise = keyof typeof HashFunctionFromEnterprise
+export type HashFunction = keyof typeof HashFunctionToYAML
+export type HashFunctionYAML = keyof typeof HashFunctionFromYAML
 
-export const InterfaceCompatibilityModeToEnterprise = {
+export const InterfaceCompatibilityModeToYAML = {
   Version8_2: "Версия8_2",
   Version8_2EnableTaxi: "Версия8_2РазрешитьТакси",
   Taxi: "Такси",
   TaxiEnableVersion8_2: "ТаксиРазрешитьВерсия8_2",
 } as const
 
-export const InterfaceCompatibilityModeFromEnterprise = {
+export const InterfaceCompatibilityModeFromYAML = {
   Версия8_2: "Version8_2",
   Версия8_2РазрешитьТакси: "Version8_2EnableTaxi",
   Такси: "Taxi",
   ТаксиРазрешитьВерсия8_2: "TaxiEnableVersion8_2",
 } as const
 
-export type InterfaceCompatibilityMode = keyof typeof InterfaceCompatibilityModeToEnterprise
-export type InterfaceCompatibilityModeEnterprise = keyof typeof InterfaceCompatibilityModeFromEnterprise
+export type InterfaceCompatibilityMode = keyof typeof InterfaceCompatibilityModeToYAML
+export type InterfaceCompatibilityModeYAML = keyof typeof InterfaceCompatibilityModeFromYAML
 
-export const IntervalBoundVariantToEnterprise = {
+export const IntervalBoundVariantToYAML = {
   WithoutRestriction: "БезОграничения",
   Year: "Год",
   Quarter: "Квартал",
@@ -2487,7 +2474,7 @@ export const IntervalBoundVariantToEnterprise = {
   BeforeAfter: "Смещение",
 } as const
 
-export const IntervalBoundVariantFromEnterprise = {
+export const IntervalBoundVariantFromYAML = {
   БезОграничения: "WithoutRestriction",
   Год: "Year",
   Квартал: "Quarter",
@@ -2498,10 +2485,10 @@ export const IntervalBoundVariantFromEnterprise = {
   Смещение: "BeforeAfter",
 } as const
 
-export type IntervalBoundVariant = keyof typeof IntervalBoundVariantToEnterprise
-export type IntervalBoundVariantEnterprise = keyof typeof IntervalBoundVariantFromEnterprise
+export type IntervalBoundVariant = keyof typeof IntervalBoundVariantToYAML
+export type IntervalBoundVariantYAML = keyof typeof IntervalBoundVariantFromYAML
 
-export const KeyToEnterprise = {
+export const KeyToYAML = {
   BackSpace: "BackSpace",
   Break: "Break",
   NumAdd: "NumAdd",
@@ -2513,7 +2500,7 @@ export const KeyToEnterprise = {
   None: "Нет",
 } as const
 
-export const KeyFromEnterprise = {
+export const KeyFromYAML = {
   BackSpace: "BackSpace",
   Break: "Break",
   NumAdd: "NumAdd",
@@ -2525,23 +2512,23 @@ export const KeyFromEnterprise = {
   Нет: "None",
 } as const
 
-export type Key = keyof typeof KeyToEnterprise
-export type KeyEnterprise = keyof typeof KeyFromEnterprise
+export type Key = keyof typeof KeyToYAML
+export type KeyYAML = keyof typeof KeyFromYAML
 
-export const LocationRelativeToGeofenceToEnterprise = {
+export const LocationRelativeToGeofenceToYAML = {
   Inside: "Внутри",
   Outside: "Снаружи",
 } as const
 
-export const LocationRelativeToGeofenceFromEnterprise = {
+export const LocationRelativeToGeofenceFromYAML = {
   Внутри: "Inside",
   Снаружи: "Outside",
 } as const
 
-export type LocationRelativeToGeofence = keyof typeof LocationRelativeToGeofenceToEnterprise
-export type LocationRelativeToGeofenceEnterprise = keyof typeof LocationRelativeToGeofenceFromEnterprise
+export type LocationRelativeToGeofence = keyof typeof LocationRelativeToGeofenceToYAML
+export type LocationRelativeToGeofenceYAML = keyof typeof LocationRelativeToGeofenceFromYAML
 
-export const MessageStatusToEnterprise = {
+export const MessageStatusToYAML = {
   WithoutStatus: "БезСтатуса",
   Important: "Важное",
   Attention: "Внимание",
@@ -2550,7 +2537,7 @@ export const MessageStatusToEnterprise = {
   VeryImportant: "ОченьВажное",
 } as const
 
-export const MessageStatusFromEnterprise = {
+export const MessageStatusFromYAML = {
   БезСтатуса: "WithoutStatus",
   Важное: "Important",
   Внимание: "Attention",
@@ -2559,10 +2546,10 @@ export const MessageStatusFromEnterprise = {
   ОченьВажное: "VeryImportant",
 } as const
 
-export type MessageStatus = keyof typeof MessageStatusToEnterprise
-export type MessageStatusEnterprise = keyof typeof MessageStatusFromEnterprise
+export type MessageStatus = keyof typeof MessageStatusToYAML
+export type MessageStatusYAML = keyof typeof MessageStatusFromYAML
 
-export const MobileApplicationFunctionalitiesToEnterprise = {
+export const MobileApplicationFunctionalitiesToYAML = {
   BluetoothPrinters: "BluetoothПринтеры",
   NFC: "NFC",
   PushNotifications: "PushУведомления",
@@ -2603,7 +2590,7 @@ export const MobileApplicationFunctionalitiesToEnterprise = {
   InstallPackages: "УстановкаПриложений",
 } as const
 
-export const MobileApplicationFunctionalitiesFromEnterprise = {
+export const MobileApplicationFunctionalitiesFromYAML = {
   BluetoothПринтеры: "BluetoothPrinters",
   NFC: "NFC",
   PushУведомления: "PushNotifications",
@@ -2644,54 +2631,53 @@ export const MobileApplicationFunctionalitiesFromEnterprise = {
   УстановкаПриложений: "InstallPackages",
 } as const
 
-export type MobileApplicationFunctionalities = keyof typeof MobileApplicationFunctionalitiesToEnterprise
-export type MobileApplicationFunctionalitiesEnterprise = keyof typeof MobileApplicationFunctionalitiesFromEnterprise
+export type MobileApplicationFunctionalities = keyof typeof MobileApplicationFunctionalitiesToYAML
+export type MobileApplicationFunctionalitiesYAML = keyof typeof MobileApplicationFunctionalitiesFromYAML
 
-export const NumericValueTypeToEnterprise = {
+export const NumericValueTypeToYAML = {
   Cardinal: "Количественное",
   Ordinal: "Порядковое",
 } as const
 
-export const NumericValueTypeFromEnterprise = {
+export const NumericValueTypeFromYAML = {
   Количественное: "Cardinal",
   Порядковое: "Ordinal",
 } as const
 
-export type NumericValueType = keyof typeof NumericValueTypeToEnterprise
-export type NumericValueTypeEnterprise = keyof typeof NumericValueTypeFromEnterprise
+export type NumericValueType = keyof typeof NumericValueTypeToYAML
+export type NumericValueTypeYAML = keyof typeof NumericValueTypeFromYAML
 
-export const PasswordPolicyComplianceCheckResultToEnterprise = {
+export const PasswordPolicyComplianceCheckResultToYAML = {
   DoesNotSatisfyMinLengthRequirements: "НеСоответствуетТребованиямМинимальнойДлины",
   DoesNotSatisfyReuseLimitRequirements: "НеСоответствуетТребованиямОграниченияПовторенияСредиПоследних",
   DoesNotSatisfyCompromiseCheckRequirements: "НеСоответствуетТребованиямПроверкиРаскрытия",
   DoesNotSatisfyComplexityRequirements: "НеСоответствуетТребованиямСложности",
 } as const
 
-export const PasswordPolicyComplianceCheckResultFromEnterprise = {
+export const PasswordPolicyComplianceCheckResultFromYAML = {
   НеСоответствуетТребованиямМинимальнойДлины: "DoesNotSatisfyMinLengthRequirements",
   НеСоответствуетТребованиямОграниченияПовторенияСредиПоследних: "DoesNotSatisfyReuseLimitRequirements",
   НеСоответствуетТребованиямПроверкиРаскрытия: "DoesNotSatisfyCompromiseCheckRequirements",
   НеСоответствуетТребованиямСложности: "DoesNotSatisfyComplexityRequirements",
 } as const
 
-export type PasswordPolicyComplianceCheckResult = keyof typeof PasswordPolicyComplianceCheckResultToEnterprise
-export type PasswordPolicyComplianceCheckResultEnterprise =
-  keyof typeof PasswordPolicyComplianceCheckResultFromEnterprise
+export type PasswordPolicyComplianceCheckResult = keyof typeof PasswordPolicyComplianceCheckResultToYAML
+export type PasswordPolicyComplianceCheckResultYAML = keyof typeof PasswordPolicyComplianceCheckResultFromYAML
 
-export const PeriodSettingsVariantToEnterprise = {
+export const PeriodSettingsVariantToYAML = {
   Interval: "Интервал",
   Period: "Период",
 } as const
 
-export const PeriodSettingsVariantFromEnterprise = {
+export const PeriodSettingsVariantFromYAML = {
   Интервал: "Interval",
   Период: "Period",
 } as const
 
-export type PeriodSettingsVariant = keyof typeof PeriodSettingsVariantToEnterprise
-export type PeriodSettingsVariantEnterprise = keyof typeof PeriodSettingsVariantFromEnterprise
+export type PeriodSettingsVariant = keyof typeof PeriodSettingsVariantToYAML
+export type PeriodSettingsVariantYAML = keyof typeof PeriodSettingsVariantFromYAML
 
-export const PeriodVariantToEnterprise = {
+export const PeriodVariantToYAML = {
   Year: "Год",
   Day: "День",
   DayFromBegOfYear: "ДеньСНачалаГода",
@@ -2705,7 +2691,7 @@ export const PeriodVariantToEnterprise = {
   AnyInterval: "ПроизвольныйИнтервал",
 } as const
 
-export const PeriodVariantFromEnterprise = {
+export const PeriodVariantFromYAML = {
   Год: "Year",
   День: "Day",
   ДеньСНачалаГода: "DayFromBegOfYear",
@@ -2719,25 +2705,25 @@ export const PeriodVariantFromEnterprise = {
   ПроизвольныйИнтервал: "AnyInterval",
 } as const
 
-export type PeriodVariant = keyof typeof PeriodVariantToEnterprise
-export type PeriodVariantEnterprise = keyof typeof PeriodVariantFromEnterprise
+export type PeriodVariant = keyof typeof PeriodVariantToYAML
+export type PeriodVariantYAML = keyof typeof PeriodVariantFromYAML
 
-export const PictureTypeToEnterprise = {
+export const PictureTypeToYAML = {
   Absolute: "Абсолютная",
   FromLib: "ИзБиблиотеки",
   Empty: "Пустая",
 } as const
 
-export const PictureTypeFromEnterprise = {
+export const PictureTypeFromYAML = {
   Абсолютная: "Absolute",
   ИзБиблиотеки: "FromLib",
   Пустая: "Empty",
 } as const
 
-export type PictureType = keyof typeof PictureTypeToEnterprise
-export type PictureTypeEnterprise = keyof typeof PictureTypeFromEnterprise
+export type PictureType = keyof typeof PictureTypeToYAML
+export type PictureTypeYAML = keyof typeof PictureTypeFromYAML
 
-export const PlatformTypeToEnterprise = {
+export const PlatformTypeToYAML = {
   Android_ARM: "Android_ARM",
   Android_ARM_64: "Android_ARM_64",
   Android_x86: "Android_x86",
@@ -2757,7 +2743,7 @@ export const PlatformTypeToEnterprise = {
   WinRT_x86_64: "WinRT_x86_64",
 } as const
 
-export const PlatformTypeFromEnterprise = {
+export const PlatformTypeFromYAML = {
   Android_ARM: "Android_ARM",
   Android_ARM_64: "Android_ARM_64",
   Android_x86: "Android_x86",
@@ -2777,25 +2763,25 @@ export const PlatformTypeFromEnterprise = {
   WinRT_x86_64: "WinRT_x86_64",
 } as const
 
-export type PlatformType = keyof typeof PlatformTypeToEnterprise
-export type PlatformTypeEnterprise = keyof typeof PlatformTypeFromEnterprise
+export type PlatformType = keyof typeof PlatformTypeToYAML
+export type PlatformTypeYAML = keyof typeof PlatformTypeFromYAML
 
-export const PredefinedDataUpdateToEnterprise = {
+export const PredefinedDataUpdateToYAML = {
   Auto: "Авто",
   DontAutoUpdate: "НеОбновлятьАвтоматически",
   AutoUpdate: "ОбновлятьАвтоматически",
 } as const
 
-export const PredefinedDataUpdateFromEnterprise = {
+export const PredefinedDataUpdateFromYAML = {
   Авто: "Auto",
   НеОбновлятьАвтоматически: "DontAutoUpdate",
   ОбновлятьАвтоматически: "AutoUpdate",
 } as const
 
-export type PredefinedDataUpdate = keyof typeof PredefinedDataUpdateToEnterprise
-export type PredefinedDataUpdateEnterprise = keyof typeof PredefinedDataUpdateFromEnterprise
+export type PredefinedDataUpdate = keyof typeof PredefinedDataUpdateToYAML
+export type PredefinedDataUpdateYAML = keyof typeof PredefinedDataUpdateFromYAML
 
-export const QuestionDialogModeToEnterprise = {
+export const QuestionDialogModeToYAML = {
   YesNo: "ДаНет",
   YesNoCancel: "ДаНетОтмена",
   OK: "ОК",
@@ -2804,7 +2790,7 @@ export const QuestionDialogModeToEnterprise = {
   AbortRetryIgnore: "ПрерватьПовторитьПропустить",
 } as const
 
-export const QuestionDialogModeFromEnterprise = {
+export const QuestionDialogModeFromYAML = {
   ДаНет: "YesNo",
   ДаНетОтмена: "YesNoCancel",
   ОК: "OK",
@@ -2813,10 +2799,10 @@ export const QuestionDialogModeFromEnterprise = {
   ПрерватьПовторитьПропустить: "AbortRetryIgnore",
 } as const
 
-export type QuestionDialogMode = keyof typeof QuestionDialogModeToEnterprise
-export type QuestionDialogModeEnterprise = keyof typeof QuestionDialogModeFromEnterprise
+export type QuestionDialogMode = keyof typeof QuestionDialogModeToYAML
+export type QuestionDialogModeYAML = keyof typeof QuestionDialogModeFromYAML
 
-export const ReplacementModeToEnterprise = {
+export const ReplacementModeToYAML = {
   Append: "Добавление",
   Replace: "Замещение",
   Update: "Обновление",
@@ -2824,7 +2810,7 @@ export const ReplacementModeToEnterprise = {
   Delete: "Удаление",
 } as const
 
-export const ReplacementModeFromEnterprise = {
+export const ReplacementModeFromYAML = {
   Добавление: "Append",
   Замещение: "Replace",
   Обновление: "Update",
@@ -2832,36 +2818,36 @@ export const ReplacementModeFromEnterprise = {
   Удаление: "Delete",
 } as const
 
-export type ReplacementMode = keyof typeof ReplacementModeToEnterprise
-export type ReplacementModeEnterprise = keyof typeof ReplacementModeFromEnterprise
+export type ReplacementMode = keyof typeof ReplacementModeToYAML
+export type ReplacementModeYAML = keyof typeof ReplacementModeFromYAML
 
-export const RoundModeToEnterprise = {
+export const RoundModeToYAML = {
   Round15as10: "Окр15как10",
   Round15as20: "Окр15как20",
 } as const
 
-export const RoundModeFromEnterprise = {
+export const RoundModeFromYAML = {
   Окр15как10: "Round15as10",
   Окр15как20: "Round15as20",
 } as const
 
-export type RoundMode = keyof typeof RoundModeToEnterprise
-export type RoundModeEnterprise = keyof typeof RoundModeFromEnterprise
+export type RoundMode = keyof typeof RoundModeToYAML
+export type RoundModeYAML = keyof typeof RoundModeFromYAML
 
-export const SearchDirectionToEnterprise = {
+export const SearchDirectionToYAML = {
   FromEnd: "СКонца",
   FromBegin: "СНачала",
 } as const
 
-export const SearchDirectionFromEnterprise = {
+export const SearchDirectionFromYAML = {
   СКонца: "FromEnd",
   СНачала: "FromBegin",
 } as const
 
-export type SearchDirection = keyof typeof SearchDirectionToEnterprise
-export type SearchDirectionEnterprise = keyof typeof SearchDirectionFromEnterprise
+export type SearchDirection = keyof typeof SearchDirectionToYAML
+export type SearchDirectionYAML = keyof typeof SearchDirectionFromYAML
 
-export const SectionsPanelRepresentationToEnterprise = {
+export const SectionsPanelRepresentationToYAML = {
   Picture: "Картинка",
   PictureAndText: "КартинкаИТекст",
   PictureOnTopAndText: "КартинкаСверхуИТекст",
@@ -2869,7 +2855,7 @@ export const SectionsPanelRepresentationToEnterprise = {
   Text: "Текст",
 } as const
 
-export const SectionsPanelRepresentationFromEnterprise = {
+export const SectionsPanelRepresentationFromYAML = {
   Картинка: "Picture",
   КартинкаИТекст: "PictureAndText",
   КартинкаСверхуИТекст: "PictureOnTopAndText",
@@ -2877,23 +2863,23 @@ export const SectionsPanelRepresentationFromEnterprise = {
   Текст: "Text",
 } as const
 
-export type SectionsPanelRepresentation = keyof typeof SectionsPanelRepresentationToEnterprise
-export type SectionsPanelRepresentationEnterprise = keyof typeof SectionsPanelRepresentationFromEnterprise
+export type SectionsPanelRepresentation = keyof typeof SectionsPanelRepresentationToYAML
+export type SectionsPanelRepresentationYAML = keyof typeof SectionsPanelRepresentationFromYAML
 
-export const SortDirectionToEnterprise = {
+export const SortDirectionToYAML = {
   Asc: "Возр",
   Desc: "Убыв",
 } as const
 
-export const SortDirectionFromEnterprise = {
+export const SortDirectionFromYAML = {
   Возр: "Asc",
   Убыв: "Desc",
 } as const
 
-export type SortDirection = keyof typeof SortDirectionToEnterprise
-export type SortDirectionEnterprise = keyof typeof SortDirectionFromEnterprise
+export type SortDirection = keyof typeof SortDirectionToYAML
+export type SortDirectionYAML = keyof typeof SortDirectionFromYAML
 
-export const StandardBeginningDateVariantToEnterprise = {
+export const StandardBeginningDateVariantToYAML = {
   BeginningOfLastYear: "НачалоПрошлогоГода",
   BeginningOfLastDay: "НачалоПрошлогоДня",
   BeginningOfLastQuarter: "НачалоПрошлогоКвартала",
@@ -2918,7 +2904,7 @@ export const StandardBeginningDateVariantToEnterprise = {
   Custom: "ПроизвольнаяДата",
 } as const
 
-export const StandardBeginningDateVariantFromEnterprise = {
+export const StandardBeginningDateVariantFromYAML = {
   НачалоПрошлогоГода: "BeginningOfLastYear",
   НачалоПрошлогоДня: "BeginningOfLastDay",
   НачалоПрошлогоКвартала: "BeginningOfLastQuarter",
@@ -2943,10 +2929,10 @@ export const StandardBeginningDateVariantFromEnterprise = {
   ПроизвольнаяДата: "Custom",
 } as const
 
-export type StandardBeginningDateVariant = keyof typeof StandardBeginningDateVariantToEnterprise
-export type StandardBeginningDateVariantEnterprise = keyof typeof StandardBeginningDateVariantFromEnterprise
+export type StandardBeginningDateVariant = keyof typeof StandardBeginningDateVariantToYAML
+export type StandardBeginningDateVariantYAML = keyof typeof StandardBeginningDateVariantFromYAML
 
-export const StandardGlobalSearchTypeToEnterprise = {
+export const StandardGlobalSearchTypeToYAML = {
   AllFunctions: "ВсеФункции",
   Expression: "Выражение",
   GlobalStandardCommands: "ГлобальныеСтандартныеКоманды",
@@ -2961,7 +2947,7 @@ export const StandardGlobalSearchTypeToEnterprise = {
   FunctionsForTechnicalSpecialist: "ФункцииДляТехническогоСпециалиста",
 } as const
 
-export const StandardGlobalSearchTypeFromEnterprise = {
+export const StandardGlobalSearchTypeFromYAML = {
   ВсеФункции: "AllFunctions",
   Выражение: "Expression",
   ГлобальныеСтандартныеКоманды: "GlobalStandardCommands",
@@ -2976,10 +2962,10 @@ export const StandardGlobalSearchTypeFromEnterprise = {
   ФункцииДляТехническогоСпециалиста: "FunctionsForTechnicalSpecialist",
 } as const
 
-export type StandardGlobalSearchType = keyof typeof StandardGlobalSearchTypeToEnterprise
-export type StandardGlobalSearchTypeEnterprise = keyof typeof StandardGlobalSearchTypeFromEnterprise
+export type StandardGlobalSearchType = keyof typeof StandardGlobalSearchTypeToYAML
+export type StandardGlobalSearchTypeYAML = keyof typeof StandardGlobalSearchTypeFromYAML
 
-export const StandardPeriodVariantToEnterprise = {
+export const StandardPeriodVariantToYAML = {
   Yesterday: "Вчера",
   TillEndOfThisYear: "ДоКонцаЭтогоГода",
   TillEndOfThisQuarter: "ДоКонцаЭтогоКвартала",
@@ -3031,7 +3017,7 @@ export const StandardPeriodVariantToEnterprise = {
   ThisMonth: "ЭтотМесяц",
 } as const
 
-export const StandardPeriodVariantFromEnterprise = {
+export const StandardPeriodVariantFromYAML = {
   Вчера: "Yesterday",
   ДоКонцаЭтогоГода: "TillEndOfThisYear",
   ДоКонцаЭтогоКвартала: "TillEndOfThisQuarter",
@@ -3083,23 +3069,23 @@ export const StandardPeriodVariantFromEnterprise = {
   ЭтотМесяц: "ThisMonth",
 } as const
 
-export type StandardPeriodVariant = keyof typeof StandardPeriodVariantToEnterprise
-export type StandardPeriodVariantEnterprise = keyof typeof StandardPeriodVariantFromEnterprise
+export type StandardPeriodVariant = keyof typeof StandardPeriodVariantToYAML
+export type StandardPeriodVariantYAML = keyof typeof StandardPeriodVariantFromYAML
 
-export const StringEncodingMethodToEnterprise = {
+export const StringEncodingMethodToYAML = {
   URLInURLEncoding: "URLВКодировкеURL",
   URLEncoding: "КодировкаURL",
 } as const
 
-export const StringEncodingMethodFromEnterprise = {
+export const StringEncodingMethodFromYAML = {
   URLВКодировкеURL: "URLInURLEncoding",
   КодировкаURL: "URLEncoding",
 } as const
 
-export type StringEncodingMethod = keyof typeof StringEncodingMethodToEnterprise
-export type StringEncodingMethodEnterprise = keyof typeof StringEncodingMethodFromEnterprise
+export type StringEncodingMethod = keyof typeof StringEncodingMethodToYAML
+export type StringEncodingMethodYAML = keyof typeof StringEncodingMethodFromYAML
 
-export const TextEncodingToEnterprise = {
+export const TextEncodingToYAML = {
   ANSI: "ANSI",
   OEM: "OEM",
   UTF16: "UTF16",
@@ -3107,7 +3093,7 @@ export const TextEncodingToEnterprise = {
   System: "Системная",
 } as const
 
-export const TextEncodingFromEnterprise = {
+export const TextEncodingFromYAML = {
   ANSI: "ANSI",
   OEM: "OEM",
   UTF16: "UTF16",
@@ -3115,10 +3101,10 @@ export const TextEncodingFromEnterprise = {
   Системная: "System",
 } as const
 
-export type TextEncoding = keyof typeof TextEncodingToEnterprise
-export type TextEncodingEnterprise = keyof typeof TextEncodingFromEnterprise
+export type TextEncoding = keyof typeof TextEncodingToYAML
+export type TextEncodingYAML = keyof typeof TextEncodingFromYAML
 
-export const TransactionsIsolationLevelToEnterprise = {
+export const TransactionsIsolationLevelToYAML = {
   Auto: "Авто",
   RepeatableRead: "ПовторяемоеЧтение",
   Serializable: "Упорядочиваемость",
@@ -3126,7 +3112,7 @@ export const TransactionsIsolationLevelToEnterprise = {
   ReadUncommitted: "ЧтениеНезафиксированных",
 } as const
 
-export const TransactionsIsolationLevelFromEnterprise = {
+export const TransactionsIsolationLevelFromYAML = {
   Авто: "Auto",
   ПовторяемоеЧтение: "RepeatableRead",
   Упорядочиваемость: "Serializable",
@@ -3134,83 +3120,83 @@ export const TransactionsIsolationLevelFromEnterprise = {
   ЧтениеНезафиксированных: "ReadUncommitted",
 } as const
 
-export type TransactionsIsolationLevel = keyof typeof TransactionsIsolationLevelToEnterprise
-export type TransactionsIsolationLevelEnterprise = keyof typeof TransactionsIsolationLevelFromEnterprise
+export type TransactionsIsolationLevel = keyof typeof TransactionsIsolationLevelToYAML
+export type TransactionsIsolationLevelYAML = keyof typeof TransactionsIsolationLevelFromYAML
 
-export const UUIDVersionToEnterprise = {
+export const UUIDVersionToYAML = {
   Version1: "Версия1",
   Version3: "Версия3",
   Version4: "Версия4",
   Version5: "Версия5",
 } as const
 
-export const UUIDVersionFromEnterprise = {
+export const UUIDVersionFromYAML = {
   Версия1: "Version1",
   Версия3: "Version3",
   Версия4: "Version4",
   Версия5: "Version5",
 } as const
 
-export type UUIDVersion = keyof typeof UUIDVersionToEnterprise
-export type UUIDVersionEnterprise = keyof typeof UUIDVersionFromEnterprise
+export type UUIDVersion = keyof typeof UUIDVersionToYAML
+export type UUIDVersionYAML = keyof typeof UUIDVersionFromYAML
 
-export const UpdateOnDataChangeToEnterprise = {
+export const UpdateOnDataChangeToYAML = {
   Auto: "Авто",
   DontUpdate: "НеОбновлять",
 } as const
 
-export const UpdateOnDataChangeFromEnterprise = {
+export const UpdateOnDataChangeFromYAML = {
   Авто: "Auto",
   НеОбновлять: "DontUpdate",
 } as const
 
-export type UpdateOnDataChange = keyof typeof UpdateOnDataChangeToEnterprise
-export type UpdateOnDataChangeEnterprise = keyof typeof UpdateOnDataChangeFromEnterprise
+export type UpdateOnDataChange = keyof typeof UpdateOnDataChangeToYAML
+export type UpdateOnDataChangeYAML = keyof typeof UpdateOnDataChangeFromYAML
 
-export const UserPasswordHashAlgorithmTypeToEnterprise = {
+export const UserPasswordHashAlgorithmTypeToYAML = {
   PBKDF2SHA256: "PBKDF2SHA256",
   SHA1: "SHA1",
   SHA256: "SHA256",
   SHA512: "SHA512",
 } as const
 
-export const UserPasswordHashAlgorithmTypeFromEnterprise = {
+export const UserPasswordHashAlgorithmTypeFromYAML = {
   PBKDF2SHA256: "PBKDF2SHA256",
   SHA1: "SHA1",
   SHA256: "SHA256",
   SHA512: "SHA512",
 } as const
 
-export type UserPasswordHashAlgorithmType = keyof typeof UserPasswordHashAlgorithmTypeToEnterprise
-export type UserPasswordHashAlgorithmTypeEnterprise = keyof typeof UserPasswordHashAlgorithmTypeFromEnterprise
+export type UserPasswordHashAlgorithmType = keyof typeof UserPasswordHashAlgorithmTypeToYAML
+export type UserPasswordHashAlgorithmTypeYAML = keyof typeof UserPasswordHashAlgorithmTypeFromYAML
 
-export const WorkingDateModeToEnterprise = {
+export const WorkingDateModeToYAML = {
   UseCurrentDate: "ИспользоватьТекущуюДату",
   Assign: "Назначать",
 } as const
 
-export const WorkingDateModeFromEnterprise = {
+export const WorkingDateModeFromYAML = {
   ИспользоватьТекущуюДату: "UseCurrentDate",
   Назначать: "Assign",
 } as const
 
-export type WorkingDateMode = keyof typeof WorkingDateModeToEnterprise
-export type WorkingDateModeEnterprise = keyof typeof WorkingDateModeFromEnterprise
+export type WorkingDateMode = keyof typeof WorkingDateModeToYAML
+export type WorkingDateModeYAML = keyof typeof WorkingDateModeFromYAML
 
-export const XBaseEncodingToEnterprise = {
+export const XBaseEncodingToYAML = {
   ANSI: "ANSI",
   OEM: "OEM",
 } as const
 
-export const XBaseEncodingFromEnterprise = {
+export const XBaseEncodingFromYAML = {
   ANSI: "ANSI",
   OEM: "OEM",
 } as const
 
-export type XBaseEncoding = keyof typeof XBaseEncodingToEnterprise
-export type XBaseEncodingEnterprise = keyof typeof XBaseEncodingFromEnterprise
+export type XBaseEncoding = keyof typeof XBaseEncodingToYAML
+export type XBaseEncodingYAML = keyof typeof XBaseEncodingFromYAML
 
-export const CalendarEventRecurrenceToEnterprise = {
+export const CalendarEventRecurrenceToYAML = {
   Weekly: "КаждуюНеделю",
   Yearly: "КаждыйГод",
   Daily: "КаждыйДень",
@@ -3218,7 +3204,7 @@ export const CalendarEventRecurrenceToEnterprise = {
   Once: "ОдинРаз",
 } as const
 
-export const CalendarEventRecurrenceFromEnterprise = {
+export const CalendarEventRecurrenceFromYAML = {
   КаждуюНеделю: "Weekly",
   КаждыйГод: "Yearly",
   КаждыйДень: "Daily",
@@ -3226,58 +3212,57 @@ export const CalendarEventRecurrenceFromEnterprise = {
   ОдинРаз: "Once",
 } as const
 
-export type CalendarEventRecurrence = keyof typeof CalendarEventRecurrenceToEnterprise
-export type CalendarEventRecurrenceEnterprise = keyof typeof CalendarEventRecurrenceFromEnterprise
+export type CalendarEventRecurrence = keyof typeof CalendarEventRecurrenceToYAML
+export type CalendarEventRecurrenceYAML = keyof typeof CalendarEventRecurrenceFromYAML
 
-export const ContactDataAddressTypeToEnterprise = {
+export const ContactDataAddressTypeToYAML = {
   Home: "Домашний",
   Other: "Другой",
   Work: "Рабочий",
 } as const
 
-export const ContactDataAddressTypeFromEnterprise = {
+export const ContactDataAddressTypeFromYAML = {
   Домашний: "Home",
   Другой: "Other",
   Рабочий: "Work",
 } as const
 
-export type ContactDataAddressType = keyof typeof ContactDataAddressTypeToEnterprise
-export type ContactDataAddressTypeEnterprise = keyof typeof ContactDataAddressTypeFromEnterprise
+export type ContactDataAddressType = keyof typeof ContactDataAddressTypeToYAML
+export type ContactDataAddressTypeYAML = keyof typeof ContactDataAddressTypeFromYAML
 
-export const ContactDataEmailAddressTypeToEnterprise = {
+export const ContactDataEmailAddressTypeToYAML = {
   Home: "Домашний",
   Other: "Другой",
   Mobile: "Мобильный",
   Work: "Рабочий",
 } as const
 
-export const ContactDataEmailAddressTypeFromEnterprise = {
+export const ContactDataEmailAddressTypeFromYAML = {
   Домашний: "Home",
   Другой: "Other",
   Мобильный: "Mobile",
   Рабочий: "Work",
 } as const
 
-export type ContactDataEmailAddressType = keyof typeof ContactDataEmailAddressTypeToEnterprise
-export type ContactDataEmailAddressTypeEnterprise = keyof typeof ContactDataEmailAddressTypeFromEnterprise
+export type ContactDataEmailAddressType = keyof typeof ContactDataEmailAddressTypeToYAML
+export type ContactDataEmailAddressTypeYAML = keyof typeof ContactDataEmailAddressTypeFromYAML
 
-export const ContactDataInstantMessagingAddressTypeToEnterprise = {
+export const ContactDataInstantMessagingAddressTypeToYAML = {
   Home: "Домашний",
   Other: "Другой",
   Work: "Рабочий",
 } as const
 
-export const ContactDataInstantMessagingAddressTypeFromEnterprise = {
+export const ContactDataInstantMessagingAddressTypeFromYAML = {
   Домашний: "Home",
   Другой: "Other",
   Рабочий: "Work",
 } as const
 
-export type ContactDataInstantMessagingAddressType = keyof typeof ContactDataInstantMessagingAddressTypeToEnterprise
-export type ContactDataInstantMessagingAddressTypeEnterprise =
-  keyof typeof ContactDataInstantMessagingAddressTypeFromEnterprise
+export type ContactDataInstantMessagingAddressType = keyof typeof ContactDataInstantMessagingAddressTypeToYAML
+export type ContactDataInstantMessagingAddressTypeYAML = keyof typeof ContactDataInstantMessagingAddressTypeFromYAML
 
-export const ContactDataPhoneNumberTypeToEnterprise = {
+export const ContactDataPhoneNumberTypeToYAML = {
   iPhone: "iPhone",
   Home: "Домашний",
   HomeFax: "ДомашнийФакс",
@@ -3290,7 +3275,7 @@ export const ContactDataPhoneNumberTypeToEnterprise = {
   WorkFax: "РабочийФакс",
 } as const
 
-export const ContactDataPhoneNumberTypeFromEnterprise = {
+export const ContactDataPhoneNumberTypeFromYAML = {
   iPhone: "iPhone",
   Домашний: "Home",
   ДомашнийФакс: "HomeFax",
@@ -3303,10 +3288,10 @@ export const ContactDataPhoneNumberTypeFromEnterprise = {
   РабочийФакс: "WorkFax",
 } as const
 
-export type ContactDataPhoneNumberType = keyof typeof ContactDataPhoneNumberTypeToEnterprise
-export type ContactDataPhoneNumberTypeEnterprise = keyof typeof ContactDataPhoneNumberTypeFromEnterprise
+export type ContactDataPhoneNumberType = keyof typeof ContactDataPhoneNumberTypeToYAML
+export type ContactDataPhoneNumberTypeYAML = keyof typeof ContactDataPhoneNumberTypeFromYAML
 
-export const ContactDataRelationshipTypeToEnterprise = {
+export const ContactDataRelationshipTypeToYAML = {
   Brother: "Брат",
   DomesticPartner: "ГражданскийСупруг",
   Friend: "Друг",
@@ -3323,7 +3308,7 @@ export const ContactDataRelationshipTypeToEnterprise = {
   Spouse: "Супруг",
 } as const
 
-export const ContactDataRelationshipTypeFromEnterprise = {
+export const ContactDataRelationshipTypeFromYAML = {
   Брат: "Brother",
   ГражданскийСупруг: "DomesticPartner",
   Друг: "Friend",
@@ -3340,10 +3325,10 @@ export const ContactDataRelationshipTypeFromEnterprise = {
   Супруг: "Spouse",
 } as const
 
-export type ContactDataRelationshipType = keyof typeof ContactDataRelationshipTypeToEnterprise
-export type ContactDataRelationshipTypeEnterprise = keyof typeof ContactDataRelationshipTypeFromEnterprise
+export type ContactDataRelationshipType = keyof typeof ContactDataRelationshipTypeToYAML
+export type ContactDataRelationshipTypeYAML = keyof typeof ContactDataRelationshipTypeFromYAML
 
-export const ContactDataURLTypeToEnterprise = {
+export const ContactDataURLTypeToYAML = {
   FTP: "FTP",
   Blog: "Блог",
   Home: "Домашний",
@@ -3353,7 +3338,7 @@ export const ContactDataURLTypeToEnterprise = {
   Work: "Рабочий",
 } as const
 
-export const ContactDataURLTypeFromEnterprise = {
+export const ContactDataURLTypeFromYAML = {
   FTP: "FTP",
   Блог: "Blog",
   Домашний: "Home",
@@ -3363,25 +3348,25 @@ export const ContactDataURLTypeFromEnterprise = {
   Рабочий: "Work",
 } as const
 
-export type ContactDataURLType = keyof typeof ContactDataURLTypeToEnterprise
-export type ContactDataURLTypeEnterprise = keyof typeof ContactDataURLTypeFromEnterprise
+export type ContactDataURLType = keyof typeof ContactDataURLTypeToYAML
+export type ContactDataURLTypeYAML = keyof typeof ContactDataURLTypeFromYAML
 
-export const CallLogCallTypeToEnterprise = {
+export const CallLogCallTypeToYAML = {
   Incoming: "Входящий",
   Outgoing: "Исходящий",
   Missed: "Пропущенный",
 } as const
 
-export const CallLogCallTypeFromEnterprise = {
+export const CallLogCallTypeFromYAML = {
   Входящий: "Incoming",
   Исходящий: "Outgoing",
   Пропущенный: "Missed",
 } as const
 
-export type CallLogCallType = keyof typeof CallLogCallTypeToEnterprise
-export type CallLogCallTypeEnterprise = keyof typeof CallLogCallTypeFromEnterprise
+export type CallLogCallType = keyof typeof CallLogCallTypeToYAML
+export type CallLogCallTypeYAML = keyof typeof CallLogCallTypeFromYAML
 
-export const TelephonyToolsCallEventVariantToEnterprise = {
+export const TelephonyToolsCallEventVariantToYAML = {
   EndIncoming: "ЗавершениеВходящего",
   EndOutgoing: "ЗавершениеИсходящего",
   StartIncoming: "НачалоВходящего",
@@ -3389,7 +3374,7 @@ export const TelephonyToolsCallEventVariantToEnterprise = {
   StartIncomingRinging: "НачалоСигналаВходящего",
 } as const
 
-export const TelephonyToolsCallEventVariantFromEnterprise = {
+export const TelephonyToolsCallEventVariantFromYAML = {
   ЗавершениеВходящего: "EndIncoming",
   ЗавершениеИсходящего: "EndOutgoing",
   НачалоВходящего: "StartIncoming",
@@ -3397,10 +3382,10 @@ export const TelephonyToolsCallEventVariantFromEnterprise = {
   НачалоСигналаВходящего: "StartIncomingRinging",
 } as const
 
-export type TelephonyToolsCallEventVariant = keyof typeof TelephonyToolsCallEventVariantToEnterprise
-export type TelephonyToolsCallEventVariantEnterprise = keyof typeof TelephonyToolsCallEventVariantFromEnterprise
+export type TelephonyToolsCallEventVariant = keyof typeof TelephonyToolsCallEventVariantToYAML
+export type TelephonyToolsCallEventVariantYAML = keyof typeof TelephonyToolsCallEventVariantFromYAML
 
-export const TelephonyToolsSMSTypeToEnterprise = {
+export const TelephonyToolsSMSTypeToYAML = {
   Queued: "ВОчереди",
   Incoming: "Входящее",
   Outgoing: "Исходящее",
@@ -3409,7 +3394,7 @@ export const TelephonyToolsSMSTypeToEnterprise = {
   Draft: "Черновик",
 } as const
 
-export const TelephonyToolsSMSTypeFromEnterprise = {
+export const TelephonyToolsSMSTypeFromYAML = {
   ВОчереди: "Queued",
   Входящее: "Incoming",
   Исходящее: "Outgoing",
@@ -3418,36 +3403,36 @@ export const TelephonyToolsSMSTypeFromEnterprise = {
   Черновик: "Draft",
 } as const
 
-export type TelephonyToolsSMSType = keyof typeof TelephonyToolsSMSTypeToEnterprise
-export type TelephonyToolsSMSTypeEnterprise = keyof typeof TelephonyToolsSMSTypeFromEnterprise
+export type TelephonyToolsSMSType = keyof typeof TelephonyToolsSMSTypeToYAML
+export type TelephonyToolsSMSTypeYAML = keyof typeof TelephonyToolsSMSTypeFromYAML
 
-export const AudioRecordingChannelUseToEnterprise = {
+export const AudioRecordingChannelUseToYAML = {
   Mono: "Моно",
   Stereo: "Стерео",
 } as const
 
-export const AudioRecordingChannelUseFromEnterprise = {
+export const AudioRecordingChannelUseFromYAML = {
   Моно: "Mono",
   Стерео: "Stereo",
 } as const
 
-export type AudioRecordingChannelUse = keyof typeof AudioRecordingChannelUseToEnterprise
-export type AudioRecordingChannelUseEnterprise = keyof typeof AudioRecordingChannelUseFromEnterprise
+export type AudioRecordingChannelUse = keyof typeof AudioRecordingChannelUseToYAML
+export type AudioRecordingChannelUseYAML = keyof typeof AudioRecordingChannelUseFromYAML
 
-export const AudioRecordingFormatToEnterprise = {
+export const AudioRecordingFormatToYAML = {
   Mpeg4AAC: "Mpeg4AAC",
   WavPCM16bit: "WavPCM16bit",
 } as const
 
-export const AudioRecordingFormatFromEnterprise = {
+export const AudioRecordingFormatFromYAML = {
   Mpeg4AAC: "Mpeg4AAC",
   WavPCM16bit: "WavPCM16bit",
 } as const
 
-export type AudioRecordingFormat = keyof typeof AudioRecordingFormatToEnterprise
-export type AudioRecordingFormatEnterprise = keyof typeof AudioRecordingFormatFromEnterprise
+export type AudioRecordingFormat = keyof typeof AudioRecordingFormatToYAML
+export type AudioRecordingFormatYAML = keyof typeof AudioRecordingFormatFromYAML
 
-export const BarcodeTypeToEnterprise = {
+export const BarcodeTypeToYAML = {
   Aztec: "Aztec",
   Codabar: "Codabar",
   Code128: "Code128",
@@ -3469,7 +3454,7 @@ export const BarcodeTypeToEnterprise = {
   Linear: "Линейный",
 } as const
 
-export const BarcodeTypeFromEnterprise = {
+export const BarcodeTypeFromYAML = {
   Aztec: "Aztec",
   Codabar: "Codabar",
   Code128: "Code128",
@@ -3491,40 +3476,40 @@ export const BarcodeTypeFromEnterprise = {
   Линейный: "Linear",
 } as const
 
-export type BarcodeType = keyof typeof BarcodeTypeToEnterprise
-export type BarcodeTypeEnterprise = keyof typeof BarcodeTypeFromEnterprise
+export type BarcodeType = keyof typeof BarcodeTypeToYAML
+export type BarcodeTypeYAML = keyof typeof BarcodeTypeFromYAML
 
-export const CameraLightingTypeToEnterprise = {
+export const CameraLightingTypeToYAML = {
   Auto: "Авто",
   Enable: "Включена",
   Disable: "Выключена",
 } as const
 
-export const CameraLightingTypeFromEnterprise = {
+export const CameraLightingTypeFromYAML = {
   Авто: "Auto",
   Включена: "Enable",
   Выключена: "Disable",
 } as const
 
-export type CameraLightingType = keyof typeof CameraLightingTypeToEnterprise
-export type CameraLightingTypeEnterprise = keyof typeof CameraLightingTypeFromEnterprise
+export type CameraLightingType = keyof typeof CameraLightingTypeToYAML
+export type CameraLightingTypeYAML = keyof typeof CameraLightingTypeFromYAML
 
-export const DeviceCameraTypeToEnterprise = {
+export const DeviceCameraTypeToYAML = {
   Auto: "Авто",
   Rear: "Задняя",
   Front: "Передняя",
 } as const
 
-export const DeviceCameraTypeFromEnterprise = {
+export const DeviceCameraTypeFromYAML = {
   Авто: "Auto",
   Задняя: "Rear",
   Передняя: "Front",
 } as const
 
-export type DeviceCameraType = keyof typeof DeviceCameraTypeToEnterprise
-export type DeviceCameraTypeEnterprise = keyof typeof DeviceCameraTypeFromEnterprise
+export type DeviceCameraType = keyof typeof DeviceCameraTypeToYAML
+export type DeviceCameraTypeYAML = keyof typeof DeviceCameraTypeFromYAML
 
-export const DocumentScanningCheckingQualityToEnterprise = {
+export const DocumentScanningCheckingQualityToYAML = {
   DontCheck: "НеПроверять",
   WarnBelowHigh: "ПредупреждатьНижеВысокого",
   WarnBelowMedium: "ПредупреждатьНижеСреднего",
@@ -3532,7 +3517,7 @@ export const DocumentScanningCheckingQualityToEnterprise = {
   RequireMediumWarnBelowHigh: "ТребоватьСреднееПредупреждатьНижеВысокого",
 } as const
 
-export const DocumentScanningCheckingQualityFromEnterprise = {
+export const DocumentScanningCheckingQualityFromYAML = {
   НеПроверять: "DontCheck",
   ПредупреждатьНижеВысокого: "WarnBelowHigh",
   ПредупреждатьНижеСреднего: "WarnBelowMedium",
@@ -3540,10 +3525,10 @@ export const DocumentScanningCheckingQualityFromEnterprise = {
   ТребоватьСреднееПредупреждатьНижеВысокого: "RequireMediumWarnBelowHigh",
 } as const
 
-export type DocumentScanningCheckingQuality = keyof typeof DocumentScanningCheckingQualityToEnterprise
-export type DocumentScanningCheckingQualityEnterprise = keyof typeof DocumentScanningCheckingQualityFromEnterprise
+export type DocumentScanningCheckingQuality = keyof typeof DocumentScanningCheckingQualityToYAML
+export type DocumentScanningCheckingQualityYAML = keyof typeof DocumentScanningCheckingQualityFromYAML
 
-export const DocumentScanningOrientationDetectionModeToEnterprise = {
+export const DocumentScanningOrientationDetectionModeToYAML = {
   Landscape: "Ландшафт",
   ByHorizontalTextLines: "ПоГоризонтальнымСтрокамТекста",
   ByFirstPageInSeries: "ПоПервойСтраницеСерии",
@@ -3551,7 +3536,7 @@ export const DocumentScanningOrientationDetectionModeToEnterprise = {
   Portrait: "Портрет",
 } as const
 
-export const DocumentScanningOrientationDetectionModeFromEnterprise = {
+export const DocumentScanningOrientationDetectionModeFromYAML = {
   Ландшафт: "Landscape",
   ПоГоризонтальнымСтрокамТекста: "ByHorizontalTextLines",
   ПоПервойСтраницеСерии: "ByFirstPageInSeries",
@@ -3559,26 +3544,25 @@ export const DocumentScanningOrientationDetectionModeFromEnterprise = {
   Портрет: "Portrait",
 } as const
 
-export type DocumentScanningOrientationDetectionMode = keyof typeof DocumentScanningOrientationDetectionModeToEnterprise
-export type DocumentScanningOrientationDetectionModeEnterprise =
-  keyof typeof DocumentScanningOrientationDetectionModeFromEnterprise
+export type DocumentScanningOrientationDetectionMode = keyof typeof DocumentScanningOrientationDetectionModeToYAML
+export type DocumentScanningOrientationDetectionModeYAML = keyof typeof DocumentScanningOrientationDetectionModeFromYAML
 
-export const DocumentScanningProcessingFilterToEnterprise = {
+export const DocumentScanningProcessingFilterToYAML = {
   None: "Нет",
   Text: "Текст",
   TextWithPictures: "ТекстСКартинками",
 } as const
 
-export const DocumentScanningProcessingFilterFromEnterprise = {
+export const DocumentScanningProcessingFilterFromYAML = {
   Нет: "None",
   Текст: "Text",
   ТекстСКартинками: "TextWithPictures",
 } as const
 
-export type DocumentScanningProcessingFilter = keyof typeof DocumentScanningProcessingFilterToEnterprise
-export type DocumentScanningProcessingFilterEnterprise = keyof typeof DocumentScanningProcessingFilterFromEnterprise
+export type DocumentScanningProcessingFilter = keyof typeof DocumentScanningProcessingFilterToYAML
+export type DocumentScanningProcessingFilterYAML = keyof typeof DocumentScanningProcessingFilterFromYAML
 
-export const MultimediaRecordingStopButtonPlacementToEnterprise = {
+export const MultimediaRecordingStopButtonPlacementToYAML = {
   Auto: "Авто",
   Top: "Верх",
   Left: "Лево",
@@ -3591,7 +3575,7 @@ export const MultimediaRecordingStopButtonPlacementToEnterprise = {
   RightBottom: "ПравоНиз",
 } as const
 
-export const MultimediaRecordingStopButtonPlacementFromEnterprise = {
+export const MultimediaRecordingStopButtonPlacementFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Лево: "Left",
@@ -3604,26 +3588,25 @@ export const MultimediaRecordingStopButtonPlacementFromEnterprise = {
   ПравоНиз: "RightBottom",
 } as const
 
-export type MultimediaRecordingStopButtonPlacement = keyof typeof MultimediaRecordingStopButtonPlacementToEnterprise
-export type MultimediaRecordingStopButtonPlacementEnterprise =
-  keyof typeof MultimediaRecordingStopButtonPlacementFromEnterprise
+export type MultimediaRecordingStopButtonPlacement = keyof typeof MultimediaRecordingStopButtonPlacementToYAML
+export type MultimediaRecordingStopButtonPlacementYAML = keyof typeof MultimediaRecordingStopButtonPlacementFromYAML
 
-export const VideoQualityToEnterprise = {
+export const VideoQualityToYAML = {
   Auto: "Авто",
   High: "Высокое",
   Low: "Низкое",
 } as const
 
-export const VideoQualityFromEnterprise = {
+export const VideoQualityFromYAML = {
   Авто: "Auto",
   Высокое: "High",
   Низкое: "Low",
 } as const
 
-export type VideoQuality = keyof typeof VideoQualityToEnterprise
-export type VideoQualityEnterprise = keyof typeof VideoQualityFromEnterprise
+export type VideoQuality = keyof typeof VideoQualityToYAML
+export type VideoQualityYAML = keyof typeof VideoQualityFromYAML
 
-export const QuerySchemaAvailableTableParameterTypeToEnterprise = {
+export const QuerySchemaAvailableTableParameterTypeToYAML = {
   Variant: "Вариант",
   Value: "Значение",
   Array: "Массив",
@@ -3632,7 +3615,7 @@ export const QuerySchemaAvailableTableParameterTypeToEnterprise = {
   Where: "Условие",
 } as const
 
-export const QuerySchemaAvailableTableParameterTypeFromEnterprise = {
+export const QuerySchemaAvailableTableParameterTypeFromYAML = {
   Вариант: "Variant",
   Значение: "Value",
   Массив: "Array",
@@ -3641,45 +3624,44 @@ export const QuerySchemaAvailableTableParameterTypeFromEnterprise = {
   Условие: "Where",
 } as const
 
-export type QuerySchemaAvailableTableParameterType = keyof typeof QuerySchemaAvailableTableParameterTypeToEnterprise
-export type QuerySchemaAvailableTableParameterTypeEnterprise =
-  keyof typeof QuerySchemaAvailableTableParameterTypeFromEnterprise
+export type QuerySchemaAvailableTableParameterType = keyof typeof QuerySchemaAvailableTableParameterTypeToYAML
+export type QuerySchemaAvailableTableParameterTypeYAML = keyof typeof QuerySchemaAvailableTableParameterTypeFromYAML
 
-export const QuerySchemaJoinTypeToEnterprise = {
+export const QuerySchemaJoinTypeToYAML = {
   Inner: "Внутреннее",
   LeftOuter: "ЛевоеВнешнее",
   FullOuter: "ПолноеВнешнее",
   RightOuter: "ПравоеВнешнее",
 } as const
 
-export const QuerySchemaJoinTypeFromEnterprise = {
+export const QuerySchemaJoinTypeFromYAML = {
   Внутреннее: "Inner",
   ЛевоеВнешнее: "LeftOuter",
   ПолноеВнешнее: "FullOuter",
   ПравоеВнешнее: "RightOuter",
 } as const
 
-export type QuerySchemaJoinType = keyof typeof QuerySchemaJoinTypeToEnterprise
-export type QuerySchemaJoinTypeEnterprise = keyof typeof QuerySchemaJoinTypeFromEnterprise
+export type QuerySchemaJoinType = keyof typeof QuerySchemaJoinTypeToYAML
+export type QuerySchemaJoinTypeYAML = keyof typeof QuerySchemaJoinTypeFromYAML
 
-export const QuerySchemaOrderDirectionToEnterprise = {
+export const QuerySchemaOrderDirectionToYAML = {
   Ascending: "ПоВозрастанию",
   HierarchyAscending: "ПоВозрастаниюИерархии",
   Descending: "ПоУбыванию",
   HierarchyDescending: "ПоУбываниюИерархии",
 } as const
 
-export const QuerySchemaOrderDirectionFromEnterprise = {
+export const QuerySchemaOrderDirectionFromYAML = {
   ПоВозрастанию: "Ascending",
   ПоВозрастаниюИерархии: "HierarchyAscending",
   ПоУбыванию: "Descending",
   ПоУбываниюИерархии: "HierarchyDescending",
 } as const
 
-export type QuerySchemaOrderDirection = keyof typeof QuerySchemaOrderDirectionToEnterprise
-export type QuerySchemaOrderDirectionEnterprise = keyof typeof QuerySchemaOrderDirectionFromEnterprise
+export type QuerySchemaOrderDirection = keyof typeof QuerySchemaOrderDirectionToYAML
+export type QuerySchemaOrderDirectionYAML = keyof typeof QuerySchemaOrderDirectionFromYAML
 
-export const QuerySchemaPeriodAdditionTypeToEnterprise = {
+export const QuerySchemaPeriodAdditionTypeToYAML = {
   NoAddition: "БезДополнения",
   Year: "Год",
   TenDays: "Декада",
@@ -3693,7 +3675,7 @@ export const QuerySchemaPeriodAdditionTypeToEnterprise = {
   Hour: "Час",
 } as const
 
-export const QuerySchemaPeriodAdditionTypeFromEnterprise = {
+export const QuerySchemaPeriodAdditionTypeFromYAML = {
   БезДополнения: "NoAddition",
   Год: "Year",
   Декада: "TenDays",
@@ -3707,52 +3689,51 @@ export const QuerySchemaPeriodAdditionTypeFromEnterprise = {
   Час: "Hour",
 } as const
 
-export type QuerySchemaPeriodAdditionType = keyof typeof QuerySchemaPeriodAdditionTypeToEnterprise
-export type QuerySchemaPeriodAdditionTypeEnterprise = keyof typeof QuerySchemaPeriodAdditionTypeFromEnterprise
+export type QuerySchemaPeriodAdditionType = keyof typeof QuerySchemaPeriodAdditionTypeToYAML
+export type QuerySchemaPeriodAdditionTypeYAML = keyof typeof QuerySchemaPeriodAdditionTypeFromYAML
 
-export const QuerySchemaTotalCalculationFieldTypeToEnterprise = {
+export const QuerySchemaTotalCalculationFieldTypeToYAML = {
   Hierarchy: "Иерархия",
   HierarchyOnly: "ТолькоИерархия",
   Items: "Элементы",
 } as const
 
-export const QuerySchemaTotalCalculationFieldTypeFromEnterprise = {
+export const QuerySchemaTotalCalculationFieldTypeFromYAML = {
   Иерархия: "Hierarchy",
   ТолькоИерархия: "HierarchyOnly",
   Элементы: "Items",
 } as const
 
-export type QuerySchemaTotalCalculationFieldType = keyof typeof QuerySchemaTotalCalculationFieldTypeToEnterprise
-export type QuerySchemaTotalCalculationFieldTypeEnterprise =
-  keyof typeof QuerySchemaTotalCalculationFieldTypeFromEnterprise
+export type QuerySchemaTotalCalculationFieldType = keyof typeof QuerySchemaTotalCalculationFieldTypeToYAML
+export type QuerySchemaTotalCalculationFieldTypeYAML = keyof typeof QuerySchemaTotalCalculationFieldTypeFromYAML
 
-export const QuerySchemaUnionTypeToEnterprise = {
+export const QuerySchemaUnionTypeToYAML = {
   Union: "Объединить",
   UnionAll: "ОбъединитьВсе",
 } as const
 
-export const QuerySchemaUnionTypeFromEnterprise = {
+export const QuerySchemaUnionTypeFromYAML = {
   Объединить: "Union",
   ОбъединитьВсе: "UnionAll",
 } as const
 
-export type QuerySchemaUnionType = keyof typeof QuerySchemaUnionTypeToEnterprise
-export type QuerySchemaUnionTypeEnterprise = keyof typeof QuerySchemaUnionTypeFromEnterprise
+export type QuerySchemaUnionType = keyof typeof QuerySchemaUnionTypeToYAML
+export type QuerySchemaUnionTypeYAML = keyof typeof QuerySchemaUnionTypeFromYAML
 
-export const NewPlannerItemsTextTypeToEnterprise = {
+export const NewPlannerItemsTextTypeToYAML = {
   String: "Строка",
   FormattedString: "ФорматированнаяСтрока",
 } as const
 
-export const NewPlannerItemsTextTypeFromEnterprise = {
+export const NewPlannerItemsTextTypeFromYAML = {
   Строка: "String",
   ФорматированнаяСтрока: "FormattedString",
 } as const
 
-export type NewPlannerItemsTextType = keyof typeof NewPlannerItemsTextTypeToEnterprise
-export type NewPlannerItemsTextTypeEnterprise = keyof typeof NewPlannerItemsTextTypeFromEnterprise
+export type NewPlannerItemsTextType = keyof typeof NewPlannerItemsTextTypeToYAML
+export type NewPlannerItemsTextTypeYAML = keyof typeof NewPlannerItemsTextTypeFromYAML
 
-export const PlannerCommandSourceToEnterprise = {
+export const PlannerCommandSourceToYAML = {
   Action: "Действие",
   URL: "НавигационнаяСсылка",
   WrappedTimeScaleHeaderArea: "ОбластьПеренесенногоЗаголовкаШкалыВремени",
@@ -3762,7 +3743,7 @@ export const PlannerCommandSourceToEnterprise = {
   Items: "Элементы",
 } as const
 
-export const PlannerCommandSourceFromEnterprise = {
+export const PlannerCommandSourceFromYAML = {
   Действие: "Action",
   НавигационнаяСсылка: "URL",
   ОбластьПеренесенногоЗаголовкаШкалыВремени: "WrappedTimeScaleHeaderArea",
@@ -3772,101 +3753,100 @@ export const PlannerCommandSourceFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export type PlannerCommandSource = keyof typeof PlannerCommandSourceToEnterprise
-export type PlannerCommandSourceEnterprise = keyof typeof PlannerCommandSourceFromEnterprise
+export type PlannerCommandSource = keyof typeof PlannerCommandSourceToYAML
+export type PlannerCommandSourceYAML = keyof typeof PlannerCommandSourceFromYAML
 
-export const PlannerInsideDragActionToEnterprise = {
+export const PlannerInsideDragActionToYAML = {
   Select: "Выделение",
   Copy: "Копирование",
   Edit: "Редактирование",
   Create: "Создание",
 } as const
 
-export const PlannerInsideDragActionFromEnterprise = {
+export const PlannerInsideDragActionFromYAML = {
   Выделение: "Select",
   Копирование: "Copy",
   Редактирование: "Edit",
   Создание: "Create",
 } as const
 
-export type PlannerInsideDragAction = keyof typeof PlannerInsideDragActionToEnterprise
-export type PlannerInsideDragActionEnterprise = keyof typeof PlannerInsideDragActionFromEnterprise
+export type PlannerInsideDragAction = keyof typeof PlannerInsideDragActionToYAML
+export type PlannerInsideDragActionYAML = keyof typeof PlannerInsideDragActionFromYAML
 
-export const PlannerInsideDragBoundaryChangeVariantToEnterprise = {
+export const PlannerInsideDragBoundaryChangeVariantToYAML = {
   End: "Конец",
   Begin: "Начало",
   BeginAndEnd: "НачалоИКонец",
 } as const
 
-export const PlannerInsideDragBoundaryChangeVariantFromEnterprise = {
+export const PlannerInsideDragBoundaryChangeVariantFromYAML = {
   Конец: "End",
   Начало: "Begin",
   НачалоИКонец: "BeginAndEnd",
 } as const
 
-export type PlannerInsideDragBoundaryChangeVariant = keyof typeof PlannerInsideDragBoundaryChangeVariantToEnterprise
-export type PlannerInsideDragBoundaryChangeVariantEnterprise =
-  keyof typeof PlannerInsideDragBoundaryChangeVariantFromEnterprise
+export type PlannerInsideDragBoundaryChangeVariant = keyof typeof PlannerInsideDragBoundaryChangeVariantToYAML
+export type PlannerInsideDragBoundaryChangeVariantYAML = keyof typeof PlannerInsideDragBoundaryChangeVariantFromYAML
 
-export const PlannerItemActionLocationToEnterprise = {
+export const PlannerItemActionLocationToYAML = {
   EndOfItem: "ВКонцеЭлемента",
   EndOfText: "ПослеТекста",
 } as const
 
-export const PlannerItemActionLocationFromEnterprise = {
+export const PlannerItemActionLocationFromYAML = {
   ВКонцеЭлемента: "EndOfItem",
   ПослеТекста: "EndOfText",
 } as const
 
-export type PlannerItemActionLocation = keyof typeof PlannerItemActionLocationToEnterprise
-export type PlannerItemActionLocationEnterprise = keyof typeof PlannerItemActionLocationFromEnterprise
+export type PlannerItemActionLocation = keyof typeof PlannerItemActionLocationToYAML
+export type PlannerItemActionLocationYAML = keyof typeof PlannerItemActionLocationFromYAML
 
-export const PlannerItemEnableEditModeToEnterprise = {
+export const PlannerItemEnableEditModeToYAML = {
   DisableDragAndStretch: "ЗапретитьПеретаскиваниеИРастягивание",
   DisableStretch: "ЗапретитьРастягивание",
   DisableEdit: "ЗапретитьРедактирование",
   EnableEdit: "РазрешитьРедактирование",
 } as const
 
-export const PlannerItemEnableEditModeFromEnterprise = {
+export const PlannerItemEnableEditModeFromYAML = {
   ЗапретитьПеретаскиваниеИРастягивание: "DisableDragAndStretch",
   ЗапретитьРастягивание: "DisableStretch",
   ЗапретитьРедактирование: "DisableEdit",
   РазрешитьРедактирование: "EnableEdit",
 } as const
 
-export type PlannerItemEnableEditMode = keyof typeof PlannerItemEnableEditModeToEnterprise
-export type PlannerItemEnableEditModeEnterprise = keyof typeof PlannerItemEnableEditModeFromEnterprise
+export type PlannerItemEnableEditMode = keyof typeof PlannerItemEnableEditModeToYAML
+export type PlannerItemEnableEditModeYAML = keyof typeof PlannerItemEnableEditModeFromYAML
 
-export const PlannerItemsBehaviorOnLackOfSpaceToEnterprise = {
+export const PlannerItemsBehaviorOnLackOfSpaceToYAML = {
   ShowAllItems: "ОтображатьВсеЭлементы",
   CollapseItems: "СворачиватьЭлементы",
 } as const
 
-export const PlannerItemsBehaviorOnLackOfSpaceFromEnterprise = {
+export const PlannerItemsBehaviorOnLackOfSpaceFromYAML = {
   ОтображатьВсеЭлементы: "ShowAllItems",
   СворачиватьЭлементы: "CollapseItems",
 } as const
 
-export type PlannerItemsBehaviorOnLackOfSpace = keyof typeof PlannerItemsBehaviorOnLackOfSpaceToEnterprise
-export type PlannerItemsBehaviorOnLackOfSpaceEnterprise = keyof typeof PlannerItemsBehaviorOnLackOfSpaceFromEnterprise
+export type PlannerItemsBehaviorOnLackOfSpace = keyof typeof PlannerItemsBehaviorOnLackOfSpaceToYAML
+export type PlannerItemsBehaviorOnLackOfSpaceYAML = keyof typeof PlannerItemsBehaviorOnLackOfSpaceFromYAML
 
-export const PlannerItemsTimeRepresentationToEnterprise = {
+export const PlannerItemsTimeRepresentationToYAML = {
   BeginTime: "ВремяНачала",
   BeginAndEndTime: "ВремяНачалаИКонца",
   DontDisplay: "НеОтображать",
 } as const
 
-export const PlannerItemsTimeRepresentationFromEnterprise = {
+export const PlannerItemsTimeRepresentationFromYAML = {
   ВремяНачала: "BeginTime",
   ВремяНачалаИКонца: "BeginAndEndTime",
   НеОтображать: "DontDisplay",
 } as const
 
-export type PlannerItemsTimeRepresentation = keyof typeof PlannerItemsTimeRepresentationToEnterprise
-export type PlannerItemsTimeRepresentationEnterprise = keyof typeof PlannerItemsTimeRepresentationFromEnterprise
+export type PlannerItemsTimeRepresentation = keyof typeof PlannerItemsTimeRepresentationToYAML
+export type PlannerItemsTimeRepresentationYAML = keyof typeof PlannerItemsTimeRepresentationFromYAML
 
-export const PlannerStandardCommandToEnterprise = {
+export const PlannerStandardCommandToYAML = {
   QuickEditItem: "БыстроРедактироватьЭлемент",
   SelectWrappedTimeScaleHeader: "ВыбратьПеренесенныйЗаголовокШкалыВремени",
   SelectDimensionItem: "ВыбратьЭлементИзмерения",
@@ -3879,7 +3859,7 @@ export const PlannerStandardCommandToEnterprise = {
   DeleteItems: "УдалитьЭлементы",
 } as const
 
-export const PlannerStandardCommandFromEnterprise = {
+export const PlannerStandardCommandFromYAML = {
   БыстроРедактироватьЭлемент: "QuickEditItem",
   ВыбратьПеренесенныйЗаголовокШкалыВремени: "SelectWrappedTimeScaleHeader",
   ВыбратьЭлементИзмерения: "SelectDimensionItem",
@@ -3892,72 +3872,72 @@ export const PlannerStandardCommandFromEnterprise = {
   УдалитьЭлементы: "DeleteItems",
 } as const
 
-export type PlannerStandardCommand = keyof typeof PlannerStandardCommandToEnterprise
-export type PlannerStandardCommandEnterprise = keyof typeof PlannerStandardCommandFromEnterprise
+export type PlannerStandardCommand = keyof typeof PlannerStandardCommandToYAML
+export type PlannerStandardCommandYAML = keyof typeof PlannerStandardCommandFromYAML
 
-export const JSONCharactersEscapeModeToEnterprise = {
+export const JSONCharactersEscapeModeToYAML = {
   None: "Нет",
   NotASCIISymbols: "СимволыВнеASCII",
   SymbolsNotInBMP: "СимволыВнеBMP",
 } as const
 
-export const JSONCharactersEscapeModeFromEnterprise = {
+export const JSONCharactersEscapeModeFromYAML = {
   Нет: "None",
   СимволыВнеASCII: "NotASCIISymbols",
   СимволыВнеBMP: "SymbolsNotInBMP",
 } as const
 
-export type JSONCharactersEscapeMode = keyof typeof JSONCharactersEscapeModeToEnterprise
-export type JSONCharactersEscapeModeEnterprise = keyof typeof JSONCharactersEscapeModeFromEnterprise
+export type JSONCharactersEscapeMode = keyof typeof JSONCharactersEscapeModeToYAML
+export type JSONCharactersEscapeModeYAML = keyof typeof JSONCharactersEscapeModeFromYAML
 
-export const JSONDateFormatToEnterprise = {
+export const JSONDateFormatToYAML = {
   ISO: "ISO",
   JavaScript: "JavaScript",
   Microsoft: "Microsoft",
 } as const
 
-export const JSONDateFormatFromEnterprise = {
+export const JSONDateFormatFromYAML = {
   ISO: "ISO",
   JavaScript: "JavaScript",
   Microsoft: "Microsoft",
 } as const
 
-export type JSONDateFormat = keyof typeof JSONDateFormatToEnterprise
-export type JSONDateFormatEnterprise = keyof typeof JSONDateFormatFromEnterprise
+export type JSONDateFormat = keyof typeof JSONDateFormatToYAML
+export type JSONDateFormatYAML = keyof typeof JSONDateFormatFromYAML
 
-export const JSONDateWritingVariantToEnterprise = {
+export const JSONDateWritingVariantToYAML = {
   LocalDate: "ЛокальнаяДата",
   LocalDateWithOffset: "ЛокальнаяДатаСоСмещением",
   UniversalDate: "УниверсальнаяДата",
 } as const
 
-export const JSONDateWritingVariantFromEnterprise = {
+export const JSONDateWritingVariantFromYAML = {
   ЛокальнаяДата: "LocalDate",
   ЛокальнаяДатаСоСмещением: "LocalDateWithOffset",
   УниверсальнаяДата: "UniversalDate",
 } as const
 
-export type JSONDateWritingVariant = keyof typeof JSONDateWritingVariantToEnterprise
-export type JSONDateWritingVariantEnterprise = keyof typeof JSONDateWritingVariantFromEnterprise
+export type JSONDateWritingVariant = keyof typeof JSONDateWritingVariantToYAML
+export type JSONDateWritingVariantYAML = keyof typeof JSONDateWritingVariantFromYAML
 
-export const JSONLineBreakToEnterprise = {
+export const JSONLineBreakToYAML = {
   Unix: "Unix",
   Windows: "Windows",
   Auto: "Авто",
   None: "Нет",
 } as const
 
-export const JSONLineBreakFromEnterprise = {
+export const JSONLineBreakFromYAML = {
   Unix: "Unix",
   Windows: "Windows",
   Авто: "Auto",
   Нет: "None",
 } as const
 
-export type JSONLineBreak = keyof typeof JSONLineBreakToEnterprise
-export type JSONLineBreakEnterprise = keyof typeof JSONLineBreakFromEnterprise
+export type JSONLineBreak = keyof typeof JSONLineBreakToYAML
+export type JSONLineBreakYAML = keyof typeof JSONLineBreakFromYAML
 
-export const JSONValueTypeToEnterprise = {
+export const JSONValueTypeToYAML = {
   Null: "Null",
   Boolean: "Булево",
   PropertyName: "ИмяСвойства",
@@ -3971,7 +3951,7 @@ export const JSONValueTypeToEnterprise = {
   Number: "Число",
 } as const
 
-export const JSONValueTypeFromEnterprise = {
+export const JSONValueTypeFromYAML = {
   Null: "Null",
   Булево: "Boolean",
   ИмяСвойства: "PropertyName",
@@ -3985,10 +3965,10 @@ export const JSONValueTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export type JSONValueType = keyof typeof JSONValueTypeToEnterprise
-export type JSONValueTypeEnterprise = keyof typeof JSONValueTypeFromEnterprise
+export type JSONValueType = keyof typeof JSONValueTypeToYAML
+export type JSONValueTypeYAML = keyof typeof JSONValueTypeFromYAML
 
-export const DeliverableNotificationSendErrorTypeToEnterprise = {
+export const DeliverableNotificationSendErrorTypeToYAML = {
   UnknownError: "НеизвестнаяОшибка",
   AuthenticationDataError: "ОшибкаДанныхАутентификации",
   SubscriberIDError: "ОшибкаИдентификатораПодписчика",
@@ -3998,7 +3978,7 @@ export const DeliverableNotificationSendErrorTypeToEnterprise = {
   NotificationsLimitExceeded: "ПревышенЛимитОтправкиУведомлений",
 } as const
 
-export const DeliverableNotificationSendErrorTypeFromEnterprise = {
+export const DeliverableNotificationSendErrorTypeFromYAML = {
   НеизвестнаяОшибка: "UnknownError",
   ОшибкаДанныхАутентификации: "AuthenticationDataError",
   ОшибкаИдентификатораПодписчика: "SubscriberIDError",
@@ -4008,11 +3988,10 @@ export const DeliverableNotificationSendErrorTypeFromEnterprise = {
   ПревышенЛимитОтправкиУведомлений: "NotificationsLimitExceeded",
 } as const
 
-export type DeliverableNotificationSendErrorType = keyof typeof DeliverableNotificationSendErrorTypeToEnterprise
-export type DeliverableNotificationSendErrorTypeEnterprise =
-  keyof typeof DeliverableNotificationSendErrorTypeFromEnterprise
+export type DeliverableNotificationSendErrorType = keyof typeof DeliverableNotificationSendErrorTypeToYAML
+export type DeliverableNotificationSendErrorTypeYAML = keyof typeof DeliverableNotificationSendErrorTypeFromYAML
 
-export const DeliverableNotificationSubscriberTypeToEnterprise = {
+export const DeliverableNotificationSubscriberTypeToYAML = {
   APNS: "APNS",
   FCM: "FCM",
   GCM: "GCM",
@@ -4021,7 +4000,7 @@ export const DeliverableNotificationSubscriberTypeToEnterprise = {
   WNS: "WNS",
 } as const
 
-export const DeliverableNotificationSubscriberTypeFromEnterprise = {
+export const DeliverableNotificationSubscriberTypeFromYAML = {
   APNS: "APNS",
   FCM: "FCM",
   GCM: "GCM",
@@ -4030,24 +4009,23 @@ export const DeliverableNotificationSubscriberTypeFromEnterprise = {
   WNS: "WNS",
 } as const
 
-export type DeliverableNotificationSubscriberType = keyof typeof DeliverableNotificationSubscriberTypeToEnterprise
-export type DeliverableNotificationSubscriberTypeEnterprise =
-  keyof typeof DeliverableNotificationSubscriberTypeFromEnterprise
+export type DeliverableNotificationSubscriberType = keyof typeof DeliverableNotificationSubscriberTypeToYAML
+export type DeliverableNotificationSubscriberTypeYAML = keyof typeof DeliverableNotificationSubscriberTypeFromYAML
 
-export const SoundAlertToEnterprise = {
+export const SoundAlertToYAML = {
   None: "Нет",
   Default: "ПоУмолчанию",
 } as const
 
-export const SoundAlertFromEnterprise = {
+export const SoundAlertFromYAML = {
   Нет: "None",
   ПоУмолчанию: "Default",
 } as const
 
-export type SoundAlert = keyof typeof SoundAlertToEnterprise
-export type SoundAlertEnterprise = keyof typeof SoundAlertFromEnterprise
+export type SoundAlert = keyof typeof SoundAlertToYAML
+export type SoundAlertYAML = keyof typeof SoundAlertFromYAML
 
-export const InAppPurchaseServiceToEnterprise = {
+export const InAppPurchaseServiceToYAML = {
   AppleInAppPurchase: "AppleInAppPurchase",
   GooglePlayInAppBilling: "GooglePlayInAppBilling",
   HuaweiInAppPurchase: "HuaweiInAppPurchase",
@@ -4055,7 +4033,7 @@ export const InAppPurchaseServiceToEnterprise = {
   WindowsInAppPurchase: "WindowsInAppPurchase",
 } as const
 
-export const InAppPurchaseServiceFromEnterprise = {
+export const InAppPurchaseServiceFromYAML = {
   AppleInAppPurchase: "AppleInAppPurchase",
   GooglePlayInAppBilling: "GooglePlayInAppBilling",
   HuaweiInAppPurchase: "HuaweiInAppPurchase",
@@ -4063,23 +4041,23 @@ export const InAppPurchaseServiceFromEnterprise = {
   WindowsInAppPurchase: "WindowsInAppPurchase",
 } as const
 
-export type InAppPurchaseService = keyof typeof InAppPurchaseServiceToEnterprise
-export type InAppPurchaseServiceEnterprise = keyof typeof InAppPurchaseServiceFromEnterprise
+export type InAppPurchaseService = keyof typeof InAppPurchaseServiceToYAML
+export type InAppPurchaseServiceYAML = keyof typeof InAppPurchaseServiceFromYAML
 
-export const InAppPurchaseTypeToEnterprise = {
+export const InAppPurchaseTypeToYAML = {
   ContentForSale: "КонтентДляПродажи",
   Subscription: "Подписка",
 } as const
 
-export const InAppPurchaseTypeFromEnterprise = {
+export const InAppPurchaseTypeFromYAML = {
   КонтентДляПродажи: "ContentForSale",
   Подписка: "Subscription",
 } as const
 
-export type InAppPurchaseType = keyof typeof InAppPurchaseTypeToEnterprise
-export type InAppPurchaseTypeEnterprise = keyof typeof InAppPurchaseTypeFromEnterprise
+export type InAppPurchaseType = keyof typeof InAppPurchaseTypeToYAML
+export type InAppPurchaseTypeYAML = keyof typeof InAppPurchaseTypeFromYAML
 
-export const FTPSecureConnectionUsageLevelToEnterprise = {
+export const FTPSecureConnectionUsageLevelToYAML = {
   Auto: "Авто",
   UseIfPossible: "ИспользоватьЕслиВозможно",
   DontUse: "НеИспользовать",
@@ -4087,7 +4065,7 @@ export const FTPSecureConnectionUsageLevelToEnterprise = {
   RequireForControl: "ТребоватьДляУправления",
 } as const
 
-export const FTPSecureConnectionUsageLevelFromEnterprise = {
+export const FTPSecureConnectionUsageLevelFromYAML = {
   Авто: "Auto",
   ИспользоватьЕслиВозможно: "UseIfPossible",
   НеИспользовать: "DontUse",
@@ -4095,176 +4073,175 @@ export const FTPSecureConnectionUsageLevelFromEnterprise = {
   ТребоватьДляУправления: "RequireForControl",
 } as const
 
-export type FTPSecureConnectionUsageLevel = keyof typeof FTPSecureConnectionUsageLevelToEnterprise
-export type FTPSecureConnectionUsageLevelEnterprise = keyof typeof FTPSecureConnectionUsageLevelFromEnterprise
+export type FTPSecureConnectionUsageLevel = keyof typeof FTPSecureConnectionUsageLevelToYAML
+export type FTPSecureConnectionUsageLevelYAML = keyof typeof FTPSecureConnectionUsageLevelFromYAML
 
-export const InternetConnectionTypeToEnterprise = {
+export const InternetConnectionTypeToYAML = {
   WiFi: "WiFi",
   LAN: "ЛокальнаяСеть",
   NoConnection: "НетСоединения",
   CellularData: "СотовыеДанные",
 } as const
 
-export const InternetConnectionTypeFromEnterprise = {
+export const InternetConnectionTypeFromYAML = {
   WiFi: "WiFi",
   ЛокальнаяСеть: "LAN",
   НетСоединения: "NoConnection",
   СотовыеДанные: "CellularData",
 } as const
 
-export type InternetConnectionType = keyof typeof InternetConnectionTypeToEnterprise
-export type InternetConnectionTypeEnterprise = keyof typeof InternetConnectionTypeFromEnterprise
+export type InternetConnectionType = keyof typeof InternetConnectionTypeToYAML
+export type InternetConnectionTypeYAML = keyof typeof InternetConnectionTypeFromYAML
 
-export const MacOSCertificateSelectModeToEnterprise = {
+export const MacOSCertificateSelectModeToYAML = {
   Auto: "Авто",
   Choose: "Выбирать",
 } as const
 
-export const MacOSCertificateSelectModeFromEnterprise = {
+export const MacOSCertificateSelectModeFromYAML = {
   Авто: "Auto",
   Выбирать: "Choose",
 } as const
 
-export type MacOSCertificateSelectMode = keyof typeof MacOSCertificateSelectModeToEnterprise
-export type MacOSCertificateSelectModeEnterprise = keyof typeof MacOSCertificateSelectModeFromEnterprise
+export type MacOSCertificateSelectMode = keyof typeof MacOSCertificateSelectModeToYAML
+export type MacOSCertificateSelectModeYAML = keyof typeof MacOSCertificateSelectModeFromYAML
 
-export const OSCertificateSelectModeToEnterprise = {
+export const OSCertificateSelectModeToYAML = {
   Auto: "Авто",
   Choose: "Выбирать",
 } as const
 
-export const OSCertificateSelectModeFromEnterprise = {
+export const OSCertificateSelectModeFromYAML = {
   Авто: "Auto",
   Выбирать: "Choose",
 } as const
 
-export type OSCertificateSelectMode = keyof typeof OSCertificateSelectModeToEnterprise
-export type OSCertificateSelectModeEnterprise = keyof typeof OSCertificateSelectModeFromEnterprise
+export type OSCertificateSelectMode = keyof typeof OSCertificateSelectModeToYAML
+export type OSCertificateSelectModeYAML = keyof typeof OSCertificateSelectModeFromYAML
 
-export const RoamingUsageToEnterprise = {
+export const RoamingUsageToYAML = {
   Used: "Используется",
   Unknown: "Неизвестно",
   NotUsed: "НеИспользуется",
 } as const
 
-export const RoamingUsageFromEnterprise = {
+export const RoamingUsageFromYAML = {
   Используется: "Used",
   Неизвестно: "Unknown",
   НеИспользуется: "NotUsed",
 } as const
 
-export type RoamingUsage = keyof typeof RoamingUsageToEnterprise
-export type RoamingUsageEnterprise = keyof typeof RoamingUsageFromEnterprise
+export type RoamingUsage = keyof typeof RoamingUsageToYAML
+export type RoamingUsageYAML = keyof typeof RoamingUsageFromYAML
 
-export const ServerTLSCertificateRevocationCheckModeToEnterprise = {
+export const ServerTLSCertificateRevocationCheckModeToYAML = {
   Auto: "Авто",
   DontCheck: "НеПроверять",
   SoftFail: "Нестрогий",
   Strict: "Строгий",
 } as const
 
-export const ServerTLSCertificateRevocationCheckModeFromEnterprise = {
+export const ServerTLSCertificateRevocationCheckModeFromYAML = {
   Авто: "Auto",
   НеПроверять: "DontCheck",
   Нестрогий: "SoftFail",
   Строгий: "Strict",
 } as const
 
-export type ServerTLSCertificateRevocationCheckMode = keyof typeof ServerTLSCertificateRevocationCheckModeToEnterprise
-export type ServerTLSCertificateRevocationCheckModeEnterprise =
-  keyof typeof ServerTLSCertificateRevocationCheckModeFromEnterprise
+export type ServerTLSCertificateRevocationCheckMode = keyof typeof ServerTLSCertificateRevocationCheckModeToYAML
+export type ServerTLSCertificateRevocationCheckModeYAML = keyof typeof ServerTLSCertificateRevocationCheckModeFromYAML
 
-export const WindowsCertificateSelectModeToEnterprise = {
+export const WindowsCertificateSelectModeToYAML = {
   Auto: "Авто",
   Choose: "Выбирать",
 } as const
 
-export const WindowsCertificateSelectModeFromEnterprise = {
+export const WindowsCertificateSelectModeFromYAML = {
   Авто: "Auto",
   Выбирать: "Choose",
 } as const
 
-export type WindowsCertificateSelectMode = keyof typeof WindowsCertificateSelectModeToEnterprise
-export type WindowsCertificateSelectModeEnterprise = keyof typeof WindowsCertificateSelectModeFromEnterprise
+export type WindowsCertificateSelectMode = keyof typeof WindowsCertificateSelectModeToYAML
+export type WindowsCertificateSelectModeYAML = keyof typeof WindowsCertificateSelectModeFromYAML
 
-export const ByteOrderToEnterprise = {
+export const ByteOrderToYAML = {
   BigEndian: "BigEndian",
   LittleEndian: "LittleEndian",
 } as const
 
-export const ByteOrderFromEnterprise = {
+export const ByteOrderFromYAML = {
   BigEndian: "BigEndian",
   LittleEndian: "LittleEndian",
 } as const
 
-export type ByteOrder = keyof typeof ByteOrderToEnterprise
-export type ByteOrderEnterprise = keyof typeof ByteOrderFromEnterprise
+export type ByteOrder = keyof typeof ByteOrderToYAML
+export type ByteOrderYAML = keyof typeof ByteOrderFromYAML
 
-export const PositionInStreamToEnterprise = {
+export const PositionInStreamToYAML = {
   End: "Конец",
   Begin: "Начало",
   Current: "Текущая",
 } as const
 
-export const PositionInStreamFromEnterprise = {
+export const PositionInStreamFromYAML = {
   Конец: "End",
   Начало: "Begin",
   Текущая: "Current",
 } as const
 
-export type PositionInStream = keyof typeof PositionInStreamToEnterprise
-export type PositionInStreamEnterprise = keyof typeof PositionInStreamFromEnterprise
+export type PositionInStream = keyof typeof PositionInStreamToYAML
+export type PositionInStreamYAML = keyof typeof PositionInStreamFromYAML
 
-export const AdBannerRepresentationToEnterprise = {
+export const AdBannerRepresentationToYAML = {
   Top: "Верх",
   None: "Нет",
   Bottom: "Низ",
 } as const
 
-export const AdBannerRepresentationFromEnterprise = {
+export const AdBannerRepresentationFromYAML = {
   Верх: "Top",
   Нет: "None",
   Низ: "Bottom",
 } as const
 
-export type AdBannerRepresentation = keyof typeof AdBannerRepresentationToEnterprise
-export type AdBannerRepresentationEnterprise = keyof typeof AdBannerRepresentationFromEnterprise
+export type AdBannerRepresentation = keyof typeof AdBannerRepresentationToYAML
+export type AdBannerRepresentationYAML = keyof typeof AdBannerRepresentationFromYAML
 
-export const AdStatusToEnterprise = {
+export const AdStatusToYAML = {
   ReadyToDisplay: "ГотоваКОтображению",
   Downloading: "Загружается",
   NotDownloaded: "НеЗагружена",
   Displayed: "Отображается",
 } as const
 
-export const AdStatusFromEnterprise = {
+export const AdStatusFromYAML = {
   ГотоваКОтображению: "ReadyToDisplay",
   Загружается: "Downloading",
   НеЗагружена: "NotDownloaded",
   Отображается: "Displayed",
 } as const
 
-export type AdStatus = keyof typeof AdStatusToEnterprise
-export type AdStatusEnterprise = keyof typeof AdStatusFromEnterprise
+export type AdStatus = keyof typeof AdStatusToYAML
+export type AdStatusYAML = keyof typeof AdStatusFromYAML
 
-export const DataLineChangeTypeToEnterprise = {
+export const DataLineChangeTypeToYAML = {
   Add: "Добавление",
   Update: "Изменение",
   Move: "Перемещение",
   Delete: "Удаление",
 } as const
 
-export const DataLineChangeTypeFromEnterprise = {
+export const DataLineChangeTypeFromYAML = {
   Добавление: "Add",
   Изменение: "Update",
   Перемещение: "Move",
   Удаление: "Delete",
 } as const
 
-export type DataLineChangeType = keyof typeof DataLineChangeTypeToEnterprise
-export type DataLineChangeTypeEnterprise = keyof typeof DataLineChangeTypeFromEnterprise
+export type DataLineChangeType = keyof typeof DataLineChangeTypeToYAML
+export type DataLineChangeTypeYAML = keyof typeof DataLineChangeTypeFromYAML
 
-export const RepresentableDocumentBatchFileTypeToEnterprise = {
+export const RepresentableDocumentBatchFileTypeToYAML = {
   DOCX: "DOCX",
   HTML4: "HTML4",
   HTML5: "HTML5",
@@ -4275,7 +4252,7 @@ export const RepresentableDocumentBatchFileTypeToEnterprise = {
   XLSX: "XLSX",
 } as const
 
-export const RepresentableDocumentBatchFileTypeFromEnterprise = {
+export const RepresentableDocumentBatchFileTypeFromYAML = {
   DOCX: "DOCX",
   HTML4: "HTML4",
   HTML5: "HTML5",
@@ -4286,163 +4263,160 @@ export const RepresentableDocumentBatchFileTypeFromEnterprise = {
   XLSX: "XLSX",
 } as const
 
-export type RepresentableDocumentBatchFileType = keyof typeof RepresentableDocumentBatchFileTypeToEnterprise
-export type RepresentableDocumentBatchFileTypeEnterprise = keyof typeof RepresentableDocumentBatchFileTypeFromEnterprise
+export type RepresentableDocumentBatchFileType = keyof typeof RepresentableDocumentBatchFileTypeToYAML
+export type RepresentableDocumentBatchFileTypeYAML = keyof typeof RepresentableDocumentBatchFileTypeFromYAML
 
-export const ClientApplicationAgentStateToEnterprise = {
+export const ClientApplicationAgentStateToYAML = {
   NotStarted: "НеЗапущен",
   Disconnected: "Отключен",
   Connected: "Подключен",
 } as const
 
-export const ClientApplicationAgentStateFromEnterprise = {
+export const ClientApplicationAgentStateFromYAML = {
   НеЗапущен: "NotStarted",
   Отключен: "Disconnected",
   Подключен: "Connected",
 } as const
 
-export type ClientApplicationAgentState = keyof typeof ClientApplicationAgentStateToEnterprise
-export type ClientApplicationAgentStateEnterprise = keyof typeof ClientApplicationAgentStateFromEnterprise
+export type ClientApplicationAgentState = keyof typeof ClientApplicationAgentStateToYAML
+export type ClientApplicationAgentStateYAML = keyof typeof ClientApplicationAgentStateFromYAML
 
-export const DataCompositionDataRelevanceOutputTypeToEnterprise = {
+export const DataCompositionDataRelevanceOutputTypeToYAML = {
   Auto: "Авто",
   Output: "Выводить",
   DontOutput: "НеВыводить",
 } as const
 
-export const DataCompositionDataRelevanceOutputTypeFromEnterprise = {
+export const DataCompositionDataRelevanceOutputTypeFromYAML = {
   Авто: "Auto",
   Выводить: "Output",
   НеВыводить: "DontOutput",
 } as const
 
-export type DataCompositionDataRelevanceOutputType = keyof typeof DataCompositionDataRelevanceOutputTypeToEnterprise
-export type DataCompositionDataRelevanceOutputTypeEnterprise =
-  keyof typeof DataCompositionDataRelevanceOutputTypeFromEnterprise
+export type DataCompositionDataRelevanceOutputType = keyof typeof DataCompositionDataRelevanceOutputTypeToYAML
+export type DataCompositionDataRelevanceOutputTypeYAML = keyof typeof DataCompositionDataRelevanceOutputTypeFromYAML
 
-export const DataCompositionDatabaseCopyOutputTypeToEnterprise = {
+export const DataCompositionDatabaseCopyOutputTypeToYAML = {
   Auto: "Авто",
   Output: "Выводить",
   DontOutput: "НеВыводить",
 } as const
 
-export const DataCompositionDatabaseCopyOutputTypeFromEnterprise = {
+export const DataCompositionDatabaseCopyOutputTypeFromYAML = {
   Авто: "Auto",
   Выводить: "Output",
   НеВыводить: "DontOutput",
 } as const
 
-export type DataCompositionDatabaseCopyOutputType = keyof typeof DataCompositionDatabaseCopyOutputTypeToEnterprise
-export type DataCompositionDatabaseCopyOutputTypeEnterprise =
-  keyof typeof DataCompositionDatabaseCopyOutputTypeFromEnterprise
+export type DataCompositionDatabaseCopyOutputType = keyof typeof DataCompositionDatabaseCopyOutputTypeToYAML
+export type DataCompositionDatabaseCopyOutputTypeYAML = keyof typeof DataCompositionDatabaseCopyOutputTypeFromYAML
 
-export const DatabaseCopiesStandardReplicationVersionToEnterprise = {
+export const DatabaseCopiesStandardReplicationVersionToYAML = {
   Version1: "Версия1",
   Version2: "Версия2",
 } as const
 
-export const DatabaseCopiesStandardReplicationVersionFromEnterprise = {
+export const DatabaseCopiesStandardReplicationVersionFromYAML = {
   Версия1: "Version1",
   Версия2: "Version2",
 } as const
 
-export type DatabaseCopiesStandardReplicationVersion = keyof typeof DatabaseCopiesStandardReplicationVersionToEnterprise
-export type DatabaseCopiesStandardReplicationVersionEnterprise =
-  keyof typeof DatabaseCopiesStandardReplicationVersionFromEnterprise
+export type DatabaseCopiesStandardReplicationVersion = keyof typeof DatabaseCopiesStandardReplicationVersionToYAML
+export type DatabaseCopiesStandardReplicationVersionYAML = keyof typeof DatabaseCopiesStandardReplicationVersionFromYAML
 
-export const DatabaseCopiesUseToEnterprise = {
+export const DatabaseCopiesUseToYAML = {
   Auto: "Авто",
   PreferUseCopies: "ИспользоватьПреимущественноКопии",
   UseCopiesOnly: "ИспользоватьТолькоКопии",
   DontUseCopies: "НеИспользоватьКопии",
 } as const
 
-export const DatabaseCopiesUseFromEnterprise = {
+export const DatabaseCopiesUseFromYAML = {
   Авто: "Auto",
   ИспользоватьПреимущественноКопии: "PreferUseCopies",
   ИспользоватьТолькоКопии: "UseCopiesOnly",
   НеИспользоватьКопии: "DontUseCopies",
 } as const
 
-export type DatabaseCopiesUse = keyof typeof DatabaseCopiesUseToEnterprise
-export type DatabaseCopiesUseEnterprise = keyof typeof DatabaseCopiesUseFromEnterprise
+export type DatabaseCopiesUse = keyof typeof DatabaseCopiesUseToYAML
+export type DatabaseCopiesUseYAML = keyof typeof DatabaseCopiesUseFromYAML
 
-export const DatabaseCopyContentItemFieldUseToEnterprise = {
+export const DatabaseCopyContentItemFieldUseToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const DatabaseCopyContentItemFieldUseFromEnterprise = {
+export const DatabaseCopyContentItemFieldUseFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type DatabaseCopyContentItemFieldUse = keyof typeof DatabaseCopyContentItemFieldUseToEnterprise
-export type DatabaseCopyContentItemFieldUseEnterprise = keyof typeof DatabaseCopyContentItemFieldUseFromEnterprise
+export type DatabaseCopyContentItemFieldUse = keyof typeof DatabaseCopyContentItemFieldUseToYAML
+export type DatabaseCopyContentItemFieldUseYAML = keyof typeof DatabaseCopyContentItemFieldUseFromYAML
 
-export const DatabaseCopyDBMSTypeToEnterprise = {
+export const DatabaseCopyDBMSTypeToYAML = {
   MSSQLServer: "MSSQLServer",
   OracleDatabase: "OracleDatabase",
   PostgreSQL: "PostgreSQL",
 } as const
 
-export const DatabaseCopyDBMSTypeFromEnterprise = {
+export const DatabaseCopyDBMSTypeFromYAML = {
   MSSQLServer: "MSSQLServer",
   OracleDatabase: "OracleDatabase",
   PostgreSQL: "PostgreSQL",
 } as const
 
-export type DatabaseCopyDBMSType = keyof typeof DatabaseCopyDBMSTypeToEnterprise
-export type DatabaseCopyDBMSTypeEnterprise = keyof typeof DatabaseCopyDBMSTypeFromEnterprise
+export type DatabaseCopyDBMSType = keyof typeof DatabaseCopyDBMSTypeToYAML
+export type DatabaseCopyDBMSTypeYAML = keyof typeof DatabaseCopyDBMSTypeFromYAML
 
-export const DatabaseCopyReplicationTypeToEnterprise = {
+export const DatabaseCopyReplicationTypeToYAML = {
   External: "Внешняя",
   Standard: "Стандартная",
 } as const
 
-export const DatabaseCopyReplicationTypeFromEnterprise = {
+export const DatabaseCopyReplicationTypeFromYAML = {
   Внешняя: "External",
   Стандартная: "Standard",
 } as const
 
-export type DatabaseCopyReplicationType = keyof typeof DatabaseCopyReplicationTypeToEnterprise
-export type DatabaseCopyReplicationTypeEnterprise = keyof typeof DatabaseCopyReplicationTypeFromEnterprise
+export type DatabaseCopyReplicationType = keyof typeof DatabaseCopyReplicationTypeToYAML
+export type DatabaseCopyReplicationTypeYAML = keyof typeof DatabaseCopyReplicationTypeFromYAML
 
-export const DatabaseCopyStateToEnterprise = {
+export const DatabaseCopyStateToYAML = {
   TurnedOn: "Включена",
   TemporarilyTurnedOff: "ВременноОтключена",
   TurnedOff: "Отключена",
 } as const
 
-export const DatabaseCopyStateFromEnterprise = {
+export const DatabaseCopyStateFromYAML = {
   Включена: "TurnedOn",
   ВременноОтключена: "TemporarilyTurnedOff",
   Отключена: "TurnedOff",
 } as const
 
-export type DatabaseCopyState = keyof typeof DatabaseCopyStateToEnterprise
-export type DatabaseCopyStateEnterprise = keyof typeof DatabaseCopyStateFromEnterprise
+export type DatabaseCopyState = keyof typeof DatabaseCopyStateToYAML
+export type DatabaseCopyStateYAML = keyof typeof DatabaseCopyStateFromYAML
 
-export const DatabaseCopyTurnedOffReasonToEnterprise = {
+export const DatabaseCopyTurnedOffReasonToYAML = {
   InvalidCopyDatabaseUseVariant: "НедопустимыйВариантИспользованияБазыДанныхКопии",
   DataInconsistency: "НесоответствиеДанных",
   QueryExecutionError: "ОшибкаВыполненияЗапроса",
   DatabaseConnectionError: "ОшибкаСоединенияСБазойДанных",
 } as const
 
-export const DatabaseCopyTurnedOffReasonFromEnterprise = {
+export const DatabaseCopyTurnedOffReasonFromYAML = {
   НедопустимыйВариантИспользованияБазыДанныхКопии: "InvalidCopyDatabaseUseVariant",
   НесоответствиеДанных: "DataInconsistency",
   ОшибкаВыполненияЗапроса: "QueryExecutionError",
   ОшибкаСоединенияСБазойДанных: "DatabaseConnectionError",
 } as const
 
-export type DatabaseCopyTurnedOffReason = keyof typeof DatabaseCopyTurnedOffReasonToEnterprise
-export type DatabaseCopyTurnedOffReasonEnterprise = keyof typeof DatabaseCopyTurnedOffReasonFromEnterprise
+export type DatabaseCopyTurnedOffReason = keyof typeof DatabaseCopyTurnedOffReasonToYAML
+export type DatabaseCopyTurnedOffReasonYAML = keyof typeof DatabaseCopyTurnedOffReasonFromYAML
 
-export const DatabaseCopyUpdateStateToEnterprise = {
+export const DatabaseCopyUpdateStateToYAML = {
   InitialUpdateInProgress: "ВыполняетсяНачальноеОбновление",
   CurrentUpdateInProgress: "ВыполняетсяТекущееОбновление",
   PortionUpdateCompletedSuccessfully: "ЗавершеноОбновлениеПорцииУспешно",
@@ -4451,7 +4425,7 @@ export const DatabaseCopyUpdateStateToEnterprise = {
   Inactive: "Неактивно",
 } as const
 
-export const DatabaseCopyUpdateStateFromEnterprise = {
+export const DatabaseCopyUpdateStateFromYAML = {
   ВыполняетсяНачальноеОбновление: "InitialUpdateInProgress",
   ВыполняетсяТекущееОбновление: "CurrentUpdateInProgress",
   ЗавершеноОбновлениеПорцииУспешно: "PortionUpdateCompletedSuccessfully",
@@ -4460,25 +4434,25 @@ export const DatabaseCopyUpdateStateFromEnterprise = {
   Неактивно: "Inactive",
 } as const
 
-export type DatabaseCopyUpdateState = keyof typeof DatabaseCopyUpdateStateToEnterprise
-export type DatabaseCopyUpdateStateEnterprise = keyof typeof DatabaseCopyUpdateStateFromEnterprise
+export type DatabaseCopyUpdateState = keyof typeof DatabaseCopyUpdateStateToYAML
+export type DatabaseCopyUpdateStateYAML = keyof typeof DatabaseCopyUpdateStateFromYAML
 
-export const RequiredDataRelevanceToEnterprise = {
+export const RequiredDataRelevanceToYAML = {
   Auto: "Авто",
   Relevant: "Актуальные",
   Any: "Любые",
 } as const
 
-export const RequiredDataRelevanceFromEnterprise = {
+export const RequiredDataRelevanceFromYAML = {
   Авто: "Auto",
   Актуальные: "Relevant",
   Любые: "Any",
 } as const
 
-export type RequiredDataRelevance = keyof typeof RequiredDataRelevanceToEnterprise
-export type RequiredDataRelevanceEnterprise = keyof typeof RequiredDataRelevanceFromEnterprise
+export type RequiredDataRelevance = keyof typeof RequiredDataRelevanceToYAML
+export type RequiredDataRelevanceYAML = keyof typeof RequiredDataRelevanceFromYAML
 
-export const CollaborationSystemCommandSourceToEnterprise = {
+export const CollaborationSystemCommandSourceToYAML = {
   Attachment: "Вложение",
   Action: "Действие",
   URL: "НавигационнаяСсылка",
@@ -4487,7 +4461,7 @@ export const CollaborationSystemCommandSourceToEnterprise = {
   Message: "Сообщение",
 } as const
 
-export const CollaborationSystemCommandSourceFromEnterprise = {
+export const CollaborationSystemCommandSourceFromYAML = {
   Вложение: "Attachment",
   Действие: "Action",
   НавигационнаяСсылка: "URL",
@@ -4496,10 +4470,10 @@ export const CollaborationSystemCommandSourceFromEnterprise = {
   Сообщение: "Message",
 } as const
 
-export type CollaborationSystemCommandSource = keyof typeof CollaborationSystemCommandSourceToEnterprise
-export type CollaborationSystemCommandSourceEnterprise = keyof typeof CollaborationSystemCommandSourceFromEnterprise
+export type CollaborationSystemCommandSource = keyof typeof CollaborationSystemCommandSourceToYAML
+export type CollaborationSystemCommandSourceYAML = keyof typeof CollaborationSystemCommandSourceFromYAML
 
-export const CollaborationSystemDataDumpStatusToEnterprise = {
+export const CollaborationSystemDataDumpStatusToYAML = {
   Restoring: "Восстановление",
   Done: "Готово",
   Loading: "Загрузка",
@@ -4507,7 +4481,7 @@ export const CollaborationSystemDataDumpStatusToEnterprise = {
   Creating: "Создание",
 } as const
 
-export const CollaborationSystemDataDumpStatusFromEnterprise = {
+export const CollaborationSystemDataDumpStatusFromYAML = {
   Восстановление: "Restoring",
   Готово: "Done",
   Загрузка: "Loading",
@@ -4515,25 +4489,25 @@ export const CollaborationSystemDataDumpStatusFromEnterprise = {
   Создание: "Creating",
 } as const
 
-export type CollaborationSystemDataDumpStatus = keyof typeof CollaborationSystemDataDumpStatusToEnterprise
-export type CollaborationSystemDataDumpStatusEnterprise = keyof typeof CollaborationSystemDataDumpStatusFromEnterprise
+export type CollaborationSystemDataDumpStatus = keyof typeof CollaborationSystemDataDumpStatusToYAML
+export type CollaborationSystemDataDumpStatusYAML = keyof typeof CollaborationSystemDataDumpStatusFromYAML
 
-export const CollaborationSystemFromDataDumpRestoreStatusToEnterprise = {
+export const CollaborationSystemFromDataDumpRestoreStatusToYAML = {
   Error: "Ошибка",
   Success: "Успешно",
 } as const
 
-export const CollaborationSystemFromDataDumpRestoreStatusFromEnterprise = {
+export const CollaborationSystemFromDataDumpRestoreStatusFromYAML = {
   Ошибка: "Error",
   Успешно: "Success",
 } as const
 
 export type CollaborationSystemFromDataDumpRestoreStatus =
-  keyof typeof CollaborationSystemFromDataDumpRestoreStatusToEnterprise
-export type CollaborationSystemFromDataDumpRestoreStatusEnterprise =
-  keyof typeof CollaborationSystemFromDataDumpRestoreStatusFromEnterprise
+  keyof typeof CollaborationSystemFromDataDumpRestoreStatusToYAML
+export type CollaborationSystemFromDataDumpRestoreStatusYAML =
+  keyof typeof CollaborationSystemFromDataDumpRestoreStatusFromYAML
 
-export const CollaborationSystemMessageButtonPanelButtonActionToEnterprise = {
+export const CollaborationSystemMessageButtonPanelButtonActionToYAML = {
   RequestLocation: "ЗапроситьМестоположение",
   RequestPhone: "ЗапроситьТелефон",
   ProcessByBot: "ОбработатьБотом",
@@ -4543,7 +4517,7 @@ export const CollaborationSystemMessageButtonPanelButtonActionToEnterprise = {
   GotoURL: "ПерейтиПоНавигационнойСсылке",
 } as const
 
-export const CollaborationSystemMessageButtonPanelButtonActionFromEnterprise = {
+export const CollaborationSystemMessageButtonPanelButtonActionFromYAML = {
   ЗапроситьМестоположение: "RequestLocation",
   ЗапроситьТелефон: "RequestPhone",
   ОбработатьБотом: "ProcessByBot",
@@ -4554,41 +4528,41 @@ export const CollaborationSystemMessageButtonPanelButtonActionFromEnterprise = {
 } as const
 
 export type CollaborationSystemMessageButtonPanelButtonAction =
-  keyof typeof CollaborationSystemMessageButtonPanelButtonActionToEnterprise
-export type CollaborationSystemMessageButtonPanelButtonActionEnterprise =
-  keyof typeof CollaborationSystemMessageButtonPanelButtonActionFromEnterprise
+  keyof typeof CollaborationSystemMessageButtonPanelButtonActionToYAML
+export type CollaborationSystemMessageButtonPanelButtonActionYAML =
+  keyof typeof CollaborationSystemMessageButtonPanelButtonActionFromYAML
 
-export const CollaborationSystemMessageButtonPanelButtonTypeToEnterprise = {
+export const CollaborationSystemMessageButtonPanelButtonTypeToYAML = {
   Hyperlink: "Гиперссылка",
   UsualButton: "ОбычнаяКнопка",
 } as const
 
-export const CollaborationSystemMessageButtonPanelButtonTypeFromEnterprise = {
+export const CollaborationSystemMessageButtonPanelButtonTypeFromYAML = {
   Гиперссылка: "Hyperlink",
   ОбычнаяКнопка: "UsualButton",
 } as const
 
 export type CollaborationSystemMessageButtonPanelButtonType =
-  keyof typeof CollaborationSystemMessageButtonPanelButtonTypeToEnterprise
-export type CollaborationSystemMessageButtonPanelButtonTypeEnterprise =
-  keyof typeof CollaborationSystemMessageButtonPanelButtonTypeFromEnterprise
+  keyof typeof CollaborationSystemMessageButtonPanelButtonTypeToYAML
+export type CollaborationSystemMessageButtonPanelButtonTypeYAML =
+  keyof typeof CollaborationSystemMessageButtonPanelButtonTypeFromYAML
 
-export const CollaborationSystemNotificationRepresentationToEnterprise = {
+export const CollaborationSystemNotificationRepresentationToYAML = {
   DontDisturb: "НеБеспокоить",
   Normal: "Обычное",
 } as const
 
-export const CollaborationSystemNotificationRepresentationFromEnterprise = {
+export const CollaborationSystemNotificationRepresentationFromYAML = {
   НеБеспокоить: "DontDisturb",
   Обычное: "Normal",
 } as const
 
 export type CollaborationSystemNotificationRepresentation =
-  keyof typeof CollaborationSystemNotificationRepresentationToEnterprise
-export type CollaborationSystemNotificationRepresentationEnterprise =
-  keyof typeof CollaborationSystemNotificationRepresentationFromEnterprise
+  keyof typeof CollaborationSystemNotificationRepresentationToYAML
+export type CollaborationSystemNotificationRepresentationYAML =
+  keyof typeof CollaborationSystemNotificationRepresentationFromYAML
 
-export const CollaborationSystemStandardCommandToEnterprise = {
+export const CollaborationSystemStandardCommandToYAML = {
   ExecuteAction: "ВыполнитьДействие",
   CopyAttachment: "КопироватьВложение",
   CopyURL: "КопироватьНавигационнуюСсылку",
@@ -4605,7 +4579,7 @@ export const CollaborationSystemStandardCommandToEnterprise = {
   QuoteMessage: "ЦитироватьСообщение",
 } as const
 
-export const CollaborationSystemStandardCommandFromEnterprise = {
+export const CollaborationSystemStandardCommandFromYAML = {
   ВыполнитьДействие: "ExecuteAction",
   КопироватьВложение: "CopyAttachment",
   КопироватьНавигационнуюСсылку: "CopyURL",
@@ -4622,33 +4596,32 @@ export const CollaborationSystemStandardCommandFromEnterprise = {
   ЦитироватьСообщение: "QuoteMessage",
 } as const
 
-export type CollaborationSystemStandardCommand = keyof typeof CollaborationSystemStandardCommandToEnterprise
-export type CollaborationSystemStandardCommandEnterprise = keyof typeof CollaborationSystemStandardCommandFromEnterprise
+export type CollaborationSystemStandardCommand = keyof typeof CollaborationSystemStandardCommandToYAML
+export type CollaborationSystemStandardCommandYAML = keyof typeof CollaborationSystemStandardCommandFromYAML
 
-export const CollaborationSystemUsersChoicePurposeToEnterprise = {
+export const CollaborationSystemUsersChoicePurposeToYAML = {
   MessageRecipient: "ПолучательСообщения",
   VideoconferenceParticipant: "УчастникВидеоконференции",
   ConversationMember: "УчастникОбсуждения",
 } as const
 
-export const CollaborationSystemUsersChoicePurposeFromEnterprise = {
+export const CollaborationSystemUsersChoicePurposeFromYAML = {
   ПолучательСообщения: "MessageRecipient",
   УчастникВидеоконференции: "VideoconferenceParticipant",
   УчастникОбсуждения: "ConversationMember",
 } as const
 
-export type CollaborationSystemUsersChoicePurpose = keyof typeof CollaborationSystemUsersChoicePurposeToEnterprise
-export type CollaborationSystemUsersChoicePurposeEnterprise =
-  keyof typeof CollaborationSystemUsersChoicePurposeFromEnterprise
+export type CollaborationSystemUsersChoicePurpose = keyof typeof CollaborationSystemUsersChoicePurposeToYAML
+export type CollaborationSystemUsersChoicePurposeYAML = keyof typeof CollaborationSystemUsersChoicePurposeFromYAML
 
-export const AdministrationActionOnResourceConsumptionLimitExcessToEnterprise = {
+export const AdministrationActionOnResourceConsumptionLimitExcessToYAML = {
   TerminateSession: "ЗавершитьСеанс",
   None: "Нет",
   InterruptCurrentServerCall: "ПрерватьТекущийСерверныйВызов",
   SetThreadLowPriority: "УстановитьНизкийПриоритетПотока",
 } as const
 
-export const AdministrationActionOnResourceConsumptionLimitExcessFromEnterprise = {
+export const AdministrationActionOnResourceConsumptionLimitExcessFromYAML = {
   ЗавершитьСеанс: "TerminateSession",
   Нет: "None",
   ПрерватьТекущийСерверныйВызов: "InterruptCurrentServerCall",
@@ -4656,210 +4629,208 @@ export const AdministrationActionOnResourceConsumptionLimitExcessFromEnterprise 
 } as const
 
 export type AdministrationActionOnResourceConsumptionLimitExcess =
-  keyof typeof AdministrationActionOnResourceConsumptionLimitExcessToEnterprise
-export type AdministrationActionOnResourceConsumptionLimitExcessEnterprise =
-  keyof typeof AdministrationActionOnResourceConsumptionLimitExcessFromEnterprise
+  keyof typeof AdministrationActionOnResourceConsumptionLimitExcessToYAML
+export type AdministrationActionOnResourceConsumptionLimitExcessYAML =
+  keyof typeof AdministrationActionOnResourceConsumptionLimitExcessFromYAML
 
-export const AdministrationAssignmentRuleTypeToEnterprise = {
+export const AdministrationAssignmentRuleTypeToYAML = {
   Auto: "Авто",
   Assign: "Назначать",
   DontAssign: "НеНазначать",
 } as const
 
-export const AdministrationAssignmentRuleTypeFromEnterprise = {
+export const AdministrationAssignmentRuleTypeFromYAML = {
   Авто: "Auto",
   Назначать: "Assign",
   НеНазначать: "DontAssign",
 } as const
 
-export type AdministrationAssignmentRuleType = keyof typeof AdministrationAssignmentRuleTypeToEnterprise
-export type AdministrationAssignmentRuleTypeEnterprise = keyof typeof AdministrationAssignmentRuleTypeFromEnterprise
+export type AdministrationAssignmentRuleType = keyof typeof AdministrationAssignmentRuleTypeToYAML
+export type AdministrationAssignmentRuleTypeYAML = keyof typeof AdministrationAssignmentRuleTypeFromYAML
 
-export const AdministrationConnectionSecurityLevelToEnterprise = {
+export const AdministrationConnectionSecurityLevelToYAML = {
   Secure: "Защищенное",
   SecureOnConnect: "ЗащищенноеПриУстановкеСоединения",
   Unsecure: "Незащищенное",
 } as const
 
-export const AdministrationConnectionSecurityLevelFromEnterprise = {
+export const AdministrationConnectionSecurityLevelFromYAML = {
   Защищенное: "Secure",
   ЗащищенноеПриУстановкеСоединения: "SecureOnConnect",
   Незащищенное: "Unsecure",
 } as const
 
-export type AdministrationConnectionSecurityLevel = keyof typeof AdministrationConnectionSecurityLevelToEnterprise
-export type AdministrationConnectionSecurityLevelEnterprise =
-  keyof typeof AdministrationConnectionSecurityLevelFromEnterprise
+export type AdministrationConnectionSecurityLevel = keyof typeof AdministrationConnectionSecurityLevelToYAML
+export type AdministrationConnectionSecurityLevelYAML = keyof typeof AdministrationConnectionSecurityLevelFromYAML
 
-export const AdministrationInfoBaseDeletionModeToEnterprise = {
+export const AdministrationInfoBaseDeletionModeToYAML = {
   DontPerformActionsWithDatabase: "НеВыполнятьДействийСБазойДанных",
   ClearDatabase: "ОчиститьБазуДанных",
   DeleteDatabase: "УдалитьБазуДанных",
 } as const
 
-export const AdministrationInfoBaseDeletionModeFromEnterprise = {
+export const AdministrationInfoBaseDeletionModeFromYAML = {
   НеВыполнятьДействийСБазойДанных: "DontPerformActionsWithDatabase",
   ОчиститьБазуДанных: "ClearDatabase",
   УдалитьБазуДанных: "DeleteDatabase",
 } as const
 
-export type AdministrationInfoBaseDeletionMode = keyof typeof AdministrationInfoBaseDeletionModeToEnterprise
-export type AdministrationInfoBaseDeletionModeEnterprise = keyof typeof AdministrationInfoBaseDeletionModeFromEnterprise
+export type AdministrationInfoBaseDeletionMode = keyof typeof AdministrationInfoBaseDeletionModeToYAML
+export type AdministrationInfoBaseDeletionModeYAML = keyof typeof AdministrationInfoBaseDeletionModeFromYAML
 
-export const AdministrationProcessChoicePriorityToEnterprise = {
+export const AdministrationProcessChoicePriorityToYAML = {
   ByMemory: "ПоПамяти",
   ByPerformance: "ПоПроизводительности",
 } as const
 
-export const AdministrationProcessChoicePriorityFromEnterprise = {
+export const AdministrationProcessChoicePriorityFromYAML = {
   ПоПамяти: "ByMemory",
   ПоПроизводительности: "ByPerformance",
 } as const
 
-export type AdministrationProcessChoicePriority = keyof typeof AdministrationProcessChoicePriorityToEnterprise
-export type AdministrationProcessChoicePriorityEnterprise =
-  keyof typeof AdministrationProcessChoicePriorityFromEnterprise
+export type AdministrationProcessChoicePriority = keyof typeof AdministrationProcessChoicePriorityToYAML
+export type AdministrationProcessChoicePriorityYAML = keyof typeof AdministrationProcessChoicePriorityFromYAML
 
-export const AdministrationResourceConsumptionCounterFilterTypeToEnterprise = {
+export const AdministrationResourceConsumptionCounterFilterTypeToYAML = {
   All: "Все",
   AllSelected: "ВсеВыбранные",
   AllButSelected: "ВсеКромеВыбранных",
 } as const
 
-export const AdministrationResourceConsumptionCounterFilterTypeFromEnterprise = {
+export const AdministrationResourceConsumptionCounterFilterTypeFromYAML = {
   Все: "All",
   ВсеВыбранные: "AllSelected",
   ВсеКромеВыбранных: "AllButSelected",
 } as const
 
 export type AdministrationResourceConsumptionCounterFilterType =
-  keyof typeof AdministrationResourceConsumptionCounterFilterTypeToEnterprise
-export type AdministrationResourceConsumptionCounterFilterTypeEnterprise =
-  keyof typeof AdministrationResourceConsumptionCounterFilterTypeFromEnterprise
+  keyof typeof AdministrationResourceConsumptionCounterFilterTypeToYAML
+export type AdministrationResourceConsumptionCounterFilterTypeYAML =
+  keyof typeof AdministrationResourceConsumptionCounterFilterTypeFromYAML
 
-export const AdministrationResourceConsumptionCounterGroupTypeToEnterprise = {
+export const AdministrationResourceConsumptionCounterGroupTypeToYAML = {
   Users: "Пользователи",
   DataSeparation: "РазделениеДанных",
 } as const
 
-export const AdministrationResourceConsumptionCounterGroupTypeFromEnterprise = {
+export const AdministrationResourceConsumptionCounterGroupTypeFromYAML = {
   Пользователи: "Users",
   РазделениеДанных: "DataSeparation",
 } as const
 
 export type AdministrationResourceConsumptionCounterGroupType =
-  keyof typeof AdministrationResourceConsumptionCounterGroupTypeToEnterprise
-export type AdministrationResourceConsumptionCounterGroupTypeEnterprise =
-  keyof typeof AdministrationResourceConsumptionCounterGroupTypeFromEnterprise
+  keyof typeof AdministrationResourceConsumptionCounterGroupTypeToYAML
+export type AdministrationResourceConsumptionCounterGroupTypeYAML =
+  keyof typeof AdministrationResourceConsumptionCounterGroupTypeFromYAML
 
-export const AdministrationWorkProcessStatusToEnterprise = {
+export const AdministrationWorkProcessStatusToYAML = {
   Used: "Используется",
   NotUsed: "НеИспользуется",
   Reserve: "Резервный",
 } as const
 
-export const AdministrationWorkProcessStatusFromEnterprise = {
+export const AdministrationWorkProcessStatusFromYAML = {
   Используется: "Used",
   НеИспользуется: "NotUsed",
   Резервный: "Reserve",
 } as const
 
-export type AdministrationWorkProcessStatus = keyof typeof AdministrationWorkProcessStatusToEnterprise
-export type AdministrationWorkProcessStatusEnterprise = keyof typeof AdministrationWorkProcessStatusFromEnterprise
+export type AdministrationWorkProcessStatus = keyof typeof AdministrationWorkProcessStatusToYAML
+export type AdministrationWorkProcessStatusYAML = keyof typeof AdministrationWorkProcessStatusFromYAML
 
-export const DuplexPrintingTypeToEnterprise = {
+export const DuplexPrintingTypeToYAML = {
   UsePrinterSettings: "ИспользоватьНастройкиПринтера",
   None: "Нет",
   FlipPagesUp: "ПереворотВверх",
   FlipPagesLeft: "ПереворотВлево",
 } as const
 
-export const DuplexPrintingTypeFromEnterprise = {
+export const DuplexPrintingTypeFromYAML = {
   ИспользоватьНастройкиПринтера: "UsePrinterSettings",
   Нет: "None",
   ПереворотВверх: "FlipPagesUp",
   ПереворотВлево: "FlipPagesLeft",
 } as const
 
-export type DuplexPrintingType = keyof typeof DuplexPrintingTypeToEnterprise
-export type DuplexPrintingTypeEnterprise = keyof typeof DuplexPrintingTypeFromEnterprise
+export type DuplexPrintingType = keyof typeof DuplexPrintingTypeToYAML
+export type DuplexPrintingTypeYAML = keyof typeof DuplexPrintingTypeFromYAML
 
-export const PageOrientationToEnterprise = {
+export const PageOrientationToYAML = {
   Landscape: "Ландшафт",
   Portrait: "Портрет",
 } as const
 
-export const PageOrientationFromEnterprise = {
+export const PageOrientationFromYAML = {
   Ландшафт: "Landscape",
   Портрет: "Portrait",
 } as const
 
-export type PageOrientation = keyof typeof PageOrientationToEnterprise
-export type PageOrientationEnterprise = keyof typeof PageOrientationFromEnterprise
+export type PageOrientation = keyof typeof PageOrientationToYAML
+export type PageOrientationYAML = keyof typeof PageOrientationFromYAML
 
-export const PagePlacementAlternationToEnterprise = {
+export const PagePlacementAlternationToYAML = {
   Auto: "Авто",
   MirrorOnTop: "ЗеркальноСверху",
   MirrorOnLeft: "ЗеркальноСлева",
   DontUse: "НеИспользовать",
 } as const
 
-export const PagePlacementAlternationFromEnterprise = {
+export const PagePlacementAlternationFromYAML = {
   Авто: "Auto",
   ЗеркальноСверху: "MirrorOnTop",
   ЗеркальноСлева: "MirrorOnLeft",
   НеИспользовать: "DontUse",
 } as const
 
-export type PagePlacementAlternation = keyof typeof PagePlacementAlternationToEnterprise
-export type PagePlacementAlternationEnterprise = keyof typeof PagePlacementAlternationFromEnterprise
+export type PagePlacementAlternation = keyof typeof PagePlacementAlternationToYAML
+export type PagePlacementAlternationYAML = keyof typeof PagePlacementAlternationFromYAML
 
-export const PrintAccuracyToEnterprise = {
+export const PrintAccuracyToYAML = {
   Auto: "Авто",
   Accurate: "Точная",
 } as const
 
-export const PrintAccuracyFromEnterprise = {
+export const PrintAccuracyFromYAML = {
   Авто: "Auto",
   Точная: "Accurate",
 } as const
 
-export type PrintAccuracy = keyof typeof PrintAccuracyToEnterprise
-export type PrintAccuracyEnterprise = keyof typeof PrintAccuracyFromEnterprise
+export type PrintAccuracy = keyof typeof PrintAccuracyToYAML
+export type PrintAccuracyYAML = keyof typeof PrintAccuracyFromYAML
 
-export const SpreadsheetDocumentAreaFillTypeToEnterprise = {
+export const SpreadsheetDocumentAreaFillTypeToYAML = {
   Parameter: "Параметр",
   Text: "Текст",
   Template: "Шаблон",
 } as const
 
-export const SpreadsheetDocumentAreaFillTypeFromEnterprise = {
+export const SpreadsheetDocumentAreaFillTypeFromYAML = {
   Параметр: "Parameter",
   Текст: "Text",
   Шаблон: "Template",
 } as const
 
-export type SpreadsheetDocumentAreaFillType = keyof typeof SpreadsheetDocumentAreaFillTypeToEnterprise
-export type SpreadsheetDocumentAreaFillTypeEnterprise = keyof typeof SpreadsheetDocumentAreaFillTypeFromEnterprise
+export type SpreadsheetDocumentAreaFillType = keyof typeof SpreadsheetDocumentAreaFillTypeToYAML
+export type SpreadsheetDocumentAreaFillTypeYAML = keyof typeof SpreadsheetDocumentAreaFillTypeFromYAML
 
-export const SpreadsheetDocumentCellAreaTypeToEnterprise = {
+export const SpreadsheetDocumentCellAreaTypeToYAML = {
   Columns: "Колонки",
   Rectangle: "Прямоугольник",
   Rows: "Строки",
   Table: "Таблица",
 } as const
 
-export const SpreadsheetDocumentCellAreaTypeFromEnterprise = {
+export const SpreadsheetDocumentCellAreaTypeFromYAML = {
   Колонки: "Columns",
   Прямоугольник: "Rectangle",
   Строки: "Rows",
   Таблица: "Table",
 } as const
 
-export type SpreadsheetDocumentCellAreaType = keyof typeof SpreadsheetDocumentCellAreaTypeToEnterprise
-export type SpreadsheetDocumentCellAreaTypeEnterprise = keyof typeof SpreadsheetDocumentCellAreaTypeFromEnterprise
+export type SpreadsheetDocumentCellAreaType = keyof typeof SpreadsheetDocumentCellAreaTypeToYAML
+export type SpreadsheetDocumentCellAreaTypeYAML = keyof typeof SpreadsheetDocumentCellAreaTypeFromYAML
 
-export const SpreadsheetDocumentCellLineTypeToEnterprise = {
+export const SpreadsheetDocumentCellLineTypeToYAML = {
   LargeDashed: "БольшойПунктир",
   Double: "Двойная",
   None: "НетЛинии",
@@ -4869,7 +4840,7 @@ export const SpreadsheetDocumentCellLineTypeToEnterprise = {
   ThickDashed: "ЧастыйПунктир",
 } as const
 
-export const SpreadsheetDocumentCellLineTypeFromEnterprise = {
+export const SpreadsheetDocumentCellLineTypeFromYAML = {
   БольшойПунктир: "LargeDashed",
   Двойная: "Double",
   НетЛинии: "None",
@@ -4879,25 +4850,25 @@ export const SpreadsheetDocumentCellLineTypeFromEnterprise = {
   ЧастыйПунктир: "ThickDashed",
 } as const
 
-export type SpreadsheetDocumentCellLineType = keyof typeof SpreadsheetDocumentCellLineTypeToEnterprise
-export type SpreadsheetDocumentCellLineTypeEnterprise = keyof typeof SpreadsheetDocumentCellLineTypeFromEnterprise
+export type SpreadsheetDocumentCellLineType = keyof typeof SpreadsheetDocumentCellLineTypeToYAML
+export type SpreadsheetDocumentCellLineTypeYAML = keyof typeof SpreadsheetDocumentCellLineTypeFromYAML
 
-export const SpreadsheetDocumentDetailUseToEnterprise = {
+export const SpreadsheetDocumentDetailUseToYAML = {
   WithoutProcessing: "БезОбработки",
   Row: "Строка",
   Cell: "Ячейка",
 } as const
 
-export const SpreadsheetDocumentDetailUseFromEnterprise = {
+export const SpreadsheetDocumentDetailUseFromYAML = {
   БезОбработки: "WithoutProcessing",
   Строка: "Row",
   Ячейка: "Cell",
 } as const
 
-export type SpreadsheetDocumentDetailUse = keyof typeof SpreadsheetDocumentDetailUseToEnterprise
-export type SpreadsheetDocumentDetailUseEnterprise = keyof typeof SpreadsheetDocumentDetailUseFromEnterprise
+export type SpreadsheetDocumentDetailUse = keyof typeof SpreadsheetDocumentDetailUseToYAML
+export type SpreadsheetDocumentDetailUseYAML = keyof typeof SpreadsheetDocumentDetailUseFromYAML
 
-export const SpreadsheetDocumentDrawingLineTypeToEnterprise = {
+export const SpreadsheetDocumentDrawingLineTypeToYAML = {
   None: "НетЛинии",
   Dashed: "Пунктир",
   DashDotted: "ПунктирТочка",
@@ -4906,7 +4877,7 @@ export const SpreadsheetDocumentDrawingLineTypeToEnterprise = {
   Dotted: "Точечная",
 } as const
 
-export const SpreadsheetDocumentDrawingLineTypeFromEnterprise = {
+export const SpreadsheetDocumentDrawingLineTypeFromYAML = {
   НетЛинии: "None",
   Пунктир: "Dashed",
   ПунктирТочка: "DashDotted",
@@ -4915,10 +4886,10 @@ export const SpreadsheetDocumentDrawingLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export type SpreadsheetDocumentDrawingLineType = keyof typeof SpreadsheetDocumentDrawingLineTypeToEnterprise
-export type SpreadsheetDocumentDrawingLineTypeEnterprise = keyof typeof SpreadsheetDocumentDrawingLineTypeFromEnterprise
+export type SpreadsheetDocumentDrawingLineType = keyof typeof SpreadsheetDocumentDrawingLineTypeToYAML
+export type SpreadsheetDocumentDrawingLineTypeYAML = keyof typeof SpreadsheetDocumentDrawingLineTypeFromYAML
 
-export const SpreadsheetDocumentDrawingTypeToEnterprise = {
+export const SpreadsheetDocumentDrawingTypeToYAML = {
   GeographicalSchema: "ГеографическаяСхема",
   Group: "Группа",
   Dendrogram: "Дендрограмма",
@@ -4934,7 +4905,7 @@ export const SpreadsheetDocumentDrawingTypeToEnterprise = {
   Ellipse: "Эллипс",
 } as const
 
-export const SpreadsheetDocumentDrawingTypeFromEnterprise = {
+export const SpreadsheetDocumentDrawingTypeFromYAML = {
   ГеографическаяСхема: "GeographicalSchema",
   Группа: "Group",
   Дендрограмма: "Dendrogram",
@@ -4950,10 +4921,10 @@ export const SpreadsheetDocumentDrawingTypeFromEnterprise = {
   Эллипс: "Ellipse",
 } as const
 
-export type SpreadsheetDocumentDrawingType = keyof typeof SpreadsheetDocumentDrawingTypeToEnterprise
-export type SpreadsheetDocumentDrawingTypeEnterprise = keyof typeof SpreadsheetDocumentDrawingTypeFromEnterprise
+export type SpreadsheetDocumentDrawingType = keyof typeof SpreadsheetDocumentDrawingTypeToYAML
+export type SpreadsheetDocumentDrawingTypeYAML = keyof typeof SpreadsheetDocumentDrawingTypeFromYAML
 
-export const SpreadsheetDocumentFileTypeToEnterprise = {
+export const SpreadsheetDocumentFileTypeToYAML = {
   ANSITXT: "ANSITXT",
   DOCX: "DOCX",
   HTML: "HTML",
@@ -4974,7 +4945,7 @@ export const SpreadsheetDocumentFileTypeToEnterprise = {
   XLSX: "XLSX",
 } as const
 
-export const SpreadsheetDocumentFileTypeFromEnterprise = {
+export const SpreadsheetDocumentFileTypeFromYAML = {
   ANSITXT: "ANSITXT",
   DOCX: "DOCX",
   HTML: "HTML",
@@ -4995,26 +4966,25 @@ export const SpreadsheetDocumentFileTypeFromEnterprise = {
   XLSX: "XLSX",
 } as const
 
-export type SpreadsheetDocumentFileType = keyof typeof SpreadsheetDocumentFileTypeToEnterprise
-export type SpreadsheetDocumentFileTypeEnterprise = keyof typeof SpreadsheetDocumentFileTypeFromEnterprise
+export type SpreadsheetDocumentFileType = keyof typeof SpreadsheetDocumentFileTypeToYAML
+export type SpreadsheetDocumentFileTypeYAML = keyof typeof SpreadsheetDocumentFileTypeFromYAML
 
-export const SpreadsheetDocumentGroupHeaderPlacementToEnterprise = {
+export const SpreadsheetDocumentGroupHeaderPlacementToYAML = {
   Auto: "Авто",
   End: "Конец",
   Begin: "Начало",
 } as const
 
-export const SpreadsheetDocumentGroupHeaderPlacementFromEnterprise = {
+export const SpreadsheetDocumentGroupHeaderPlacementFromYAML = {
   Авто: "Auto",
   Конец: "End",
   Начало: "Begin",
 } as const
 
-export type SpreadsheetDocumentGroupHeaderPlacement = keyof typeof SpreadsheetDocumentGroupHeaderPlacementToEnterprise
-export type SpreadsheetDocumentGroupHeaderPlacementEnterprise =
-  keyof typeof SpreadsheetDocumentGroupHeaderPlacementFromEnterprise
+export type SpreadsheetDocumentGroupHeaderPlacement = keyof typeof SpreadsheetDocumentGroupHeaderPlacementToYAML
+export type SpreadsheetDocumentGroupHeaderPlacementYAML = keyof typeof SpreadsheetDocumentGroupHeaderPlacementFromYAML
 
-export const SpreadsheetDocumentPatternTypeToEnterprise = {
+export const SpreadsheetDocumentPatternTypeToYAML = {
   WithoutPattern: "БезУзора",
   Solid: "Сплошной",
   Pattern1: "Узор1",
@@ -5036,7 +5006,7 @@ export const SpreadsheetDocumentPatternTypeToEnterprise = {
   Pattern9: "Узор9",
 } as const
 
-export const SpreadsheetDocumentPatternTypeFromEnterprise = {
+export const SpreadsheetDocumentPatternTypeFromYAML = {
   БезУзора: "WithoutPattern",
   Сплошной: "Solid",
   Узор1: "Pattern1",
@@ -5058,118 +5028,113 @@ export const SpreadsheetDocumentPatternTypeFromEnterprise = {
   Узор9: "Pattern9",
 } as const
 
-export type SpreadsheetDocumentPatternType = keyof typeof SpreadsheetDocumentPatternTypeToEnterprise
-export type SpreadsheetDocumentPatternTypeEnterprise = keyof typeof SpreadsheetDocumentPatternTypeFromEnterprise
+export type SpreadsheetDocumentPatternType = keyof typeof SpreadsheetDocumentPatternTypeToYAML
+export type SpreadsheetDocumentPatternTypeYAML = keyof typeof SpreadsheetDocumentPatternTypeFromYAML
 
-export const SpreadsheetDocumentPointerTypeToEnterprise = {
+export const SpreadsheetDocumentPointerTypeToYAML = {
   Regular: "Обычные",
   Special: "Специальные",
 } as const
 
-export const SpreadsheetDocumentPointerTypeFromEnterprise = {
+export const SpreadsheetDocumentPointerTypeFromYAML = {
   Обычные: "Regular",
   Специальные: "Special",
 } as const
 
-export type SpreadsheetDocumentPointerType = keyof typeof SpreadsheetDocumentPointerTypeToEnterprise
-export type SpreadsheetDocumentPointerTypeEnterprise = keyof typeof SpreadsheetDocumentPointerTypeFromEnterprise
+export type SpreadsheetDocumentPointerType = keyof typeof SpreadsheetDocumentPointerTypeToYAML
+export type SpreadsheetDocumentPointerTypeYAML = keyof typeof SpreadsheetDocumentPointerTypeFromYAML
 
-export const SpreadsheetDocumentSavedPicturesDensityToEnterprise = {
+export const SpreadsheetDocumentSavedPicturesDensityToYAML = {
   High: "Высокая",
   Original: "Исходная",
   Low: "Низкая",
   Medium: "Средняя",
 } as const
 
-export const SpreadsheetDocumentSavedPicturesDensityFromEnterprise = {
+export const SpreadsheetDocumentSavedPicturesDensityFromYAML = {
   Высокая: "High",
   Исходная: "Original",
   Низкая: "Low",
   Средняя: "Medium",
 } as const
 
-export type SpreadsheetDocumentSavedPicturesDensity = keyof typeof SpreadsheetDocumentSavedPicturesDensityToEnterprise
-export type SpreadsheetDocumentSavedPicturesDensityEnterprise =
-  keyof typeof SpreadsheetDocumentSavedPicturesDensityFromEnterprise
+export type SpreadsheetDocumentSavedPicturesDensity = keyof typeof SpreadsheetDocumentSavedPicturesDensityToYAML
+export type SpreadsheetDocumentSavedPicturesDensityYAML = keyof typeof SpreadsheetDocumentSavedPicturesDensityFromYAML
 
-export const SpreadsheetDocumentSelectionShowModeTypeToEnterprise = {
+export const SpreadsheetDocumentSelectionShowModeTypeToYAML = {
   Always: "Всегда",
   WhenActive: "ПриАктивности",
 } as const
 
-export const SpreadsheetDocumentSelectionShowModeTypeFromEnterprise = {
+export const SpreadsheetDocumentSelectionShowModeTypeFromYAML = {
   Всегда: "Always",
   ПриАктивности: "WhenActive",
 } as const
 
-export type SpreadsheetDocumentSelectionShowModeType = keyof typeof SpreadsheetDocumentSelectionShowModeTypeToEnterprise
-export type SpreadsheetDocumentSelectionShowModeTypeEnterprise =
-  keyof typeof SpreadsheetDocumentSelectionShowModeTypeFromEnterprise
+export type SpreadsheetDocumentSelectionShowModeType = keyof typeof SpreadsheetDocumentSelectionShowModeTypeToYAML
+export type SpreadsheetDocumentSelectionShowModeTypeYAML = keyof typeof SpreadsheetDocumentSelectionShowModeTypeFromYAML
 
-export const SpreadsheetDocumentShiftTypeToEnterprise = {
+export const SpreadsheetDocumentShiftTypeToYAML = {
   WithoutShift: "БезСмещения",
   Vertical: "ПоВертикали",
   Horizontal: "ПоГоризонтали",
 } as const
 
-export const SpreadsheetDocumentShiftTypeFromEnterprise = {
+export const SpreadsheetDocumentShiftTypeFromYAML = {
   БезСмещения: "WithoutShift",
   ПоВертикали: "Vertical",
   ПоГоризонтали: "Horizontal",
 } as const
 
-export type SpreadsheetDocumentShiftType = keyof typeof SpreadsheetDocumentShiftTypeToEnterprise
-export type SpreadsheetDocumentShiftTypeEnterprise = keyof typeof SpreadsheetDocumentShiftTypeFromEnterprise
+export type SpreadsheetDocumentShiftType = keyof typeof SpreadsheetDocumentShiftTypeToYAML
+export type SpreadsheetDocumentShiftTypeYAML = keyof typeof SpreadsheetDocumentShiftTypeFromYAML
 
-export const SpreadsheetDocumentStepDirectionTypeToEnterprise = {
+export const SpreadsheetDocumentStepDirectionTypeToYAML = {
   WithoutMove: "БезПерехода",
   ByColumns: "ПоКолонкам",
   ByRows: "ПоСтрокам",
 } as const
 
-export const SpreadsheetDocumentStepDirectionTypeFromEnterprise = {
+export const SpreadsheetDocumentStepDirectionTypeFromYAML = {
   БезПерехода: "WithoutMove",
   ПоКолонкам: "ByColumns",
   ПоСтрокам: "ByRows",
 } as const
 
-export type SpreadsheetDocumentStepDirectionType = keyof typeof SpreadsheetDocumentStepDirectionTypeToEnterprise
-export type SpreadsheetDocumentStepDirectionTypeEnterprise =
-  keyof typeof SpreadsheetDocumentStepDirectionTypeFromEnterprise
+export type SpreadsheetDocumentStepDirectionType = keyof typeof SpreadsheetDocumentStepDirectionTypeToYAML
+export type SpreadsheetDocumentStepDirectionTypeYAML = keyof typeof SpreadsheetDocumentStepDirectionTypeFromYAML
 
-export const SpreadsheetDocumentTextPlacementTypeToEnterprise = {
+export const SpreadsheetDocumentTextPlacementTypeToYAML = {
   Auto: "Авто",
   Block: "Забивать",
   Cut: "Обрезать",
   Wrap: "Переносить",
 } as const
 
-export const SpreadsheetDocumentTextPlacementTypeFromEnterprise = {
+export const SpreadsheetDocumentTextPlacementTypeFromYAML = {
   Авто: "Auto",
   Забивать: "Block",
   Обрезать: "Cut",
   Переносить: "Wrap",
 } as const
 
-export type SpreadsheetDocumentTextPlacementType = keyof typeof SpreadsheetDocumentTextPlacementTypeToEnterprise
-export type SpreadsheetDocumentTextPlacementTypeEnterprise =
-  keyof typeof SpreadsheetDocumentTextPlacementTypeFromEnterprise
+export type SpreadsheetDocumentTextPlacementType = keyof typeof SpreadsheetDocumentTextPlacementTypeToYAML
+export type SpreadsheetDocumentTextPlacementTypeYAML = keyof typeof SpreadsheetDocumentTextPlacementTypeFromYAML
 
-export const SpreadsheetDocumentValuesReadingModeToEnterprise = {
+export const SpreadsheetDocumentValuesReadingModeToYAML = {
   Value: "Значение",
   Text: "Текст",
 } as const
 
-export const SpreadsheetDocumentValuesReadingModeFromEnterprise = {
+export const SpreadsheetDocumentValuesReadingModeFromYAML = {
   Значение: "Value",
   Текст: "Text",
 } as const
 
-export type SpreadsheetDocumentValuesReadingMode = keyof typeof SpreadsheetDocumentValuesReadingModeToEnterprise
-export type SpreadsheetDocumentValuesReadingModeEnterprise =
-  keyof typeof SpreadsheetDocumentValuesReadingModeFromEnterprise
+export type SpreadsheetDocumentValuesReadingMode = keyof typeof SpreadsheetDocumentValuesReadingModeToYAML
+export type SpreadsheetDocumentValuesReadingModeYAML = keyof typeof SpreadsheetDocumentValuesReadingModeFromYAML
 
-export const TextPositionRelativeToPictureToEnterprise = {
+export const TextPositionRelativeToPictureToYAML = {
   Auto: "Авто",
   OnTop: "Поверх",
   Top: "Сверху",
@@ -5178,7 +5143,7 @@ export const TextPositionRelativeToPictureToEnterprise = {
   Right: "Справа",
 } as const
 
-export const TextPositionRelativeToPictureFromEnterprise = {
+export const TextPositionRelativeToPictureFromYAML = {
   Авто: "Auto",
   Поверх: "OnTop",
   Сверху: "Top",
@@ -5187,106 +5152,105 @@ export const TextPositionRelativeToPictureFromEnterprise = {
   Справа: "Right",
 } as const
 
-export type TextPositionRelativeToPicture = keyof typeof TextPositionRelativeToPictureToEnterprise
-export type TextPositionRelativeToPictureEnterprise = keyof typeof TextPositionRelativeToPictureFromEnterprise
+export type TextPositionRelativeToPicture = keyof typeof TextPositionRelativeToPictureToYAML
+export type TextPositionRelativeToPictureYAML = keyof typeof TextPositionRelativeToPictureFromYAML
 
-export const UseSpreadsheetDocumentWidthReductionToEnterprise = {
+export const UseSpreadsheetDocumentWidthReductionToYAML = {
   Auto: "Авто",
   DoNotReduceOnExcess: "ПриПревышенииНеСжимать",
   ReduceToMinimumOnExcess: "ПриПревышенииСжиматьДоМинимума",
   ReduceAlways: "СжиматьВсегда",
 } as const
 
-export const UseSpreadsheetDocumentWidthReductionFromEnterprise = {
+export const UseSpreadsheetDocumentWidthReductionFromYAML = {
   Авто: "Auto",
   ПриПревышенииНеСжимать: "DoNotReduceOnExcess",
   ПриПревышенииСжиматьДоМинимума: "ReduceToMinimumOnExcess",
   СжиматьВсегда: "ReduceAlways",
 } as const
 
-export type UseSpreadsheetDocumentWidthReduction = keyof typeof UseSpreadsheetDocumentWidthReductionToEnterprise
-export type UseSpreadsheetDocumentWidthReductionEnterprise =
-  keyof typeof UseSpreadsheetDocumentWidthReductionFromEnterprise
+export type UseSpreadsheetDocumentWidthReduction = keyof typeof UseSpreadsheetDocumentWidthReductionToYAML
+export type UseSpreadsheetDocumentWidthReductionYAML = keyof typeof UseSpreadsheetDocumentWidthReductionFromYAML
 
-export const PivotTableColumnTotalPositionToEnterprise = {
+export const PivotTableColumnTotalPositionToYAML = {
   Left: "Лево",
   Right: "Право",
 } as const
 
-export const PivotTableColumnTotalPositionFromEnterprise = {
+export const PivotTableColumnTotalPositionFromYAML = {
   Лево: "Left",
   Право: "Right",
 } as const
 
-export type PivotTableColumnTotalPosition = keyof typeof PivotTableColumnTotalPositionToEnterprise
-export type PivotTableColumnTotalPositionEnterprise = keyof typeof PivotTableColumnTotalPositionFromEnterprise
+export type PivotTableColumnTotalPosition = keyof typeof PivotTableColumnTotalPositionToYAML
+export type PivotTableColumnTotalPositionYAML = keyof typeof PivotTableColumnTotalPositionFromYAML
 
-export const PivotTableLinesShowTypeToEnterprise = {
+export const PivotTableLinesShowTypeToYAML = {
   Auto: "Авто",
   Always: "Всегда",
 } as const
 
-export const PivotTableLinesShowTypeFromEnterprise = {
+export const PivotTableLinesShowTypeFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
 } as const
 
-export type PivotTableLinesShowType = keyof typeof PivotTableLinesShowTypeToEnterprise
-export type PivotTableLinesShowTypeEnterprise = keyof typeof PivotTableLinesShowTypeFromEnterprise
+export type PivotTableLinesShowType = keyof typeof PivotTableLinesShowTypeToYAML
+export type PivotTableLinesShowTypeYAML = keyof typeof PivotTableLinesShowTypeFromYAML
 
-export const PivotTableRowTotalPositionToEnterprise = {
+export const PivotTableRowTotalPositionToYAML = {
   Top: "Верх",
   Bottom: "Низ",
 } as const
 
-export const PivotTableRowTotalPositionFromEnterprise = {
+export const PivotTableRowTotalPositionFromYAML = {
   Верх: "Top",
   Низ: "Bottom",
 } as const
 
-export type PivotTableRowTotalPosition = keyof typeof PivotTableRowTotalPositionToEnterprise
-export type PivotTableRowTotalPositionEnterprise = keyof typeof PivotTableRowTotalPositionFromEnterprise
+export type PivotTableRowTotalPosition = keyof typeof PivotTableRowTotalPositionToYAML
+export type PivotTableRowTotalPositionYAML = keyof typeof PivotTableRowTotalPositionFromYAML
 
-export const QueryRecordTypeToEnterprise = {
+export const QueryRecordTypeToYAML = {
   DetailRecord: "ДетальнаяЗапись",
   GroupTotal: "ИтогПоГруппировке",
   TotalByHierarchy: "ИтогПоИерархии",
   Overall: "ОбщийИтог",
 } as const
 
-export const QueryRecordTypeFromEnterprise = {
+export const QueryRecordTypeFromYAML = {
   ДетальнаяЗапись: "DetailRecord",
   ИтогПоГруппировке: "GroupTotal",
   ИтогПоИерархии: "TotalByHierarchy",
   ОбщийИтог: "Overall",
 } as const
 
-export type QueryRecordType = keyof typeof QueryRecordTypeToEnterprise
-export type QueryRecordTypeEnterprise = keyof typeof QueryRecordTypeFromEnterprise
+export type QueryRecordType = keyof typeof QueryRecordTypeToYAML
+export type QueryRecordTypeYAML = keyof typeof QueryRecordTypeFromYAML
 
-export const QueryResultIterationToEnterprise = {
+export const QueryResultIterationToYAML = {
   ByGroups: "ПоГруппировкам",
   ByGroupsWithHierarchy: "ПоГруппировкамСИерархией",
   Linear: "Прямой",
 } as const
 
-export const QueryResultIterationFromEnterprise = {
+export const QueryResultIterationFromYAML = {
   ПоГруппировкам: "ByGroups",
   ПоГруппировкамСИерархией: "ByGroupsWithHierarchy",
   Прямой: "Linear",
 } as const
 
-export type QueryResultIteration = keyof typeof QueryResultIterationToEnterprise
-export type QueryResultIterationEnterprise = keyof typeof QueryResultIterationFromEnterprise
+export type QueryResultIteration = keyof typeof QueryResultIterationToYAML
+export type QueryResultIterationYAML = keyof typeof QueryResultIterationFromYAML
 
-export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodToEnterprise = {
+export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodToYAML = {
   StronglyConnectedComponents: "КомпонентыСильнойСвязности",
   StronglyConnectedComponentsWithNoInnerConnectionRequired:
     "КомпонентыСильнойСвязностиБезТребованияСвязиВнутриКомпонент",
   WeaklyConnectedComponents: "КомпонентыСлабойСвязности",
 } as const
 
-export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodFromEnterprise = {
+export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodFromYAML = {
   КомпонентыСильнойСвязности: "StronglyConnectedComponents",
   КомпонентыСильнойСвязностиБезТребованияСвязиВнутриКомпонент:
     "StronglyConnectedComponentsWithNoInnerConnectionRequired",
@@ -5294,57 +5258,56 @@ export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMetho
 } as const
 
 export type ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod =
-  keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodToEnterprise
-export type ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodEnterprise =
-  keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodFromEnterprise
+  keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodToYAML
+export type ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodYAML =
+  keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodFromYAML
 
-export const AdditionalUserVerificationMethodToEnterprise = {
+export const AdditionalUserVerificationMethodToYAML = {
   BiometricsOrPassword: "БиометрическаяИлиВводПароля",
   BiometricsOnly: "ТолькоБиометрическая",
 } as const
 
-export const AdditionalUserVerificationMethodFromEnterprise = {
+export const AdditionalUserVerificationMethodFromYAML = {
   БиометрическаяИлиВводПароля: "BiometricsOrPassword",
   ТолькоБиометрическая: "BiometricsOnly",
 } as const
 
-export type AdditionalUserVerificationMethod = keyof typeof AdditionalUserVerificationMethodToEnterprise
-export type AdditionalUserVerificationMethodEnterprise = keyof typeof AdditionalUserVerificationMethodFromEnterprise
+export type AdditionalUserVerificationMethod = keyof typeof AdditionalUserVerificationMethodToYAML
+export type AdditionalUserVerificationMethodYAML = keyof typeof AdditionalUserVerificationMethodFromYAML
 
-export const BiometricVerificationMethodToEnterprise = {
+export const BiometricVerificationMethodToYAML = {
   None: "Нет",
   FaceRecognition: "РаспознаваниеЛица",
   FingerprintRecognition: "РаспознаваниеОтпечаткаПальца",
   IrisRecognition: "РаспознаваниеРадужнойОболочкиГлаза",
 } as const
 
-export const BiometricVerificationMethodFromEnterprise = {
+export const BiometricVerificationMethodFromYAML = {
   Нет: "None",
   РаспознаваниеЛица: "FaceRecognition",
   РаспознаваниеОтпечаткаПальца: "FingerprintRecognition",
   РаспознаваниеРадужнойОболочкиГлаза: "IrisRecognition",
 } as const
 
-export type BiometricVerificationMethod = keyof typeof BiometricVerificationMethodToEnterprise
-export type BiometricVerificationMethodEnterprise = keyof typeof BiometricVerificationMethodFromEnterprise
+export type BiometricVerificationMethod = keyof typeof BiometricVerificationMethodToYAML
+export type BiometricVerificationMethodYAML = keyof typeof BiometricVerificationMethodFromYAML
 
-export const SecureStorageAccessProtectionMethodToEnterprise = {
+export const SecureStorageAccessProtectionMethodToYAML = {
   None: "Нет",
   AdditionalUserVerificationRequired: "ТребуетсяДополнительнаяПроверкаПользователя",
   ScreenUnlockRequired: "ТребуетсяРазблокировкаЭкрана",
 } as const
 
-export const SecureStorageAccessProtectionMethodFromEnterprise = {
+export const SecureStorageAccessProtectionMethodFromYAML = {
   Нет: "None",
   ТребуетсяДополнительнаяПроверкаПользователя: "AdditionalUserVerificationRequired",
   ТребуетсяРазблокировкаЭкрана: "ScreenUnlockRequired",
 } as const
 
-export type SecureStorageAccessProtectionMethod = keyof typeof SecureStorageAccessProtectionMethodToEnterprise
-export type SecureStorageAccessProtectionMethodEnterprise =
-  keyof typeof SecureStorageAccessProtectionMethodFromEnterprise
+export type SecureStorageAccessProtectionMethod = keyof typeof SecureStorageAccessProtectionMethodToYAML
+export type SecureStorageAccessProtectionMethodYAML = keyof typeof SecureStorageAccessProtectionMethodFromYAML
 
-export const ErrorCategoryToEnterprise = {
+export const ErrorCategoryToYAML = {
   AllErrors: "ВсеОшибки",
   ExceptionRaisedFromScript: "ИсключениеВызванноеИзВстроенногоЯзыка",
   AccessViolation: "НарушениеПравДоступа",
@@ -5375,7 +5338,7 @@ export const ErrorCategoryToEnterprise = {
   OtherError: "ПрочаяОшибка",
 } as const
 
-export const ErrorCategoryFromEnterprise = {
+export const ErrorCategoryFromYAML = {
   ВсеОшибки: "AllErrors",
   ИсключениеВызванноеИзВстроенногоЯзыка: "ExceptionRaisedFromScript",
   НарушениеПравДоступа: "AccessViolation",
@@ -5406,88 +5369,87 @@ export const ErrorCategoryFromEnterprise = {
   ПрочаяОшибка: "OtherError",
 } as const
 
-export type ErrorCategory = keyof typeof ErrorCategoryToEnterprise
-export type ErrorCategoryEnterprise = keyof typeof ErrorCategoryFromEnterprise
+export type ErrorCategory = keyof typeof ErrorCategoryToYAML
+export type ErrorCategoryYAML = keyof typeof ErrorCategoryFromYAML
 
-export const ErrorMessageDisplayVariantToEnterprise = {
+export const ErrorMessageDisplayVariantToYAML = {
   Auto: "Авто",
   BriefErrorDescription: "КраткоеПредставлениеОшибки",
   DetailErrorDescription: "ПодробноеПредставлениеОшибки",
   ErrorMessageForUser: "СообщениеОбОшибкеДляПользователя",
 } as const
 
-export const ErrorMessageDisplayVariantFromEnterprise = {
+export const ErrorMessageDisplayVariantFromYAML = {
   Авто: "Auto",
   КраткоеПредставлениеОшибки: "BriefErrorDescription",
   ПодробноеПредставлениеОшибки: "DetailErrorDescription",
   СообщениеОбОшибкеДляПользователя: "ErrorMessageForUser",
 } as const
 
-export type ErrorMessageDisplayVariant = keyof typeof ErrorMessageDisplayVariantToEnterprise
-export type ErrorMessageDisplayVariantEnterprise = keyof typeof ErrorMessageDisplayVariantFromEnterprise
+export type ErrorMessageDisplayVariant = keyof typeof ErrorMessageDisplayVariantToYAML
+export type ErrorMessageDisplayVariantYAML = keyof typeof ErrorMessageDisplayVariantFromYAML
 
-export const ErrorReportingModeToEnterprise = {
+export const ErrorReportingModeToYAML = {
   Auto: "Авто",
   DontSend: "НеОтправлять",
   Send: "Отправлять",
   AskUser: "СпрашиватьПользователя",
 } as const
 
-export const ErrorReportingModeFromEnterprise = {
+export const ErrorReportingModeFromYAML = {
   Авто: "Auto",
   НеОтправлять: "DontSend",
   Отправлять: "Send",
   СпрашиватьПользователя: "AskUser",
 } as const
 
-export type ErrorReportingMode = keyof typeof ErrorReportingModeToEnterprise
-export type ErrorReportingModeEnterprise = keyof typeof ErrorReportingModeFromEnterprise
+export type ErrorReportingMode = keyof typeof ErrorReportingModeToYAML
+export type ErrorReportingModeYAML = keyof typeof ErrorReportingModeFromYAML
 
-export const MobileClientSignatureVerificationMethodToEnterprise = {
+export const MobileClientSignatureVerificationMethodToYAML = {
   DoNotVerifySignature: "НеВыполнятьПроверкуПодписи",
   CheckMobileClientUsageAbility: "ПроверятьВозможностьИспользованияМобильногоКлиента",
   CheckConfigurationSignatureForExactMatch: "ПроверятьТочноеСоответствиеПодписиКонфигурации",
 } as const
 
-export const MobileClientSignatureVerificationMethodFromEnterprise = {
+export const MobileClientSignatureVerificationMethodFromYAML = {
   НеВыполнятьПроверкуПодписи: "DoNotVerifySignature",
   ПроверятьВозможностьИспользованияМобильногоКлиента: "CheckMobileClientUsageAbility",
   ПроверятьТочноеСоответствиеПодписиКонфигурации: "CheckConfigurationSignatureForExactMatch",
 } as const
 
-export type MobileClientSignatureVerificationMethod = keyof typeof MobileClientSignatureVerificationMethodToEnterprise
-export type MobileClientSignatureVerificationMethodEnterprise =
-  keyof typeof MobileClientSignatureVerificationMethodFromEnterprise
+export type MobileClientSignatureVerificationMethod = keyof typeof MobileClientSignatureVerificationMethodToYAML
+export type MobileClientSignatureVerificationMethodYAML = keyof typeof MobileClientSignatureVerificationMethodFromYAML
 
-export const OnMainServerUnavalableBehaviorToEnterprise = {
+export const OnMainServerUnavalableBehaviorToYAML = {
   Auto: "Авто",
   DontChangeBehavior: "НеИзменятьПоведение",
   MakeDisable: "ОтключитьДоступность",
 } as const
 
-export const OnMainServerUnavalableBehaviorFromEnterprise = {
+export const OnMainServerUnavalableBehaviorFromYAML = {
   Авто: "Auto",
   НеИзменятьПоведение: "DontChangeBehavior",
   ОтключитьДоступность: "MakeDisable",
 } as const
 
-export type OnMainServerUnavalableBehavior = keyof typeof OnMainServerUnavalableBehaviorToEnterprise
-export type OnMainServerUnavalableBehaviorEnterprise = keyof typeof OnMainServerUnavalableBehaviorFromEnterprise
+export type OnMainServerUnavalableBehavior = keyof typeof OnMainServerUnavalableBehaviorToYAML
+export type OnMainServerUnavalableBehaviorYAML = keyof typeof OnMainServerUnavalableBehaviorFromYAML
 
-export const UsedServerToEnterprise = {
+export const UsedServerToYAML = {
   Standalone: "Автономный",
   Main: "Основной",
 } as const
 
-export const UsedServerFromEnterprise = {
+export const UsedServerFromYAML = {
   Автономный: "Standalone",
   Основной: "Main",
 } as const
 
-export type UsedServer = keyof typeof UsedServerToEnterprise
-export type UsedServerEnterprise = keyof typeof UsedServerFromEnterprise
+export type UsedServer = keyof typeof UsedServerToYAML
+export type UsedServerYAML = keyof typeof UsedServerFromYAML
 
-export const PDFAttachmentRelationshipTypeToEnterprise = {
+export const PDFAttachmentRelationshipTypeToYAML = {
   Alternative: "Альтернатива",
   Data: "Данные",
   Supplement: "Дополнение",
@@ -5495,7 +5457,7 @@ export const PDFAttachmentRelationshipTypeToEnterprise = {
   Unspecified: "НеУстановлено",
 } as const
 
-export const PDFAttachmentRelationshipTypeFromEnterprise = {
+export const PDFAttachmentRelationshipTypeFromYAML = {
   Альтернатива: "Alternative",
   Данные: "Data",
   Дополнение: "Supplement",
@@ -5503,109 +5465,109 @@ export const PDFAttachmentRelationshipTypeFromEnterprise = {
   НеУстановлено: "Unspecified",
 } as const
 
-export type PDFAttachmentRelationshipType = keyof typeof PDFAttachmentRelationshipTypeToEnterprise
-export type PDFAttachmentRelationshipTypeEnterprise = keyof typeof PDFAttachmentRelationshipTypeFromEnterprise
+export type PDFAttachmentRelationshipType = keyof typeof PDFAttachmentRelationshipTypeToYAML
+export type PDFAttachmentRelationshipTypeYAML = keyof typeof PDFAttachmentRelationshipTypeFromYAML
 
-export const PDFDocumentFileTypeToEnterprise = {
+export const PDFDocumentFileTypeToYAML = {
   PDF: "PDF",
   PDF_A_1: "PDF_A_1",
   PDF_A_2: "PDF_A_2",
   PDF_A_3: "PDF_A_3",
 } as const
 
-export const PDFDocumentFileTypeFromEnterprise = {
+export const PDFDocumentFileTypeFromYAML = {
   PDF: "PDF",
   PDF_A_1: "PDF_A_1",
   PDF_A_2: "PDF_A_2",
   PDF_A_3: "PDF_A_3",
 } as const
 
-export type PDFDocumentFileType = keyof typeof PDFDocumentFileTypeToEnterprise
-export type PDFDocumentFileTypeEnterprise = keyof typeof PDFDocumentFileTypeFromEnterprise
+export type PDFDocumentFileType = keyof typeof PDFDocumentFileTypeToYAML
+export type PDFDocumentFileTypeYAML = keyof typeof PDFDocumentFileTypeFromYAML
 
-export const PDFModificationAccessPermissionsToEnterprise = {
+export const PDFModificationAccessPermissionsToYAML = {
   FillingSigning: "ЗаполнениеПодписание",
   FillingSigningAnnotation: "ЗаполнениеПодписаниеАннотирование",
   None: "Нет",
 } as const
 
-export const PDFModificationAccessPermissionsFromEnterprise = {
+export const PDFModificationAccessPermissionsFromYAML = {
   ЗаполнениеПодписание: "FillingSigning",
   ЗаполнениеПодписаниеАннотирование: "FillingSigningAnnotation",
   Нет: "None",
 } as const
 
-export type PDFModificationAccessPermissions = keyof typeof PDFModificationAccessPermissionsToEnterprise
-export type PDFModificationAccessPermissionsEnterprise = keyof typeof PDFModificationAccessPermissionsFromEnterprise
+export type PDFModificationAccessPermissions = keyof typeof PDFModificationAccessPermissionsToYAML
+export type PDFModificationAccessPermissionsYAML = keyof typeof PDFModificationAccessPermissionsFromYAML
 
-export const PDFSignatureTypeToEnterprise = {
+export const PDFSignatureTypeToYAML = {
   Certifying: "Сертифицирующая",
   Approving: "Утверждающая",
 } as const
 
-export const PDFSignatureTypeFromEnterprise = {
+export const PDFSignatureTypeFromYAML = {
   Сертифицирующая: "Certifying",
   Утверждающая: "Approving",
 } as const
 
-export type PDFSignatureType = keyof typeof PDFSignatureTypeToEnterprise
-export type PDFSignatureTypeEnterprise = keyof typeof PDFSignatureTypeFromEnterprise
+export type PDFSignatureType = keyof typeof PDFSignatureTypeToYAML
+export type PDFSignatureTypeYAML = keyof typeof PDFSignatureTypeFromYAML
 
-export const ProgressiveWebApplicationModeToEnterprise = {
+export const ProgressiveWebApplicationModeToYAML = {
   InBrowserWindow: "ВОкнеБраузера",
   InStandaloneWindow: "ВОтдельномОкне",
 } as const
 
-export const ProgressiveWebApplicationModeFromEnterprise = {
+export const ProgressiveWebApplicationModeFromYAML = {
   ВОкнеБраузера: "InBrowserWindow",
   ВОтдельномОкне: "InStandaloneWindow",
 } as const
 
-export type ProgressiveWebApplicationMode = keyof typeof ProgressiveWebApplicationModeToEnterprise
-export type ProgressiveWebApplicationModeEnterprise = keyof typeof ProgressiveWebApplicationModeFromEnterprise
+export type ProgressiveWebApplicationMode = keyof typeof ProgressiveWebApplicationModeToYAML
+export type ProgressiveWebApplicationModeYAML = keyof typeof ProgressiveWebApplicationModeFromYAML
 
-export const AdditionalShowModeToEnterprise = {
+export const AdditionalShowModeToYAML = {
   Irrelevance: "Неактуальность",
   DontUse: "НеИспользовать",
 } as const
 
-export const AdditionalShowModeFromEnterprise = {
+export const AdditionalShowModeFromYAML = {
   Неактуальность: "Irrelevance",
   НеИспользовать: "DontUse",
 } as const
 
-export type AdditionalShowMode = keyof typeof AdditionalShowModeToEnterprise
-export type AdditionalShowModeEnterprise = keyof typeof AdditionalShowModeFromEnterprise
+export type AdditionalShowMode = keyof typeof AdditionalShowModeToYAML
+export type AdditionalShowModeYAML = keyof typeof AdditionalShowModeFromYAML
 
-export const AppearanceAreaTypeToEnterprise = {
+export const AppearanceAreaTypeToYAML = {
   Group: "Группировка",
   Field: "Поле",
 } as const
 
-export const AppearanceAreaTypeFromEnterprise = {
+export const AppearanceAreaTypeFromYAML = {
   Группировка: "Group",
   Поле: "Field",
 } as const
 
-export type AppearanceAreaType = keyof typeof AppearanceAreaTypeToEnterprise
-export type AppearanceAreaTypeEnterprise = keyof typeof AppearanceAreaTypeFromEnterprise
+export type AppearanceAreaType = keyof typeof AppearanceAreaTypeToYAML
+export type AppearanceAreaTypeYAML = keyof typeof AppearanceAreaTypeFromYAML
 
-export const ArrowStyleToEnterprise = {
+export const ArrowStyleToYAML = {
   Filled: "Заполненная",
   Blank: "Незаполненная",
   None: "Нет",
 } as const
 
-export const ArrowStyleFromEnterprise = {
+export const ArrowStyleFromYAML = {
   Заполненная: "Filled",
   Незаполненная: "Blank",
   Нет: "None",
 } as const
 
-export type ArrowStyle = keyof typeof ArrowStyleToEnterprise
-export type ArrowStyleEnterprise = keyof typeof ArrowStyleFromEnterprise
+export type ArrowStyle = keyof typeof ArrowStyleToYAML
+export type ArrowStyleYAML = keyof typeof ArrowStyleFromYAML
 
-export const AutoCapitalizationOnTextInputToEnterprise = {
+export const AutoCapitalizationOnTextInputToYAML = {
   Auto: "Авто",
   AllCharacters: "ВсеСимволы",
   None: "Нет",
@@ -5613,7 +5575,7 @@ export const AutoCapitalizationOnTextInputToEnterprise = {
   Words: "Слова",
 } as const
 
-export const AutoCapitalizationOnTextInputFromEnterprise = {
+export const AutoCapitalizationOnTextInputFromYAML = {
   Авто: "Auto",
   ВсеСимволы: "AllCharacters",
   Нет: "None",
@@ -5621,226 +5583,226 @@ export const AutoCapitalizationOnTextInputFromEnterprise = {
   Слова: "Words",
 } as const
 
-export type AutoCapitalizationOnTextInput = keyof typeof AutoCapitalizationOnTextInputToEnterprise
-export type AutoCapitalizationOnTextInputEnterprise = keyof typeof AutoCapitalizationOnTextInputFromEnterprise
+export type AutoCapitalizationOnTextInput = keyof typeof AutoCapitalizationOnTextInputToYAML
+export type AutoCapitalizationOnTextInputYAML = keyof typeof AutoCapitalizationOnTextInputFromYAML
 
-export const AutoCorrectionOnTextInputToEnterprise = {
+export const AutoCorrectionOnTextInputToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const AutoCorrectionOnTextInputFromEnterprise = {
+export const AutoCorrectionOnTextInputFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type AutoCorrectionOnTextInput = keyof typeof AutoCorrectionOnTextInputToEnterprise
-export type AutoCorrectionOnTextInputEnterprise = keyof typeof AutoCorrectionOnTextInputFromEnterprise
+export type AutoCorrectionOnTextInput = keyof typeof AutoCorrectionOnTextInputToYAML
+export type AutoCorrectionOnTextInputYAML = keyof typeof AutoCorrectionOnTextInputFromYAML
 
-export const AutoSaveFormDataInSettingsToEnterprise = {
+export const AutoSaveFormDataInSettingsToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const AutoSaveFormDataInSettingsFromEnterprise = {
+export const AutoSaveFormDataInSettingsFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type AutoSaveFormDataInSettings = keyof typeof AutoSaveFormDataInSettingsToEnterprise
-export type AutoSaveFormDataInSettingsEnterprise = keyof typeof AutoSaveFormDataInSettingsFromEnterprise
+export type AutoSaveFormDataInSettings = keyof typeof AutoSaveFormDataInSettingsToYAML
+export type AutoSaveFormDataInSettingsYAML = keyof typeof AutoSaveFormDataInSettingsFromYAML
 
-export const AutoShowClearButtonModeToEnterprise = {
+export const AutoShowClearButtonModeToYAML = {
   Auto: "Авто",
   Always: "Всегда",
   FilledOnly: "ТолькоДляЗаполненного",
 } as const
 
-export const AutoShowClearButtonModeFromEnterprise = {
+export const AutoShowClearButtonModeFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
   ТолькоДляЗаполненного: "FilledOnly",
 } as const
 
-export type AutoShowClearButtonMode = keyof typeof AutoShowClearButtonModeToEnterprise
-export type AutoShowClearButtonModeEnterprise = keyof typeof AutoShowClearButtonModeFromEnterprise
+export type AutoShowClearButtonMode = keyof typeof AutoShowClearButtonModeToYAML
+export type AutoShowClearButtonModeYAML = keyof typeof AutoShowClearButtonModeFromYAML
 
-export const AutoShowOpenButtonModeToEnterprise = {
+export const AutoShowOpenButtonModeToYAML = {
   Auto: "Авто",
   Always: "Всегда",
   FilledOnly: "ТолькоДляЗаполненного",
 } as const
 
-export const AutoShowOpenButtonModeFromEnterprise = {
+export const AutoShowOpenButtonModeFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
   ТолькоДляЗаполненного: "FilledOnly",
 } as const
 
-export type AutoShowOpenButtonMode = keyof typeof AutoShowOpenButtonModeToEnterprise
-export type AutoShowOpenButtonModeEnterprise = keyof typeof AutoShowOpenButtonModeFromEnterprise
+export type AutoShowOpenButtonMode = keyof typeof AutoShowOpenButtonModeToYAML
+export type AutoShowOpenButtonModeYAML = keyof typeof AutoShowOpenButtonModeFromYAML
 
-export const AutoShowStateModeToEnterprise = {
+export const AutoShowStateModeToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
   ShowOnComposition: "ОтображатьПриФормировании",
 } as const
 
-export const AutoShowStateModeFromEnterprise = {
+export const AutoShowStateModeFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
   ОтображатьПриФормировании: "ShowOnComposition",
 } as const
 
-export type AutoShowStateMode = keyof typeof AutoShowStateModeToEnterprise
-export type AutoShowStateModeEnterprise = keyof typeof AutoShowStateModeFromEnterprise
+export type AutoShowStateMode = keyof typeof AutoShowStateModeToYAML
+export type AutoShowStateModeYAML = keyof typeof AutoShowStateModeFromYAML
 
-export const AutonumerationInFormToEnterprise = {
+export const AutonumerationInFormToYAML = {
   Auto: "Авто",
   DontUse: "НеИспользовать",
 } as const
 
-export const AutonumerationInFormFromEnterprise = {
+export const AutonumerationInFormFromYAML = {
   Авто: "Auto",
   НеИспользовать: "DontUse",
 } as const
 
-export type AutonumerationInForm = keyof typeof AutonumerationInFormToEnterprise
-export type AutonumerationInFormEnterprise = keyof typeof AutonumerationInFormFromEnterprise
+export type AutonumerationInForm = keyof typeof AutonumerationInFormToYAML
+export type AutonumerationInFormYAML = keyof typeof AutonumerationInFormFromYAML
 
-export const ButtonGroupRepresentationToEnterprise = {
+export const ButtonGroupRepresentationToYAML = {
   Auto: "Авто",
   Compact: "Компактное",
   Usual: "Обычное",
 } as const
 
-export const ButtonGroupRepresentationFromEnterprise = {
+export const ButtonGroupRepresentationFromYAML = {
   Авто: "Auto",
   Компактное: "Compact",
   Обычное: "Usual",
 } as const
 
-export type ButtonGroupRepresentation = keyof typeof ButtonGroupRepresentationToEnterprise
-export type ButtonGroupRepresentationEnterprise = keyof typeof ButtonGroupRepresentationFromEnterprise
+export type ButtonGroupRepresentation = keyof typeof ButtonGroupRepresentationToYAML
+export type ButtonGroupRepresentationYAML = keyof typeof ButtonGroupRepresentationFromYAML
 
-export const ButtonLocationInCommandBarToEnterprise = {
+export const ButtonLocationInCommandBarToYAML = {
   Auto: "Авто",
   InAdditionalSubmenu: "ВДополнительномПодменю",
   InCommandBar: "ВКоманднойПанели",
   InCommandBarAndInAdditionalSubmenu: "ВКоманднойПанелиИВДополнительномПодменю",
 } as const
 
-export const ButtonLocationInCommandBarFromEnterprise = {
+export const ButtonLocationInCommandBarFromYAML = {
   Авто: "Auto",
   ВДополнительномПодменю: "InAdditionalSubmenu",
   ВКоманднойПанели: "InCommandBar",
   ВКоманднойПанелиИВДополнительномПодменю: "InCommandBarAndInAdditionalSubmenu",
 } as const
 
-export type ButtonLocationInCommandBar = keyof typeof ButtonLocationInCommandBarToEnterprise
-export type ButtonLocationInCommandBarEnterprise = keyof typeof ButtonLocationInCommandBarFromEnterprise
+export type ButtonLocationInCommandBar = keyof typeof ButtonLocationInCommandBarToYAML
+export type ButtonLocationInCommandBarYAML = keyof typeof ButtonLocationInCommandBarFromYAML
 
-export const ButtonPictureLocationToEnterprise = {
+export const ButtonPictureLocationToYAML = {
   Left: "Лево",
   Right: "Право",
 } as const
 
-export const ButtonPictureLocationFromEnterprise = {
+export const ButtonPictureLocationFromYAML = {
   Лево: "Left",
   Право: "Right",
 } as const
 
-export type ButtonPictureLocation = keyof typeof ButtonPictureLocationToEnterprise
-export type ButtonPictureLocationEnterprise = keyof typeof ButtonPictureLocationFromEnterprise
+export type ButtonPictureLocation = keyof typeof ButtonPictureLocationToYAML
+export type ButtonPictureLocationYAML = keyof typeof ButtonPictureLocationFromYAML
 
-export const ButtonRepresentationToEnterprise = {
+export const ButtonRepresentationToYAML = {
   Auto: "Авто",
   Picture: "Картинка",
   PictureAndText: "КартинкаИТекст",
   Text: "Текст",
 } as const
 
-export const ButtonRepresentationFromEnterprise = {
+export const ButtonRepresentationFromYAML = {
   Авто: "Auto",
   Картинка: "Picture",
   КартинкаИТекст: "PictureAndText",
   Текст: "Text",
 } as const
 
-export type ButtonRepresentation = keyof typeof ButtonRepresentationToEnterprise
-export type ButtonRepresentationEnterprise = keyof typeof ButtonRepresentationFromEnterprise
+export type ButtonRepresentation = keyof typeof ButtonRepresentationToYAML
+export type ButtonRepresentationYAML = keyof typeof ButtonRepresentationFromYAML
 
-export const ButtonShapeToEnterprise = {
+export const ButtonShapeToYAML = {
   Auto: "Авто",
   Usual: "Обычная",
   Oval: "Овал",
 } as const
 
-export const ButtonShapeFromEnterprise = {
+export const ButtonShapeFromYAML = {
   Авто: "Auto",
   Обычная: "Usual",
   Овал: "Oval",
 } as const
 
-export type ButtonShape = keyof typeof ButtonShapeToEnterprise
-export type ButtonShapeEnterprise = keyof typeof ButtonShapeFromEnterprise
+export type ButtonShape = keyof typeof ButtonShapeToYAML
+export type ButtonShapeYAML = keyof typeof ButtonShapeFromYAML
 
-export const ButtonShapeRepresentationToEnterprise = {
+export const ButtonShapeRepresentationToYAML = {
   Auto: "Авто",
   Always: "Всегда",
   None: "Нет",
   WhenActive: "ПриАктивности",
 } as const
 
-export const ButtonShapeRepresentationFromEnterprise = {
+export const ButtonShapeRepresentationFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
   Нет: "None",
   ПриАктивности: "WhenActive",
 } as const
 
-export type ButtonShapeRepresentation = keyof typeof ButtonShapeRepresentationToEnterprise
-export type ButtonShapeRepresentationEnterprise = keyof typeof ButtonShapeRepresentationFromEnterprise
+export type ButtonShapeRepresentation = keyof typeof ButtonShapeRepresentationToYAML
+export type ButtonShapeRepresentationYAML = keyof typeof ButtonShapeRepresentationFromYAML
 
-export const CheckBoxTypeToEnterprise = {
+export const CheckBoxTypeToYAML = {
   Auto: "Авто",
   Switch: "Выключатель",
   Tumbler: "Тумблер",
   CheckBox: "Флажок",
 } as const
 
-export const CheckBoxTypeFromEnterprise = {
+export const CheckBoxTypeFromYAML = {
   Авто: "Auto",
   Выключатель: "Switch",
   Тумблер: "Tumbler",
   Флажок: "CheckBox",
 } as const
 
-export type CheckBoxType = keyof typeof CheckBoxTypeToEnterprise
-export type CheckBoxTypeEnterprise = keyof typeof CheckBoxTypeFromEnterprise
+export type CheckBoxType = keyof typeof CheckBoxTypeToYAML
+export type CheckBoxTypeYAML = keyof typeof CheckBoxTypeFromYAML
 
-export const ChildFormItemsGroupToEnterprise = {
+export const ChildFormItemsGroupToYAML = {
   Vertical: "Вертикальная",
   Horizontal: "Горизонтальная",
   AlwaysHorizontal: "ГоризонтальнаяВсегда",
   HorizontalIfPossible: "ГоризонтальнаяЕслиВозможно",
 } as const
 
-export const ChildFormItemsGroupFromEnterprise = {
+export const ChildFormItemsGroupFromYAML = {
   Вертикальная: "Vertical",
   Горизонтальная: "Horizontal",
   ГоризонтальнаяВсегда: "AlwaysHorizontal",
   ГоризонтальнаяЕслиВозможно: "HorizontalIfPossible",
 } as const
 
-export type ChildFormItemsGroup = keyof typeof ChildFormItemsGroupToEnterprise
-export type ChildFormItemsGroupEnterprise = keyof typeof ChildFormItemsGroupFromEnterprise
+export type ChildFormItemsGroup = keyof typeof ChildFormItemsGroupToYAML
+export type ChildFormItemsGroupYAML = keyof typeof ChildFormItemsGroupFromYAML
 
-export const ChildFormItemsWidthToEnterprise = {
+export const ChildFormItemsWidthToYAML = {
   Auto: "Авто",
   LeftNarrowest: "ЛевыйОченьУзкий",
   LeftWidest: "ЛевыйОченьШирокий",
@@ -5849,7 +5811,7 @@ export const ChildFormItemsWidthToEnterprise = {
   Equal: "Одинаковая",
 } as const
 
-export const ChildFormItemsWidthFromEnterprise = {
+export const ChildFormItemsWidthFromYAML = {
   Авто: "Auto",
   ЛевыйОченьУзкий: "LeftNarrowest",
   ЛевыйОченьШирокий: "LeftWidest",
@@ -5858,70 +5820,70 @@ export const ChildFormItemsWidthFromEnterprise = {
   Одинаковая: "Equal",
 } as const
 
-export type ChildFormItemsWidth = keyof typeof ChildFormItemsWidthToEnterprise
-export type ChildFormItemsWidthEnterprise = keyof typeof ChildFormItemsWidthFromEnterprise
+export type ChildFormItemsWidth = keyof typeof ChildFormItemsWidthToYAML
+export type ChildFormItemsWidthYAML = keyof typeof ChildFormItemsWidthFromYAML
 
-export const ChoiceButtonRepresentationToEnterprise = {
+export const ChoiceButtonRepresentationToYAML = {
   Auto: "Авто",
   ShowInDropList: "ОтображатьВВыпадающемСписке",
   ShowInDropListAndInInputField: "ОтображатьВВыпадающемСпискеИВПолеВвода",
   ShowInInputField: "ОтображатьВПолеВвода",
 } as const
 
-export const ChoiceButtonRepresentationFromEnterprise = {
+export const ChoiceButtonRepresentationFromYAML = {
   Авто: "Auto",
   ОтображатьВВыпадающемСписке: "ShowInDropList",
   ОтображатьВВыпадающемСпискеИВПолеВвода: "ShowInDropListAndInInputField",
   ОтображатьВПолеВвода: "ShowInInputField",
 } as const
 
-export type ChoiceButtonRepresentation = keyof typeof ChoiceButtonRepresentationToEnterprise
-export type ChoiceButtonRepresentationEnterprise = keyof typeof ChoiceButtonRepresentationFromEnterprise
+export type ChoiceButtonRepresentation = keyof typeof ChoiceButtonRepresentationToYAML
+export type ChoiceButtonRepresentationYAML = keyof typeof ChoiceButtonRepresentationFromYAML
 
-export const ChoiceHistoryOnInputToEnterprise = {
+export const ChoiceHistoryOnInputToYAML = {
   Auto: "Авто",
   DontUse: "НеИспользовать",
 } as const
 
-export const ChoiceHistoryOnInputFromEnterprise = {
+export const ChoiceHistoryOnInputFromYAML = {
   Авто: "Auto",
   НеИспользовать: "DontUse",
 } as const
 
-export type ChoiceHistoryOnInput = keyof typeof ChoiceHistoryOnInputToEnterprise
-export type ChoiceHistoryOnInputEnterprise = keyof typeof ChoiceHistoryOnInputFromEnterprise
+export type ChoiceHistoryOnInput = keyof typeof ChoiceHistoryOnInputToYAML
+export type ChoiceHistoryOnInputYAML = keyof typeof ChoiceHistoryOnInputFromYAML
 
-export const ClipboardDataStandardFormatToEnterprise = {
+export const ClipboardDataStandardFormatToYAML = {
   HTML: "HTML",
   Picture: "Картинка",
   Text: "Текст",
 } as const
 
-export const ClipboardDataStandardFormatFromEnterprise = {
+export const ClipboardDataStandardFormatFromYAML = {
   HTML: "HTML",
   Картинка: "Picture",
   Текст: "Text",
 } as const
 
-export type ClipboardDataStandardFormat = keyof typeof ClipboardDataStandardFormatToEnterprise
-export type ClipboardDataStandardFormatEnterprise = keyof typeof ClipboardDataStandardFormatFromEnterprise
+export type ClipboardDataStandardFormat = keyof typeof ClipboardDataStandardFormatToYAML
+export type ClipboardDataStandardFormatYAML = keyof typeof ClipboardDataStandardFormatFromYAML
 
-export const CollapseFormItemsByImportanceToEnterprise = {
+export const CollapseFormItemsByImportanceToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const CollapseFormItemsByImportanceFromEnterprise = {
+export const CollapseFormItemsByImportanceFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type CollapseFormItemsByImportance = keyof typeof CollapseFormItemsByImportanceToEnterprise
-export type CollapseFormItemsByImportanceEnterprise = keyof typeof CollapseFormItemsByImportanceFromEnterprise
+export type CollapseFormItemsByImportance = keyof typeof CollapseFormItemsByImportanceToYAML
+export type CollapseFormItemsByImportanceYAML = keyof typeof CollapseFormItemsByImportanceFromYAML
 
-export const ColorDepthToEnterprise = {
+export const ColorDepthToYAML = {
   BitPerPixel1: "БитНаПиксел1",
   BitPerPixel24: "БитНаПиксел24",
   BitPerPixel32: "БитНаПиксел32",
@@ -5929,7 +5891,7 @@ export const ColorDepthToEnterprise = {
   BitPerPixel8: "БитНаПиксел8",
 } as const
 
-export const ColorDepthFromEnterprise = {
+export const ColorDepthFromYAML = {
   БитНаПиксел1: "BitPerPixel1",
   БитНаПиксел24: "BitPerPixel24",
   БитНаПиксел32: "BitPerPixel32",
@@ -5937,160 +5899,160 @@ export const ColorDepthFromEnterprise = {
   БитНаПиксел8: "BitPerPixel8",
 } as const
 
-export type ColorDepth = keyof typeof ColorDepthToEnterprise
-export type ColorDepthEnterprise = keyof typeof ColorDepthFromEnterprise
+export type ColorDepth = keyof typeof ColorDepthToYAML
+export type ColorDepthYAML = keyof typeof ColorDepthFromYAML
 
-export const ColumnEditModeToEnterprise = {
+export const ColumnEditModeToYAML = {
   Enter: "Вход",
   EnterOnInput: "ВходПриВводе",
   Directly: "Непосредственно",
 } as const
 
-export const ColumnEditModeFromEnterprise = {
+export const ColumnEditModeFromYAML = {
   Вход: "Enter",
   ВходПриВводе: "EnterOnInput",
   Непосредственно: "Directly",
 } as const
 
-export type ColumnEditMode = keyof typeof ColumnEditModeToEnterprise
-export type ColumnEditModeEnterprise = keyof typeof ColumnEditModeFromEnterprise
+export type ColumnEditMode = keyof typeof ColumnEditModeToYAML
+export type ColumnEditModeYAML = keyof typeof ColumnEditModeFromYAML
 
-export const ColumnLocationToEnterprise = {
+export const ColumnLocationToYAML = {
   SameColumn: "ВТойЖеКолонке",
   OnNextRow: "НаСледующейСтроке",
   NewColumn: "НоваяКолонка",
 } as const
 
-export const ColumnLocationFromEnterprise = {
+export const ColumnLocationFromYAML = {
   ВТойЖеКолонке: "SameColumn",
   НаСледующейСтроке: "OnNextRow",
   НоваяКолонка: "NewColumn",
 } as const
 
-export type ColumnLocation = keyof typeof ColumnLocationToEnterprise
-export type ColumnLocationEnterprise = keyof typeof ColumnLocationFromEnterprise
+export type ColumnLocation = keyof typeof ColumnLocationToYAML
+export type ColumnLocationYAML = keyof typeof ColumnLocationFromYAML
 
-export const ColumnSizeChangeToEnterprise = {
+export const ColumnSizeChangeToYAML = {
   Change: "Изменять",
   DontChange: "НеИзменять",
 } as const
 
-export const ColumnSizeChangeFromEnterprise = {
+export const ColumnSizeChangeFromYAML = {
   Изменять: "Change",
   НеИзменять: "DontChange",
 } as const
 
-export type ColumnSizeChange = keyof typeof ColumnSizeChangeToEnterprise
-export type ColumnSizeChangeEnterprise = keyof typeof ColumnSizeChangeFromEnterprise
+export type ColumnSizeChange = keyof typeof ColumnSizeChangeToYAML
+export type ColumnSizeChangeYAML = keyof typeof ColumnSizeChangeFromYAML
 
-export const ColumnsGroupToEnterprise = {
+export const ColumnsGroupToYAML = {
   Vertical: "Вертикальная",
   InCell: "ВЯчейке",
   Horizontal: "Горизонтальная",
 } as const
 
-export const ColumnsGroupFromEnterprise = {
+export const ColumnsGroupFromYAML = {
   Вертикальная: "Vertical",
   ВЯчейке: "InCell",
   Горизонтальная: "Horizontal",
 } as const
 
-export type ColumnsGroup = keyof typeof ColumnsGroupToEnterprise
-export type ColumnsGroupEnterprise = keyof typeof ColumnsGroupFromEnterprise
+export type ColumnsGroup = keyof typeof ColumnsGroupToYAML
+export type ColumnsGroupYAML = keyof typeof ColumnsGroupFromYAML
 
-export const CommandBarButtonAlignmentToEnterprise = {
+export const CommandBarButtonAlignmentToYAML = {
   Left: "Лево",
   Right: "Право",
   Center: "Центр",
 } as const
 
-export const CommandBarButtonAlignmentFromEnterprise = {
+export const CommandBarButtonAlignmentFromYAML = {
   Лево: "Left",
   Право: "Right",
   Центр: "Center",
 } as const
 
-export type CommandBarButtonAlignment = keyof typeof CommandBarButtonAlignmentToEnterprise
-export type CommandBarButtonAlignmentEnterprise = keyof typeof CommandBarButtonAlignmentFromEnterprise
+export type CommandBarButtonAlignment = keyof typeof CommandBarButtonAlignmentToYAML
+export type CommandBarButtonAlignmentYAML = keyof typeof CommandBarButtonAlignmentFromYAML
 
-export const CommandBarButtonOrderToEnterprise = {
+export const CommandBarButtonOrderToYAML = {
   Asc: "Возр",
   DontOrder: "НеУпорядочивать",
   Desc: "Убыв",
 } as const
 
-export const CommandBarButtonOrderFromEnterprise = {
+export const CommandBarButtonOrderFromYAML = {
   Возр: "Asc",
   НеУпорядочивать: "DontOrder",
   Убыв: "Desc",
 } as const
 
-export type CommandBarButtonOrder = keyof typeof CommandBarButtonOrderToEnterprise
-export type CommandBarButtonOrderEnterprise = keyof typeof CommandBarButtonOrderFromEnterprise
+export type CommandBarButtonOrder = keyof typeof CommandBarButtonOrderToYAML
+export type CommandBarButtonOrderYAML = keyof typeof CommandBarButtonOrderFromYAML
 
-export const CommandBarButtonRepresentationToEnterprise = {
+export const CommandBarButtonRepresentationToYAML = {
   Auto: "Авто",
   Picture: "Картинка",
   Text: "Надпись",
   PictureText: "НадписьКартинка",
 } as const
 
-export const CommandBarButtonRepresentationFromEnterprise = {
+export const CommandBarButtonRepresentationFromYAML = {
   Авто: "Auto",
   Картинка: "Picture",
   Надпись: "Text",
   НадписьКартинка: "PictureText",
 } as const
 
-export type CommandBarButtonRepresentation = keyof typeof CommandBarButtonRepresentationToEnterprise
-export type CommandBarButtonRepresentationEnterprise = keyof typeof CommandBarButtonRepresentationFromEnterprise
+export type CommandBarButtonRepresentation = keyof typeof CommandBarButtonRepresentationToYAML
+export type CommandBarButtonRepresentationYAML = keyof typeof CommandBarButtonRepresentationFromYAML
 
-export const CommandBarButtonTypeToEnterprise = {
+export const CommandBarButtonTypeToYAML = {
   Action: "Действие",
   Popup: "Подменю",
   Separator: "Разделитель",
 } as const
 
-export const CommandBarButtonTypeFromEnterprise = {
+export const CommandBarButtonTypeFromYAML = {
   Действие: "Action",
   Подменю: "Popup",
   Разделитель: "Separator",
 } as const
 
-export type CommandBarButtonType = keyof typeof CommandBarButtonTypeToEnterprise
-export type CommandBarButtonTypeEnterprise = keyof typeof CommandBarButtonTypeFromEnterprise
+export type CommandBarButtonType = keyof typeof CommandBarButtonTypeToYAML
+export type CommandBarButtonTypeYAML = keyof typeof CommandBarButtonTypeFromYAML
 
-export const CommandGroupCategoryToEnterprise = {
+export const CommandGroupCategoryToYAML = {
   FormCommandBar: "КоманднаяПанельФормы",
   ActionsPanel: "ПанельДействий",
   NavigationPanel: "ПанельНавигации",
   FormNavigationPanel: "ПанельНавигацииФормы",
 } as const
 
-export const CommandGroupCategoryFromEnterprise = {
+export const CommandGroupCategoryFromYAML = {
   КоманднаяПанельФормы: "FormCommandBar",
   ПанельДействий: "ActionsPanel",
   ПанельНавигации: "NavigationPanel",
   ПанельНавигацииФормы: "FormNavigationPanel",
 } as const
 
-export type CommandGroupCategory = keyof typeof CommandGroupCategoryToEnterprise
-export type CommandGroupCategoryEnterprise = keyof typeof CommandGroupCategoryFromEnterprise
+export type CommandGroupCategory = keyof typeof CommandGroupCategoryToYAML
+export type CommandGroupCategoryYAML = keyof typeof CommandGroupCategoryFromYAML
 
-export const CommandParameterUseModeToEnterprise = {
+export const CommandParameterUseModeToYAML = {
   Multiple: "Множественный",
   Single: "Одиночный",
 } as const
 
-export const CommandParameterUseModeFromEnterprise = {
+export const CommandParameterUseModeFromYAML = {
   Множественный: "Multiple",
   Одиночный: "Single",
 } as const
 
-export type CommandParameterUseMode = keyof typeof CommandParameterUseModeToEnterprise
-export type CommandParameterUseModeEnterprise = keyof typeof CommandParameterUseModeFromEnterprise
+export type CommandParameterUseMode = keyof typeof CommandParameterUseModeToYAML
+export type CommandParameterUseModeYAML = keyof typeof CommandParameterUseModeFromYAML
 
-export const ConnectorLineTypeToEnterprise = {
+export const ConnectorLineTypeToYAML = {
   None: "НетЛинии",
   Dashed: "Пунктир",
   DashDotted: "ПунктирТочка",
@@ -6099,7 +6061,7 @@ export const ConnectorLineTypeToEnterprise = {
   Dotted: "Точечная",
 } as const
 
-export const ConnectorLineTypeFromEnterprise = {
+export const ConnectorLineTypeFromYAML = {
   НетЛинии: "None",
   Пунктир: "Dashed",
   ПунктирТочка: "DashDotted",
@@ -6108,23 +6070,23 @@ export const ConnectorLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export type ConnectorLineType = keyof typeof ConnectorLineTypeToEnterprise
-export type ConnectorLineTypeEnterprise = keyof typeof ConnectorLineTypeFromEnterprise
+export type ConnectorLineType = keyof typeof ConnectorLineTypeToYAML
+export type ConnectorLineTypeYAML = keyof typeof ConnectorLineTypeFromYAML
 
-export const ConnectorTextLocationToEnterprise = {
+export const ConnectorTextLocationToYAML = {
   FirstSegment: "ПервыйСегмент",
   Middle: "СерединаЛинии",
 } as const
 
-export const ConnectorTextLocationFromEnterprise = {
+export const ConnectorTextLocationFromYAML = {
   ПервыйСегмент: "FirstSegment",
   СерединаЛинии: "Middle",
 } as const
 
-export type ConnectorTextLocation = keyof typeof ConnectorTextLocationToEnterprise
-export type ConnectorTextLocationEnterprise = keyof typeof ConnectorTextLocationFromEnterprise
+export type ConnectorTextLocation = keyof typeof ConnectorTextLocationToYAML
+export type ConnectorTextLocationYAML = keyof typeof ConnectorTextLocationFromYAML
 
-export const ControlBorderTypeToEnterprise = {
+export const ControlBorderTypeToYAML = {
   WithoutBorder: "БезРамки",
   Indented: "Вдавленная",
   Embossed: "Выпуклая",
@@ -6136,7 +6098,7 @@ export const ControlBorderTypeToEnterprise = {
   Overline: "ЧертаСверху",
 } as const
 
-export const ControlBorderTypeFromEnterprise = {
+export const ControlBorderTypeFromYAML = {
   БезРамки: "WithoutBorder",
   Вдавленная: "Indented",
   Выпуклая: "Embossed",
@@ -6148,10 +6110,10 @@ export const ControlBorderTypeFromEnterprise = {
   ЧертаСверху: "Overline",
 } as const
 
-export type ControlBorderType = keyof typeof ControlBorderTypeToEnterprise
-export type ControlBorderTypeEnterprise = keyof typeof ControlBorderTypeFromEnterprise
+export type ControlBorderType = keyof typeof ControlBorderTypeToYAML
+export type ControlBorderTypeYAML = keyof typeof ControlBorderTypeFromYAML
 
-export const ControlCollapseModeToEnterprise = {
+export const ControlCollapseModeToYAML = {
   Top: "Верх",
   Left: "Лево",
   None: "Нет",
@@ -6159,7 +6121,7 @@ export const ControlCollapseModeToEnterprise = {
   Right: "Право",
 } as const
 
-export const ControlCollapseModeFromEnterprise = {
+export const ControlCollapseModeFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Нет: "None",
@@ -6167,10 +6129,10 @@ export const ControlCollapseModeFromEnterprise = {
   Право: "Right",
 } as const
 
-export type ControlCollapseMode = keyof typeof ControlCollapseModeToEnterprise
-export type ControlCollapseModeEnterprise = keyof typeof ControlCollapseModeFromEnterprise
+export type ControlCollapseMode = keyof typeof ControlCollapseModeToYAML
+export type ControlCollapseModeYAML = keyof typeof ControlCollapseModeFromYAML
 
-export const ControlEdgeToEnterprise = {
+export const ControlEdgeToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
@@ -6178,7 +6140,7 @@ export const ControlEdgeToEnterprise = {
   Center: "Центр",
 } as const
 
-export const ControlEdgeFromEnterprise = {
+export const ControlEdgeFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
@@ -6186,85 +6148,85 @@ export const ControlEdgeFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type ControlEdge = keyof typeof ControlEdgeToEnterprise
-export type ControlEdgeEnterprise = keyof typeof ControlEdgeFromEnterprise
+export type ControlEdge = keyof typeof ControlEdgeToYAML
+export type ControlEdgeYAML = keyof typeof ControlEdgeFromYAML
 
-export const CurrentRowUseToEnterprise = {
+export const CurrentRowUseToYAML = {
   Auto: "Авто",
   Use: "Использует",
   DontUse: "НеИспользует",
 } as const
 
-export const CurrentRowUseFromEnterprise = {
+export const CurrentRowUseFromYAML = {
   Авто: "Auto",
   Использует: "Use",
   НеИспользует: "DontUse",
 } as const
 
-export type CurrentRowUse = keyof typeof CurrentRowUseToEnterprise
-export type CurrentRowUseEnterprise = keyof typeof CurrentRowUseFromEnterprise
+export type CurrentRowUse = keyof typeof CurrentRowUseToYAML
+export type CurrentRowUseYAML = keyof typeof CurrentRowUseFromYAML
 
-export const DataChangeTypeToEnterprise = {
+export const DataChangeTypeToYAML = {
   Create: "Добавление",
   Update: "Изменение",
   Delete: "Удаление",
 } as const
 
-export const DataChangeTypeFromEnterprise = {
+export const DataChangeTypeFromYAML = {
   Добавление: "Create",
   Изменение: "Update",
   Удаление: "Delete",
 } as const
 
-export type DataChangeType = keyof typeof DataChangeTypeToEnterprise
-export type DataChangeTypeEnterprise = keyof typeof DataChangeTypeFromEnterprise
+export type DataChangeType = keyof typeof DataChangeTypeToYAML
+export type DataChangeTypeYAML = keyof typeof DataChangeTypeFromYAML
 
-export const DateSelectionModeToEnterprise = {
+export const DateSelectionModeToYAML = {
   Interval: "Интервал",
   Multiple: "Множественный",
   Single: "Одиночный",
 } as const
 
-export const DateSelectionModeFromEnterprise = {
+export const DateSelectionModeFromYAML = {
   Интервал: "Interval",
   Множественный: "Multiple",
   Одиночный: "Single",
 } as const
 
-export type DateSelectionMode = keyof typeof DateSelectionModeToEnterprise
-export type DateSelectionModeEnterprise = keyof typeof DateSelectionModeFromEnterprise
+export type DateSelectionMode = keyof typeof DateSelectionModeToYAML
+export type DateSelectionModeYAML = keyof typeof DateSelectionModeFromYAML
 
-export const DimensionAttributePlacementTypeToEnterprise = {
+export const DimensionAttributePlacementTypeToYAML = {
   Together: "Вместе",
   WithDimensions: "ВместеСИзмерениями",
   Separately: "Отдельно",
 } as const
 
-export const DimensionAttributePlacementTypeFromEnterprise = {
+export const DimensionAttributePlacementTypeFromYAML = {
   Вместе: "Together",
   ВместеСИзмерениями: "WithDimensions",
   Отдельно: "Separately",
 } as const
 
-export type DimensionAttributePlacementType = keyof typeof DimensionAttributePlacementTypeToEnterprise
-export type DimensionAttributePlacementTypeEnterprise = keyof typeof DimensionAttributePlacementTypeFromEnterprise
+export type DimensionAttributePlacementType = keyof typeof DimensionAttributePlacementTypeToYAML
+export type DimensionAttributePlacementTypeYAML = keyof typeof DimensionAttributePlacementTypeFromYAML
 
-export const DimensionPlacementTypeToEnterprise = {
+export const DimensionPlacementTypeToYAML = {
   Together: "Вместе",
   Separately: "Отдельно",
   SeparatelyAndInTotalsOnly: "ОтдельноИТолькоВИтогах",
 } as const
 
-export const DimensionPlacementTypeFromEnterprise = {
+export const DimensionPlacementTypeFromYAML = {
   Вместе: "Together",
   Отдельно: "Separately",
   ОтдельноИТолькоВИтогах: "SeparatelyAndInTotalsOnly",
 } as const
 
-export type DimensionPlacementType = keyof typeof DimensionPlacementTypeToEnterprise
-export type DimensionPlacementTypeEnterprise = keyof typeof DimensionPlacementTypeFromEnterprise
+export type DimensionPlacementType = keyof typeof DimensionPlacementTypeToYAML
+export type DimensionPlacementTypeYAML = keyof typeof DimensionPlacementTypeFromYAML
 
-export const DisplayImportanceToEnterprise = {
+export const DisplayImportanceToYAML = {
   Auto: "Авто",
   High: "Высокая",
   Low: "Низкая",
@@ -6273,7 +6235,7 @@ export const DisplayImportanceToEnterprise = {
   VeryLow: "ОченьНизкая",
 } as const
 
-export const DisplayImportanceFromEnterprise = {
+export const DisplayImportanceFromYAML = {
   Авто: "Auto",
   Высокая: "High",
   Низкая: "Low",
@@ -6282,200 +6244,200 @@ export const DisplayImportanceFromEnterprise = {
   ОченьНизкая: "VeryLow",
 } as const
 
-export type DisplayImportance = keyof typeof DisplayImportanceToEnterprise
-export type DisplayImportanceEnterprise = keyof typeof DisplayImportanceFromEnterprise
+export type DisplayImportance = keyof typeof DisplayImportanceToYAML
+export type DisplayImportanceYAML = keyof typeof DisplayImportanceFromYAML
 
-export const DragActionToEnterprise = {
+export const DragActionToYAML = {
   Choice: "Выбор",
   Copy: "Копирование",
   Cancel: "Отмена",
   Move: "Перемещение",
 } as const
 
-export const DragActionFromEnterprise = {
+export const DragActionFromYAML = {
   Выбор: "Choice",
   Копирование: "Copy",
   Отмена: "Cancel",
   Перемещение: "Move",
 } as const
 
-export type DragAction = keyof typeof DragActionToEnterprise
-export type DragActionEnterprise = keyof typeof DragActionFromEnterprise
+export type DragAction = keyof typeof DragActionToYAML
+export type DragActionYAML = keyof typeof DragActionFromYAML
 
-export const DragAllowedActionsToEnterprise = {
+export const DragAllowedActionsToYAML = {
   Copy: "Копирование",
   CopyAndMove: "КопированиеИПеремещение",
   DontProcess: "НеОбрабатывать",
   Move: "Перемещение",
 } as const
 
-export const DragAllowedActionsFromEnterprise = {
+export const DragAllowedActionsFromYAML = {
   Копирование: "Copy",
   КопированиеИПеремещение: "CopyAndMove",
   НеОбрабатывать: "DontProcess",
   Перемещение: "Move",
 } as const
 
-export type DragAllowedActions = keyof typeof DragAllowedActionsToEnterprise
-export type DragAllowedActionsEnterprise = keyof typeof DragAllowedActionsFromEnterprise
+export type DragAllowedActions = keyof typeof DragAllowedActionsToYAML
+export type DragAllowedActionsYAML = keyof typeof DragAllowedActionsFromYAML
 
-export const DrawingSelectionShowModeToEnterprise = {
+export const DrawingSelectionShowModeToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const DrawingSelectionShowModeFromEnterprise = {
+export const DrawingSelectionShowModeFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type DrawingSelectionShowMode = keyof typeof DrawingSelectionShowModeToEnterprise
-export type DrawingSelectionShowModeEnterprise = keyof typeof DrawingSelectionShowModeFromEnterprise
+export type DrawingSelectionShowMode = keyof typeof DrawingSelectionShowModeToYAML
+export type DrawingSelectionShowModeYAML = keyof typeof DrawingSelectionShowModeFromYAML
 
-export const EditTextUpdateToEnterprise = {
+export const EditTextUpdateToYAML = {
   Auto: "Авто",
   Always: "Всегда",
   DontUse: "НеИспользовать",
   OnValueChange: "ПриИзмененииЗначения",
 } as const
 
-export const EditTextUpdateFromEnterprise = {
+export const EditTextUpdateFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
   НеИспользовать: "DontUse",
   ПриИзмененииЗначения: "OnValueChange",
 } as const
 
-export type EditTextUpdate = keyof typeof EditTextUpdateToEnterprise
-export type EditTextUpdateEnterprise = keyof typeof EditTextUpdateFromEnterprise
+export type EditTextUpdate = keyof typeof EditTextUpdateToYAML
+export type EditTextUpdateYAML = keyof typeof EditTextUpdateFromYAML
 
-export const FitPageModeToEnterprise = {
+export const FitPageModeToYAML = {
   Auto: "Авто",
   PageWidth: "ПоШиринеСтраницы",
   Proportionally: "Пропорционально",
 } as const
 
-export const FitPageModeFromEnterprise = {
+export const FitPageModeFromYAML = {
   Авто: "Auto",
   ПоШиринеСтраницы: "PageWidth",
   Пропорционально: "Proportionally",
 } as const
 
-export type FitPageMode = keyof typeof FitPageModeToEnterprise
-export type FitPageModeEnterprise = keyof typeof FitPageModeFromEnterprise
+export type FitPageMode = keyof typeof FitPageModeToYAML
+export type FitPageModeYAML = keyof typeof FitPageModeFromYAML
 
-export const FixingInTableToEnterprise = {
+export const FixingInTableToYAML = {
   Left: "Лево",
   None: "Нет",
   Right: "Право",
 } as const
 
-export const FixingInTableFromEnterprise = {
+export const FixingInTableFromYAML = {
   Лево: "Left",
   Нет: "None",
   Право: "Right",
 } as const
 
-export type FixingInTable = keyof typeof FixingInTableToEnterprise
-export type FixingInTableEnterprise = keyof typeof FixingInTableFromEnterprise
+export type FixingInTable = keyof typeof FixingInTableToYAML
+export type FixingInTableYAML = keyof typeof FixingInTableFromYAML
 
-export const FoldersAndItemsToEnterprise = {
+export const FoldersAndItemsToYAML = {
   Auto: "Авто",
   Folders: "Группы",
   FoldersAndItems: "ГруппыИЭлементы",
   Items: "Элементы",
 } as const
 
-export const FoldersAndItemsFromEnterprise = {
+export const FoldersAndItemsFromYAML = {
   Авто: "Auto",
   Группы: "Folders",
   ГруппыИЭлементы: "FoldersAndItems",
   Элементы: "Items",
 } as const
 
-export type FoldersAndItems = keyof typeof FoldersAndItemsToEnterprise
-export type FoldersAndItemsEnterprise = keyof typeof FoldersAndItemsFromEnterprise
+export type FoldersAndItems = keyof typeof FoldersAndItemsToYAML
+export type FoldersAndItemsYAML = keyof typeof FoldersAndItemsFromYAML
 
-export const FormButtonPictureLocationToEnterprise = {
+export const FormButtonPictureLocationToYAML = {
   Auto: "Авто",
   Left: "Лево",
   Right: "Право",
 } as const
 
-export const FormButtonPictureLocationFromEnterprise = {
+export const FormButtonPictureLocationFromYAML = {
   Авто: "Auto",
   Лево: "Left",
   Право: "Right",
 } as const
 
-export type FormButtonPictureLocation = keyof typeof FormButtonPictureLocationToEnterprise
-export type FormButtonPictureLocationEnterprise = keyof typeof FormButtonPictureLocationFromEnterprise
+export type FormButtonPictureLocation = keyof typeof FormButtonPictureLocationToYAML
+export type FormButtonPictureLocationYAML = keyof typeof FormButtonPictureLocationFromYAML
 
-export const FormButtonTypeToEnterprise = {
+export const FormButtonTypeToYAML = {
   Hyperlink: "Гиперссылка",
   CommandBarHyperlink: "ГиперссылкаКоманднойПанели",
   CommandBarButton: "КнопкаКоманднойПанели",
   UsualButton: "ОбычнаяКнопка",
 } as const
 
-export const FormButtonTypeFromEnterprise = {
+export const FormButtonTypeFromYAML = {
   Гиперссылка: "Hyperlink",
   ГиперссылкаКоманднойПанели: "CommandBarHyperlink",
   КнопкаКоманднойПанели: "CommandBarButton",
   ОбычнаяКнопка: "UsualButton",
 } as const
 
-export type FormButtonType = keyof typeof FormButtonTypeToEnterprise
-export type FormButtonTypeEnterprise = keyof typeof FormButtonTypeFromEnterprise
+export type FormButtonType = keyof typeof FormButtonTypeToYAML
+export type FormButtonTypeYAML = keyof typeof FormButtonTypeFromYAML
 
-export const FormCommandBarLabelLocationToEnterprise = {
+export const FormCommandBarLabelLocationToYAML = {
   Auto: "Авто",
   Top: "Верх",
   None: "Нет",
   Bottom: "Низ",
 } as const
 
-export const FormCommandBarLabelLocationFromEnterprise = {
+export const FormCommandBarLabelLocationFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Нет: "None",
   Низ: "Bottom",
 } as const
 
-export type FormCommandBarLabelLocation = keyof typeof FormCommandBarLabelLocationToEnterprise
-export type FormCommandBarLabelLocationEnterprise = keyof typeof FormCommandBarLabelLocationFromEnterprise
+export type FormCommandBarLabelLocation = keyof typeof FormCommandBarLabelLocationToYAML
+export type FormCommandBarLabelLocationYAML = keyof typeof FormCommandBarLabelLocationFromYAML
 
-export const FormConversationsRepresentationToEnterprise = {
+export const FormConversationsRepresentationToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const FormConversationsRepresentationFromEnterprise = {
+export const FormConversationsRepresentationFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type FormConversationsRepresentation = keyof typeof FormConversationsRepresentationToEnterprise
-export type FormConversationsRepresentationEnterprise = keyof typeof FormConversationsRepresentationFromEnterprise
+export type FormConversationsRepresentation = keyof typeof FormConversationsRepresentationToYAML
+export type FormConversationsRepresentationYAML = keyof typeof FormConversationsRepresentationFromYAML
 
-export const FormDecorationTypeToEnterprise = {
+export const FormDecorationTypeToYAML = {
   Picture: "Картинка",
   Label: "Надпись",
 } as const
 
-export const FormDecorationTypeFromEnterprise = {
+export const FormDecorationTypeFromYAML = {
   Картинка: "Picture",
   Надпись: "Label",
 } as const
 
-export type FormDecorationType = keyof typeof FormDecorationTypeToEnterprise
-export type FormDecorationTypeEnterprise = keyof typeof FormDecorationTypeFromEnterprise
+export type FormDecorationType = keyof typeof FormDecorationTypeToYAML
+export type FormDecorationTypeYAML = keyof typeof FormDecorationTypeFromYAML
 
-export const FormFieldTypeToEnterprise = {
+export const FormFieldTypeToYAML = {
   HTMLDocumentField: "ПолеHTMLДокумента",
   PDFDocumentField: "ПолеPDFДокумента",
   InputField: "ПолеВвода",
@@ -6498,7 +6460,7 @@ export const FormFieldTypeToEnterprise = {
   FormattedDocumentField: "ПолеФорматированногоДокумента",
 } as const
 
-export const FormFieldTypeFromEnterprise = {
+export const FormFieldTypeFromYAML = {
   ПолеHTMLДокумента: "HTMLDocumentField",
   ПолеPDFДокумента: "PDFDocumentField",
   ПолеВвода: "InputField",
@@ -6521,10 +6483,10 @@ export const FormFieldTypeFromEnterprise = {
   ПолеФорматированногоДокумента: "FormattedDocumentField",
 } as const
 
-export type FormFieldType = keyof typeof FormFieldTypeToEnterprise
-export type FormFieldTypeEnterprise = keyof typeof FormFieldTypeFromEnterprise
+export type FormFieldType = keyof typeof FormFieldTypeToYAML
+export type FormFieldTypeYAML = keyof typeof FormFieldTypeFromYAML
 
-export const FormGroupTypeToEnterprise = {
+export const FormGroupTypeToYAML = {
   ButtonGroup: "ГруппаКнопок",
   ColumnGroup: "ГруппаКолонок",
   CommandBar: "КоманднаяПанель",
@@ -6535,7 +6497,7 @@ export const FormGroupTypeToEnterprise = {
   Pages: "Страницы",
 } as const
 
-export const FormGroupTypeFromEnterprise = {
+export const FormGroupTypeFromYAML = {
   ГруппаКнопок: "ButtonGroup",
   ГруппаКолонок: "ColumnGroup",
   КоманднаяПанель: "CommandBar",
@@ -6546,55 +6508,55 @@ export const FormGroupTypeFromEnterprise = {
   Страницы: "Pages",
 } as const
 
-export type FormGroupType = keyof typeof FormGroupTypeToEnterprise
-export type FormGroupTypeEnterprise = keyof typeof FormGroupTypeFromEnterprise
+export type FormGroupType = keyof typeof FormGroupTypeToYAML
+export type FormGroupTypeYAML = keyof typeof FormGroupTypeFromYAML
 
-export const FormItemAdditionTypeToEnterprise = {
+export const FormItemAdditionTypeToYAML = {
   ViewStatusRepresentation: "ОтображениеСостоянияПросмотра",
   SearchStringRepresentation: "ОтображениеСтрокиПоиска",
   SearchControl: "УправлениеПоиском",
 } as const
 
-export const FormItemAdditionTypeFromEnterprise = {
+export const FormItemAdditionTypeFromYAML = {
   ОтображениеСостоянияПросмотра: "ViewStatusRepresentation",
   ОтображениеСтрокиПоиска: "SearchStringRepresentation",
   УправлениеПоиском: "SearchControl",
 } as const
 
-export type FormItemAdditionType = keyof typeof FormItemAdditionTypeToEnterprise
-export type FormItemAdditionTypeEnterprise = keyof typeof FormItemAdditionTypeFromEnterprise
+export type FormItemAdditionType = keyof typeof FormItemAdditionTypeToYAML
+export type FormItemAdditionTypeYAML = keyof typeof FormItemAdditionTypeFromYAML
 
-export const FormItemCommandBarLabelLocationToEnterprise = {
+export const FormItemCommandBarLabelLocationToYAML = {
   Auto: "Авто",
   Top: "Верх",
   None: "Нет",
   Bottom: "Низ",
 } as const
 
-export const FormItemCommandBarLabelLocationFromEnterprise = {
+export const FormItemCommandBarLabelLocationFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Нет: "None",
   Низ: "Bottom",
 } as const
 
-export type FormItemCommandBarLabelLocation = keyof typeof FormItemCommandBarLabelLocationToEnterprise
-export type FormItemCommandBarLabelLocationEnterprise = keyof typeof FormItemCommandBarLabelLocationFromEnterprise
+export type FormItemCommandBarLabelLocation = keyof typeof FormItemCommandBarLabelLocationToYAML
+export type FormItemCommandBarLabelLocationYAML = keyof typeof FormItemCommandBarLabelLocationFromYAML
 
-export const FormItemOrientationToEnterprise = {
+export const FormItemOrientationToYAML = {
   Vertical: "Вертикально",
   Horizontal: "Горизонтально",
 } as const
 
-export const FormItemOrientationFromEnterprise = {
+export const FormItemOrientationFromYAML = {
   Вертикально: "Vertical",
   Горизонтально: "Horizontal",
 } as const
 
-export type FormItemOrientation = keyof typeof FormItemOrientationToEnterprise
-export type FormItemOrientationEnterprise = keyof typeof FormItemOrientationFromEnterprise
+export type FormItemOrientation = keyof typeof FormItemOrientationToYAML
+export type FormItemOrientationYAML = keyof typeof FormItemOrientationFromYAML
 
-export const FormItemSpacingToEnterprise = {
+export const FormItemSpacingToYAML = {
   Auto: "Авто",
   Double: "Двойной",
   None: "Нет",
@@ -6603,7 +6565,7 @@ export const FormItemSpacingToEnterprise = {
   OneAndHalf: "Полуторный",
 } as const
 
-export const FormItemSpacingFromEnterprise = {
+export const FormItemSpacingFromYAML = {
   Авто: "Auto",
   Двойной: "Double",
   Нет: "None",
@@ -6612,10 +6574,10 @@ export const FormItemSpacingFromEnterprise = {
   Полуторный: "OneAndHalf",
 } as const
 
-export type FormItemSpacing = keyof typeof FormItemSpacingToEnterprise
-export type FormItemSpacingEnterprise = keyof typeof FormItemSpacingFromEnterprise
+export type FormItemSpacing = keyof typeof FormItemSpacingToYAML
+export type FormItemSpacingYAML = keyof typeof FormItemSpacingFromYAML
 
-export const FormItemTitleLocationToEnterprise = {
+export const FormItemTitleLocationToYAML = {
   Auto: "Авто",
   Top: "Верх",
   Left: "Лево",
@@ -6624,7 +6586,7 @@ export const FormItemTitleLocationToEnterprise = {
   Right: "Право",
 } as const
 
-export const FormItemTitleLocationFromEnterprise = {
+export const FormItemTitleLocationFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Лево: "Left",
@@ -6633,10 +6595,10 @@ export const FormItemTitleLocationFromEnterprise = {
   Право: "Right",
 } as const
 
-export type FormItemTitleLocation = keyof typeof FormItemTitleLocationToEnterprise
-export type FormItemTitleLocationEnterprise = keyof typeof FormItemTitleLocationFromEnterprise
+export type FormItemTitleLocation = keyof typeof FormItemTitleLocationToYAML
+export type FormItemTitleLocationYAML = keyof typeof FormItemTitleLocationFromYAML
 
-export const FormPagesRepresentationToEnterprise = {
+export const FormPagesRepresentationToYAML = {
   Auto: "Авто",
   TabsOnTop: "ЗакладкиСверху",
   TabsOnLeftHorizontal: "ЗакладкиСлеваГоризонтально",
@@ -6646,7 +6608,7 @@ export const FormPagesRepresentationToEnterprise = {
   Swipe: "Пролистывание",
 } as const
 
-export const FormPagesRepresentationFromEnterprise = {
+export const FormPagesRepresentationFromYAML = {
   Авто: "Auto",
   ЗакладкиСверху: "TabsOnTop",
   ЗакладкиСлеваГоризонтально: "TabsOnLeftHorizontal",
@@ -6656,25 +6618,25 @@ export const FormPagesRepresentationFromEnterprise = {
   Пролистывание: "Swipe",
 } as const
 
-export type FormPagesRepresentation = keyof typeof FormPagesRepresentationToEnterprise
-export type FormPagesRepresentationEnterprise = keyof typeof FormPagesRepresentationFromEnterprise
+export type FormPagesRepresentation = keyof typeof FormPagesRepresentationToYAML
+export type FormPagesRepresentationYAML = keyof typeof FormPagesRepresentationFromYAML
 
-export const FormPagesStateToEnterprise = {
+export const FormPagesStateToYAML = {
   Titles: "Заголовки",
   TitlesAndCurrentPage: "ЗаголовкиИТекущаяСтраница",
   CurrentPage: "ТекущаяСтраница",
 } as const
 
-export const FormPagesStateFromEnterprise = {
+export const FormPagesStateFromYAML = {
   Заголовки: "Titles",
   ЗаголовкиИТекущаяСтраница: "TitlesAndCurrentPage",
   ТекущаяСтраница: "CurrentPage",
 } as const
 
-export type FormPagesState = keyof typeof FormPagesStateToEnterprise
-export type FormPagesStateEnterprise = keyof typeof FormPagesStateFromEnterprise
+export type FormPagesState = keyof typeof FormPagesStateToYAML
+export type FormPagesStateYAML = keyof typeof FormPagesStateFromYAML
 
-export const FormStandardURLVariantToEnterprise = {
+export const FormStandardURLVariantToYAML = {
   ReportVariant: "ВариантОтчета",
   Record: "Запись",
   ListCurrentRowRecord: "ЗаписьТекущейСтрокиСписка",
@@ -6687,7 +6649,7 @@ export const FormStandardURLVariantToEnterprise = {
   ListWithCurrentSettingsAndRow: "СписокСТекущимиНастройкамиИСтрокой",
 } as const
 
-export const FormStandardURLVariantFromEnterprise = {
+export const FormStandardURLVariantFromYAML = {
   ВариантОтчета: "ReportVariant",
   Запись: "Record",
   ЗаписьТекущейСтрокиСписка: "ListCurrentRowRecord",
@@ -6700,42 +6662,42 @@ export const FormStandardURLVariantFromEnterprise = {
   СписокСТекущимиНастройкамиИСтрокой: "ListWithCurrentSettingsAndRow",
 } as const
 
-export type FormStandardURLVariant = keyof typeof FormStandardURLVariantToEnterprise
-export type FormStandardURLVariantEnterprise = keyof typeof FormStandardURLVariantFromEnterprise
+export type FormStandardURLVariant = keyof typeof FormStandardURLVariantToYAML
+export type FormStandardURLVariantYAML = keyof typeof FormStandardURLVariantFromYAML
 
-export const FormWindowOpeningModeToEnterprise = {
+export const FormWindowOpeningModeToYAML = {
   LockWholeInterface: "БлокироватьВесьИнтерфейс",
   LockOwnerWindow: "БлокироватьОкноВладельца",
   DontBlock: "НеБлокировать",
 } as const
 
-export const FormWindowOpeningModeFromEnterprise = {
+export const FormWindowOpeningModeFromYAML = {
   БлокироватьВесьИнтерфейс: "LockWholeInterface",
   БлокироватьОкноВладельца: "LockOwnerWindow",
   НеБлокировать: "DontBlock",
 } as const
 
-export type FormWindowOpeningMode = keyof typeof FormWindowOpeningModeToEnterprise
-export type FormWindowOpeningModeEnterprise = keyof typeof FormWindowOpeningModeFromEnterprise
+export type FormWindowOpeningMode = keyof typeof FormWindowOpeningModeToYAML
+export type FormWindowOpeningModeYAML = keyof typeof FormWindowOpeningModeFromYAML
 
-export const GraphicalSchemaGridDrawModeToEnterprise = {
+export const GraphicalSchemaGridDrawModeToYAML = {
   Lines: "Линии",
   None: "НеРисовать",
   Dots: "Точки",
   Chess: "ШахматнаяСетка",
 } as const
 
-export const GraphicalSchemaGridDrawModeFromEnterprise = {
+export const GraphicalSchemaGridDrawModeFromYAML = {
   Линии: "Lines",
   НеРисовать: "None",
   Точки: "Dots",
   ШахматнаяСетка: "Chess",
 } as const
 
-export type GraphicalSchemaGridDrawMode = keyof typeof GraphicalSchemaGridDrawModeToEnterprise
-export type GraphicalSchemaGridDrawModeEnterprise = keyof typeof GraphicalSchemaGridDrawModeFromEnterprise
+export type GraphicalSchemaGridDrawMode = keyof typeof GraphicalSchemaGridDrawModeToYAML
+export type GraphicalSchemaGridDrawModeYAML = keyof typeof GraphicalSchemaGridDrawModeFromYAML
 
-export const GraphicalSchemaItemPictureLocationToEnterprise = {
+export const GraphicalSchemaItemPictureLocationToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
@@ -6743,7 +6705,7 @@ export const GraphicalSchemaItemPictureLocationToEnterprise = {
   Center: "Центр",
 } as const
 
-export const GraphicalSchemaItemPictureLocationFromEnterprise = {
+export const GraphicalSchemaItemPictureLocationFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
@@ -6751,10 +6713,10 @@ export const GraphicalSchemaItemPictureLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type GraphicalSchemaItemPictureLocation = keyof typeof GraphicalSchemaItemPictureLocationToEnterprise
-export type GraphicalSchemaItemPictureLocationEnterprise = keyof typeof GraphicalSchemaItemPictureLocationFromEnterprise
+export type GraphicalSchemaItemPictureLocation = keyof typeof GraphicalSchemaItemPictureLocationToYAML
+export type GraphicalSchemaItemPictureLocationYAML = keyof typeof GraphicalSchemaItemPictureLocationFromYAML
 
-export const GraphicalSchemaShapesToEnterprise = {
+export const GraphicalSchemaShapesToYAML = {
   Block: "Блок",
   Document: "Документ",
   None: "Нет",
@@ -6771,7 +6733,7 @@ export const GraphicalSchemaShapesToEnterprise = {
   Ellipse: "Эллипс",
 } as const
 
-export const GraphicalSchemaShapesFromEnterprise = {
+export const GraphicalSchemaShapesFromYAML = {
   Блок: "Block",
   Документ: "Document",
   Нет: "None",
@@ -6788,10 +6750,10 @@ export const GraphicalSchemaShapesFromEnterprise = {
   Эллипс: "Ellipse",
 } as const
 
-export type GraphicalSchemaShapes = keyof typeof GraphicalSchemaShapesToEnterprise
-export type GraphicalSchemaShapesEnterprise = keyof typeof GraphicalSchemaShapesFromEnterprise
+export type GraphicalSchemaShapes = keyof typeof GraphicalSchemaShapesToYAML
+export type GraphicalSchemaShapesYAML = keyof typeof GraphicalSchemaShapesFromYAML
 
-export const GraphicalSchemeElementSideTypeToEnterprise = {
+export const GraphicalSchemeElementSideTypeToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
@@ -6799,7 +6761,7 @@ export const GraphicalSchemeElementSideTypeToEnterprise = {
   Center: "Центр",
 } as const
 
-export const GraphicalSchemeElementSideTypeFromEnterprise = {
+export const GraphicalSchemeElementSideTypeFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
@@ -6807,23 +6769,23 @@ export const GraphicalSchemeElementSideTypeFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type GraphicalSchemeElementSideType = keyof typeof GraphicalSchemeElementSideTypeToEnterprise
-export type GraphicalSchemeElementSideTypeEnterprise = keyof typeof GraphicalSchemeElementSideTypeFromEnterprise
+export type GraphicalSchemeElementSideType = keyof typeof GraphicalSchemeElementSideTypeToYAML
+export type GraphicalSchemeElementSideTypeYAML = keyof typeof GraphicalSchemeElementSideTypeFromYAML
 
-export const HTMLDocumentFieldModeToEnterprise = {
+export const HTMLDocumentFieldModeToYAML = {
   Browse: "Просмотр",
   Design: "Редактирование",
 } as const
 
-export const HTMLDocumentFieldModeFromEnterprise = {
+export const HTMLDocumentFieldModeFromYAML = {
   Просмотр: "Browse",
   Редактирование: "Design",
 } as const
 
-export type HTMLDocumentFieldMode = keyof typeof HTMLDocumentFieldModeToEnterprise
-export type HTMLDocumentFieldModeEnterprise = keyof typeof HTMLDocumentFieldModeFromEnterprise
+export type HTMLDocumentFieldMode = keyof typeof HTMLDocumentFieldModeToYAML
+export type HTMLDocumentFieldModeYAML = keyof typeof HTMLDocumentFieldModeFromYAML
 
-export const HorizontalAlignToEnterprise = {
+export const HorizontalAlignToYAML = {
   Auto: "Авто",
   Left: "Лево",
   Justify: "ПоШирине",
@@ -6831,7 +6793,7 @@ export const HorizontalAlignToEnterprise = {
   Center: "Центр",
 } as const
 
-export const HorizontalAlignFromEnterprise = {
+export const HorizontalAlignFromYAML = {
   Авто: "Auto",
   Лево: "Left",
   ПоШирине: "Justify",
@@ -6839,53 +6801,53 @@ export const HorizontalAlignFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type HorizontalAlign = keyof typeof HorizontalAlignToEnterprise
-export type HorizontalAlignEnterprise = keyof typeof HorizontalAlignFromEnterprise
+export type HorizontalAlign = keyof typeof HorizontalAlignToYAML
+export type HorizontalAlignYAML = keyof typeof HorizontalAlignFromYAML
 
-export const IncompleteChoiceModeToEnterprise = {
+export const IncompleteChoiceModeToYAML = {
   OnActivate: "ПриАктивизации",
   OnEnterPressed: "ПриНажатииEnter",
 } as const
 
-export const IncompleteChoiceModeFromEnterprise = {
+export const IncompleteChoiceModeFromYAML = {
   ПриАктивизации: "OnActivate",
   ПриНажатииEnter: "OnEnterPressed",
 } as const
 
-export type IncompleteChoiceMode = keyof typeof IncompleteChoiceModeToEnterprise
-export type IncompleteChoiceModeEnterprise = keyof typeof IncompleteChoiceModeFromEnterprise
+export type IncompleteChoiceMode = keyof typeof IncompleteChoiceModeToYAML
+export type IncompleteChoiceModeYAML = keyof typeof IncompleteChoiceModeFromYAML
 
-export const InitialListViewToEnterprise = {
+export const InitialListViewToYAML = {
   Auto: "Авто",
   End: "Конец",
   Beginning: "Начало",
 } as const
 
-export const InitialListViewFromEnterprise = {
+export const InitialListViewFromYAML = {
   Авто: "Auto",
   Конец: "End",
   Начало: "Beginning",
 } as const
 
-export type InitialListView = keyof typeof InitialListViewToEnterprise
-export type InitialListViewEnterprise = keyof typeof InitialListViewFromEnterprise
+export type InitialListView = keyof typeof InitialListViewToYAML
+export type InitialListViewYAML = keyof typeof InitialListViewFromYAML
 
-export const InitialTreeViewToEnterprise = {
+export const InitialTreeViewToYAML = {
   NoExpand: "НеРаскрывать",
   ExpandTopLevel: "РаскрыватьВерхнийУровень",
   ExpandAllLevels: "РаскрыватьВсеУровни",
 } as const
 
-export const InitialTreeViewFromEnterprise = {
+export const InitialTreeViewFromYAML = {
   НеРаскрывать: "NoExpand",
   РаскрыватьВерхнийУровень: "ExpandTopLevel",
   РаскрыватьВсеУровни: "ExpandAllLevels",
 } as const
 
-export type InitialTreeView = keyof typeof InitialTreeViewToEnterprise
-export type InitialTreeViewEnterprise = keyof typeof InitialTreeViewFromEnterprise
+export type InitialTreeView = keyof typeof InitialTreeViewToYAML
+export type InitialTreeViewYAML = keyof typeof InitialTreeViewFromYAML
 
-export const InputFieldAutofillHintToEnterprise = {
+export const InputFieldAutofillHintToYAML = {
   Email: "Email",
   City: "Город",
   GivenName: "Имя",
@@ -6907,7 +6869,7 @@ export const InputFieldAutofillHintToEnterprise = {
   FamilyName: "Фамилия",
 } as const
 
-export const InputFieldAutofillHintFromEnterprise = {
+export const InputFieldAutofillHintFromYAML = {
   Email: "Email",
   Город: "City",
   Имя: "GivenName",
@@ -6929,56 +6891,55 @@ export const InputFieldAutofillHintFromEnterprise = {
   Фамилия: "FamilyName",
 } as const
 
-export type InputFieldAutofillHint = keyof typeof InputFieldAutofillHintToEnterprise
-export type InputFieldAutofillHintEnterprise = keyof typeof InputFieldAutofillHintFromEnterprise
+export type InputFieldAutofillHint = keyof typeof InputFieldAutofillHintToYAML
+export type InputFieldAutofillHintYAML = keyof typeof InputFieldAutofillHintFromYAML
 
-export const InputFieldCommandSourceToEnterprise = {
+export const InputFieldCommandSourceToYAML = {
   MultipleValue: "МножественноеЗначение",
   InputArea: "ОбластьВвода",
 } as const
 
-export const InputFieldCommandSourceFromEnterprise = {
+export const InputFieldCommandSourceFromYAML = {
   МножественноеЗначение: "MultipleValue",
   ОбластьВвода: "InputArea",
 } as const
 
-export type InputFieldCommandSource = keyof typeof InputFieldCommandSourceToEnterprise
-export type InputFieldCommandSourceEnterprise = keyof typeof InputFieldCommandSourceFromEnterprise
+export type InputFieldCommandSource = keyof typeof InputFieldCommandSourceToYAML
+export type InputFieldCommandSourceYAML = keyof typeof InputFieldCommandSourceFromYAML
 
-export const InputFieldMultipleValuePictureShapeToEnterprise = {
+export const InputFieldMultipleValuePictureShapeToYAML = {
   Auto: "Авто",
   Rect: "Квадрат",
   Circle: "Круг",
 } as const
 
-export const InputFieldMultipleValuePictureShapeFromEnterprise = {
+export const InputFieldMultipleValuePictureShapeFromYAML = {
   Авто: "Auto",
   Квадрат: "Rect",
   Круг: "Circle",
 } as const
 
-export type InputFieldMultipleValuePictureShape = keyof typeof InputFieldMultipleValuePictureShapeToEnterprise
-export type InputFieldMultipleValuePictureShapeEnterprise =
-  keyof typeof InputFieldMultipleValuePictureShapeFromEnterprise
+export type InputFieldMultipleValuePictureShape = keyof typeof InputFieldMultipleValuePictureShapeToYAML
+export type InputFieldMultipleValuePictureShapeYAML = keyof typeof InputFieldMultipleValuePictureShapeFromYAML
 
-export const InputFieldMultipleValuePictureSizeToEnterprise = {
+export const InputFieldMultipleValuePictureSizeToYAML = {
   Auto: "Авто",
   Large: "Крупный",
   Small: "Маленький",
   Medium: "Средний",
 } as const
 
-export const InputFieldMultipleValuePictureSizeFromEnterprise = {
+export const InputFieldMultipleValuePictureSizeFromYAML = {
   Авто: "Auto",
   Крупный: "Large",
   Маленький: "Small",
   Средний: "Medium",
 } as const
 
-export type InputFieldMultipleValuePictureSize = keyof typeof InputFieldMultipleValuePictureSizeToEnterprise
-export type InputFieldMultipleValuePictureSizeEnterprise = keyof typeof InputFieldMultipleValuePictureSizeFromEnterprise
+export type InputFieldMultipleValuePictureSize = keyof typeof InputFieldMultipleValuePictureSizeToYAML
+export type InputFieldMultipleValuePictureSizeYAML = keyof typeof InputFieldMultipleValuePictureSizeFromYAML
 
-export const InputFieldStandardCommandToEnterprise = {
+export const InputFieldStandardCommandToYAML = {
   Paste: "Вставить",
   Choose: "Выбрать",
   SelectAll: "ВыделитьВсе",
@@ -6992,7 +6953,7 @@ export const InputFieldStandardCommandToEnterprise = {
   Delete: "Удалить",
 } as const
 
-export const InputFieldStandardCommandFromEnterprise = {
+export const InputFieldStandardCommandFromYAML = {
   Вставить: "Paste",
   Выбрать: "Choose",
   ВыделитьВсе: "SelectAll",
@@ -7006,59 +6967,59 @@ export const InputFieldStandardCommandFromEnterprise = {
   Удалить: "Delete",
 } as const
 
-export type InputFieldStandardCommand = keyof typeof InputFieldStandardCommandToEnterprise
-export type InputFieldStandardCommandEnterprise = keyof typeof InputFieldStandardCommandFromEnterprise
+export type InputFieldStandardCommand = keyof typeof InputFieldStandardCommandToYAML
+export type InputFieldStandardCommandYAML = keyof typeof InputFieldStandardCommandFromYAML
 
-export const ItemHeightControlVariantToEnterprise = {
+export const ItemHeightControlVariantToYAML = {
   Auto: "Авто",
   UseHeightInFormRows: "ВСтрокахФормы",
   UseContentHeight: "ПоСодержимому",
 } as const
 
-export const ItemHeightControlVariantFromEnterprise = {
+export const ItemHeightControlVariantFromYAML = {
   Авто: "Auto",
   ВСтрокахФормы: "UseHeightInFormRows",
   ПоСодержимому: "UseContentHeight",
 } as const
 
-export type ItemHeightControlVariant = keyof typeof ItemHeightControlVariantToEnterprise
-export type ItemHeightControlVariantEnterprise = keyof typeof ItemHeightControlVariantFromEnterprise
+export type ItemHeightControlVariant = keyof typeof ItemHeightControlVariantToYAML
+export type ItemHeightControlVariantYAML = keyof typeof ItemHeightControlVariantFromYAML
 
-export const ItemHorizontalLocationToEnterprise = {
+export const ItemHorizontalLocationToYAML = {
   Auto: "Авто",
   Left: "Лево",
   Right: "Право",
   Center: "Центр",
 } as const
 
-export const ItemHorizontalLocationFromEnterprise = {
+export const ItemHorizontalLocationFromYAML = {
   Авто: "Auto",
   Лево: "Left",
   Право: "Right",
   Центр: "Center",
 } as const
 
-export type ItemHorizontalLocation = keyof typeof ItemHorizontalLocationToEnterprise
-export type ItemHorizontalLocationEnterprise = keyof typeof ItemHorizontalLocationFromEnterprise
+export type ItemHorizontalLocation = keyof typeof ItemHorizontalLocationToYAML
+export type ItemHorizontalLocationYAML = keyof typeof ItemHorizontalLocationFromYAML
 
-export const ItemVerticalAlignToEnterprise = {
+export const ItemVerticalAlignToYAML = {
   Auto: "Авто",
   Top: "Верх",
   Bottom: "Низ",
   Center: "Центр",
 } as const
 
-export const ItemVerticalAlignFromEnterprise = {
+export const ItemVerticalAlignFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Низ: "Bottom",
   Центр: "Center",
 } as const
 
-export type ItemVerticalAlign = keyof typeof ItemVerticalAlignToEnterprise
-export type ItemVerticalAlignEnterprise = keyof typeof ItemVerticalAlignFromEnterprise
+export type ItemVerticalAlign = keyof typeof ItemVerticalAlignToYAML
+export type ItemVerticalAlignYAML = keyof typeof ItemVerticalAlignFromYAML
 
-export const ItemsAndTitlesAlignVariantToEnterprise = {
+export const ItemsAndTitlesAlignVariantToYAML = {
   Auto: "Авто",
   None: "Нет",
   ItemsLeftTitlesLeft: "ЭлементыЛевоЗаголовкиЛево",
@@ -7067,7 +7028,7 @@ export const ItemsAndTitlesAlignVariantToEnterprise = {
   ItemsRightTitlesRight: "ЭлементыПравоЗаголовкиПраво",
 } as const
 
-export const ItemsAndTitlesAlignVariantFromEnterprise = {
+export const ItemsAndTitlesAlignVariantFromYAML = {
   Авто: "Auto",
   Нет: "None",
   ЭлементыЛевоЗаголовкиЛево: "ItemsLeftTitlesLeft",
@@ -7076,10 +7037,10 @@ export const ItemsAndTitlesAlignVariantFromEnterprise = {
   ЭлементыПравоЗаголовкиПраво: "ItemsRightTitlesRight",
 } as const
 
-export type ItemsAndTitlesAlignVariant = keyof typeof ItemsAndTitlesAlignVariantToEnterprise
-export type ItemsAndTitlesAlignVariantEnterprise = keyof typeof ItemsAndTitlesAlignVariantFromEnterprise
+export type ItemsAndTitlesAlignVariant = keyof typeof ItemsAndTitlesAlignVariantToYAML
+export type ItemsAndTitlesAlignVariantYAML = keyof typeof ItemsAndTitlesAlignVariantFromYAML
 
-export const LabelPictureLocationToEnterprise = {
+export const LabelPictureLocationToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
@@ -7087,7 +7048,7 @@ export const LabelPictureLocationToEnterprise = {
   Center: "Центр",
 } as const
 
-export const LabelPictureLocationFromEnterprise = {
+export const LabelPictureLocationFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
@@ -7095,36 +7056,36 @@ export const LabelPictureLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type LabelPictureLocation = keyof typeof LabelPictureLocationToEnterprise
-export type LabelPictureLocationEnterprise = keyof typeof LabelPictureLocationFromEnterprise
+export type LabelPictureLocation = keyof typeof LabelPictureLocationToYAML
+export type LabelPictureLocationYAML = keyof typeof LabelPictureLocationFromYAML
 
-export const LinkedValueChangeModeToEnterprise = {
+export const LinkedValueChangeModeToYAML = {
   DontChange: "НеИзменять",
   Clear: "Очищать",
 } as const
 
-export const LinkedValueChangeModeFromEnterprise = {
+export const LinkedValueChangeModeFromYAML = {
   НеИзменять: "DontChange",
   Очищать: "Clear",
 } as const
 
-export type LinkedValueChangeMode = keyof typeof LinkedValueChangeModeToEnterprise
-export type LinkedValueChangeModeEnterprise = keyof typeof LinkedValueChangeModeFromEnterprise
+export type LinkedValueChangeMode = keyof typeof LinkedValueChangeModeToYAML
+export type LinkedValueChangeModeYAML = keyof typeof LinkedValueChangeModeFromYAML
 
-export const ListEditModeToEnterprise = {
+export const ListEditModeToYAML = {
   InDialog: "ВДиалоге",
   InList: "ВСписке",
 } as const
 
-export const ListEditModeFromEnterprise = {
+export const ListEditModeFromYAML = {
   ВДиалоге: "InDialog",
   ВСписке: "InList",
 } as const
 
-export type ListEditMode = keyof typeof ListEditModeToEnterprise
-export type ListEditModeEnterprise = keyof typeof ListEditModeFromEnterprise
+export type ListEditMode = keyof typeof ListEditModeToYAML
+export type ListEditModeYAML = keyof typeof ListEditModeFromYAML
 
-export const MainClientApplicationWindowModeToEnterprise = {
+export const MainClientApplicationWindowModeToYAML = {
   EmbeddedWorkplace: "ВстроенноеРабочееМесто",
   Kiosk: "Киоск",
   Normal: "Обычный",
@@ -7132,7 +7093,7 @@ export const MainClientApplicationWindowModeToEnterprise = {
   Workplace: "РабочееМесто",
 } as const
 
-export const MainClientApplicationWindowModeFromEnterprise = {
+export const MainClientApplicationWindowModeFromYAML = {
   ВстроенноеРабочееМесто: "EmbeddedWorkplace",
   Киоск: "Kiosk",
   Обычный: "Normal",
@@ -7140,23 +7101,23 @@ export const MainClientApplicationWindowModeFromEnterprise = {
   РабочееМесто: "Workplace",
 } as const
 
-export type MainClientApplicationWindowMode = keyof typeof MainClientApplicationWindowModeToEnterprise
-export type MainClientApplicationWindowModeEnterprise = keyof typeof MainClientApplicationWindowModeFromEnterprise
+export type MainClientApplicationWindowMode = keyof typeof MainClientApplicationWindowModeToYAML
+export type MainClientApplicationWindowModeYAML = keyof typeof MainClientApplicationWindowModeFromYAML
 
-export const NewRowShowCheckVariantToEnterprise = {
+export const NewRowShowCheckVariantToYAML = {
   DontCheck: "НеПроверять",
   FilterMismatchMessage: "СообщатьОНесоответствииОтбору",
 } as const
 
-export const NewRowShowCheckVariantFromEnterprise = {
+export const NewRowShowCheckVariantFromYAML = {
   НеПроверять: "DontCheck",
   СообщатьОНесоответствииОтбору: "FilterMismatchMessage",
 } as const
 
-export type NewRowShowCheckVariant = keyof typeof NewRowShowCheckVariantToEnterprise
-export type NewRowShowCheckVariantEnterprise = keyof typeof NewRowShowCheckVariantFromEnterprise
+export type NewRowShowCheckVariant = keyof typeof NewRowShowCheckVariantToYAML
+export type NewRowShowCheckVariantYAML = keyof typeof NewRowShowCheckVariantFromYAML
 
-export const OnScreenKeyboardReturnKeyTextToEnterprise = {
+export const OnScreenKeyboardReturnKeyTextToYAML = {
   Auto: "Авто",
   Return: "Ввод",
   Done: "Готово",
@@ -7168,7 +7129,7 @@ export const OnScreenKeyboardReturnKeyTextToEnterprise = {
   Continue: "Продолжить",
 } as const
 
-export const OnScreenKeyboardReturnKeyTextFromEnterprise = {
+export const OnScreenKeyboardReturnKeyTextFromYAML = {
   Авто: "Auto",
   Ввод: "Return",
   Готово: "Done",
@@ -7180,25 +7141,25 @@ export const OnScreenKeyboardReturnKeyTextFromEnterprise = {
   Продолжить: "Continue",
 } as const
 
-export type OnScreenKeyboardReturnKeyText = keyof typeof OnScreenKeyboardReturnKeyTextToEnterprise
-export type OnScreenKeyboardReturnKeyTextEnterprise = keyof typeof OnScreenKeyboardReturnKeyTextFromEnterprise
+export type OnScreenKeyboardReturnKeyText = keyof typeof OnScreenKeyboardReturnKeyTextToYAML
+export type OnScreenKeyboardReturnKeyTextYAML = keyof typeof OnScreenKeyboardReturnKeyTextFromYAML
 
-export const OrientationToEnterprise = {
+export const OrientationToYAML = {
   Auto: "Авто",
   Vertical: "Вертикально",
   Horizontal: "Горизонтально",
 } as const
 
-export const OrientationFromEnterprise = {
+export const OrientationFromYAML = {
   Авто: "Auto",
   Вертикально: "Vertical",
   Горизонтально: "Horizontal",
 } as const
 
-export type Orientation = keyof typeof OrientationToEnterprise
-export type OrientationEnterprise = keyof typeof OrientationFromEnterprise
+export type Orientation = keyof typeof OrientationToYAML
+export type OrientationYAML = keyof typeof OrientationFromYAML
 
-export const PanelPictureLocationToEnterprise = {
+export const PanelPictureLocationToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
@@ -7206,7 +7167,7 @@ export const PanelPictureLocationToEnterprise = {
   Center: "Центр",
 } as const
 
-export const PanelPictureLocationFromEnterprise = {
+export const PanelPictureLocationFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
@@ -7214,10 +7175,10 @@ export const PanelPictureLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type PanelPictureLocation = keyof typeof PanelPictureLocationToEnterprise
-export type PanelPictureLocationEnterprise = keyof typeof PanelPictureLocationFromEnterprise
+export type PanelPictureLocation = keyof typeof PanelPictureLocationToYAML
+export type PanelPictureLocationYAML = keyof typeof PanelPictureLocationFromYAML
 
-export const PictureFormatToEnterprise = {
+export const PictureFormatToYAML = {
   BMP: "BMP",
   EMF: "EMF",
   GIF: "GIF",
@@ -7230,7 +7191,7 @@ export const PictureFormatToEnterprise = {
   UnknownFormat: "НеизвестныйФормат",
 } as const
 
-export const PictureFormatFromEnterprise = {
+export const PictureFormatFromYAML = {
   BMP: "BMP",
   EMF: "EMF",
   GIF: "GIF",
@@ -7243,10 +7204,10 @@ export const PictureFormatFromEnterprise = {
   НеизвестныйФормат: "UnknownFormat",
 } as const
 
-export type PictureFormat = keyof typeof PictureFormatToEnterprise
-export type PictureFormatEnterprise = keyof typeof PictureFormatFromEnterprise
+export type PictureFormat = keyof typeof PictureFormatToYAML
+export type PictureFormatYAML = keyof typeof PictureFormatFromYAML
 
-export const PictureSizeToEnterprise = {
+export const PictureSizeToYAML = {
   AutoSize: "АвтоРазмер",
   AutoSizeIgnoreScale: "АвтоРазмерБезУчетаМасштаба",
   ByFontSize: "ПоРазмеруШрифта",
@@ -7257,7 +7218,7 @@ export const PictureSizeToEnterprise = {
   Tile: "Черепица",
 } as const
 
-export const PictureSizeFromEnterprise = {
+export const PictureSizeFromYAML = {
   АвтоРазмер: "AutoSize",
   АвтоРазмерБезУчетаМасштаба: "AutoSizeIgnoreScale",
   ПоРазмеруШрифта: "ByFontSize",
@@ -7268,128 +7229,128 @@ export const PictureSizeFromEnterprise = {
   Черепица: "Tile",
 } as const
 
-export type PictureSize = keyof typeof PictureSizeToEnterprise
-export type PictureSizeEnterprise = keyof typeof PictureSizeFromEnterprise
+export type PictureSize = keyof typeof PictureSizeToYAML
+export type PictureSizeYAML = keyof typeof PictureSizeFromYAML
 
-export const PrintDialogUseModeToEnterprise = {
+export const PrintDialogUseModeToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const PrintDialogUseModeFromEnterprise = {
+export const PrintDialogUseModeFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type PrintDialogUseMode = keyof typeof PrintDialogUseModeToEnterprise
-export type PrintDialogUseModeEnterprise = keyof typeof PrintDialogUseModeFromEnterprise
+export type PrintDialogUseMode = keyof typeof PrintDialogUseModeToYAML
+export type PrintDialogUseModeYAML = keyof typeof PrintDialogUseModeFromYAML
 
-export const ProgressBarSmoothingModeToEnterprise = {
+export const ProgressBarSmoothingModeToYAML = {
   Smooth: "Плавный",
   Broken: "Прерывистый",
   BrokenTilt: "ПрерывистыйНаклонный",
 } as const
 
-export const ProgressBarSmoothingModeFromEnterprise = {
+export const ProgressBarSmoothingModeFromYAML = {
   Плавный: "Smooth",
   Прерывистый: "Broken",
   ПрерывистыйНаклонный: "BrokenTilt",
 } as const
 
-export type ProgressBarSmoothingMode = keyof typeof ProgressBarSmoothingModeToEnterprise
-export type ProgressBarSmoothingModeEnterprise = keyof typeof ProgressBarSmoothingModeFromEnterprise
+export type ProgressBarSmoothingMode = keyof typeof ProgressBarSmoothingModeToYAML
+export type ProgressBarSmoothingModeYAML = keyof typeof ProgressBarSmoothingModeFromYAML
 
-export const RadioButtonTypeToEnterprise = {
+export const RadioButtonTypeToYAML = {
   Auto: "Авто",
   RadioButton: "Переключатель",
   Tumbler: "Тумблер",
 } as const
 
-export const RadioButtonTypeFromEnterprise = {
+export const RadioButtonTypeFromYAML = {
   Авто: "Auto",
   Переключатель: "RadioButton",
   Тумблер: "Tumbler",
 } as const
 
-export type RadioButtonType = keyof typeof RadioButtonTypeToEnterprise
-export type RadioButtonTypeEnterprise = keyof typeof RadioButtonTypeFromEnterprise
+export type RadioButtonType = keyof typeof RadioButtonTypeToYAML
+export type RadioButtonTypeYAML = keyof typeof RadioButtonTypeFromYAML
 
-export const RefreshRequestMethodToEnterprise = {
+export const RefreshRequestMethodToYAML = {
   None: "Нет",
   PullFromTop: "ПотянутьСверху",
   PullFromTopOrBottom: "ПотянутьСверхуИлиСнизу",
   PullFromBottom: "ПотянутьСнизу",
 } as const
 
-export const RefreshRequestMethodFromEnterprise = {
+export const RefreshRequestMethodFromYAML = {
   Нет: "None",
   ПотянутьСверху: "PullFromTop",
   ПотянутьСверхуИлиСнизу: "PullFromTopOrBottom",
   ПотянутьСнизу: "PullFromBottom",
 } as const
 
-export type RefreshRequestMethod = keyof typeof RefreshRequestMethodToEnterprise
-export type RefreshRequestMethodEnterprise = keyof typeof RefreshRequestMethodFromEnterprise
+export type RefreshRequestMethod = keyof typeof RefreshRequestMethodToYAML
+export type RefreshRequestMethodYAML = keyof typeof RefreshRequestMethodFromYAML
 
-export const ReportFormTypeToEnterprise = {
+export const ReportFormTypeToYAML = {
   Variant: "Вариант",
   Settings: "Настройка",
   Main: "Основная",
 } as const
 
-export const ReportFormTypeFromEnterprise = {
+export const ReportFormTypeFromYAML = {
   Вариант: "Variant",
   Настройка: "Settings",
   Основная: "Main",
 } as const
 
-export type ReportFormType = keyof typeof ReportFormTypeToEnterprise
-export type ReportFormTypeEnterprise = keyof typeof ReportFormTypeFromEnterprise
+export type ReportFormType = keyof typeof ReportFormTypeToYAML
+export type ReportFormTypeYAML = keyof typeof ReportFormTypeFromYAML
 
-export const ReportResultViewModeToEnterprise = {
+export const ReportResultViewModeToYAML = {
   Auto: "Авто",
   Compact: "Компактный",
   Default: "Обычный",
 } as const
 
-export const ReportResultViewModeFromEnterprise = {
+export const ReportResultViewModeFromYAML = {
   Авто: "Auto",
   Компактный: "Compact",
   Обычный: "Default",
 } as const
 
-export type ReportResultViewMode = keyof typeof ReportResultViewModeToEnterprise
-export type ReportResultViewModeEnterprise = keyof typeof ReportResultViewModeFromEnterprise
+export type ReportResultViewMode = keyof typeof ReportResultViewModeToYAML
+export type ReportResultViewModeYAML = keyof typeof ReportResultViewModeFromYAML
 
-export const SaveFormDataInSettingsToEnterprise = {
+export const SaveFormDataInSettingsToYAML = {
   UseList: "ИспользоватьСписок",
   DontUse: "НеИспользовать",
 } as const
 
-export const SaveFormDataInSettingsFromEnterprise = {
+export const SaveFormDataInSettingsFromYAML = {
   ИспользоватьСписок: "UseList",
   НеИспользовать: "DontUse",
 } as const
 
-export type SaveFormDataInSettings = keyof typeof SaveFormDataInSettingsToEnterprise
-export type SaveFormDataInSettingsEnterprise = keyof typeof SaveFormDataInSettingsFromEnterprise
+export type SaveFormDataInSettings = keyof typeof SaveFormDataInSettingsToYAML
+export type SaveFormDataInSettingsYAML = keyof typeof SaveFormDataInSettingsFromYAML
 
-export const ScrollBarUseToEnterprise = {
+export const ScrollBarUseToYAML = {
   AutoUse: "ИспользоватьАвтоматически",
   UseAlways: "ИспользоватьВсегда",
   DontUse: "НеИспользовать",
 } as const
 
-export const ScrollBarUseFromEnterprise = {
+export const ScrollBarUseFromYAML = {
   ИспользоватьАвтоматически: "AutoUse",
   ИспользоватьВсегда: "UseAlways",
   НеИспользовать: "DontUse",
 } as const
 
-export type ScrollBarUse = keyof typeof ScrollBarUseToEnterprise
-export type ScrollBarUseEnterprise = keyof typeof ScrollBarUseFromEnterprise
+export type ScrollBarUse = keyof typeof ScrollBarUseToYAML
+export type ScrollBarUseYAML = keyof typeof ScrollBarUseFromYAML
 
-export const ScrollingTextModeToEnterprise = {
+export const ScrollingTextModeToYAML = {
   Fast: "Быстро",
   Slow: "Медленно",
   DontUse: "НеИспользовать",
@@ -7398,7 +7359,7 @@ export const ScrollingTextModeToEnterprise = {
   VerySlow: "ОченьМедленно",
 } as const
 
-export const ScrollingTextModeFromEnterprise = {
+export const ScrollingTextModeFromYAML = {
   Быстро: "Fast",
   Медленно: "Slow",
   НеИспользовать: "DontUse",
@@ -7407,40 +7368,40 @@ export const ScrollingTextModeFromEnterprise = {
   ОченьМедленно: "VerySlow",
 } as const
 
-export type ScrollingTextMode = keyof typeof ScrollingTextModeToEnterprise
-export type ScrollingTextModeEnterprise = keyof typeof ScrollingTextModeFromEnterprise
+export type ScrollingTextMode = keyof typeof ScrollingTextModeToYAML
+export type ScrollingTextModeYAML = keyof typeof ScrollingTextModeFromYAML
 
-export const SearchControlLocationToEnterprise = {
+export const SearchControlLocationToYAML = {
   Auto: "Авто",
   CommandBar: "КоманднаяПанель",
   None: "Нет",
 } as const
 
-export const SearchControlLocationFromEnterprise = {
+export const SearchControlLocationFromYAML = {
   Авто: "Auto",
   КоманднаяПанель: "CommandBar",
   Нет: "None",
 } as const
 
-export type SearchControlLocation = keyof typeof SearchControlLocationToEnterprise
-export type SearchControlLocationEnterprise = keyof typeof SearchControlLocationFromEnterprise
+export type SearchControlLocation = keyof typeof SearchControlLocationToYAML
+export type SearchControlLocationYAML = keyof typeof SearchControlLocationFromYAML
 
-export const SearchInTableOnInputToEnterprise = {
+export const SearchInTableOnInputToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const SearchInTableOnInputFromEnterprise = {
+export const SearchInTableOnInputFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type SearchInTableOnInput = keyof typeof SearchInTableOnInputToEnterprise
-export type SearchInTableOnInputEnterprise = keyof typeof SearchInTableOnInputFromEnterprise
+export type SearchInTableOnInput = keyof typeof SearchInTableOnInputToYAML
+export type SearchInTableOnInputYAML = keyof typeof SearchInTableOnInputFromYAML
 
-export const SearchStringLocationToEnterprise = {
+export const SearchStringLocationToYAML = {
   Auto: "Авто",
   Top: "Верх",
   FormCaption: "ЗаголовокФормы",
@@ -7450,7 +7411,7 @@ export const SearchStringLocationToEnterprise = {
   None: "Нет",
 } as const
 
-export const SearchStringLocationFromEnterprise = {
+export const SearchStringLocationFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   ЗаголовокФормы: "FormCaption",
@@ -7460,10 +7421,10 @@ export const SearchStringLocationFromEnterprise = {
   Нет: "None",
 } as const
 
-export type SearchStringLocation = keyof typeof SearchStringLocationToEnterprise
-export type SearchStringLocationEnterprise = keyof typeof SearchStringLocationFromEnterprise
+export type SearchStringLocation = keyof typeof SearchStringLocationToYAML
+export type SearchStringLocationYAML = keyof typeof SearchStringLocationFromYAML
 
-export const SelectionShowModeToEnterprise = {
+export const SelectionShowModeToYAML = {
   Always: "Всегда",
   DontShow: "НеОтображать",
   WhenActive: "ПриАктивности",
@@ -7471,7 +7432,7 @@ export const SelectionShowModeToEnterprise = {
   WhenMultipleCellsSelectedWhenActive: "ПриВыделенииНесколькихЯчеекПриАктивности",
 } as const
 
-export const SelectionShowModeFromEnterprise = {
+export const SelectionShowModeFromYAML = {
   Всегда: "Always",
   НеОтображать: "DontShow",
   ПриАктивности: "WhenActive",
@@ -7479,10 +7440,10 @@ export const SelectionShowModeFromEnterprise = {
   ПриВыделенииНесколькихЯчеекПриАктивности: "WhenMultipleCellsSelectedWhenActive",
 } as const
 
-export type SelectionShowMode = keyof typeof SelectionShowModeToEnterprise
-export type SelectionShowModeEnterprise = keyof typeof SelectionShowModeFromEnterprise
+export type SelectionShowMode = keyof typeof SelectionShowModeToYAML
+export type SelectionShowModeYAML = keyof typeof SelectionShowModeFromYAML
 
-export const ShowTabsToEnterprise = {
+export const ShowTabsToYAML = {
   DontUse: "НеИспользовать",
   Top: "Сверху",
   TopMultiLine: "СверхуМногострочный",
@@ -7498,7 +7459,7 @@ export const ShowTabsToEnterprise = {
   RightHorizontal: "СправаГоризонтально",
 } as const
 
-export const ShowTabsFromEnterprise = {
+export const ShowTabsFromYAML = {
   НеИспользовать: "DontUse",
   Сверху: "Top",
   СверхуМногострочный: "TopMultiLine",
@@ -7514,23 +7475,23 @@ export const ShowTabsFromEnterprise = {
   СправаГоризонтально: "RightHorizontal",
 } as const
 
-export type ShowTabs = keyof typeof ShowTabsToEnterprise
-export type ShowTabsEnterprise = keyof typeof ShowTabsFromEnterprise
+export type ShowTabs = keyof typeof ShowTabsToYAML
+export type ShowTabsYAML = keyof typeof ShowTabsFromYAML
 
-export const SizeChangeModeToEnterprise = {
+export const SizeChangeModeToYAML = {
   QuickChange: "БыстроеИзменение",
   Normal: "Обычный",
 } as const
 
-export const SizeChangeModeFromEnterprise = {
+export const SizeChangeModeFromYAML = {
   БыстроеИзменение: "QuickChange",
   Обычный: "Normal",
 } as const
 
-export type SizeChangeMode = keyof typeof SizeChangeModeToEnterprise
-export type SizeChangeModeEnterprise = keyof typeof SizeChangeModeFromEnterprise
+export type SizeChangeMode = keyof typeof SizeChangeModeToYAML
+export type SizeChangeModeYAML = keyof typeof SizeChangeModeFromYAML
 
-export const SpecialTextInputModeToEnterprise = {
+export const SpecialTextInputModeToYAML = {
   Email: "Email",
   URL: "URL",
   Auto: "Авто",
@@ -7540,7 +7501,7 @@ export const SpecialTextInputModeToEnterprise = {
   DigitsAndPunctuation: "ЦифрыИПунктуация",
 } as const
 
-export const SpecialTextInputModeFromEnterprise = {
+export const SpecialTextInputModeFromYAML = {
   Email: "Email",
   URL: "URL",
   Авто: "Auto",
@@ -7550,25 +7511,25 @@ export const SpecialTextInputModeFromEnterprise = {
   ЦифрыИПунктуация: "DigitsAndPunctuation",
 } as const
 
-export type SpecialTextInputMode = keyof typeof SpecialTextInputModeToEnterprise
-export type SpecialTextInputModeEnterprise = keyof typeof SpecialTextInputModeFromEnterprise
+export type SpecialTextInputMode = keyof typeof SpecialTextInputModeToYAML
+export type SpecialTextInputModeYAML = keyof typeof SpecialTextInputModeFromYAML
 
-export const SpellCheckingOnTextInputToEnterprise = {
+export const SpellCheckingOnTextInputToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const SpellCheckingOnTextInputFromEnterprise = {
+export const SpellCheckingOnTextInputFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type SpellCheckingOnTextInput = keyof typeof SpellCheckingOnTextInputToEnterprise
-export type SpellCheckingOnTextInputEnterprise = keyof typeof SpellCheckingOnTextInputFromEnterprise
+export type SpellCheckingOnTextInput = keyof typeof SpellCheckingOnTextInputToYAML
+export type SpellCheckingOnTextInputYAML = keyof typeof SpellCheckingOnTextInputFromYAML
 
-export const StandardAppearanceToEnterprise = {
+export const StandardAppearanceToYAML = {
   Orange: "Апельсин",
   Asphalt: "Асфальт",
   None: "БезОформления",
@@ -7593,7 +7554,7 @@ export const StandardAppearanceToEnterprise = {
   Grass: "Трава",
 } as const
 
-export const StandardAppearanceFromEnterprise = {
+export const StandardAppearanceFromYAML = {
   Апельсин: "Orange",
   Асфальт: "Asphalt",
   БезОформления: "None",
@@ -7618,10 +7579,10 @@ export const StandardAppearanceFromEnterprise = {
   Трава: "Grass",
 } as const
 
-export type StandardAppearance = keyof typeof StandardAppearanceToEnterprise
-export type StandardAppearanceEnterprise = keyof typeof StandardAppearanceFromEnterprise
+export type StandardAppearance = keyof typeof StandardAppearanceToYAML
+export type StandardAppearanceYAML = keyof typeof StandardAppearanceFromYAML
 
-export const StandardCommandsGroupToEnterprise = {
+export const StandardCommandsGroupToYAML = {
   FormCommandBarImportant: "КоманднаяПанельФормыВажное",
   FormCommandBarCreateBasedOn: "КоманднаяПанельФормыСоздатьНаОсновании",
   ActionsPanelReports: "ПанельДействийОтчеты",
@@ -7635,7 +7596,7 @@ export const StandardCommandsGroupToEnterprise = {
   FormNavigationPanelSeeAlso: "ПанельНавигацииФормыСмТакже",
 } as const
 
-export const StandardCommandsGroupFromEnterprise = {
+export const StandardCommandsGroupFromYAML = {
   КоманднаяПанельФормыВажное: "FormCommandBarImportant",
   КоманднаяПанельФормыСоздатьНаОсновании: "FormCommandBarCreateBasedOn",
   ПанельДействийОтчеты: "ActionsPanelReports",
@@ -7649,232 +7610,231 @@ export const StandardCommandsGroupFromEnterprise = {
   ПанельНавигацииФормыСмТакже: "FormNavigationPanelSeeAlso",
 } as const
 
-export type StandardCommandsGroup = keyof typeof StandardCommandsGroupToEnterprise
-export type StandardCommandsGroupEnterprise = keyof typeof StandardCommandsGroupFromEnterprise
+export type StandardCommandsGroup = keyof typeof StandardCommandsGroupToYAML
+export type StandardCommandsGroupYAML = keyof typeof StandardCommandsGroupFromYAML
 
-export const TableBehaviorOnHorizontalCompressionToEnterprise = {
+export const TableBehaviorOnHorizontalCompressionToYAML = {
   Auto: "Авто",
   MoveItemsByImportance: "ПереноситьЭлементыПоВажности",
   HideItemsByImportance: "СкрыватьЭлементыПоВажности",
 } as const
 
-export const TableBehaviorOnHorizontalCompressionFromEnterprise = {
+export const TableBehaviorOnHorizontalCompressionFromYAML = {
   Авто: "Auto",
   ПереноситьЭлементыПоВажности: "MoveItemsByImportance",
   СкрыватьЭлементыПоВажности: "HideItemsByImportance",
 } as const
 
-export type TableBehaviorOnHorizontalCompression = keyof typeof TableBehaviorOnHorizontalCompressionToEnterprise
-export type TableBehaviorOnHorizontalCompressionEnterprise =
-  keyof typeof TableBehaviorOnHorizontalCompressionFromEnterprise
+export type TableBehaviorOnHorizontalCompression = keyof typeof TableBehaviorOnHorizontalCompressionToYAML
+export type TableBehaviorOnHorizontalCompressionYAML = keyof typeof TableBehaviorOnHorizontalCompressionFromYAML
 
-export const TableBoxRowInputModeToEnterprise = {
+export const TableBoxRowInputModeToYAML = {
   EndOfWindow: "ВКонецОкна",
   EndOfList: "ВКонецСписка",
   BeforeCurrentRow: "ПередТекущейСтрокой",
   AfterCurrentRow: "ПослеТекущейСтроки",
 } as const
 
-export const TableBoxRowInputModeFromEnterprise = {
+export const TableBoxRowInputModeFromYAML = {
   ВКонецОкна: "EndOfWindow",
   ВКонецСписка: "EndOfList",
   ПередТекущейСтрокой: "BeforeCurrentRow",
   ПослеТекущейСтроки: "AfterCurrentRow",
 } as const
 
-export type TableBoxRowInputMode = keyof typeof TableBoxRowInputModeToEnterprise
-export type TableBoxRowInputModeEnterprise = keyof typeof TableBoxRowInputModeFromEnterprise
+export type TableBoxRowInputMode = keyof typeof TableBoxRowInputModeToYAML
+export type TableBoxRowInputModeYAML = keyof typeof TableBoxRowInputModeFromYAML
 
-export const TableBoxRowSelectionModeToEnterprise = {
+export const TableBoxRowSelectionModeToYAML = {
   Row: "Строка",
   Cell: "Ячейка",
 } as const
 
-export const TableBoxRowSelectionModeFromEnterprise = {
+export const TableBoxRowSelectionModeFromYAML = {
   Строка: "Row",
   Ячейка: "Cell",
 } as const
 
-export type TableBoxRowSelectionMode = keyof typeof TableBoxRowSelectionModeToEnterprise
-export type TableBoxRowSelectionModeEnterprise = keyof typeof TableBoxRowSelectionModeFromEnterprise
+export type TableBoxRowSelectionMode = keyof typeof TableBoxRowSelectionModeToYAML
+export type TableBoxRowSelectionModeYAML = keyof typeof TableBoxRowSelectionModeFromYAML
 
-export const TableBoxSelectionModeToEnterprise = {
+export const TableBoxSelectionModeToYAML = {
   MultiLine: "Множественный",
   SingleLine: "Одиночный",
 } as const
 
-export const TableBoxSelectionModeFromEnterprise = {
+export const TableBoxSelectionModeFromYAML = {
   Множественный: "MultiLine",
   Одиночный: "SingleLine",
 } as const
 
-export type TableBoxSelectionMode = keyof typeof TableBoxSelectionModeToEnterprise
-export type TableBoxSelectionModeEnterprise = keyof typeof TableBoxSelectionModeFromEnterprise
+export type TableBoxSelectionMode = keyof typeof TableBoxSelectionModeToYAML
+export type TableBoxSelectionModeYAML = keyof typeof TableBoxSelectionModeFromYAML
 
-export const TableCurrentRowUseToEnterprise = {
+export const TableCurrentRowUseToYAML = {
   Auto: "Авто",
   Choice: "Выбор",
   SelectionPresentation: "ОтображениеВыделения",
   SelectionPresentationAndChoice: "ОтображениеВыделенияИВыбор",
 } as const
 
-export const TableCurrentRowUseFromEnterprise = {
+export const TableCurrentRowUseFromYAML = {
   Авто: "Auto",
   Выбор: "Choice",
   ОтображениеВыделения: "SelectionPresentation",
   ОтображениеВыделенияИВыбор: "SelectionPresentationAndChoice",
 } as const
 
-export type TableCurrentRowUse = keyof typeof TableCurrentRowUseToEnterprise
-export type TableCurrentRowUseEnterprise = keyof typeof TableCurrentRowUseFromEnterprise
+export type TableCurrentRowUse = keyof typeof TableCurrentRowUseToYAML
+export type TableCurrentRowUseYAML = keyof typeof TableCurrentRowUseFromYAML
 
-export const TableHeightControlVariantToEnterprise = {
+export const TableHeightControlVariantToYAML = {
   Auto: "Авто",
   UseHeightInTableRows: "ВСтрокахТаблицы",
   UseHeightInFormRows: "ВСтрокахФормы",
   UseContentHeight: "ПоСодержимому",
 } as const
 
-export const TableHeightControlVariantFromEnterprise = {
+export const TableHeightControlVariantFromYAML = {
   Авто: "Auto",
   ВСтрокахТаблицы: "UseHeightInTableRows",
   ВСтрокахФормы: "UseHeightInFormRows",
   ПоСодержимому: "UseContentHeight",
 } as const
 
-export type TableHeightControlVariant = keyof typeof TableHeightControlVariantToEnterprise
-export type TableHeightControlVariantEnterprise = keyof typeof TableHeightControlVariantFromEnterprise
+export type TableHeightControlVariant = keyof typeof TableHeightControlVariantToYAML
+export type TableHeightControlVariantYAML = keyof typeof TableHeightControlVariantFromYAML
 
-export const TableRepresentationToEnterprise = {
+export const TableRepresentationToYAML = {
   Tree: "Дерево",
   HierarchicalList: "ИерархическийСписок",
   List: "Список",
 } as const
 
-export const TableRepresentationFromEnterprise = {
+export const TableRepresentationFromYAML = {
   Дерево: "Tree",
   ИерархическийСписок: "HierarchicalList",
   Список: "List",
 } as const
 
-export type TableRepresentation = keyof typeof TableRepresentationToEnterprise
-export type TableRepresentationEnterprise = keyof typeof TableRepresentationFromEnterprise
+export type TableRepresentation = keyof typeof TableRepresentationToYAML
+export type TableRepresentationYAML = keyof typeof TableRepresentationFromYAML
 
-export const TableRowInputModeToEnterprise = {
+export const TableRowInputModeToYAML = {
   EndOfWindow: "ВКонецОкна",
   EndOfList: "ВКонецСписка",
   BeforeCurrentRow: "ПередТекущейСтрокой",
   AfterCurrentRow: "ПослеТекущейСтроки",
 } as const
 
-export const TableRowInputModeFromEnterprise = {
+export const TableRowInputModeFromYAML = {
   ВКонецОкна: "EndOfWindow",
   ВКонецСписка: "EndOfList",
   ПередТекущейСтрокой: "BeforeCurrentRow",
   ПослеТекущейСтроки: "AfterCurrentRow",
 } as const
 
-export type TableRowInputMode = keyof typeof TableRowInputModeToEnterprise
-export type TableRowInputModeEnterprise = keyof typeof TableRowInputModeFromEnterprise
+export type TableRowInputMode = keyof typeof TableRowInputModeToYAML
+export type TableRowInputModeYAML = keyof typeof TableRowInputModeFromYAML
 
-export const TableRowSelectionModeToEnterprise = {
+export const TableRowSelectionModeToYAML = {
   Row: "Строка",
   Cell: "Ячейка",
 } as const
 
-export const TableRowSelectionModeFromEnterprise = {
+export const TableRowSelectionModeFromYAML = {
   Строка: "Row",
   Ячейка: "Cell",
 } as const
 
-export type TableRowSelectionMode = keyof typeof TableRowSelectionModeToEnterprise
-export type TableRowSelectionModeEnterprise = keyof typeof TableRowSelectionModeFromEnterprise
+export type TableRowSelectionMode = keyof typeof TableRowSelectionModeToYAML
+export type TableRowSelectionModeYAML = keyof typeof TableRowSelectionModeFromYAML
 
-export const TableSelectionModeToEnterprise = {
+export const TableSelectionModeToYAML = {
   MultiRow: "Множественный",
   SingleRow: "Одиночный",
 } as const
 
-export const TableSelectionModeFromEnterprise = {
+export const TableSelectionModeFromYAML = {
   Множественный: "MultiRow",
   Одиночный: "SingleRow",
 } as const
 
-export type TableSelectionMode = keyof typeof TableSelectionModeToEnterprise
-export type TableSelectionModeEnterprise = keyof typeof TableSelectionModeFromEnterprise
+export type TableSelectionMode = keyof typeof TableSelectionModeToYAML
+export type TableSelectionModeYAML = keyof typeof TableSelectionModeFromYAML
 
-export const TaskListModeToEnterprise = {
+export const TaskListModeToYAML = {
   AllTasks: "ВсеЗадачи",
   ByPerformer: "ПоИсполнителю",
 } as const
 
-export const TaskListModeFromEnterprise = {
+export const TaskListModeFromYAML = {
   ВсеЗадачи: "AllTasks",
   ПоИсполнителю: "ByPerformer",
 } as const
 
-export type TaskListMode = keyof typeof TaskListModeToEnterprise
-export type TaskListModeEnterprise = keyof typeof TaskListModeFromEnterprise
+export type TaskListMode = keyof typeof TaskListModeToYAML
+export type TaskListModeYAML = keyof typeof TaskListModeFromYAML
 
-export const TextDirectionToEnterprise = {
+export const TextDirectionToYAML = {
   LeftToRight: "СлеваНаправо",
   RightToLeft: "СправаНалево",
 } as const
 
-export const TextDirectionFromEnterprise = {
+export const TextDirectionFromYAML = {
   СлеваНаправо: "LeftToRight",
   СправаНалево: "RightToLeft",
 } as const
 
-export type TextDirection = keyof typeof TextDirectionToEnterprise
-export type TextDirectionEnterprise = keyof typeof TextDirectionFromEnterprise
+export type TextDirection = keyof typeof TextDirectionToYAML
+export type TextDirectionYAML = keyof typeof TextDirectionFromYAML
 
-export const ThroughAlignToEnterprise = {
+export const ThroughAlignToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const ThroughAlignFromEnterprise = {
+export const ThroughAlignFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type ThroughAlign = keyof typeof ThroughAlignToEnterprise
-export type ThroughAlignEnterprise = keyof typeof ThroughAlignFromEnterprise
+export type ThroughAlign = keyof typeof ThroughAlignToYAML
+export type ThroughAlignYAML = keyof typeof ThroughAlignFromYAML
 
-export const TimeScalePositionToEnterprise = {
+export const TimeScalePositionToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
   Right: "Право",
 } as const
 
-export const TimeScalePositionFromEnterprise = {
+export const TimeScalePositionFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
   Право: "Right",
 } as const
 
-export type TimeScalePosition = keyof typeof TimeScalePositionToEnterprise
-export type TimeScalePositionEnterprise = keyof typeof TimeScalePositionFromEnterprise
+export type TimeScalePosition = keyof typeof TimeScalePositionToYAML
+export type TimeScalePositionYAML = keyof typeof TimeScalePositionFromYAML
 
-export const TitleLocationToEnterprise = {
+export const TitleLocationToYAML = {
   TitleLeft: "ЗаголовокСлева",
   TitleRight: "ЗаголовокСправа",
 } as const
 
-export const TitleLocationFromEnterprise = {
+export const TitleLocationFromYAML = {
   ЗаголовокСлева: "TitleLeft",
   ЗаголовокСправа: "TitleRight",
 } as const
 
-export type TitleLocation = keyof typeof TitleLocationToEnterprise
-export type TitleLocationEnterprise = keyof typeof TitleLocationFromEnterprise
+export type TitleLocation = keyof typeof TitleLocationToYAML
+export type TitleLocationYAML = keyof typeof TitleLocationFromYAML
 
-export const ToolTipRepresentationToEnterprise = {
+export const ToolTipRepresentationToYAML = {
   Auto: "Авто",
   Balloon: "Всплывающая",
   Button: "Кнопка",
@@ -7886,7 +7846,7 @@ export const ToolTipRepresentationToEnterprise = {
   ShowRight: "ОтображатьСправа",
 } as const
 
-export const ToolTipRepresentationFromEnterprise = {
+export const ToolTipRepresentationFromYAML = {
   Авто: "Auto",
   Всплывающая: "Balloon",
   Кнопка: "Button",
@@ -7898,415 +7858,414 @@ export const ToolTipRepresentationFromEnterprise = {
   ОтображатьСправа: "ShowRight",
 } as const
 
-export type ToolTipRepresentation = keyof typeof ToolTipRepresentationToEnterprise
-export type ToolTipRepresentationEnterprise = keyof typeof ToolTipRepresentationFromEnterprise
+export type ToolTipRepresentation = keyof typeof ToolTipRepresentationToYAML
+export type ToolTipRepresentationYAML = keyof typeof ToolTipRepresentationFromYAML
 
-export const TrackBarMarkingAppearanceToEnterprise = {
+export const TrackBarMarkingAppearanceToYAML = {
   DontShow: "НеОтображать",
   TopLeft: "СверхуИлиСлева",
   BottomRight: "СнизуИлиСправа",
   BothSides: "СОбоихСторон",
 } as const
 
-export const TrackBarMarkingAppearanceFromEnterprise = {
+export const TrackBarMarkingAppearanceFromYAML = {
   НеОтображать: "DontShow",
   СверхуИлиСлева: "TopLeft",
   СнизуИлиСправа: "BottomRight",
   СОбоихСторон: "BothSides",
 } as const
 
-export type TrackBarMarkingAppearance = keyof typeof TrackBarMarkingAppearanceToEnterprise
-export type TrackBarMarkingAppearanceEnterprise = keyof typeof TrackBarMarkingAppearanceFromEnterprise
+export type TrackBarMarkingAppearance = keyof typeof TrackBarMarkingAppearanceToYAML
+export type TrackBarMarkingAppearanceYAML = keyof typeof TrackBarMarkingAppearanceFromYAML
 
-export const UseMenuModeToEnterprise = {
+export const UseMenuModeToYAML = {
   Use: "Использовать",
   UseExtra: "ИспользоватьДополнительно",
   DontUse: "НеИспользовать",
 } as const
 
-export const UseMenuModeFromEnterprise = {
+export const UseMenuModeFromYAML = {
   Использовать: "Use",
   ИспользоватьДополнительно: "UseExtra",
   НеИспользовать: "DontUse",
 } as const
 
-export type UseMenuMode = keyof typeof UseMenuModeToEnterprise
-export type UseMenuModeEnterprise = keyof typeof UseMenuModeFromEnterprise
+export type UseMenuMode = keyof typeof UseMenuModeToYAML
+export type UseMenuModeYAML = keyof typeof UseMenuModeFromYAML
 
-export const UseOutputToEnterprise = {
+export const UseOutputToYAML = {
   Auto: "Авто",
   Disable: "Запретить",
   Enable: "Разрешить",
 } as const
 
-export const UseOutputFromEnterprise = {
+export const UseOutputFromYAML = {
   Авто: "Auto",
   Запретить: "Disable",
   Разрешить: "Enable",
 } as const
 
-export type UseOutput = keyof typeof UseOutputToEnterprise
-export type UseOutputEnterprise = keyof typeof UseOutputFromEnterprise
+export type UseOutput = keyof typeof UseOutputToYAML
+export type UseOutputYAML = keyof typeof UseOutputFromYAML
 
-export const UserNotificationStatusToEnterprise = {
+export const UserNotificationStatusToYAML = {
   Important: "Важное",
   Information: "Информация",
 } as const
 
-export const UserNotificationStatusFromEnterprise = {
+export const UserNotificationStatusFromYAML = {
   Важное: "Important",
   Информация: "Information",
 } as const
 
-export type UserNotificationStatus = keyof typeof UserNotificationStatusToEnterprise
-export type UserNotificationStatusEnterprise = keyof typeof UserNotificationStatusFromEnterprise
+export type UserNotificationStatus = keyof typeof UserNotificationStatusToYAML
+export type UserNotificationStatusYAML = keyof typeof UserNotificationStatusFromYAML
 
-export const UsualGroupBehaviorToEnterprise = {
+export const UsualGroupBehaviorToYAML = {
   Auto: "Авто",
   PopUp: "Всплывающая",
   Usual: "Обычное",
   Collapsible: "Свертываемая",
 } as const
 
-export const UsualGroupBehaviorFromEnterprise = {
+export const UsualGroupBehaviorFromYAML = {
   Авто: "Auto",
   Всплывающая: "PopUp",
   Обычное: "Usual",
   Свертываемая: "Collapsible",
 } as const
 
-export type UsualGroupBehavior = keyof typeof UsualGroupBehaviorToEnterprise
-export type UsualGroupBehaviorEnterprise = keyof typeof UsualGroupBehaviorFromEnterprise
+export type UsualGroupBehavior = keyof typeof UsualGroupBehaviorToYAML
+export type UsualGroupBehaviorYAML = keyof typeof UsualGroupBehaviorFromYAML
 
-export const UsualGroupControlRepresentationToEnterprise = {
+export const UsualGroupControlRepresentationToYAML = {
   TitleHyperlink: "ГиперссылкаЗаголовка",
   Picture: "Картинка",
 } as const
 
-export const UsualGroupControlRepresentationFromEnterprise = {
+export const UsualGroupControlRepresentationFromYAML = {
   ГиперссылкаЗаголовка: "TitleHyperlink",
   Картинка: "Picture",
 } as const
 
-export type UsualGroupControlRepresentation = keyof typeof UsualGroupControlRepresentationToEnterprise
-export type UsualGroupControlRepresentationEnterprise = keyof typeof UsualGroupControlRepresentationFromEnterprise
+export type UsualGroupControlRepresentation = keyof typeof UsualGroupControlRepresentationToYAML
+export type UsualGroupControlRepresentationYAML = keyof typeof UsualGroupControlRepresentationFromYAML
 
-export const UsualGroupRepresentationToEnterprise = {
+export const UsualGroupRepresentationToYAML = {
   None: "Нет",
   NormalSeparation: "ОбычноеВыделение",
   StrongSeparation: "СильноеВыделение",
   WeakSeparation: "СлабоеВыделение",
 } as const
 
-export const UsualGroupRepresentationFromEnterprise = {
+export const UsualGroupRepresentationFromYAML = {
   Нет: "None",
   ОбычноеВыделение: "NormalSeparation",
   СильноеВыделение: "StrongSeparation",
   СлабоеВыделение: "WeakSeparation",
 } as const
 
-export type UsualGroupRepresentation = keyof typeof UsualGroupRepresentationToEnterprise
-export type UsualGroupRepresentationEnterprise = keyof typeof UsualGroupRepresentationFromEnterprise
+export type UsualGroupRepresentation = keyof typeof UsualGroupRepresentationToYAML
+export type UsualGroupRepresentationYAML = keyof typeof UsualGroupRepresentationFromYAML
 
-export const VerticalAlignToEnterprise = {
+export const VerticalAlignToYAML = {
   Top: "Верх",
   Bottom: "Низ",
   Center: "Центр",
 } as const
 
-export const VerticalAlignFromEnterprise = {
+export const VerticalAlignFromYAML = {
   Верх: "Top",
   Низ: "Bottom",
   Центр: "Center",
 } as const
 
-export type VerticalAlign = keyof typeof VerticalAlignToEnterprise
-export type VerticalAlignEnterprise = keyof typeof VerticalAlignFromEnterprise
+export type VerticalAlign = keyof typeof VerticalAlignToYAML
+export type VerticalAlignYAML = keyof typeof VerticalAlignFromYAML
 
-export const VerticalFormScrollToEnterprise = {
+export const VerticalFormScrollToYAML = {
   auto: "Авто",
   use: "Использовать",
   useWithoutStretch: "ИспользоватьБезРастягивания",
   useIfNecessary: "ИспользоватьПриНеобходимости",
 } as const
 
-export const VerticalFormScrollFromEnterprise = {
+export const VerticalFormScrollFromYAML = {
   Авто: "auto",
   Использовать: "use",
   ИспользоватьБезРастягивания: "useWithoutStretch",
   ИспользоватьПриНеобходимости: "useIfNecessary",
 } as const
 
-export type VerticalFormScroll = keyof typeof VerticalFormScrollToEnterprise
-export type VerticalFormScrollEnterprise = keyof typeof VerticalFormScrollFromEnterprise
+export type VerticalFormScroll = keyof typeof VerticalFormScrollToYAML
+export type VerticalFormScrollYAML = keyof typeof VerticalFormScrollFromYAML
 
-export const ViewModeApplicationOnSetReportResultToEnterprise = {
+export const ViewModeApplicationOnSetReportResultToYAML = {
   Auto: "Авто",
   DontApply: "НеПрименять",
   Apply: "Применять",
 } as const
 
-export const ViewModeApplicationOnSetReportResultFromEnterprise = {
+export const ViewModeApplicationOnSetReportResultFromYAML = {
   Авто: "Auto",
   НеПрименять: "DontApply",
   Применять: "Apply",
 } as const
 
-export type ViewModeApplicationOnSetReportResult = keyof typeof ViewModeApplicationOnSetReportResultToEnterprise
-export type ViewModeApplicationOnSetReportResultEnterprise =
-  keyof typeof ViewModeApplicationOnSetReportResultFromEnterprise
+export type ViewModeApplicationOnSetReportResult = keyof typeof ViewModeApplicationOnSetReportResultToYAML
+export type ViewModeApplicationOnSetReportResultYAML = keyof typeof ViewModeApplicationOnSetReportResultFromYAML
 
-export const ViewScalingModeToEnterprise = {
+export const ViewScalingModeToYAML = {
   Auto: "Авто",
   Large: "Крупный",
   Normal: "Обычный",
 } as const
 
-export const ViewScalingModeFromEnterprise = {
+export const ViewScalingModeFromYAML = {
   Авто: "Auto",
   Крупный: "Large",
   Обычный: "Normal",
 } as const
 
-export type ViewScalingMode = keyof typeof ViewScalingModeToEnterprise
-export type ViewScalingModeEnterprise = keyof typeof ViewScalingModeFromEnterprise
+export type ViewScalingMode = keyof typeof ViewScalingModeToYAML
+export type ViewScalingModeYAML = keyof typeof ViewScalingModeFromYAML
 
-export const ViewStatusLocationToEnterprise = {
+export const ViewStatusLocationToYAML = {
   Auto: "Авто",
   Top: "Верх",
   None: "Нет",
   Bottom: "Низ",
 } as const
 
-export const ViewStatusLocationFromEnterprise = {
+export const ViewStatusLocationFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Нет: "None",
   Низ: "Bottom",
 } as const
 
-export type ViewStatusLocation = keyof typeof ViewStatusLocationToEnterprise
-export type ViewStatusLocationEnterprise = keyof typeof ViewStatusLocationFromEnterprise
+export type ViewStatusLocation = keyof typeof ViewStatusLocationToYAML
+export type ViewStatusLocationYAML = keyof typeof ViewStatusLocationFromYAML
 
-export const WarningOnEditRepresentationToEnterprise = {
+export const WarningOnEditRepresentationToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const WarningOnEditRepresentationFromEnterprise = {
+export const WarningOnEditRepresentationFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type WarningOnEditRepresentation = keyof typeof WarningOnEditRepresentationToEnterprise
-export type WarningOnEditRepresentationEnterprise = keyof typeof WarningOnEditRepresentationFromEnterprise
+export type WarningOnEditRepresentation = keyof typeof WarningOnEditRepresentationToYAML
+export type WarningOnEditRepresentationYAML = keyof typeof WarningOnEditRepresentationFromYAML
 
-export const WindowAppearanceModeChangeToEnterprise = {
+export const WindowAppearanceModeChangeToYAML = {
   Auto: "Авто",
   Disable: "Запретить",
   Enable: "Разрешить",
 } as const
 
-export const WindowAppearanceModeChangeFromEnterprise = {
+export const WindowAppearanceModeChangeFromYAML = {
   Авто: "Auto",
   Запретить: "Disable",
   Разрешить: "Enable",
 } as const
 
-export type WindowAppearanceModeChange = keyof typeof WindowAppearanceModeChangeToEnterprise
-export type WindowAppearanceModeChangeEnterprise = keyof typeof WindowAppearanceModeChangeFromEnterprise
+export type WindowAppearanceModeChange = keyof typeof WindowAppearanceModeChangeToYAML
+export type WindowAppearanceModeChangeYAML = keyof typeof WindowAppearanceModeChangeFromYAML
 
-export const WindowAppearanceModeVariantToEnterprise = {
+export const WindowAppearanceModeVariantToYAML = {
   Maximized: "Максимизированное",
   Minimized: "Минимизированное",
   Normal: "Нормальное",
 } as const
 
-export const WindowAppearanceModeVariantFromEnterprise = {
+export const WindowAppearanceModeVariantFromYAML = {
   Максимизированное: "Maximized",
   Минимизированное: "Minimized",
   Нормальное: "Normal",
 } as const
 
-export type WindowAppearanceModeVariant = keyof typeof WindowAppearanceModeVariantToEnterprise
-export type WindowAppearanceModeVariantEnterprise = keyof typeof WindowAppearanceModeVariantFromEnterprise
+export type WindowAppearanceModeVariant = keyof typeof WindowAppearanceModeVariantToYAML
+export type WindowAppearanceModeVariantYAML = keyof typeof WindowAppearanceModeVariantFromYAML
 
-export const WindowDockVariantToEnterprise = {
+export const WindowDockVariantToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
   Right: "Право",
 } as const
 
-export const WindowDockVariantFromEnterprise = {
+export const WindowDockVariantFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
   Право: "Right",
 } as const
 
-export type WindowDockVariant = keyof typeof WindowDockVariantToEnterprise
-export type WindowDockVariantEnterprise = keyof typeof WindowDockVariantFromEnterprise
+export type WindowDockVariant = keyof typeof WindowDockVariantToYAML
+export type WindowDockVariantYAML = keyof typeof WindowDockVariantFromYAML
 
-export const WindowLocationVariantToEnterprise = {
+export const WindowLocationVariantToYAML = {
   Auto: "Авто",
   DontOverlapOwner: "НеПерекрыватьВладельца",
   Center: "Центрировать",
 } as const
 
-export const WindowLocationVariantFromEnterprise = {
+export const WindowLocationVariantFromYAML = {
   Авто: "Auto",
   НеПерекрыватьВладельца: "DontOverlapOwner",
   Центрировать: "Center",
 } as const
 
-export type WindowLocationVariant = keyof typeof WindowLocationVariantToEnterprise
-export type WindowLocationVariantEnterprise = keyof typeof WindowLocationVariantFromEnterprise
+export type WindowLocationVariant = keyof typeof WindowLocationVariantToYAML
+export type WindowLocationVariantYAML = keyof typeof WindowLocationVariantFromYAML
 
-export const WindowSizeChangeToEnterprise = {
+export const WindowSizeChangeToYAML = {
   Change: "Изменять",
   DontChange: "НеИзменять",
 } as const
 
-export const WindowSizeChangeFromEnterprise = {
+export const WindowSizeChangeFromYAML = {
   Изменять: "Change",
   НеИзменять: "DontChange",
 } as const
 
-export type WindowSizeChange = keyof typeof WindowSizeChangeToEnterprise
-export type WindowSizeChangeEnterprise = keyof typeof WindowSizeChangeFromEnterprise
+export type WindowSizeChange = keyof typeof WindowSizeChangeToYAML
+export type WindowSizeChangeYAML = keyof typeof WindowSizeChangeFromYAML
 
-export const WindowStateVariantToEnterprise = {
+export const WindowStateVariantToYAML = {
   Normal: "Обычное",
   Docked: "Прикрепленное",
   Autohide: "Прячущееся",
   Float: "Свободное",
 } as const
 
-export const WindowStateVariantFromEnterprise = {
+export const WindowStateVariantFromYAML = {
   Обычное: "Normal",
   Прикрепленное: "Docked",
   Прячущееся: "Autohide",
   Свободное: "Float",
 } as const
 
-export type WindowStateVariant = keyof typeof WindowStateVariantToEnterprise
-export type WindowStateVariantEnterprise = keyof typeof WindowStateVariantFromEnterprise
+export type WindowStateVariant = keyof typeof WindowStateVariantToYAML
+export type WindowStateVariantYAML = keyof typeof WindowStateVariantFromYAML
 
-export const AutoSeriesSeparationToEnterprise = {
+export const AutoSeriesSeparationToYAML = {
   All: "Все",
   Maximum: "Максимум",
   Minimum: "Минимум",
   None: "Нет",
 } as const
 
-export const AutoSeriesSeparationFromEnterprise = {
+export const AutoSeriesSeparationFromYAML = {
   Все: "All",
   Максимум: "Maximum",
   Минимум: "Minimum",
   Нет: "None",
 } as const
 
-export type AutoSeriesSeparation = keyof typeof AutoSeriesSeparationToEnterprise
-export type AutoSeriesSeparationEnterprise = keyof typeof AutoSeriesSeparationFromEnterprise
+export type AutoSeriesSeparation = keyof typeof AutoSeriesSeparationToYAML
+export type AutoSeriesSeparationYAML = keyof typeof AutoSeriesSeparationFromYAML
 
-export const BarChartPointsOrderToEnterprise = {
+export const BarChartPointsOrderToYAML = {
   Auto: "Авто",
   TopToBottom: "СверхуВниз",
   BottomToTop: "СнизуВверх",
 } as const
 
-export const BarChartPointsOrderFromEnterprise = {
+export const BarChartPointsOrderFromYAML = {
   Авто: "Auto",
   СверхуВниз: "TopToBottom",
   СнизуВверх: "BottomToTop",
 } as const
 
-export type BarChartPointsOrder = keyof typeof BarChartPointsOrderToEnterprise
-export type BarChartPointsOrderEnterprise = keyof typeof BarChartPointsOrderFromEnterprise
+export type BarChartPointsOrder = keyof typeof BarChartPointsOrderToYAML
+export type BarChartPointsOrderYAML = keyof typeof BarChartPointsOrderFromYAML
 
-export const BubbleChartNegativeValuesShowModeToEnterprise = {
+export const BubbleChartNegativeValuesShowModeToYAML = {
   InvertedBackColor: "ИнвертированныйЦветФона",
   DontShow: "НеОтображать",
   Abs: "ПоМодулю",
   Transparent: "ПрозрачныйФон",
 } as const
 
-export const BubbleChartNegativeValuesShowModeFromEnterprise = {
+export const BubbleChartNegativeValuesShowModeFromYAML = {
   ИнвертированныйЦветФона: "InvertedBackColor",
   НеОтображать: "DontShow",
   ПоМодулю: "Abs",
   ПрозрачныйФон: "Transparent",
 } as const
 
-export type BubbleChartNegativeValuesShowMode = keyof typeof BubbleChartNegativeValuesShowModeToEnterprise
-export type BubbleChartNegativeValuesShowModeEnterprise = keyof typeof BubbleChartNegativeValuesShowModeFromEnterprise
+export type BubbleChartNegativeValuesShowMode = keyof typeof BubbleChartNegativeValuesShowModeToYAML
+export type BubbleChartNegativeValuesShowModeYAML = keyof typeof BubbleChartNegativeValuesShowModeFromYAML
 
-export const ChartAnimationToEnterprise = {
+export const ChartAnimationToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const ChartAnimationFromEnterprise = {
+export const ChartAnimationFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type ChartAnimation = keyof typeof ChartAnimationToEnterprise
-export type ChartAnimationEnterprise = keyof typeof ChartAnimationFromEnterprise
+export type ChartAnimation = keyof typeof ChartAnimationToYAML
+export type ChartAnimationYAML = keyof typeof ChartAnimationFromYAML
 
-export const ChartBoundaryDetectionMethodToEnterprise = {
+export const ChartBoundaryDetectionMethodToYAML = {
   AutoDetect: "АвтоОпределение",
   UseValue: "ИспользоватьЗначение",
   UseValueWithLimitations: "ИспользоватьЗначениеСОграничением",
 } as const
 
-export const ChartBoundaryDetectionMethodFromEnterprise = {
+export const ChartBoundaryDetectionMethodFromYAML = {
   АвтоОпределение: "AutoDetect",
   ИспользоватьЗначение: "UseValue",
   ИспользоватьЗначениеСОграничением: "UseValueWithLimitations",
 } as const
 
-export type ChartBoundaryDetectionMethod = keyof typeof ChartBoundaryDetectionMethodToEnterprise
-export type ChartBoundaryDetectionMethodEnterprise = keyof typeof ChartBoundaryDetectionMethodFromEnterprise
+export type ChartBoundaryDetectionMethod = keyof typeof ChartBoundaryDetectionMethodToYAML
+export type ChartBoundaryDetectionMethodYAML = keyof typeof ChartBoundaryDetectionMethodFromYAML
 
-export const ChartBubbleSizeValueSourceToEnterprise = {
+export const ChartBubbleSizeValueSourceToYAML = {
   None: "Нет",
   CommonSeries: "ОбщаяСерия",
   NextSeries: "СледующаяСерия",
 } as const
 
-export const ChartBubbleSizeValueSourceFromEnterprise = {
+export const ChartBubbleSizeValueSourceFromYAML = {
   Нет: "None",
   ОбщаяСерия: "CommonSeries",
   СледующаяСерия: "NextSeries",
 } as const
 
-export type ChartBubbleSizeValueSource = keyof typeof ChartBubbleSizeValueSourceToEnterprise
-export type ChartBubbleSizeValueSourceEnterprise = keyof typeof ChartBubbleSizeValueSourceFromEnterprise
+export type ChartBubbleSizeValueSource = keyof typeof ChartBubbleSizeValueSourceToYAML
+export type ChartBubbleSizeValueSourceYAML = keyof typeof ChartBubbleSizeValueSourceFromYAML
 
-export const ChartBubbleSizingToEnterprise = {
+export const ChartBubbleSizingToYAML = {
   IncreaseDiameter: "УвеличениеДиаметра",
   IncreaseArea: "УвеличениеПлощади",
   DecreaseDiameter: "УменьшениеДиаметра",
   DecreaseArea: "УменьшениеПлощади",
 } as const
 
-export const ChartBubbleSizingFromEnterprise = {
+export const ChartBubbleSizingFromYAML = {
   УвеличениеДиаметра: "IncreaseDiameter",
   УвеличениеПлощади: "IncreaseArea",
   УменьшениеДиаметра: "DecreaseDiameter",
   УменьшениеПлощади: "DecreaseArea",
 } as const
 
-export type ChartBubbleSizing = keyof typeof ChartBubbleSizingToEnterprise
-export type ChartBubbleSizingEnterprise = keyof typeof ChartBubbleSizingFromEnterprise
+export type ChartBubbleSizing = keyof typeof ChartBubbleSizingToYAML
+export type ChartBubbleSizingYAML = keyof typeof ChartBubbleSizingFromYAML
 
-export const ChartColorPaletteToEnterprise = {
+export const ChartColorPaletteToYAML = {
   Auto: "Авто",
   Gradient: "Градиентная",
   Yellow: "Желтая",
@@ -8325,7 +8284,7 @@ export const ChartColorPaletteToEnterprise = {
   Bright: "Яркая",
 } as const
 
-export const ChartColorPaletteFromEnterprise = {
+export const ChartColorPaletteFromYAML = {
   Авто: "Auto",
   Градиентная: "Gradient",
   Желтая: "Yellow",
@@ -8344,25 +8303,25 @@ export const ChartColorPaletteFromEnterprise = {
   Яркая: "Bright",
 } as const
 
-export type ChartColorPalette = keyof typeof ChartColorPaletteToEnterprise
-export type ChartColorPaletteEnterprise = keyof typeof ChartColorPaletteFromEnterprise
+export type ChartColorPalette = keyof typeof ChartColorPaletteToYAML
+export type ChartColorPaletteYAML = keyof typeof ChartColorPaletteFromYAML
 
-export const ChartGridLinesShowModeToEnterprise = {
+export const ChartGridLinesShowModeToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const ChartGridLinesShowModeFromEnterprise = {
+export const ChartGridLinesShowModeFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type ChartGridLinesShowMode = keyof typeof ChartGridLinesShowModeToEnterprise
-export type ChartGridLinesShowModeEnterprise = keyof typeof ChartGridLinesShowModeFromEnterprise
+export type ChartGridLinesShowMode = keyof typeof ChartGridLinesShowModeToYAML
+export type ChartGridLinesShowModeYAML = keyof typeof ChartGridLinesShowModeFromYAML
 
-export const ChartLabelLocationToEnterprise = {
+export const ChartLabelLocationToYAML = {
   Auto: "Авто",
   Edge: "Край",
   EdgeAuto: "КрайАвто",
@@ -8376,7 +8335,7 @@ export const ChartLabelLocationToEnterprise = {
   Center: "Центр",
 } as const
 
-export const ChartLabelLocationFromEnterprise = {
+export const ChartLabelLocationFromYAML = {
   Авто: "Auto",
   Край: "Edge",
   КрайАвто: "EdgeAuto",
@@ -8390,10 +8349,10 @@ export const ChartLabelLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type ChartLabelLocation = keyof typeof ChartLabelLocationToEnterprise
-export type ChartLabelLocationEnterprise = keyof typeof ChartLabelLocationFromEnterprise
+export type ChartLabelLocation = keyof typeof ChartLabelLocationToYAML
+export type ChartLabelLocationYAML = keyof typeof ChartLabelLocationFromYAML
 
-export const ChartLabelTypeToEnterprise = {
+export const ChartLabelTypeToYAML = {
   Value: "Значение",
   ValuePercent: "ЗначениеПроцент",
   ValueSize: "ЗначениеРазмер",
@@ -8419,7 +8378,7 @@ export const ChartLabelTypeToEnterprise = {
   PointSize: "ТочкаРазмер",
 } as const
 
-export const ChartLabelTypeFromEnterprise = {
+export const ChartLabelTypeFromYAML = {
   Значение: "Value",
   ЗначениеПроцент: "ValuePercent",
   ЗначениеРазмер: "ValueSize",
@@ -8445,27 +8404,27 @@ export const ChartLabelTypeFromEnterprise = {
   ТочкаРазмер: "PointSize",
 } as const
 
-export type ChartLabelType = keyof typeof ChartLabelTypeToEnterprise
-export type ChartLabelTypeEnterprise = keyof typeof ChartLabelTypeFromEnterprise
+export type ChartLabelType = keyof typeof ChartLabelTypeToYAML
+export type ChartLabelTypeYAML = keyof typeof ChartLabelTypeFromYAML
 
-export const ChartLabelsOrientationToEnterprise = {
+export const ChartLabelsOrientationToYAML = {
   Auto: "Авто",
   Vertical: "Вертикально",
   Horizontal: "Горизонтально",
   CustomAngle: "ПроизвольныйУголНаклона",
 } as const
 
-export const ChartLabelsOrientationFromEnterprise = {
+export const ChartLabelsOrientationFromYAML = {
   Авто: "Auto",
   Вертикально: "Vertical",
   Горизонтально: "Horizontal",
   ПроизвольныйУголНаклона: "CustomAngle",
 } as const
 
-export type ChartLabelsOrientation = keyof typeof ChartLabelsOrientationToEnterprise
-export type ChartLabelsOrientationEnterprise = keyof typeof ChartLabelsOrientationFromEnterprise
+export type ChartLabelsOrientation = keyof typeof ChartLabelsOrientationToYAML
+export type ChartLabelsOrientationYAML = keyof typeof ChartLabelsOrientationFromYAML
 
-export const ChartLegendPlacementToEnterprise = {
+export const ChartLegendPlacementToYAML = {
   Auto: "Авто",
   Top: "Верх",
   Left: "Лево",
@@ -8475,7 +8434,7 @@ export const ChartLegendPlacementToEnterprise = {
   UseCoordinates: "УказываетсяРасположение",
 } as const
 
-export const ChartLegendPlacementFromEnterprise = {
+export const ChartLegendPlacementFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   Лево: "Left",
@@ -8485,10 +8444,10 @@ export const ChartLegendPlacementFromEnterprise = {
   УказываетсяРасположение: "UseCoordinates",
 } as const
 
-export type ChartLegendPlacement = keyof typeof ChartLegendPlacementToEnterprise
-export type ChartLegendPlacementEnterprise = keyof typeof ChartLegendPlacementFromEnterprise
+export type ChartLegendPlacement = keyof typeof ChartLegendPlacementToYAML
+export type ChartLegendPlacementYAML = keyof typeof ChartLegendPlacementFromYAML
 
-export const ChartLineTypeToEnterprise = {
+export const ChartLineTypeToYAML = {
   None: "НетЛинии",
   Dashed: "Пунктир",
   DashDotted: "ПунктирТочка",
@@ -8497,7 +8456,7 @@ export const ChartLineTypeToEnterprise = {
   Dotted: "Точечная",
 } as const
 
-export const ChartLineTypeFromEnterprise = {
+export const ChartLineTypeFromYAML = {
   НетЛинии: "None",
   Пунктир: "Dashed",
   ПунктирТочка: "DashDotted",
@@ -8506,10 +8465,10 @@ export const ChartLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export type ChartLineType = keyof typeof ChartLineTypeToEnterprise
-export type ChartLineTypeEnterprise = keyof typeof ChartLineTypeFromEnterprise
+export type ChartLineType = keyof typeof ChartLineTypeToYAML
+export type ChartLineTypeYAML = keyof typeof ChartLineTypeFromYAML
 
-export const ChartMarkerTypeToEnterprise = {
+export const ChartMarkerTypeToYAML = {
   Auto: "Авто",
   Rect: "Квадрат",
   Circle: "Круг",
@@ -8518,7 +8477,7 @@ export const ChartMarkerTypeToEnterprise = {
   Alternation: "Чередование",
 } as const
 
-export const ChartMarkerTypeFromEnterprise = {
+export const ChartMarkerTypeFromYAML = {
   Авто: "Auto",
   Квадрат: "Rect",
   Круг: "Circle",
@@ -8527,130 +8486,130 @@ export const ChartMarkerTypeFromEnterprise = {
   Чередование: "Alternation",
 } as const
 
-export type ChartMarkerType = keyof typeof ChartMarkerTypeToEnterprise
-export type ChartMarkerTypeEnterprise = keyof typeof ChartMarkerTypeFromEnterprise
+export type ChartMarkerType = keyof typeof ChartMarkerTypeToYAML
+export type ChartMarkerTypeYAML = keyof typeof ChartMarkerTypeFromYAML
 
-export const ChartOrientationToEnterprise = {
+export const ChartOrientationToYAML = {
   SouthEast: "ЮгВосток",
   SouthWest: "ЮгЗапад",
 } as const
 
-export const ChartOrientationFromEnterprise = {
+export const ChartOrientationFromYAML = {
   ЮгВосток: "SouthEast",
   ЮгЗапад: "SouthWest",
 } as const
 
-export type ChartOrientation = keyof typeof ChartOrientationToEnterprise
-export type ChartOrientationEnterprise = keyof typeof ChartOrientationFromEnterprise
+export type ChartOrientation = keyof typeof ChartOrientationToYAML
+export type ChartOrientationYAML = keyof typeof ChartOrientationFromYAML
 
-export const ChartPlotAreaPlacementToEnterprise = {
+export const ChartPlotAreaPlacementToYAML = {
   Auto: "Авто",
   EmptySpace: "СвободноеМесто",
   UseCoordinates: "УказываетсяРасположение",
 } as const
 
-export const ChartPlotAreaPlacementFromEnterprise = {
+export const ChartPlotAreaPlacementFromYAML = {
   Авто: "Auto",
   СвободноеМесто: "EmptySpace",
   УказываетсяРасположение: "UseCoordinates",
 } as const
 
-export type ChartPlotAreaPlacement = keyof typeof ChartPlotAreaPlacementToEnterprise
-export type ChartPlotAreaPlacementEnterprise = keyof typeof ChartPlotAreaPlacementFromEnterprise
+export type ChartPlotAreaPlacement = keyof typeof ChartPlotAreaPlacementToYAML
+export type ChartPlotAreaPlacementYAML = keyof typeof ChartPlotAreaPlacementFromYAML
 
-export const ChartPointsAxisValuesSourceToEnterprise = {
+export const ChartPointsAxisValuesSourceToYAML = {
   Auto: "Авто",
   Series: "Серия",
   Points: "Точки",
 } as const
 
-export const ChartPointsAxisValuesSourceFromEnterprise = {
+export const ChartPointsAxisValuesSourceFromYAML = {
   Авто: "Auto",
   Серия: "Series",
   Точки: "Points",
 } as const
 
-export type ChartPointsAxisValuesSource = keyof typeof ChartPointsAxisValuesSourceToEnterprise
-export type ChartPointsAxisValuesSourceEnterprise = keyof typeof ChartPointsAxisValuesSourceFromEnterprise
+export type ChartPointsAxisValuesSource = keyof typeof ChartPointsAxisValuesSourceToYAML
+export type ChartPointsAxisValuesSourceYAML = keyof typeof ChartPointsAxisValuesSourceFromYAML
 
-export const ChartPointsConnectionTypeToEnterprise = {
+export const ChartPointsConnectionTypeToYAML = {
   Auto: "Авто",
   DontConnect: "НеСоединять",
   Connect: "Соединять",
 } as const
 
-export const ChartPointsConnectionTypeFromEnterprise = {
+export const ChartPointsConnectionTypeFromYAML = {
   Авто: "Auto",
   НеСоединять: "DontConnect",
   Соединять: "Connect",
 } as const
 
-export type ChartPointsConnectionType = keyof typeof ChartPointsConnectionTypeToEnterprise
-export type ChartPointsConnectionTypeEnterprise = keyof typeof ChartPointsConnectionTypeFromEnterprise
+export type ChartPointsConnectionType = keyof typeof ChartPointsConnectionTypeToYAML
+export type ChartPointsConnectionTypeYAML = keyof typeof ChartPointsConnectionTypeFromYAML
 
-export const ChartReferenceBandBorderPositionToEnterprise = {
+export const ChartReferenceBandBorderPositionToYAML = {
   Auto: "Авто",
   OnValue: "ВЗначении",
   BetweenValues: "МеждуЗначениями",
 } as const
 
-export const ChartReferenceBandBorderPositionFromEnterprise = {
+export const ChartReferenceBandBorderPositionFromYAML = {
   Авто: "Auto",
   ВЗначении: "OnValue",
   МеждуЗначениями: "BetweenValues",
 } as const
 
-export type ChartReferenceBandBorderPosition = keyof typeof ChartReferenceBandBorderPositionToEnterprise
-export type ChartReferenceBandBorderPositionEnterprise = keyof typeof ChartReferenceBandBorderPositionFromEnterprise
+export type ChartReferenceBandBorderPosition = keyof typeof ChartReferenceBandBorderPositionToYAML
+export type ChartReferenceBandBorderPositionYAML = keyof typeof ChartReferenceBandBorderPositionFromYAML
 
-export const ChartReferenceLinePositionToEnterprise = {
+export const ChartReferenceLinePositionToYAML = {
   Auto: "Авто",
   OnValue: "ВЗначении",
   BetweenValues: "МеждуЗначениями",
 } as const
 
-export const ChartReferenceLinePositionFromEnterprise = {
+export const ChartReferenceLinePositionFromYAML = {
   Авто: "Auto",
   ВЗначении: "OnValue",
   МеждуЗначениями: "BetweenValues",
 } as const
 
-export type ChartReferenceLinePosition = keyof typeof ChartReferenceLinePositionToEnterprise
-export type ChartReferenceLinePositionEnterprise = keyof typeof ChartReferenceLinePositionFromEnterprise
+export type ChartReferenceLinePosition = keyof typeof ChartReferenceLinePositionToYAML
+export type ChartReferenceLinePositionYAML = keyof typeof ChartReferenceLinePositionFromYAML
 
-export const ChartScaleLabelLocationToEnterprise = {
+export const ChartScaleLabelLocationToYAML = {
   Auto: "Авто",
   Inside: "Внутри",
   None: "Нет",
   Outside: "Снаружи",
 } as const
 
-export const ChartScaleLabelLocationFromEnterprise = {
+export const ChartScaleLabelLocationFromYAML = {
   Авто: "Auto",
   Внутри: "Inside",
   Нет: "None",
   Снаружи: "Outside",
 } as const
 
-export type ChartScaleLabelLocation = keyof typeof ChartScaleLabelLocationToEnterprise
-export type ChartScaleLabelLocationEnterprise = keyof typeof ChartScaleLabelLocationFromEnterprise
+export type ChartScaleLabelLocation = keyof typeof ChartScaleLabelLocationToYAML
+export type ChartScaleLabelLocationYAML = keyof typeof ChartScaleLabelLocationFromYAML
 
-export const ChartScaleLocationToEnterprise = {
+export const ChartScaleLocationToYAML = {
   Auto: "Авто",
   BaseValue: "БазовоеЗначение",
   Edge: "Край",
 } as const
 
-export const ChartScaleLocationFromEnterprise = {
+export const ChartScaleLocationFromYAML = {
   Авто: "Auto",
   БазовоеЗначение: "BaseValue",
   Край: "Edge",
 } as const
 
-export type ChartScaleLocation = keyof typeof ChartScaleLocationToEnterprise
-export type ChartScaleLocationEnterprise = keyof typeof ChartScaleLocationFromEnterprise
+export type ChartScaleLocation = keyof typeof ChartScaleLocationToYAML
+export type ChartScaleLocationYAML = keyof typeof ChartScaleLocationFromYAML
 
-export const ChartScaleMarkLocationToEnterprise = {
+export const ChartScaleMarkLocationToYAML = {
   Auto: "Авто",
   Inside: "Внутри",
   None: "Нет",
@@ -8658,7 +8617,7 @@ export const ChartScaleMarkLocationToEnterprise = {
   Center: "Центр",
 } as const
 
-export const ChartScaleMarkLocationFromEnterprise = {
+export const ChartScaleMarkLocationFromYAML = {
   Авто: "Auto",
   Внутри: "Inside",
   Нет: "None",
@@ -8666,74 +8625,74 @@ export const ChartScaleMarkLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export type ChartScaleMarkLocation = keyof typeof ChartScaleMarkLocationToEnterprise
-export type ChartScaleMarkLocationEnterprise = keyof typeof ChartScaleMarkLocationFromEnterprise
+export type ChartScaleMarkLocation = keyof typeof ChartScaleMarkLocationToYAML
+export type ChartScaleMarkLocationYAML = keyof typeof ChartScaleMarkLocationFromYAML
 
-export const ChartScaleTitlePlacementToEnterprise = {
+export const ChartScaleTitlePlacementToYAML = {
   SpecialArea: "ВВыделеннойОбласти",
   PlotArea: "ВОбластиПостроения",
   WithAxis: "РядомСОсью",
 } as const
 
-export const ChartScaleTitlePlacementFromEnterprise = {
+export const ChartScaleTitlePlacementFromYAML = {
   ВВыделеннойОбласти: "SpecialArea",
   ВОбластиПостроения: "PlotArea",
   РядомСОсью: "WithAxis",
 } as const
 
-export type ChartScaleTitlePlacement = keyof typeof ChartScaleTitlePlacementToEnterprise
-export type ChartScaleTitlePlacementEnterprise = keyof typeof ChartScaleTitlePlacementFromEnterprise
+export type ChartScaleTitlePlacement = keyof typeof ChartScaleTitlePlacementToYAML
+export type ChartScaleTitlePlacementYAML = keyof typeof ChartScaleTitlePlacementFromYAML
 
-export const ChartScaleTitleTextSourceToEnterprise = {
+export const ChartScaleTitleTextSourceToYAML = {
   Auto: "Авто",
   AutoText: "АвтоТекст",
   UseText: "ИспользоватьТекст",
 } as const
 
-export const ChartScaleTitleTextSourceFromEnterprise = {
+export const ChartScaleTitleTextSourceFromYAML = {
   Авто: "Auto",
   АвтоТекст: "AutoText",
   ИспользоватьТекст: "UseText",
 } as const
 
-export type ChartScaleTitleTextSource = keyof typeof ChartScaleTitleTextSourceToEnterprise
-export type ChartScaleTitleTextSourceEnterprise = keyof typeof ChartScaleTitleTextSourceFromEnterprise
+export type ChartScaleTitleTextSource = keyof typeof ChartScaleTitleTextSourceToYAML
+export type ChartScaleTitleTextSourceYAML = keyof typeof ChartScaleTitleTextSourceFromYAML
 
-export const ChartSelectionModeToEnterprise = {
+export const ChartSelectionModeToYAML = {
   Auto: "Авто",
   ValuesSelection: "ВыделениеЗначений",
   PointsSelection: "ВыделениеТочек",
   None: "Нет",
 } as const
 
-export const ChartSelectionModeFromEnterprise = {
+export const ChartSelectionModeFromYAML = {
   Авто: "Auto",
   ВыделениеЗначений: "ValuesSelection",
   ВыделениеТочек: "PointsSelection",
   Нет: "None",
 } as const
 
-export type ChartSelectionMode = keyof typeof ChartSelectionModeToEnterprise
-export type ChartSelectionModeEnterprise = keyof typeof ChartSelectionModeFromEnterprise
+export type ChartSelectionMode = keyof typeof ChartSelectionModeToYAML
+export type ChartSelectionModeYAML = keyof typeof ChartSelectionModeFromYAML
 
-export const ChartSemitransparencyModeToEnterprise = {
+export const ChartSemitransparencyModeToYAML = {
   Auto: "Авто",
   AutoCalculate: "АвтоматическийРасчет",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const ChartSemitransparencyModeFromEnterprise = {
+export const ChartSemitransparencyModeFromYAML = {
   Авто: "Auto",
   АвтоматическийРасчет: "AutoCalculate",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type ChartSemitransparencyMode = keyof typeof ChartSemitransparencyModeToEnterprise
-export type ChartSemitransparencyModeEnterprise = keyof typeof ChartSemitransparencyModeFromEnterprise
+export type ChartSemitransparencyMode = keyof typeof ChartSemitransparencyModeToYAML
+export type ChartSemitransparencyModeYAML = keyof typeof ChartSemitransparencyModeFromYAML
 
-export const ChartSeriesGraphicalRepresentationTypeToEnterprise = {
+export const ChartSeriesGraphicalRepresentationTypeToYAML = {
   Auto: "Авто",
   Column: "Гистограмма",
   Column3D: "ГистограммаОбъемная",
@@ -8742,7 +8701,7 @@ export const ChartSeriesGraphicalRepresentationTypeToEnterprise = {
   Area: "ГрафикСОбластями",
 } as const
 
-export const ChartSeriesGraphicalRepresentationTypeFromEnterprise = {
+export const ChartSeriesGraphicalRepresentationTypeFromYAML = {
   Авто: "Auto",
   Гистограмма: "Column",
   ГистограммаОбъемная: "Column3D",
@@ -8751,71 +8710,70 @@ export const ChartSeriesGraphicalRepresentationTypeFromEnterprise = {
   ГрафикСОбластями: "Area",
 } as const
 
-export type ChartSeriesGraphicalRepresentationType = keyof typeof ChartSeriesGraphicalRepresentationTypeToEnterprise
-export type ChartSeriesGraphicalRepresentationTypeEnterprise =
-  keyof typeof ChartSeriesGraphicalRepresentationTypeFromEnterprise
+export type ChartSeriesGraphicalRepresentationType = keyof typeof ChartSeriesGraphicalRepresentationTypeToYAML
+export type ChartSeriesGraphicalRepresentationTypeYAML = keyof typeof ChartSeriesGraphicalRepresentationTypeFromYAML
 
-export const ChartSeriesOrderInLegendToEnterprise = {
+export const ChartSeriesOrderInLegendToYAML = {
   Auto: "Авто",
   Reverse: "Обратный",
   Direct: "Прямой",
 } as const
 
-export const ChartSeriesOrderInLegendFromEnterprise = {
+export const ChartSeriesOrderInLegendFromYAML = {
   Авто: "Auto",
   Обратный: "Reverse",
   Прямой: "Direct",
 } as const
 
-export type ChartSeriesOrderInLegend = keyof typeof ChartSeriesOrderInLegendToEnterprise
-export type ChartSeriesOrderInLegendEnterprise = keyof typeof ChartSeriesOrderInLegendFromEnterprise
+export type ChartSeriesOrderInLegend = keyof typeof ChartSeriesOrderInLegendToYAML
+export type ChartSeriesOrderInLegendYAML = keyof typeof ChartSeriesOrderInLegendFromYAML
 
-export const ChartSeriesStackTypeToEnterprise = {
+export const ChartSeriesStackTypeToYAML = {
   Auto: "Авто",
   Unstacked: "БезНакопления",
   Stacked: "СНакоплением",
   StackedNormalized: "СНакоплениемНормированная",
 } as const
 
-export const ChartSeriesStackTypeFromEnterprise = {
+export const ChartSeriesStackTypeFromYAML = {
   Авто: "Auto",
   БезНакопления: "Unstacked",
   СНакоплением: "Stacked",
   СНакоплениемНормированная: "StackedNormalized",
 } as const
 
-export type ChartSeriesStackType = keyof typeof ChartSeriesStackTypeToEnterprise
-export type ChartSeriesStackTypeEnterprise = keyof typeof ChartSeriesStackTypeFromEnterprise
+export type ChartSeriesStackType = keyof typeof ChartSeriesStackTypeToYAML
+export type ChartSeriesStackTypeYAML = keyof typeof ChartSeriesStackTypeFromYAML
 
-export const ChartSpaceModeToEnterprise = {
+export const ChartSpaceModeToYAML = {
   None: "Нет",
   Full: "ПолнаяШирина",
   Half: "ПоловинаШирины",
 } as const
 
-export const ChartSpaceModeFromEnterprise = {
+export const ChartSpaceModeFromYAML = {
   Нет: "None",
   ПолнаяШирина: "Full",
   ПоловинаШирины: "Half",
 } as const
 
-export type ChartSpaceMode = keyof typeof ChartSpaceModeToEnterprise
-export type ChartSpaceModeEnterprise = keyof typeof ChartSpaceModeFromEnterprise
+export type ChartSpaceMode = keyof typeof ChartSpaceModeToYAML
+export type ChartSpaceModeYAML = keyof typeof ChartSpaceModeFromYAML
 
-export const ChartSplineModeToEnterprise = {
+export const ChartSplineModeToYAML = {
   SmoothCurve: "ГладкаяКривая",
   None: "Нет",
 } as const
 
-export const ChartSplineModeFromEnterprise = {
+export const ChartSplineModeFromYAML = {
   ГладкаяКривая: "SmoothCurve",
   Нет: "None",
 } as const
 
-export type ChartSplineMode = keyof typeof ChartSplineModeToEnterprise
-export type ChartSplineModeEnterprise = keyof typeof ChartSplineModeFromEnterprise
+export type ChartSplineMode = keyof typeof ChartSplineModeToYAML
+export type ChartSplineModeYAML = keyof typeof ChartSplineModeFromYAML
 
-export const ChartTitleAreaPlacementToEnterprise = {
+export const ChartTitleAreaPlacementToYAML = {
   Auto: "Авто",
   Top: "Верх",
   LeftTop: "ЛевоВерх",
@@ -8827,7 +8785,7 @@ export const ChartTitleAreaPlacementToEnterprise = {
   UseCoordinates: "УказываетсяРасположение",
 } as const
 
-export const ChartTitleAreaPlacementFromEnterprise = {
+export const ChartTitleAreaPlacementFromYAML = {
   Авто: "Auto",
   Верх: "Top",
   ЛевоВерх: "LeftTop",
@@ -8839,10 +8797,10 @@ export const ChartTitleAreaPlacementFromEnterprise = {
   УказываетсяРасположение: "UseCoordinates",
 } as const
 
-export type ChartTitleAreaPlacement = keyof typeof ChartTitleAreaPlacementToEnterprise
-export type ChartTitleAreaPlacementEnterprise = keyof typeof ChartTitleAreaPlacementFromEnterprise
+export type ChartTitleAreaPlacement = keyof typeof ChartTitleAreaPlacementToYAML
+export type ChartTitleAreaPlacementYAML = keyof typeof ChartTitleAreaPlacementFromYAML
 
-export const ChartTrendlineApproximationTypeToEnterprise = {
+export const ChartTrendlineApproximationTypeToYAML = {
   Linear: "Линейный",
   Logarithmic: "Логарифмический",
   Polynomial: "Полиномиальный",
@@ -8850,7 +8808,7 @@ export const ChartTrendlineApproximationTypeToEnterprise = {
   Exponential: "Экспоненциальный",
 } as const
 
-export const ChartTrendlineApproximationTypeFromEnterprise = {
+export const ChartTrendlineApproximationTypeFromYAML = {
   Линейный: "Linear",
   Логарифмический: "Logarithmic",
   Полиномиальный: "Polynomial",
@@ -8858,25 +8816,25 @@ export const ChartTrendlineApproximationTypeFromEnterprise = {
   Экспоненциальный: "Exponential",
 } as const
 
-export type ChartTrendlineApproximationType = keyof typeof ChartTrendlineApproximationTypeToEnterprise
-export type ChartTrendlineApproximationTypeEnterprise = keyof typeof ChartTrendlineApproximationTypeFromEnterprise
+export type ChartTrendlineApproximationType = keyof typeof ChartTrendlineApproximationTypeToYAML
+export type ChartTrendlineApproximationTypeYAML = keyof typeof ChartTrendlineApproximationTypeFromYAML
 
-export const ChartTrendlineFactorToEnterprise = {
+export const ChartTrendlineFactorToYAML = {
   Auto: "Авто",
   PointValue: "ЗначениеТочки",
   PointNumber: "НомерТочки",
 } as const
 
-export const ChartTrendlineFactorFromEnterprise = {
+export const ChartTrendlineFactorFromYAML = {
   Авто: "Auto",
   ЗначениеТочки: "PointValue",
   НомерТочки: "PointNumber",
 } as const
 
-export type ChartTrendlineFactor = keyof typeof ChartTrendlineFactorToEnterprise
-export type ChartTrendlineFactorEnterprise = keyof typeof ChartTrendlineFactorFromEnterprise
+export type ChartTrendlineFactor = keyof typeof ChartTrendlineFactorToYAML
+export type ChartTrendlineFactorYAML = keyof typeof ChartTrendlineFactorFromYAML
 
-export const ChartTypeToEnterprise = {
+export const ChartTypeToYAML = {
   Stock: "Биржевая",
   OpenHighLowClose: "БиржеваяСвеча",
   ConcaveSurface: "ВогнутаяПоверхность",
@@ -8926,7 +8884,7 @@ export const ChartTypeToEnterprise = {
   Scatter: "Точечная",
 } as const
 
-export const ChartTypeFromEnterprise = {
+export const ChartTypeFromYAML = {
   Биржевая: "Stock",
   БиржеваяСвеча: "OpenHighLowClose",
   ВогнутаяПоверхность: "ConcaveSurface",
@@ -8976,149 +8934,148 @@ export const ChartTypeFromEnterprise = {
   Точечная: "Scatter",
 } as const
 
-export type ChartType = keyof typeof ChartTypeToEnterprise
-export type ChartTypeEnterprise = keyof typeof ChartTypeFromEnterprise
+export type ChartType = keyof typeof ChartTypeToYAML
+export type ChartTypeYAML = keyof typeof ChartTypeFromYAML
 
-export const ChartValueEditStateToEnterprise = {
+export const ChartValueEditStateToYAML = {
   Finished: "Завершено",
   NotFinished: "НеЗавершено",
   Canceled: "Отменено",
 } as const
 
-export const ChartValueEditStateFromEnterprise = {
+export const ChartValueEditStateFromYAML = {
   Завершено: "Finished",
   НеЗавершено: "NotFinished",
   Отменено: "Canceled",
 } as const
 
-export type ChartValueEditState = keyof typeof ChartValueEditStateToEnterprise
-export type ChartValueEditStateEnterprise = keyof typeof ChartValueEditStateFromEnterprise
+export type ChartValueEditState = keyof typeof ChartValueEditStateToYAML
+export type ChartValueEditStateYAML = keyof typeof ChartValueEditStateFromYAML
 
-export const ChartValuesBySeriesConnectionTypeToEnterprise = {
+export const ChartValuesBySeriesConnectionTypeToYAML = {
   None: "Нет",
   EdgesConnection: "СоединениеКраев",
 } as const
 
-export const ChartValuesBySeriesConnectionTypeFromEnterprise = {
+export const ChartValuesBySeriesConnectionTypeFromYAML = {
   Нет: "None",
   СоединениеКраев: "EdgesConnection",
 } as const
 
-export type ChartValuesBySeriesConnectionType = keyof typeof ChartValuesBySeriesConnectionTypeToEnterprise
-export type ChartValuesBySeriesConnectionTypeEnterprise = keyof typeof ChartValuesBySeriesConnectionTypeFromEnterprise
+export type ChartValuesBySeriesConnectionType = keyof typeof ChartValuesBySeriesConnectionTypeToYAML
+export type ChartValuesBySeriesConnectionTypeYAML = keyof typeof ChartValuesBySeriesConnectionTypeFromYAML
 
-export const ChartValuesEditModeToEnterprise = {
+export const ChartValuesEditModeToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const ChartValuesEditModeFromEnterprise = {
+export const ChartValuesEditModeFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type ChartValuesEditMode = keyof typeof ChartValuesEditModeToEnterprise
-export type ChartValuesEditModeEnterprise = keyof typeof ChartValuesEditModeFromEnterprise
+export type ChartValuesEditMode = keyof typeof ChartValuesEditModeToYAML
+export type ChartValuesEditModeYAML = keyof typeof ChartValuesEditModeFromYAML
 
-export const ChartValuesToolTipFillTypeToEnterprise = {
+export const ChartValuesToolTipFillTypeToYAML = {
   Auto: "Авто",
   AllPointValues: "ВсеЗначенияТочки",
   SingleValue: "ОдноЗначение",
 } as const
 
-export const ChartValuesToolTipFillTypeFromEnterprise = {
+export const ChartValuesToolTipFillTypeFromYAML = {
   Авто: "Auto",
   ВсеЗначенияТочки: "AllPointValues",
   ОдноЗначение: "SingleValue",
 } as const
 
-export type ChartValuesToolTipFillType = keyof typeof ChartValuesToolTipFillTypeToEnterprise
-export type ChartValuesToolTipFillTypeEnterprise = keyof typeof ChartValuesToolTipFillTypeFromEnterprise
+export type ChartValuesToolTipFillType = keyof typeof ChartValuesToolTipFillTypeToYAML
+export type ChartValuesToolTipFillTypeYAML = keyof typeof ChartValuesToolTipFillTypeFromYAML
 
-export const ChartValuesToolTipShowModeToEnterprise = {
+export const ChartValuesToolTipShowModeToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   ShowForNearestValue: "ОтображатьДляБлижайшего",
   ShowOnHover: "ОтображатьПриНаведении",
 } as const
 
-export const ChartValuesToolTipShowModeFromEnterprise = {
+export const ChartValuesToolTipShowModeFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   ОтображатьДляБлижайшего: "ShowForNearestValue",
   ОтображатьПриНаведении: "ShowOnHover",
 } as const
 
-export type ChartValuesToolTipShowMode = keyof typeof ChartValuesToolTipShowModeToEnterprise
-export type ChartValuesToolTipShowModeEnterprise = keyof typeof ChartValuesToolTipShowModeFromEnterprise
+export type ChartValuesToolTipShowMode = keyof typeof ChartValuesToolTipShowModeToYAML
+export type ChartValuesToolTipShowModeYAML = keyof typeof ChartValuesToolTipShowModeFromYAML
 
-export const GaugeChartValueRepresentationToEnterprise = {
+export const GaugeChartValueRepresentationToYAML = {
   Sector: "Сектор",
   Needle: "Стрелка",
 } as const
 
-export const GaugeChartValueRepresentationFromEnterprise = {
+export const GaugeChartValueRepresentationFromYAML = {
   Сектор: "Sector",
   Стрелка: "Needle",
 } as const
 
-export type GaugeChartValueRepresentation = keyof typeof GaugeChartValueRepresentationToEnterprise
-export type GaugeChartValueRepresentationEnterprise = keyof typeof GaugeChartValueRepresentationFromEnterprise
+export type GaugeChartValueRepresentation = keyof typeof GaugeChartValueRepresentationToYAML
+export type GaugeChartValueRepresentationYAML = keyof typeof GaugeChartValueRepresentationFromYAML
 
-export const GaugeChartValuesScaleLabelsLocationToEnterprise = {
+export const GaugeChartValuesScaleLabelsLocationToYAML = {
   InsideScale: "ВнутриШкалы",
   AtScale: "НаШкале",
 } as const
 
-export const GaugeChartValuesScaleLabelsLocationFromEnterprise = {
+export const GaugeChartValuesScaleLabelsLocationFromYAML = {
   ВнутриШкалы: "InsideScale",
   НаШкале: "AtScale",
 } as const
 
-export type GaugeChartValuesScaleLabelsLocation = keyof typeof GaugeChartValuesScaleLabelsLocationToEnterprise
-export type GaugeChartValuesScaleLabelsLocationEnterprise =
-  keyof typeof GaugeChartValuesScaleLabelsLocationFromEnterprise
+export type GaugeChartValuesScaleLabelsLocation = keyof typeof GaugeChartValuesScaleLabelsLocationToYAML
+export type GaugeChartValuesScaleLabelsLocationYAML = keyof typeof GaugeChartValuesScaleLabelsLocationFromYAML
 
-export const MaxSeriesToEnterprise = {
+export const MaxSeriesToYAML = {
   NotDefined: "НеЗадано",
   Limited: "Ограничено",
   Percent: "Процент",
 } as const
 
-export const MaxSeriesFromEnterprise = {
+export const MaxSeriesFromYAML = {
   НеЗадано: "NotDefined",
   Ограничено: "Limited",
   Процент: "Percent",
 } as const
 
-export type MaxSeries = keyof typeof MaxSeriesToEnterprise
-export type MaxSeriesEnterprise = keyof typeof MaxSeriesFromEnterprise
+export type MaxSeries = keyof typeof MaxSeriesToYAML
+export type MaxSeriesYAML = keyof typeof MaxSeriesFromYAML
 
-export const NonnumericChartValueUseToEnterprise = {
+export const NonnumericChartValueUseToYAML = {
   Auto: "Авто",
   AsZero: "КакНоль",
   Skip: "Пропускать",
 } as const
 
-export const NonnumericChartValueUseFromEnterprise = {
+export const NonnumericChartValueUseFromYAML = {
   Авто: "Auto",
   КакНоль: "AsZero",
   Пропускать: "Skip",
 } as const
 
-export type NonnumericChartValueUse = keyof typeof NonnumericChartValueUseToEnterprise
-export type NonnumericChartValueUseEnterprise = keyof typeof NonnumericChartValueUseFromEnterprise
+export type NonnumericChartValueUse = keyof typeof NonnumericChartValueUseToYAML
+export type NonnumericChartValueUseYAML = keyof typeof NonnumericChartValueUseFromYAML
 
-export const PointsConnectionAcrossSkippedChartValuesTypeToEnterprise = {
+export const PointsConnectionAcrossSkippedChartValuesTypeToYAML = {
   Auto: "Авто",
   None: "Нет",
   ConnectUnskippedValues: "СоединениеНеПропущенных",
   ConnectWithBaseValue: "СоединениеСБазовымЗначением",
 } as const
 
-export const PointsConnectionAcrossSkippedChartValuesTypeFromEnterprise = {
+export const PointsConnectionAcrossSkippedChartValuesTypeFromYAML = {
   Авто: "Auto",
   Нет: "None",
   СоединениеНеПропущенных: "ConnectUnskippedValues",
@@ -9126,84 +9083,84 @@ export const PointsConnectionAcrossSkippedChartValuesTypeFromEnterprise = {
 } as const
 
 export type PointsConnectionAcrossSkippedChartValuesType =
-  keyof typeof PointsConnectionAcrossSkippedChartValuesTypeToEnterprise
-export type PointsConnectionAcrossSkippedChartValuesTypeEnterprise =
-  keyof typeof PointsConnectionAcrossSkippedChartValuesTypeFromEnterprise
+  keyof typeof PointsConnectionAcrossSkippedChartValuesTypeToYAML
+export type PointsConnectionAcrossSkippedChartValuesTypeYAML =
+  keyof typeof PointsConnectionAcrossSkippedChartValuesTypeFromYAML
 
-export const RadarChartScaleTypeToEnterprise = {
+export const RadarChartScaleTypeToYAML = {
   Circle: "Окружность",
   Polygon: "Полигон",
 } as const
 
-export const RadarChartScaleTypeFromEnterprise = {
+export const RadarChartScaleTypeFromYAML = {
   Окружность: "Circle",
   Полигон: "Polygon",
 } as const
 
-export type RadarChartScaleType = keyof typeof RadarChartScaleTypeToEnterprise
-export type RadarChartScaleTypeEnterprise = keyof typeof RadarChartScaleTypeFromEnterprise
+export type RadarChartScaleType = keyof typeof RadarChartScaleTypeToYAML
+export type RadarChartScaleTypeYAML = keyof typeof RadarChartScaleTypeFromYAML
 
-export const ShowChartPopupReferenceLineToEnterprise = {
+export const ShowChartPopupReferenceLineToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const ShowChartPopupReferenceLineFromEnterprise = {
+export const ShowChartPopupReferenceLineFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type ShowChartPopupReferenceLine = keyof typeof ShowChartPopupReferenceLineToEnterprise
-export type ShowChartPopupReferenceLineEnterprise = keyof typeof ShowChartPopupReferenceLineFromEnterprise
+export type ShowChartPopupReferenceLine = keyof typeof ShowChartPopupReferenceLineToYAML
+export type ShowChartPopupReferenceLineYAML = keyof typeof ShowChartPopupReferenceLineFromYAML
 
-export const ShowChartScaleTitleToEnterprise = {
+export const ShowChartScaleTitleToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const ShowChartScaleTitleFromEnterprise = {
+export const ShowChartScaleTitleFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type ShowChartScaleTitle = keyof typeof ShowChartScaleTitleToEnterprise
-export type ShowChartScaleTitleEnterprise = keyof typeof ShowChartScaleTitleFromEnterprise
+export type ShowChartScaleTitle = keyof typeof ShowChartScaleTitleToYAML
+export type ShowChartScaleTitleYAML = keyof typeof ShowChartScaleTitleFromYAML
 
-export const ShowInChartToEnterprise = {
+export const ShowInChartToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const ShowInChartFromEnterprise = {
+export const ShowInChartFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type ShowInChart = keyof typeof ShowInChartToEnterprise
-export type ShowInChartEnterprise = keyof typeof ShowInChartFromEnterprise
+export type ShowInChart = keyof typeof ShowInChartToYAML
+export type ShowInChartYAML = keyof typeof ShowInChartFromYAML
 
-export const ShowInChartLegendToEnterprise = {
+export const ShowInChartLegendToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const ShowInChartLegendFromEnterprise = {
+export const ShowInChartLegendFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type ShowInChartLegend = keyof typeof ShowInChartLegendToEnterprise
-export type ShowInChartLegendEnterprise = keyof typeof ShowInChartLegendFromEnterprise
+export type ShowInChartLegend = keyof typeof ShowInChartLegendToYAML
+export type ShowInChartLegendYAML = keyof typeof ShowInChartLegendFromYAML
 
-export const StockChartUsedPointValueToEnterprise = {
+export const StockChartUsedPointValueToYAML = {
   Close: "Закрытие",
   High: "Максимальное",
   Low: "Минимальное",
@@ -9211,7 +9168,7 @@ export const StockChartUsedPointValueToEnterprise = {
   OpenCloseAverage: "СреднееОткрытияИЗакрытия",
 } as const
 
-export const StockChartUsedPointValueFromEnterprise = {
+export const StockChartUsedPointValueFromYAML = {
   Закрытие: "Close",
   Максимальное: "High",
   Минимальное: "Low",
@@ -9219,218 +9176,217 @@ export const StockChartUsedPointValueFromEnterprise = {
   СреднееОткрытияИЗакрытия: "OpenCloseAverage",
 } as const
 
-export type StockChartUsedPointValue = keyof typeof StockChartUsedPointValueToEnterprise
-export type StockChartUsedPointValueEnterprise = keyof typeof StockChartUsedPointValueFromEnterprise
+export type StockChartUsedPointValue = keyof typeof StockChartUsedPointValueToYAML
+export type StockChartUsedPointValueYAML = keyof typeof StockChartUsedPointValueFromYAML
 
-export const UsedChartValuesAxisToEnterprise = {
+export const UsedChartValuesAxisToYAML = {
   Auto: "Авто",
   Additional: "Дополнительная",
   Main: "Основная",
 } as const
 
-export const UsedChartValuesAxisFromEnterprise = {
+export const UsedChartValuesAxisFromYAML = {
   Авто: "Auto",
   Дополнительная: "Additional",
   Основная: "Main",
 } as const
 
-export type UsedChartValuesAxis = keyof typeof UsedChartValuesAxisToEnterprise
-export type UsedChartValuesAxisEnterprise = keyof typeof UsedChartValuesAxisFromEnterprise
+export type UsedChartValuesAxis = keyof typeof UsedChartValuesAxisToYAML
+export type UsedChartValuesAxisYAML = keyof typeof UsedChartValuesAxisFromYAML
 
-export const GanttChartIntervalRepresentationToEnterprise = {
+export const GanttChartIntervalRepresentationToYAML = {
   Gradient: "Градиент",
   ThreeDimensional: "Объемный",
   Flat: "Плоский",
   Rhomb: "Ромб",
 } as const
 
-export const GanttChartIntervalRepresentationFromEnterprise = {
+export const GanttChartIntervalRepresentationFromYAML = {
   Градиент: "Gradient",
   Объемный: "ThreeDimensional",
   Плоский: "Flat",
   Ромб: "Rhomb",
 } as const
 
-export type GanttChartIntervalRepresentation = keyof typeof GanttChartIntervalRepresentationToEnterprise
-export type GanttChartIntervalRepresentationEnterprise = keyof typeof GanttChartIntervalRepresentationFromEnterprise
+export type GanttChartIntervalRepresentation = keyof typeof GanttChartIntervalRepresentationToYAML
+export type GanttChartIntervalRepresentationYAML = keyof typeof GanttChartIntervalRepresentationFromYAML
 
-export const GanttChartIntervalTextRepresentationToEnterprise = {
+export const GanttChartIntervalTextRepresentationToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const GanttChartIntervalTextRepresentationFromEnterprise = {
+export const GanttChartIntervalTextRepresentationFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type GanttChartIntervalTextRepresentation = keyof typeof GanttChartIntervalTextRepresentationToEnterprise
-export type GanttChartIntervalTextRepresentationEnterprise =
-  keyof typeof GanttChartIntervalTextRepresentationFromEnterprise
+export type GanttChartIntervalTextRepresentation = keyof typeof GanttChartIntervalTextRepresentationToYAML
+export type GanttChartIntervalTextRepresentationYAML = keyof typeof GanttChartIntervalTextRepresentationFromYAML
 
-export const GanttChartIntervalsSelectionModeToEnterprise = {
+export const GanttChartIntervalsSelectionModeToYAML = {
   Auto: "Авто",
   Multiple: "Множественный",
   None: "Нет",
   Single: "Одиночный",
 } as const
 
-export const GanttChartIntervalsSelectionModeFromEnterprise = {
+export const GanttChartIntervalsSelectionModeFromYAML = {
   Авто: "Auto",
   Множественный: "Multiple",
   Нет: "None",
   Одиночный: "Single",
 } as const
 
-export type GanttChartIntervalsSelectionMode = keyof typeof GanttChartIntervalsSelectionModeToEnterprise
-export type GanttChartIntervalsSelectionModeEnterprise = keyof typeof GanttChartIntervalsSelectionModeFromEnterprise
+export type GanttChartIntervalsSelectionMode = keyof typeof GanttChartIntervalsSelectionModeToYAML
+export type GanttChartIntervalsSelectionModeYAML = keyof typeof GanttChartIntervalsSelectionModeFromYAML
 
-export const GanttChartLinkTypeToEnterprise = {
+export const GanttChartLinkTypeToYAML = {
   EndEnd: "КонецКонец",
   EndBegin: "КонецНачало",
   BeginEnd: "НачалоКонец",
   BeginBegin: "НачалоНачало",
 } as const
 
-export const GanttChartLinkTypeFromEnterprise = {
+export const GanttChartLinkTypeFromYAML = {
   КонецКонец: "EndEnd",
   КонецНачало: "EndBegin",
   НачалоКонец: "BeginEnd",
   НачалоНачало: "BeginBegin",
 } as const
 
-export type GanttChartLinkType = keyof typeof GanttChartLinkTypeToEnterprise
-export type GanttChartLinkTypeEnterprise = keyof typeof GanttChartLinkTypeFromEnterprise
+export type GanttChartLinkType = keyof typeof GanttChartLinkTypeToYAML
+export type GanttChartLinkTypeYAML = keyof typeof GanttChartLinkTypeFromYAML
 
-export const GanttChartScaleKeepingToEnterprise = {
+export const GanttChartScaleKeepingToYAML = {
   Auto: "Авто",
   AllData: "ВсеДанные",
   Period: "Период",
   Fixed: "Фиксированная",
 } as const
 
-export const GanttChartScaleKeepingFromEnterprise = {
+export const GanttChartScaleKeepingFromYAML = {
   Авто: "Auto",
   ВсеДанные: "AllData",
   Период: "Period",
   Фиксированная: "Fixed",
 } as const
 
-export type GanttChartScaleKeeping = keyof typeof GanttChartScaleKeepingToEnterprise
-export type GanttChartScaleKeepingEnterprise = keyof typeof GanttChartScaleKeepingFromEnterprise
+export type GanttChartScaleKeeping = keyof typeof GanttChartScaleKeepingToYAML
+export type GanttChartScaleKeepingYAML = keyof typeof GanttChartScaleKeepingFromYAML
 
-export const GanttChartTableLocationToEnterprise = {
+export const GanttChartTableLocationToYAML = {
   Auto: "Авто",
   Left: "Лево",
   None: "Нет",
   Right: "Право",
 } as const
 
-export const GanttChartTableLocationFromEnterprise = {
+export const GanttChartTableLocationFromYAML = {
   Авто: "Auto",
   Лево: "Left",
   Нет: "None",
   Право: "Right",
 } as const
 
-export type GanttChartTableLocation = keyof typeof GanttChartTableLocationToEnterprise
-export type GanttChartTableLocationEnterprise = keyof typeof GanttChartTableLocationFromEnterprise
+export type GanttChartTableLocation = keyof typeof GanttChartTableLocationToYAML
+export type GanttChartTableLocationYAML = keyof typeof GanttChartTableLocationFromYAML
 
-export const GanttChartTextPlacementTypeToEnterprise = {
+export const GanttChartTextPlacementTypeToYAML = {
   Auto: "Авто",
   Cut: "Обрезать",
   Wrap: "Переносить",
 } as const
 
-export const GanttChartTextPlacementTypeFromEnterprise = {
+export const GanttChartTextPlacementTypeFromYAML = {
   Авто: "Auto",
   Обрезать: "Cut",
   Переносить: "Wrap",
 } as const
 
-export type GanttChartTextPlacementType = keyof typeof GanttChartTextPlacementTypeToEnterprise
-export type GanttChartTextPlacementTypeEnterprise = keyof typeof GanttChartTextPlacementTypeFromEnterprise
+export type GanttChartTextPlacementType = keyof typeof GanttChartTextPlacementTypeToYAML
+export type GanttChartTextPlacementTypeYAML = keyof typeof GanttChartTextPlacementTypeFromYAML
 
-export const GanttChartValueTextRepresentationToEnterprise = {
+export const GanttChartValueTextRepresentationToYAML = {
   None: "НеОтображать",
   Right: "Право",
 } as const
 
-export const GanttChartValueTextRepresentationFromEnterprise = {
+export const GanttChartValueTextRepresentationFromYAML = {
   НеОтображать: "None",
   Право: "Right",
 } as const
 
-export type GanttChartValueTextRepresentation = keyof typeof GanttChartValueTextRepresentationToEnterprise
-export type GanttChartValueTextRepresentationEnterprise = keyof typeof GanttChartValueTextRepresentationFromEnterprise
+export type GanttChartValueTextRepresentation = keyof typeof GanttChartValueTextRepresentationToYAML
+export type GanttChartValueTextRepresentationYAML = keyof typeof GanttChartValueTextRepresentationFromYAML
 
-export const GanttChartValuesSelectionModeToEnterprise = {
+export const GanttChartValuesSelectionModeToYAML = {
   Auto: "Авто",
   Multiple: "Множественный",
   None: "Нет",
   Single: "Одиночный",
 } as const
 
-export const GanttChartValuesSelectionModeFromEnterprise = {
+export const GanttChartValuesSelectionModeFromYAML = {
   Авто: "Auto",
   Множественный: "Multiple",
   Нет: "None",
   Одиночный: "Single",
 } as const
 
-export type GanttChartValuesSelectionMode = keyof typeof GanttChartValuesSelectionModeToEnterprise
-export type GanttChartValuesSelectionModeEnterprise = keyof typeof GanttChartValuesSelectionModeFromEnterprise
+export type GanttChartValuesSelectionMode = keyof typeof GanttChartValuesSelectionModeToYAML
+export type GanttChartValuesSelectionModeYAML = keyof typeof GanttChartValuesSelectionModeFromYAML
 
-export const GanttChartVerticalStretchToEnterprise = {
+export const GanttChartVerticalStretchToYAML = {
   None: "НеРастягивать",
   StretchRows: "РастягиватьСтроки",
   StretchRowsAndData: "РастягиватьСтрокиИДанные",
 } as const
 
-export const GanttChartVerticalStretchFromEnterprise = {
+export const GanttChartVerticalStretchFromYAML = {
   НеРастягивать: "None",
   РастягиватьСтроки: "StretchRows",
   РастягиватьСтрокиИДанные: "StretchRowsAndData",
 } as const
 
-export type GanttChartVerticalStretch = keyof typeof GanttChartVerticalStretchToEnterprise
-export type GanttChartVerticalStretchEnterprise = keyof typeof GanttChartVerticalStretchFromEnterprise
+export type GanttChartVerticalStretch = keyof typeof GanttChartVerticalStretchToYAML
+export type GanttChartVerticalStretchYAML = keyof typeof GanttChartVerticalStretchFromYAML
 
-export const ShowInGanttChartToEnterprise = {
+export const ShowInGanttChartToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
   Show: "Отображать",
 } as const
 
-export const ShowInGanttChartFromEnterprise = {
+export const ShowInGanttChartFromYAML = {
   Авто: "Auto",
   НеОтображать: "DontShow",
   Отображать: "Show",
 } as const
 
-export type ShowInGanttChart = keyof typeof ShowInGanttChartToEnterprise
-export type ShowInGanttChartEnterprise = keyof typeof ShowInGanttChartFromEnterprise
+export type ShowInGanttChart = keyof typeof ShowInGanttChartToYAML
+export type ShowInGanttChartYAML = keyof typeof ShowInGanttChartFromYAML
 
-export const TimeScaleDayFormatToEnterprise = {
+export const TimeScaleDayFormatToYAML = {
   MonthDay: "ДеньМесяца",
   MonthDayWeekDay: "ДеньМесяцаДеньНедели",
   WeekDay: "ДеньНедели",
   WeekDayMonthDay: "ДеньНеделиДеньМесяца",
 } as const
 
-export const TimeScaleDayFormatFromEnterprise = {
+export const TimeScaleDayFormatFromYAML = {
   ДеньМесяца: "MonthDay",
   ДеньМесяцаДеньНедели: "MonthDayWeekDay",
   ДеньНедели: "WeekDay",
   ДеньНеделиДеньМесяца: "WeekDayMonthDay",
 } as const
 
-export type TimeScaleDayFormat = keyof typeof TimeScaleDayFormatToEnterprise
-export type TimeScaleDayFormatEnterprise = keyof typeof TimeScaleDayFormatFromEnterprise
+export type TimeScaleDayFormat = keyof typeof TimeScaleDayFormatToYAML
+export type TimeScaleDayFormatYAML = keyof typeof TimeScaleDayFormatFromYAML
 
-export const TimeScaleUnitTypeToEnterprise = {
+export const TimeScaleUnitTypeToYAML = {
   Year: "Год",
   Day: "День",
   Quarter: "Квартал",
@@ -9441,7 +9397,7 @@ export const TimeScaleUnitTypeToEnterprise = {
   Hour: "Час",
 } as const
 
-export const TimeScaleUnitTypeFromEnterprise = {
+export const TimeScaleUnitTypeFromYAML = {
   Год: "Year",
   День: "Day",
   Квартал: "Quarter",
@@ -9452,128 +9408,127 @@ export const TimeScaleUnitTypeFromEnterprise = {
   Час: "Hour",
 } as const
 
-export type TimeScaleUnitType = keyof typeof TimeScaleUnitTypeToEnterprise
-export type TimeScaleUnitTypeEnterprise = keyof typeof TimeScaleUnitTypeFromEnterprise
+export type TimeScaleUnitType = keyof typeof TimeScaleUnitTypeToYAML
+export type TimeScaleUnitTypeYAML = keyof typeof TimeScaleUnitTypeFromYAML
 
-export const PivotChartLabelsOrientationToEnterprise = {
+export const PivotChartLabelsOrientationToYAML = {
   TopLevelsVertical: "ВерхниеУровниВертикально",
   AllLevelsVertical: "ВсеУровниВертикально",
   AllLevelsHorizontal: "ВсеУровниГоризонтально",
 } as const
 
-export const PivotChartLabelsOrientationFromEnterprise = {
+export const PivotChartLabelsOrientationFromYAML = {
   ВерхниеУровниВертикально: "TopLevelsVertical",
   ВсеУровниВертикально: "AllLevelsVertical",
   ВсеУровниГоризонтально: "AllLevelsHorizontal",
 } as const
 
-export type PivotChartLabelsOrientation = keyof typeof PivotChartLabelsOrientationToEnterprise
-export type PivotChartLabelsOrientationEnterprise = keyof typeof PivotChartLabelsOrientationFromEnterprise
+export type PivotChartLabelsOrientation = keyof typeof PivotChartLabelsOrientationToYAML
+export type PivotChartLabelsOrientationYAML = keyof typeof PivotChartLabelsOrientationFromYAML
 
-export const PivotChartScaleKeepingToEnterprise = {
+export const PivotChartScaleKeepingToYAML = {
   AllValues: "ВсеЗначения",
   ValuesCount: "КоличествоЗначений",
   MinimumWidth: "МинимальнаяШирина",
 } as const
 
-export const PivotChartScaleKeepingFromEnterprise = {
+export const PivotChartScaleKeepingFromYAML = {
   ВсеЗначения: "AllValues",
   КоличествоЗначений: "ValuesCount",
   МинимальнаяШирина: "MinimumWidth",
 } as const
 
-export type PivotChartScaleKeeping = keyof typeof PivotChartScaleKeepingToEnterprise
-export type PivotChartScaleKeepingEnterprise = keyof typeof PivotChartScaleKeepingFromEnterprise
+export type PivotChartScaleKeeping = keyof typeof PivotChartScaleKeepingToYAML
+export type PivotChartScaleKeepingYAML = keyof typeof PivotChartScaleKeepingFromYAML
 
-export const PivotChartTypeToEnterprise = {
+export const PivotChartTypeToYAML = {
   Column: "Гистограмма",
   Column3D: "ГистограммаОбъемная",
 } as const
 
-export const PivotChartTypeFromEnterprise = {
+export const PivotChartTypeFromYAML = {
   Гистограмма: "Column",
   ГистограммаОбъемная: "Column3D",
 } as const
 
-export type PivotChartType = keyof typeof PivotChartTypeToEnterprise
-export type PivotChartTypeEnterprise = keyof typeof PivotChartTypeFromEnterprise
+export type PivotChartType = keyof typeof PivotChartTypeToYAML
+export type PivotChartTypeYAML = keyof typeof PivotChartTypeFromYAML
 
-export const PivotChartValuesShowModeToEnterprise = {
+export const PivotChartValuesShowModeToYAML = {
   AllValues: "ВсеЗначения",
   LastLevelValues: "ЗначенияПоследнегоУровня",
 } as const
 
-export const PivotChartValuesShowModeFromEnterprise = {
+export const PivotChartValuesShowModeFromYAML = {
   ВсеЗначения: "AllValues",
   ЗначенияПоследнегоУровня: "LastLevelValues",
 } as const
 
-export type PivotChartValuesShowMode = keyof typeof PivotChartValuesShowModeToEnterprise
-export type PivotChartValuesShowModeEnterprise = keyof typeof PivotChartValuesShowModeFromEnterprise
+export type PivotChartValuesShowMode = keyof typeof PivotChartValuesShowModeToYAML
+export type PivotChartValuesShowModeYAML = keyof typeof PivotChartValuesShowModeFromYAML
 
-export const DendrogramOrientationToEnterprise = {
+export const DendrogramOrientationToYAML = {
   Top: "Верх",
   Left: "Лево",
   Bottom: "Низ",
   Right: "Право",
 } as const
 
-export const DendrogramOrientationFromEnterprise = {
+export const DendrogramOrientationFromYAML = {
   Верх: "Top",
   Лево: "Left",
   Низ: "Bottom",
   Право: "Right",
 } as const
 
-export type DendrogramOrientation = keyof typeof DendrogramOrientationToEnterprise
-export type DendrogramOrientationEnterprise = keyof typeof DendrogramOrientationFromEnterprise
+export type DendrogramOrientation = keyof typeof DendrogramOrientationToYAML
+export type DendrogramOrientationYAML = keyof typeof DendrogramOrientationFromYAML
 
-export const DendrogramScaleKeepingToEnterprise = {
+export const DendrogramScaleKeepingToYAML = {
   AllItems: "ВсеЭлементы",
   ItemCount: "КоличествоЭлементов",
   MinimumWidth: "МинимальнаяШирина",
 } as const
 
-export const DendrogramScaleKeepingFromEnterprise = {
+export const DendrogramScaleKeepingFromYAML = {
   ВсеЭлементы: "AllItems",
   КоличествоЭлементов: "ItemCount",
   МинимальнаяШирина: "MinimumWidth",
 } as const
 
-export type DendrogramScaleKeeping = keyof typeof DendrogramScaleKeepingToEnterprise
-export type DendrogramScaleKeepingEnterprise = keyof typeof DendrogramScaleKeepingFromEnterprise
+export type DendrogramScaleKeeping = keyof typeof DendrogramScaleKeepingToYAML
+export type DendrogramScaleKeepingYAML = keyof typeof DendrogramScaleKeepingFromYAML
 
-export const GeographicalSchemaDataSourceOrganizationTypeToEnterprise = {
+export const GeographicalSchemaDataSourceOrganizationTypeToYAML = {
   AtRow: "ВСтроке",
   AtIntersection: "НаПересечении",
 } as const
 
-export const GeographicalSchemaDataSourceOrganizationTypeFromEnterprise = {
+export const GeographicalSchemaDataSourceOrganizationTypeFromYAML = {
   ВСтроке: "AtRow",
   НаПересечении: "AtIntersection",
 } as const
 
 export type GeographicalSchemaDataSourceOrganizationType =
-  keyof typeof GeographicalSchemaDataSourceOrganizationTypeToEnterprise
-export type GeographicalSchemaDataSourceOrganizationTypeEnterprise =
-  keyof typeof GeographicalSchemaDataSourceOrganizationTypeFromEnterprise
+  keyof typeof GeographicalSchemaDataSourceOrganizationTypeToYAML
+export type GeographicalSchemaDataSourceOrganizationTypeYAML =
+  keyof typeof GeographicalSchemaDataSourceOrganizationTypeFromYAML
 
-export const GeographicalSchemaLayerSeriesImportModeTypeToEnterprise = {
+export const GeographicalSchemaLayerSeriesImportModeTypeToYAML = {
   ImportAll: "ИмпортироватьВсе",
   DontImport: "НеИмпортировать",
 } as const
 
-export const GeographicalSchemaLayerSeriesImportModeTypeFromEnterprise = {
+export const GeographicalSchemaLayerSeriesImportModeTypeFromYAML = {
   ИмпортироватьВсе: "ImportAll",
   НеИмпортировать: "DontImport",
 } as const
 
-export type GeographicalSchemaLayerSeriesImportModeType =
-  keyof typeof GeographicalSchemaLayerSeriesImportModeTypeToEnterprise
-export type GeographicalSchemaLayerSeriesImportModeTypeEnterprise =
-  keyof typeof GeographicalSchemaLayerSeriesImportModeTypeFromEnterprise
+export type GeographicalSchemaLayerSeriesImportModeType = keyof typeof GeographicalSchemaLayerSeriesImportModeTypeToYAML
+export type GeographicalSchemaLayerSeriesImportModeTypeYAML =
+  keyof typeof GeographicalSchemaLayerSeriesImportModeTypeFromYAML
 
-export const GeographicalSchemaLayerSeriesShowModeToEnterprise = {
+export const GeographicalSchemaLayerSeriesShowModeToYAML = {
   Column: "Гистограмма",
   Picture: "Картинка",
   Pie: "Круговая",
@@ -9585,7 +9540,7 @@ export const GeographicalSchemaLayerSeriesShowModeToEnterprise = {
   ShapeColor: "ЦветФигуры",
 } as const
 
-export const GeographicalSchemaLayerSeriesShowModeFromEnterprise = {
+export const GeographicalSchemaLayerSeriesShowModeFromYAML = {
   Гистограмма: "Column",
   Картинка: "Picture",
   Круговая: "Pie",
@@ -9597,26 +9552,24 @@ export const GeographicalSchemaLayerSeriesShowModeFromEnterprise = {
   ЦветФигуры: "ShapeColor",
 } as const
 
-export type GeographicalSchemaLayerSeriesShowMode = keyof typeof GeographicalSchemaLayerSeriesShowModeToEnterprise
-export type GeographicalSchemaLayerSeriesShowModeEnterprise =
-  keyof typeof GeographicalSchemaLayerSeriesShowModeFromEnterprise
+export type GeographicalSchemaLayerSeriesShowMode = keyof typeof GeographicalSchemaLayerSeriesShowModeToYAML
+export type GeographicalSchemaLayerSeriesShowModeYAML = keyof typeof GeographicalSchemaLayerSeriesShowModeFromYAML
 
-export const GeographicalSchemaLegendItemShowScaleTypeToEnterprise = {
+export const GeographicalSchemaLegendItemShowScaleTypeToYAML = {
   DontShow: "НеОтображать",
   ShowByValues: "ОтображатьПоЗначениям",
 } as const
 
-export const GeographicalSchemaLegendItemShowScaleTypeFromEnterprise = {
+export const GeographicalSchemaLegendItemShowScaleTypeFromYAML = {
   НеОтображать: "DontShow",
   ОтображатьПоЗначениям: "ShowByValues",
 } as const
 
-export type GeographicalSchemaLegendItemShowScaleType =
-  keyof typeof GeographicalSchemaLegendItemShowScaleTypeToEnterprise
-export type GeographicalSchemaLegendItemShowScaleTypeEnterprise =
-  keyof typeof GeographicalSchemaLegendItemShowScaleTypeFromEnterprise
+export type GeographicalSchemaLegendItemShowScaleType = keyof typeof GeographicalSchemaLegendItemShowScaleTypeToYAML
+export type GeographicalSchemaLegendItemShowScaleTypeYAML =
+  keyof typeof GeographicalSchemaLegendItemShowScaleTypeFromYAML
 
-export const GeographicalSchemaLineTypeToEnterprise = {
+export const GeographicalSchemaLineTypeToYAML = {
   None: "НетЛинии",
   Dashed: "Пунктир",
   DashDotted: "ПунктирТочка",
@@ -9625,7 +9578,7 @@ export const GeographicalSchemaLineTypeToEnterprise = {
   Dotted: "Точечная",
 } as const
 
-export const GeographicalSchemaLineTypeFromEnterprise = {
+export const GeographicalSchemaLineTypeFromYAML = {
   НетЛинии: "None",
   Пунктир: "Dashed",
   ПунктирТочка: "DashDotted",
@@ -9634,10 +9587,10 @@ export const GeographicalSchemaLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export type GeographicalSchemaLineType = keyof typeof GeographicalSchemaLineTypeToEnterprise
-export type GeographicalSchemaLineTypeEnterprise = keyof typeof GeographicalSchemaLineTypeFromEnterprise
+export type GeographicalSchemaLineType = keyof typeof GeographicalSchemaLineTypeToYAML
+export type GeographicalSchemaLineTypeYAML = keyof typeof GeographicalSchemaLineTypeFromYAML
 
-export const GeographicalSchemaMarkerTypeToEnterprise = {
+export const GeographicalSchemaMarkerTypeToYAML = {
   BigSquare: "БольшойКвадрат",
   BigCircle: "БольшойКруг",
   BigTriangle: "БольшойТреугольник",
@@ -9651,7 +9604,7 @@ export const GeographicalSchemaMarkerTypeToEnterprise = {
   None: "Нет",
 } as const
 
-export const GeographicalSchemaMarkerTypeFromEnterprise = {
+export const GeographicalSchemaMarkerTypeFromYAML = {
   БольшойКвадрат: "BigSquare",
   БольшойКруг: "BigCircle",
   БольшойТреугольник: "BigTriangle",
@@ -9665,43 +9618,42 @@ export const GeographicalSchemaMarkerTypeFromEnterprise = {
   Нет: "None",
 } as const
 
-export type GeographicalSchemaMarkerType = keyof typeof GeographicalSchemaMarkerTypeToEnterprise
-export type GeographicalSchemaMarkerTypeEnterprise = keyof typeof GeographicalSchemaMarkerTypeFromEnterprise
+export type GeographicalSchemaMarkerType = keyof typeof GeographicalSchemaMarkerTypeToYAML
+export type GeographicalSchemaMarkerTypeYAML = keyof typeof GeographicalSchemaMarkerTypeFromYAML
 
-export const GeographicalSchemaObjectFindTypeToEnterprise = {
+export const GeographicalSchemaObjectFindTypeToYAML = {
   Included: "Включает",
   IncludedWholly: "ВключаетПолностью",
   Includes: "Включают",
   IncludesWholly: "ВключаютПолностью",
 } as const
 
-export const GeographicalSchemaObjectFindTypeFromEnterprise = {
+export const GeographicalSchemaObjectFindTypeFromYAML = {
   Включает: "Included",
   ВключаетПолностью: "IncludedWholly",
   Включают: "Includes",
   ВключаютПолностью: "IncludesWholly",
 } as const
 
-export type GeographicalSchemaObjectFindType = keyof typeof GeographicalSchemaObjectFindTypeToEnterprise
-export type GeographicalSchemaObjectFindTypeEnterprise = keyof typeof GeographicalSchemaObjectFindTypeFromEnterprise
+export type GeographicalSchemaObjectFindType = keyof typeof GeographicalSchemaObjectFindTypeToYAML
+export type GeographicalSchemaObjectFindTypeYAML = keyof typeof GeographicalSchemaObjectFindTypeFromYAML
 
-export const GeographicalSchemaPointObjectDrawingTypeToEnterprise = {
+export const GeographicalSchemaPointObjectDrawingTypeToYAML = {
   Picture: "Картинка",
   Marker: "Маркер",
   Char: "Символ",
 } as const
 
-export const GeographicalSchemaPointObjectDrawingTypeFromEnterprise = {
+export const GeographicalSchemaPointObjectDrawingTypeFromYAML = {
   Картинка: "Picture",
   Маркер: "Marker",
   Символ: "Char",
 } as const
 
-export type GeographicalSchemaPointObjectDrawingType = keyof typeof GeographicalSchemaPointObjectDrawingTypeToEnterprise
-export type GeographicalSchemaPointObjectDrawingTypeEnterprise =
-  keyof typeof GeographicalSchemaPointObjectDrawingTypeFromEnterprise
+export type GeographicalSchemaPointObjectDrawingType = keyof typeof GeographicalSchemaPointObjectDrawingTypeToYAML
+export type GeographicalSchemaPointObjectDrawingTypeYAML = keyof typeof GeographicalSchemaPointObjectDrawingTypeFromYAML
 
-export const GeographicalSchemaProjectionToEnterprise = {
+export const GeographicalSchemaProjectionToYAML = {
   AzimuthalAitoffProjection: "АзимутальнаяПроекцияАитофа",
   AzimuthalWagner7Projection: "АзимутальнаяПроекцияВагнера7",
   AzimuthalWinkelTripelProjection: "АзимутальнаяПроекцияВинкеляТрипеля",
@@ -9745,7 +9697,7 @@ export const GeographicalSchemaProjectionToEnterprise = {
   CylindricalGallStereographicProjection: "ЦилиндрическаяСтереографическаяПроекцияГалла",
 } as const
 
-export const GeographicalSchemaProjectionFromEnterprise = {
+export const GeographicalSchemaProjectionFromYAML = {
   АзимутальнаяПроекцияАитофа: "AzimuthalAitoffProjection",
   АзимутальнаяПроекцияВагнера7: "AzimuthalWagner7Projection",
   АзимутальнаяПроекцияВинкеляТрипеля: "AzimuthalWinkelTripelProjection",
@@ -9789,25 +9741,25 @@ export const GeographicalSchemaProjectionFromEnterprise = {
   ЦилиндрическаяСтереографическаяПроекцияГалла: "CylindricalGallStereographicProjection",
 } as const
 
-export type GeographicalSchemaProjection = keyof typeof GeographicalSchemaProjectionToEnterprise
-export type GeographicalSchemaProjectionEnterprise = keyof typeof GeographicalSchemaProjectionFromEnterprise
+export type GeographicalSchemaProjection = keyof typeof GeographicalSchemaProjectionToYAML
+export type GeographicalSchemaProjectionYAML = keyof typeof GeographicalSchemaProjectionFromYAML
 
-export const GeographicalSchemaShowModeToEnterprise = {
+export const GeographicalSchemaShowModeToYAML = {
   AllData: "ВсеДанные",
   ScaleDefined: "ЗадаетсяМасштабом",
   SpecifiedArea: "ЗаданнаяОбласть",
 } as const
 
-export const GeographicalSchemaShowModeFromEnterprise = {
+export const GeographicalSchemaShowModeFromYAML = {
   ВсеДанные: "AllData",
   ЗадаетсяМасштабом: "ScaleDefined",
   ЗаданнаяОбласть: "SpecifiedArea",
 } as const
 
-export type GeographicalSchemaShowMode = keyof typeof GeographicalSchemaShowModeToEnterprise
-export type GeographicalSchemaShowModeEnterprise = keyof typeof GeographicalSchemaShowModeFromEnterprise
+export type GeographicalSchemaShowMode = keyof typeof GeographicalSchemaShowModeToYAML
+export type GeographicalSchemaShowModeYAML = keyof typeof GeographicalSchemaShowModeFromYAML
 
-export const PaintingReferencePointPositionToEnterprise = {
+export const PaintingReferencePointPositionToYAML = {
   LeftTop: "ЛевоВерх",
   LeftBottom: "ЛевоНиз",
   LeftCenter: "ЛевоЦентр",
@@ -9819,7 +9771,7 @@ export const PaintingReferencePointPositionToEnterprise = {
   CenterBottom: "ЦентрНиз",
 } as const
 
-export const PaintingReferencePointPositionFromEnterprise = {
+export const PaintingReferencePointPositionFromYAML = {
   ЛевоВерх: "LeftTop",
   ЛевоНиз: "LeftBottom",
   ЛевоЦентр: "LeftCenter",
@@ -9831,124 +9783,124 @@ export const PaintingReferencePointPositionFromEnterprise = {
   ЦентрНиз: "CenterBottom",
 } as const
 
-export type PaintingReferencePointPosition = keyof typeof PaintingReferencePointPositionToEnterprise
-export type PaintingReferencePointPositionEnterprise = keyof typeof PaintingReferencePointPositionFromEnterprise
+export type PaintingReferencePointPosition = keyof typeof PaintingReferencePointPositionToYAML
+export type PaintingReferencePointPositionYAML = keyof typeof PaintingReferencePointPositionFromYAML
 
-export const SeriesValuesDrawingModeToEnterprise = {
+export const SeriesValuesDrawingModeToYAML = {
   ShowAsPart: "ОтображатьКакДолю",
   ShowAsValue: "ОтображатьКакЗначение",
 } as const
 
-export const SeriesValuesDrawingModeFromEnterprise = {
+export const SeriesValuesDrawingModeFromYAML = {
   ОтображатьКакДолю: "ShowAsPart",
   ОтображатьКакЗначение: "ShowAsValue",
 } as const
 
-export type SeriesValuesDrawingMode = keyof typeof SeriesValuesDrawingModeToEnterprise
-export type SeriesValuesDrawingModeEnterprise = keyof typeof SeriesValuesDrawingModeFromEnterprise
+export type SeriesValuesDrawingMode = keyof typeof SeriesValuesDrawingModeToYAML
+export type SeriesValuesDrawingModeYAML = keyof typeof SeriesValuesDrawingModeFromYAML
 
-export const IntegrationServiceChannelStateToEnterprise = {
+export const IntegrationServiceChannelStateToYAML = {
   Disconnected: "Отключен",
   Connected: "Подключен",
 } as const
 
-export const IntegrationServiceChannelStateFromEnterprise = {
+export const IntegrationServiceChannelStateFromYAML = {
   Отключен: "Disconnected",
   Подключен: "Connected",
 } as const
 
-export type IntegrationServiceChannelState = keyof typeof IntegrationServiceChannelStateToEnterprise
-export type IntegrationServiceChannelStateEnterprise = keyof typeof IntegrationServiceChannelStateFromEnterprise
+export type IntegrationServiceChannelState = keyof typeof IntegrationServiceChannelStateToYAML
+export type IntegrationServiceChannelStateYAML = keyof typeof IntegrationServiceChannelStateFromYAML
 
-export const ArchiveFileCompressionLevelToEnterprise = {
+export const ArchiveFileCompressionLevelToYAML = {
   Maximum: "Максимальный",
   Minimum: "Минимальный",
   Optimal: "Оптимальный",
 } as const
 
-export const ArchiveFileCompressionLevelFromEnterprise = {
+export const ArchiveFileCompressionLevelFromYAML = {
   Максимальный: "Maximum",
   Минимальный: "Minimum",
   Оптимальный: "Optimal",
 } as const
 
-export type ArchiveFileCompressionLevel = keyof typeof ArchiveFileCompressionLevelToEnterprise
-export type ArchiveFileCompressionLevelEnterprise = keyof typeof ArchiveFileCompressionLevelFromEnterprise
+export type ArchiveFileCompressionLevel = keyof typeof ArchiveFileCompressionLevelToYAML
+export type ArchiveFileCompressionLevelYAML = keyof typeof ArchiveFileCompressionLevelFromYAML
 
-export const ArchiveFileCompressionMethodToEnterprise = {
+export const ArchiveFileCompressionMethodToYAML = {
   BZIP2: "BZIP2",
   Copy: "Копирование",
   Deflate: "Сжатие",
 } as const
 
-export const ArchiveFileCompressionMethodFromEnterprise = {
+export const ArchiveFileCompressionMethodFromYAML = {
   BZIP2: "BZIP2",
   Копирование: "Copy",
   Сжатие: "Deflate",
 } as const
 
-export type ArchiveFileCompressionMethod = keyof typeof ArchiveFileCompressionMethodToEnterprise
-export type ArchiveFileCompressionMethodEnterprise = keyof typeof ArchiveFileCompressionMethodFromEnterprise
+export type ArchiveFileCompressionMethod = keyof typeof ArchiveFileCompressionMethodToYAML
+export type ArchiveFileCompressionMethodYAML = keyof typeof ArchiveFileCompressionMethodFromYAML
 
-export const ArchiveFileEncryptionMethodToEnterprise = {
+export const ArchiveFileEncryptionMethodToYAML = {
   AES128: "AES128",
   AES192: "AES192",
   AES256: "AES256",
   Zip20: "Zip20",
 } as const
 
-export const ArchiveFileEncryptionMethodFromEnterprise = {
+export const ArchiveFileEncryptionMethodFromYAML = {
   AES128: "AES128",
   AES192: "AES192",
   AES256: "AES256",
   Zip20: "Zip20",
 } as const
 
-export type ArchiveFileEncryptionMethod = keyof typeof ArchiveFileEncryptionMethodToEnterprise
-export type ArchiveFileEncryptionMethodEnterprise = keyof typeof ArchiveFileEncryptionMethodFromEnterprise
+export type ArchiveFileEncryptionMethod = keyof typeof ArchiveFileEncryptionMethodToYAML
+export type ArchiveFileEncryptionMethodYAML = keyof typeof ArchiveFileEncryptionMethodFromYAML
 
-export const ArchiveFileRestoreFilePathsModeToEnterprise = {
+export const ArchiveFileRestoreFilePathsModeToYAML = {
   Restore: "Восстанавливать",
   DontRestore: "НеВосстанавливать",
 } as const
 
-export const ArchiveFileRestoreFilePathsModeFromEnterprise = {
+export const ArchiveFileRestoreFilePathsModeFromYAML = {
   Восстанавливать: "Restore",
   НеВосстанавливать: "DontRestore",
 } as const
 
-export type ArchiveFileRestoreFilePathsMode = keyof typeof ArchiveFileRestoreFilePathsModeToEnterprise
-export type ArchiveFileRestoreFilePathsModeEnterprise = keyof typeof ArchiveFileRestoreFilePathsModeFromEnterprise
+export type ArchiveFileRestoreFilePathsMode = keyof typeof ArchiveFileRestoreFilePathsModeToYAML
+export type ArchiveFileRestoreFilePathsModeYAML = keyof typeof ArchiveFileRestoreFilePathsModeFromYAML
 
-export const ArchiveFileStorePathModeToEnterprise = {
+export const ArchiveFileStorePathModeToYAML = {
   DontStorePath: "НеСохранятьПути",
   StoreRelativePath: "СохранятьОтносительныеПути",
   StoreFullPath: "СохранятьПолныеПути",
 } as const
 
-export const ArchiveFileStorePathModeFromEnterprise = {
+export const ArchiveFileStorePathModeFromYAML = {
   НеСохранятьПути: "DontStorePath",
   СохранятьОтносительныеПути: "StoreRelativePath",
   СохранятьПолныеПути: "StoreFullPath",
 } as const
 
-export type ArchiveFileStorePathMode = keyof typeof ArchiveFileStorePathModeToEnterprise
-export type ArchiveFileStorePathModeEnterprise = keyof typeof ArchiveFileStorePathModeFromEnterprise
+export type ArchiveFileStorePathMode = keyof typeof ArchiveFileStorePathModeToYAML
+export type ArchiveFileStorePathModeYAML = keyof typeof ArchiveFileStorePathModeFromYAML
 
-export const ArchiveFileSubDirProcessingModeToEnterprise = {
+export const ArchiveFileSubDirProcessingModeToYAML = {
   DontProcess: "НеОбрабатывать",
   ProcessRecursively: "ОбрабатыватьРекурсивно",
 } as const
 
-export const ArchiveFileSubDirProcessingModeFromEnterprise = {
+export const ArchiveFileSubDirProcessingModeFromYAML = {
   НеОбрабатывать: "DontProcess",
   ОбрабатыватьРекурсивно: "ProcessRecursively",
 } as const
 
-export type ArchiveFileSubDirProcessingMode = keyof typeof ArchiveFileSubDirProcessingModeToEnterprise
-export type ArchiveFileSubDirProcessingModeEnterprise = keyof typeof ArchiveFileSubDirProcessingModeFromEnterprise
+export type ArchiveFileSubDirProcessingMode = keyof typeof ArchiveFileSubDirProcessingModeToYAML
+export type ArchiveFileSubDirProcessingModeYAML = keyof typeof ArchiveFileSubDirProcessingModeFromYAML
 
-export const ArchiveFileTypeToEnterprise = {
+export const ArchiveFileTypeToYAML = {
   BZIP2: "BZIP2",
   GZIP: "GZIP",
   RAR: "RAR",
@@ -9958,7 +9910,7 @@ export const ArchiveFileTypeToEnterprise = {
   ZIP: "ZIP",
 } as const
 
-export const ArchiveFileTypeFromEnterprise = {
+export const ArchiveFileTypeFromYAML = {
   BZIP2: "BZIP2",
   GZIP: "GZIP",
   RAR: "RAR",
@@ -9968,70 +9920,70 @@ export const ArchiveFileTypeFromEnterprise = {
   ZIP: "ZIP",
 } as const
 
-export type ArchiveFileType = keyof typeof ArchiveFileTypeToEnterprise
-export type ArchiveFileTypeEnterprise = keyof typeof ArchiveFileTypeFromEnterprise
+export type ArchiveFileType = keyof typeof ArchiveFileTypeToYAML
+export type ArchiveFileTypeYAML = keyof typeof ArchiveFileTypeFromYAML
 
-export const FileNamesEncodingInArchiveFileToEnterprise = {
+export const FileNamesEncodingInArchiveFileToYAML = {
   UTF8: "UTF8",
   Auto: "Авто",
   OSEncodingWithUTF8: "КодировкаОСДополнительноUTF8",
 } as const
 
-export const FileNamesEncodingInArchiveFileFromEnterprise = {
+export const FileNamesEncodingInArchiveFileFromYAML = {
   UTF8: "UTF8",
   Авто: "Auto",
   КодировкаОСДополнительноUTF8: "OSEncodingWithUTF8",
 } as const
 
-export type FileNamesEncodingInArchiveFile = keyof typeof FileNamesEncodingInArchiveFileToEnterprise
-export type FileNamesEncodingInArchiveFileEnterprise = keyof typeof FileNamesEncodingInArchiveFileFromEnterprise
+export type FileNamesEncodingInArchiveFile = keyof typeof FileNamesEncodingInArchiveFileToYAML
+export type FileNamesEncodingInArchiveFileYAML = keyof typeof FileNamesEncodingInArchiveFileFromYAML
 
-export const FileAccessToEnterprise = {
+export const FileAccessToYAML = {
   Write: "Запись",
   Read: "Чтение",
   ReadAndWrite: "ЧтениеИЗапись",
 } as const
 
-export const FileAccessFromEnterprise = {
+export const FileAccessFromYAML = {
   Запись: "Write",
   Чтение: "Read",
   ЧтениеИЗапись: "ReadAndWrite",
 } as const
 
-export type FileAccess = keyof typeof FileAccessToEnterprise
-export type FileAccessEnterprise = keyof typeof FileAccessFromEnterprise
+export type FileAccess = keyof typeof FileAccessToYAML
+export type FileAccessYAML = keyof typeof FileAccessFromYAML
 
-export const FileCompareMethodToEnterprise = {
+export const FileCompareMethodToYAML = {
   Binary: "Двоичное",
   SpreadsheetDocument: "ТабличныйДокумент",
   TextDocument: "ТекстовыйДокумент",
 } as const
 
-export const FileCompareMethodFromEnterprise = {
+export const FileCompareMethodFromYAML = {
   Двоичное: "Binary",
   ТабличныйДокумент: "SpreadsheetDocument",
   ТекстовыйДокумент: "TextDocument",
 } as const
 
-export type FileCompareMethod = keyof typeof FileCompareMethodToEnterprise
-export type FileCompareMethodEnterprise = keyof typeof FileCompareMethodFromEnterprise
+export type FileCompareMethod = keyof typeof FileCompareMethodToYAML
+export type FileCompareMethodYAML = keyof typeof FileCompareMethodFromYAML
 
-export const FileDialogModeToEnterprise = {
+export const FileDialogModeToYAML = {
   ChooseDirectory: "ВыборКаталога",
   Open: "Открытие",
   Save: "Сохранение",
 } as const
 
-export const FileDialogModeFromEnterprise = {
+export const FileDialogModeFromYAML = {
   ВыборКаталога: "ChooseDirectory",
   Открытие: "Open",
   Сохранение: "Save",
 } as const
 
-export type FileDialogMode = keyof typeof FileDialogModeToEnterprise
-export type FileDialogModeEnterprise = keyof typeof FileDialogModeFromEnterprise
+export type FileDialogMode = keyof typeof FileDialogModeToYAML
+export type FileDialogModeYAML = keyof typeof FileDialogModeFromYAML
 
-export const FileDialogSectionToEnterprise = {
+export const FileDialogSectionToYAML = {
   Audio: "Аудио",
   Gallery: "Галерея",
   Documents: "Документы",
@@ -10039,7 +9991,7 @@ export const FileDialogSectionToEnterprise = {
   Files: "Файлы",
 } as const
 
-export const FileDialogSectionFromEnterprise = {
+export const FileDialogSectionFromYAML = {
   Аудио: "Audio",
   Галерея: "Gallery",
   Документы: "Documents",
@@ -10047,23 +9999,23 @@ export const FileDialogSectionFromEnterprise = {
   Файлы: "Files",
 } as const
 
-export type FileDialogSection = keyof typeof FileDialogSectionToEnterprise
-export type FileDialogSectionEnterprise = keyof typeof FileDialogSectionFromEnterprise
+export type FileDialogSection = keyof typeof FileDialogSectionToYAML
+export type FileDialogSectionYAML = keyof typeof FileDialogSectionFromYAML
 
-export const FileDragModeToEnterprise = {
+export const FileDragModeToYAML = {
   AsFileRef: "КакСсылкаНаФайл",
   AsFile: "КакФайл",
 } as const
 
-export const FileDragModeFromEnterprise = {
+export const FileDragModeFromYAML = {
   КакСсылкаНаФайл: "AsFileRef",
   КакФайл: "AsFile",
 } as const
 
-export type FileDragMode = keyof typeof FileDragModeToEnterprise
-export type FileDragModeEnterprise = keyof typeof FileDragModeFromEnterprise
+export type FileDragMode = keyof typeof FileDragModeToYAML
+export type FileDragModeYAML = keyof typeof FileDragModeFromYAML
 
-export const FileOpenModeToEnterprise = {
+export const FileOpenModeToYAML = {
   Append: "Дописать",
   Truncate: "Обрезать",
   Open: "Открыть",
@@ -10072,7 +10024,7 @@ export const FileOpenModeToEnterprise = {
   CreateNew: "СоздатьНовый",
 } as const
 
-export const FileOpenModeFromEnterprise = {
+export const FileOpenModeFromYAML = {
   Дописать: "Append",
   Обрезать: "Truncate",
   Открыть: "Open",
@@ -10081,136 +10033,135 @@ export const FileOpenModeFromEnterprise = {
   СоздатьНовый: "CreateNew",
 } as const
 
-export type FileOpenMode = keyof typeof FileOpenModeToEnterprise
-export type FileOpenModeEnterprise = keyof typeof FileOpenModeFromEnterprise
+export type FileOpenMode = keyof typeof FileOpenModeToYAML
+export type FileOpenModeYAML = keyof typeof FileOpenModeFromYAML
 
-export const GetFilesArchiveModeToEnterprise = {
+export const GetFilesArchiveModeToYAML = {
   GetArchiveAlways: "ПолучатьАрхивВсегда",
   GetArchiveWhenRequired: "ПолучатьАрхивПриНеобходимости",
 } as const
 
-export const GetFilesArchiveModeFromEnterprise = {
+export const GetFilesArchiveModeFromYAML = {
   ПолучатьАрхивВсегда: "GetArchiveAlways",
   ПолучатьАрхивПриНеобходимости: "GetArchiveWhenRequired",
 } as const
 
-export type GetFilesArchiveMode = keyof typeof GetFilesArchiveModeToEnterprise
-export type GetFilesArchiveModeEnterprise = keyof typeof GetFilesArchiveModeFromEnterprise
+export type GetFilesArchiveMode = keyof typeof GetFilesArchiveModeToYAML
+export type GetFilesArchiveModeYAML = keyof typeof GetFilesArchiveModeFromYAML
 
-export const IncomingShareRequestStandardCommandToEnterprise = {
+export const IncomingShareRequestStandardCommandToYAML = {
   CopyToClipboard: "КопироватьВБуферОбмена",
   ShareInConversation: "ПоделитьсяВОбсуждении",
   Show: "Показать",
   Save: "Сохранить",
 } as const
 
-export const IncomingShareRequestStandardCommandFromEnterprise = {
+export const IncomingShareRequestStandardCommandFromYAML = {
   КопироватьВБуферОбмена: "CopyToClipboard",
   ПоделитьсяВОбсуждении: "ShareInConversation",
   Показать: "Show",
   Сохранить: "Save",
 } as const
 
-export type IncomingShareRequestStandardCommand = keyof typeof IncomingShareRequestStandardCommandToEnterprise
-export type IncomingShareRequestStandardCommandEnterprise =
-  keyof typeof IncomingShareRequestStandardCommandFromEnterprise
+export type IncomingShareRequestStandardCommand = keyof typeof IncomingShareRequestStandardCommandToYAML
+export type IncomingShareRequestStandardCommandYAML = keyof typeof IncomingShareRequestStandardCommandFromYAML
 
-export const MobileDeviceLibraryDirTypeToEnterprise = {
+export const MobileDeviceLibraryDirTypeToYAML = {
   Audio: "Аудио",
   Video: "Видео",
   Pictures: "Картинки",
 } as const
 
-export const MobileDeviceLibraryDirTypeFromEnterprise = {
+export const MobileDeviceLibraryDirTypeFromYAML = {
   Аудио: "Audio",
   Видео: "Video",
   Картинки: "Pictures",
 } as const
 
-export type MobileDeviceLibraryDirType = keyof typeof MobileDeviceLibraryDirTypeToEnterprise
-export type MobileDeviceLibraryDirTypeEnterprise = keyof typeof MobileDeviceLibraryDirTypeFromEnterprise
+export type MobileDeviceLibraryDirType = keyof typeof MobileDeviceLibraryDirTypeToYAML
+export type MobileDeviceLibraryDirTypeYAML = keyof typeof MobileDeviceLibraryDirTypeFromYAML
 
-export const ShareRequestDataProcessingVariantToEnterprise = {
+export const ShareRequestDataProcessingVariantToYAML = {
   View: "Просмотр",
   Edit: "Редактирование",
 } as const
 
-export const ShareRequestDataProcessingVariantFromEnterprise = {
+export const ShareRequestDataProcessingVariantFromYAML = {
   Просмотр: "View",
   Редактирование: "Edit",
 } as const
 
-export type ShareRequestDataProcessingVariant = keyof typeof ShareRequestDataProcessingVariantToEnterprise
-export type ShareRequestDataProcessingVariantEnterprise = keyof typeof ShareRequestDataProcessingVariantFromEnterprise
+export type ShareRequestDataProcessingVariant = keyof typeof ShareRequestDataProcessingVariantToYAML
+export type ShareRequestDataProcessingVariantYAML = keyof typeof ShareRequestDataProcessingVariantFromYAML
 
-export const AccountMainPresentationToEnterprise = {
+export const AccountMainPresentationToYAML = {
   AsCode: "ВВидеКода",
   AsDescription: "ВВидеНаименования",
 } as const
 
-export const AccountMainPresentationFromEnterprise = {
+export const AccountMainPresentationFromYAML = {
   ВВидеКода: "AsCode",
   ВВидеНаименования: "AsDescription",
 } as const
 
-export type AccountMainPresentation = keyof typeof AccountMainPresentationToEnterprise
-export type AccountMainPresentationEnterprise = keyof typeof AccountMainPresentationFromEnterprise
+export type AccountMainPresentation = keyof typeof AccountMainPresentationToYAML
+export type AccountMainPresentationYAML = keyof typeof AccountMainPresentationFromYAML
 
-export const AccumulationRegisterTypeToEnterprise = {
+export const AccumulationRegisterTypeToYAML = {
   Turnovers: "Обороты",
   Balance: "Остатки",
 } as const
 
-export const AccumulationRegisterTypeFromEnterprise = {
+export const AccumulationRegisterTypeFromYAML = {
   Обороты: "Turnovers",
   Остатки: "Balance",
 } as const
 
-export type AccumulationRegisterType = keyof typeof AccumulationRegisterTypeToEnterprise
-export type AccumulationRegisterTypeEnterprise = keyof typeof AccumulationRegisterTypeFromEnterprise
+export type AccumulationRegisterType = keyof typeof AccumulationRegisterTypeToYAML
+export type AccumulationRegisterTypeYAML = keyof typeof AccumulationRegisterTypeFromYAML
 
-export const AttributeUseToEnterprise = {
+export const AttributeUseToYAML = {
   ForFolder: "ДляГруппы",
   ForFolderAndItem: "ДляГруппыИЭлемента",
   ForItem: "ДляЭлемента",
 } as const
 
-export const AttributeUseFromEnterprise = {
+export const AttributeUseFromYAML = {
   ДляГруппы: "ForFolder",
   ДляГруппыИЭлемента: "ForFolderAndItem",
   ДляЭлемента: "ForItem",
 } as const
 
-export type AttributeUse = keyof typeof AttributeUseToEnterprise
-export type AttributeUseEnterprise = keyof typeof AttributeUseFromEnterprise
+export type AttributeUse = keyof typeof AttributeUseToYAML
+export type AttributeUseYAML = keyof typeof AttributeUseFromYAML
 
-export const BinaryDataBlockStorageUseModeToEnterprise = {
+export const BinaryDataBlockStorageUseModeToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const BinaryDataBlockStorageUseModeFromEnterprise = {
+export const BinaryDataBlockStorageUseModeFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type BinaryDataBlockStorageUseMode = keyof typeof BinaryDataBlockStorageUseModeToEnterprise
-export type BinaryDataBlockStorageUseModeEnterprise = keyof typeof BinaryDataBlockStorageUseModeFromEnterprise
+export type BinaryDataBlockStorageUseMode = keyof typeof BinaryDataBlockStorageUseModeToYAML
+export type BinaryDataBlockStorageUseModeYAML = keyof typeof BinaryDataBlockStorageUseModeFromYAML
 
-export const BinaryDataStorageModeToEnterprise = {
+export const BinaryDataStorageModeToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const BinaryDataStorageModeFromEnterprise = {
+export const BinaryDataStorageModeFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type BinaryDataStorageMode = keyof typeof BinaryDataStorageModeToEnterprise
-export type BinaryDataStorageModeEnterprise = keyof typeof BinaryDataStorageModeFromEnterprise
+export type BinaryDataStorageMode = keyof typeof BinaryDataStorageModeToYAML
+export type BinaryDataStorageModeYAML = keyof typeof BinaryDataStorageModeFromYAML
 
-export const BusinessProcessNumberPeriodicityToEnterprise = {
+export const BusinessProcessNumberPeriodicityToYAML = {
   Year: "Год",
   Day: "День",
   Quarter: "Квартал",
@@ -10218,7 +10169,7 @@ export const BusinessProcessNumberPeriodicityToEnterprise = {
   Nonperiodical: "Непериодический",
 } as const
 
-export const BusinessProcessNumberPeriodicityFromEnterprise = {
+export const BusinessProcessNumberPeriodicityFromYAML = {
   Год: "Year",
   День: "Day",
   Квартал: "Quarter",
@@ -10226,285 +10177,284 @@ export const BusinessProcessNumberPeriodicityFromEnterprise = {
   Непериодический: "Nonperiodical",
 } as const
 
-export type BusinessProcessNumberPeriodicity = keyof typeof BusinessProcessNumberPeriodicityToEnterprise
-export type BusinessProcessNumberPeriodicityEnterprise = keyof typeof BusinessProcessNumberPeriodicityFromEnterprise
+export type BusinessProcessNumberPeriodicity = keyof typeof BusinessProcessNumberPeriodicityToYAML
+export type BusinessProcessNumberPeriodicityYAML = keyof typeof BusinessProcessNumberPeriodicityFromYAML
 
-export const BusinessProcessNumberTypeToEnterprise = {
+export const BusinessProcessNumberTypeToYAML = {
   String: "Строка",
   Number: "Число",
 } as const
 
-export const BusinessProcessNumberTypeFromEnterprise = {
+export const BusinessProcessNumberTypeFromYAML = {
   Строка: "String",
   Число: "Number",
 } as const
 
-export type BusinessProcessNumberType = keyof typeof BusinessProcessNumberTypeToEnterprise
-export type BusinessProcessNumberTypeEnterprise = keyof typeof BusinessProcessNumberTypeFromEnterprise
+export type BusinessProcessNumberType = keyof typeof BusinessProcessNumberTypeToYAML
+export type BusinessProcessNumberTypeYAML = keyof typeof BusinessProcessNumberTypeFromYAML
 
-export const CalculationRegisterPeriodicityToEnterprise = {
+export const CalculationRegisterPeriodicityToYAML = {
   Year: "Год",
   Day: "День",
   Quarter: "Квартал",
   Month: "Месяц",
 } as const
 
-export const CalculationRegisterPeriodicityFromEnterprise = {
+export const CalculationRegisterPeriodicityFromYAML = {
   Год: "Year",
   День: "Day",
   Квартал: "Quarter",
   Месяц: "Month",
 } as const
 
-export type CalculationRegisterPeriodicity = keyof typeof CalculationRegisterPeriodicityToEnterprise
-export type CalculationRegisterPeriodicityEnterprise = keyof typeof CalculationRegisterPeriodicityFromEnterprise
+export type CalculationRegisterPeriodicity = keyof typeof CalculationRegisterPeriodicityToYAML
+export type CalculationRegisterPeriodicityYAML = keyof typeof CalculationRegisterPeriodicityFromYAML
 
-export const CalculationTypeMainPresentationToEnterprise = {
+export const CalculationTypeMainPresentationToYAML = {
   AsCode: "ВВидеКода",
   AsDescription: "ВВидеНаименования",
 } as const
 
-export const CalculationTypeMainPresentationFromEnterprise = {
+export const CalculationTypeMainPresentationFromYAML = {
   ВВидеКода: "AsCode",
   ВВидеНаименования: "AsDescription",
 } as const
 
-export type CalculationTypeMainPresentation = keyof typeof CalculationTypeMainPresentationToEnterprise
-export type CalculationTypeMainPresentationEnterprise = keyof typeof CalculationTypeMainPresentationFromEnterprise
+export type CalculationTypeMainPresentation = keyof typeof CalculationTypeMainPresentationToYAML
+export type CalculationTypeMainPresentationYAML = keyof typeof CalculationTypeMainPresentationFromYAML
 
-export const CatalogCodeTypeToEnterprise = {
+export const CatalogCodeTypeToYAML = {
   String: "Строка",
   Number: "Число",
 } as const
 
-export const CatalogCodeTypeFromEnterprise = {
+export const CatalogCodeTypeFromYAML = {
   Строка: "String",
   Число: "Number",
 } as const
 
-export type CatalogCodeType = keyof typeof CatalogCodeTypeToEnterprise
-export type CatalogCodeTypeEnterprise = keyof typeof CatalogCodeTypeFromEnterprise
+export type CatalogCodeType = keyof typeof CatalogCodeTypeToYAML
+export type CatalogCodeTypeYAML = keyof typeof CatalogCodeTypeFromYAML
 
-export const CatalogCodesSeriesToEnterprise = {
+export const CatalogCodesSeriesToYAML = {
   WholeCatalog: "ВоВсемСправочнике",
   WithinSubordination: "ВПределахПодчинения",
   WithinOwnerSubordination: "ВПределахПодчиненияВладельцу",
 } as const
 
-export const CatalogCodesSeriesFromEnterprise = {
+export const CatalogCodesSeriesFromYAML = {
   ВоВсемСправочнике: "WholeCatalog",
   ВПределахПодчинения: "WithinSubordination",
   ВПределахПодчиненияВладельцу: "WithinOwnerSubordination",
 } as const
 
-export type CatalogCodesSeries = keyof typeof CatalogCodesSeriesToEnterprise
-export type CatalogCodesSeriesEnterprise = keyof typeof CatalogCodesSeriesFromEnterprise
+export type CatalogCodesSeries = keyof typeof CatalogCodesSeriesToYAML
+export type CatalogCodesSeriesYAML = keyof typeof CatalogCodesSeriesFromYAML
 
-export const CatalogMainPresentationToEnterprise = {
+export const CatalogMainPresentationToYAML = {
   AsCode: "ВВидеКода",
   AsDescription: "ВВидеНаименования",
 } as const
 
-export const CatalogMainPresentationFromEnterprise = {
+export const CatalogMainPresentationFromYAML = {
   ВВидеКода: "AsCode",
   ВВидеНаименования: "AsDescription",
 } as const
 
-export type CatalogMainPresentation = keyof typeof CatalogMainPresentationToEnterprise
-export type CatalogMainPresentationEnterprise = keyof typeof CatalogMainPresentationFromEnterprise
+export type CatalogMainPresentation = keyof typeof CatalogMainPresentationToYAML
+export type CatalogMainPresentationYAML = keyof typeof CatalogMainPresentationFromYAML
 
-export const CharOfAccountCodeSeriesToEnterprise = {
+export const CharOfAccountCodeSeriesToYAML = {
   WholeChartOfAccounts: "ВоВсемПланеСчетов",
   WithinSubordination: "ВПределахПодчинения",
 } as const
 
-export const CharOfAccountCodeSeriesFromEnterprise = {
+export const CharOfAccountCodeSeriesFromYAML = {
   ВоВсемПланеСчетов: "WholeChartOfAccounts",
   ВПределахПодчинения: "WithinSubordination",
 } as const
 
-export type CharOfAccountCodeSeries = keyof typeof CharOfAccountCodeSeriesToEnterprise
-export type CharOfAccountCodeSeriesEnterprise = keyof typeof CharOfAccountCodeSeriesFromEnterprise
+export type CharOfAccountCodeSeries = keyof typeof CharOfAccountCodeSeriesToYAML
+export type CharOfAccountCodeSeriesYAML = keyof typeof CharOfAccountCodeSeriesFromYAML
 
-export const CharacteristicKindCodesSeriesToEnterprise = {
+export const CharacteristicKindCodesSeriesToYAML = {
   WholeCharacteristicKind: "ВоВсемПланеВидовХарактеристик",
   WithinSubordination: "ВПределахПодчинения",
 } as const
 
-export const CharacteristicKindCodesSeriesFromEnterprise = {
+export const CharacteristicKindCodesSeriesFromYAML = {
   ВоВсемПланеВидовХарактеристик: "WholeCharacteristicKind",
   ВПределахПодчинения: "WithinSubordination",
 } as const
 
-export type CharacteristicKindCodesSeries = keyof typeof CharacteristicKindCodesSeriesToEnterprise
-export type CharacteristicKindCodesSeriesEnterprise = keyof typeof CharacteristicKindCodesSeriesFromEnterprise
+export type CharacteristicKindCodesSeries = keyof typeof CharacteristicKindCodesSeriesToYAML
+export type CharacteristicKindCodesSeriesYAML = keyof typeof CharacteristicKindCodesSeriesFromYAML
 
-export const CharacteristicTypeMainPresentationToEnterprise = {
+export const CharacteristicTypeMainPresentationToYAML = {
   AsCode: "ВВидеКода",
   AsDescription: "ВВидеНаименования",
 } as const
 
-export const CharacteristicTypeMainPresentationFromEnterprise = {
+export const CharacteristicTypeMainPresentationFromYAML = {
   ВВидеКода: "AsCode",
   ВВидеНаименования: "AsDescription",
 } as const
 
-export type CharacteristicTypeMainPresentation = keyof typeof CharacteristicTypeMainPresentationToEnterprise
-export type CharacteristicTypeMainPresentationEnterprise = keyof typeof CharacteristicTypeMainPresentationFromEnterprise
+export type CharacteristicTypeMainPresentation = keyof typeof CharacteristicTypeMainPresentationToYAML
+export type CharacteristicTypeMainPresentationYAML = keyof typeof CharacteristicTypeMainPresentationFromYAML
 
-export const ChartOfCalculationTypesBaseUseToEnterprise = {
+export const ChartOfCalculationTypesBaseUseToYAML = {
   DontUse: "НеИспользовать",
   OnActionPeriod: "ПоПериодуДействия",
   OnRegistrationPeriod: "ПоПериодуРегистрации",
 } as const
 
-export const ChartOfCalculationTypesBaseUseFromEnterprise = {
+export const ChartOfCalculationTypesBaseUseFromYAML = {
   НеИспользовать: "DontUse",
   ПоПериодуДействия: "OnActionPeriod",
   ПоПериодуРегистрации: "OnRegistrationPeriod",
 } as const
 
-export type ChartOfCalculationTypesBaseUse = keyof typeof ChartOfCalculationTypesBaseUseToEnterprise
-export type ChartOfCalculationTypesBaseUseEnterprise = keyof typeof ChartOfCalculationTypesBaseUseFromEnterprise
+export type ChartOfCalculationTypesBaseUse = keyof typeof ChartOfCalculationTypesBaseUseToYAML
+export type ChartOfCalculationTypesBaseUseYAML = keyof typeof ChartOfCalculationTypesBaseUseFromYAML
 
-export const ChartOfCalculationTypesCodeTypeToEnterprise = {
+export const ChartOfCalculationTypesCodeTypeToYAML = {
   String: "Строка",
   Number: "Число",
 } as const
 
-export const ChartOfCalculationTypesCodeTypeFromEnterprise = {
+export const ChartOfCalculationTypesCodeTypeFromYAML = {
   Строка: "String",
   Число: "Number",
 } as const
 
-export type ChartOfCalculationTypesCodeType = keyof typeof ChartOfCalculationTypesCodeTypeToEnterprise
-export type ChartOfCalculationTypesCodeTypeEnterprise = keyof typeof ChartOfCalculationTypesCodeTypeFromEnterprise
+export type ChartOfCalculationTypesCodeType = keyof typeof ChartOfCalculationTypesCodeTypeToYAML
+export type ChartOfCalculationTypesCodeTypeYAML = keyof typeof ChartOfCalculationTypesCodeTypeFromYAML
 
-export const ChoiceDataGetModeOnInputByStringToEnterprise = {
+export const ChoiceDataGetModeOnInputByStringToYAML = {
   Directly: "Непосредственно",
   Background: "Фоновый",
 } as const
 
-export const ChoiceDataGetModeOnInputByStringFromEnterprise = {
+export const ChoiceDataGetModeOnInputByStringFromYAML = {
   Непосредственно: "Directly",
   Фоновый: "Background",
 } as const
 
-export type ChoiceDataGetModeOnInputByString = keyof typeof ChoiceDataGetModeOnInputByStringToEnterprise
-export type ChoiceDataGetModeOnInputByStringEnterprise = keyof typeof ChoiceDataGetModeOnInputByStringFromEnterprise
+export type ChoiceDataGetModeOnInputByString = keyof typeof ChoiceDataGetModeOnInputByStringToYAML
+export type ChoiceDataGetModeOnInputByStringYAML = keyof typeof ChoiceDataGetModeOnInputByStringFromYAML
 
-export const ChoiceModeToEnterprise = {
+export const ChoiceModeToYAML = {
   QuickChoice: "БыстрыйВыбор",
   FromForm: "ИзФормы",
   BothWays: "ОбоимиСпособами",
 } as const
 
-export const ChoiceModeFromEnterprise = {
+export const ChoiceModeFromYAML = {
   БыстрыйВыбор: "QuickChoice",
   ИзФормы: "FromForm",
   ОбоимиСпособами: "BothWays",
 } as const
 
-export type ChoiceMode = keyof typeof ChoiceModeToEnterprise
-export type ChoiceModeEnterprise = keyof typeof ChoiceModeFromEnterprise
+export type ChoiceMode = keyof typeof ChoiceModeToYAML
+export type ChoiceModeYAML = keyof typeof ChoiceModeFromYAML
 
-export const CommonAttributeAuthenticationSeparationToEnterprise = {
+export const CommonAttributeAuthenticationSeparationToYAML = {
   DontUse: "НеИспользовать",
   Separate: "Разделять",
 } as const
 
-export const CommonAttributeAuthenticationSeparationFromEnterprise = {
+export const CommonAttributeAuthenticationSeparationFromYAML = {
   НеИспользовать: "DontUse",
   Разделять: "Separate",
 } as const
 
-export type CommonAttributeAuthenticationSeparation = keyof typeof CommonAttributeAuthenticationSeparationToEnterprise
-export type CommonAttributeAuthenticationSeparationEnterprise =
-  keyof typeof CommonAttributeAuthenticationSeparationFromEnterprise
+export type CommonAttributeAuthenticationSeparation = keyof typeof CommonAttributeAuthenticationSeparationToYAML
+export type CommonAttributeAuthenticationSeparationYAML = keyof typeof CommonAttributeAuthenticationSeparationFromYAML
 
-export const CommonAttributeAutoUseToEnterprise = {
+export const CommonAttributeAutoUseToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const CommonAttributeAutoUseFromEnterprise = {
+export const CommonAttributeAutoUseFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type CommonAttributeAutoUse = keyof typeof CommonAttributeAutoUseToEnterprise
-export type CommonAttributeAutoUseEnterprise = keyof typeof CommonAttributeAutoUseFromEnterprise
+export type CommonAttributeAutoUse = keyof typeof CommonAttributeAutoUseToYAML
+export type CommonAttributeAutoUseYAML = keyof typeof CommonAttributeAutoUseFromYAML
 
-export const CommonAttributeConfigurationExtensionsSeparationToEnterprise = {
+export const CommonAttributeConfigurationExtensionsSeparationToYAML = {
   DontUse: "НеИспользовать",
   Separate: "Разделять",
 } as const
 
-export const CommonAttributeConfigurationExtensionsSeparationFromEnterprise = {
+export const CommonAttributeConfigurationExtensionsSeparationFromYAML = {
   НеИспользовать: "DontUse",
   Разделять: "Separate",
 } as const
 
 export type CommonAttributeConfigurationExtensionsSeparation =
-  keyof typeof CommonAttributeConfigurationExtensionsSeparationToEnterprise
-export type CommonAttributeConfigurationExtensionsSeparationEnterprise =
-  keyof typeof CommonAttributeConfigurationExtensionsSeparationFromEnterprise
+  keyof typeof CommonAttributeConfigurationExtensionsSeparationToYAML
+export type CommonAttributeConfigurationExtensionsSeparationYAML =
+  keyof typeof CommonAttributeConfigurationExtensionsSeparationFromYAML
 
-export const CommonAttributeDataSeparationToEnterprise = {
+export const CommonAttributeDataSeparationToYAML = {
   DontUse: "НеИспользовать",
   Separate: "Разделять",
 } as const
 
-export const CommonAttributeDataSeparationFromEnterprise = {
+export const CommonAttributeDataSeparationFromYAML = {
   НеИспользовать: "DontUse",
   Разделять: "Separate",
 } as const
 
-export type CommonAttributeDataSeparation = keyof typeof CommonAttributeDataSeparationToEnterprise
-export type CommonAttributeDataSeparationEnterprise = keyof typeof CommonAttributeDataSeparationFromEnterprise
+export type CommonAttributeDataSeparation = keyof typeof CommonAttributeDataSeparationToYAML
+export type CommonAttributeDataSeparationYAML = keyof typeof CommonAttributeDataSeparationFromYAML
 
-export const CommonAttributeSeparatedDataUseToEnterprise = {
+export const CommonAttributeSeparatedDataUseToYAML = {
   Independently: "Независимо",
   IndependentlyAndSimultaneously: "НезависимоИСовместно",
 } as const
 
-export const CommonAttributeSeparatedDataUseFromEnterprise = {
+export const CommonAttributeSeparatedDataUseFromYAML = {
   Независимо: "Independently",
   НезависимоИСовместно: "IndependentlyAndSimultaneously",
 } as const
 
-export type CommonAttributeSeparatedDataUse = keyof typeof CommonAttributeSeparatedDataUseToEnterprise
-export type CommonAttributeSeparatedDataUseEnterprise = keyof typeof CommonAttributeSeparatedDataUseFromEnterprise
+export type CommonAttributeSeparatedDataUse = keyof typeof CommonAttributeSeparatedDataUseToYAML
+export type CommonAttributeSeparatedDataUseYAML = keyof typeof CommonAttributeSeparatedDataUseFromYAML
 
-export const CommonAttributeUseToEnterprise = {
+export const CommonAttributeUseToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const CommonAttributeUseFromEnterprise = {
+export const CommonAttributeUseFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type CommonAttributeUse = keyof typeof CommonAttributeUseToEnterprise
-export type CommonAttributeUseEnterprise = keyof typeof CommonAttributeUseFromEnterprise
+export type CommonAttributeUse = keyof typeof CommonAttributeUseToYAML
+export type CommonAttributeUseYAML = keyof typeof CommonAttributeUseFromYAML
 
-export const CommonAttributeUsersSeparationToEnterprise = {
+export const CommonAttributeUsersSeparationToYAML = {
   DontUse: "НеИспользовать",
   Separate: "Разделять",
 } as const
 
-export const CommonAttributeUsersSeparationFromEnterprise = {
+export const CommonAttributeUsersSeparationFromYAML = {
   НеИспользовать: "DontUse",
   Разделять: "Separate",
 } as const
 
-export type CommonAttributeUsersSeparation = keyof typeof CommonAttributeUsersSeparationToEnterprise
-export type CommonAttributeUsersSeparationEnterprise = keyof typeof CommonAttributeUsersSeparationFromEnterprise
+export type CommonAttributeUsersSeparation = keyof typeof CommonAttributeUsersSeparationToYAML
+export type CommonAttributeUsersSeparationYAML = keyof typeof CommonAttributeUsersSeparationFromYAML
 
-export const CompatibilityModeToEnterprise = {
+export const CompatibilityModeToYAML = {
   Version8_1: "Версия8_1",
   Version8_2_13: "Версия8_2_13",
   Version8_2_16: "Версия8_2_16",
@@ -10537,7 +10487,7 @@ export const CompatibilityModeToEnterprise = {
   DontUse: "НеИспользовать",
 } as const
 
-export const CompatibilityModeFromEnterprise = {
+export const CompatibilityModeFromYAML = {
   Версия8_1: "Version8_1",
   Версия8_2_13: "Version8_2_13",
   Версия8_2_16: "Version8_2_16",
@@ -10570,81 +10520,81 @@ export const CompatibilityModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export type CompatibilityMode = keyof typeof CompatibilityModeToEnterprise
-export type CompatibilityModeEnterprise = keyof typeof CompatibilityModeFromEnterprise
+export type CompatibilityMode = keyof typeof CompatibilityModeToYAML
+export type CompatibilityModeYAML = keyof typeof CompatibilityModeFromYAML
 
-export const ConfigurationExtensionPurposeToEnterprise = {
+export const ConfigurationExtensionPurposeToYAML = {
   Customization: "Адаптация",
   AddOn: "Дополнение",
   Patch: "Исправление",
 } as const
 
-export const ConfigurationExtensionPurposeFromEnterprise = {
+export const ConfigurationExtensionPurposeFromYAML = {
   Адаптация: "Customization",
   Дополнение: "AddOn",
   Исправление: "Patch",
 } as const
 
-export type ConfigurationExtensionPurpose = keyof typeof ConfigurationExtensionPurposeToEnterprise
-export type ConfigurationExtensionPurposeEnterprise = keyof typeof ConfigurationExtensionPurposeFromEnterprise
+export type ConfigurationExtensionPurpose = keyof typeof ConfigurationExtensionPurposeToYAML
+export type ConfigurationExtensionPurposeYAML = keyof typeof ConfigurationExtensionPurposeFromYAML
 
-export const CreateOnInputToEnterprise = {
+export const CreateOnInputToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const CreateOnInputFromEnterprise = {
+export const CreateOnInputFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type CreateOnInput = keyof typeof CreateOnInputToEnterprise
-export type CreateOnInputEnterprise = keyof typeof CreateOnInputFromEnterprise
+export type CreateOnInput = keyof typeof CreateOnInputToYAML
+export type CreateOnInputYAML = keyof typeof CreateOnInputFromYAML
 
-export const DataExchangeMainPresentationToEnterprise = {
+export const DataExchangeMainPresentationToYAML = {
   AsCode: "ВВидеКода",
   AsDescription: "ВВидеНаименования",
 } as const
 
-export const DataExchangeMainPresentationFromEnterprise = {
+export const DataExchangeMainPresentationFromYAML = {
   ВВидеКода: "AsCode",
   ВВидеНаименования: "AsDescription",
 } as const
 
-export type DataExchangeMainPresentation = keyof typeof DataExchangeMainPresentationToEnterprise
-export type DataExchangeMainPresentationEnterprise = keyof typeof DataExchangeMainPresentationFromEnterprise
+export type DataExchangeMainPresentation = keyof typeof DataExchangeMainPresentationToYAML
+export type DataExchangeMainPresentationYAML = keyof typeof DataExchangeMainPresentationFromYAML
 
-export const DataHistoryUseToEnterprise = {
+export const DataHistoryUseToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const DataHistoryUseFromEnterprise = {
+export const DataHistoryUseFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type DataHistoryUse = keyof typeof DataHistoryUseToEnterprise
-export type DataHistoryUseEnterprise = keyof typeof DataHistoryUseFromEnterprise
+export type DataHistoryUse = keyof typeof DataHistoryUseToYAML
+export type DataHistoryUseYAML = keyof typeof DataHistoryUseFromYAML
 
-export const DefaultDataLockControlModeToEnterprise = {
+export const DefaultDataLockControlModeToYAML = {
   Automatic: "Автоматический",
   AutomaticAndManaged: "АвтоматическийИУправляемый",
   Managed: "Управляемый",
 } as const
 
-export const DefaultDataLockControlModeFromEnterprise = {
+export const DefaultDataLockControlModeFromYAML = {
   Автоматический: "Automatic",
   АвтоматическийИУправляемый: "AutomaticAndManaged",
   Управляемый: "Managed",
 } as const
 
-export type DefaultDataLockControlMode = keyof typeof DefaultDataLockControlModeToEnterprise
-export type DefaultDataLockControlModeEnterprise = keyof typeof DefaultDataLockControlModeFromEnterprise
+export type DefaultDataLockControlMode = keyof typeof DefaultDataLockControlModeToYAML
+export type DefaultDataLockControlModeYAML = keyof typeof DefaultDataLockControlModeFromYAML
 
-export const DocumentNumberPeriodicityToEnterprise = {
+export const DocumentNumberPeriodicityToYAML = {
   Year: "Год",
   Day: "День",
   Quarter: "Квартал",
@@ -10652,7 +10602,7 @@ export const DocumentNumberPeriodicityToEnterprise = {
   Nonperiodical: "Непериодический",
 } as const
 
-export const DocumentNumberPeriodicityFromEnterprise = {
+export const DocumentNumberPeriodicityFromYAML = {
   Год: "Year",
   День: "Day",
   Квартал: "Quarter",
@@ -10660,90 +10610,90 @@ export const DocumentNumberPeriodicityFromEnterprise = {
   Непериодический: "Nonperiodical",
 } as const
 
-export type DocumentNumberPeriodicity = keyof typeof DocumentNumberPeriodicityToEnterprise
-export type DocumentNumberPeriodicityEnterprise = keyof typeof DocumentNumberPeriodicityFromEnterprise
+export type DocumentNumberPeriodicity = keyof typeof DocumentNumberPeriodicityToYAML
+export type DocumentNumberPeriodicityYAML = keyof typeof DocumentNumberPeriodicityFromYAML
 
-export const DocumentNumberTypeToEnterprise = {
+export const DocumentNumberTypeToYAML = {
   String: "Строка",
   Number: "Число",
 } as const
 
-export const DocumentNumberTypeFromEnterprise = {
+export const DocumentNumberTypeFromYAML = {
   Строка: "String",
   Число: "Number",
 } as const
 
-export type DocumentNumberType = keyof typeof DocumentNumberTypeToEnterprise
-export type DocumentNumberTypeEnterprise = keyof typeof DocumentNumberTypeFromEnterprise
+export type DocumentNumberType = keyof typeof DocumentNumberTypeToYAML
+export type DocumentNumberTypeYAML = keyof typeof DocumentNumberTypeFromYAML
 
-export const EditTypeToEnterprise = {
+export const EditTypeToYAML = {
   InDialog: "ВДиалоге",
   InList: "ВСписке",
   BothWays: "ОбоимиСпособами",
 } as const
 
-export const EditTypeFromEnterprise = {
+export const EditTypeFromYAML = {
   ВДиалоге: "InDialog",
   ВСписке: "InList",
   ОбоимиСпособами: "BothWays",
 } as const
 
-export type EditType = keyof typeof EditTypeToEnterprise
-export type EditTypeEnterprise = keyof typeof EditTypeFromEnterprise
+export type EditType = keyof typeof EditTypeToYAML
+export type EditTypeYAML = keyof typeof EditTypeFromYAML
 
-export const ExternalDataSourceTableDataTypeToEnterprise = {
+export const ExternalDataSourceTableDataTypeToYAML = {
   NonobjectData: "НеобъектныеДанные",
   ObjectData: "ОбъектныеДанные",
 } as const
 
-export const ExternalDataSourceTableDataTypeFromEnterprise = {
+export const ExternalDataSourceTableDataTypeFromYAML = {
   НеобъектныеДанные: "NonobjectData",
   ОбъектныеДанные: "ObjectData",
 } as const
 
-export type ExternalDataSourceTableDataType = keyof typeof ExternalDataSourceTableDataTypeToEnterprise
-export type ExternalDataSourceTableDataTypeEnterprise = keyof typeof ExternalDataSourceTableDataTypeFromEnterprise
+export type ExternalDataSourceTableDataType = keyof typeof ExternalDataSourceTableDataTypeToYAML
+export type ExternalDataSourceTableDataTypeYAML = keyof typeof ExternalDataSourceTableDataTypeFromYAML
 
-export const ExternalDataSourceTableTypeToEnterprise = {
+export const ExternalDataSourceTableTypeToYAML = {
   Expression: "Выражение",
   Table: "Таблица",
 } as const
 
-export const ExternalDataSourceTableTypeFromEnterprise = {
+export const ExternalDataSourceTableTypeFromYAML = {
   Выражение: "Expression",
   Таблица: "Table",
 } as const
 
-export type ExternalDataSourceTableType = keyof typeof ExternalDataSourceTableTypeToEnterprise
-export type ExternalDataSourceTableTypeEnterprise = keyof typeof ExternalDataSourceTableTypeFromEnterprise
+export type ExternalDataSourceTableType = keyof typeof ExternalDataSourceTableTypeToYAML
+export type ExternalDataSourceTableTypeYAML = keyof typeof ExternalDataSourceTableTypeFromYAML
 
-export const FormTypeToEnterprise = {
+export const FormTypeToYAML = {
   Ordinary: "Обычная",
   Managed: "Управляемая",
 } as const
 
-export const FormTypeFromEnterprise = {
+export const FormTypeFromYAML = {
   Обычная: "Ordinary",
   Управляемая: "Managed",
 } as const
 
-export type FormType = keyof typeof FormTypeToEnterprise
-export type FormTypeEnterprise = keyof typeof FormTypeFromEnterprise
+export type FormType = keyof typeof FormTypeToYAML
+export type FormTypeYAML = keyof typeof FormTypeFromYAML
 
-export const FullTextSearchOnInputByStringToEnterprise = {
+export const FullTextSearchOnInputByStringToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const FullTextSearchOnInputByStringFromEnterprise = {
+export const FullTextSearchOnInputByStringFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type FullTextSearchOnInputByString = keyof typeof FullTextSearchOnInputByStringToEnterprise
-export type FullTextSearchOnInputByStringEnterprise = keyof typeof FullTextSearchOnInputByStringFromEnterprise
+export type FullTextSearchOnInputByString = keyof typeof FullTextSearchOnInputByStringToYAML
+export type FullTextSearchOnInputByStringYAML = keyof typeof FullTextSearchOnInputByStringFromYAML
 
-export const HTTPMethodToEnterprise = {
+export const HTTPMethodToYAML = {
   CONNECT: "CONNECT",
   COPY: "COPY",
   DELETE: "DELETE",
@@ -10764,7 +10714,7 @@ export const HTTPMethodToEnterprise = {
   Any: "Любой",
 } as const
 
-export const HTTPMethodFromEnterprise = {
+export const HTTPMethodFromYAML = {
   CONNECT: "CONNECT",
   COPY: "COPY",
   DELETE: "DELETE",
@@ -10785,38 +10735,38 @@ export const HTTPMethodFromEnterprise = {
   Любой: "Any",
 } as const
 
-export type HTTPMethod = keyof typeof HTTPMethodToEnterprise
-export type HTTPMethodEnterprise = keyof typeof HTTPMethodFromEnterprise
+export type HTTPMethod = keyof typeof HTTPMethodToYAML
+export type HTTPMethodYAML = keyof typeof HTTPMethodFromYAML
 
-export const HierarchyTypeToEnterprise = {
+export const HierarchyTypeToYAML = {
   HierarchyFoldersAndItems: "ИерархияГруппИЭлементов",
   HierarchyOfItems: "ИерархияЭлементов",
 } as const
 
-export const HierarchyTypeFromEnterprise = {
+export const HierarchyTypeFromYAML = {
   ИерархияГруппИЭлементов: "HierarchyFoldersAndItems",
   ИерархияЭлементов: "HierarchyOfItems",
 } as const
 
-export type HierarchyType = keyof typeof HierarchyTypeToEnterprise
-export type HierarchyTypeEnterprise = keyof typeof HierarchyTypeFromEnterprise
+export type HierarchyType = keyof typeof HierarchyTypeToYAML
+export type HierarchyTypeYAML = keyof typeof HierarchyTypeFromYAML
 
-export const IndexingToEnterprise = {
+export const IndexingToYAML = {
   Index: "Индексировать",
   IndexWithAdditionalOrder: "ИндексироватьСДопУпорядочиванием",
   DontIndex: "НеИндексировать",
 } as const
 
-export const IndexingFromEnterprise = {
+export const IndexingFromYAML = {
   Индексировать: "Index",
   ИндексироватьСДопУпорядочиванием: "IndexWithAdditionalOrder",
   НеИндексировать: "DontIndex",
 } as const
 
-export type Indexing = keyof typeof IndexingToEnterprise
-export type IndexingEnterprise = keyof typeof IndexingFromEnterprise
+export type Indexing = keyof typeof IndexingToYAML
+export type IndexingYAML = keyof typeof IndexingFromYAML
 
-export const InformationRegisterPeriodicityToEnterprise = {
+export const InformationRegisterPeriodicityToYAML = {
   Year: "Год",
   Day: "День",
   Quarter: "Квартал",
@@ -10826,7 +10776,7 @@ export const InformationRegisterPeriodicityToEnterprise = {
   Second: "Секунда",
 } as const
 
-export const InformationRegisterPeriodicityFromEnterprise = {
+export const InformationRegisterPeriodicityFromYAML = {
   Год: "Year",
   День: "Day",
   Квартал: "Quarter",
@@ -10836,317 +10786,315 @@ export const InformationRegisterPeriodicityFromEnterprise = {
   Секунда: "Second",
 } as const
 
-export type InformationRegisterPeriodicity = keyof typeof InformationRegisterPeriodicityToEnterprise
-export type InformationRegisterPeriodicityEnterprise = keyof typeof InformationRegisterPeriodicityFromEnterprise
+export type InformationRegisterPeriodicity = keyof typeof InformationRegisterPeriodicityToYAML
+export type InformationRegisterPeriodicityYAML = keyof typeof InformationRegisterPeriodicityFromYAML
 
-export const IntegrationServiceChannelMessageDirectionToEnterprise = {
+export const IntegrationServiceChannelMessageDirectionToYAML = {
   Send: "Отправка",
   Receive: "Получение",
 } as const
 
-export const IntegrationServiceChannelMessageDirectionFromEnterprise = {
+export const IntegrationServiceChannelMessageDirectionFromYAML = {
   Отправка: "Send",
   Получение: "Receive",
 } as const
 
-export type IntegrationServiceChannelMessageDirection =
-  keyof typeof IntegrationServiceChannelMessageDirectionToEnterprise
-export type IntegrationServiceChannelMessageDirectionEnterprise =
-  keyof typeof IntegrationServiceChannelMessageDirectionFromEnterprise
+export type IntegrationServiceChannelMessageDirection = keyof typeof IntegrationServiceChannelMessageDirectionToYAML
+export type IntegrationServiceChannelMessageDirectionYAML =
+  keyof typeof IntegrationServiceChannelMessageDirectionFromYAML
 
-export const ModalityUseModeToEnterprise = {
+export const ModalityUseModeToYAML = {
   Use: "Использовать",
   UseWithWarnings: "ИспользоватьСПредупреждениями",
   DontUse: "НеИспользовать",
 } as const
 
-export const ModalityUseModeFromEnterprise = {
+export const ModalityUseModeFromYAML = {
   Использовать: "Use",
   ИспользоватьСПредупреждениями: "UseWithWarnings",
   НеИспользовать: "DontUse",
 } as const
 
-export type ModalityUseMode = keyof typeof ModalityUseModeToEnterprise
-export type ModalityUseModeEnterprise = keyof typeof ModalityUseModeFromEnterprise
+export type ModalityUseMode = keyof typeof ModalityUseModeToYAML
+export type ModalityUseModeYAML = keyof typeof ModalityUseModeFromYAML
 
-export const MoveBoundaryOnPostingToEnterprise = {
+export const MoveBoundaryOnPostingToYAML = {
   DontMove: "НеПеремещать",
   Move: "Перемещать",
 } as const
 
-export const MoveBoundaryOnPostingFromEnterprise = {
+export const MoveBoundaryOnPostingFromYAML = {
   НеПеремещать: "DontMove",
   Перемещать: "Move",
 } as const
 
-export type MoveBoundaryOnPosting = keyof typeof MoveBoundaryOnPostingToEnterprise
-export type MoveBoundaryOnPostingEnterprise = keyof typeof MoveBoundaryOnPostingFromEnterprise
+export type MoveBoundaryOnPosting = keyof typeof MoveBoundaryOnPostingToYAML
+export type MoveBoundaryOnPostingYAML = keyof typeof MoveBoundaryOnPostingFromYAML
 
-export const ObjectAutonumerationModeToEnterprise = {
+export const ObjectAutonumerationModeToYAML = {
   NotAutoFree: "НеОсвобождатьАвтоматически",
   AutoFree: "ОсвобождатьАвтоматически",
 } as const
 
-export const ObjectAutonumerationModeFromEnterprise = {
+export const ObjectAutonumerationModeFromYAML = {
   НеОсвобождатьАвтоматически: "NotAutoFree",
   ОсвобождатьАвтоматически: "AutoFree",
 } as const
 
-export type ObjectAutonumerationMode = keyof typeof ObjectAutonumerationModeToEnterprise
-export type ObjectAutonumerationModeEnterprise = keyof typeof ObjectAutonumerationModeFromEnterprise
+export type ObjectAutonumerationMode = keyof typeof ObjectAutonumerationModeToYAML
+export type ObjectAutonumerationModeYAML = keyof typeof ObjectAutonumerationModeFromYAML
 
-export const ObjectBelongingToEnterprise = {
+export const ObjectBelongingToYAML = {
   Adopted: "Заимствованный",
   Native: "Собственный",
 } as const
 
-export const ObjectBelongingFromEnterprise = {
+export const ObjectBelongingFromYAML = {
   Заимствованный: "Adopted",
   Собственный: "Native",
 } as const
 
-export type ObjectBelonging = keyof typeof ObjectBelongingToEnterprise
-export type ObjectBelongingEnterprise = keyof typeof ObjectBelongingFromEnterprise
+export type ObjectBelonging = keyof typeof ObjectBelongingToYAML
+export type ObjectBelongingYAML = keyof typeof ObjectBelongingFromYAML
 
-export const PostingToEnterprise = {
+export const PostingToYAML = {
   Deny: "Запретить",
   Allow: "Разрешить",
 } as const
 
-export const PostingFromEnterprise = {
+export const PostingFromYAML = {
   Запретить: "Deny",
   Разрешить: "Allow",
 } as const
 
-export type Posting = keyof typeof PostingToEnterprise
-export type PostingEnterprise = keyof typeof PostingFromEnterprise
+export type Posting = keyof typeof PostingToYAML
+export type PostingYAML = keyof typeof PostingFromYAML
 
-export const RealTimePostingToEnterprise = {
+export const RealTimePostingToYAML = {
   Deny: "Запретить",
   Allow: "Разрешить",
 } as const
 
-export const RealTimePostingFromEnterprise = {
+export const RealTimePostingFromYAML = {
   Запретить: "Deny",
   Разрешить: "Allow",
 } as const
 
-export type RealTimePosting = keyof typeof RealTimePostingToEnterprise
-export type RealTimePostingEnterprise = keyof typeof RealTimePostingFromEnterprise
+export type RealTimePosting = keyof typeof RealTimePostingToYAML
+export type RealTimePostingYAML = keyof typeof RealTimePostingFromYAML
 
-export const RegisterRecordsDeletionToEnterprise = {
+export const RegisterRecordsDeletionToYAML = {
   AutoDeleteOff: "НеУдалятьАвтоматически",
   AutoDelete: "УдалятьАвтоматически",
   AutoDeleteOnUnpost: "УдалятьАвтоматическиПриОтменеПроведения",
 } as const
 
-export const RegisterRecordsDeletionFromEnterprise = {
+export const RegisterRecordsDeletionFromYAML = {
   НеУдалятьАвтоматически: "AutoDeleteOff",
   УдалятьАвтоматически: "AutoDelete",
   УдалятьАвтоматическиПриОтменеПроведения: "AutoDeleteOnUnpost",
 } as const
 
-export type RegisterRecordsDeletion = keyof typeof RegisterRecordsDeletionToEnterprise
-export type RegisterRecordsDeletionEnterprise = keyof typeof RegisterRecordsDeletionFromEnterprise
+export type RegisterRecordsDeletion = keyof typeof RegisterRecordsDeletionToYAML
+export type RegisterRecordsDeletionYAML = keyof typeof RegisterRecordsDeletionFromYAML
 
-export const RegisterRecordsWritingOnPostToEnterprise = {
+export const RegisterRecordsWritingOnPostToYAML = {
   WriteSelected: "ЗаписыватьВыбранные",
   WriteModified: "ЗаписыватьМодифицированные",
 } as const
 
-export const RegisterRecordsWritingOnPostFromEnterprise = {
+export const RegisterRecordsWritingOnPostFromYAML = {
   ЗаписыватьВыбранные: "WriteSelected",
   ЗаписыватьМодифицированные: "WriteModified",
 } as const
 
-export type RegisterRecordsWritingOnPost = keyof typeof RegisterRecordsWritingOnPostToEnterprise
-export type RegisterRecordsWritingOnPostEnterprise = keyof typeof RegisterRecordsWritingOnPostFromEnterprise
+export type RegisterRecordsWritingOnPost = keyof typeof RegisterRecordsWritingOnPostToYAML
+export type RegisterRecordsWritingOnPostYAML = keyof typeof RegisterRecordsWritingOnPostFromYAML
 
-export const RegisterWriteModeToEnterprise = {
+export const RegisterWriteModeToYAML = {
   Independent: "Независимый",
   RecorderSubordinate: "ПодчинениеРегистратору",
 } as const
 
-export const RegisterWriteModeFromEnterprise = {
+export const RegisterWriteModeFromYAML = {
   Независимый: "Independent",
   ПодчинениеРегистратору: "RecorderSubordinate",
 } as const
 
-export type RegisterWriteMode = keyof typeof RegisterWriteModeToEnterprise
-export type RegisterWriteModeEnterprise = keyof typeof RegisterWriteModeFromEnterprise
+export type RegisterWriteMode = keyof typeof RegisterWriteModeToYAML
+export type RegisterWriteModeYAML = keyof typeof RegisterWriteModeFromYAML
 
-export const ReturnValuesReuseToEnterprise = {
+export const ReturnValuesReuseToYAML = {
   DuringRequest: "НаВремяВызова",
   DuringSession: "НаВремяСеанса",
   DontUse: "НеИспользовать",
 } as const
 
-export const ReturnValuesReuseFromEnterprise = {
+export const ReturnValuesReuseFromYAML = {
   НаВремяВызова: "DuringRequest",
   НаВремяСеанса: "DuringSession",
   НеИспользовать: "DontUse",
 } as const
 
-export type ReturnValuesReuse = keyof typeof ReturnValuesReuseToEnterprise
-export type ReturnValuesReuseEnterprise = keyof typeof ReturnValuesReuseFromEnterprise
+export type ReturnValuesReuse = keyof typeof ReturnValuesReuseToYAML
+export type ReturnValuesReuseYAML = keyof typeof ReturnValuesReuseFromYAML
 
-export const ScriptVariantToEnterprise = {
+export const ScriptVariantToYAML = {
   English: "Английский",
   Russian: "Русский",
 } as const
 
-export const ScriptVariantFromEnterprise = {
+export const ScriptVariantFromYAML = {
   Английский: "English",
   Русский: "Russian",
 } as const
 
-export type ScriptVariant = keyof typeof ScriptVariantToEnterprise
-export type ScriptVariantEnterprise = keyof typeof ScriptVariantFromEnterprise
+export type ScriptVariant = keyof typeof ScriptVariantToYAML
+export type ScriptVariantYAML = keyof typeof ScriptVariantFromYAML
 
-export const SearchStringModeOnInputByStringToEnterprise = {
+export const SearchStringModeOnInputByStringToYAML = {
   AnyPart: "ЛюбаяЧасть",
   Begin: "Начало",
 } as const
 
-export const SearchStringModeOnInputByStringFromEnterprise = {
+export const SearchStringModeOnInputByStringFromYAML = {
   ЛюбаяЧасть: "AnyPart",
   Начало: "Begin",
 } as const
 
-export type SearchStringModeOnInputByString = keyof typeof SearchStringModeOnInputByStringToEnterprise
-export type SearchStringModeOnInputByStringEnterprise = keyof typeof SearchStringModeOnInputByStringFromEnterprise
+export type SearchStringModeOnInputByString = keyof typeof SearchStringModeOnInputByStringToYAML
+export type SearchStringModeOnInputByStringYAML = keyof typeof SearchStringModeOnInputByStringFromYAML
 
-export const SequenceFillingToEnterprise = {
+export const SequenceFillingToYAML = {
   AutoFill: "ЗаполнятьАвтоматически",
   AutoFillOff: "НеЗаполнятьАвтоматически",
 } as const
 
-export const SequenceFillingFromEnterprise = {
+export const SequenceFillingFromYAML = {
   ЗаполнятьАвтоматически: "AutoFill",
   НеЗаполнятьАвтоматически: "AutoFillOff",
 } as const
 
-export type SequenceFilling = keyof typeof SequenceFillingToEnterprise
-export type SequenceFillingEnterprise = keyof typeof SequenceFillingFromEnterprise
+export type SequenceFilling = keyof typeof SequenceFillingToYAML
+export type SequenceFillingYAML = keyof typeof SequenceFillingFromYAML
 
-export const SessionReuseModeToEnterprise = {
+export const SessionReuseModeToYAML = {
   Use: "Использовать",
   AutoUse: "ИспользоватьАвтоматически",
   DontUse: "НеИспользовать",
 } as const
 
-export const SessionReuseModeFromEnterprise = {
+export const SessionReuseModeFromYAML = {
   Использовать: "Use",
   ИспользоватьАвтоматически: "AutoUse",
   НеИспользовать: "DontUse",
 } as const
 
-export type SessionReuseMode = keyof typeof SessionReuseModeToEnterprise
-export type SessionReuseModeEnterprise = keyof typeof SessionReuseModeFromEnterprise
+export type SessionReuseMode = keyof typeof SessionReuseModeToYAML
+export type SessionReuseModeYAML = keyof typeof SessionReuseModeFromYAML
 
-export const StyleElementTypeToEnterprise = {
+export const StyleElementTypeToYAML = {
   Border: "Рамка",
   Color: "Цвет",
   Font: "Шрифт",
 } as const
 
-export const StyleElementTypeFromEnterprise = {
+export const StyleElementTypeFromYAML = {
   Рамка: "Border",
   Цвет: "Color",
   Шрифт: "Font",
 } as const
 
-export type StyleElementType = keyof typeof StyleElementTypeToEnterprise
-export type StyleElementTypeEnterprise = keyof typeof StyleElementTypeFromEnterprise
+export type StyleElementType = keyof typeof StyleElementTypeToYAML
+export type StyleElementTypeYAML = keyof typeof StyleElementTypeFromYAML
 
-export const SubordinationUseToEnterprise = {
+export const SubordinationUseToYAML = {
   ToFolders: "Группам",
   ToFoldersAndItems: "ГруппамИЭлементам",
   ToItems: "Элементам",
 } as const
 
-export const SubordinationUseFromEnterprise = {
+export const SubordinationUseFromYAML = {
   Группам: "ToFolders",
   ГруппамИЭлементам: "ToFoldersAndItems",
   Элементам: "ToItems",
 } as const
 
-export type SubordinationUse = keyof typeof SubordinationUseToEnterprise
-export type SubordinationUseEnterprise = keyof typeof SubordinationUseFromEnterprise
+export type SubordinationUse = keyof typeof SubordinationUseToYAML
+export type SubordinationUseYAML = keyof typeof SubordinationUseFromYAML
 
-export const SynchronousExtensionAndAddInCallUseModeToEnterprise = {
+export const SynchronousExtensionAndAddInCallUseModeToYAML = {
   Use: "Использовать",
   UseWithWarnings: "ИспользоватьСПредупреждениями",
   DontUse: "НеИспользовать",
 } as const
 
-export const SynchronousExtensionAndAddInCallUseModeFromEnterprise = {
+export const SynchronousExtensionAndAddInCallUseModeFromYAML = {
   Использовать: "Use",
   ИспользоватьСПредупреждениями: "UseWithWarnings",
   НеИспользовать: "DontUse",
 } as const
 
-export type SynchronousExtensionAndAddInCallUseMode = keyof typeof SynchronousExtensionAndAddInCallUseModeToEnterprise
-export type SynchronousExtensionAndAddInCallUseModeEnterprise =
-  keyof typeof SynchronousExtensionAndAddInCallUseModeFromEnterprise
+export type SynchronousExtensionAndAddInCallUseMode = keyof typeof SynchronousExtensionAndAddInCallUseModeToYAML
+export type SynchronousExtensionAndAddInCallUseModeYAML = keyof typeof SynchronousExtensionAndAddInCallUseModeFromYAML
 
-export const SynchronousPlatformExtensionAndAddInCallUseModeToEnterprise = {
+export const SynchronousPlatformExtensionAndAddInCallUseModeToYAML = {
   Use: "Использовать",
   UseWithWarnings: "ИспользоватьСПредупреждениями",
   DontUse: "НеИспользовать",
 } as const
 
-export const SynchronousPlatformExtensionAndAddInCallUseModeFromEnterprise = {
+export const SynchronousPlatformExtensionAndAddInCallUseModeFromYAML = {
   Использовать: "Use",
   ИспользоватьСПредупреждениями: "UseWithWarnings",
   НеИспользовать: "DontUse",
 } as const
 
 export type SynchronousPlatformExtensionAndAddInCallUseMode =
-  keyof typeof SynchronousPlatformExtensionAndAddInCallUseModeToEnterprise
-export type SynchronousPlatformExtensionAndAddInCallUseModeEnterprise =
-  keyof typeof SynchronousPlatformExtensionAndAddInCallUseModeFromEnterprise
+  keyof typeof SynchronousPlatformExtensionAndAddInCallUseModeToYAML
+export type SynchronousPlatformExtensionAndAddInCallUseModeYAML =
+  keyof typeof SynchronousPlatformExtensionAndAddInCallUseModeFromYAML
 
-export const TaskMainPresentationToEnterprise = {
+export const TaskMainPresentationToYAML = {
   AsDescription: "ВВидеНаименования",
   AsNumber: "ВВидеНомера",
 } as const
 
-export const TaskMainPresentationFromEnterprise = {
+export const TaskMainPresentationFromYAML = {
   ВВидеНаименования: "AsDescription",
   ВВидеНомера: "AsNumber",
 } as const
 
-export type TaskMainPresentation = keyof typeof TaskMainPresentationToEnterprise
-export type TaskMainPresentationEnterprise = keyof typeof TaskMainPresentationFromEnterprise
+export type TaskMainPresentation = keyof typeof TaskMainPresentationToYAML
+export type TaskMainPresentationYAML = keyof typeof TaskMainPresentationFromYAML
 
-export const TaskNumberAutoPrefixToEnterprise = {
+export const TaskNumberAutoPrefixToYAML = {
   DontUse: "НеИспользовать",
   BusinessProcessNumber: "НомерБизнесПроцесса",
 } as const
 
-export const TaskNumberAutoPrefixFromEnterprise = {
+export const TaskNumberAutoPrefixFromYAML = {
   НеИспользовать: "DontUse",
   НомерБизнесПроцесса: "BusinessProcessNumber",
 } as const
 
-export type TaskNumberAutoPrefix = keyof typeof TaskNumberAutoPrefixToEnterprise
-export type TaskNumberAutoPrefixEnterprise = keyof typeof TaskNumberAutoPrefixFromEnterprise
+export type TaskNumberAutoPrefix = keyof typeof TaskNumberAutoPrefixToYAML
+export type TaskNumberAutoPrefixYAML = keyof typeof TaskNumberAutoPrefixFromYAML
 
-export const TaskNumberTypeToEnterprise = {
+export const TaskNumberTypeToYAML = {
   String: "Строка",
   Number: "Число",
 } as const
 
-export const TaskNumberTypeFromEnterprise = {
+export const TaskNumberTypeFromYAML = {
   Строка: "String",
   Число: "Number",
 } as const
 
-export type TaskNumberType = keyof typeof TaskNumberTypeToEnterprise
-export type TaskNumberTypeEnterprise = keyof typeof TaskNumberTypeFromEnterprise
+export type TaskNumberType = keyof typeof TaskNumberTypeToYAML
+export type TaskNumberTypeYAML = keyof typeof TaskNumberTypeFromYAML
 
-export const TemplateTypeToEnterprise = {
+export const TemplateTypeToYAML = {
   ActiveDocument: "ActiveDocument",
   HTMLDocument: "HTMLДокумент",
   AddIn: "ВнешняяКомпонента",
@@ -11159,7 +11107,7 @@ export const TemplateTypeToEnterprise = {
   TextDocument: "ТекстовыйДокумент",
 } as const
 
-export const TemplateTypeFromEnterprise = {
+export const TemplateTypeFromYAML = {
   ActiveDocument: "ActiveDocument",
   HTMLДокумент: "HTMLDocument",
   ВнешняяКомпонента: "AddIn",
@@ -11172,128 +11120,128 @@ export const TemplateTypeFromEnterprise = {
   ТекстовыйДокумент: "TextDocument",
 } as const
 
-export type TemplateType = keyof typeof TemplateTypeToEnterprise
-export type TemplateTypeEnterprise = keyof typeof TemplateTypeFromEnterprise
+export type TemplateType = keyof typeof TemplateTypeToYAML
+export type TemplateTypeYAML = keyof typeof TemplateTypeFromYAML
 
-export const TransferDirectionToEnterprise = {
+export const TransferDirectionToYAML = {
   In: "Входной",
   InOut: "ВходнойВыходной",
   Out: "Выходной",
 } as const
 
-export const TransferDirectionFromEnterprise = {
+export const TransferDirectionFromYAML = {
   Входной: "In",
   ВходнойВыходной: "InOut",
   Выходной: "Out",
 } as const
 
-export type TransferDirection = keyof typeof TransferDirectionToEnterprise
-export type TransferDirectionEnterprise = keyof typeof TransferDirectionFromEnterprise
+export type TransferDirection = keyof typeof TransferDirectionToYAML
+export type TransferDirectionYAML = keyof typeof TransferDirectionFromYAML
 
-export const TypeReductionModeToEnterprise = {
+export const TypeReductionModeToYAML = {
   Deny: "Запрещать",
   TransformValues: "ПреобразовыватьЗначения",
   DeleteData: "УдалятьДанные",
 } as const
 
-export const TypeReductionModeFromEnterprise = {
+export const TypeReductionModeFromYAML = {
   Запрещать: "Deny",
   ПреобразовыватьЗначения: "TransformValues",
   УдалятьДанные: "DeleteData",
 } as const
 
-export type TypeReductionMode = keyof typeof TypeReductionModeToEnterprise
-export type TypeReductionModeEnterprise = keyof typeof TypeReductionModeFromEnterprise
+export type TypeReductionMode = keyof typeof TypeReductionModeToYAML
+export type TypeReductionModeYAML = keyof typeof TypeReductionModeFromYAML
 
-export const UseFullTextSearchToEnterprise = {
+export const UseFullTextSearchToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const UseFullTextSearchFromEnterprise = {
+export const UseFullTextSearchFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type UseFullTextSearch = keyof typeof UseFullTextSearchToEnterprise
-export type UseFullTextSearchEnterprise = keyof typeof UseFullTextSearchFromEnterprise
+export type UseFullTextSearch = keyof typeof UseFullTextSearchToYAML
+export type UseFullTextSearchYAML = keyof typeof UseFullTextSearchFromYAML
 
-export const UseQuickChoiceToEnterprise = {
+export const UseQuickChoiceToYAML = {
   Auto: "Авто",
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const UseQuickChoiceFromEnterprise = {
+export const UseQuickChoiceFromYAML = {
   Авто: "Auto",
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type UseQuickChoice = keyof typeof UseQuickChoiceToEnterprise
-export type UseQuickChoiceEnterprise = keyof typeof UseQuickChoiceFromEnterprise
+export type UseQuickChoice = keyof typeof UseQuickChoiceToYAML
+export type UseQuickChoiceYAML = keyof typeof UseQuickChoiceFromYAML
 
-export const PresentationAdditionTypeToEnterprise = {
+export const PresentationAdditionTypeToYAML = {
   Add: "Добавлять",
   DontAdd: "НеДобавлять",
 } as const
 
-export const PresentationAdditionTypeFromEnterprise = {
+export const PresentationAdditionTypeFromYAML = {
   Добавлять: "Add",
   НеДобавлять: "DontAdd",
 } as const
 
-export type PresentationAdditionType = keyof typeof PresentationAdditionTypeToEnterprise
-export type PresentationAdditionTypeEnterprise = keyof typeof PresentationAdditionTypeFromEnterprise
+export type PresentationAdditionType = keyof typeof PresentationAdditionTypeToYAML
+export type PresentationAdditionTypeYAML = keyof typeof PresentationAdditionTypeFromYAML
 
-export const ReportBuilderDetailsFillTypeToEnterprise = {
+export const ReportBuilderDetailsFillTypeToYAML = {
   GroupValues: "ЗначенияГруппировок",
   DontFill: "НеЗаполнять",
   Details: "Расшифровка",
 } as const
 
-export const ReportBuilderDetailsFillTypeFromEnterprise = {
+export const ReportBuilderDetailsFillTypeFromYAML = {
   ЗначенияГруппировок: "GroupValues",
   НеЗаполнять: "DontFill",
   Расшифровка: "Details",
 } as const
 
-export type ReportBuilderDetailsFillType = keyof typeof ReportBuilderDetailsFillTypeToEnterprise
-export type ReportBuilderDetailsFillTypeEnterprise = keyof typeof ReportBuilderDetailsFillTypeFromEnterprise
+export type ReportBuilderDetailsFillType = keyof typeof ReportBuilderDetailsFillTypeToYAML
+export type ReportBuilderDetailsFillTypeYAML = keyof typeof ReportBuilderDetailsFillTypeFromYAML
 
-export const ReportBuilderDimensionTypeToEnterprise = {
+export const ReportBuilderDimensionTypeToYAML = {
   Hierarchy: "Иерархия",
   HierarchyOnly: "ТолькоИерархия",
   Items: "Элементы",
 } as const
 
-export const ReportBuilderDimensionTypeFromEnterprise = {
+export const ReportBuilderDimensionTypeFromYAML = {
   Иерархия: "Hierarchy",
   ТолькоИерархия: "HierarchyOnly",
   Элементы: "Items",
 } as const
 
-export type ReportBuilderDimensionType = keyof typeof ReportBuilderDimensionTypeToEnterprise
-export type ReportBuilderDimensionTypeEnterprise = keyof typeof ReportBuilderDimensionTypeFromEnterprise
+export type ReportBuilderDimensionType = keyof typeof ReportBuilderDimensionTypeToYAML
+export type ReportBuilderDimensionTypeYAML = keyof typeof ReportBuilderDimensionTypeFromYAML
 
-export const TotalPlacementTypeToEnterprise = {
+export const TotalPlacementTypeToYAML = {
   Header: "Заголовок",
   HeaderAndFooter: "ЗаголовокИПодвал",
   Footer: "Подвал",
   FooterOnly: "ТолькоПодвал",
 } as const
 
-export const TotalPlacementTypeFromEnterprise = {
+export const TotalPlacementTypeFromYAML = {
   Заголовок: "Header",
   ЗаголовокИПодвал: "HeaderAndFooter",
   Подвал: "Footer",
   ТолькоПодвал: "FooterOnly",
 } as const
 
-export type TotalPlacementType = keyof typeof TotalPlacementTypeToEnterprise
-export type TotalPlacementTypeEnterprise = keyof typeof TotalPlacementTypeFromEnterprise
+export type TotalPlacementType = keyof typeof TotalPlacementTypeToYAML
+export type TotalPlacementTypeYAML = keyof typeof TotalPlacementTypeFromYAML
 
-export const XMLAttributeTypeToEnterprise = {
+export const XMLAttributeTypeToYAML = {
   CDATA: "CDATA",
   ENTITIES: "ENTITIES",
   ENTITY: "ENTITY",
@@ -11306,7 +11254,7 @@ export const XMLAttributeTypeToEnterprise = {
   NOTATION: "NOTATION",
 } as const
 
-export const XMLAttributeTypeFromEnterprise = {
+export const XMLAttributeTypeFromYAML = {
   CDATA: "CDATA",
   ENTITIES: "ENTITIES",
   ENTITY: "ENTITY",
@@ -11319,10 +11267,10 @@ export const XMLAttributeTypeFromEnterprise = {
   NOTATION: "NOTATION",
 } as const
 
-export type XMLAttributeType = keyof typeof XMLAttributeTypeToEnterprise
-export type XMLAttributeTypeEnterprise = keyof typeof XMLAttributeTypeFromEnterprise
+export type XMLAttributeType = keyof typeof XMLAttributeTypeToYAML
+export type XMLAttributeTypeYAML = keyof typeof XMLAttributeTypeFromYAML
 
-export const XMLCanonicalizationTypeToEnterprise = {
+export const XMLCanonicalizationTypeToYAML = {
   XMLExclusiveCanonicalization: "ИсключающийКаноническийXML",
   XMLExclusiveCanonicalizationWithComments: "ИсключающийКаноническийXMLСКомментариями",
   XMLCanonicalization: "КаноническийXML",
@@ -11331,7 +11279,7 @@ export const XMLCanonicalizationTypeToEnterprise = {
   XMLCanonicalizationWithComments: "КаноническийXMLСКомментариями",
 } as const
 
-export const XMLCanonicalizationTypeFromEnterprise = {
+export const XMLCanonicalizationTypeFromYAML = {
   ИсключающийКаноническийXML: "XMLExclusiveCanonicalization",
   ИсключающийКаноническийXMLСКомментариями: "XMLExclusiveCanonicalizationWithComments",
   КаноническийXML: "XMLCanonicalization",
@@ -11340,10 +11288,10 @@ export const XMLCanonicalizationTypeFromEnterprise = {
   КаноническийXMLСКомментариями: "XMLCanonicalizationWithComments",
 } as const
 
-export type XMLCanonicalizationType = keyof typeof XMLCanonicalizationTypeToEnterprise
-export type XMLCanonicalizationTypeEnterprise = keyof typeof XMLCanonicalizationTypeFromEnterprise
+export type XMLCanonicalizationType = keyof typeof XMLCanonicalizationTypeToYAML
+export type XMLCanonicalizationTypeYAML = keyof typeof XMLCanonicalizationTypeFromYAML
 
-export const XMLNodeTypeToEnterprise = {
+export const XMLNodeTypeToYAML = {
   Attribute: "Атрибут",
   ProcessingInstruction: "ИнструкцияОбработки",
   Comment: "Комментарий",
@@ -11361,7 +11309,7 @@ export const XMLNodeTypeToEnterprise = {
   Text: "Текст",
 } as const
 
-export const XMLNodeTypeFromEnterprise = {
+export const XMLNodeTypeFromYAML = {
   Атрибут: "Attribute",
   ИнструкцияОбработки: "ProcessingInstruction",
   Комментарий: "Comment",
@@ -11379,197 +11327,195 @@ export const XMLNodeTypeFromEnterprise = {
   Текст: "Text",
 } as const
 
-export type XMLNodeType = keyof typeof XMLNodeTypeToEnterprise
-export type XMLNodeTypeEnterprise = keyof typeof XMLNodeTypeFromEnterprise
+export type XMLNodeType = keyof typeof XMLNodeTypeToYAML
+export type XMLNodeTypeYAML = keyof typeof XMLNodeTypeFromYAML
 
-export const XMLSpaceToEnterprise = {
+export const XMLSpaceToYAML = {
   Default: "ПоУмолчанию",
   Preserve: "Сохранять",
 } as const
 
-export const XMLSpaceFromEnterprise = {
+export const XMLSpaceFromYAML = {
   ПоУмолчанию: "Default",
   Сохранять: "Preserve",
 } as const
 
-export type XMLSpace = keyof typeof XMLSpaceToEnterprise
-export type XMLSpaceEnterprise = keyof typeof XMLSpaceFromEnterprise
+export type XMLSpace = keyof typeof XMLSpaceToYAML
+export type XMLSpaceYAML = keyof typeof XMLSpaceFromYAML
 
-export const XMLTypeAssignmentToEnterprise = {
+export const XMLTypeAssignmentToYAML = {
   Implicit: "Неявное",
   Explicit: "Явное",
 } as const
 
-export const XMLTypeAssignmentFromEnterprise = {
+export const XMLTypeAssignmentFromYAML = {
   Неявное: "Implicit",
   Явное: "Explicit",
 } as const
 
-export type XMLTypeAssignment = keyof typeof XMLTypeAssignmentToEnterprise
-export type XMLTypeAssignmentEnterprise = keyof typeof XMLTypeAssignmentFromEnterprise
+export type XMLTypeAssignment = keyof typeof XMLTypeAssignmentToYAML
+export type XMLTypeAssignmentYAML = keyof typeof XMLTypeAssignmentFromYAML
 
-export const XMLValidationTypeToEnterprise = {
+export const XMLValidationTypeToYAML = {
   NoValidate: "НетПроверки",
   DocumentTypeDefinition: "ОпределениеТипаДокумента",
   XMLSchema: "СхемаXML",
 } as const
 
-export const XMLValidationTypeFromEnterprise = {
+export const XMLValidationTypeFromYAML = {
   НетПроверки: "NoValidate",
   ОпределениеТипаДокумента: "DocumentTypeDefinition",
   СхемаXML: "XMLSchema",
 } as const
 
-export type XMLValidationType = keyof typeof XMLValidationTypeToEnterprise
-export type XMLValidationTypeEnterprise = keyof typeof XMLValidationTypeFromEnterprise
+export type XMLValidationType = keyof typeof XMLValidationTypeToYAML
+export type XMLValidationTypeYAML = keyof typeof XMLValidationTypeFromYAML
 
-export const AllowedMessageNoToEnterprise = {
+export const AllowedMessageNoToYAML = {
   Greater: "Больший",
   Any: "Любой",
   Next: "Очередной",
 } as const
 
-export const AllowedMessageNoFromEnterprise = {
+export const AllowedMessageNoFromYAML = {
   Больший: "Greater",
   Любой: "Any",
   Очередной: "Next",
 } as const
 
-export type AllowedMessageNo = keyof typeof AllowedMessageNoToEnterprise
-export type AllowedMessageNoEnterprise = keyof typeof AllowedMessageNoFromEnterprise
+export type AllowedMessageNo = keyof typeof AllowedMessageNoToYAML
+export type AllowedMessageNoYAML = keyof typeof AllowedMessageNoFromYAML
 
-export const AutoChangeRecordToEnterprise = {
+export const AutoChangeRecordToYAML = {
   Deny: "Запретить",
   Allow: "Разрешить",
 } as const
 
-export const AutoChangeRecordFromEnterprise = {
+export const AutoChangeRecordFromYAML = {
   Запретить: "Deny",
   Разрешить: "Allow",
 } as const
 
-export type AutoChangeRecord = keyof typeof AutoChangeRecordToEnterprise
-export type AutoChangeRecordEnterprise = keyof typeof AutoChangeRecordFromEnterprise
+export type AutoChangeRecord = keyof typeof AutoChangeRecordToYAML
+export type AutoChangeRecordYAML = keyof typeof AutoChangeRecordFromYAML
 
-export const DataItemReceiveToEnterprise = {
+export const DataItemReceiveToYAML = {
   Auto: "Авто",
   Ignore: "Игнорировать",
   Accept: "Принять",
 } as const
 
-export const DataItemReceiveFromEnterprise = {
+export const DataItemReceiveFromYAML = {
   Авто: "Auto",
   Игнорировать: "Ignore",
   Принять: "Accept",
 } as const
 
-export type DataItemReceive = keyof typeof DataItemReceiveToEnterprise
-export type DataItemReceiveEnterprise = keyof typeof DataItemReceiveFromEnterprise
+export type DataItemReceive = keyof typeof DataItemReceiveToYAML
+export type DataItemReceiveYAML = keyof typeof DataItemReceiveFromYAML
 
-export const DataItemSendToEnterprise = {
+export const DataItemSendToYAML = {
   Auto: "Авто",
   Ignore: "Игнорировать",
   Delete: "Удалить",
 } as const
 
-export const DataItemSendFromEnterprise = {
+export const DataItemSendFromYAML = {
   Авто: "Auto",
   Игнорировать: "Ignore",
   Удалить: "Delete",
 } as const
 
-export type DataItemSend = keyof typeof DataItemSendToEnterprise
-export type DataItemSendEnterprise = keyof typeof DataItemSendFromEnterprise
+export type DataItemSend = keyof typeof DataItemSendToYAML
+export type DataItemSendYAML = keyof typeof DataItemSendFromYAML
 
-export const AnalysisDataTypeToEnterprise = {
+export const AnalysisDataTypeToYAML = {
   Discrete: "Дискретные",
   Contiguous: "Непрерывные",
 } as const
 
-export const AnalysisDataTypeFromEnterprise = {
+export const AnalysisDataTypeFromYAML = {
   Дискретные: "Discrete",
   Непрерывные: "Contiguous",
 } as const
 
-export type AnalysisDataType = keyof typeof AnalysisDataTypeToEnterprise
-export type AnalysisDataTypeEnterprise = keyof typeof AnalysisDataTypeFromEnterprise
+export type AnalysisDataType = keyof typeof AnalysisDataTypeToYAML
+export type AnalysisDataTypeYAML = keyof typeof AnalysisDataTypeFromYAML
 
-export const AssociationRulesDataSourceTypeToEnterprise = {
+export const AssociationRulesDataSourceTypeToYAML = {
   Object: "Объектный",
   Event: "Событийный",
 } as const
 
-export const AssociationRulesDataSourceTypeFromEnterprise = {
+export const AssociationRulesDataSourceTypeFromYAML = {
   Объектный: "Object",
   Событийный: "Event",
 } as const
 
-export type AssociationRulesDataSourceType = keyof typeof AssociationRulesDataSourceTypeToEnterprise
-export type AssociationRulesDataSourceTypeEnterprise = keyof typeof AssociationRulesDataSourceTypeFromEnterprise
+export type AssociationRulesDataSourceType = keyof typeof AssociationRulesDataSourceTypeToYAML
+export type AssociationRulesDataSourceTypeYAML = keyof typeof AssociationRulesDataSourceTypeFromYAML
 
-export const AssociationRulesPruneTypeToEnterprise = {
+export const AssociationRulesPruneTypeToYAML = {
   Redundant: "Избыточные",
   Covered: "Покрытые",
 } as const
 
-export const AssociationRulesPruneTypeFromEnterprise = {
+export const AssociationRulesPruneTypeFromYAML = {
   Избыточные: "Redundant",
   Покрытые: "Covered",
 } as const
 
-export type AssociationRulesPruneType = keyof typeof AssociationRulesPruneTypeToEnterprise
-export type AssociationRulesPruneTypeEnterprise = keyof typeof AssociationRulesPruneTypeFromEnterprise
+export type AssociationRulesPruneType = keyof typeof AssociationRulesPruneTypeToYAML
+export type AssociationRulesPruneTypeYAML = keyof typeof AssociationRulesPruneTypeFromYAML
 
-export const ClusterizationMethodToEnterprise = {
+export const ClusterizationMethodToYAML = {
   NearestNeighbor: "БлижняяСвязь",
   FurthestNeighbor: "ДальняяСвязь",
   KMeans: "КСредних",
   Centroid: "ЦентрТяжести",
 } as const
 
-export const ClusterizationMethodFromEnterprise = {
+export const ClusterizationMethodFromYAML = {
   БлижняяСвязь: "NearestNeighbor",
   ДальняяСвязь: "FurthestNeighbor",
   КСредних: "KMeans",
   ЦентрТяжести: "Centroid",
 } as const
 
-export type ClusterizationMethod = keyof typeof ClusterizationMethodToEnterprise
-export type ClusterizationMethodEnterprise = keyof typeof ClusterizationMethodFromEnterprise
+export type ClusterizationMethod = keyof typeof ClusterizationMethodToYAML
+export type ClusterizationMethodYAML = keyof typeof ClusterizationMethodFromYAML
 
-export const DataAnalysisAssociationRulesOrderTypeToEnterprise = {
+export const DataAnalysisAssociationRulesOrderTypeToYAML = {
   ByConfidence: "ПоДостоверности",
   ByImportance: "ПоЗначимости",
   BySupport: "ПоКоличествуСлучаев",
 } as const
 
-export const DataAnalysisAssociationRulesOrderTypeFromEnterprise = {
+export const DataAnalysisAssociationRulesOrderTypeFromYAML = {
   ПоДостоверности: "ByConfidence",
   ПоЗначимости: "ByImportance",
   ПоКоличествуСлучаев: "BySupport",
 } as const
 
-export type DataAnalysisAssociationRulesOrderType = keyof typeof DataAnalysisAssociationRulesOrderTypeToEnterprise
-export type DataAnalysisAssociationRulesOrderTypeEnterprise =
-  keyof typeof DataAnalysisAssociationRulesOrderTypeFromEnterprise
+export type DataAnalysisAssociationRulesOrderType = keyof typeof DataAnalysisAssociationRulesOrderTypeToYAML
+export type DataAnalysisAssociationRulesOrderTypeYAML = keyof typeof DataAnalysisAssociationRulesOrderTypeFromYAML
 
-export const DataAnalysisColumnTypeAssociationRulesToEnterprise = {
+export const DataAnalysisColumnTypeAssociationRulesToYAML = {
   NotUsed: "НеИспользуемая",
   Object: "Объект",
   Item: "Элемент",
 } as const
 
-export const DataAnalysisColumnTypeAssociationRulesFromEnterprise = {
+export const DataAnalysisColumnTypeAssociationRulesFromYAML = {
   НеИспользуемая: "NotUsed",
   Объект: "Object",
   Элемент: "Item",
 } as const
 
-export type DataAnalysisColumnTypeAssociationRules = keyof typeof DataAnalysisColumnTypeAssociationRulesToEnterprise
-export type DataAnalysisColumnTypeAssociationRulesEnterprise =
-  keyof typeof DataAnalysisColumnTypeAssociationRulesFromEnterprise
+export type DataAnalysisColumnTypeAssociationRules = keyof typeof DataAnalysisColumnTypeAssociationRulesToYAML
+export type DataAnalysisColumnTypeAssociationRulesYAML = keyof typeof DataAnalysisColumnTypeAssociationRulesFromYAML
 
-export const DataAnalysisColumnTypeClusterizationToEnterprise = {
+export const DataAnalysisColumnTypeClusterizationToYAML = {
   Input: "Входная",
   InputAndPredictable: "ВходнаяИПрогнозируемая",
   Key: "Ключ",
@@ -11577,7 +11523,7 @@ export const DataAnalysisColumnTypeClusterizationToEnterprise = {
   Predictable: "Прогнозируемая",
 } as const
 
-export const DataAnalysisColumnTypeClusterizationFromEnterprise = {
+export const DataAnalysisColumnTypeClusterizationFromYAML = {
   Входная: "Input",
   ВходнаяИПрогнозируемая: "InputAndPredictable",
   Ключ: "Key",
@@ -11585,145 +11531,141 @@ export const DataAnalysisColumnTypeClusterizationFromEnterprise = {
   Прогнозируемая: "Predictable",
 } as const
 
-export type DataAnalysisColumnTypeClusterization = keyof typeof DataAnalysisColumnTypeClusterizationToEnterprise
-export type DataAnalysisColumnTypeClusterizationEnterprise =
-  keyof typeof DataAnalysisColumnTypeClusterizationFromEnterprise
+export type DataAnalysisColumnTypeClusterization = keyof typeof DataAnalysisColumnTypeClusterizationToYAML
+export type DataAnalysisColumnTypeClusterizationYAML = keyof typeof DataAnalysisColumnTypeClusterizationFromYAML
 
-export const DataAnalysisColumnTypeDecisionTreeToEnterprise = {
+export const DataAnalysisColumnTypeDecisionTreeToYAML = {
   Input: "Входная",
   NotUsed: "НеИспользуемая",
   Predictable: "Прогнозируемая",
 } as const
 
-export const DataAnalysisColumnTypeDecisionTreeFromEnterprise = {
+export const DataAnalysisColumnTypeDecisionTreeFromYAML = {
   Входная: "Input",
   НеИспользуемая: "NotUsed",
   Прогнозируемая: "Predictable",
 } as const
 
-export type DataAnalysisColumnTypeDecisionTree = keyof typeof DataAnalysisColumnTypeDecisionTreeToEnterprise
-export type DataAnalysisColumnTypeDecisionTreeEnterprise = keyof typeof DataAnalysisColumnTypeDecisionTreeFromEnterprise
+export type DataAnalysisColumnTypeDecisionTree = keyof typeof DataAnalysisColumnTypeDecisionTreeToYAML
+export type DataAnalysisColumnTypeDecisionTreeYAML = keyof typeof DataAnalysisColumnTypeDecisionTreeFromYAML
 
-export const DataAnalysisColumnTypeSequentialPatternsToEnterprise = {
+export const DataAnalysisColumnTypeSequentialPatternsToYAML = {
   Time: "Время",
   NotUsed: "НеИспользуемая",
   Sequence: "Последовательность",
   Item: "Элемент",
 } as const
 
-export const DataAnalysisColumnTypeSequentialPatternsFromEnterprise = {
+export const DataAnalysisColumnTypeSequentialPatternsFromYAML = {
   Время: "Time",
   НеИспользуемая: "NotUsed",
   Последовательность: "Sequence",
   Элемент: "Item",
 } as const
 
-export type DataAnalysisColumnTypeSequentialPatterns = keyof typeof DataAnalysisColumnTypeSequentialPatternsToEnterprise
-export type DataAnalysisColumnTypeSequentialPatternsEnterprise =
-  keyof typeof DataAnalysisColumnTypeSequentialPatternsFromEnterprise
+export type DataAnalysisColumnTypeSequentialPatterns = keyof typeof DataAnalysisColumnTypeSequentialPatternsToYAML
+export type DataAnalysisColumnTypeSequentialPatternsYAML = keyof typeof DataAnalysisColumnTypeSequentialPatternsFromYAML
 
-export const DataAnalysisColumnTypeSummaryStatisticsToEnterprise = {
+export const DataAnalysisColumnTypeSummaryStatisticsToYAML = {
   Input: "Входная",
   NotUsed: "НеИспользуемая",
 } as const
 
-export const DataAnalysisColumnTypeSummaryStatisticsFromEnterprise = {
+export const DataAnalysisColumnTypeSummaryStatisticsFromYAML = {
   Входная: "Input",
   НеИспользуемая: "NotUsed",
 } as const
 
-export type DataAnalysisColumnTypeSummaryStatistics = keyof typeof DataAnalysisColumnTypeSummaryStatisticsToEnterprise
-export type DataAnalysisColumnTypeSummaryStatisticsEnterprise =
-  keyof typeof DataAnalysisColumnTypeSummaryStatisticsFromEnterprise
+export type DataAnalysisColumnTypeSummaryStatistics = keyof typeof DataAnalysisColumnTypeSummaryStatisticsToYAML
+export type DataAnalysisColumnTypeSummaryStatisticsYAML = keyof typeof DataAnalysisColumnTypeSummaryStatisticsFromYAML
 
-export const DataAnalysisDistanceMetricTypeToEnterprise = {
+export const DataAnalysisDistanceMetricTypeToYAML = {
   Euclidean: "ЕвклидоваМетрика",
   SquaredEuclidean: "ЕвклидоваМетрикаВКвадрате",
   CityBlock: "МетрикаГорода",
   Maximum: "МетрикаДоминирования",
 } as const
 
-export const DataAnalysisDistanceMetricTypeFromEnterprise = {
+export const DataAnalysisDistanceMetricTypeFromYAML = {
   ЕвклидоваМетрика: "Euclidean",
   ЕвклидоваМетрикаВКвадрате: "SquaredEuclidean",
   МетрикаГорода: "CityBlock",
   МетрикаДоминирования: "Maximum",
 } as const
 
-export type DataAnalysisDistanceMetricType = keyof typeof DataAnalysisDistanceMetricTypeToEnterprise
-export type DataAnalysisDistanceMetricTypeEnterprise = keyof typeof DataAnalysisDistanceMetricTypeFromEnterprise
+export type DataAnalysisDistanceMetricType = keyof typeof DataAnalysisDistanceMetricTypeToYAML
+export type DataAnalysisDistanceMetricTypeYAML = keyof typeof DataAnalysisDistanceMetricTypeFromYAML
 
-export const DataAnalysisFieldTypeToEnterprise = {
+export const DataAnalysisFieldTypeToYAML = {
   DataAnalysisObject: "ОбъектАнализаДанных",
   Field: "Поле",
 } as const
 
-export const DataAnalysisFieldTypeFromEnterprise = {
+export const DataAnalysisFieldTypeFromYAML = {
   ОбъектАнализаДанных: "DataAnalysisObject",
   Поле: "Field",
 } as const
 
-export type DataAnalysisFieldType = keyof typeof DataAnalysisFieldTypeToEnterprise
-export type DataAnalysisFieldTypeEnterprise = keyof typeof DataAnalysisFieldTypeFromEnterprise
+export type DataAnalysisFieldType = keyof typeof DataAnalysisFieldTypeToYAML
+export type DataAnalysisFieldTypeYAML = keyof typeof DataAnalysisFieldTypeFromYAML
 
-export const DataAnalysisNumericValueUseTypeToEnterprise = {
+export const DataAnalysisNumericValueUseTypeToYAML = {
   AsBoolean: "КакБулево",
   AsNumeric: "КакЧисло",
 } as const
 
-export const DataAnalysisNumericValueUseTypeFromEnterprise = {
+export const DataAnalysisNumericValueUseTypeFromYAML = {
   КакБулево: "AsBoolean",
   КакЧисло: "AsNumeric",
 } as const
 
-export type DataAnalysisNumericValueUseType = keyof typeof DataAnalysisNumericValueUseTypeToEnterprise
-export type DataAnalysisNumericValueUseTypeEnterprise = keyof typeof DataAnalysisNumericValueUseTypeFromEnterprise
+export type DataAnalysisNumericValueUseType = keyof typeof DataAnalysisNumericValueUseTypeToYAML
+export type DataAnalysisNumericValueUseTypeYAML = keyof typeof DataAnalysisNumericValueUseTypeFromYAML
 
-export const DataAnalysisResultTableFillTypeToEnterprise = {
+export const DataAnalysisResultTableFillTypeToYAML = {
   AllFields: "ВсеПоля",
   UsedFields: "ИспользуемыеПоля",
   KeyFields: "КлючевыеПоля",
   DontFill: "НеЗаполнять",
 } as const
 
-export const DataAnalysisResultTableFillTypeFromEnterprise = {
+export const DataAnalysisResultTableFillTypeFromYAML = {
   ВсеПоля: "AllFields",
   ИспользуемыеПоля: "UsedFields",
   КлючевыеПоля: "KeyFields",
   НеЗаполнять: "DontFill",
 } as const
 
-export type DataAnalysisResultTableFillType = keyof typeof DataAnalysisResultTableFillTypeToEnterprise
-export type DataAnalysisResultTableFillTypeEnterprise = keyof typeof DataAnalysisResultTableFillTypeFromEnterprise
+export type DataAnalysisResultTableFillType = keyof typeof DataAnalysisResultTableFillTypeToYAML
+export type DataAnalysisResultTableFillTypeYAML = keyof typeof DataAnalysisResultTableFillTypeFromYAML
 
-export const DataAnalysisSequentialPatternsOrderTypeToEnterprise = {
+export const DataAnalysisSequentialPatternsOrderTypeToYAML = {
   ByLength: "ПоДлине",
   BySupport: "ПоКоличествуСлучаев",
 } as const
 
-export const DataAnalysisSequentialPatternsOrderTypeFromEnterprise = {
+export const DataAnalysisSequentialPatternsOrderTypeFromYAML = {
   ПоДлине: "ByLength",
   ПоКоличествуСлучаев: "BySupport",
 } as const
 
-export type DataAnalysisSequentialPatternsOrderType = keyof typeof DataAnalysisSequentialPatternsOrderTypeToEnterprise
-export type DataAnalysisSequentialPatternsOrderTypeEnterprise =
-  keyof typeof DataAnalysisSequentialPatternsOrderTypeFromEnterprise
+export type DataAnalysisSequentialPatternsOrderType = keyof typeof DataAnalysisSequentialPatternsOrderTypeToYAML
+export type DataAnalysisSequentialPatternsOrderTypeYAML = keyof typeof DataAnalysisSequentialPatternsOrderTypeFromYAML
 
-export const DataAnalysisStandardizationTypeToEnterprise = {
+export const DataAnalysisStandardizationTypeToYAML = {
   DontStandardize: "НеСтандартизировать",
   Standardize: "Стандартизировать",
 } as const
 
-export const DataAnalysisStandardizationTypeFromEnterprise = {
+export const DataAnalysisStandardizationTypeFromYAML = {
   НеСтандартизировать: "DontStandardize",
   Стандартизировать: "Standardize",
 } as const
 
-export type DataAnalysisStandardizationType = keyof typeof DataAnalysisStandardizationTypeToEnterprise
-export type DataAnalysisStandardizationTypeEnterprise = keyof typeof DataAnalysisStandardizationTypeFromEnterprise
+export type DataAnalysisStandardizationType = keyof typeof DataAnalysisStandardizationTypeToYAML
+export type DataAnalysisStandardizationTypeYAML = keyof typeof DataAnalysisStandardizationTypeFromYAML
 
-export const DataAnalysisTimeIntervalUnitTypeToEnterprise = {
+export const DataAnalysisTimeIntervalUnitTypeToYAML = {
   Year: "Год",
   TenDays: "Декада",
   Day: "День",
@@ -11745,7 +11687,7 @@ export const DataAnalysisTimeIntervalUnitTypeToEnterprise = {
   Hour: "Час",
 } as const
 
-export const DataAnalysisTimeIntervalUnitTypeFromEnterprise = {
+export const DataAnalysisTimeIntervalUnitTypeFromYAML = {
   Год: "Year",
   Декада: "TenDays",
   День: "Day",
@@ -11767,145 +11709,145 @@ export const DataAnalysisTimeIntervalUnitTypeFromEnterprise = {
   Час: "Hour",
 } as const
 
-export type DataAnalysisTimeIntervalUnitType = keyof typeof DataAnalysisTimeIntervalUnitTypeToEnterprise
-export type DataAnalysisTimeIntervalUnitTypeEnterprise = keyof typeof DataAnalysisTimeIntervalUnitTypeFromEnterprise
+export type DataAnalysisTimeIntervalUnitType = keyof typeof DataAnalysisTimeIntervalUnitTypeToYAML
+export type DataAnalysisTimeIntervalUnitTypeYAML = keyof typeof DataAnalysisTimeIntervalUnitTypeFromYAML
 
-export const DecisionTreeSimplificationTypeToEnterprise = {
+export const DecisionTreeSimplificationTypeToYAML = {
   DontSimplify: "НеУпрощать",
   Simplify: "Упрощать",
 } as const
 
-export const DecisionTreeSimplificationTypeFromEnterprise = {
+export const DecisionTreeSimplificationTypeFromYAML = {
   НеУпрощать: "DontSimplify",
   Упрощать: "Simplify",
 } as const
 
-export type DecisionTreeSimplificationType = keyof typeof DecisionTreeSimplificationTypeToEnterprise
-export type DecisionTreeSimplificationTypeEnterprise = keyof typeof DecisionTreeSimplificationTypeFromEnterprise
+export type DecisionTreeSimplificationType = keyof typeof DecisionTreeSimplificationTypeToYAML
+export type DecisionTreeSimplificationTypeYAML = keyof typeof DecisionTreeSimplificationTypeFromYAML
 
-export const PredictionModelColumnTypeToEnterprise = {
+export const PredictionModelColumnTypeToYAML = {
   Input: "Входная",
   DataSourceColumn: "КолонкаИсточникаДанных",
   Predictable: "Прогнозируемая",
 } as const
 
-export const PredictionModelColumnTypeFromEnterprise = {
+export const PredictionModelColumnTypeFromYAML = {
   Входная: "Input",
   КолонкаИсточникаДанных: "DataSourceColumn",
   Прогнозируемая: "Predictable",
 } as const
 
-export type PredictionModelColumnType = keyof typeof PredictionModelColumnTypeToEnterprise
-export type PredictionModelColumnTypeEnterprise = keyof typeof PredictionModelColumnTypeFromEnterprise
+export type PredictionModelColumnType = keyof typeof PredictionModelColumnTypeToYAML
+export type PredictionModelColumnTypeYAML = keyof typeof PredictionModelColumnTypeFromYAML
 
-export const FileNamesEncodingInZipFileToEnterprise = {
+export const FileNamesEncodingInZipFileToYAML = {
   UTF8: "UTF8",
   Auto: "Авто",
   OSEncodingWithUTF8: "КодировкаОСДополнительноUTF8",
 } as const
 
-export const FileNamesEncodingInZipFileFromEnterprise = {
+export const FileNamesEncodingInZipFileFromYAML = {
   UTF8: "UTF8",
   Авто: "Auto",
   КодировкаОСДополнительноUTF8: "OSEncodingWithUTF8",
 } as const
 
-export type FileNamesEncodingInZipFile = keyof typeof FileNamesEncodingInZipFileToEnterprise
-export type FileNamesEncodingInZipFileEnterprise = keyof typeof FileNamesEncodingInZipFileFromEnterprise
+export type FileNamesEncodingInZipFile = keyof typeof FileNamesEncodingInZipFileToYAML
+export type FileNamesEncodingInZipFileYAML = keyof typeof FileNamesEncodingInZipFileFromYAML
 
-export const ZIPCompressionLevelToEnterprise = {
+export const ZIPCompressionLevelToYAML = {
   Maximum: "Максимальный",
   Minimum: "Минимальный",
   Optimal: "Оптимальный",
 } as const
 
-export const ZIPCompressionLevelFromEnterprise = {
+export const ZIPCompressionLevelFromYAML = {
   Максимальный: "Maximum",
   Минимальный: "Minimum",
   Оптимальный: "Optimal",
 } as const
 
-export type ZIPCompressionLevel = keyof typeof ZIPCompressionLevelToEnterprise
-export type ZIPCompressionLevelEnterprise = keyof typeof ZIPCompressionLevelFromEnterprise
+export type ZIPCompressionLevel = keyof typeof ZIPCompressionLevelToYAML
+export type ZIPCompressionLevelYAML = keyof typeof ZIPCompressionLevelFromYAML
 
-export const ZIPCompressionMethodToEnterprise = {
+export const ZIPCompressionMethodToYAML = {
   BZIP2: "BZIP2",
   Copy: "Копирование",
   Deflate: "Сжатие",
 } as const
 
-export const ZIPCompressionMethodFromEnterprise = {
+export const ZIPCompressionMethodFromYAML = {
   BZIP2: "BZIP2",
   Копирование: "Copy",
   Сжатие: "Deflate",
 } as const
 
-export type ZIPCompressionMethod = keyof typeof ZIPCompressionMethodToEnterprise
-export type ZIPCompressionMethodEnterprise = keyof typeof ZIPCompressionMethodFromEnterprise
+export type ZIPCompressionMethod = keyof typeof ZIPCompressionMethodToYAML
+export type ZIPCompressionMethodYAML = keyof typeof ZIPCompressionMethodFromYAML
 
-export const ZIPEncryptionMethodToEnterprise = {
+export const ZIPEncryptionMethodToYAML = {
   AES128: "AES128",
   AES192: "AES192",
   AES256: "AES256",
   Zip20: "Zip20",
 } as const
 
-export const ZIPEncryptionMethodFromEnterprise = {
+export const ZIPEncryptionMethodFromYAML = {
   AES128: "AES128",
   AES192: "AES192",
   AES256: "AES256",
   Zip20: "Zip20",
 } as const
 
-export type ZIPEncryptionMethod = keyof typeof ZIPEncryptionMethodToEnterprise
-export type ZIPEncryptionMethodEnterprise = keyof typeof ZIPEncryptionMethodFromEnterprise
+export type ZIPEncryptionMethod = keyof typeof ZIPEncryptionMethodToYAML
+export type ZIPEncryptionMethodYAML = keyof typeof ZIPEncryptionMethodFromYAML
 
-export const ZIPRestoreFilePathsModeToEnterprise = {
+export const ZIPRestoreFilePathsModeToYAML = {
   Restore: "Восстанавливать",
   DontRestore: "НеВосстанавливать",
 } as const
 
-export const ZIPRestoreFilePathsModeFromEnterprise = {
+export const ZIPRestoreFilePathsModeFromYAML = {
   Восстанавливать: "Restore",
   НеВосстанавливать: "DontRestore",
 } as const
 
-export type ZIPRestoreFilePathsMode = keyof typeof ZIPRestoreFilePathsModeToEnterprise
-export type ZIPRestoreFilePathsModeEnterprise = keyof typeof ZIPRestoreFilePathsModeFromEnterprise
+export type ZIPRestoreFilePathsMode = keyof typeof ZIPRestoreFilePathsModeToYAML
+export type ZIPRestoreFilePathsModeYAML = keyof typeof ZIPRestoreFilePathsModeFromYAML
 
-export const ZIPStorePathModeToEnterprise = {
+export const ZIPStorePathModeToYAML = {
   DontStorePath: "НеСохранятьПути",
   StoreRelativePath: "СохранятьОтносительныеПути",
   StoreFullPath: "СохранятьПолныеПути",
 } as const
 
-export const ZIPStorePathModeFromEnterprise = {
+export const ZIPStorePathModeFromYAML = {
   НеСохранятьПути: "DontStorePath",
   СохранятьОтносительныеПути: "StoreRelativePath",
   СохранятьПолныеПути: "StoreFullPath",
 } as const
 
-export type ZIPStorePathMode = keyof typeof ZIPStorePathModeToEnterprise
-export type ZIPStorePathModeEnterprise = keyof typeof ZIPStorePathModeFromEnterprise
+export type ZIPStorePathMode = keyof typeof ZIPStorePathModeToYAML
+export type ZIPStorePathModeYAML = keyof typeof ZIPStorePathModeFromYAML
 
-export const ZIPSubDirProcessingModeToEnterprise = {
+export const ZIPSubDirProcessingModeToYAML = {
   DontProcess: "НеОбрабатывать",
   ProcessRecursively: "ОбрабатыватьРекурсивно",
 } as const
 
-export const ZIPSubDirProcessingModeFromEnterprise = {
+export const ZIPSubDirProcessingModeFromYAML = {
   НеОбрабатывать: "DontProcess",
   ОбрабатыватьРекурсивно: "ProcessRecursively",
 } as const
 
-export type ZIPSubDirProcessingMode = keyof typeof ZIPSubDirProcessingModeToEnterprise
-export type ZIPSubDirProcessingModeEnterprise = keyof typeof ZIPSubDirProcessingModeFromEnterprise
+export type ZIPSubDirProcessingMode = keyof typeof ZIPSubDirProcessingModeToYAML
+export type ZIPSubDirProcessingModeYAML = keyof typeof ZIPSubDirProcessingModeFromYAML
 
 // #endregion SystemEnumerations
 
 // #region SystemSets
 
-export const CharsToEnterprise = {
+export const CharsToYAML = {
   CR: "ВК",
   VTab: "ВТаб",
   NBSp: "НПП",
@@ -11914,7 +11856,7 @@ export const CharsToEnterprise = {
   Tab: "Таб",
 } as const
 
-export const CharsFromEnterprise = {
+export const CharsFromYAML = {
   ВК: "CR",
   ВТаб: "VTab",
   НПП: "NBSp",
@@ -11923,10 +11865,10 @@ export const CharsFromEnterprise = {
   Таб: "Tab",
 } as const
 
-export type Chars = keyof typeof CharsToEnterprise
-export type CharsEnterprise = keyof typeof CharsFromEnterprise
+export type Chars = keyof typeof CharsToYAML
+export type CharsYAML = keyof typeof CharsFromYAML
 
-export const PictureLibToEnterprise = {
+export const PictureLibToYAML = {
   ActivateTask: "АктивироватьЗадачу",
   ActiveUsers: "АктивныеПользователи",
   BusinessProcess: "БизнесПроцесс",
@@ -12228,7 +12170,7 @@ export const PictureLibToEnterprise = {
   SettingsStorage: "ХранилищеНастроек",
 } as const
 
-export const PictureLibFromEnterprise = {
+export const PictureLibFromYAML = {
   АктивироватьЗадачу: "ActivateTask",
   АктивныеПользователи: "ActiveUsers",
   БизнесПроцесс: "BusinessProcess",
@@ -12530,21 +12472,21 @@ export const PictureLibFromEnterprise = {
   ХранилищеНастроек: "SettingsStorage",
 } as const
 
-export type PictureLib = keyof typeof PictureLibToEnterprise
-export type PictureLibEnterprise = keyof typeof PictureLibFromEnterprise
+export type PictureLib = keyof typeof PictureLibToYAML
+export type PictureLibYAML = keyof typeof PictureLibFromYAML
 
-export const StyleBordersToEnterprise = {
+export const StyleBordersToYAML = {
   ControlBorder: "РамкаЭлементаУправления",
 } as const
 
-export const StyleBordersFromEnterprise = {
+export const StyleBordersFromYAML = {
   РамкаЭлементаУправления: "ControlBorder",
 } as const
 
-export type StyleBorders = keyof typeof StyleBordersToEnterprise
-export type StyleBordersEnterprise = keyof typeof StyleBordersFromEnterprise
+export type StyleBorders = keyof typeof StyleBordersToYAML
+export type StyleBordersYAML = keyof typeof StyleBordersFromYAML
 
-export const StyleColorsToEnterprise = {
+export const StyleColorsToYAML = {
   FieldAlternativeBackColor: "АльтернативныйЦветФонаПоля",
   ActivityColor: "ЦветАктивности",
   AccentColor: "ЦветАкцента",
@@ -12575,7 +12517,7 @@ export const StyleColorsToEnterprise = {
   TableHeaderBackColor: "ЦветФонаШапкиТаблицы",
 } as const
 
-export const StyleColorsFromEnterprise = {
+export const StyleColorsFromYAML = {
   АльтернативныйЦветФонаПоля: "FieldAlternativeBackColor",
   ЦветАктивности: "ActivityColor",
   ЦветАкцента: "AccentColor",
@@ -12606,10 +12548,10 @@ export const StyleColorsFromEnterprise = {
   ЦветФонаШапкиТаблицы: "TableHeaderBackColor",
 } as const
 
-export type StyleColors = keyof typeof StyleColorsToEnterprise
-export type StyleColorsEnterprise = keyof typeof StyleColorsFromEnterprise
+export type StyleColors = keyof typeof StyleColorsToYAML
+export type StyleColorsYAML = keyof typeof StyleColorsFromYAML
 
-export const StyleFontsToEnterprise = {
+export const StyleFontsToYAML = {
   LargeTextFont: "КрупныйШрифтТекста",
   SmallTextFont: "МелкийШрифтТекста",
   NormalTextFont: "ОбычныйШрифтТекста",
@@ -12617,7 +12559,7 @@ export const StyleFontsToEnterprise = {
   TextFont: "ШрифтТекста",
 } as const
 
-export const StyleFontsFromEnterprise = {
+export const StyleFontsFromYAML = {
   КрупныйШрифтТекста: "LargeTextFont",
   МелкийШрифтТекста: "SmallTextFont",
   ОбычныйШрифтТекста: "NormalTextFont",
@@ -12625,10 +12567,10 @@ export const StyleFontsFromEnterprise = {
   ШрифтТекста: "TextFont",
 } as const
 
-export type StyleFonts = keyof typeof StyleFontsToEnterprise
-export type StyleFontsEnterprise = keyof typeof StyleFontsFromEnterprise
+export type StyleFonts = keyof typeof StyleFontsToYAML
+export type StyleFontsYAML = keyof typeof StyleFontsFromYAML
 
-export const WebColorsToEnterprise = {
+export const WebColorsToYAML = {
   Aquamarine: "Аквамарин",
   AliceBlue: "АкварельноСиний",
   AntiqueWhite: "АнтикБелый",
@@ -12777,7 +12719,7 @@ export const WebColorsToEnterprise = {
   Chocolate: "Шоколадный",
 } as const
 
-export const WebColorsFromEnterprise = {
+export const WebColorsFromYAML = {
   Аквамарин: "Aquamarine",
   АкварельноСиний: "AliceBlue",
   АнтикБелый: "AntiqueWhite",
@@ -12926,10 +12868,10 @@ export const WebColorsFromEnterprise = {
   Шоколадный: "Chocolate",
 } as const
 
-export type WebColors = keyof typeof WebColorsToEnterprise
-export type WebColorsEnterprise = keyof typeof WebColorsFromEnterprise
+export type WebColors = keyof typeof WebColorsToYAML
+export type WebColorsYAML = keyof typeof WebColorsFromYAML
 
-export const WindowsColorsToEnterprise = {
+export const WindowsColorsToYAML = {
   ActiveBorder: "ГраницаАктивногоОкна",
   InactiveBorder: "ГраницаНеактивногоОкна",
   ActiveTitleBar: "ЗаголовокАктивногоОкна",
@@ -12957,7 +12899,7 @@ export const WindowsColorsToEnterprise = {
   WindowBackground: "ФонОкна",
 } as const
 
-export const WindowsColorsFromEnterprise = {
+export const WindowsColorsFromYAML = {
   ГраницаАктивногоОкна: "ActiveBorder",
   ГраницаНеактивногоОкна: "InactiveBorder",
   ЗаголовокАктивногоОкна: "ActiveTitleBar",
@@ -12985,10 +12927,10 @@ export const WindowsColorsFromEnterprise = {
   ФонОкна: "WindowBackground",
 } as const
 
-export type WindowsColors = keyof typeof WindowsColorsToEnterprise
-export type WindowsColorsEnterprise = keyof typeof WindowsColorsFromEnterprise
+export type WindowsColors = keyof typeof WindowsColorsToYAML
+export type WindowsColorsYAML = keyof typeof WindowsColorsFromYAML
 
-export const WindowsFontsToEnterprise = {
+export const WindowsFontsToYAML = {
   ANSIFixedFont: "ANSIШрифтМоноширинный",
   ANSIVariableFont: "ANSIШрифтПропорциональный",
   OEMFixedFont: "OEMШрифтМоноширинный",
@@ -12996,7 +12938,7 @@ export const WindowsFontsToEnterprise = {
   DefaultGUIFont: "ШрифтДиалоговИМеню",
 } as const
 
-export const WindowsFontsFromEnterprise = {
+export const WindowsFontsFromYAML = {
   ANSIШрифтМоноширинный: "ANSIFixedFont",
   ANSIШрифтПропорциональный: "ANSIVariableFont",
   OEMШрифтМоноширинный: "OEMFixedFont",
@@ -13004,46 +12946,46 @@ export const WindowsFontsFromEnterprise = {
   ШрифтДиалоговИМеню: "DefaultGUIFont",
 } as const
 
-export type WindowsFonts = keyof typeof WindowsFontsToEnterprise
-export type WindowsFontsEnterprise = keyof typeof WindowsFontsFromEnterprise
+export type WindowsFonts = keyof typeof WindowsFontsToYAML
+export type WindowsFontsYAML = keyof typeof WindowsFontsFromYAML
 
 // #endregion SystemSets
 
 // #region BinaryDataStorageLocationUse
 
-export const BinaryDataStorageLocationUseToEnterprise = {
+export const BinaryDataStorageLocationUseToYAML = {
   Use: "Использовать",
   DontUse: "НеИспользовать",
 } as const
 
-export const BinaryDataStorageLocationUseFromEnterprise = {
+export const BinaryDataStorageLocationUseFromYAML = {
   Использовать: "Use",
   НеИспользовать: "DontUse",
 } as const
 
-export type BinaryDataStorageLocationUse = keyof typeof BinaryDataStorageLocationUseToEnterprise
-export type BinaryDataStorageLocationUseEnterprise = keyof typeof BinaryDataStorageLocationUseFromEnterprise
+export type BinaryDataStorageLocationUse = keyof typeof BinaryDataStorageLocationUseToYAML
+export type BinaryDataStorageLocationUseYAML = keyof typeof BinaryDataStorageLocationUseFromYAML
 
 // #endregion BinaryDataStorageLocationUse
 
 // #region StatePresentation
 
-export const StatePresentationToEnterprise = {
+export const StatePresentationToYAML = {
   Visible: "Видимость",
   AdditionalShowMode: "ДополнительныйРежимОтображения",
   Picture: "Картинка",
   Text: "Текст",
 } as const
 
-export const StatePresentationFromEnterprise = {
+export const StatePresentationFromYAML = {
   Видимость: "Visible",
   ДополнительныйРежимОтображения: "AdditionalShowMode",
   Картинка: "Picture",
   Текст: "Text",
 } as const
 
-export type StatePresentation = keyof typeof StatePresentationToEnterprise
-export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise
+export type StatePresentation = keyof typeof StatePresentationToYAML
+export type StatePresentationYAML = keyof typeof StatePresentationFromYAML
 
 // #endregion StatePresentation
 
@@ -13052,19 +12994,19 @@ export interface SystemEnumerationPreview {
   Value: string
 }
 
-export const ButtonLocationInContextMenuToEnterprise = {
+export const ButtonLocationInContextMenuToYAML = {
   None: "Нет",
   AdditionalInContextMenu: "ДополнительноВКонтекстномМеню",
   OnlyInContextMenu: "ТолькоВКонтекстномМеню",
   Auto: "Авто",
 } as const
 
-export const ButtonLocationInContextMenuFromEnterprise = {
+export const ButtonLocationInContextMenuFromYAML = {
   Нет: "None",
   ДополнительноВКонтекстномМеню: "AdditionalInContextMenu",
   ТолькоВКонтекстномМеню: "OnlyInContextMenu",
   Авто: "Auto",
 } as const
 
-export type ButtonLocationInContextMenu = keyof typeof ButtonLocationInContextMenuToEnterprise
-export type ButtonLocationInContextMenuEnterprise = keyof typeof ButtonLocationInContextMenuFromEnterprise
+export type ButtonLocationInContextMenu = keyof typeof ButtonLocationInContextMenuToYAML
+export type ButtonLocationInContextMenuYAML = keyof typeof ButtonLocationInContextMenuFromYAML

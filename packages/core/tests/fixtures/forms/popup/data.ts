@@ -1,4 +1,4 @@
-import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
+import { Popup, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
@@ -73,7 +73,7 @@ export const sourcePopup: Popup = {
   },
 }
 
-export const fullPopupPartialEnterprise: PopupPartialEnterprise = {
+export const fullPopupPartialYAML: PopupPartialYAML = {
   ВажностьПриОтображении: "ОченьВысокая",
   Видимость: "Ложь",
   Высота: 19,
@@ -99,8 +99,8 @@ export const fullPopupPartialEnterprise: PopupPartialEnterprise = {
   ШрифтЗаголовка: "ШрифтТекста",
 }
 
-export const fullPopupTypedEnterprise: PopupTypedEnterprise = {
-  ...fullPopupPartialEnterprise,
+export const fullPopupTypedYAML: PopupTypedYAML = {
+  ...fullPopupPartialYAML,
   Тип: "Подменю",
   Заголовок: "Заголовок подменю",
 }
@@ -111,8 +111,8 @@ export const minimalPopup: Popup = {
   childItems: [],
 }
 
-export const minimalPopupPartialEnterprise: PopupPartialEnterprise = {}
+export const minimalPopupPartialYAML: PopupPartialYAML = {}
 
-export const minimalPopupTypedEnterprise: PopupTypedEnterprise = {
+export const minimalPopupTypedYAML: PopupTypedYAML = {
   Тип: "Подменю",
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { importElementFromPartialYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullSearchStringAddition,
-  fullSearchStringAdditionEnterprise,
+  fullSearchStringAdditionYAML,
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
   sourceSearchStringAddition,
@@ -13,11 +13,11 @@ const rule: PropertyRule<any> = { type: "SearchStringAddition" }
 
 describe("SearchStringAddition from YAML", () => {
   describe("Partial", () => {
-    it("should import all fields from Enterprise", () => {
+    it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
         itemType: "SearchStringAddition",
-        yaml: fullSearchStringAdditionEnterprise,
+        yaml: fullSearchStringAdditionYAML,
         source: sourceSearchStringAddition,
       })
 
@@ -47,11 +47,11 @@ describe("SearchStringAddition from YAML", () => {
       expect(result).toBeUndefined()
     })
 
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = importPropertyFromYAML({
         context: mockContext,
         rule: rule,
-        value: fullSearchStringAdditionEnterprise,
+        value: fullSearchStringAdditionYAML,
       })
 
       expect(result).toEqual(fullSingleSearchStringAddition)

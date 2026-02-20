@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportMetadataItemLinkToEnterprise } from "./exportToEnterprise"
+import { exportMetadataItemLinkToYAML } from "./toYAML"
 
-describe("exportMetadataItemLinkToEnterprise", () => {
+describe("exportMetadataItemLinkToYAML", () => {
   it("should export metadata item link to enterprise", () => {
-    const result = exportMetadataItemLinkToEnterprise(mockContext, mockRule, "Catalog.Организации")
+    const result = exportMetadataItemLinkToYAML(mockContext, mockRule, "Catalog.Организации")
 
     expect(result).toEqual("Справочник.Организации")
   })

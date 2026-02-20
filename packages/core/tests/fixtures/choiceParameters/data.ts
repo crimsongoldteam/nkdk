@@ -1,4 +1,4 @@
-import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 
 //#region Single
 export const singleChoiceParameter: ChoiceParameters = [
@@ -11,7 +11,7 @@ export const singleChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const singleChoiceParametersEnterprise: ChoiceParametersEnterprise = { "Отбор.ВАрхиве": "Ложь" }
+export const singleChoiceParametersYAML: ChoiceParametersYAML = { "Отбор.ВАрхиве": "Ложь" }
 
 //#endregion
 
@@ -33,7 +33,7 @@ export const multipleChoiceParameters: ChoiceParameters = [
   },
 ]
 
-export const multipleChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const multipleChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ВАрхиве": "Ложь",
   "Отбор.Недействителен": "Ложь",
 }
@@ -51,7 +51,7 @@ export const enumChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const enumChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const enumChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ТипСчета": "Перечисление.ТипыСчетов.ВнеоборотныеАктивы",
 }
 
@@ -68,7 +68,7 @@ export const stringChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const stringChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const stringChoiceParametersYAML: ChoiceParametersYAML = {
   "Дополнительно.ТипВладельца": '"ЗаказПокупателя"',
 }
 
@@ -81,7 +81,7 @@ export const nilChoiceParameters: ChoiceParameters = [
   },
 ]
 
-export const nilChoiceParametersEnterprise: ChoiceParametersEnterprise = { ВыборСчетовГоловнойОрганизации: undefined }
+export const nilChoiceParametersYAML: ChoiceParametersYAML = { ВыборСчетовГоловнойОрганизации: undefined }
 
 //#endregion
 
@@ -109,7 +109,7 @@ export const fixedArrayChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const fixedArrayChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const fixedArrayChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ТипСтруктурнойЕдиницы": [
     "Перечисление.ТипыСтруктурныхЕдиниц.Склад",
     "Перечисление.ТипыСтруктурныхЕдиниц.Розница",
@@ -132,7 +132,7 @@ export const formBooleanChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const formBooleanChoiceParametersEnterprise: ChoiceParametersEnterprise = { БезПроизводныхЗначений: "Истина" }
+export const formBooleanChoiceParametersYAML: ChoiceParametersYAML = { БезПроизводныхЗначений: "Истина" }
 //#endregion
 
 //#region FormEnum
@@ -149,7 +149,7 @@ export const formEnumChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const formEnumChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const formEnumChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ТипСчета": "Перечисление.ТипыСчетов.НераспределеннаяПрибыль",
 }
 //#endregion
@@ -161,7 +161,7 @@ export const withoutValueChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const withoutValueChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const withoutValueChoiceParametersYAML: ChoiceParametersYAML = {
   ВыборСчетовГоловнойОрганизации: undefined,
 }
 
@@ -181,7 +181,7 @@ export const withoutOneValueChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const withoutOneValueChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+export const withoutOneValueChoiceParametersYAML: ChoiceParametersYAML = {
   ВыборСчетовГоловнойОрганизации: undefined,
   "Отбор.Закрыт": "Ложь",
 }

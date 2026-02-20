@@ -1,4 +1,4 @@
-import { ProgressBarField, ProgressBarFieldPartialEnterprise } from "~/metadata/forms/elements/progressBarField/types"
+import { ProgressBarField, ProgressBarFieldPartialYAML } from "~/metadata/forms/elements/progressBarField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -93,7 +93,7 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
   },
 }
 
-export const fullProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnterprise = {
+export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -160,4 +160,4 @@ export const minimalProgressBarField: ProgressBarField = {
   name: "ПолеИндикатора",
 }
 
-export const minimalProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnterprise = {}
+export const minimalProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {}

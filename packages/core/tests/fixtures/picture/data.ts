@@ -1,10 +1,10 @@
-import { Picture, PictureEnterprise, PicturePreview } from "~/metadata/commonObjects/picture/types"
+import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
 
 export interface PictureTestCase {
   name: string
   picture: Picture
-  pictureEnterprise: PictureEnterprise
-  enterpriseExpected: PictureEnterprise
+  pictureYAML: PictureYAML
+  enterpriseExpected: PictureYAML
   fixture: string | undefined
   enterpriseImport?: boolean
   preview: PicturePreview
@@ -18,8 +18,8 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       type: "StandardPicture",
       loadTransparent: true,
     } as Picture,
-    pictureEnterprise: "БизнесПроцесс" as PictureEnterprise,
-    enterpriseExpected: "БизнесПроцесс" as PictureEnterprise,
+    pictureYAML: "БизнесПроцесс" as PictureYAML,
+    enterpriseExpected: "БизнесПроцесс" as PictureYAML,
     fixture: "picture/standart.xml",
     preview: { Type: "Picture" as const, Value: "PictureLib.BusinessProcess" },
   },
@@ -30,8 +30,8 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       type: "CommonPicture",
       loadTransparent: false,
     } as Picture,
-    pictureEnterprise: "ОбщаяКартинка1" as PictureEnterprise,
-    enterpriseExpected: "ОбщаяКартинка1" as PictureEnterprise,
+    pictureYAML: "ОбщаяКартинка1" as PictureYAML,
+    enterpriseExpected: "ОбщаяКартинка1" as PictureYAML,
     fixture: "picture/common.xml",
     preview: { Type: "Picture" as const, Value: "CommonPictures.ОбщаяКартинка1" },
   },
@@ -42,8 +42,8 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       type: "AbsolutePicture",
       loadTransparent: false,
     } as Picture,
-    pictureEnterprise: "Picture.png" as PictureEnterprise,
-    enterpriseExpected: "Picture.png" as PictureEnterprise,
+    pictureYAML: "Picture.png" as PictureYAML,
+    enterpriseExpected: "Picture.png" as PictureYAML,
     fixture: "picture/absolute.xml",
     preview: { Type: "AbsolutePicture" as const },
   },
@@ -55,16 +55,16 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       loadTransparent: true,
       transparentPixel: { x: 10, y: 15 },
     } as Picture,
-    pictureEnterprise: {
+    pictureYAML: {
       Ссылка: "Picture.png",
       ПрозрачныйФон: "Истина",
       ПрозрачныйПиксель: { x: 10, y: 15 },
-    } as PictureEnterprise,
+    } as PictureYAML,
     enterpriseExpected: {
       Ссылка: "Picture.png",
       ПрозрачныйФон: "Истина",
       ПрозрачныйПиксель: { x: 10, y: 15 },
-    } as PictureEnterprise,
+    } as PictureYAML,
     fixture: "picture/absoluteWithTransparent.xml",
     preview: { Type: "AbsolutePicture" },
   },
@@ -75,7 +75,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
   //     type: "StandardPicture",
   //     loadTransparent: true,
   //   } as Picture,
-  //   pictureEnterprise: "ИсторияДанных",
+  //   pictureYAML: "ИсторияДанных",
   //   enterpriseExpected: "ИсторияДанных",
   //   fixture: "picture/standardWithTransparent.xml",
   //   preview: { type: "Picture", value: "PictureLib.HistoryMode" },
@@ -88,16 +88,16 @@ export const pictureTestCases: readonly PictureTestCase[] = [
   //     loadTransparent: true,
   //     transparentPixel: { x: 0, y: 0 },
   //   } as Picture,
-  //   pictureEnterprise: {
+  //   pictureYAML: {
   //     Ссылка: "ОбщаяКартинка2",
   //     ПрозрачныйФон: "Истина",
   //     ПрозрачныйПиксель: { x: 0, y: 0 },
-  //   } as PictureEnterprise,
+  //   } as PictureYAML,
   //   enterpriseExpected: {
   //     Ссылка: "ОбщаяКартинка2",
   //     ПрозрачныйФон: "Истина",
   //     ПрозрачныйПиксель: { x: 0, y: 0 },
-  //   } as PictureEnterprise,
+  //   } as PictureYAML,
   //   fixture: "picture/commonWithTransparent.xml",
   //   preview: { type: "Picture" as const, value: "CommonPictures.ОбщаяКартинка2" },
   // },
@@ -108,8 +108,8 @@ export const pictureTestCases: readonly PictureTestCase[] = [
   //     type: "AbsolutePicture",
   //     loadTransparent: false,
   //   } as Picture,
-  //   pictureEnterprise: "\\Images\\Logo.png" as PictureEnterprise,
-  //   enterpriseExpected: "\\Images\\Logo.png" as PictureEnterprise,
+  //   pictureYAML: "\\Images\\Logo.png" as PictureYAML,
+  //   enterpriseExpected: "\\Images\\Logo.png" as PictureYAML,
   //   fixture: "picture/absolutePath.xml",
   //   preview: { type: "Picture" as const, value: "\\Images\\Logo.png" },
   // },

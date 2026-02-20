@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullDendrogramField,
-  fullDendrogramFieldPartialEnterprise,
+  fullDendrogramFieldPartialYAML,
   minimalDendrogramField,
 } from "~/tests/fixtures/forms/dendrogramField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportDendrogramFieldToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
+describe("exportDendrogramFieldToYAML", () => {
+  it("should export all fields to YAML", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: fullDendrogramField })
 
-    expect(result).toEqual(fullDendrogramFieldPartialEnterprise)
+    expect(result).toEqual(fullDendrogramFieldPartialYAML)
   })
 
   it("should export minimal", () => {

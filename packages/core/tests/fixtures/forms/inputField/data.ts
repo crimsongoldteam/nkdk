@@ -1,8 +1,8 @@
 import {
   InputField,
-  InputFieldPartialEnterprise,
+  InputFieldPartialYAML,
   InputFieldPreview,
-  InputFieldTypedEnterprise,
+  InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
@@ -210,7 +210,7 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
   },
 }
 
-export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
+export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
   АвтоИсправлениеПриВводеТекста: "Использовать",
@@ -351,8 +351,8 @@ export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
   },
 }
 
-export const fullInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
-  ...fullInputFieldPartialEnterprise,
+export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
+  ...fullInputFieldPartialYAML,
   Тип: "ПолеВвода",
   Заголовок: "Поле ввода",
 }
@@ -362,9 +362,9 @@ export const minimalInputField: InputField = {
   name: "ПолеВвода",
 }
 
-export const minimalInputFieldPartialEnterprise: InputFieldPartialEnterprise = {}
+export const minimalInputFieldPartialYAML: InputFieldPartialYAML = {}
 
-export const minimalInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
+export const minimalInputFieldTypedYAML: InputFieldTypedYAML = {
   Тип: "ПолеВвода",
 }
 

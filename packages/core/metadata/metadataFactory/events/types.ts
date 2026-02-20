@@ -12,7 +12,7 @@ export type EventsXML = {
 
 export type Events = Record<string, string>
 
-export type EventsEnterprise = Record<string, string>
+export type EventsYAML = Record<string, string>
 
 export type EventsRules<T extends MetadataItem> = T extends { events?: infer P }
   ? Record<keyof Required<P>, ToYAML<T> extends { События?: infer Pyaml } ? keyof Required<Pyaml> : never>

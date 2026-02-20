@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullCheckBoxField,
-  fullCheckBoxFieldPartialEnterprise,
-  fullCheckBoxFieldTypedEnterprise,
+  fullCheckBoxFieldPartialYAML,
+  fullCheckBoxFieldTypedYAML,
   minimalCheckBoxField,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportCheckBoxFieldToEnterprise", () => {
+describe("exportCheckBoxFieldToYAML", () => {
   describe("exportElementToPartialYAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullCheckBoxField })
 
-      expect(result).toEqual(fullCheckBoxFieldPartialEnterprise)
+      expect(result).toEqual(fullCheckBoxFieldPartialYAML)
     })
 
     it("should export minimal", () => {
@@ -24,10 +24,10 @@ describe("exportCheckBoxFieldToEnterprise", () => {
   })
 
   describe("exportElementToTypedYAML", () => {
-    it("should export all fields to Enterprise", () => {
+    it("should export all fields to YAML", () => {
       const result = exportElementToTypedYAML({ context: mockContext, element: fullCheckBoxField })
 
-      expect(result).toEqual(fullCheckBoxFieldTypedEnterprise)
+      expect(result).toEqual(fullCheckBoxFieldTypedYAML)
     })
   })
 })
