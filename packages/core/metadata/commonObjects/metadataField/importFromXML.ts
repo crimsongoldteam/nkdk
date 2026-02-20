@@ -31,4 +31,4 @@ export const importMetadataFieldsFromXML = (
   return result
 }
 
-registerTypeRule("MetadataField", "importFromXML", importMetadataFieldFromXML)
+registerTypeRule("MetadataField", "importFromXML", importMetadataFieldsFromXML)

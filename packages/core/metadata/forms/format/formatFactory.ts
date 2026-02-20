@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { AllChildItems } from "../collections/childItems/types"
+import { AllChildItems, OtherElement } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
@@ -27,7 +27,7 @@ export const formatElement = <T extends NamedElement>(
   element: T
 ): IFormatElementResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return exportOtherElementToStructure(context, element)
+  if (!formatter) return exportOtherElementToStructure(context, element as OtherElement)
 
   const result = formatter.format(context, element)
   return result
