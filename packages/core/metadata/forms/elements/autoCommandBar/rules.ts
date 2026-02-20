@@ -15,6 +15,7 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
       yaml: "Автозаполнение",
       type: "boolean",
       defaultValue: true,
+      defaultValueXML: true,
       toPartialYAML: false,
     },
     displayImportance: {

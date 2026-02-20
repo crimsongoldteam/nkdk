@@ -33,7 +33,7 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   fromXML?: false
   fromYAML?: false
   defaultValue?: any | DefaultValueFunction
-  xmlDefaultValue?: any
+  defaultValueXML?: any
 
   /**
    * Родительские элементы в xml

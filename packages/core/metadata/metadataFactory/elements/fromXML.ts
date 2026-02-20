@@ -24,10 +24,11 @@ export const importSingleElementFromXML = <T extends BaseElement>(params: {
   const result = {
     itemType: itemType,
     ...(props ?? {}),
-  }
-  if (isEmptyMetadataItem(result)) return undefined
+  } as T
 
-  return result as T | undefined
+  if (isEmptyMetadataItem({ context, rule, element: result })) return undefined
+
+  return result
 }
 
 export function importElementFromXML<T extends NamedElement>(params: {
@@ -60,18 +61,6 @@ export function importFromXML<T extends BaseElement>(
   if (xml === undefined) return undefined
 
   const properties = importPropertiesFromXML({ context, xml, rule: rules })
-  // const result: Partial<T> = {}
-  // for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
-  //   if (rule.fromXML === false) continue
-  //   const xmlKey = rule.xml ?? capitalize(key)
-
-  //   const xmlValue = (xml as any)[xmlKey]
-
-  //   const value = importPropertyFromXML({ context, rule, value: xmlValue })
-
-  //   if (value === undefined) continue
-  //   ;(result as any)[key] = value
-  // }
 
   const events = importEventsFromXML(rules.events, (xml as any).Events)
 

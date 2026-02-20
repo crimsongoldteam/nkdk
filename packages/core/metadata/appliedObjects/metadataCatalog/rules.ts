@@ -14,7 +14,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     autonumbering: {
       yaml: "Автонумерация",
       type: "boolean",
-      xmlDefaultValue: true,
+      defaultValueXML: true,
     },
     auxiliaryChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбора",
@@ -47,48 +47,48 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     checkUnique: {
       yaml: "КонтрольУникальности",
       type: "boolean",
-      xmlDefaultValue: true,
+      defaultValueXML: true,
     },
     choiceDataGetModeOnInputByString: {
       yaml: "РежимПолученияДанныхВыбораПриВводеПоСтроке",
       type: "SystemEnumeration",
       typeSE: "ChoiceDataGetModeOnInputByString",
-      xmlDefaultValue: "Directly",
+      defaultValueXML: "Directly",
     },
     choiceHistoryOnInput: {
       yaml: "ИсторияВыбораПриВводе",
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
-      xmlDefaultValue: "Auto",
+      defaultValueXML: "Auto",
     },
     choiceMode: {
       yaml: "СпособВыбора",
       type: "SystemEnumeration",
       typeSE: "ChoiceMode",
-      xmlDefaultValue: "BothWays",
+      defaultValueXML: "BothWays",
     },
     codeAllowedLength: {
       yaml: "ДопустимаяДлинаКода",
       type: "SystemEnumeration",
       typeSE: "AllowedLength",
-      xmlDefaultValue: "Variable",
+      defaultValueXML: "Variable",
     },
     codeLength: {
       yaml: "ДлинаКода",
       type: "number",
-      xmlDefaultValue: 9,
+      defaultValueXML: 9,
     },
     codeSeries: {
       yaml: "СерииКодов",
       type: "SystemEnumeration",
       typeSE: "CatalogCodesSeries",
-      xmlDefaultValue: "WholeCatalog",
+      defaultValueXML: "WholeCatalog",
     },
     codeType: {
       yaml: "ТипКода",
       type: "SystemEnumeration",
       typeSE: "CatalogCodeType",
-      xmlDefaultValue: "String",
+      defaultValueXML: "String",
     },
     commands: {
       yaml: "Команды",
@@ -102,19 +102,19 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
       yaml: "СозданиеПриВводе",
       type: "SystemEnumeration",
       typeSE: "CreateOnInput",
-      xmlDefaultValue: "Use",
+      defaultValueXML: "Use",
     },
     dataHistory: {
       yaml: "ИсторияДанных",
       type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
-      xmlDefaultValue: "DontUse",
+      defaultValueXML: "DontUse",
     },
     dataLockControlMode: {
       yaml: "РежимУправленияБлокировкойДанных",
       type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
-      xmlDefaultValue: "Managed",
+      defaultValueXML: "Managed",
     },
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
@@ -144,23 +144,23 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
       yaml: "ОсновноеПредставление",
       type: "SystemEnumeration",
       typeSE: "CatalogMainPresentation",
-      xmlDefaultValue: "AsDescription",
+      defaultValueXML: "AsDescription",
     },
     descriptionLength: {
       yaml: "ДлинаНаименования",
       type: "number",
-      xmlDefaultValue: 25,
+      defaultValueXML: 25,
     },
     editType: {
       yaml: "СпособРедактирования",
       type: "SystemEnumeration",
       typeSE: "EditType",
-      xmlDefaultValue: "InDialog",
+      defaultValueXML: "InDialog",
     },
     executeAfterWriteDataHistoryVersionProcessing: {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
       type: "boolean",
-      xmlDefaultValue: false,
+      defaultValueXML: false,
     },
     explanation: {
       yaml: "Пояснение",
@@ -177,35 +177,35 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     foldersOnTop: {
       yaml: "ГруппыСверху",
       type: "boolean",
-      xmlDefaultValue: true,
+      defaultValueXML: true,
     },
     fullTextSearch: {
       yaml: "ПолнотекстовыйПоиск",
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
-      xmlDefaultValue: "Use",
+      defaultValueXML: "Use",
     },
     fullTextSearchOnInputByString: {
       yaml: "ПолнотекстовыйПоискПриВводеПоСтроке",
       type: "SystemEnumeration",
       typeSE: "FullTextSearchOnInputByString",
-      xmlDefaultValue: "DontUse",
+      defaultValueXML: "DontUse",
     },
     hierarchical: {
       yaml: "Иерархический",
       type: "boolean",
-      xmlDefaultValue: false,
+      defaultValueXML: false,
     },
     hierarchyType: {
       yaml: "ВидИерархии",
       type: "SystemEnumeration",
       typeSE: "HierarchyType",
-      xmlDefaultValue: "HierarchyFoldersAndItems",
+      defaultValueXML: "HierarchyFoldersAndItems",
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
-      xmlDefaultValue: false,
+      defaultValueXML: false,
     },
     inputByString: {
       yaml: "ВводПоСтроке",
@@ -214,12 +214,12 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     levelCount: {
       yaml: "КоличествоУровней",
       type: "number",
-      xmlDefaultValue: 2,
+      defaultValueXML: 2,
     },
     limitLevelCount: {
       yaml: "ОграничиватьКоличествоУровней",
       type: "boolean",
-      xmlDefaultValue: false,
+      defaultValueXML: false,
     },
     listPresentation: {
       yaml: "ПредставлениеСписка",
@@ -246,18 +246,18 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
       yaml: "ОбновлениеПредопределенныхДанных",
       type: "SystemEnumeration",
       typeSE: "PredefinedDataUpdate",
-      xmlDefaultValue: "Auto",
+      defaultValueXML: "Auto",
     },
     quickChoice: {
       yaml: "БыстрыйВыбор",
       type: "boolean",
-      xmlDefaultValue: false,
+      defaultValueXML: false,
     },
     searchStringModeOnInputByString: {
       yaml: "СпособПоискаСтрокиПриВводеПоСтроке",
       type: "SystemEnumeration",
       typeSE: "SearchStringModeOnInputByString",
-      xmlDefaultValue: "Begin",
+      defaultValueXML: "Begin",
     },
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
@@ -268,7 +268,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
       yaml: "ИспользованиеПодчинения",
       type: "SystemEnumeration",
       typeSE: "SubordinationUse",
-      xmlDefaultValue: "ToItems",
+      defaultValueXML: "ToItems",
     },
     synonym: {
       yaml: "Синоним",
@@ -281,12 +281,12 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     updateDataHistoryImmediatelyAfterWrite: {
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
       type: "boolean",
-      xmlDefaultValue: false,
+      defaultValueXML: false,
     },
     useStandardCommands: {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
-      xmlDefaultValue: true,
+      defaultValueXML: true,
     },
   },
 }

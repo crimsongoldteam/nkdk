@@ -14,20 +14,33 @@ export const importPropertiesFromXML = <T extends MetadataItem>(params: {
 
   if (!xml) return undefined
 
-  const result: T = {
-    // itemType: xml.itemType,
-  } as T
+  const result: T = {} as T
 
   for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
-    if (currentRule.fromXML === false) continue
     if (tags && (!currentRule.tag || !tags.includes(currentRule.tag))) continue
 
-    const xmlValue = getXMLValue(key, xml, currentRule)
+    const value =
+      currentRule.fromXML !== false
+        ? importPropertyFromXML({
+            context,
+            rule: currentRule,
+            value: getXMLValue(key, xml, currentRule),
+            name: key,
+          })
+        : undefined
 
-    const value = importPropertyFromXML({ context, rule: currentRule, value: xmlValue, name: key })
+    const cleanValue = value === currentRule.defaultValueXML ? undefined : value
 
-    if (value === undefined) continue
-    ;(result as any)[key] = value
+    const valueOrDefault = getValueOrDefault({
+      context,
+      rule: currentRule,
+      value: cleanValue,
+      name: key,
+      operation: "importFromXML",
+    })
+
+    if (valueOrDefault === undefined) continue
+    ;(result as any)[key] = valueOrDefault
   }
 
   return result
