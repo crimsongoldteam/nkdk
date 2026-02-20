@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
-import { AllChildItem } from "./types"
+import { AllChildItem, OtherElement } from "./types"
 
 export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
@@ -45,7 +45,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
 
     const text = exportFunction
       ? (exportFunction(context, item) as IFormatElementResult)
-      : exportOtherElementToStructure(context, item)
+      : exportOtherElementToStructure(context, item as OtherElement)
 
     result.strings.push(...text.strings)
     result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup

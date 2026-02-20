@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/button/exportToXML"
 import { exportElementToXML } from "~/metadata/metadataFactory"
 import { fullButtonGroup, minimalButtonGroup } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"

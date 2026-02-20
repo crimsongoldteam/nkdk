@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects/exportToEnterprise"
-import "~/metadata/forms/elements/exportToEnterprise"
-import "~/metadata/forms/elements/usualGroup/rules"
-import "~/metadata/systemEnumerations/exportToEnterprise"
+import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullUsualGroup,
   fullUsualGroupPartialEnterprise,
@@ -10,7 +7,6 @@ import {
   minimalUsualGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
 
 describe("exportUsualGroupToEnterprise", () => {
   describe("exportElementToPartialYAML", () => {

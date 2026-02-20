@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/exportToPreview"
 import { fullInputField } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportClientApplicationFormToPreview } from "./exportToPreview"
