@@ -6,7 +6,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { NamedElement } from "../../elements/baseElement/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 
-type XMLItem<From extends NamedElement> = Record<From["itemType"], ElementXML>
+export type XMLItem<From extends NamedElement> = Record<From["itemType"], ElementXML>
 
 export const importChildItemsFromXML = <From extends NamedElement>(
   context: ConfigurationContext,

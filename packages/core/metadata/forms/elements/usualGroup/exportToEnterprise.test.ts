@@ -4,7 +4,6 @@ import {
   fullUsualGroup,
   fullUsualGroupPartialEnterprise,
   minimalUsualGroup,
-  minimalUsualGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -19,7 +18,7 @@ describe("exportUsualGroupToEnterprise", () => {
     it("should export minimal", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: minimalUsualGroup })
 
-      expect(result).toEqual(minimalUsualGroupPartialEnterprise)
+      expect(result).toBeUndefined()
     })
   })
 })

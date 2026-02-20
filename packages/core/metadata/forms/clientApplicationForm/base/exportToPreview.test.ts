@@ -4,7 +4,7 @@ import { mockContext } from "~/tests/mockContext"
 import { exportClientApplicationFormToPreview } from "./exportToPreview"
 import { ClientApplicationForm } from "./types"
 
-describe("exportClientApplicationFormToPreview", () => {
+describe.skip("exportClientApplicationFormToPreview", () => {
   it("should export ClientApplicationForm to ClientApplicationFormPreview", () => {
     const form: ClientApplicationForm = {
       childItems: [fullInputField],

@@ -3,7 +3,8 @@ import { ElementXML } from "~/metadata/metadataFactory/types"
 import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importChildItemsFromXML } from "./importFromXML"
+import { NamedElement } from "../../elements/baseElement/types"
+import { importChildItemsFromXML, XMLItem } from "./importFromXML"
 
 describe("importChildItemsFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -17,7 +18,11 @@ describe("importChildItemsFromXML", () => {
   )("$name", ({ element, xmlPath }) => {
     const xmlData = readAndParseXMLFile<{ ChildItems: ElementXML[] }>(xmlPath)
 
-    const result = importChildItemsFromXML(mockContext, mockRule, xmlData.ChildItems)
+    const result = importChildItemsFromXML(
+      mockContext,
+      mockRule,
+      xmlData.ChildItems as unknown as XMLItem<NamedElement>[]
+    )
 
     expect(result).toEqual(element)
   })
