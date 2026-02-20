@@ -8,6 +8,7 @@ import { MetadataField, MetadataFieldXML } from "~/metadata/commonObjects/metada
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 const extractFieldValue = (field: MetadataFieldXML | string | number | undefined): MetadataField | undefined => {
   if (field === undefined) return undefined
@@ -87,3 +88,5 @@ export const importCharacteristicsDescriptionsFromXML = (
     (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(context, undefined, value)!
   )
 }
+
+registerTypeRule("CharacteristicsDescription", "importFromXML", importCharacteristicsDescriptionsFromXML)

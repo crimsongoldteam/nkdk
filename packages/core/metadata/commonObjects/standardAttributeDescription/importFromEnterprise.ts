@@ -18,6 +18,7 @@ import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/i
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChoiceParametersFromEnterprise } from "../сhoiceParameters/importFromEnterprise"
 import { getDefaults } from "./defaults"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
   context: ConfigurationContext,
@@ -88,7 +89,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const choiceParameters = importChoiceParametersFromEnterprise(context, undefined, data.ПараметрыВыбора)
   if (choiceParameters) result.choiceParameters = choiceParameters
 
-  const toolTip = importI8nTextFromYAML(context, { type: "I8nText" }, data.Подсказка)
+  const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
   if (toolTip) result.toolTip = toolTip
 
   const fullTextSearch = importSystemEnumerationFromYAML<SE.UseFullTextSearch>(
@@ -124,7 +125,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const linkByType = importTypeLinkFromEnterprise(context, undefined, data.СвязьПоТипу)
   if (linkByType) result.linkByType = linkByType
 
-  const synonym = importI8nTextFromYAML(context, { type: "I8nText" }, data.Синоним)
+  const synonym = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Синоним })
   if (synonym) result.synonym = synonym
 
   const createOnInput = importSystemEnumerationFromYAML<SE.CreateOnInput>(
@@ -139,12 +140,18 @@ const importStandardAttributeDescriptionFromEnterprise = (
 
   if (data.ФормаВыбора) result.choiceForm = data.ФормаВыбора
 
-  const format = importI8nTextFromYAML(context, { type: "I8nText" }, data.Формат)
+  const format = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Формат })
   if (format) result.format = format
 
-  const editFormat = importI8nTextFromYAML(context, { type: "I8nText" }, data.ФорматРедактирования)
+  const editFormat = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.ФорматРедактирования })
   if (editFormat) result.editFormat = editFormat
 
   const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)
 }
+
+registerTypeRule(
+  "StandardAttributeDescription",
+  "importFromEnterprise",
+  importStandardAttributeDescriptionsFromEnterprise
+)

@@ -51,6 +51,8 @@ export type TypeRulesNames =
   | "StandardAttributeDescription"
   | "MetadataItemLinks"
   | "MetadataCommands"
+  | "CharacteristicsDescription"
+  | "MetadataTabularSections"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContext,

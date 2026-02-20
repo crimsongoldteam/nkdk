@@ -8,6 +8,7 @@ import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metada
 import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
@@ -93,3 +94,5 @@ export const exportCharacteristicsDescriptionsToEnterprise = (
     (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(context, undefined, value)!
   )
 }
+
+registerTypeRule("CharacteristicsDescription", "exportToEnterprise", exportCharacteristicsDescriptionsToEnterprise)

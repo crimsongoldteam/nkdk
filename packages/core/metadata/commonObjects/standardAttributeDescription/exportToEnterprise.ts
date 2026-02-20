@@ -18,6 +18,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeName): StandartAttributeEnterprise => {
   return StandartAttributeNameToEnterprise[name]
@@ -90,7 +91,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, undefined, data.choiceParameters)
   if (choiceParameters) result.ПараметрыВыбора = choiceParameters
 
-  const toolTip = exportI8nTextToYAML(context, { type: "I8nText" }, data.toolTip)
+  const toolTip = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.toolTip })
   if (toolTip) result.Подсказка = toolTip
 
   const fullTextSearch = exportSystemEnumerationToYAML<SE.UseFullTextSearchEnterprise>(
@@ -126,7 +127,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const linkByType = exportTypeLinkToEnterprise(context, undefined, data.linkByType)
   if (linkByType) result.СвязьПоТипу = linkByType
 
-  const synonym = exportI8nTextToYAML(context, { type: "I8nText" }, data.synonym)
+  const synonym = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.synonym })
   if (synonym) result.Синоним = synonym
 
   const createOnInput = exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
@@ -141,11 +142,13 @@ const exportStandardAttributeDescriptionToEnterprise = (
 
   if (data.choiceForm) result.ФормаВыбора = data.choiceForm
 
-  const format = exportI8nTextToYAML(context, { type: "I8nText" }, data.format)
+  const format = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.format })
   if (format) result.Формат = format
 
-  const editFormat = exportI8nTextToYAML(context, { type: "I8nText" }, data.editFormat)
+  const editFormat = exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.editFormat })
   if (editFormat) result.ФорматРедактирования = editFormat
 
   return result
 }
+
+registerTypeRule("StandardAttributeDescription", "exportToEnterprise", exportStandardAttributeDescriptionsToEnterprise)

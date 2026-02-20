@@ -8,6 +8,7 @@ import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 const exportFieldValue = (field: MetadataField | undefined): string => {
   if (!field) return "-1"
@@ -99,3 +100,5 @@ export const exportCharacteristicsDescriptionsToXML = (
       .filter((value): value is CharacteristicsDescriptionXML => value !== undefined),
   }
 }
+
+registerTypeRule("CharacteristicsDescription", "exportToXML", exportCharacteristicsDescriptionsToXML)

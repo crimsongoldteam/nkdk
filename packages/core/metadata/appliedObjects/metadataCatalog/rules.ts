@@ -1,5 +1,5 @@
 import { MetadataItemRule } from "~/metadata/metadataFactory"
-import { MetadataCatalog } from "./types"
+import { MetadataCatalog, MetadataCatalogStandardAttributeNames } from "./types"
 
 export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
   properties: {
@@ -262,6 +262,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescription",
+      standartAttributeNames: MetadataCatalogStandardAttributeNames,
     },
     subordinationUse: {
       yaml: "ИспользованиеПодчинения",
@@ -275,7 +276,7 @@ export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
-      type: "MetadataTabularSection",
+      type: "MetadataTabularSections",
     },
     updateDataHistoryImmediatelyAfterWrite: {
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",

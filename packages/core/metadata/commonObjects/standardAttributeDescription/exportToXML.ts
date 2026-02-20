@@ -12,16 +12,18 @@ import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToX
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule, StandardAttributeDescriptionPropertyRule } from "~/metadata/metadataFactory"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  data: StandardAttributeDescriptions | undefined,
-  standartAttributeNames: StandartAttributeName[]
+  rule: PropertyRule<any>,
+  data: StandardAttributeDescriptions | undefined
+  // standartAttributeNames: StandartAttributeName[]
 ): StandardAttributeDescriptionsXML | undefined => {
-  const extendedData = getExtendedStandardAttributeDescriptions(data ?? [], standartAttributeNames)
+  const narrowRule = rule as StandardAttributeDescriptionPropertyRule<any>
+  const extendedData = getExtendedStandardAttributeDescriptions(data ?? [], narrowRule.standartAttributeNames)
 
   return {
     "xr:StandardAttribute": extendedData.map(
@@ -130,3 +132,5 @@ const getExtendedStandardAttributeDescriptions = (
 
   return result
 }
+
+registerTypeRule("StandardAttributeDescription", "exportToXML", exportStandardAttributeDescriptionsToXML)

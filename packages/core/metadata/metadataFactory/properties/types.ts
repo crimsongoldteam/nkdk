@@ -1,4 +1,5 @@
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { EventsRules } from "../events"
@@ -88,6 +89,13 @@ export interface UserVisiblePropertyRule<T extends MetadataItem | never = never>
   yamlDeny: YAMLKey<T>
 }
 
+export interface StandardAttributeDescriptionPropertyRule<
+  T extends MetadataItem | never = never,
+> extends BasePropertyRule<T> {
+  type: "StandardAttributeDescription"
+  standartAttributeNames: StandartAttributeName[]
+}
+
 export interface TableAdditionalSourcePropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
@@ -97,7 +105,12 @@ export interface TableAdditionalSourcePropertyRule<T extends MetadataItem | neve
 export interface CleanPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: Exclude<
     TypeRulesNames,
-    "SystemEnumeration" | "I8nText" | "FormattedI8nText" | "UserVisible" | "TableAdditionalSource"
+    | "SystemEnumeration"
+    | "I8nText"
+    | "FormattedI8nText"
+    | "UserVisible"
+    | "TableAdditionalSource"
+    | "StandardAttributeDescription"
   >
 }
 
@@ -114,7 +127,7 @@ export type PropertyRule<T extends MetadataItem | never = never> =
   | CleanPropertyRule<T>
   | CustomExportPropertyRule<T>
   | TableAdditionalSourcePropertyRule<T>
-
+  | StandardAttributeDescriptionPropertyRule<T>
 type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
   Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule<T>>
 >

@@ -154,3 +154,13 @@ import "./metadataRef/exportToEnterprise"
 import "./metadataRef/exportToXML"
 import "./metadataRef/importFromEnterprise"
 import "./metadataRef/importFromXML"
+
+import "./characteristicsDescription/exportToEnterprise"
+import "./characteristicsDescription/exportToXML"
+import "./characteristicsDescription/importFromEnterprise"
+import "./characteristicsDescription/importFromXML"
+
+import "./characteristicsDescription/exportToEnterprise"
+import "./characteristicsDescription/exportToXML"
+import "./characteristicsDescription/importFromEnterprise"
+import "./characteristicsDescription/importFromXML"

@@ -9,6 +9,7 @@ import { importMetadataItemLinkFromEnterprise } from "~/metadata/commonObjects/m
 import { importMetadataValueFromEnterprise } from "~/metadata/commonObjects/metadataValue/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importCharacteristicsDescriptionFromEnterprise = (
   context: ConfigurationContext,
@@ -84,3 +85,5 @@ export const importCharacteristicsDescriptionsFromEnterprise = (
     )
     .filter((item): item is CharacteristicsDescription => item !== undefined)
 }
+
+registerTypeRule("CharacteristicsDescription", "importFromEnterprise", importCharacteristicsDescriptionsFromEnterprise)
