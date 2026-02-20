@@ -51,9 +51,8 @@ export const exportMetadataTabularSectionToXML = (
 
   properties.StandardAttributes = exportStandardAttributeDescriptionsToXML(
     context,
-    undefined,
-    mergedData.standardAttributes,
-    ["LineNumber"]
+    { type: "StandardAttributeDescription", standartAttributeNames: ["LineNumber"] },
+    mergedData.standardAttributes
   )
 
   if (mergedData.synonym !== undefined) {

@@ -175,9 +175,8 @@ export const exportMetadataCatalogToXML = (
 
   const standardAttributes = exportStandardAttributeDescriptionsToXML(
     context,
-    undefined,
-    mergedData.standardAttributes,
-    MetadataCatalogStandardAttributeNames
+    { type: "StandardAttributeDescription", standartAttributeNames: MetadataCatalogStandardAttributeNames },
+    mergedData.standardAttributes
   )
   if (standardAttributes) properties.StandardAttributes = standardAttributes
 
@@ -192,7 +191,7 @@ export const exportMetadataCatalogToXML = (
   if (mergedData.useStandardCommands !== undefined) properties.UseStandardCommands = mergedData.useStandardCommands
 
   const attributes = exportMetadataAttributesToXML(context, undefined, mergedData.attributes)
-  const commands = exportMetadataCommandsToXML(context, mergedData.commands)
+  const commands = exportMetadataCommandsToXML(context, { type: "MetadataCommands" }, mergedData.commands)
   const tabularSections = exportMetadataTabularSectionsToXML(context, undefined, mergedData.tabularSections)
   const forms = getFormsFromContext(context)
   const templates = getTemplatesFromContext(context)

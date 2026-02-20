@@ -4,6 +4,7 @@ import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataCatalogFromXML } from "./importFromXML"
 import { MetadataCatalogXML } from "./types"
+
 describe("importMetadataCatalogFromXML", () => {
   it("should import all nodes", () => {
     const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/full.xml")

@@ -1,24 +1,30 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormattedI8nTextPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
+import { FormattedI8nTextPropertyRule, PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { exportI8nTextDefaultToEnterprise, exportI8nTextToYAML } from "../i8nText/toYAML"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextEnterprise } from "./types"
 
-export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
-  context: ConfigurationContext,
-  rule: R,
-  text: FormattedI8nText | undefined
-): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise } => {
+export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule<any>>(params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: FormattedI8nText | undefined
+  name?: string
+}): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise } => {
+  const { context, rule, value: text } = params
   if (!text) return {}
 
-  const filtredText: FormattedI8nText = rule.yamlPartialOthers
+  const formattedRule = rule as FormattedI8nTextPropertyRule<any>
+
+  const filtredText: FormattedI8nText = formattedRule.yamlPartialOthers
     ? {
         formatted: text.formatted,
         items: Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== context.defaultLanguage)),
       }
     : text
 
-  return exportToYAML(context, rule, filtredText)
+  return exportToYAML(context, formattedRule, filtredText) as {
+    [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextEnterprise
+  }
 }
 
 const exportToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
@@ -95,4 +101,4 @@ export const exportFormattedI8nTextOtherToEnterprise = <Key extends string, Form
   return exportFormattedI8nTextToEnterprise(context, { type: "I8nText" }, filtrdText, key, formattedKey)
 }
 
-// registerTypeRule("FormattedI8nText", "exportToEnterprise", exportFormattedI8nTextToYAML as any)
+registerTypeRule("FormattedI8nText", "exportToEnterprise", exportFormattedI8nTextToYAML as any)

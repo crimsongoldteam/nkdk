@@ -11,14 +11,14 @@ vi.mock("uuid", () => ({
 
 describe("exportMetadataCommandsToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportMetadataCommandsToXML(mockContext, undefined)
+    const result = exportMetadataCommandsToXML(mockContext, { type: "MetadataCommands" }, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export metadata command with all fields to XML", () => {
     const expectedResult = readXMLFileAsString("metadataCommand/full.xml")
-    const result = exportMetadataCommandsToXML(mockContext, fullMetadataCommands)
+    const result = exportMetadataCommandsToXML(mockContext, { type: "MetadataCommands" }, fullMetadataCommands)
 
     const xmlString = xmlExport({ Command: result }, false)
 
@@ -28,7 +28,7 @@ describe("exportMetadataCommandsToXML", () => {
   it("should export defaults nodes to XML", () => {
     const expectedResult = readXMLFileAsString("metadataCommand/defaults.xml")
 
-    const result = exportMetadataCommandsToXML(mockContext, defaultMetadataCommands)
+    const result = exportMetadataCommandsToXML(mockContext, { type: "MetadataCommands" }, defaultMetadataCommands)
 
     const xmlString = xmlExport({ Command: result }, false)
 

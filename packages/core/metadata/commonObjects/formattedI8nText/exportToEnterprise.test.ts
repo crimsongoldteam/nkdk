@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
 import { mockContext, mockContextToYAML, mockRule } from "~/tests/mockContext"
 import {
@@ -11,15 +12,15 @@ describe("exportFormattedI8nTextToEnterprise", () => {
   describe("exportFormattedI8nTextToEnterprise", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextToYAML<any>(
-          mockContextToYAML,
-          {
+        const result = exportFormattedI8nTextToYAML<FormattedI8nTextPropertyRule<any>>({
+          context: mockContextToYAML,
+          rule: {
             type: "FormattedI8nText",
             yaml: "Title",
             yamlFormatted: "FormattedTitle",
-          },
-          fixture.text
-        )
+          } as unknown as FormattedI8nTextPropertyRule<any>,
+          value: fixture.text,
+        })
 
         if (fixture.text?.formatted) {
           expect(result).toEqual({ FormattedTitle: fixture.enterpriseFormattedText })
