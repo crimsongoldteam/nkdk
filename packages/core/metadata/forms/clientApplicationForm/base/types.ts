@@ -1,6 +1,7 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
+import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { GroupChildItem, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
@@ -66,6 +67,13 @@ export interface ClientApplicationForm extends MetadataItem {
   usePurposes?: ("PlatformApplication" | "MobilePlatformApplication")[]
   //#endregion
 
+  //#region Catalog
+  choiceAvailable?: boolean
+  useForFoldersAndItems?: SE.FoldersAndItemsUse
+  choiceParameters?: ChoiceParameters
+  choiceMode?: SE.ChoiceMode
+  //#endregion
+
   events?: {
     collaborationSystemUsersAutoComplete?: string
     externalEvent?: string
@@ -93,6 +101,16 @@ export interface ClientApplicationForm extends MetadataItem {
     onReopen?: string
     onCreateAtServer?: string
     onSaveDataInSettingsAtServer?: string
+
+    // #region Catalog
+    valueChoice?: string
+    beforeWrite?: string
+    beforeWriteAtServer?: string
+    afterWrite?: string
+    afterWriteAtServer?: string
+    onWriteAtServer?: string
+    onReadAtServer?: string
+    // #endregion
   }
 }
 
@@ -219,6 +237,14 @@ export interface ClientApplicationFormEnterprise {
   СохранятьНастройкиОкна?: StringboolEnterprise
   Реквизиты?: FormAttributesEnterprise
   Параметры?: FormParametersEnterprise
+
+  //#region Catalog
+  ВыборДоступен?: StringboolEnterprise
+  ИспользованиеДляГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
+  ПараметрыВыбора?: ChoiceParametersEnterprise
+  РежимВыбора?: SE.ChoiceModeEnterprise
+  //#endregion
+
   События?: {
     АвтоПодборПользователейСистемыВзаимодействия?: string
     ВнешнееСобытие?: string
@@ -246,6 +272,16 @@ export interface ClientApplicationFormEnterprise {
     ПриПовторномОткрытии?: string
     ПриСозданииНаСервере?: string
     ПриСохраненииДанныхВНастройкахНаСервере?: string
+
+    // #region Catalog
+    ВыборЗначения?: string
+    ПередЗаписью?: string
+    ПередЗаписьюНаСервере?: string
+    ПослеЗаписи?: string
+    ПослеЗаписиНаСервере?: string
+    ПриЗаписиНаСервере?: string
+    ПриЧтенииНаСервере?: string
+    // #endregion
   }
   Команды?: FormCommandsYAML
   Элементы?: GroupChilItemPartialEnterprise

@@ -5,7 +5,7 @@ import { ClientApplicationForm, FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplicationForm> = {
-  tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
+  tags: [FormRulesTags.Form, FormRulesTags.Metadata, FormRulesTags.Catalog] as const,
   properties: {
     // #region Form
     attributes: {
@@ -13,7 +13,11 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       type: "FormAttributes",
       tag: FormRulesTags.Form,
     },
-    autoCommandBar: { yaml: "КоманднаяПанель", type: "AutoCommandBar", tag: FormRulesTags.Form },
+    autoCommandBar: {
+      yaml: "КоманднаяПанель",
+      type: "AutoCommandBar",
+      tag: FormRulesTags.Form,
+    },
     autoFillCheck: {
       yaml: "ПроверятьЗаполнениеАвтоматически",
       type: "boolean",
@@ -317,5 +321,15 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     onReopen: "ПриПовторномОткрытии",
     onCreateAtServer: "ПриСозданииНаСервере",
     onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
+
+    // #region Catalog
+    valueChoice: "ВыборЗначения",
+    beforeWrite: "ПередЗаписью",
+    beforeWriteAtServer: "ПередЗаписьюНаСервере",
+    afterWrite: "ПослеЗаписи",
+    afterWriteAtServer: "ПослеЗаписиНаСервере",
+    onWriteAtServer: "ПриЗаписиНаСервере",
+    onReadAtServer: "ПриЧтенииНаСервере",
+    // #endregion
   },
 }
