@@ -149,7 +149,7 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
   const source: T = {
     itemType: result.itemType,
     [propertyKey]: importedValue,
-  }
+  } as T
 
   return importPropertiesFromYAML({
     context,
@@ -157,6 +157,6 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
     metadataType,
     name,
     source: source,
-    yaml: {},
+    yaml: {} as ToYAML<T>,
   })
 }

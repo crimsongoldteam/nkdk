@@ -3,6 +3,7 @@ import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
 import { exportOtherElementToStructure } from "./exportToStructure"
 import { NamedElement } from "./types"
+import { OtherElement } from "../../collections/childItems/types"
 
 describe("formatOtherElement", () => {
   it("should format element", () => {
@@ -13,7 +14,7 @@ describe("formatOtherElement", () => {
 
     const expectedResult = ["?ПолеВвода {ИмяПоля}"]
 
-    const result = exportOtherElementToStructure(mockContext, element)
+    const result = exportOtherElementToStructure(mockContext, element as OtherElement)
 
     expect(result.strings).toEqual(expectedResult)
   })

@@ -14,7 +14,7 @@ import {
 
 export const importCommandInterfaceFromEnterprise = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  _rule: PropertyRule<any>,
   data: CommandInterfaceEnterprise | undefined
 ): CommandInterface | undefined => {
   if (!data) return undefined
