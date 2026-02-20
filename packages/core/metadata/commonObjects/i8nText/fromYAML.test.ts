@@ -6,7 +6,7 @@ import { importI8nTextFromYAML } from "./fromYAML"
 describe("importI8nTextFromYAML", () => {
   describe("importI8nTextFromYAML", () => {
     it.each(i8nTextFixtures)("should import: $name", (fixture) => {
-      const result = importI8nTextFromYAML({ context: mockContext, rule: mockRule, value: fixture.enterpriseFull })
+      const result = importI8nTextFromYAML({ context: mockContext, rule: mockRule, value: fixture.fullYAML })
       expect(result).toEqual(fixture.text)
     })
   })
@@ -16,7 +16,7 @@ describe("importI8nTextFromYAML", () => {
       const result = importI8nTextFromYAML({
         context: mockContext,
         rule: mockRule,
-        value: fixture.enterpriseOtherLanguages,
+        value: fixture.otherLanguagesYAML,
         source: fixture.textFromStructure,
       })
 

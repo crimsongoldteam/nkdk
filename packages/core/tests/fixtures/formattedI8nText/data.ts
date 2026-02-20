@@ -5,11 +5,11 @@ export interface FormattedI8nTextFixture {
   name: string
   text: FormattedI8nText | undefined
   textFromStructure?: I8nText | undefined
-  enterpriseText?: FormattedI8nTextYAML | undefined
-  enterpriseFormattedText?: FormattedI8nTextYAML | undefined
-  enterpriseDefaultLanguage?: string | undefined
-  enterpriseOtherLanguagesText?: FormattedI8nTextYAML | undefined
-  enterpriseOtherLanguagesFormattedText?: FormattedI8nTextYAML | undefined
+  textYAML?: FormattedI8nTextYAML | undefined
+  formattedTextYAML?: FormattedI8nTextYAML | undefined
+  defaultLanguageYAML?: string | undefined
+  otherLanguagesTextYAML?: FormattedI8nTextYAML | undefined
+  otherLanguagesFormattedTextYAML?: FormattedI8nTextYAML | undefined
   xml?: string
 }
 
@@ -17,21 +17,21 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "undefined",
     text: undefined,
-    enterpriseText: undefined,
-    enterpriseFormattedText: undefined,
-    enterpriseDefaultLanguage: undefined,
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: undefined,
+    formattedTextYAML: undefined,
+    defaultLanguageYAML: undefined,
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: undefined,
   },
   {
     name: "only default language with formatted false",
     text: { formatted: false, items: { ru: "Поле" } },
     textFromStructure: { items: { ru: "Поле" } },
-    enterpriseText: "Поле",
-    enterpriseFormattedText: undefined,
-    enterpriseDefaultLanguage: "Поле",
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: "Поле",
+    formattedTextYAML: undefined,
+    defaultLanguageYAML: "Поле",
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="false">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
@@ -43,11 +43,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "only default language with formatted true",
     text: { formatted: true, items: { ru: "Поле" } },
     textFromStructure: { items: { ru: "Поле" } },
-    enterpriseText: undefined,
-    enterpriseFormattedText: "Поле",
-    enterpriseDefaultLanguage: "Поле",
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: undefined,
+    formattedTextYAML: "Поле",
+    defaultLanguageYAML: "Поле",
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
@@ -58,11 +58,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (single language) with formatted false",
     text: { formatted: false, items: { en: "Field" } },
-    enterpriseText: { en: "Field" },
-    enterpriseFormattedText: undefined,
-    enterpriseDefaultLanguage: undefined,
-    enterpriseOtherLanguagesText: { en: "Field" },
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: { en: "Field" },
+    formattedTextYAML: undefined,
+    defaultLanguageYAML: undefined,
+    otherLanguagesTextYAML: { en: "Field" },
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="false">
 	<v8:item>
 		<v8:lang>en</v8:lang>
@@ -73,11 +73,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (single language) with formatted true",
     text: { formatted: true, items: { en: "Field" } },
-    enterpriseText: undefined,
-    enterpriseFormattedText: { en: "Field" },
-    enterpriseDefaultLanguage: undefined,
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: { en: "Field" },
+    textYAML: undefined,
+    formattedTextYAML: { en: "Field" },
+    defaultLanguageYAML: undefined,
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: { en: "Field" },
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>en</v8:lang>
@@ -88,11 +88,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (multiple languages) with formatted false",
     text: { formatted: false, items: { en: "Field" } },
-    enterpriseText: { en: "Field" },
-    enterpriseFormattedText: undefined,
-    enterpriseDefaultLanguage: undefined,
-    enterpriseOtherLanguagesText: { en: "Field" },
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: { en: "Field" },
+    formattedTextYAML: undefined,
+    defaultLanguageYAML: undefined,
+    otherLanguagesTextYAML: { en: "Field" },
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="false">
 	<v8:item>
 		<v8:lang>en</v8:lang>
@@ -103,11 +103,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (multiple languages) with formatted true",
     text: { formatted: true, items: { en: "Field" } },
-    enterpriseText: undefined,
-    enterpriseFormattedText: { en: "Field" },
-    enterpriseDefaultLanguage: undefined,
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: { en: "Field" },
+    textYAML: undefined,
+    formattedTextYAML: { en: "Field" },
+    defaultLanguageYAML: undefined,
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: { en: "Field" },
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>en</v8:lang>
@@ -119,11 +119,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "both default and other languages with formatted false",
     text: { formatted: false, items: { ru: "Поле", en: "Field" } },
     textFromStructure: { items: { ru: "Поле" } },
-    enterpriseText: { ru: "Поле", en: "Field" },
-    enterpriseFormattedText: undefined,
-    enterpriseDefaultLanguage: "Поле",
-    enterpriseOtherLanguagesText: { en: "Field" },
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: { ru: "Поле", en: "Field" },
+    formattedTextYAML: undefined,
+    defaultLanguageYAML: "Поле",
+    otherLanguagesTextYAML: { en: "Field" },
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="false">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
@@ -139,11 +139,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "both default and other languages with formatted true",
     text: { formatted: true, items: { ru: "Поле", en: "Field" } },
     textFromStructure: { items: { ru: "Поле" } },
-    enterpriseText: undefined,
-    enterpriseFormattedText: { ru: "Поле", en: "Field" },
-    enterpriseDefaultLanguage: "Поле",
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: { en: "Field" },
+    textYAML: undefined,
+    formattedTextYAML: { ru: "Поле", en: "Field" },
+    defaultLanguageYAML: "Поле",
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: { en: "Field" },
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
@@ -159,11 +159,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "with escaped content and formatted false",
     text: { formatted: false, items: { ru: "<Текст с экранированным символом>" } },
     textFromStructure: { items: { ru: "<Текст с экранированным символом>" } },
-    enterpriseText: "<Текст с экранированным символом>",
-    enterpriseFormattedText: undefined,
-    enterpriseDefaultLanguage: "<Текст с экранированным символом>",
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: "<Текст с экранированным символом>",
+    formattedTextYAML: undefined,
+    defaultLanguageYAML: "<Текст с экранированным символом>",
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="false">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
@@ -175,11 +175,11 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "with escaped content and formatted true",
     text: { formatted: true, items: { ru: '<">' } },
     textFromStructure: { items: { ru: '<">' } },
-    enterpriseText: undefined,
-    enterpriseFormattedText: '<">',
-    enterpriseDefaultLanguage: '<">',
-    enterpriseOtherLanguagesText: undefined,
-    enterpriseOtherLanguagesFormattedText: undefined,
+    textYAML: undefined,
+    formattedTextYAML: '<">',
+    defaultLanguageYAML: '<">',
+    otherLanguagesTextYAML: undefined,
+    otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>ru</v8:lang>

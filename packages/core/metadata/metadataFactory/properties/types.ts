@@ -28,7 +28,7 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   /**
    * Передавать значение в форму в 1С
    */
-  toEnt?: false
+  toEnterprise?: false
   toPartialYAML?: false
   fromXML?: false
   fromYAML?: false

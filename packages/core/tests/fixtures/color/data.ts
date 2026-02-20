@@ -4,7 +4,7 @@ export interface ColorTestCase {
   name: string
   color: Color
   colorYAML: ColorYAML
-  enterpriseExpected: ColorYAML
+  expectedYAML: ColorYAML
   fixture: string | undefined
 }
 
@@ -16,7 +16,7 @@ export const colorTestCases: readonly ColorTestCase[] = [
       value: "#C3C0C3",
     } as Color,
     colorYAML: "#C3C0C3" as ColorYAML,
-    enterpriseExpected: "#C3C0C3" as ColorYAML,
+    expectedYAML: "#C3C0C3" as ColorYAML,
     fixture: "color/absolute.xml",
   },
   {
@@ -26,7 +26,7 @@ export const colorTestCases: readonly ColorTestCase[] = [
       value: "ButtonLightShadow",
     } as Color,
     colorYAML: "ТеньКнопкиСветлая" as ColorYAML,
-    enterpriseExpected: "ТеньКнопкиСветлая" as ColorYAML,
+    expectedYAML: "ТеньКнопкиСветлая" as ColorYAML,
     fixture: "color/win.xml",
   },
   {
@@ -36,7 +36,7 @@ export const colorTestCases: readonly ColorTestCase[] = [
       value: "AliceBlue",
     } as Color,
     colorYAML: "АкварельноСиний" as ColorYAML,
-    enterpriseExpected: "АкварельноСиний" as ColorYAML,
+    expectedYAML: "АкварельноСиний" as ColorYAML,
     fixture: "color/web.xml",
   },
   {
@@ -46,7 +46,7 @@ export const colorTestCases: readonly ColorTestCase[] = [
       value: "SpecialTextColor",
     } as Color,
     colorYAML: "ЦветОсобогоТекста" as ColorYAML,
-    enterpriseExpected: "ЦветОсобогоТекста" as ColorYAML,
+    expectedYAML: "ЦветОсобогоТекста" as ColorYAML,
     fixture: "color/style.xml",
   },
   {
@@ -56,7 +56,7 @@ export const colorTestCases: readonly ColorTestCase[] = [
       value: "ПоясняющийТекст",
     } as Color,
     colorYAML: "ЭлементСтиля.ПоясняющийТекст" as ColorYAML,
-    enterpriseExpected: "ЭлементСтиля.ПоясняющийТекст" as ColorYAML,
+    expectedYAML: "ЭлементСтиля.ПоясняющийТекст" as ColorYAML,
     fixture: "color/customStyle.xml",
   },
 ] as const

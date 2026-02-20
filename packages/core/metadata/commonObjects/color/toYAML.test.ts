@@ -10,7 +10,7 @@ describe("exportColorToYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(colorTestCases)("should export $name to YAML", ({ color, enterpriseExpected }) => {
+  it.each(colorTestCases)("should export $name to YAML", ({ color, expectedYAML: enterpriseExpected }) => {
     const result = exportColorToYAML(mockContext, mockRule, color)
 
     expect(result).toEqual(enterpriseExpected)

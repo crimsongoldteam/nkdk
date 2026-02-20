@@ -10,7 +10,7 @@ describe("importFontFromYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(fontYAMLFixtures)("should import $name font from YAML", ({ font, enterprise }) => {
+  it.each(fontYAMLFixtures)("should import $name font from YAML", ({ font, yaml: enterprise }) => {
     const result = importFontFromYAML(mockContext, mockRule, enterprise)
 
     expect(result).toEqual(font)

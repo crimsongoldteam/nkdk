@@ -10,7 +10,7 @@ describe("exportFontToYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(fontYAMLFixtures)("should export $name font to YAML", ({ font, enterprise }) => {
+  it.each(fontYAMLFixtures)("should export $name font to YAML", ({ font, yaml: enterprise }) => {
     const result = exportFontToYAML(mockContext, mockRule, font)
 
     expect(result).toEqual(enterprise)

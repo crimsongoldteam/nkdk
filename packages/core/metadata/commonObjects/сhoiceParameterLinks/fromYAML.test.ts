@@ -10,10 +10,10 @@ describe("importFromYAML", () => {
   })
 
   it("should import single link", () => {
-    const enterprise =
+    const yaml =
       "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
 
-    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, enterprise)
+    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, yaml)
 
     expect(result).toEqual([
       {
@@ -24,11 +24,11 @@ describe("importFromYAML", () => {
     ])
   })
 
-  it("should import multiple links from enterprise", () => {
-    const enterprise =
+  it("should import multiple links from yaml", () => {
+    const yaml =
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
 
-    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, enterprise)
+    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, yaml)
 
     expect(result).toEqual([
       {
@@ -45,9 +45,9 @@ describe("importFromYAML", () => {
   })
 
   it("should import with `DontChange` parameter", () => {
-    const enterprise = "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)"
+    const yaml = "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)"
 
-    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, enterprise)
+    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, yaml)
 
     expect(result).toEqual([
       {
@@ -59,10 +59,10 @@ describe("importFromYAML", () => {
   })
 
   it("should import multiple links with one having DontChange", () => {
-    const enterprise =
+    const yaml =
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
 
-    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, enterprise)
+    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, yaml)
 
     expect(result).toEqual([
       {

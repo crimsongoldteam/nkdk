@@ -9,7 +9,7 @@ import {
 import { mockContext } from "~/tests/mockContext"
 import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = { type: "AutoCommandBar", yaml: "КоманднаяПанель", toEnt: false }
+const rule: PropertyRule<Table> = { type: "AutoCommandBar", yaml: "КоманднаяПанель", toEnterprise: false }
 
 describe("exportAutoCommandBarToYAML", () => {
   it("should return undefined when data is undefined", () => {

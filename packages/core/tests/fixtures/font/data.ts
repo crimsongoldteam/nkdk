@@ -114,7 +114,7 @@ interface FontYAMLFixture {
   name: string
   xml: string
   font: Font
-  enterprise: FontYAML
+  yaml: FontYAML
   preview: FontPreview
 }
 
@@ -123,28 +123,28 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
     name: "faceName",
     xml: `<Font faceName="Academy Engraved LET" kind="Absolute"/>`,
     font: normalMinimalFont,
-    enterprise: normalMinimalFontYAML,
+    yaml: normalMinimalFontYAML,
     preview: { Type: "Font", Name: "Academy Engraved LET" },
   },
   {
     name: "system minimal",
     xml: `<Font ref="sys:ANSIFixedFont" kind="WindowsFont"/>`,
     font: systemMinimalFont,
-    enterprise: systemMinimalFontYAML,
+    yaml: systemMinimalFontYAML,
     preview: { Type: "Font", Value: "WindowsFonts.ANSIFixedFont" },
   },
   {
     name: "style minimal",
     xml: `<Font ref="style:ExtraLargeTextFont" kind="StyleItem"/>`,
     font: styleMinimalFont,
-    enterprise: styleMinimalFontYAML,
+    yaml: styleMinimalFontYAML,
     preview: { Type: "Font", Value: "StyleFonts.ExtraLargeTextFont" },
   },
   {
     name: "style full",
     xml: `<Font ref="style:LargeTextFont" faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="StyleItem" scale="200"/>`,
     font: styleFullFont,
-    enterprise: styleFullFontYAML,
+    yaml: styleFullFontYAML,
     preview: {
       Type: "Font",
       Value: "StyleFonts.LargeTextFont",
@@ -161,7 +161,7 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
     name: "normal full",
     xml: `<Font faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="Absolute" scale="200"/>`,
     font: normalFullFont,
-    enterprise: normalFullFontYAML,
+    yaml: normalFullFontYAML,
     preview: {
       Type: "Font",
       Name: "Times New Roman",
@@ -177,7 +177,7 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
     name: "system full",
     xml: `<Font ref="sys:SystemFont" faceName="Times New Roman" height="20" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont" scale="200"/>`,
     font: systemFullFont,
-    enterprise: systemFullFontYAML,
+    yaml: systemFullFontYAML,
     preview: {
       Type: "Font",
       Value: "WindowsFonts.SystemFont",
@@ -201,7 +201,7 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
       underline: false,
       strikeout: false,
     },
-    enterprise: {
+    yaml: {
       Вид: "ШрифтДиалоговИМеню",
       Полужирный: "Истина",
       Наклонный: "Ложь",

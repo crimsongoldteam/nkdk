@@ -2,7 +2,7 @@ import { TypeDescription, TypeDescriptionYAML } from "../../../metadata/commonOb
 
 export interface TypeFixture {
   internal: TypeDescription
-  enterprise: TypeDescriptionYAML
+  YAML: TypeDescriptionYAML
   xml: string
 }
 
@@ -11,7 +11,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region String Types
   {
     internal: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
-    enterprise: "Строка(10)",
+    YAML: "Строка(10)",
     xml: `<TypeDescription>
 	<v8:Type>xs:string</v8:Type>
 	<v8:StringQualifiers>
@@ -22,7 +22,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   {
     internal: { type: ["string"] },
-    enterprise: "Строка",
+    YAML: "Строка",
     xml: `<TypeDescription>
 	<v8:Type>xs:string</v8:Type>
 	<v8:StringQualifiers>
@@ -33,7 +33,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   {
     internal: { type: ["string"], stringQualifiers: { length: 100, allowedLength: "Fixed" } },
-    enterprise: "ФиксированнаяСтрока(100)",
+    YAML: "ФиксированнаяСтрока(100)",
     xml: `<TypeDescription>
 	<v8:Type>xs:string</v8:Type>
 	<v8:StringQualifiers>
@@ -47,7 +47,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Number Types
   {
     internal: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Any" } },
-    enterprise: "Число(10, 2)",
+    YAML: "Число(10, 2)",
     xml: `<TypeDescription>
 	<v8:Type>xs:decimal</v8:Type>
 	<v8:NumberQualifiers>
@@ -59,7 +59,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   {
     internal: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" } },
-    enterprise: "ПоложительноеЧисло(10, 2)",
+    YAML: "ПоложительноеЧисло(10, 2)",
     xml: `<TypeDescription>
 	<v8:Type>xs:decimal</v8:Type>
 	<v8:NumberQualifiers>
@@ -71,7 +71,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   {
     internal: { type: ["decimal"] },
-    enterprise: "Число",
+    YAML: "Число",
     xml: `<TypeDescription>
 	<v8:Type>xs:decimal</v8:Type>
 	<v8:NumberQualifiers>
@@ -86,17 +86,17 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Date and Time Types
   {
     internal: { type: ["dateTime"], dateQualifiers: { dateFractions: "Date" } },
-    enterprise: "Дата",
+    YAML: "Дата",
     xml: "<TypeDescription>\n\t<v8:Type>xs:dateTime</v8:Type>\n\t<v8:DateQualifiers>\n\t\t<v8:DateFractions>Date</v8:DateFractions>\n\t</v8:DateQualifiers>\n</TypeDescription>",
   },
   {
     internal: { type: ["dateTime"], dateQualifiers: { dateFractions: "Time" } },
-    enterprise: "Время",
+    YAML: "Время",
     xml: "<TypeDescription>\n\t<v8:Type>xs:dateTime</v8:Type>\n\t<v8:DateQualifiers>\n\t\t<v8:DateFractions>Time</v8:DateFractions>\n\t</v8:DateQualifiers>\n</TypeDescription>",
   },
   {
     internal: { type: ["dateTime"], dateQualifiers: { dateFractions: "DateTime" } },
-    enterprise: "ДатаВремя",
+    YAML: "ДатаВремя",
     xml: "<TypeDescription>\n\t<v8:Type>xs:dateTime</v8:Type>\n\t<v8:DateQualifiers>\n\t\t<v8:DateFractions>DateTime</v8:DateFractions>\n\t</v8:DateQualifiers>\n</TypeDescription>",
   },
   //#endregion
@@ -104,7 +104,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Boolean
   {
     internal: { type: ["boolean"] },
-    enterprise: "Булево",
+    YAML: "Булево",
     xml: "<TypeDescription>\n\t<v8:Type>xs:boolean</v8:Type>\n</TypeDescription>",
   },
   //#endregion
@@ -112,52 +112,52 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Other Primitive Types
   {
     internal: { type: ["ValueStorage"] },
-    enterprise: "ХранилищеЗначения",
+    YAML: "ХранилищеЗначения",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueStorage</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["Null"] },
-    enterprise: "Null",
+    YAML: "Null",
     xml: "<TypeDescription>\n\t<v8:Type>v8:Null</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["UUID"] },
-    enterprise: "УникальныйИдентификатор",
+    YAML: "УникальныйИдентификатор",
     xml: "<TypeDescription>\n\t<v8:Type>v8:UUID</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["TypeDescription"] },
-    enterprise: "ОписаниеТипов",
+    YAML: "ОписаниеТипов",
     xml: "<TypeDescription>\n\t<v8:Type>v8:TypeDescription</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["StandardPeriod"] },
-    enterprise: "СтандартныйПериод",
+    YAML: "СтандартныйПериод",
     xml: "<TypeDescription>\n\t<v8:Type>v8:StandardPeriod</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["StandardBeginningDate"] },
-    enterprise: "СтандартнаяДатаНачала",
+    YAML: "СтандартнаяДатаНачала",
     xml: "<TypeDescription>\n\t<v8:Type>v8:StandardBeginningDate</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ValueTable"] },
-    enterprise: "ТаблицаЗначений",
+    YAML: "ТаблицаЗначений",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueTable</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ValueTree"] },
-    enterprise: "ДеревоЗначений",
+    YAML: "ДеревоЗначений",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueTree</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ValueListType"] },
-    enterprise: "СписокЗначений",
+    YAML: "СписокЗначений",
     xml: "<TypeDescription>\n\t<v8:Type>v8:ValueListType</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["DynamicList"] },
-    enterprise: "ДинамическийСписок",
+    YAML: "ДинамическийСписок",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DynamicList</v8:Type>\n</TypeDescription>",
   },
 
@@ -172,7 +172,7 @@ export const typeFixturesTable: TypeFixture[] = [
       numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Any" },
       dateQualifiers: { dateFractions: "DateTime" },
     },
-    enterprise: ["Строка(10)", "Число(10, 2)", "ДатаВремя"],
+    YAML: ["Строка(10)", "Число(10, 2)", "ДатаВремя"],
     xml: `<TypeDescription>
 	<v8:Type>xs:string</v8:Type>
 	<v8:Type>xs:decimal</v8:Type>
@@ -193,7 +193,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   {
     internal: { type: ["EnumRef.ТипыДокументов", "AnyIBRef"] },
-    enterprise: ["Перечисление.ТипыДокументов", "ЛюбаяСсылка"],
+    YAML: ["Перечисление.ТипыДокументов", "ЛюбаяСсылка"],
     xml: `<TypeDescription>
 	<v8:Type>cfg:EnumRef.ТипыДокументов</v8:Type>
 	<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
@@ -204,118 +204,118 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Applied Types
   {
     internal: { type: ["CatalogRef.Контрагенты"] },
-    enterprise: "Справочник.Контрагенты",
+    YAML: "Справочник.Контрагенты",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:CatalogRef.Контрагенты</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["DocumentRef.ПоступлениеТоваровНаСклад"] },
-    enterprise: "Документ.ПоступлениеТоваровНаСклад",
+    YAML: "Документ.ПоступлениеТоваровНаСклад",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DocumentRef.ПоступлениеТоваровНаСклад</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["EnumRef.ТипыДокументов"] },
-    enterprise: "Перечисление.ТипыДокументов",
+    YAML: "Перечисление.ТипыДокументов",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:EnumRef.ТипыДокументов</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["CatalogObject.ПрофессииРабочих"] },
-    enterprise: "СправочникОбъект.ПрофессииРабочих",
+    YAML: "СправочникОбъект.ПрофессииРабочих",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:CatalogObject.ПрофессииРабочих</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["DocumentObject.КорректировкаИзлишковНедостачПоТоварнымМестам"] },
-    enterprise: "ДокументОбъект.КорректировкаИзлишковНедостачПоТоварнымМестам",
+    YAML: "ДокументОбъект.КорректировкаИзлишковНедостачПоТоварнымМестам",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DocumentObject.КорректировкаИзлишковНедостачПоТоварнымМестам</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["BusinessProcessObject.ОбработкаЗаказов"] },
-    enterprise: "БизнесПроцессОбъект.ОбработкаЗаказов",
+    YAML: "БизнесПроцессОбъект.ОбработкаЗаказов",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:BusinessProcessObject.ОбработкаЗаказов</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfCharacteristicTypesObject.ДополнительныеРеквизитыИСведения"] },
-    enterprise: "ПланВидовХарактеристикОбъект.ДополнительныеРеквизитыИСведения",
+    YAML: "ПланВидовХарактеристикОбъект.ДополнительныеРеквизитыИСведения",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ChartOfCharacteristicTypesObject.ДополнительныеРеквизитыИСведения</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ExchangePlanObject.ОбменСФилиалами"] },
-    enterprise: "ПланОбменаОбъект.ОбменСФилиалами",
+    YAML: "ПланОбменаОбъект.ОбменСФилиалами",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ExchangePlanObject.ОбменСФилиалами</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfAccountObject.Основной"] },
-    enterprise: "ПланСчетовОбъект.Основной",
+    YAML: "ПланСчетовОбъект.Основной",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ChartOfAccountObject.Основной</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["DefinedType.GTIN"] },
-    enterprise: "ОпределяемыйТип.GTIN",
+    YAML: "ОпределяемыйТип.GTIN",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:DefinedType.GTIN</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["CatalogRef.Сотрудники", "CatalogRef.Контрагенты", "CatalogRef.Пользователи"] },
-    enterprise: ["Справочник.Сотрудники", "Справочник.Контрагенты", "Справочник.Пользователи"],
+    YAML: ["Справочник.Сотрудники", "Справочник.Контрагенты", "Справочник.Пользователи"],
     xml: "<TypeDescription>\n\t<v8:Type>cfg:CatalogRef.Сотрудники</v8:Type>\n\t<v8:Type>cfg:CatalogRef.Контрагенты</v8:Type>\n\t<v8:Type>cfg:CatalogRef.Пользователи</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["Characteristic.ДополнительныеРеквизитыИСведения"] },
-    enterprise: "Характеристика.ДополнительныеРеквизитыИСведения",
+    YAML: "Характеристика.ДополнительныеРеквизитыИСведения",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:Characteristic.ДополнительныеРеквизитыИСведения</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["SpreadsheetDocument"] },
-    enterprise: "ТабличныйДокумент",
+    YAML: "ТабличныйДокумент",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet">mxl:SpreadsheetDocument</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DefinedType"] },
-    enterprise: "ОпределяемыйТип",
+    YAML: "ОпределяемыйТип",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:DefinedType</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["Characteristic"] },
-    enterprise: "Характеристика",
+    YAML: "Характеристика",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:Characteristic</v8:TypeSet>\n</TypeDescription>",
   },
 
   {
     internal: { type: ["DataProcessorObject"] },
-    enterprise: "ОбработкаОбъект",
+    YAML: "ОбработкаОбъект",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DataProcessorObject</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["DataProcessorObject.КакаяТоОбработка"] },
-    enterprise: "ОбработкаОбъект.КакаяТоОбработка",
+    YAML: "ОбработкаОбъект.КакаяТоОбработка",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DataProcessorObject.КакаяТоОбработка</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ConstantsSet"] },
-    enterprise: "КонстантыНабор",
+    YAML: "КонстантыНабор",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ConstantsSet</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ReportObject"] },
-    enterprise: "ОтчетОбъект",
+    YAML: "ОтчетОбъект",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ReportObject</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["ReportObject.КакойТоОтчет"] },
-    enterprise: "ОтчетОбъект.КакойТоОтчет",
+    YAML: "ОтчетОбъект.КакойТоОтчет",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:ReportObject.КакойТоОтчет</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["InformationRegisterRecordSet"] },
-    enterprise: "РегистрСведенийНаборЗаписей",
+    YAML: "РегистрСведенийНаборЗаписей",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:InformationRegisterRecordSet</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["InformationRegisterRecordManager"] },
-    enterprise: "РегистрСведенийМенеджерЗаписи",
+    YAML: "РегистрСведенийМенеджерЗаписи",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:InformationRegisterRecordManager</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["AccountingRegisterRecordSet"] },
-    enterprise: "РегистрБухгалтерииНаборЗаписей",
+    YAML: "РегистрБухгалтерииНаборЗаписей",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:AccountingRegisterRecordSet</v8:Type>\n</TypeDescription>",
   },
   //#endregion
@@ -324,92 +324,92 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Data Analysis Namespace
   {
     internal: { type: ["AssociationRulesDataSourceType"] },
-    enterprise: "AssociationRulesDataSourceType",
+    YAML: "AssociationRulesDataSourceType",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:AssociationRulesDataSourceType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["AnalysisDataType"] },
-    enterprise: "ТипИсточникаДанныхПоискаАссоциаций",
+    YAML: "ТипИсточникаДанныхПоискаАссоциаций",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:AnalysisDataType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisDistanceMetricType"] },
-    enterprise: "ТипМерыРасстоянияАнализаДанных",
+    YAML: "ТипМерыРасстоянияАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisDistanceMetricType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisColumnTypeAssociationRules"] },
-    enterprise: "ТипКолонкиАнализаДанныхПоискАссоциаций",
+    YAML: "ТипКолонкиАнализаДанныхПоискАссоциаций",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeAssociationRules</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisResultTableFillType"] },
-    enterprise: "ТипЗаполненияТаблицыРезультатаАнализаДанных",
+    YAML: "ТипЗаполненияТаблицыРезультатаАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisResultTableFillType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisNumericValueUseType"] },
-    enterprise: "ТипИспользованияЧисловыхЗначенийАнализаДанных",
+    YAML: "ТипИспользованияЧисловыхЗначенийАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisNumericValueUseType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DecisionTreeSimplificationType"] },
-    enterprise: "ТипУпрощенияДереваРешений",
+    YAML: "ТипУпрощенияДереваРешений",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DecisionTreeSimplificationType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisColumnTypeDecisionTree"] },
-    enterprise: "ТипКолонкиАнализаДанныхДеревоРешений",
+    YAML: "ТипКолонкиАнализаДанныхДеревоРешений",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeDecisionTree</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisSequentialPatternsOrderType"] },
-    enterprise: "ТипУпорядочиванияШаблоновПоследовательностейАнализаДанных",
+    YAML: "ТипУпорядочиванияШаблоновПоследовательностейАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisSequentialPatternsOrderType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisTimeIntervalUnitType"] },
-    enterprise: "ТипЕдиницыИнтервалаВремениАнализаДанных",
+    YAML: "ТипЕдиницыИнтервалаВремениАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisTimeIntervalUnitType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisColumnTypeSequentialPatterns"] },
-    enterprise: "ТипКолонкиАнализаДанныхПоискПоследовательностей",
+    YAML: "ТипКолонкиАнализаДанныхПоискПоследовательностей",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeSequentialPatterns</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisStandardizationType"] },
-    enterprise: "ТипСтандартизацииАнализаДанных",
+    YAML: "ТипСтандартизацииАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisStandardizationType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["PredictionModelColumnType"] },
-    enterprise: "ТипКолонкиМоделиПрогноза",
+    YAML: "ТипКолонкиМоделиПрогноза",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:PredictionModelColumnType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["ClusterizationMethod"] },
-    enterprise: "МетодКластеризации",
+    YAML: "МетодКластеризации",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:ClusterizationMethod</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisAssociationRulesOrderType"] },
-    enterprise: "ТипУпорядочиванияПравилАссоциацииАнализаДанных",
+    YAML: "ТипУпорядочиванияПравилАссоциацииАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisAssociationRulesOrderType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisColumnTypeSummaryStatistics"] },
-    enterprise: "ТипКолонкиАнализаДанныхОбщаяСтатистика",
+    YAML: "ТипКолонкиАнализаДанныхОбщаяСтатистика",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeSummaryStatistics</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["AssociationRulesPruneType"] },
-    enterprise: "ТипОтсеченияПравилАссоциации",
+    YAML: "ТипОтсеченияПравилАссоциации",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:AssociationRulesPruneType</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["DataAnalysisColumnTypeClusterization"] },
-    enterprise: "ТипКолонкиАнализаДанныхКластеризация",
+    YAML: "ТипКолонкиАнализаДанныхКластеризация",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeClusterization</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -417,37 +417,37 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region UI Namespace
   {
     internal: { type: ["FormattedString"] },
-    enterprise: "ФорматированнаяСтрока",
+    YAML: "ФорматированнаяСтрока",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:FormattedString</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["HorizontalAlign"] },
-    enterprise: "ГоризонтальноеПоложение",
+    YAML: "ГоризонтальноеПоложение",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:HorizontalAlign</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["VerticalAlign"] },
-    enterprise: "ВертикальноеПоложение",
+    YAML: "ВертикальноеПоложение",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:VerticalAlign</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["SizeChangeMode"] },
-    enterprise: "РежимИзмененияРазмера",
+    YAML: "РежимИзмененияРазмера",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:SizeChangeMode</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["Color"] },
-    enterprise: "Цвет",
+    YAML: "Цвет",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:Color</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["Font"] },
-    enterprise: "Шрифт",
+    YAML: "Шрифт",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:Font</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["Picture"] },
-    enterprise: "Картинка",
+    YAML: "Картинка",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:Picture</v8:Type>\n</TypeDescription>",
   },
   //#endregion
@@ -455,7 +455,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Formatted Document Namespace
   {
     internal: { type: ["FormattedDocument"] },
-    enterprise: "ФорматированныйДокумент",
+    YAML: "ФорматированныйДокумент",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:fd="http://v8.1c.ru/8.2/data/formatted-document">fd:FormattedDocument</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -463,17 +463,17 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Chart Namespace
   {
     internal: { type: ["Dendrogram"] },
-    enterprise: "Дендрограмма",
+    YAML: "Дендрограмма",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:Dendrogram</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["Chart"] },
-    enterprise: "Диаграмма",
+    YAML: "Диаграмма",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:Chart</v8:Type>\n</TypeDescription>',
   },
   {
     internal: { type: ["GanttChart"] },
-    enterprise: "ДиаграммаГанта",
+    YAML: "ДиаграммаГанта",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:GanttChart</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -481,7 +481,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Planner Namespace
   {
     internal: { type: ["Planner"] },
-    enterprise: "Планировщик",
+    YAML: "Планировщик",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:pl="http://v8.1c.ru/8.3/data/planner">pl:Planner</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -489,7 +489,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region PDF Namespace
   {
     internal: { type: ["PDFDocument"] },
-    enterprise: "ДокументPDF",
+    YAML: "ДокументPDF",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:pdfdoc="http://v8.1c.ru/8.3/data/pdf">pdfdoc:PDFDocument</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -497,7 +497,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Graph Scheme Namespace
   {
     internal: { type: ["FlowchartContextType"] },
-    enterprise: "ГрафическаяСхема",
+    YAML: "ГрафическаяСхема",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/graphscheme">d5p1:FlowchartContextType</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -505,7 +505,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Text Editor Namespace
   {
     internal: { type: ["TextDocument"] },
-    enterprise: "ТекстовыйДокумент",
+    YAML: "ТекстовыйДокумент",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.1/data/txtedt">d5p1:TextDocument</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -513,7 +513,7 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Geographic Namespace
   {
     internal: { type: ["GeographicalSchema"] },
-    enterprise: "ГеографическаяСхема",
+    YAML: "ГеографическаяСхема",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/geo">d5p1:GeographicalSchema</v8:Type>\n</TypeDescription>',
   },
   //#endregion
@@ -521,17 +521,17 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region YAML Namespace
   {
     internal: { type: ["AccumulationRecordType"] },
-    enterprise: "ВидДвиженияНакопления",
+    YAML: "ВидДвиженияНакопления",
     xml: "<TypeDescription>\n\t<v8:Type>ent:AccumulationRecordType</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["AccountingRecordType"] },
-    enterprise: "ВидДвиженияБухгалтерии",
+    YAML: "ВидДвиженияБухгалтерии",
     xml: "<TypeDescription>\n\t<v8:Type>ent:AccountingRecordType</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["AccountType"] },
-    enterprise: "ВидСчета",
+    YAML: "ВидСчета",
     xml: "<TypeDescription>\n\t<v8:Type>ent:AccountType</v8:Type>\n</TypeDescription>",
   },
   //#endregion
@@ -539,12 +539,12 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Settings Composer Namespace
   {
     internal: { type: ["SettingsComposer"] },
-    enterprise: "КомпоновщикНастроекКомпоновкиДанных",
+    YAML: "КомпоновщикНастроекКомпоновкиДанных",
     xml: "<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>",
   },
   {
     internal: { type: ["Filter"] },
-    enterprise: "Отбор",
+    YAML: "Отбор",
     xml: "<TypeDescription>\n\t<v8:Type>dcsset:Filter</v8:Type>\n</TypeDescription>",
   },
   //#endregion
@@ -553,102 +553,102 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region TypeSet Types
   {
     internal: { type: ["ExchangePlanRef"] },
-    enterprise: "ПланОбмена",
+    YAML: "ПланОбмена",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ExchangePlanRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["BusinessProcessRoutePointRef"] },
-    enterprise: "ТочкаМаршрутаБизнесПроцесса",
+    YAML: "ТочкаМаршрутаБизнесПроцесса",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:BusinessProcessRoutePointRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["BusinessProcessRef"] },
-    enterprise: "БизнесПроцесс",
+    YAML: "БизнесПроцесс",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:BusinessProcessRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["AnyIBRef"] },
-    enterprise: "ЛюбаяСсылка",
+    YAML: "ЛюбаяСсылка",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["DocumentRef"] },
-    enterprise: "Документ",
+    YAML: "Документ",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:DocumentRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["EnumRef"] },
-    enterprise: "Перечисление",
+    YAML: "Перечисление",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:EnumRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfCalculationTypesRef"] },
-    enterprise: "ПланВидовРасчета",
+    YAML: "ПланВидовРасчета",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfCalculationTypesRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["TaskRef"] },
-    enterprise: "Задача",
+    YAML: "Задача",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:TaskRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfCharacteristicTypesRef"] },
-    enterprise: "ПланВидовХарактеристик",
+    YAML: "ПланВидовХарактеристик",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfCharacteristicTypesRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfAccountsRef"] },
-    enterprise: "ПланСчетов",
+    YAML: "ПланСчетов",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfAccountsRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["CatalogRef"] },
-    enterprise: "Справочник",
+    YAML: "Справочник",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["CatalogObject"] },
-    enterprise: "СправочникОбъект",
+    YAML: "СправочникОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:CatalogObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["DocumentObject"] },
-    enterprise: "ДокументОбъект",
+    YAML: "ДокументОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:DocumentObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ExchangePlanObject"] },
-    enterprise: "ПланОбменаОбъект",
+    YAML: "ПланОбменаОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ExchangePlanObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["BusinessProcessRoutePointObject"] },
-    enterprise: "ТочкаМаршрутаБизнесПроцессаОбъект",
+    YAML: "ТочкаМаршрутаБизнесПроцессаОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:BusinessProcessRoutePointObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["BusinessProcessObject"] },
-    enterprise: "БизнесПроцессОбъект",
+    YAML: "БизнесПроцессОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:BusinessProcessObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfCalculationTypesObject"] },
-    enterprise: "ПланВидовРасчетаОбъект",
+    YAML: "ПланВидовРасчетаОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfCalculationTypesObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["TaskObject"] },
-    enterprise: "ЗадачаОбъект",
+    YAML: "ЗадачаОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:TaskObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfCharacteristicTypesObject"] },
-    enterprise: "ПланВидовХарактеристикОбъект",
+    YAML: "ПланВидовХарактеристикОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfCharacteristicTypesObject</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["ChartOfAccountObject"] },
-    enterprise: "ПланСчетовОбъект",
+    YAML: "ПланСчетовОбъект",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:ChartOfAccountObject</v8:TypeSet>\n</TypeDescription>",
   },
   //#endregion

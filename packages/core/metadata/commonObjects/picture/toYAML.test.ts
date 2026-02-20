@@ -11,7 +11,7 @@ describe("exportPictureToYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(pictureTestCases)("should export $name to YAML", ({ picture, enterpriseExpected }) => {
+  it.each(pictureTestCases)("should export $name to YAML", ({ picture, expectedYAML: enterpriseExpected }) => {
     const result = exportPictureToYAML(mockContext, mockRule, picture)
 
     expect(result).toEqual(enterpriseExpected)

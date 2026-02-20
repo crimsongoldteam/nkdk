@@ -19,7 +19,7 @@ describe("exportToYAML", () => {
     )
   })
 
-  it("should export multiple links to enterprise", () => {
+  it("should export multiple links to yaml", () => {
     const mock: ChoiceParameterLinks = [
       {
         name: "Отбор.Владелец",

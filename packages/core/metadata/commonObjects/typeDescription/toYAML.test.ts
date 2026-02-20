@@ -9,7 +9,7 @@ describe("exportTypeDescriptionToYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(typeFixturesTable)("should export composite type to YAML: $enterprise", ({ internal, enterprise }) => {
+  it.each(typeFixturesTable)("should export composite type to YAML: $enterprise", ({ internal, YAML: enterprise }) => {
     const result = exportTypeDescriptionToYAML(mockContext, mockRule, internal)
     expect(result).toEqual(enterprise)
   })

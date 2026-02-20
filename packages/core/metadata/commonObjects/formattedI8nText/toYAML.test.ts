@@ -23,9 +23,9 @@ describe("exportFormattedI8nTextToYAML", () => {
         })
 
         if (fixture.text?.formatted) {
-          expect(result).toEqual({ FormattedTitle: fixture.enterpriseFormattedText })
+          expect(result).toEqual({ FormattedTitle: fixture.formattedTextYAML })
         } else {
-          const expected = fixture.enterpriseText ? { Title: fixture.enterpriseText } : {}
+          const expected = fixture.textYAML ? { Title: fixture.textYAML } : {}
           expect(result).toEqual(expected)
         }
       })
@@ -37,7 +37,7 @@ describe("exportFormattedI8nTextToYAML", () => {
       it(`should export default: ${fixture.name}`, () => {
         const result = exportFormattedI8nTextDefaultToYAML(mockContextToYAML, mockRule, fixture.text)
 
-        expect(result).toEqual(fixture.enterpriseDefaultLanguage)
+        expect(result).toEqual(fixture.defaultLanguageYAML)
       })
     })
   })
@@ -66,9 +66,9 @@ describe("exportFormattedI8nTextToYAML", () => {
         if (Object.keys(otherItems).length === 0) {
           expect(result).toEqual({})
         } else if (fixture.text.formatted) {
-          expect(result).toEqual({ FormattedTitle: fixture.enterpriseOtherLanguagesFormattedText })
+          expect(result).toEqual({ FormattedTitle: fixture.otherLanguagesFormattedTextYAML })
         } else {
-          expect(result).toEqual({ Title: fixture.enterpriseOtherLanguagesText })
+          expect(result).toEqual({ Title: fixture.otherLanguagesTextYAML })
         }
       })
     })

@@ -4,9 +4,9 @@ export interface PictureTestCase {
   name: string
   picture: Picture
   pictureYAML: PictureYAML
-  enterpriseExpected: PictureYAML
+  expectedYAML: PictureYAML
   fixture: string | undefined
-  enterpriseImport?: boolean
+  importYAML?: boolean
   preview: PicturePreview
 }
 
@@ -19,7 +19,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       loadTransparent: true,
     } as Picture,
     pictureYAML: "БизнесПроцесс" as PictureYAML,
-    enterpriseExpected: "БизнесПроцесс" as PictureYAML,
+    expectedYAML: "БизнесПроцесс" as PictureYAML,
     fixture: "picture/standart.xml",
     preview: { Type: "Picture" as const, Value: "PictureLib.BusinessProcess" },
   },
@@ -31,7 +31,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       loadTransparent: false,
     } as Picture,
     pictureYAML: "ОбщаяКартинка1" as PictureYAML,
-    enterpriseExpected: "ОбщаяКартинка1" as PictureYAML,
+    expectedYAML: "ОбщаяКартинка1" as PictureYAML,
     fixture: "picture/common.xml",
     preview: { Type: "Picture" as const, Value: "CommonPictures.ОбщаяКартинка1" },
   },
@@ -43,7 +43,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       loadTransparent: false,
     } as Picture,
     pictureYAML: "Picture.png" as PictureYAML,
-    enterpriseExpected: "Picture.png" as PictureYAML,
+    expectedYAML: "Picture.png" as PictureYAML,
     fixture: "picture/absolute.xml",
     preview: { Type: "AbsolutePicture" as const },
   },
@@ -60,7 +60,7 @@ export const pictureTestCases: readonly PictureTestCase[] = [
       ПрозрачныйФон: "Истина",
       ПрозрачныйПиксель: { x: 10, y: 15 },
     } as PictureYAML,
-    enterpriseExpected: {
+    expectedYAML: {
       Ссылка: "Picture.png",
       ПрозрачныйФон: "Истина",
       ПрозрачныйПиксель: { x: 10, y: 15 },

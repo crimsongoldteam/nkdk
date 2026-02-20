@@ -16,8 +16,8 @@ describe("importFormattedI8nTextFromYAML", () => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
         rule: formattedI8nTextRule,
-        value: fixture.enterpriseText,
-        yaml: fixture.enterpriseFormattedText ? { FormattedTitle: fixture.enterpriseFormattedText } : undefined,
+        value: fixture.textYAML,
+        yaml: fixture.formattedTextYAML ? { FormattedTitle: fixture.formattedTextYAML } : undefined,
       })
       expect(result).toEqual(fixture.text)
     })
@@ -28,8 +28,8 @@ describe("importFormattedI8nTextFromYAML", () => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
         rule: formattedI8nTextRule,
-        value: fixture.enterpriseText,
-        yaml: fixture.enterpriseFormattedText ? { FormattedTitle: fixture.enterpriseFormattedText } : undefined,
+        value: fixture.textYAML,
+        yaml: fixture.formattedTextYAML ? { FormattedTitle: fixture.formattedTextYAML } : undefined,
         source: fixture.textFromStructure,
       })
       expect(result).toEqual(fixture.text)
