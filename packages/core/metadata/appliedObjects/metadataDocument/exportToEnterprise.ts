@@ -64,7 +64,7 @@ export const exportMetadataDocumentToEnterprise = (
       { type: "SystemEnumeration", typeSE: "DataHistoryUse" },
       data.dataHistory
     ),
-    Команды: exportMetadataCommandsToEnterprise(context, data.commands),
+    Команды: exportMetadataCommandsToEnterprise(context, { type: "MetadataCommands" }, data.commands),
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(context, undefined, data.checkUnique),
     Нумератор: exportMetadataDocumentNumeratorToEnterprise(context, data.numerator),
@@ -97,9 +97,9 @@ export const exportMetadataDocumentToEnterprise = (
       data.fullTextSearchOnInputByString
     ),
     ПоляБлокировкиДанных: exportMetadataFieldsToEnterprise(context, undefined, data.dataLockFields),
-    Пояснение: exportI8nTextToYAML(context, { type: "I8nText" }, data.explanation),
-    ПредставлениеОбъекта: exportI8nTextToYAML(context, { type: "I8nText" }, data.objectPresentation),
-    ПредставлениеСписка: exportI8nTextToYAML(context, { type: "I8nText" }, data.listPresentation),
+    Пояснение: exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.explanation }),
+    ПредставлениеОбъекта: exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.objectPresentation }),
+    ПредставлениеСписка: exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.listPresentation }),
     ПривилегированныйРежимПриОтменеПроведения: exportBooleanToEnterprise(
       context,
       undefined,
@@ -116,8 +116,16 @@ export const exportMetadataDocumentToEnterprise = (
       { type: "SystemEnumeration", typeSE: "Posting" },
       data.posting
     ),
-    РасширенноеПредставлениеОбъекта: exportI8nTextToYAML(context, { type: "I8nText" }, data.extendedObjectPresentation),
-    РасширенноеПредставлениеСписка: exportI8nTextToYAML(context, { type: "I8nText" }, data.extendedListPresentation),
+    РасширенноеПредставлениеОбъекта: exportI8nTextToYAML({
+      context,
+      rule: { type: "I8nText" },
+      value: data.extendedObjectPresentation,
+    }),
+    РасширенноеПредставлениеСписка: exportI8nTextToYAML({
+      context,
+      rule: { type: "I8nText" },
+      value: data.extendedListPresentation,
+    }),
     РежимПолученияДанныхВыбораПриВводеПоСтроке:
       exportSystemEnumerationToYAML<SE.ChoiceDataGetModeOnInputByStringEnterprise>(
         context,
@@ -130,7 +138,7 @@ export const exportMetadataDocumentToEnterprise = (
       data.dataLockControlMode
     ),
     Реквизиты: exportMetadataAttributesToEnterprise(context, undefined, data.attributes),
-    Синоним: exportI8nTextToYAML(context, { type: "I8nText" }, data.synonym),
+    Синоним: exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data.synonym }),
     СозданиеПриВводе: exportSystemEnumerationToYAML<SE.CreateOnInputEnterprise>(
       context,
       { type: "SystemEnumeration", typeSE: "CreateOnInput" },

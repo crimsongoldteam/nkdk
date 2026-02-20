@@ -11,6 +11,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
@@ -85,3 +86,5 @@ export const importMetadataTabularSectionsFromEnterprise = (
     .map(([name, value]) => importMetadataTabularSectionFromEnterprise(context, undefined, value, name))
     .filter((item): item is MetadataTabularSection => item !== undefined)
 }
+
+registerTypeRule("MetadataTabularSections", "importFromEnterprise", importMetadataTabularSectionsFromEnterprise)

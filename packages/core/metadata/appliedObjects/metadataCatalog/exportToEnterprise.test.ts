@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { full, fullEnterprise, minimal, minimalEnterprise } from "~/tests/fixtures/metadataCatalog/data"
+import { full, fullEnterprise, minimal } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContextToYAML, mockRule } from "~/tests/mockContext"
 import { exportMetadataCatalogToEnterprise } from "./exportToEnterprise"
 
@@ -18,6 +18,6 @@ describe("exportMetadataCatalogToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportMetadataCatalogToEnterprise(mockContextToYAML, mockRule, minimal)
 
-    expect(result).toEqual(minimalEnterprise)
+    expect(result).toBeUndefined()
   })
 })

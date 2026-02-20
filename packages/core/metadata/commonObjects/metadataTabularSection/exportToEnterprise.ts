@@ -10,6 +10,7 @@ import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/comm
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -82,3 +83,5 @@ export const exportMetadataTabularSectionsToEnterprise = (
     ])
   )
 }
+
+registerTypeRule("MetadataTabularSections", "exportToEnterprise", exportMetadataTabularSectionsToEnterprise)

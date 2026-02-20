@@ -10,6 +10,7 @@ import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObj
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionsFromXML = (
@@ -58,3 +59,5 @@ const importMetadataTabularSectionFromXML = (
   const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)
 }
+
+registerTypeRule("MetadataTabularSections", "importFromXML", importMetadataTabularSectionsFromXML)

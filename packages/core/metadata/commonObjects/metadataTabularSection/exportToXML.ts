@@ -13,6 +13,7 @@ import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/exportToXML"
 import { getDefaults } from "./defaults"
+import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
@@ -84,3 +85,5 @@ export const exportMetadataTabularSectionToXML = (
 
   return result
 }
+
+registerTypeRule("MetadataTabularSections", "exportToXML", exportMetadataTabularSectionsToXML)
