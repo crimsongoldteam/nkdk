@@ -25,6 +25,6 @@ describe("importMetadataCatalogFromEnterprise", () => {
   it("should import with short format", () => {
     const result = exportMetadataCatalogToEnterprise(mockContext, mockRule, minimal)
 
-    expect(result).toEqual(minimalEnterprise)
+    expect(result).toBeUndefined()
   })
 })

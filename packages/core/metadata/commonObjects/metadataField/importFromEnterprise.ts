@@ -24,4 +24,4 @@ export const importMetadataFieldFromEnterprise = (
   return importMetadataFieldFromEnterprisePath(context, undefined, data)
 }
 
-registerTypeRule("MetadataField", "importFromEnterprise", importMetadataFieldFromEnterprise)
+registerTypeRule("MetadataField", "importFromEnterprise", importMetadataFieldsFromEnterprise)
