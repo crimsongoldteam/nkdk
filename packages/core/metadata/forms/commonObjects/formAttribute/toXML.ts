@@ -1,4 +1,4 @@
-import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
+import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
 import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"

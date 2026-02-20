@@ -1,5 +1,5 @@
-export * from "./exportToXML"
+export * from "./fromXML"
 export * from "./fromYAML"
-export * from "./importFromXML"
+export * from "./toXML"
 export * from "./toYAML"
 export * from "./types"

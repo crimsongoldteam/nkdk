@@ -2,12 +2,12 @@ import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
 import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
+import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/fromXML"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/base/fromYAML"
 import {
   exportClientApplicationFormToXML,
   exportFormMetadataToXML,
-} from "~/metadata/forms/clientApplicationForm/base/exportToXML"
-import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/base/fromYAML"
-import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/importFromXML"
+} from "~/metadata/forms/clientApplicationForm/base/toXML"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/base/toYAML"
 import {
   ClientApplicationFormXML,
