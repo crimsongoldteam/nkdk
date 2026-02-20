@@ -264,6 +264,31 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       xmlParents: ["Form", "Properties"],
     },
     // #endregion
+
+    // #region Catalog
+    choiceAvailable: {
+      yaml: "ВыборДоступен",
+      type: "boolean",
+      tag: FormRulesTags.Catalog,
+    },
+    useForFoldersAndItems: {
+      yaml: "ИспользованиеДляГруппИЭлементов",
+      type: "SystemEnumeration",
+      typeSE: "FoldersAndItemsUse",
+      tag: FormRulesTags.Catalog,
+    },
+    choiceParameters: {
+      yaml: "ПараметрыВыбора",
+      type: "ChoiceParameters",
+      tag: FormRulesTags.Catalog,
+    },
+    choiceMode: {
+      yaml: "РежимВыбора",
+      type: "SystemEnumeration",
+      typeSE: "ChoiceMode",
+      tag: FormRulesTags.Catalog,
+    },
+    // #endregion
   },
   events: {
     collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",

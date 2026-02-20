@@ -10,6 +10,7 @@ export interface CatalogForm extends Omit<ClientApplicationForm, "itemType" | "e
   choiceParameters?: ChoiceParameters
   choiceMode?: SE.ChoiceMode
   events?: {
+    ...ClientApplicationForm["events"],
     valueChoice?: string
     beforeWrite?: string
     beforeWriteAtServer?: string

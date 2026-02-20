@@ -6,9 +6,9 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { GroupChildItem, GroupChilItemPartialEnterprise } from "../../collections/childItems/types"
 import { CommandInterface, CommandInterfaceEnterprise } from "../../commonObjects/commandInterface/types"
 import { CommandSet, CommandSetEnterprise } from "../../commonObjects/commandSet/types"
-import { FormAttribute, FormAttributesXML, FormAttributesEnterprise } from "../../commonObjects/formAttribute/types"
+import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../commonObjects/formAttribute/types"
 import { FormCommand, FormCommandsXML, FormCommandsYAML } from "../../commonObjects/formCommand/types"
-import { FormParameters, FormParametersXML, FormParametersEnterprise } from "../../commonObjects/formParameter/types"
+import { FormParameters, FormParametersEnterprise, FormParametersXML } from "../../commonObjects/formParameter/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "../../elements/autoCommandBar/types"
 
 export interface ClientApplicationForm extends MetadataItem {
@@ -308,5 +308,6 @@ export type PreviewAttributesMap = Record<string, PreviewAttributeMapItem>
 
 export const FormRulesTags = {
   Form: "Form",
+  Catalog: "Catalog",
   Metadata: "Metadata",
 } as const
