@@ -1,17 +1,26 @@
 #!/bin/bash
 
-# Скрипт переименовывает все файлы importFromEnterprise.test.ts в fromYAML.test.ts
-# в директории packages/core/metadata/forms/elements
+# Скрипт переименовывает все .ts файлы:
+# exportToEnterprise -> toYAML
+# importFromEnterprise -> fromYAML
+# в директории packages/core/
 
 set -e
 
 BASE_DIR="/Users/nikita/git/nakidka-core/packages/core/"
 
-echo "Переименование файлов importFromEnterprise.test.ts -> fromYAML.test.ts..."
+echo "Переименование файлов..."
 
-# Найти и переименовать все importFromEnterprise.test.ts
-find "$BASE_DIR" -name "importFromEnterprise.test.ts" -print0 | while IFS= read -r -d '' file; do
-    new_file="${file/importFromEnterprise.test.ts/fromYAML.test.ts}"
+# exportToEnterprise -> toYAML
+find "$BASE_DIR" -name "*exportToEnterprise*.ts" -print0 | while IFS= read -r -d '' file; do
+    new_file="${file//exportToEnterprise/toYAML}"
+    mv "$file" "$new_file"
+    echo "Переименован: $file -> $new_file"
+done
+
+# importFromEnterprise -> fromYAML
+find "$BASE_DIR" -name "*importFromEnterprise*.ts" -print0 | while IFS= read -r -d '' file; do
+    new_file="${file//importFromEnterprise/fromYAML}"
     mv "$file" "$new_file"
     echo "Переименован: $file -> $new_file"
 done
