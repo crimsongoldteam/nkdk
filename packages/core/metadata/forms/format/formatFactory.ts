@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { AllChildItems } from "../collections/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 type FormatRegistry = {
   format: FormatElementFunction

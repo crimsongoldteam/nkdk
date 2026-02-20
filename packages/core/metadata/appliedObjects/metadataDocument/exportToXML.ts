@@ -48,7 +48,7 @@ export const exportMetadataDocumentToXML = (
 
   if (data.choiceHistoryOnInput !== undefined) result.ChoiceHistoryOnInput = data.choiceHistoryOnInput
 
-  const commands = exportMetadataCommandsToXML(context, data.commands)
+  const commands = exportMetadataCommandsToXML(context, { type: "MetadataCommands" }, data.commands)
   if (commands !== undefined) result.Commands = commands
 
   if (data.comment !== undefined) result.Comment = data.comment
@@ -129,9 +129,11 @@ export const exportMetadataDocumentToXML = (
 
   if (data.sequenceFilling !== undefined) result.SequenceFilling = data.sequenceFilling
 
-  const standardAttributes = exportStandardAttributeDescriptionsToXML(context, undefined, data.standardAttributes, [
-    "Ref",
-  ])
+  const standardAttributes = exportStandardAttributeDescriptionsToXML(
+    context,
+    { type: "StandardAttributeDescription", standartAttributeNames: ["Ref"] },
+    data.standardAttributes
+  )
   if (standardAttributes !== undefined) result.StandardAttributes = standardAttributes
 
   const synonym = exportI8nTextToXML(context, { type: "I8nText" }, data.synonym)

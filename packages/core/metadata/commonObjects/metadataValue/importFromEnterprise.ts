@@ -153,7 +153,7 @@ export const importFormChoiceListValueFromEnterprise = (
     const parsed = formulaFormatParser(data)
     // Если formula пустая, значит это формат (presentation) без значения
     const value = parsed.formula ? importMetadataValueFromEnterprise(context, undefined, parsed.formula) : undefined
-    const presentation = importI8nTextFromYAML(context, { type: "I8nText" }, parsed.parameters[0])
+    const presentation = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: parsed.parameters[0] })
 
     return {
       type: "formChoiceListDesTimeValue",
@@ -164,7 +164,7 @@ export const importFormChoiceListValueFromEnterprise = (
   const value = importMetadataValueFromEnterprise(context, undefined, data.Значение)!
   return {
     type: "formChoiceListDesTimeValue",
-    presentation: importI8nTextFromYAML(context, { type: "I8nText" }, data.Представление),
+    presentation: importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Представление }),
     value: value,
   }
 }

@@ -50,7 +50,7 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.ChoiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = xml.ChoiceHistoryOnInput
 
-  const commands = importMetadataCommandsFromXML(context, xml.Commands)
+  const commands = importMetadataCommandsFromXML(context, { type: "MetadataCommands" }, xml.Commands)
   if (commands !== undefined) result.commands = commands
 
   if (xml.Comment !== undefined) result.comment = xml.Comment

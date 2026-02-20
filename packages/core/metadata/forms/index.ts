@@ -5,7 +5,7 @@ export { exportCatalogFormToStructure } from "./clientApplicationForm/catalog/ex
 export { exportCatalogFormToXML } from "./clientApplicationForm/catalog/exportToXML"
 export { importCatalogFormFromEnterprise } from "./clientApplicationForm/catalog/importFromEnterprise"
 export { importCatalogFormFromXML } from "./clientApplicationForm/catalog/importFromXML"
-export type { CatalogFormEnterprise, CatalogFormXML } from "./clientApplicationForm/catalog/types"
+export type { CatalogFormEnterprise } from "./clientApplicationForm/catalog/types"
 export { importChildItemsFromStructure } from "./collections/childItems/importFromStructure"
 
 export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/factory"
