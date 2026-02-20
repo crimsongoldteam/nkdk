@@ -88,5 +88,3 @@ export function exportElementToYAML<T extends BaseElement>(params: {
 
   return result as ToYAML<T>
 }
-
-// Moved to ../events/mapEventsToEnterprise.ts
