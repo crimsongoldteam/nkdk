@@ -128,6 +128,7 @@ export type PropertyRule<T extends MetadataItem | never = never> =
   | CustomExportPropertyRule<T>
   | TableAdditionalSourcePropertyRule<T>
   | StandardAttributeDescriptionPropertyRule<T>
+
 type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
   Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule<T>>
 >

@@ -4,7 +4,7 @@ import { MetadataCatalog, MetadataCatalogStandardAttributeNames } from "./types"
 const catalogProperties = ["Catalog", "Properties"]
 const catalogChildObjects = ["Catalog", "ChildObjects"]
 
-export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog> = {
+export const MetadataCatalogRules: MetadataItemRule<MetadataCatalog, "name"> = {
   properties: {
     name: {
       type: "string",
