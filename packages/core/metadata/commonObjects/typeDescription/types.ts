@@ -483,6 +483,10 @@ export type TypeDescriptionXML = {
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
 }
 
+export interface TypeDescriptionXMLWithAttribute extends TypeDescriptionXML {
+  "_xsi:type": "v8:TypeDescription"
+}
+
 export interface TypeDescriptionStringQualifiers {
   length: number
   allowedLength: "Variable" | "Fixed"

@@ -108,6 +108,11 @@ export interface TableAdditionalSourcePropertyRule<T extends MetadataItem | neve
   forSingleElement?: true
 }
 
+export interface TypeDescriptionPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+  type: "TypeDescription"
+  addTypeDescriptionAttributeToXML?: true
+}
+
 export interface CleanPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: Exclude<
     TypeRulesNames,
@@ -118,6 +123,7 @@ export interface CleanPropertyRule<T extends MetadataItem | never = never> exten
     | "TableAdditionalSource"
     | "StandardAttributeDescription"
     | "ChildItems"
+    | "TypeDescription"
   >
 }
 
@@ -136,6 +142,7 @@ export type PropertyRule<T extends MetadataItem | never = never> =
   | TableAdditionalSourcePropertyRule<T>
   | StandardAttributeDescriptionPropertyRule<T>
   | ChildItemsPropertyRule<T>
+  | TypeDescriptionPropertyRule<T>
 
 type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
   Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule<T>>

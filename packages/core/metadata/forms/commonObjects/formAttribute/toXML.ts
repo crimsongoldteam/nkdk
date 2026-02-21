@@ -50,7 +50,12 @@ const exportFormAttributeToXML = (
     ...properties,
   }
 
-  // if "ValueList" data.type?.type ?? []
+  if (data.type?.type.includes("ValueListType") || result.Settings !== undefined) {
+    result.Settings = {
+      "_xsi:type": "v8:TypeDescription",
+      ...result.Settings,
+    }
+  }
 
   // const settings = exportFormAttributeSettingsToXML(context, undefined, mergedData.settings, mergedData.valueType)
   // if (settings) {

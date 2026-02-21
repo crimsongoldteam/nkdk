@@ -32,6 +32,7 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       yaml: "ТипЗначения",
       type: "TypeDescription",
       xml: "Settings",
+      addTypeDescriptionAttributeToXML: true,
     },
     mainAttribute: {
       yaml: "ОсновнойРеквизит",
