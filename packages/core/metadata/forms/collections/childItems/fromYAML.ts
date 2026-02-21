@@ -33,7 +33,7 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends M
   return importChildItemsTypedFromYAML({
     context: params.context,
     rule: params.rule,
-    yaml: params.value,
+    yaml: params.value as ToTypedYAML<To> | undefined,
   }) as unknown as To[]
 }
 
@@ -46,7 +46,7 @@ export const importChildItemsFromPartialYAML = <To extends AllChildItem>(params:
 
   if (!source) return []
 
-  const childItemsProperties = context.allElements!
+  const childItemsProperties = context.allElements ?? {}
 
   return source.map((item) => {
     const processedItem = importChildItemProperties(context, item, childItemsProperties)

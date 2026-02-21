@@ -38,7 +38,7 @@ export const importUserVisibleFromYAMLDeprecated = (
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule
+  rule: PropertyRule<any>
   value: UserVisibleYAML | undefined
   source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined

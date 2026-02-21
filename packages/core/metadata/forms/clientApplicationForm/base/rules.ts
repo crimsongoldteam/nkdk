@@ -42,7 +42,7 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     },
     childItems: {
       type: "ChildItems",
-      yaml: "Элементы",
+      yaml: "ПодчиненныеЭлементы",
       tag: FormRulesTags.Form,
       defaultValue: [],
       fromPartialYAML: true,

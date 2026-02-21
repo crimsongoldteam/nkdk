@@ -1,13 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { PropertyRule } from ".."
+import { importSingleElementFromYAML, PropertyRule } from ".."
 import { FormElementType } from "../metadataType/types"
 import { ToYAML } from "../rules"
 import { ElementXML } from "../types"
 import { registerTypeRule } from "../types/factory"
 import { TypeRulesNames } from "../types/types"
 import { importSingleElementFromXML } from "./fromXML"
-import { importElementFromPartialYAML } from "./fromYAML"
 import { exportSingleElementToXML } from "./toXML"
 import { exportElementToPartialYAML } from "./toYAML"
 import { ElementRule, RegisterAsTypeRule } from "./types"
@@ -85,7 +84,7 @@ const registerImportFromYAML = <T extends BaseElement>(
     propertyType,
     "importFromYAML",
     (context: ConfigurationContext, _rule: PropertyRule<T>, yaml: ToYAML<T> | undefined, source?: T): T | undefined => {
-      return importElementFromPartialYAML({
+      return importSingleElementFromYAML({
         context,
         itemType: itemType,
         yaml,
