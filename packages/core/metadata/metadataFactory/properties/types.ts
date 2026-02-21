@@ -78,6 +78,12 @@ export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never = n
   xmlWithDefaultLanguage?: true
 }
 
+export interface ChildItemsPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+  type: "ChildItems"
+  defaultValue: []
+  fromPartialYAML?: true
+}
+
 export interface SystemEnumerationPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: "SystemEnumeration"
   typeSE: string
@@ -111,6 +117,7 @@ export interface CleanPropertyRule<T extends MetadataItem | never = never> exten
     | "UserVisible"
     | "TableAdditionalSource"
     | "StandardAttributeDescription"
+    | "ChildItems"
   >
 }
 
@@ -128,6 +135,7 @@ export type PropertyRule<T extends MetadataItem | never = never> =
   | CustomExportPropertyRule<T>
   | TableAdditionalSourcePropertyRule<T>
   | StandardAttributeDescriptionPropertyRule<T>
+  | ChildItemsPropertyRule<T>
 
 type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
   Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule<T>>

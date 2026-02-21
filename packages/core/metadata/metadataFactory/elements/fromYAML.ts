@@ -6,6 +6,7 @@ import { FormElementType } from "../metadataType/types"
 import { importPropertiesFromYAML } from "../properties/fromYAML"
 import { ToTypedYAML, ToYAML } from "../rules"
 import { getElementRule } from "./factory"
+import { isEmptyMetadataItem } from "./helper"
 import { ElementRule } from "./types"
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
@@ -69,13 +70,17 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
 
   const rules = getElementRule<T>(itemType)
 
-  return importElementFromYAML({
+  const element = importElementFromYAML({
     context: context,
     rules: rules,
     yaml: yaml as ToYAML<T> & { События?: Record<string, string> },
     itemType: itemType,
     source: source,
   })
+
+  if (isEmptyMetadataItem({ context, rule: rules, element })) return undefined
+
+  return element
 }
 
 function importElementFromYAML<T extends BaseElement>(params: {

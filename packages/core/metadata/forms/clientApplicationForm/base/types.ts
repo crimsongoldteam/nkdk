@@ -284,7 +284,7 @@ export interface ClientApplicationFormYAML {
     // #endregion
   }
   Команды?: FormCommandsYAML
-  Элементы?: GroupChilItemPartialYAML
+  ПодчиненныеЭлементы?: GroupChilItemPartialYAML
 
   Синоним?: I8nTextYAML
   Комментарий?: string

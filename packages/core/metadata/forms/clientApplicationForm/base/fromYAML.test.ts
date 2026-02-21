@@ -5,7 +5,6 @@ import {
   fullClientApplicationFormYAML,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContext } from "~/tests/mockContext"
-import { Button } from "../../elements/button/types"
 import { ButtonGroup } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
@@ -14,7 +13,9 @@ import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 describe("importClientApplicationFormFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importClientApplicationFormFromYAML(mockContext, fullClientApplicationFormYAML, {
+      commands: [],
       childItems: [{ name: "ПолеВвода1", itemType: CollectionFormElementType.InputField }],
+      itemType: "ClientApplicationForm",
       autoCommandBar: {
         itemType: "AutoCommandBar",
         autofill: false,
@@ -26,31 +27,40 @@ describe("importClientApplicationFormFromYAML", () => {
   })
 
   it("should import from form command bar", () => {
-    const button: Button = {
-      name: "Кнопка1",
-      itemType: CollectionFormElementType.Button,
-    }
+    // const button: Button = {
+    //   name: "Кнопка1",
+    //   itemType: CollectionFormElementType.Button,
+    // }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
       itemType: CollectionFormElementType.ButtonGroup,
-      childItems: [button],
+      childItems: [],
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      Элементы: {
-        Кнопка1: { ИмяКоманды: "Команда1" },
-        ГруппаКнопок1: { Доступность: "Ложь" },
+      ПодчиненныеЭлементы: {
+        ГруппаКнопок1: {
+          Доступность: "Ложь",
+          ПодчиненныеЭлементы: {
+            Кнопка1: {
+              Тип: "Кнопка",
+              ИмяКоманды: "Команда1",
+            },
+          },
+        },
       },
     }
 
     const result = importClientApplicationFormFromYAML(mockContext, enterpriseData, {
+      commands: [],
       childItems: [],
       autoCommandBar: {
         itemType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },
+      itemType: "ClientApplicationForm",
     })
 
     const expectedResult: ClientApplicationForm = {
@@ -81,15 +91,15 @@ describe("importClientApplicationFormFromYAML", () => {
   })
 
   it("should import from table command bar", () => {
-    const button: Button = {
-      name: "Кнопка1",
-      itemType: CollectionFormElementType.Button,
-    }
+    // const button: Button = {
+    //   name: "Кнопка1",
+    //   itemType: CollectionFormElementType.Button,
+    // }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
       itemType: CollectionFormElementType.ButtonGroup,
-      childItems: [button],
+      childItems: [],
     }
 
     const table: Table = {
@@ -105,15 +115,21 @@ describe("importClientApplicationFormFromYAML", () => {
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      Элементы: {
-        Кнопка1: { ИмяКоманды: "Команда1" },
-        ГруппаКнопок1: { Доступность: "Ложь" },
+      ПодчиненныеЭлементы: {
+        ГруппаКнопок1: {
+          Доступность: "Ложь",
+          ПодчиненныеЭлементы: {
+            Кнопка1: { Тип: "Кнопка", ИмяКоманды: "Команда1" },
+          },
+        },
         Таблица1: { МножественныйВыбор: "Ложь" },
       },
     }
 
     const result = importClientApplicationFormFromYAML(mockContext, enterpriseData, {
       childItems: [table],
+      itemType: "ClientApplicationForm",
+      commands: [],
     })
 
     const expectedResult: ClientApplicationForm = {

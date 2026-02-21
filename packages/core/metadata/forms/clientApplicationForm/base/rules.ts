@@ -42,8 +42,11 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     },
     childItems: {
       type: "ChildItems",
+      yaml: "Элементы",
       tag: FormRulesTags.Form,
       defaultValue: [],
+      fromPartialYAML: true,
+      toPartialYAML: false,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",

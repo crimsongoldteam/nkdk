@@ -1,35 +1,71 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
+import {
+  ChildItemsPropertyRule,
+  importElementFromPartialYAML,
+  importElementFromTypedYAML,
+  ImportFromYAMLFunctionNew,
+  MetadataItem,
+} from "~/metadata/metadataFactory"
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialYAML, TypedElement } from "./types"
 
+export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends MetadataItem>(params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  yaml?: unknown
+  value?: ToYAML<To> | ToTypedYAML<To>[]
+  source?: To[]
+}): To[] => {
+  const { rule } = params
+
+  const narrowRule = rule as ChildItemsPropertyRule<To>
+
+  if (narrowRule.fromPartialYAML) {
+    return importChildItemsFromPartialYAML({
+      context: params.context,
+      rule: params.rule,
+      source: params.source as AllChildItem[] | undefined,
+    }) as unknown as To[]
+  }
+
+  return importChildItemsTypedFromYAML({
+    context: params.context,
+    rule: params.rule,
+    yaml: params.value,
+  }) as unknown as To[]
+}
+
 export const importChildItemsFromPartialYAML = <To extends AllChildItem>(params: {
   context: ConfigurationContext
-  // _data: undefined,
-  childItems: To[]
+  rule: PropertyRule<any>
+  source?: To[]
 }): To[] => {
-  const { context, childItems } = params
+  const { context, source } = params
+
+  if (!source) return []
 
   const childItemsProperties = context.allElements!
 
-  return childItems.map((item) => {
+  return source.map((item) => {
     const processedItem = importChildItemProperties(context, item, childItemsProperties)
 
     return processedItem
   })
 }
 
-export const importChildItemsTypedFromYAML = <To extends TypedElement>(
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  allProperties?: Record<string, ToTypedYAML<To>>
-): To[] => {
-  if (!allProperties) return []
+const importChildItemsTypedFromYAML = <To extends TypedElement>(params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  yaml?: ToTypedYAML<To>
+}): To[] => {
+  const { context, yaml } = params
+
+  if (!yaml) return []
 
   const result: To[] = []
-  for (const [name, item] of Object.entries(allProperties)) {
+  for (const [name, item] of Object.entries(yaml)) {
     const resultItem = importElementFromTypedYAML({
       context: context,
       yaml: item as ToTypedYAML<To> & { События?: Record<string, string> },
@@ -57,4 +93,4 @@ const importChildItemProperties = <To extends AllChildItem>(
   return result as To
 }
 
-registerTypeRule("ChildItems", "importFromYAML", importChildItemsTypedFromYAML)
+registerTypeRule("ChildItems", "importFromYAML", importChildItemsFromYAML)
