@@ -4,10 +4,13 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { InputField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const InputFieldRules: ElementRule<InputField> = {
+export const InputFieldRules = {
   enterpriseField: "FormField",
   properties: {
-    allowInputEmptyMultipleValues: { yaml: "РазрешитьВводПустыхМножественныхЗначений", type: "boolean" },
+    allowInputEmptyMultipleValues: {
+      yaml: "РазрешитьВводПустыхМножественныхЗначений",
+      type: "boolean",
+    },
     allowMultipleValuesDuplicates: { yaml: "РазрешитьДублированиеМножественныхЗначений", type: "boolean" },
     autoCapitalizationOnTextInput: {
       yaml: "АвтоИзменениеРегистраПриВводеТекста",
@@ -39,7 +42,11 @@ export const InputFieldRules: ElementRule<InputField> = {
       type: "SystemEnumeration",
       typeSE: "AutoShowOpenButtonMode",
     },
-    availableTypes: { yaml: "ДоступныеТипы", type: "TypeDescription" },
+    availableTypes: {
+      yaml: "ДоступныеТипы",
+      type: "TypeDescription",
+      toEnterprise: false,
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     choiceButton: { yaml: "КнопкаВыбора", type: "boolean" },
@@ -77,7 +84,10 @@ export const InputFieldRules: ElementRule<InputField> = {
       type: "SystemEnumeration",
       typeSE: "EditTextUpdate",
     },
-    extendedEdit: { yaml: "РасширенноеРедактирование", type: "boolean" },
+    extendedEdit: {
+      yaml: "РасширенноеРедактирование",
+      type: "boolean",
+    },
     font: { yaml: "Шрифт", type: "Font" },
     format: { yaml: "Формат", type: "I8nText" },
     height: { yaml: "Высота", type: "number" },
@@ -156,6 +166,7 @@ export const InputFieldRules: ElementRule<InputField> = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
@@ -280,6 +291,6 @@ export const InputFieldRules: ElementRule<InputField> = {
     creating: "Создание",
     multipleValuesDelete: "УдалениеМножественныхЗначений",
   },
-}
+} as const satisfies ElementRule<InputField>
 
-registerElementRule("InputField", InputFieldRules)
+registerElementRule("InputField", InputFieldRules as ElementRule<InputField>)

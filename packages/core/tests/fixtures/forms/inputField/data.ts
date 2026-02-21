@@ -1,7 +1,7 @@
 import {
   InputField,
+  InputFieldEnterprise,
   InputFieldPartialYAML,
-  InputFieldPreview,
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
@@ -400,8 +400,8 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
   },
 ]
 
-export const fullInputFieldPreview: Required<InputFieldPreview> = {
-  itemType: "FormField",
+export const fullInputFieldPreview = {
+  EnterpriseField: "FormField",
   Name: "ПолеВвода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
   AllowInputEmptyMultipleValues: true,
@@ -509,4 +509,4 @@ export const fullInputFieldPreview: Required<InputFieldPreview> = {
   Visible: true,
   WarningOnEdit: "Предупреждение",
   WarningOnEditRepresentation: { Type: "SystemEnumeration", Value: "WarningOnEditRepresentation.DontShow" },
-}
+} satisfies InputFieldEnterprise

@@ -14,44 +14,6 @@ export interface ElementXML {
 export interface EventedXML extends ElementXML {
   Events: EventXML[] | EventXML
 }
-// export type ToPreviewType<T> = T extends undefined
-//   ? undefined
-//   : "Preview" extends keyof TypeRules<NonNullable<T>>
-//     ? TypeRules<NonNullable<T>>["Preview"]
-//     : never
-
-// // #endregion
-
-// #region functions
-
-// export type ImportFromXMLFn = <To extends AllChildItem | undefined>(
-//   context: ConfigurationContext,
-//   data: ElementXML | undefined
-// ) => To
-
-// export type ImportTypedFromYAMLFn = <To extends TypedElement>(
-//   context: ConfigurationContext,
-//   data: ToTypedYAML<To>,
-//   name: string
-// ) => To
-
-// export type ImportPartialFromYAMLFn = (
-//   context: ConfigurationContext,
-//   source: Object,
-//   data: Object | undefined
-// ) => Object | undefined
-
-// export type ExportToXMLFn = (context: ConfigurationContext, data?: any) => any
-
-// export type ExportPartialToYAMLFn = <From extends BaseElement | undefined>(
-//   context: ConfigurationContext,
-//   data: From
-// ) => ToYAML<From>
-
-// export type ExportTypedToYAMLFn = <From extends TypedElement>(
-//   context: ConfigurationContext,
-//   data: From
-// ) => ToTypedYAML<From>
 
 export type ExportToStructureFn = <From extends BaseElement>(
   context: ConfigurationContext,
@@ -70,15 +32,7 @@ export type ExportToStructureContentFn = <From extends BaseElement>(
 
 // #endregion
 
-type fnPairs =
-  // | ["ExportToXML", ExportToXMLFn]
-  // | ["ExportPartialToYAML", ExportPartialToYAMLFn]
-  // | ["ExportTypedToYAML", ExportTypedToYAMLFn]
-  // | ["ImportFromXML", ImportFromXMLFn]
-  // | ["ImportPartialFromYAML", ImportPartialFromYAMLFn]
-  // | ["ImportTypedFromYAML", ImportTypedFromYAMLFn]
-  ["ExportToStructure", ExportToStructureFn] | ["ExportToStructureContent", ExportToStructureContentFn]
-// | ["ExportToPreview", ExportToPreviewFn]
+type fnPairs = ["ExportToStructure", ExportToStructureFn] | ["ExportToStructureContent", ExportToStructureContentFn]
 
 export type ItemOperationType = fnPairs extends infer T ? (T extends [infer Op, any] ? Op : never) : never
 

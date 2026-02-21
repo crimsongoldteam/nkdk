@@ -1,6 +1,6 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { TypeDescriptionPreview } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -327,7 +327,7 @@ export interface PreviewAttribute {
   Name: string
   Path?: string
   Title?: string
-  Type: TypeDescriptionPreview
+  Type: TypeDescriptionEnterprise
 }
 
 export type PreviewAttributes = PreviewAttribute[]
@@ -336,7 +336,7 @@ export interface PreviewAttributeMapItem {
   name: string
   parentPath?: string
   title?: string
-  type: TypeDescriptionPreview
+  type: TypeDescriptionEnterprise
   childItems?: PreviewAttributesMap
 }
 

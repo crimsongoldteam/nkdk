@@ -1,13 +1,13 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext } from "../../context/types"
-import { Color, ColorPreview } from "./types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { ConfigurationContext } from "../../context/types"
+import { Color, ColorEnterprise } from "./types"
 
 export const exportColorToPreview = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   color: Color | undefined
-): ColorPreview | undefined => {
+): ColorEnterprise | undefined => {
   if (!color) return undefined
 
   if (color.type === "WebColor" && color.value.startsWith("#")) {

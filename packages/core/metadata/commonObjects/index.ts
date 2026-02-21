@@ -30,9 +30,9 @@ import "./сhoiceParameters/fromYAML"
 import "./сhoiceParameters/toXML"
 import "./сhoiceParameters/toYAML"
 
-import "./color/exportToPreview"
 import "./color/fromXML"
 import "./color/fromYAML"
+import "./color/toEnterprise"
 import "./color/toXML"
 import "./color/toYAML"
 
@@ -110,9 +110,9 @@ import "./metadataValueCollection/fromYAML"
 import "./metadataValueCollection/toXML"
 import "./metadataValueCollection/toYAML"
 
-import "./picture/exportToPreview"
 import "./picture/fromXML"
 import "./picture/fromYAML"
+import "./picture/toEnterprise"
 import "./picture/toXML"
 import "./picture/toYAML"
 
@@ -129,9 +129,9 @@ import "./standardAttributeDescription/toYAML"
 import "./string/fromXML"
 import "./string/toYAML"
 
-import "./typeDescription/exportToPreview"
 import "./typeDescription/fromXML"
 import "./typeDescription/fromYAML"
+import "./typeDescription/toEnterprise"
 import "./typeDescription/toXML"
 import "./typeDescription/toYAML"
 

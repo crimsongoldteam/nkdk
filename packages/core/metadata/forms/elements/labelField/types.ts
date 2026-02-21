@@ -1,14 +1,14 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderPreview, BorderYAML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
+import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface LabelField {
@@ -157,48 +157,48 @@ export interface LabelFieldTypedYAML extends LabelFieldPartialYAML {
 export interface LabelFieldPreview {
   itemType: "FormField"
   Name: string
-  Type: SystemEnumerationPreview
+  Type: SystemEnumerationEnterprise
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
   DataPath?: string
   DefaultItem?: boolean
-  DisplayImportance?: SystemEnumerationPreview
-  EditMode?: SystemEnumerationPreview
+  DisplayImportance?: SystemEnumerationEnterprise
+  EditMode?: SystemEnumerationEnterprise
   Enabled?: boolean
-  FixingInTable?: SystemEnumerationPreview
-  FooterBackColor?: ColorPreview
+  FixingInTable?: SystemEnumerationEnterprise
+  FooterBackColor?: ColorEnterprise
   FooterDataPath?: string
   FooterFont?: FontPreview
-  FooterHorizontalAlign?: SystemEnumerationPreview
-  FooterPicture?: PicturePreview
+  FooterHorizontalAlign?: SystemEnumerationEnterprise
+  FooterPicture?: PictureEnterprise
   FooterText?: string
-  FooterTextColor?: ColorPreview
-  HeaderHorizontalAlign?: SystemEnumerationPreview
-  HeaderPicture?: PicturePreview
-  HorizontalAlign?: SystemEnumerationPreview
-  HorizontalAlignInGroup?: SystemEnumerationPreview
+  FooterTextColor?: ColorEnterprise
+  HeaderHorizontalAlign?: SystemEnumerationEnterprise
+  HeaderPicture?: PictureEnterprise
+  HorizontalAlign?: SystemEnumerationEnterprise
+  HorizontalAlignInGroup?: SystemEnumerationEnterprise
   ReadOnly?: boolean
   ShowInFooter?: boolean
   ShowInHeader?: boolean
   SkipOnInput?: boolean
   Title?: string
-  TitleBackColor?: ColorPreview
+  TitleBackColor?: ColorEnterprise
   TitleFont?: FontPreview
   TitleHeight?: number
-  TitleLocation?: SystemEnumerationPreview
-  TitleTextColor?: ColorPreview
+  TitleLocation?: SystemEnumerationEnterprise
+  TitleTextColor?: ColorEnterprise
   ToolTip?: string
-  ToolTipRepresentation?: SystemEnumerationPreview
-  VerticalAlign?: SystemEnumerationPreview
-  VerticalAlignInGroup?: SystemEnumerationPreview
+  ToolTipRepresentation?: SystemEnumerationEnterprise
+  VerticalAlign?: SystemEnumerationEnterprise
+  VerticalAlignInGroup?: SystemEnumerationEnterprise
   Visible?: boolean
   WarningOnEdit?: string
-  WarningOnEditRepresentation?: SystemEnumerationPreview
+  WarningOnEditRepresentation?: SystemEnumerationEnterprise
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
-  BackColor?: ColorPreview
+  BackColor?: ColorEnterprise
   Border?: BorderPreview
-  BorderColor?: ColorPreview
+  BorderColor?: ColorEnterprise
   Font?: FontPreview
   Format?: string
   Height?: number
@@ -208,7 +208,7 @@ export interface LabelFieldPreview {
   MaxHeight?: number
   MaxWidth?: number
   PasswordMode?: boolean
-  TextColor?: ColorPreview
+  TextColor?: ColorEnterprise
   VerticalStretch?: boolean
   Width?: number
 }

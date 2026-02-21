@@ -1,13 +1,13 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { TypeDescription, TypeDescriptionPreview, TypeDescriptionRules } from "./types"
+import { TypeDescription, TypeDescriptionEnterprise, TypeDescriptionRules } from "./types"
 
-export const exportTypeDescriptionToPreview = (
+export const exportTypeDescriptionToEnterprise = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   typeDescription: TypeDescription | undefined
-): TypeDescriptionPreview | undefined => {
+): TypeDescriptionEnterprise | undefined => {
   if (!typeDescription) return undefined
 
   // Filter out ignored types (complex types like CatalogRef, DocumentRef, etc.)
@@ -18,7 +18,7 @@ export const exportTypeDescriptionToPreview = (
   // If all types were ignored, return undefined
   if (nonIgnoredTypes.length === 0) return undefined
 
-  const result: TypeDescriptionPreview = {
+  const result: TypeDescriptionEnterprise = {
     Type: nonIgnoredTypes,
   }
 
@@ -46,4 +46,4 @@ export const exportTypeDescriptionToPreview = (
   return result
 }
 
-registerTypeRule("TypeDescription", "exportToPreview", exportTypeDescriptionToPreview)
+registerTypeRule("TypeDescription", "exportToPreview", exportTypeDescriptionToEnterprise)

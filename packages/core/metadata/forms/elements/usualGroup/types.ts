@@ -1,10 +1,10 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
+import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
   // GroupChildItemsPreview,
@@ -112,37 +112,37 @@ export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
 export interface UsualGroupPreview {
   itemType: "FormGroup"
   Name: string
-  BackColor?: ColorPreview
-  Behavior?: SystemEnumerationPreview
+  BackColor?: ColorEnterprise
+  Behavior?: SystemEnumerationEnterprise
   Collapsed?: boolean
   CollapsedRepresentationTitle?: string
-  ControlRepresentation?: SystemEnumerationPreview
-  CurrentRowUse?: SystemEnumerationPreview
-  DisplayImportance?: SystemEnumerationPreview
+  ControlRepresentation?: SystemEnumerationEnterprise
+  CurrentRowUse?: SystemEnumerationEnterprise
+  DisplayImportance?: SystemEnumerationEnterprise
   EnableContentChange?: boolean
   Enabled?: boolean
   Format?: string
-  Group?: SystemEnumerationPreview
+  Group?: SystemEnumerationEnterprise
   Height?: number
-  HiddenRepresentationTitleBackColor?: ColorPreview
-  HorizontalAlign?: SystemEnumerationPreview
-  HorizontalSpacing?: SystemEnumerationPreview
+  HiddenRepresentationTitleBackColor?: ColorEnterprise
+  HorizontalAlign?: SystemEnumerationEnterprise
+  HorizontalSpacing?: SystemEnumerationEnterprise
   HorizontalStretch?: boolean
-  ItemsAndTitlesAlign?: SystemEnumerationPreview
+  ItemsAndTitlesAlign?: SystemEnumerationEnterprise
   ReadOnly?: boolean
-  Representation?: SystemEnumerationPreview
+  Representation?: SystemEnumerationEnterprise
   ShowLeftMargin?: boolean
   ShowTitle?: boolean
-  ThroughAlign?: SystemEnumerationPreview
+  ThroughAlign?: SystemEnumerationEnterprise
   Title?: string
   TitleDataPath?: string
   TitleFont?: FontPreview
-  TitleTextColor?: ColorPreview
+  TitleTextColor?: ColorEnterprise
   ToolTip?: string
-  ToolTipRepresentation?: SystemEnumerationPreview
+  ToolTipRepresentation?: SystemEnumerationEnterprise
   United?: boolean
-  VerticalAlign?: SystemEnumerationPreview
-  VerticalSpacing?: SystemEnumerationPreview
+  VerticalAlign?: SystemEnumerationEnterprise
+  VerticalSpacing?: SystemEnumerationEnterprise
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

@@ -1,4 +1,4 @@
-import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 
 export interface PictureTestCase {
   name: string
@@ -7,7 +7,7 @@ export interface PictureTestCase {
   expectedYAML: PictureYAML
   fixture: string | undefined
   importYAML?: boolean
-  preview: PicturePreview
+  preview: PictureEnterprise
 }
 
 export const pictureTestCases: readonly PictureTestCase[] = [

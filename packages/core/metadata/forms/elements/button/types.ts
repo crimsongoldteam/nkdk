@@ -1,8 +1,8 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElementPropsYAML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -101,37 +101,37 @@ export interface ButtonPreview {
   itemType: "FormButton"
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
-  BackColor?: ColorPreview
-  BorderColor?: ColorPreview
+  BackColor?: ColorEnterprise
+  BorderColor?: ColorEnterprise
   Check?: boolean
   CommandName?: string
   CommandUniqueness?: boolean
   DefaultButton?: boolean
   DefaultItem?: boolean
-  DisplayImportance?: SE.SystemEnumerationPreview
+  DisplayImportance?: SE.SystemEnumerationEnterprise
   Enabled?: boolean
   // ExtendedTooltip?: ExtendedTooltipPreview
   Font?: FontPreview
   Height?: number
-  HorizontalAlignInGroup?: SE.SystemEnumerationPreview
+  HorizontalAlignInGroup?: SE.SystemEnumerationEnterprise
   HorizontalStretch?: boolean
-  LocationInCommandBar?: SE.SystemEnumerationPreview
+  LocationInCommandBar?: SE.SystemEnumerationEnterprise
   MaxHeight?: number
   MaxWidth?: number
-  OnMainServerUnavalableBehavior?: SE.SystemEnumerationPreview
+  OnMainServerUnavalableBehavior?: SE.SystemEnumerationEnterprise
   OnlyInAllActions?: boolean
-  Picture?: PicturePreview
-  PictureLocation?: SE.SystemEnumerationPreview
-  Representation?: SE.SystemEnumerationPreview
-  Shape?: SE.SystemEnumerationPreview
-  ShapeRepresentation?: SE.SystemEnumerationPreview
+  Picture?: PictureEnterprise
+  PictureLocation?: SE.SystemEnumerationEnterprise
+  Representation?: SE.SystemEnumerationEnterprise
+  Shape?: SE.SystemEnumerationEnterprise
+  ShapeRepresentation?: SE.SystemEnumerationEnterprise
   SkipOnInput?: boolean
-  TextColor?: ColorPreview
+  TextColor?: ColorEnterprise
   Title?: string
   TitleHeight?: number
-  ToolTipRepresentation?: SE.SystemEnumerationPreview
-  Type?: SE.SystemEnumerationPreview
-  VerticalAlignInGroup?: SE.SystemEnumerationPreview
+  ToolTipRepresentation?: SE.SystemEnumerationEnterprise
+  Type?: SE.SystemEnumerationEnterprise
+  VerticalAlignInGroup?: SE.SystemEnumerationEnterprise
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number

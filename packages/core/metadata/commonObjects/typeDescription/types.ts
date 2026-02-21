@@ -530,30 +530,30 @@ export interface TypeDescription {
 
 export type TypeDescriptionYAML = string | string[]
 
-//#region Preview
+//#region Enterprise
 
-export interface TypeDescriptionPreviewStringQualifiers {
+export interface TypeDescriptionStringQualifiersEnterprise {
   Length: number
   AllowedLength: "Variable" | "Fixed"
 }
 
-export interface TypeDescriptionPreviewNumberQualifiers {
+export interface TypeDescriptionNumberQualifiersEnterprise {
   Digits: number
   FractionDigits: number
   AllowedSign: "Any" | "Nonnegative"
 }
 
-export interface TypeDescriptionPreviewDateQualifiers {
+export interface TypeDescriptionDateQualifiersEnterprise {
   DateFractions?: "Date" | "Time" | "DateTime"
 }
 
-export type TypeDescriptionPreviewType = string
+export type TypeDescriptionTypeEnterprise = string
 
-export interface TypeDescriptionPreview {
-  Type: TypeDescriptionPreviewType[]
-  StringQualifiers?: TypeDescriptionPreviewStringQualifiers
-  NumberQualifiers?: TypeDescriptionPreviewNumberQualifiers
-  DateQualifiers?: TypeDescriptionPreviewDateQualifiers
+export interface TypeDescriptionEnterprise {
+  Type: TypeDescriptionTypeEnterprise[]
+  StringQualifiers?: TypeDescriptionStringQualifiersEnterprise
+  NumberQualifiers?: TypeDescriptionNumberQualifiersEnterprise
+  DateQualifiers?: TypeDescriptionDateQualifiersEnterprise
 }
 
 //#endregion

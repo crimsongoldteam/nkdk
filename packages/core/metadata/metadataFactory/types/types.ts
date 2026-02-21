@@ -1,3 +1,6 @@
+import { ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataItem, PropertyRule } from "../properties/types"
 
@@ -140,3 +143,16 @@ export type ImportExportFunction<O extends TypeRulesOperations> = O extends "imp
         : O extends "exportToPreview"
           ? ExportToPreviewFunction | undefined
           : never
+
+type TypesMap =
+  | ["number", number, number]
+  | ["string", string, string]
+  | ["boolean", boolean, boolean]
+  | ["SystemEnumeration", unknown, SystemEnumerationEnterprise]
+  | ["Color", unknown, ColorEnterprise]
+  | ["TypeDescription", unknown, TypeDescriptionEnterprise]
+
+export type TypeRulesNamesNew = TypesMap extends [infer First, any, any] ? First : never
+export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
+
+export type d = EnterpriseTypeByKey<"TypeDescription">

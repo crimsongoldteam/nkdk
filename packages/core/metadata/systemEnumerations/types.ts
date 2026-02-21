@@ -12989,7 +12989,7 @@ export type StatePresentationYAML = keyof typeof StatePresentationFromYAML
 
 // #endregion StatePresentation
 
-export interface SystemEnumerationPreview {
+export interface SystemEnumerationEnterprise {
   Type: "SystemEnumeration"
   Value: string
 }

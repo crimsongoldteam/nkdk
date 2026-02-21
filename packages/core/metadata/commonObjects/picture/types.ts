@@ -31,13 +31,17 @@ export interface PictureYAMLExtended {
 
 export type PictureYAML = PictureYAMLRef | PictureYAMLExtended
 
-export interface PredifinedPicturePreview {
+// #region Enterprise
+
+export interface PredifinedPictureEnterprise {
   Type: "Picture"
   Value: string
 }
 
-export interface AbsolutePicturePreview {
+export interface AbsolutePictureEnterprise {
   Type: "AbsolutePicture"
 }
 
-export type PicturePreview = PredifinedPicturePreview | AbsolutePicturePreview
+export type PictureEnterprise = PredifinedPictureEnterprise | AbsolutePictureEnterprise
+
+// #endregion Enterprise

@@ -1,18 +1,20 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
-import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PicturePreview, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationPreview } from "~/metadata/systemEnumerations/types"
+import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { InputFieldRules } from "./rules"
 
 export interface InputField {
   itemType: "InputField"
@@ -156,6 +158,8 @@ export interface InputField {
     multipleValuesDelete?: string
   }
 }
+
+export type InputFieldEnterprise = EnterpriseType<typeof InputFieldRules>
 
 export interface InputFieldPartialYAML {
   АвтоВыборНезаполненного?: StringboolYAML
@@ -305,27 +309,27 @@ export interface InputFieldTypedYAML extends InputFieldPartialYAML {
 export interface InputFieldPreview {
   itemType: "FormField"
   Name: string
-  Type: SystemEnumerationPreview
+  Type: SystemEnumerationEnterprise
   AllowInputEmptyMultipleValues?: boolean
   AllowMultipleValuesDuplicates?: boolean
-  AutoCapitalizationOnTextInput?: SystemEnumerationPreview
+  AutoCapitalizationOnTextInput?: SystemEnumerationEnterprise
   AutoChoiceIncomplete?: boolean
-  AutoCorrectionOnTextInput?: SystemEnumerationPreview
-  AutoFillHint?: SystemEnumerationPreview
+  AutoCorrectionOnTextInput?: SystemEnumerationEnterprise
+  AutoFillHint?: SystemEnumerationEnterprise
   AutoMarkIncomplete?: boolean
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
-  AutoShowClearButton?: SystemEnumerationPreview
-  AutoShowOpenButton?: SystemEnumerationPreview
+  AutoShowClearButton?: SystemEnumerationEnterprise
+  AutoShowOpenButton?: SystemEnumerationEnterprise
   // AvailableTypes?: TypeDescription
-  BackColor?: ColorPreview
-  BorderColor?: ColorPreview
+  BackColor?: ColorEnterprise
+  BorderColor?: ColorEnterprise
   ChoiceButton?: boolean
-  ChoiceButtonPicture?: PicturePreview
-  ChoiceButtonRepresentation?: SystemEnumerationPreview
-  ChoiceFoldersAndItems?: SystemEnumerationPreview
+  ChoiceButtonPicture?: PictureEnterprise
+  ChoiceButtonRepresentation?: SystemEnumerationEnterprise
+  ChoiceFoldersAndItems?: SystemEnumerationEnterprise
   // ChoiceForm?: string
-  ChoiceHistoryOnInput?: SystemEnumerationPreview
+  ChoiceHistoryOnInput?: SystemEnumerationEnterprise
   // ChoiceList?: ChoiceList
   ChoiceListButton?: boolean
   ChoiceListHeight?: number
@@ -338,14 +342,14 @@ export interface InputFieldPreview {
   DropListWidth?: number
   EditFormat?: string
   // EditText?: string
-  EditTextUpdate?: SystemEnumerationPreview
+  EditTextUpdate?: SystemEnumerationEnterprise
   ExtendedEdit?: boolean
   Font?: FontPreview
   Format?: string
   Height?: number
-  HeightControlVariant?: SystemEnumerationPreview
+  HeightControlVariant?: SystemEnumerationEnterprise
   HorizontalStretch?: boolean
-  IncompleteChoiceMode?: SystemEnumerationPreview
+  IncompleteChoiceMode?: SystemEnumerationEnterprise
   InputHint?: string
   ListChoiceMode?: boolean
   MarkIncomplete?: boolean
@@ -357,26 +361,26 @@ export interface InputFieldPreview {
   MinValue?: number
   MultiLine?: boolean
   MultipleValuePictureDataPath?: string
-  MultipleValuePictureShape?: SystemEnumerationPreview
-  MultipleValuePictureSize?: SystemEnumerationPreview
+  MultipleValuePictureShape?: SystemEnumerationEnterprise
+  MultipleValuePictureSize?: SystemEnumerationEnterprise
   MultipleValuePresentationDataPath?: string
-  MultipleValuesBackColor?: ColorPreview
+  MultipleValuesBackColor?: ColorEnterprise
   MultipleValuesExtendedEdit?: boolean
   MultipleValuesFont?: FontPreview
   MultipleValuesHyperlink?: boolean
-  MultipleValuesPicture?: PicturePreview
-  MultipleValuesTextColor?: ColorPreview
+  MultipleValuesPicture?: PictureEnterprise
+  MultipleValuesTextColor?: ColorEnterprise
   MultipleValueValueDataPath?: string
-  OnScreenKeyboardReturnKeyText?: SystemEnumerationPreview
+  OnScreenKeyboardReturnKeyText?: SystemEnumerationEnterprise
   OpenButton?: boolean
   PasswordMode?: boolean
   QuickChoice?: boolean
   // SelectedText?: string
   ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
-  SpecialTextInputMode?: SystemEnumerationPreview
-  SpellCheckingOnTextInput?: SystemEnumerationPreview
+  SpecialTextInputMode?: SystemEnumerationEnterprise
+  SpellCheckingOnTextInput?: SystemEnumerationEnterprise
   SpinButton?: boolean
-  TextColor?: ColorPreview
+  TextColor?: ColorEnterprise
   TextEdit?: boolean
   TypeDomainEnabled?: boolean
   // TypeLink?: TypeLink
@@ -388,22 +392,22 @@ export interface InputFieldPreview {
   // ContextMenu?: ContextMenu
   DataPath?: string
   DefaultItem?: boolean
-  DisplayImportance?: SystemEnumerationPreview
-  EditMode?: SystemEnumerationPreview
+  DisplayImportance?: SystemEnumerationEnterprise
+  EditMode?: SystemEnumerationEnterprise
   Enabled?: boolean
   // ExtendedTooltip?: ExtendedTooltip
-  FixingInTable?: SystemEnumerationPreview
-  FooterBackColor?: ColorPreview
+  FixingInTable?: SystemEnumerationEnterprise
+  FooterBackColor?: ColorEnterprise
   FooterDataPath?: string
   FooterFont?: FontPreview
-  FooterHorizontalAlign?: SystemEnumerationPreview
-  FooterPicture?: PicturePreview
+  FooterHorizontalAlign?: SystemEnumerationEnterprise
+  FooterPicture?: PictureEnterprise
   FooterText?: string
-  FooterTextColor?: ColorPreview
-  HeaderHorizontalAlign?: SystemEnumerationPreview
-  HeaderPicture?: PicturePreview
-  HorizontalAlign?: SystemEnumerationPreview
-  HorizontalAlignInGroup?: SystemEnumerationPreview
+  FooterTextColor?: ColorEnterprise
+  HeaderHorizontalAlign?: SystemEnumerationEnterprise
+  HeaderPicture?: PictureEnterprise
+  HorizontalAlign?: SystemEnumerationEnterprise
+  HorizontalAlignInGroup?: SystemEnumerationEnterprise
   ReadOnly?: boolean
   // Shortcut?: string
   ShowInFooter?: boolean
@@ -411,17 +415,17 @@ export interface InputFieldPreview {
   SkipOnInput?: boolean
   // Table?: string
   Title?: string
-  TitleBackColor?: ColorPreview
+  TitleBackColor?: ColorEnterprise
   TitleFont?: FontPreview
   TitleHeight?: number
-  TitleLocation?: SystemEnumerationPreview
-  TitleTextColor?: ColorPreview
+  TitleLocation?: SystemEnumerationEnterprise
+  TitleTextColor?: ColorEnterprise
   ToolTip?: string
-  ToolTipRepresentation?: SystemEnumerationPreview
+  ToolTipRepresentation?: SystemEnumerationEnterprise
   // TypeRestriction?: TypeDescription
-  VerticalAlign?: SystemEnumerationPreview
-  VerticalAlignInGroup?: SystemEnumerationPreview
+  VerticalAlign?: SystemEnumerationEnterprise
+  VerticalAlignInGroup?: SystemEnumerationEnterprise
   Visible?: boolean
   WarningOnEdit?: string
-  WarningOnEditRepresentation?: SystemEnumerationPreview
+  WarningOnEditRepresentation?: SystemEnumerationEnterprise
 }

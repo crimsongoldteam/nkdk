@@ -1,4 +1,4 @@
-import { Color, ColorPreview, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 
 export interface ColorTestCase {
   name: string
@@ -63,7 +63,7 @@ export const colorTestCases: readonly ColorTestCase[] = [
 export interface ColorPreviewTestCase {
   name: string
   color: Color | undefined
-  expected: ColorPreview | undefined
+  expected: ColorEnterprise | undefined
 }
 
 export const colorPreviewTestCases: readonly ColorPreviewTestCase[] = [
