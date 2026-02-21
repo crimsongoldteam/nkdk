@@ -3,7 +3,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { Picture, PictureEnterprise } from "./types"
 
-export const exportPictureToPreview = (
+export const exportPictureToEnterprise = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   picture: Picture | undefined
@@ -25,4 +25,4 @@ export const exportPictureToPreview = (
   return undefined
 }
 
-registerTypeRule("Picture", "exportToPreview", exportPictureToPreview)
+registerTypeRule("Picture", "exportToEnterprise", exportPictureToEnterprise)

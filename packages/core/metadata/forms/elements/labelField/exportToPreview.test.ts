@@ -1,6 +1,6 @@
 import { describe, it } from "vitest"
 
-describe("exportLabelFieldToPreview", () => {
+describe("exportLabelFieldToEnterprise", () => {
   it.skip("should export all fields to YAML", () => {
     // const context = {
     //   ...mockContext,
@@ -9,7 +9,7 @@ describe("exportLabelFieldToPreview", () => {
     //     attributes: {},
     //   },
     // }
-    // const result = exportLabelFieldToPreview(context, undefined, fullLabelField)
-    // expect(result).toEqual(fullLabelFieldPreview)
+    // const result = exportLabelFieldToEnterprise(context, undefined, fullLabelField)
+    // expect(result).toEqual(fullLabelFieldEnterprise)
   })
 })

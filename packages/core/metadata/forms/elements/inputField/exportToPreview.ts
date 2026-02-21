@@ -1,24 +1,24 @@
-// import { exportColorToPreview } from "~/metadata/commonObjects/color/exportToPreview"
-// import { exportFontToPreview } from "~/metadata/commonObjects/font/exportToPreview"
-// import { exportI8nTextToPreview } from "~/metadata/commonObjects/i8nText/exportToPreview"
-// import { exportPictureToPreview } from "~/metadata/commonObjects/picture/exportToPreview"
+// import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+// import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
+// import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+// import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 // import { ConfigurationContext } from "~/metadata/context/types"
 // import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-// import { ExportToPreviewFn } from "~/metadata/metadataFactory/types"
-// import { exportSystemEnumerationDeprecatedToPreview } from "~/metadata/systemEnumerations/exportToPreview"
+// import { ExportToEnterpriseFn } from "~/metadata/metadataFactory/types"
+// import { exportSystemEnumerationDeprecatedToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 // import { getAttributeName } from "../../preview/getAttributeName"
 // import { PropertyRule } from "../calendarField/rules"
-// import { InputField, InputFieldPreview } from "./types"
+// import { InputField, InputFieldEnterprise } from "./types"
 
-// export const exportInputFieldToPreview = (
+// export const exportInputFieldToEnterprise = (
 //   context: ConfigurationContext,
 //   _rule: PropertyRule<any>,
 //   element: InputField
-// ): InputFieldPreview => {
-//   const result: InputFieldPreview = {
+// ): InputFieldEnterprise => {
+//   const result: InputFieldEnterprise = {
 //     itemType: "FormField",
 //     Name: element.name,
-//     Type: exportSystemEnumerationDeprecatedToPreview(context, undefined, "InputField", "FormFieldType")!,
+//     Type: exportSystemEnumerationDeprecatedToEnterprise(context, undefined, "InputField", "FormFieldType")!,
 //   }
 
 //   if (element.allowInputEmptyMultipleValues !== undefined)
@@ -27,7 +27,7 @@
 //   if (element.allowMultipleValuesDuplicates !== undefined)
 //     result.AllowMultipleValuesDuplicates = element.allowMultipleValuesDuplicates
 
-//   const autoCapitalizationOnTextInput = exportSystemEnumerationDeprecatedToPreview(
+//   const autoCapitalizationOnTextInput = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.autoCapitalizationOnTextInput,
@@ -37,7 +37,7 @@
 
 //   if (element.autoChoiceIncomplete !== undefined) result.AutoChoiceIncomplete = element.autoChoiceIncomplete
 
-//   const autoCorrectionOnTextInput = exportSystemEnumerationDeprecatedToPreview(
+//   const autoCorrectionOnTextInput = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.autoCorrectionOnTextInput,
@@ -45,7 +45,7 @@
 //   )
 //   if (autoCorrectionOnTextInput !== undefined) result.AutoCorrectionOnTextInput = autoCorrectionOnTextInput
 
-//   const autoFillHint = exportSystemEnumerationDeprecatedToPreview(
+//   const autoFillHint = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.autoFillHint,
@@ -59,7 +59,7 @@
 
 //   if (element.autoMaxWidth !== undefined) result.AutoMaxWidth = element.autoMaxWidth
 
-//   const autoShowClearButton = exportSystemEnumerationDeprecatedToPreview(
+//   const autoShowClearButton = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.autoShowClearButton,
@@ -67,7 +67,7 @@
 //   )
 //   if (autoShowClearButton !== undefined) result.AutoShowClearButton = autoShowClearButton
 
-//   const autoShowOpenButton = exportSystemEnumerationDeprecatedToPreview(
+//   const autoShowOpenButton = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.autoShowOpenButton,
@@ -75,18 +75,18 @@
 //   )
 //   if (autoShowOpenButton !== undefined) result.AutoShowOpenButton = autoShowOpenButton
 
-//   const backColor = exportColorToPreview(context, undefined, element.backColor)
+//   const backColor = exportColorToEnterprise(context, undefined, element.backColor)
 //   if (backColor !== undefined) result.BackColor = backColor
 
-//   const borderColor = exportColorToPreview(context, undefined, element.borderColor)
+//   const borderColor = exportColorToEnterprise(context, undefined, element.borderColor)
 //   if (borderColor !== undefined) result.BorderColor = borderColor
 
 //   if (element.choiceButton !== undefined) result.ChoiceButton = element.choiceButton
 
-//   const choiceButtonPicture = exportPictureToPreview(context, undefined, element.choiceButtonPicture)
+//   const choiceButtonPicture = exportPictureToEnterprise(context, undefined, element.choiceButtonPicture)
 //   if (choiceButtonPicture !== undefined) result.ChoiceButtonPicture = choiceButtonPicture
 
-//   const choiceButtonRepresentation = exportSystemEnumerationDeprecatedToPreview(
+//   const choiceButtonRepresentation = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.choiceButtonRepresentation,
@@ -94,7 +94,7 @@
 //   )
 //   if (choiceButtonRepresentation !== undefined) result.ChoiceButtonRepresentation = choiceButtonRepresentation
 
-//   const choiceFoldersAndItems = exportSystemEnumerationDeprecatedToPreview(
+//   const choiceFoldersAndItems = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.choiceFoldersAndItems,
@@ -104,7 +104,7 @@
 
 //   // if (element.choiceForm !== undefined) result.ChoiceForm = element.choiceForm
 
-//   const choiceHistoryOnInput = exportSystemEnumerationDeprecatedToPreview(
+//   const choiceHistoryOnInput = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.choiceHistoryOnInput,
@@ -126,12 +126,12 @@
 
 //   if (element.dropListWidth !== undefined) result.DropListWidth = element.dropListWidth
 
-//   const editFormat = exportI8nTextToPreview(context, undefined, element.editFormat)
+//   const editFormat = exportI8nTextToEnterprise(context, undefined, element.editFormat)
 //   if (editFormat !== undefined) result.EditFormat = editFormat
 
 //   // if (element.editText !== undefined) result.EditText = element.editText
 
-//   const editTextUpdate = exportSystemEnumerationDeprecatedToPreview(
+//   const editTextUpdate = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.editTextUpdate,
@@ -141,15 +141,15 @@
 
 //   if (element.extendedEdit !== undefined) result.ExtendedEdit = element.extendedEdit
 
-//   const font = exportFontToPreview(context, undefined, element.font)
+//   const font = exportFontToEnterprise(context, undefined, element.font)
 //   if (font !== undefined) result.Font = font
 
-//   const format = exportI8nTextToPreview(context, undefined, element.format)
+//   const format = exportI8nTextToEnterprise(context, undefined, element.format)
 //   if (format !== undefined) result.Format = format
 
 //   if (element.height !== undefined) result.Height = element.height
 
-//   const heightControlVariant = exportSystemEnumerationDeprecatedToPreview(
+//   const heightControlVariant = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.heightControlVariant,
@@ -159,7 +159,7 @@
 
 //   if (element.horizontalStretch !== undefined) result.HorizontalStretch = element.horizontalStretch
 
-//   const incompleteChoiceMode = exportSystemEnumerationDeprecatedToPreview(
+//   const incompleteChoiceMode = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.incompleteChoiceMode,
@@ -167,7 +167,7 @@
 //   )
 //   if (incompleteChoiceMode !== undefined) result.IncompleteChoiceMode = incompleteChoiceMode
 
-//   const inputHint = exportI8nTextToPreview(context, undefined, element.inputHint)
+//   const inputHint = exportI8nTextToEnterprise(context, undefined, element.inputHint)
 //   if (inputHint !== undefined) result.InputHint = inputHint
 
 //   if (element.listChoiceMode !== undefined) result.ListChoiceMode = element.listChoiceMode
@@ -191,7 +191,7 @@
 //   const multipleValuePictureDataPath = getAttributeName(context, element.multipleValuePictureDataPath)
 //   if (multipleValuePictureDataPath !== undefined) result.MultipleValuePictureDataPath = multipleValuePictureDataPath
 
-//   const multipleValuePictureShape = exportSystemEnumerationDeprecatedToPreview(
+//   const multipleValuePictureShape = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.multipleValuePictureShape,
@@ -199,7 +199,7 @@
 //   )
 //   if (multipleValuePictureShape !== undefined) result.MultipleValuePictureShape = multipleValuePictureShape
 
-//   const multipleValuePictureSize = exportSystemEnumerationDeprecatedToPreview(
+//   const multipleValuePictureSize = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.multipleValuePictureSize,
@@ -211,27 +211,27 @@
 //   if (multipleValuePresentationDataPath !== undefined)
 //     result.MultipleValuePresentationDataPath = multipleValuePresentationDataPath
 
-//   const multipleValuesBackColor = exportColorToPreview(context, undefined, element.multipleValuesBackColor)
+//   const multipleValuesBackColor = exportColorToEnterprise(context, undefined, element.multipleValuesBackColor)
 //   if (multipleValuesBackColor !== undefined) result.MultipleValuesBackColor = multipleValuesBackColor
 
 //   if (element.multipleValuesExtendedEdit !== undefined)
 //     result.MultipleValuesExtendedEdit = element.multipleValuesExtendedEdit
 
-//   const multipleValuesFont = exportFontToPreview(context, undefined, element.multipleValuesFont)
+//   const multipleValuesFont = exportFontToEnterprise(context, undefined, element.multipleValuesFont)
 //   if (multipleValuesFont !== undefined) result.MultipleValuesFont = multipleValuesFont
 
 //   if (element.multipleValuesHyperlink !== undefined) result.MultipleValuesHyperlink = element.multipleValuesHyperlink
 
-//   const multipleValuesPicture = exportPictureToPreview(context, undefined, element.multipleValuesPicture)
+//   const multipleValuesPicture = exportPictureToEnterprise(context, undefined, element.multipleValuesPicture)
 //   if (multipleValuesPicture !== undefined) result.MultipleValuesPicture = multipleValuesPicture
 
-//   const multipleValuesTextColor = exportColorToPreview(context, undefined, element.multipleValuesTextColor)
+//   const multipleValuesTextColor = exportColorToEnterprise(context, undefined, element.multipleValuesTextColor)
 //   if (multipleValuesTextColor !== undefined) result.MultipleValuesTextColor = multipleValuesTextColor
 
 //   const multipleValueValueDataPath = getAttributeName(context, element.multipleValueValueDataPath)
 //   if (multipleValueValueDataPath !== undefined) result.MultipleValueValueDataPath = multipleValueValueDataPath
 
-//   const onScreenKeyboardReturnKeyText = exportSystemEnumerationDeprecatedToPreview(
+//   const onScreenKeyboardReturnKeyText = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.onScreenKeyboardReturnKeyText,
@@ -250,7 +250,7 @@
 //   if (element.showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
 //     result.ShowCheckBoxesInDropListWhenInputMultipleValues = element.showCheckBoxesInDropListWhenInputMultipleValues
 
-//   const specialTextInputMode = exportSystemEnumerationDeprecatedToPreview(
+//   const specialTextInputMode = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.specialTextInputMode,
@@ -258,7 +258,7 @@
 //   )
 //   if (specialTextInputMode !== undefined) result.SpecialTextInputMode = specialTextInputMode
 
-//   const spellCheckingOnTextInput = exportSystemEnumerationDeprecatedToPreview(
+//   const spellCheckingOnTextInput = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.spellCheckingOnTextInput,
@@ -268,7 +268,7 @@
 
 //   if (element.spinButton !== undefined) result.SpinButton = element.spinButton
 
-//   const textColor = exportColorToPreview(context, undefined, element.textColor)
+//   const textColor = exportColorToEnterprise(context, undefined, element.textColor)
 //   if (textColor !== undefined) result.TextColor = textColor
 
 //   if (element.textEdit !== undefined) result.TextEdit = element.textEdit
@@ -290,7 +290,7 @@
 
 //   if (element.defaultItem !== undefined) result.DefaultItem = element.defaultItem
 
-//   const displayImportance = exportSystemEnumerationDeprecatedToPreview(
+//   const displayImportance = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.displayImportance,
@@ -298,12 +298,12 @@
 //   )
 //   if (displayImportance !== undefined) result.DisplayImportance = displayImportance
 
-//   const editMode = exportSystemEnumerationDeprecatedToPreview(context, undefined, element.editMode, "ColumnEditMode")
+//   const editMode = exportSystemEnumerationDeprecatedToEnterprise(context, undefined, element.editMode, "ColumnEditMode")
 //   if (editMode !== undefined) result.EditMode = editMode
 
 //   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-//   const fixingInTable = exportSystemEnumerationDeprecatedToPreview(
+//   const fixingInTable = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.fixingInTable,
@@ -311,16 +311,16 @@
 //   )
 //   if (fixingInTable !== undefined) result.FixingInTable = fixingInTable
 
-//   const footerBackColor = exportColorToPreview(context, undefined, element.footerBackColor)
+//   const footerBackColor = exportColorToEnterprise(context, undefined, element.footerBackColor)
 //   if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
 
 //   const footerDataPath = getAttributeName(context, element.footerDataPath)
 //   if (footerDataPath !== undefined) result.FooterDataPath = footerDataPath
 
-//   const footerFont = exportFontToPreview(context, undefined, element.footerFont)
+//   const footerFont = exportFontToEnterprise(context, undefined, element.footerFont)
 //   if (footerFont !== undefined) result.FooterFont = footerFont
 
-//   const footerHorizontalAlign = exportSystemEnumerationDeprecatedToPreview(
+//   const footerHorizontalAlign = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.footerHorizontalAlign,
@@ -328,16 +328,16 @@
 //   )
 //   if (footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = footerHorizontalAlign
 
-//   const footerPicture = exportPictureToPreview(context, undefined, element.footerPicture)
+//   const footerPicture = exportPictureToEnterprise(context, undefined, element.footerPicture)
 //   if (footerPicture !== undefined) result.FooterPicture = footerPicture
 
-//   const footerText = exportI8nTextToPreview(context, undefined, element.footerText)
+//   const footerText = exportI8nTextToEnterprise(context, undefined, element.footerText)
 //   if (footerText !== undefined) result.FooterText = footerText
 
-//   const footerTextColor = exportColorToPreview(context, undefined, element.footerTextColor)
+//   const footerTextColor = exportColorToEnterprise(context, undefined, element.footerTextColor)
 //   if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
 
-//   const headerHorizontalAlign = exportSystemEnumerationDeprecatedToPreview(
+//   const headerHorizontalAlign = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.headerHorizontalAlign,
@@ -345,10 +345,10 @@
 //   )
 //   if (headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = headerHorizontalAlign
 
-//   const headerPicture = exportPictureToPreview(context, undefined, element.headerPicture)
+//   const headerPicture = exportPictureToEnterprise(context, undefined, element.headerPicture)
 //   if (headerPicture !== undefined) result.HeaderPicture = headerPicture
 
-//   const horizontalAlign = exportSystemEnumerationDeprecatedToPreview(
+//   const horizontalAlign = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.horizontalAlign,
@@ -356,7 +356,7 @@
 //   )
 //   if (horizontalAlign !== undefined) result.HorizontalAlign = horizontalAlign
 
-//   const horizontalAlignInGroup = exportSystemEnumerationDeprecatedToPreview(
+//   const horizontalAlignInGroup = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.horizontalAlignInGroup,
@@ -372,18 +372,18 @@
 
 //   if (element.skipOnInput !== undefined) result.SkipOnInput = element.skipOnInput
 
-//   const title = exportI8nTextToPreview(context, undefined, element.title)
+//   const title = exportI8nTextToEnterprise(context, undefined, element.title)
 //   if (title !== undefined) result.Title = title
 
-//   const titleBackColor = exportColorToPreview(context, undefined, element.titleBackColor)
+//   const titleBackColor = exportColorToEnterprise(context, undefined, element.titleBackColor)
 //   if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
 
-//   const titleFont = exportFontToPreview(context, undefined, element.titleFont)
+//   const titleFont = exportFontToEnterprise(context, undefined, element.titleFont)
 //   if (titleFont !== undefined) result.TitleFont = titleFont
 
 //   if (element.titleHeight !== undefined) result.TitleHeight = element.titleHeight
 
-//   const titleLocation = exportSystemEnumerationDeprecatedToPreview(
+//   const titleLocation = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.titleLocation,
@@ -391,13 +391,13 @@
 //   )
 //   if (titleLocation !== undefined) result.TitleLocation = titleLocation
 
-//   const titleTextColor = exportColorToPreview(context, undefined, element.titleTextColor)
+//   const titleTextColor = exportColorToEnterprise(context, undefined, element.titleTextColor)
 //   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
 
-//   const toolTip = exportI8nTextToPreview(context, undefined, element.toolTip)
+//   const toolTip = exportI8nTextToEnterprise(context, undefined, element.toolTip)
 //   if (toolTip !== undefined) result.ToolTip = toolTip
 
-//   const toolTipRepresentation = exportSystemEnumerationDeprecatedToPreview(
+//   const toolTipRepresentation = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.toolTipRepresentation,
@@ -405,7 +405,7 @@
 //   )
 //   if (toolTipRepresentation !== undefined) result.ToolTipRepresentation = toolTipRepresentation
 
-//   const verticalAlign = exportSystemEnumerationDeprecatedToPreview(
+//   const verticalAlign = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.verticalAlign,
@@ -413,7 +413,7 @@
 //   )
 //   if (verticalAlign !== undefined) result.VerticalAlign = verticalAlign
 
-//   const verticalAlignInGroup = exportSystemEnumerationDeprecatedToPreview(
+//   const verticalAlignInGroup = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.verticalAlignInGroup,
@@ -423,10 +423,10 @@
 
 //   if (element.visible !== undefined) result.Visible = element.visible
 
-//   const warningOnEdit = exportI8nTextToPreview(context, undefined, element.warningOnEdit)
+//   const warningOnEdit = exportI8nTextToEnterprise(context, undefined, element.warningOnEdit)
 //   if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
 
-//   const warningOnEditRepresentation = exportSystemEnumerationDeprecatedToPreview(
+//   const warningOnEditRepresentation = exportSystemEnumerationDeprecatedToEnterprise(
 //     context,
 //     undefined,
 //     element.warningOnEditRepresentation,
@@ -437,4 +437,4 @@
 //   return result
 // }
 
-// registerMetadata("ExportToPreview", "InputField", exportInputFieldToPreview as ExportToPreviewFn)
+// registerMetadata("ExportToEnterprise", "InputField", exportInputFieldToEnterprise as ExportToEnterpriseFn)

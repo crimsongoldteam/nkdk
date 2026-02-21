@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PreviewAttributeMapItem } from "../clientApplicationForm/base/types"
+import { EnterpriseAttributeMapItem } from "../clientApplicationForm/base/types"
 
 export const getAttributeName = (
   context: ConfigurationContext,
@@ -16,7 +16,7 @@ export const getAttributeName = (
   // Формируем имя атрибута
   let name: string
   let attributeDataPath: string
-  let existingTableAttribute: [string, PreviewAttributeMapItem] | undefined
+  let existingTableAttribute: [string, EnterpriseAttributeMapItem] | undefined
 
   if (tableDataPath) {
     // Для табличных данных ищем существующий атрибут по tableDataPath
@@ -53,7 +53,7 @@ export const getAttributeName = (
     counter++
   }
 
-  const attribute: PreviewAttributeMapItem = {
+  const attribute: EnterpriseAttributeMapItem = {
     name: name,
     title: title,
     type: { Type: ["string"] },

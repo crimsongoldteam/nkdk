@@ -59,7 +59,7 @@ export type FontCompactYAML = string
 
 export type FontYAML = FontFullYAML | FontCompactYAML
 
-export interface FontPreview {
+export interface FontEnterprise {
   Type: "Font"
   Value?: string
   Name?: string

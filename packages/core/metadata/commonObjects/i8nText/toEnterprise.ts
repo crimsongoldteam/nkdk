@@ -4,7 +4,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { exportI8nTextDefaultToYAML } from "./toYAML"
 import { I8nText } from "./types"
 
-export const exportI8nTextToPreview = (
+export const exportI8nTextToEnterprise = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   text: I8nText | undefined
@@ -12,4 +12,4 @@ export const exportI8nTextToPreview = (
   return exportI8nTextDefaultToYAML(context, text)
 }
 
-registerTypeRule("I8nText", "exportToPreview", exportI8nTextToPreview)
+registerTypeRule("I8nText", "exportToEnterprise", exportI8nTextToEnterprise)

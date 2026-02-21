@@ -1,7 +1,7 @@
 import {
   LabelField,
+  LabelFieldEnterprise,
   LabelFieldPartialYAML,
-  LabelFieldPreview,
   LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
@@ -233,7 +233,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
   },
 ]
 
-export const fullLabelFieldPreview: Required<LabelFieldPreview> = {
+export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
   itemType: "FormField",
   Name: "ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },

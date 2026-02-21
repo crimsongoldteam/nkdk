@@ -1,16 +1,16 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
-import { Font, FontPreview } from "./types"
+import { Font, FontEnterprise } from "./types"
 
-export const exportFontToPreview = (
+export const exportFontToEnterprise = (
   _context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
   font: Font | undefined
-): FontPreview | undefined => {
+): FontEnterprise | undefined => {
   if (!font) return undefined
 
-  const result: FontPreview = {
+  const result: FontEnterprise = {
     Type: "Font",
   }
 
@@ -31,4 +31,4 @@ export const exportFontToPreview = (
   return result
 }
 
-registerTypeRule("Font", "exportToPreview", exportFontToPreview)
+registerTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)

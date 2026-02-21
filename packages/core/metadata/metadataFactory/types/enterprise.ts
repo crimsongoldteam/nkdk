@@ -45,7 +45,7 @@ export type EnterpriseType<T extends typeof InputFieldRules> = T["properties"] e
 //   QuickChoice: false,
 // }
 
-// type test = InputFieldEnterprise extends InputFieldPreview ? true : false
+// type test = InputFieldEnterprise extends InputFieldEnterprise ? true : false
 
 // & { EnterpriseField: T["enterpriseField"] }
 

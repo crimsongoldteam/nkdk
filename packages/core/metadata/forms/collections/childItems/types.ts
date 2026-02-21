@@ -1,5 +1,5 @@
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
-// import { ToPreviewType } from "~/metadata/metadataFactory/types"
+// import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
@@ -118,7 +118,7 @@ export type GroupChildItems = GroupChildItem[]
 
 export type GroupChilItemPartialYAML = Record<string, ToYAML<GroupChildItem>>
 
-// export type GroupChildItemsPreview = ToPreviewType<GroupChildItem>[]
+// export type GroupChildItemsEnterprise = ToEnterpriseType<GroupChildItem>[]
 
 // #endregion
 

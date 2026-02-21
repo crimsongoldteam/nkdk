@@ -60,13 +60,13 @@ export const colorTestCases: readonly ColorTestCase[] = [
     fixture: "color/customStyle.xml",
   },
 ] as const
-export interface ColorPreviewTestCase {
+export interface ColorEnterpriseTestCase {
   name: string
   color: Color | undefined
   expected: ColorEnterprise | undefined
 }
 
-export const colorPreviewTestCases: readonly ColorPreviewTestCase[] = [
+export const colorEnterpriseTestCases: readonly ColorEnterpriseTestCase[] = [
   {
     name: "undefined color returns undefined",
     color: undefined,

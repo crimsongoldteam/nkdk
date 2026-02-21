@@ -1,4 +1,4 @@
-import { PreviewAttributeMapItem } from "../forms/clientApplicationForm/base/types"
+import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/base/types"
 import { AllChildItemsPartialYAML } from "../forms/collections/childItems/types"
 import { FormElementType } from "../metadataFactory"
 
@@ -11,7 +11,7 @@ export interface ConfigurationContext {
   allElements?: AllChildItemsPartialYAML
   preview?: {
     prefix: string
-    attributes: Record<string, PreviewAttributeMapItem>
+    attributes: Record<string, EnterpriseAttributeMapItem>
   }
 
   elementsTree?: Array<ContextElementTreeItem>

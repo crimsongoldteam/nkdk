@@ -12,7 +12,7 @@ export const exportTypeDescriptionToEnterprise = (
 
   // Filter out ignored types (complex types like CatalogRef, DocumentRef, etc.)
   const nonIgnoredTypes = typeDescription.type.filter(
-    (type) => !TypeDescriptionRules[type as keyof typeof TypeDescriptionRules]?.ignoreInPreview
+    (type) => !TypeDescriptionRules[type as keyof typeof TypeDescriptionRules]?.ignoreInEnterprise
   )
 
   // If all types were ignored, return undefined
@@ -46,4 +46,4 @@ export const exportTypeDescriptionToEnterprise = (
   return result
 }
 
-registerTypeRule("TypeDescription", "exportToPreview", exportTypeDescriptionToEnterprise)
+registerTypeRule("TypeDescription", "exportToEnterprise", exportTypeDescriptionToEnterprise)

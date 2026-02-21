@@ -1,13 +1,13 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
-  // GroupChildItemsPreview,
+  // GroupChildItemsEnterprise,
   GroupChilItemPartialYAML,
 } from "../../collections/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
@@ -109,7 +109,7 @@ export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
   ПодчиненныеЭлементы?: GroupChilItemPartialYAML
 }
 
-export interface UsualGroupPreview {
+export interface UsualGroupEnterprise {
   itemType: "FormGroup"
   Name: string
   BackColor?: ColorEnterprise
@@ -136,7 +136,7 @@ export interface UsualGroupPreview {
   ThroughAlign?: SystemEnumerationEnterprise
   Title?: string
   TitleDataPath?: string
-  TitleFont?: FontPreview
+  TitleFont?: FontEnterprise
   TitleTextColor?: ColorEnterprise
   ToolTip?: string
   ToolTipRepresentation?: SystemEnumerationEnterprise
@@ -146,5 +146,5 @@ export interface UsualGroupPreview {
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  // ChildItems: GroupChildItemsPreview
+  // ChildItems: GroupChildItemsEnterprise
 }

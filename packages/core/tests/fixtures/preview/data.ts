@@ -1,12 +1,12 @@
-import { PreviewAttributesMap } from "~/metadata/forms/clientApplicationForm/base/types"
+import { EnterpriseAttributesMap } from "~/metadata/forms/clientApplicationForm/base/types"
 
 export interface GetAttributeNameFixture {
   name: string
-  attributes: PreviewAttributesMap
+  attributes: EnterpriseAttributesMap
   dataPath: string | undefined
   tableDataPath?: string | undefined
   expectedDataPath: string | undefined
-  expectedAttributes: PreviewAttributesMap
+  expectedAttributes: EnterpriseAttributesMap
 }
 
 export const getAttributeNameFixtures: GetAttributeNameFixture[] = [

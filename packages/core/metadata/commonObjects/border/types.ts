@@ -23,7 +23,7 @@ export interface BorderYAML {
   ТипРамки?: SE.ControlBorderTypeYAML
 }
 
-export interface BorderPreview {
+export interface BorderEnterprise {
   type: "border"
   width?: number
   borderType?: string

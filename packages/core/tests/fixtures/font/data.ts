@@ -1,4 +1,4 @@
-import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 
 // #region normalMinimalFont
 
@@ -115,7 +115,7 @@ interface FontYAMLFixture {
   xml: string
   font: Font
   yaml: FontYAML
-  preview: FontPreview
+  preview: FontEnterprise
 }
 
 export const fontYAMLFixtures: FontYAMLFixture[] = [

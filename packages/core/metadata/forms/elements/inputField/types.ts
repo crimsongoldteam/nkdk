@@ -1,9 +1,9 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
-import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
@@ -11,7 +11,6 @@ import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commo
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { InputFieldRules } from "./rules"
@@ -306,126 +305,126 @@ export interface InputFieldTypedYAML extends InputFieldPartialYAML {
   Тип: "ПолеВвода"
 }
 
-export interface InputFieldPreview {
-  itemType: "FormField"
-  Name: string
-  Type: SystemEnumerationEnterprise
-  AllowInputEmptyMultipleValues?: boolean
-  AllowMultipleValuesDuplicates?: boolean
-  AutoCapitalizationOnTextInput?: SystemEnumerationEnterprise
-  AutoChoiceIncomplete?: boolean
-  AutoCorrectionOnTextInput?: SystemEnumerationEnterprise
-  AutoFillHint?: SystemEnumerationEnterprise
-  AutoMarkIncomplete?: boolean
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  AutoShowClearButton?: SystemEnumerationEnterprise
-  AutoShowOpenButton?: SystemEnumerationEnterprise
-  // AvailableTypes?: TypeDescription
-  BackColor?: ColorEnterprise
-  BorderColor?: ColorEnterprise
-  ChoiceButton?: boolean
-  ChoiceButtonPicture?: PictureEnterprise
-  ChoiceButtonRepresentation?: SystemEnumerationEnterprise
-  ChoiceFoldersAndItems?: SystemEnumerationEnterprise
-  // ChoiceForm?: string
-  ChoiceHistoryOnInput?: SystemEnumerationEnterprise
-  // ChoiceList?: ChoiceList
-  ChoiceListButton?: boolean
-  ChoiceListHeight?: number
-  // ChoiceParameterLinks?: ChoiceParameterLinks
-  // ChoiceParameters?: ChoiceParameters
-  ChooseType?: boolean
-  ClearButton?: boolean
-  CreateButton?: boolean
-  DropListButton?: boolean
-  DropListWidth?: number
-  EditFormat?: string
-  // EditText?: string
-  EditTextUpdate?: SystemEnumerationEnterprise
-  ExtendedEdit?: boolean
-  Font?: FontPreview
-  Format?: string
-  Height?: number
-  HeightControlVariant?: SystemEnumerationEnterprise
-  HorizontalStretch?: boolean
-  IncompleteChoiceMode?: SystemEnumerationEnterprise
-  InputHint?: string
-  ListChoiceMode?: boolean
-  MarkIncomplete?: boolean
-  MarkNegatives?: boolean
-  Mask?: string
-  MaxHeight?: number
-  MaxValue?: number
-  MaxWidth?: number
-  MinValue?: number
-  MultiLine?: boolean
-  MultipleValuePictureDataPath?: string
-  MultipleValuePictureShape?: SystemEnumerationEnterprise
-  MultipleValuePictureSize?: SystemEnumerationEnterprise
-  MultipleValuePresentationDataPath?: string
-  MultipleValuesBackColor?: ColorEnterprise
-  MultipleValuesExtendedEdit?: boolean
-  MultipleValuesFont?: FontPreview
-  MultipleValuesHyperlink?: boolean
-  MultipleValuesPicture?: PictureEnterprise
-  MultipleValuesTextColor?: ColorEnterprise
-  MultipleValueValueDataPath?: string
-  OnScreenKeyboardReturnKeyText?: SystemEnumerationEnterprise
-  OpenButton?: boolean
-  PasswordMode?: boolean
-  QuickChoice?: boolean
-  // SelectedText?: string
-  ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
-  SpecialTextInputMode?: SystemEnumerationEnterprise
-  SpellCheckingOnTextInput?: SystemEnumerationEnterprise
-  SpinButton?: boolean
-  TextColor?: ColorEnterprise
-  TextEdit?: boolean
-  TypeDomainEnabled?: boolean
-  // TypeLink?: TypeLink
-  VerticalStretch?: boolean
-  Width?: number
-  Wrap?: boolean
-  AutoCellHeight?: boolean
-  CellHyperlink?: boolean
-  // ContextMenu?: ContextMenu
-  DataPath?: string
-  DefaultItem?: boolean
-  DisplayImportance?: SystemEnumerationEnterprise
-  EditMode?: SystemEnumerationEnterprise
-  Enabled?: boolean
-  // ExtendedTooltip?: ExtendedTooltip
-  FixingInTable?: SystemEnumerationEnterprise
-  FooterBackColor?: ColorEnterprise
-  FooterDataPath?: string
-  FooterFont?: FontPreview
-  FooterHorizontalAlign?: SystemEnumerationEnterprise
-  FooterPicture?: PictureEnterprise
-  FooterText?: string
-  FooterTextColor?: ColorEnterprise
-  HeaderHorizontalAlign?: SystemEnumerationEnterprise
-  HeaderPicture?: PictureEnterprise
-  HorizontalAlign?: SystemEnumerationEnterprise
-  HorizontalAlignInGroup?: SystemEnumerationEnterprise
-  ReadOnly?: boolean
-  // Shortcut?: string
-  ShowInFooter?: boolean
-  ShowInHeader?: boolean
-  SkipOnInput?: boolean
-  // Table?: string
-  Title?: string
-  TitleBackColor?: ColorEnterprise
-  TitleFont?: FontPreview
-  TitleHeight?: number
-  TitleLocation?: SystemEnumerationEnterprise
-  TitleTextColor?: ColorEnterprise
-  ToolTip?: string
-  ToolTipRepresentation?: SystemEnumerationEnterprise
-  // TypeRestriction?: TypeDescription
-  VerticalAlign?: SystemEnumerationEnterprise
-  VerticalAlignInGroup?: SystemEnumerationEnterprise
-  Visible?: boolean
-  WarningOnEdit?: string
-  WarningOnEditRepresentation?: SystemEnumerationEnterprise
-}
+// export interface InputFieldEnterprise {
+//   itemType: "FormField"
+//   Name: string
+//   Type: SystemEnumerationEnterprise
+//   AllowInputEmptyMultipleValues?: boolean
+//   AllowMultipleValuesDuplicates?: boolean
+//   AutoCapitalizationOnTextInput?: SystemEnumerationEnterprise
+//   AutoChoiceIncomplete?: boolean
+//   AutoCorrectionOnTextInput?: SystemEnumerationEnterprise
+//   AutoFillHint?: SystemEnumerationEnterprise
+//   AutoMarkIncomplete?: boolean
+//   AutoMaxHeight?: boolean
+//   AutoMaxWidth?: boolean
+//   AutoShowClearButton?: SystemEnumerationEnterprise
+//   AutoShowOpenButton?: SystemEnumerationEnterprise
+//   // AvailableTypes?: TypeDescription
+//   BackColor?: ColorEnterprise
+//   BorderColor?: ColorEnterprise
+//   ChoiceButton?: boolean
+//   ChoiceButtonPicture?: PictureEnterprise
+//   ChoiceButtonRepresentation?: SystemEnumerationEnterprise
+//   ChoiceFoldersAndItems?: SystemEnumerationEnterprise
+//   // ChoiceForm?: string
+//   ChoiceHistoryOnInput?: SystemEnumerationEnterprise
+//   // ChoiceList?: ChoiceList
+//   ChoiceListButton?: boolean
+//   ChoiceListHeight?: number
+//   // ChoiceParameterLinks?: ChoiceParameterLinks
+//   // ChoiceParameters?: ChoiceParameters
+//   ChooseType?: boolean
+//   ClearButton?: boolean
+//   CreateButton?: boolean
+//   DropListButton?: boolean
+//   DropListWidth?: number
+//   EditFormat?: string
+//   // EditText?: string
+//   EditTextUpdate?: SystemEnumerationEnterprise
+//   ExtendedEdit?: boolean
+//   Font?: FontEnterprise
+//   Format?: string
+//   Height?: number
+//   HeightControlVariant?: SystemEnumerationEnterprise
+//   HorizontalStretch?: boolean
+//   IncompleteChoiceMode?: SystemEnumerationEnterprise
+//   InputHint?: string
+//   ListChoiceMode?: boolean
+//   MarkIncomplete?: boolean
+//   MarkNegatives?: boolean
+//   Mask?: string
+//   MaxHeight?: number
+//   MaxValue?: number
+//   MaxWidth?: number
+//   MinValue?: number
+//   MultiLine?: boolean
+//   MultipleValuePictureDataPath?: string
+//   MultipleValuePictureShape?: SystemEnumerationEnterprise
+//   MultipleValuePictureSize?: SystemEnumerationEnterprise
+//   MultipleValuePresentationDataPath?: string
+//   MultipleValuesBackColor?: ColorEnterprise
+//   MultipleValuesExtendedEdit?: boolean
+//   MultipleValuesFont?: FontEnterprise
+//   MultipleValuesHyperlink?: boolean
+//   MultipleValuesPicture?: PictureEnterprise
+//   MultipleValuesTextColor?: ColorEnterprise
+//   MultipleValueValueDataPath?: string
+//   OnScreenKeyboardReturnKeyText?: SystemEnumerationEnterprise
+//   OpenButton?: boolean
+//   PasswordMode?: boolean
+//   QuickChoice?: boolean
+//   // SelectedText?: string
+//   ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
+//   SpecialTextInputMode?: SystemEnumerationEnterprise
+//   SpellCheckingOnTextInput?: SystemEnumerationEnterprise
+//   SpinButton?: boolean
+//   TextColor?: ColorEnterprise
+//   TextEdit?: boolean
+//   TypeDomainEnabled?: boolean
+//   // TypeLink?: TypeLink
+//   VerticalStretch?: boolean
+//   Width?: number
+//   Wrap?: boolean
+//   AutoCellHeight?: boolean
+//   CellHyperlink?: boolean
+//   // ContextMenu?: ContextMenu
+//   DataPath?: string
+//   DefaultItem?: boolean
+//   DisplayImportance?: SystemEnumerationEnterprise
+//   EditMode?: SystemEnumerationEnterprise
+//   Enabled?: boolean
+//   // ExtendedTooltip?: ExtendedTooltip
+//   FixingInTable?: SystemEnumerationEnterprise
+//   FooterBackColor?: ColorEnterprise
+//   FooterDataPath?: string
+//   FooterFont?: FontEnterprise
+//   FooterHorizontalAlign?: SystemEnumerationEnterprise
+//   FooterPicture?: PictureEnterprise
+//   FooterText?: string
+//   FooterTextColor?: ColorEnterprise
+//   HeaderHorizontalAlign?: SystemEnumerationEnterprise
+//   HeaderPicture?: PictureEnterprise
+//   HorizontalAlign?: SystemEnumerationEnterprise
+//   HorizontalAlignInGroup?: SystemEnumerationEnterprise
+//   ReadOnly?: boolean
+//   // Shortcut?: string
+//   ShowInFooter?: boolean
+//   ShowInHeader?: boolean
+//   SkipOnInput?: boolean
+//   // Table?: string
+//   Title?: string
+//   TitleBackColor?: ColorEnterprise
+//   TitleFont?: FontEnterprise
+//   TitleHeight?: number
+//   TitleLocation?: SystemEnumerationEnterprise
+//   TitleTextColor?: ColorEnterprise
+//   ToolTip?: string
+//   ToolTipRepresentation?: SystemEnumerationEnterprise
+//   // TypeRestriction?: TypeDescription
+//   VerticalAlign?: SystemEnumerationEnterprise
+//   VerticalAlignInGroup?: SystemEnumerationEnterprise
+//   Visible?: boolean
+//   WarningOnEdit?: string
+//   WarningOnEditRepresentation?: SystemEnumerationEnterprise
+// }

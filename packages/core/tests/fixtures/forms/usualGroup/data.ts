@@ -1,8 +1,8 @@
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import {
   UsualGroup,
+  UsualGroupEnterprise,
   UsualGroupPartialYAML,
-  UsualGroupPreview,
   UsualGroupTypedYAML,
 } from "~/metadata/forms/elements/usualGroup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
@@ -124,7 +124,7 @@ export const fullUsualGroupTypedYAML: UsualGroupTypedYAML = {
   Заголовок: "Обычная группа",
 }
 
-export const fullUsualGroupPreview: Required<UsualGroupPreview> = {
+export const fullUsualGroupEnterprise: Required<UsualGroupEnterprise> = {
   itemType: "FormGroup",
   Name: "ОбычнаяГруппа",
   BackColor: { Type: "Color", Value: "WebColors.White" },

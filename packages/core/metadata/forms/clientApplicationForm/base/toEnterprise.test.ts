@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { fullInputField } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportClientApplicationFormToPreview } from "./exportToPreview"
+import { exportClientApplicationFormToEnterprise } from "./toEnterprise"
 import { ClientApplicationForm } from "./types"
 
-describe.skip("exportClientApplicationFormToPreview", () => {
-  it("should export ClientApplicationForm to ClientApplicationFormPreview", () => {
+describe.skip("exportClientApplicationFormToEnterprise", () => {
+  it("should export ClientApplicationForm to ClientApplicationFormEnterprise", () => {
     const form: ClientApplicationForm = {
       childItems: [fullInputField],
       commands: [],
@@ -20,7 +20,7 @@ describe.skip("exportClientApplicationFormToPreview", () => {
       },
     }
 
-    const preview = exportClientApplicationFormToPreview(context, form)
+    const preview = exportClientApplicationFormToEnterprise(context, form)
 
     const text = JSON.stringify(preview, null, 2)
 

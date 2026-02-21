@@ -1,6 +1,6 @@
 import { describe, it } from "vitest"
 
-describe("exportInputFieldToPreview", () => {
+describe("exportInputFieldToEnterprise", () => {
   it.skip("should export all fields to YAML", () => {
     // const context = {
     //   ...mockContext,
@@ -9,7 +9,7 @@ describe("exportInputFieldToPreview", () => {
     //     attributes: {},
     //   },
     // }
-    // const result = exportInputFieldToPreview(context, undefined, fullInputField)
-    // expect(result).toEqual(fullInputFieldPreview)
+    // const result = exportInputFieldToEnterprise(context, undefined, fullInputField)
+    // expect(result).toEqual(fullInputFieldEnterprise)
   })
 })

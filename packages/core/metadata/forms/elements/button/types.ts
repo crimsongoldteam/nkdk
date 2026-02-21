@@ -1,6 +1,6 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
@@ -96,7 +96,7 @@ export interface ButtonTypedYAML extends ButtonPartialYAML {
   Тип: "Кнопка"
 }
 
-export interface ButtonPreview {
+export interface ButtonEnterprise {
   Name: string
   itemType: "FormButton"
   AutoMaxHeight?: boolean
@@ -110,8 +110,8 @@ export interface ButtonPreview {
   DefaultItem?: boolean
   DisplayImportance?: SE.SystemEnumerationEnterprise
   Enabled?: boolean
-  // ExtendedTooltip?: ExtendedTooltipPreview
-  Font?: FontPreview
+  // ExtendedTooltip?: ExtendedTooltipEnterprise
+  Font?: FontEnterprise
   Height?: number
   HorizontalAlignInGroup?: SE.SystemEnumerationEnterprise
   HorizontalStretch?: boolean

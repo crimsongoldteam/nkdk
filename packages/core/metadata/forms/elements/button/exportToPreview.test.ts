@@ -1,11 +1,11 @@
 // import { describe, expect, it } from "vitest"
-// import { fullButton, fullButtonPreview } from "~/tests/fixtures/forms/button/data"
+// import { fullButton, fullButtonEnterprise } from "~/tests/fixtures/forms/button/data"
 // import { mockContext } from "~/tests/mockContext"
 
 import { describe, it } from "vitest"
 
-describe("exportButtonToPreview", () => {
-  it.skip("should export all fields to Preview", () => {
+describe("exportButtonToEnterprise", () => {
+  it.skip("should export all fields to Enterprise", () => {
     // const context = {
     //   ...mockContext,
     //   preview: {
@@ -13,7 +13,7 @@ describe("exportButtonToPreview", () => {
     //     attributes: {},
     //   },
     // }
-    // const result = exportButtonToPreview(context, fullButton)
-    // expect(result).toEqual(fullButtonPreview)
+    // const result = exportButtonToEnterprise(context, fullButton)
+    // expect(result).toEqual(fullButtonEnterprise)
   })
 })

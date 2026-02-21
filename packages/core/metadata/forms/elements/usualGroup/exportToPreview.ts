@@ -1,12 +1,12 @@
 // import { ConfigurationContext } from "~/metadata/context/types"
-// import { exportElementToPreview, registerMetadata } from "~/metadata/metadataFactory"
-// import { UsualGroup, UsualGroupPreview } from "./types"
+// import { exportElementToEnterprise, registerMetadata } from "~/metadata/metadataFactory"
+// import { UsualGroup, UsualGroupEnterprise } from "./types"
 
-// export function exportUsualGroupToPreview<From extends UsualGroup | undefined>(
+// export function exportUsualGroupToEnterprise<From extends UsualGroup | undefined>(
 //   context: ConfigurationContext,
 //   data: From
-// ): UsualGroupPreview | undefined {
-//   return exportElementToPreview(context, "UsualGroup", data) as UsualGroupPreview | undefined
+// ): UsualGroupEnterprise | undefined {
+//   return exportElementToEnterprise(context, "UsualGroup", data) as UsualGroupEnterprise | undefined
 // }
 
-// registerMetadata("ExportToPreview", "UsualGroup", exportUsualGroupToPreview as any)
+// registerMetadata("ExportToEnterprise", "UsualGroup", exportUsualGroupToEnterprise as any)

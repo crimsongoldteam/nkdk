@@ -317,30 +317,30 @@ export interface FormMetadataXML {
   }
 }
 
-export interface ClientApplicationFormPreview {
+export interface ClientApplicationFormEnterprise {
   prefix: string
-  attributes: PreviewAttributes
+  attributes: EnterpriseAttributes
   childItems: any
 }
 
-export interface PreviewAttribute {
+export interface EnterpriseAttribute {
   Name: string
   Path?: string
   Title?: string
   Type: TypeDescriptionEnterprise
 }
 
-export type PreviewAttributes = PreviewAttribute[]
+export type EnterpriseAttributes = EnterpriseAttribute[]
 
-export interface PreviewAttributeMapItem {
+export interface EnterpriseAttributeMapItem {
   name: string
   parentPath?: string
   title?: string
   type: TypeDescriptionEnterprise
-  childItems?: PreviewAttributesMap
+  childItems?: EnterpriseAttributesMap
 }
 
-export type PreviewAttributesMap = Record<string, PreviewAttributeMapItem>
+export type EnterpriseAttributesMap = Record<string, EnterpriseAttributeMapItem>
 
 export const FormRulesTags = {
   Form: "Form",

@@ -1,4 +1,4 @@
-import { Button, ButtonPartialYAML, ButtonPreview, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
@@ -150,7 +150,7 @@ export const minimalButtonTypedYAML: ButtonTypedYAML = {
   Тип: "Кнопка",
 }
 
-export const fullButtonPreview: Required<ButtonPreview> = {
+export const fullButtonEnterprise: Required<ButtonEnterprise> = {
   itemType: "FormButton",
   Name: "ОбычнаяКнопка",
   AutoMaxHeight: false,

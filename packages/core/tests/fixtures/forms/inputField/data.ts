@@ -400,7 +400,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
   },
 ]
 
-export const fullInputFieldPreview = {
+export const fullInputFieldEnterprise = {
   EnterpriseField: "FormField",
   Name: "ПолеВвода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },

@@ -1,7 +1,7 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderPreview, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontPreview, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
@@ -154,7 +154,7 @@ export interface LabelFieldTypedYAML extends LabelFieldPartialYAML {
   Тип: "ПолеНадписи"
 }
 
-export interface LabelFieldPreview {
+export interface LabelFieldEnterprise {
   itemType: "FormField"
   Name: string
   Type: SystemEnumerationEnterprise
@@ -168,7 +168,7 @@ export interface LabelFieldPreview {
   FixingInTable?: SystemEnumerationEnterprise
   FooterBackColor?: ColorEnterprise
   FooterDataPath?: string
-  FooterFont?: FontPreview
+  FooterFont?: FontEnterprise
   FooterHorizontalAlign?: SystemEnumerationEnterprise
   FooterPicture?: PictureEnterprise
   FooterText?: string
@@ -183,7 +183,7 @@ export interface LabelFieldPreview {
   SkipOnInput?: boolean
   Title?: string
   TitleBackColor?: ColorEnterprise
-  TitleFont?: FontPreview
+  TitleFont?: FontEnterprise
   TitleHeight?: number
   TitleLocation?: SystemEnumerationEnterprise
   TitleTextColor?: ColorEnterprise
@@ -197,9 +197,9 @@ export interface LabelFieldPreview {
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BackColor?: ColorEnterprise
-  Border?: BorderPreview
+  Border?: BorderEnterprise
   BorderColor?: ColorEnterprise
-  Font?: FontPreview
+  Font?: FontEnterprise
   Format?: string
   Height?: number
   HorizontalStretch?: boolean

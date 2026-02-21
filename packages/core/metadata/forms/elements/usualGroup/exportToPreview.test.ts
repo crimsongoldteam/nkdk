@@ -1,7 +1,7 @@
 import { describe, it } from "vitest"
 
-describe("exportUsualGroupToPreview", () => {
-  it.skip("should export all fields to Preview", () => {
+describe("exportUsualGroupToEnterprise", () => {
+  it.skip("should export all fields to Enterprise", () => {
     // const context = {
     //   ...mockContext,
     //   preview: {
@@ -9,7 +9,7 @@ describe("exportUsualGroupToPreview", () => {
     //     attributes: {},
     //   },
     // }
-    // const result = exportUsualGroupToPreview(context, fullUsualGroup)
-    // expect(result).toEqual(fullUsualGroupPreview)
+    // const result = exportUsualGroupToEnterprise(context, fullUsualGroup)
+    // expect(result).toEqual(fullUsualGroupEnterprise)
   })
 })

@@ -3,13 +3,13 @@ import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportTypeDescriptionToEnterprise } from "./toEnterprise"
 import { TypeDescription } from "./types"
 
-describe("exportTypeDescriptionToPreview", () => {
+describe("exportTypeDescriptionToEnterprise", () => {
   it("should return undefined when typeDescription is undefined", () => {
     const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
-  it("should return single string for single type without ignoreInPreview", () => {
+  it("should return single string for single type without ignoreInEnterprise", () => {
     const typeDescription: TypeDescription = {
       type: ["string"],
     }

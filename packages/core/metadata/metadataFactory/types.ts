@@ -25,10 +25,10 @@ export type ExportToStructureContentFn = <From extends BaseElement>(
   data: From
 ) => IFormatElementResult
 
-// export type ExportToPreviewFn = <From extends BaseElement>(
+// export type ExportToEnterpriseFn = <From extends BaseElement>(
 //   context: ConfigurationContext,
 //   data: From
-// ) => NonNullable<ToPreviewType<From>>
+// ) => NonNullable<ToEnterpriseType<From>>
 
 // #endregion
 

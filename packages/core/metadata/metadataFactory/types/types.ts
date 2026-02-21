@@ -105,7 +105,7 @@ export type ExportToYAMLFunctionNew = <T extends MetadataItem | never = never>(p
   name?: string
 }) => any | undefined
 
-export type ExportToPreviewFunction = (
+export type ExportToEnterpriseFunction = (
   context: ConfigurationContext,
   rule: PropertyRule<any>,
   value: any | undefined
@@ -116,7 +116,7 @@ export interface TypeRule {
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
   importFromYAML?: ImportFromYAMLFunction | ImportFromYAMLFunctionNew
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
-  exportToPreview?: ExportToPreviewFunction
+  exportToEnterprise?: ExportToEnterpriseFunction
 }
 
 export type TypeRulesOperations =
@@ -124,7 +124,7 @@ export type TypeRulesOperations =
   | "exportToXML"
   | "importFromYAML"
   | "exportToYAML"
-  | "exportToPreview"
+  | "exportToEnterprise"
 
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
 
@@ -140,8 +140,8 @@ export type ImportExportFunction<O extends TypeRulesOperations> = O extends "imp
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
-        : O extends "exportToPreview"
-          ? ExportToPreviewFunction | undefined
+        : O extends "exportToEnterprise"
+          ? ExportToEnterpriseFunction | undefined
           : never
 
 type TypesMap =
