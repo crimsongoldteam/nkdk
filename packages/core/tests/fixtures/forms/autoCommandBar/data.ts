@@ -16,6 +16,8 @@ export const parentElement: NamedElement = {
 export const sourceAutoCommandBar: AutoCommandBar = {
   itemType: SingleFormElementType.AutoCommandBar,
   autofill: false,
+  displayImportance: "High",
+  horizontalAlign: "Left",
   childItems: fullCommandBarChildItemsStructure,
 }
 

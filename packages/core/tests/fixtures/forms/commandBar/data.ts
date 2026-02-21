@@ -69,6 +69,11 @@ export const minimalCommandBar: CommandBar = {
   childItems: [],
 }
 
+export const fullCommandBarSource: CommandBar = {
+  ...fullCommandBar,
+  childItems: fullCommandBarChildItemsStructure,
+}
+
 export const minimalCommandBarPartialYAML: CommandBarPartialYAML = {}
 
 export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
