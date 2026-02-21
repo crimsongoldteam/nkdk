@@ -3,8 +3,7 @@ import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement
 import { importEventsFromYAML } from "../events"
 import { importFormElementTypeFromYAML } from "../metadataType/fromYAML"
 import { FormElementType } from "../metadataType/types"
-import { importPropertyFromYAML } from "../properties/fromYAML"
-import { PropertyRule } from "../properties/types"
+import { importPropertiesFromYAML } from "../properties/fromYAML"
 import { ToTypedYAML, ToYAML } from "../rules"
 import { getElementRule } from "./factory"
 import { ElementRule } from "./types"
@@ -20,33 +19,41 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
 
   const rules = getElementRule<T>(itemType)
 
-  const result: any = {
-    itemType: itemType,
-    name: name,
-  }
+  const properties = importPropertiesFromYAML({
+    context,
+    yaml: yaml as ToYAML<T> & { События?: Record<string, string> },
+    metadataType: itemType,
+    rules,
+  })
 
-  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
-    const yamlKey = rule.yaml as keyof typeof params.yaml
+  // for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+  //   const yamlKey = rule.yaml as keyof typeof params.yaml
 
-    const yamlValue = yaml[yamlKey]
+  //   const yamlValue = yaml[yamlKey]
 
-    const importedValue = importPropertyFromYAML({
-      context,
-      rule: rule,
-      yaml: yaml,
-      value: yamlValue,
-    })
+  //   const importedValue = importPropertyFromYAML({
+  //     context,
+  //     rule: rule,
+  //     yaml: yaml,
+  //     value: yamlValue,
+  //   })
 
-    if (importedValue !== undefined) {
-      result[key as keyof T] = importedValue
-    }
-  }
+  //   if (importedValue !== undefined) {
+  //     result[key as keyof T] = importedValue
+  //   }
+  // }
 
   const events = importEventsFromYAML({
     rule: rules,
     yaml: yaml,
   })
-  Object.assign(result, events)
+
+  const result: T = {
+    ...properties,
+    ...events,
+    itemType: itemType,
+    name: name,
+  }
 
   return result as T
 }
@@ -57,16 +64,17 @@ export function importElementFromPartialYAML<T extends BaseElement>(params: {
   yaml: ToYAML<T> | undefined
   source?: T
 }): T | undefined {
-  if (params.yaml === undefined) return params.source
+  const { context, itemType, yaml, source } = params
+  // if (yaml === undefined) return source
 
-  const rules = getElementRule<T>(params.itemType)
+  const rules = getElementRule<T>(itemType)
 
   return importElementFromYAML({
-    context: params.context,
+    context: context,
     rules: rules,
-    yaml: params.yaml as ToYAML<T> & { События?: Record<string, string> },
-    itemType: params.itemType,
-    source: params.source,
+    yaml: yaml as ToYAML<T> & { События?: Record<string, string> },
+    itemType: itemType,
+    source: source,
   })
 }
 
@@ -78,39 +86,48 @@ function importElementFromYAML<T extends BaseElement>(params: {
   source?: T
 }): T | undefined {
   const { context, rules, yaml, source, itemType } = params
-  if (yaml === undefined) return source
+  // if (yaml === undefined) return source
 
-  const result: T = {
-    ...(source ? source : {}),
-    itemType: itemType,
-  } as T
+  const properties = importPropertiesFromYAML({
+    context,
+    yaml: yaml as ToYAML<T> & { События?: Record<string, string> },
+    metadataType: itemType,
+    rules,
+    source,
+  })
 
-  for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
-    const yamlKey = curRule.yaml
-    if (yamlKey === undefined) continue
+  // for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+  //   const yamlKey = curRule.yaml
+  //   // if (yamlKey === undefined) continue
 
-    const sourceValue = source ? source[key] : curRule.defaultValue
+  //   const sourceValue = source ? source[key] : curRule.defaultValue
 
-    const yamlValue = (yaml as any)[yamlKey]
+  //   const yamlValue = yaml && yamlKey ? (yaml as any)[yamlKey] : undefined
 
-    const importedValue = importPropertyFromYAML({
-      context,
-      rule: curRule,
-      value: yamlValue,
-      yaml: yaml,
-      sourceValue,
-    })
+  //   const importedValue = importPropertyFromYAML({
+  //     context,
+  //     rule: curRule,
+  //     value: yamlValue,
+  //     yaml: yaml,
+  //     sourceValue,
+  //   })
 
-    if (importedValue !== undefined) {
-      result[key as keyof T] = importedValue
-    }
-  }
+  //   if (importedValue !== undefined) {
+  //     result[key as keyof T] = importedValue
+  //   }
+  // }
 
   const events = importEventsFromYAML({
     rule: rules,
-    yaml: "События" in yaml ? yaml.События : undefined,
+    yaml: yaml,
   })
-  Object.assign(result, events)
+
+  const result: T = {
+    ...(source ? source : {}),
+    ...properties,
+    ...events,
+    itemType: itemType,
+  }
 
   return result
 }

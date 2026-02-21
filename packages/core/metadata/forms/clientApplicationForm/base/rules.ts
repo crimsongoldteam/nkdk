@@ -17,6 +17,7 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       yaml: "КоманднаяПанель",
       type: "AutoCommandBar",
       tag: FormRulesTags.Form,
+      fromYAML: false,
     },
     autoFillCheck: {
       yaml: "ПроверятьЗаполнениеАвтоматически",

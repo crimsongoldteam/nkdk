@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
+import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import { importEventsFromYAML } from "~/metadata/metadataFactory/events"
 import { importChildItemsFromPartialYAML } from "../../collections/childItems/fromYAML"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
@@ -15,6 +15,13 @@ export const importClientApplicationFormFromYAML = (
     ...context,
     allElements: data.Элементы,
   }
+
+  const autoCommandBar = importPropertyFromYAML({
+    context: itemsContext,
+    rule: ClientApplicationFormRules.properties.autoCommandBar as PropertyRule<any>,
+    value: data.КоманднаяПанель,
+    sourceValue: source.autoCommandBar,
+  })
 
   const properties = importPropertiesFromYAML({
     context: itemsContext,
@@ -35,6 +42,7 @@ export const importClientApplicationFormFromYAML = (
   })
 
   const result: ClientApplicationForm = {
+    ...(autoCommandBar ? { autoCommandBar } : {}),
     ...properties,
     ...events,
     childItems: childItems,
@@ -43,5 +51,12 @@ export const importClientApplicationFormFromYAML = (
 
   // result.childItems = importChildItemsFromPartialYAML(itemsContext, undefined, structure.childItems)
 
+  // const autoCommandBar = importAutoCommandBarFromEnterprise(
+  //   itemsContext,
+  //   undefined,
+  //   structure.autoCommandBar,
+  //   data.КоманднаяПанель
+  // )
+  // if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
   return result
 }

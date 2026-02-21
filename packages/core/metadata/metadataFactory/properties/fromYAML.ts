@@ -35,12 +35,12 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
 
   for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
     const yamlKey = curRule.yaml
-    if (yamlKey === undefined) continue
+    // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue
 
     const sourceValue = source ? source[key] : undefined
 
-    const yamlValue = (yaml as any)[yamlKey]
+    const yamlValue = yaml && yamlKey ? (yaml as any)[yamlKey] : undefined
 
     const importedValue = importPropertyFromYAML({
       context,
