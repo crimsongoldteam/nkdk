@@ -1,7 +1,7 @@
 import {
-  exportCatalogFormToXML,
+  // exportCatalogFormToXML,
   exportFormMetadataToXML,
-  importCatalogFormFromEnterprise,
+  // importCatalogFormFromEnterprise,
   importChildItemsFromStructure,
   importFromYAML,
   xmlExport,
@@ -9,7 +9,10 @@ import {
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { CatalogFormEnterprise } from "~/metadata/forms/index"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/base/fromYAML"
+import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/base/toXML"
+import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/base/types"
+// import { CatalogFormEnterprise } from "~/metadata/forms/index"
 
 /**
  * Экспортирует форму из Enterprise формата в XML
@@ -24,7 +27,7 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")
-  const enterpriseData = importFromYAML(yamlContent) as CatalogFormEnterprise
+  const enterpriseData = importFromYAML(yamlContent) as ClientApplicationFormYAML
 
   if (!enterpriseData) {
     throw new Error("Не удалось распарсить YAML")
@@ -39,14 +42,14 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
   }
 
   const childItems = importChildItemsFromStructure(context, childItemsStructure)
-  const formData = importCatalogFormFromEnterprise(context, undefined, enterpriseData, childItems)
+  const formData = importClientApplicationFormFromYAML(context, enterpriseData, childItems)
 
   if (!formData) {
     throw new Error("Не удалось импортировать форму из Enterprise формата")
   }
 
   // Экспортируем Form.xml
-  const formXmlData = exportCatalogFormToXML(context, undefined, formData)
+  const formXmlData = exportClientApplicationFormToXML(context, formData)
   if (!formXmlData) {
     throw new Error("Не удалось экспортировать форму в XML")
   }

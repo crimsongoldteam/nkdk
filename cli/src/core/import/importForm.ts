@@ -1,16 +1,11 @@
-import {
-  exportCatalogFormToEnterprise,
-  exportCatalogFormToStructure,
-  exportToYAML,
-  FormMetadataXML,
-  importCatalogFormFromXML,
-  importContentFromXML,
-} from "@nakidka/core"
+import { exportToYAML, FormMetadataXML, importContentFromXML } from "@nakidka/core"
 import console from "console"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { CatalogFormXML } from "~/metadata/forms/index"
-
+import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
+import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/fromXML"
+import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/base/toYAML"
+import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/base/types"
 /**
  * Ищет все XML файлы в каталоге inputPath/Forms и создает для каждого пустой файл Form.yaml
  * @param inputPath - путь к входящему каталогу
@@ -66,7 +61,7 @@ const importForm = (path: string, name: string, outputPath: string) => {
   }
 
   const formXml = readFileSync(formPath, "utf-8")
-  const formXmlData = importContentFromXML<{ Form: CatalogFormXML }>(formXml)
+  const formXmlData = importContentFromXML<{ Form: ClientApplicationFormXML }>(formXml)
 
   const formMetadataPath = join(path, name + ".xml")
   if (!existsSync(formMetadataPath)) {
@@ -78,14 +73,14 @@ const importForm = (path: string, name: string, outputPath: string) => {
   const formMetadataXmlData = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(formMetadataXml)
 
   try {
-    const formData = importCatalogFormFromXML(context, undefined, formXmlData.Form, formMetadataXmlData.MetaDataObject)
+    const formData = importClientApplicationFormFromXML(context, formXmlData.Form, formMetadataXmlData.MetaDataObject)
 
     if (!formData) {
       console.log(`⚠  Форма ${name}: не удалось импортировать данные формы`)
       return
     }
 
-    const formYaml = exportCatalogFormToEnterprise(context, undefined, formData)
+    const formYaml = exportClientApplicationFormToYAML(context, formData)
     if (!formYaml) {
       console.log(`⚠  Форма ${name}: не удалось экспортировать форму в Enterprise формат`)
       return
@@ -101,7 +96,7 @@ const importForm = (path: string, name: string, outputPath: string) => {
     mkdirSync(outputFormDir, { recursive: true })
     writeFileSync(join(outputFormDir, `Форма.yaml`), formYamlString, "utf-8")
 
-    const formStructuredObject = exportCatalogFormToStructure(context, formData)
+    const formStructuredObject = exportClientApplicationFormToStructure(context, formData)
     if (formStructuredObject) {
       writeFileSync(join(outputFormDir, "Форма.nkdk"), formStructuredObject.strings.join("\n"), "utf-8")
     }

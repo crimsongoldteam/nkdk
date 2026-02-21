@@ -42,7 +42,10 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
     }
   }
 
-  const events = importEventsFromYAML(rules.events, "События" in yaml ? yaml.События : undefined)
+  const events = importEventsFromYAML({
+    rule: rules,
+    yaml: yaml,
+  })
   Object.assign(result, events)
 
   return result as T
@@ -103,7 +106,10 @@ function importElementFromYAML<T extends BaseElement>(params: {
     }
   }
 
-  const events = importEventsFromYAML(rules.events, "События" in yaml ? yaml.События : undefined)
+  const events = importEventsFromYAML({
+    rule: rules,
+    yaml: "События" in yaml ? yaml.События : undefined,
+  })
   Object.assign(result, events)
 
   return result

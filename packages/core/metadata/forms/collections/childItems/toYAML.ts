@@ -28,7 +28,7 @@ export const exportChildItemsToTypedYAML = <From extends TypedElement>(
 
 export const exportChildItemsToPartialYAML = <From extends AllChildItem>(
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  // _rule: PropertyRule<any>,
   data: From[] | undefined
 ): Record<string, ToYAML<From>> | undefined => {
   if (!data || data.length === 0) return undefined
@@ -39,6 +39,8 @@ export const exportChildItemsToPartialYAML = <From extends AllChildItem>(
       context: mockContext,
       element: item,
     })!
+
+    if (value === undefined) continue
 
     result[item.name] = value
   }

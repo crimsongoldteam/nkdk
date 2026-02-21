@@ -1,15 +1,20 @@
-export const importEventsFromYAML = (
-  rules: Record<string, string> | undefined,
-  yamlEvents: Record<string, string> | undefined
-): { events?: Record<string, string> } => {
-  if (!rules || !yamlEvents) {
+import { MetadataItem, MetadataItemRule } from "../properties/types"
+
+export const importEventsFromYAML = <T extends MetadataItem>(params: {
+  rule: MetadataItemRule<T>
+  yaml: { События?: Record<string, string> } | undefined
+}): { events?: Record<string, string> } => {
+  const { rule, yaml } = params
+  const yamlEvents = yaml?.События
+
+  if (!rule.events || !yamlEvents) {
     return {}
   }
 
   const result: Record<string, string> = {}
 
-  for (const [ruleKey, enterpriseName] of Object.entries(rules)) {
-    const eventValue = yamlEvents[enterpriseName]
+  for (const [ruleKey, enterpriseName] of Object.entries(rule.events)) {
+    const eventValue = yamlEvents[enterpriseName as keyof typeof yamlEvents]
     if (eventValue === undefined) continue
 
     result[ruleKey] = eventValue

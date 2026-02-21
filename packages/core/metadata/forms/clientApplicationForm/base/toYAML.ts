@@ -2,6 +2,8 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/base/types"
 import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
 import { exportEventsToYAML } from "~/metadata/metadataFactory/events"
+import { exportChildItemsToPartialYAML } from "../../collections/childItems/toYAML"
+import { getAllElements } from "./getAllElements"
 import { ClientApplicationFormRules } from "./rules"
 
 export const exportClientApplicationFormToYAML = (
@@ -19,9 +21,9 @@ export const exportClientApplicationFormToYAML = (
     data: data,
   })
 
-  //   const allElements = getAllElements(data)
-  //   const childItems = exportChildItemsToPartialYAML(context, undefined, allElements)
-  //   if (childItems !== undefined) result.Элементы = childItems
+  const allElements = getAllElements(data)
+  const childItemsPartial = exportChildItemsToPartialYAML(context, allElements)
+  const childItems = childItemsPartial ? { Элементы: childItemsPartial } : {}
 
-  return { ...result, ...events }
+  return { ...result, ...events, ...childItems }
 }

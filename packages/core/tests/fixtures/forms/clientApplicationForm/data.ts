@@ -87,6 +87,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
     {
       name: "ПолеВвода1",
       itemType: CollectionFormElementType.InputField,
+      width: 10,
     },
   ],
 
@@ -210,6 +211,7 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
   Реквизиты: {
     Объект: {
       Тип: "Справочник.ТестоваяОбработка",
+      Заголовок: "",
       ОсновнойРеквизит: "Истина",
     },
   },
@@ -251,7 +253,9 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
     // #endregion
   },
   Элементы: {
-    ПолеВвода1: {},
+    ПолеВвода1: {
+      Ширина: 10,
+    },
   },
   Параметры: {
     Параметр1: {
@@ -260,7 +264,7 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
   },
   // #region Catalog
   ВыборДоступен: "Истина",
-  ИспользованиеДляГруппИЭлементов: "Элементы",
+  ИспользованиеДляГруппИЭлементов: "Группы",
   ПараметрыВыбора: {
     "Отбор.Параметр": '"Значение"',
   },

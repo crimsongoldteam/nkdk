@@ -1,5 +1,6 @@
 import {
-  exportMetadataCatalogToEnterprise,
+  exportMetadataCatalogToYAML,
+  // exportMetadataCatalogToEnterprise,
   exportToYAML,
   importContentFromXML,
   importMetadataCatalogFromXML,
@@ -24,13 +25,13 @@ export const importCatalog = (inputPath: string, outputPath: string): void => {
     throw new Error("Не удалось распарсить XML")
   }
 
-  const catalogData = importMetadataCatalogFromXML(context, undefined, importedXml.MetaDataObject)
+  const catalogData = importMetadataCatalogFromXML(context, importedXml.MetaDataObject)
 
   if (!catalogData) {
     throw new Error("Не удалось импортировать каталог")
   }
 
-  const exportedEnterprise = exportMetadataCatalogToEnterprise(context, undefined, catalogData)
+  const exportedEnterprise = exportMetadataCatalogToYAML(context, catalogData)
 
   if (!exportedEnterprise) {
     throw new Error("Не удалось экспортировать каталог")

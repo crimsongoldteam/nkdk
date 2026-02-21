@@ -20,6 +20,7 @@
 		<InputField name="ПолеВвода1" id="2">
 			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="3"/>
 			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="4"/>
+			<Width>10</Width>
 		</InputField>
 	</ChildItems>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>

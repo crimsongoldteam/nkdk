@@ -1,12 +1,10 @@
 import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromXML } from "~/metadata/metadataFactory"
 import { MetadataCatalogRules } from "./rules"
 
 export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
   xml: MetadataCatalogXML
 ): MetadataCatalog => {
   const result = importPropertiesFromXML({

@@ -1,10 +1,10 @@
 import {
   exportMetadataCatalogToXML,
   importFromYAML,
-  importMetadataCatalogFromEnterprise,
+  importMetadataCatalogFromYAML,
+  MetadataCatalogYAML,
   xmlExport,
   type MetadataCatalogContext,
-  type MetadataCatalogEnterprise,
 } from "@nakidka/core"
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
@@ -53,7 +53,7 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")
-  const enterpriseData = importFromYAML(yamlContent) as MetadataCatalogEnterprise
+  const enterpriseData = importFromYAML(yamlContent) as MetadataCatalogYAML
 
   if (!enterpriseData) {
     throw new Error("Не удалось распарсить YAML")
@@ -65,7 +65,7 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const catalogDir = basename(catalogDirPath)
   const catalogName = catalogDir
 
-  const catalogData = importMetadataCatalogFromEnterprise(context, undefined, enterpriseData, catalogName)
+  const catalogData = importMetadataCatalogFromYAML(context, enterpriseData, catalogName)
 
   if (!catalogData) {
     throw new Error("Не удалось импортировать каталог из Enterprise формата")

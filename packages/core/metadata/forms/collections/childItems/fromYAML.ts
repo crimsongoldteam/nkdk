@@ -5,12 +5,13 @@ import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialYAML, TypedElement } from "./types"
 
-export const importChildItemsFromPartialYAML = <To extends AllChildItem>(
-  context: ConfigurationContext,
-  _rule: PropertyRule<any>,
-  _data: undefined,
+export const importChildItemsFromPartialYAML = <To extends AllChildItem>(params: {
+  context: ConfigurationContext
+  // _data: undefined,
   childItems: To[]
-): To[] => {
+}): To[] => {
+  const { context, childItems } = params
+
   const childItemsProperties = context.allElements!
 
   return childItems.map((item) => {
