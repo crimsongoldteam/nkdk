@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
   fullContextMenu,
+  fullContextMenuSource,
   fullContextMenuYAML,
   minimalContextMenu,
   minimalContextMenuYAML,
@@ -16,7 +17,7 @@ describe("importContextMenuFromYAML", () => {
       context: mockContext,
       rule: rule,
       value: fullContextMenuYAML,
-      sourceValue: fullContextMenu,
+      sourceValue: fullContextMenuSource,
     })
 
     expect(result).toEqual(fullContextMenu)

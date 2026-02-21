@@ -5,7 +5,7 @@ import {
   fullClientApplicationFormYAML,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContext } from "~/tests/mockContext"
-import { ButtonGroup } from "../../elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupPartialYAML } from "../../elements/buttonGroup/types"
 import { Table } from "../../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
@@ -48,7 +48,7 @@ describe("importClientApplicationFormFromYAML", () => {
               ИмяКоманды: "Команда1",
             },
           },
-        },
+        } as ButtonGroupPartialYAML,
       },
     }
 
@@ -121,7 +121,7 @@ describe("importClientApplicationFormFromYAML", () => {
           ПодчиненныеЭлементы: {
             Кнопка1: { Тип: "Кнопка", ИмяКоманды: "Команда1" },
           },
-        },
+        } as ButtonGroupPartialYAML,
         Таблица1: { МножественныйВыбор: "Ложь" },
       },
     }

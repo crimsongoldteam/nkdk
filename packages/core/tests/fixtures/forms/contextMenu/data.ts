@@ -29,6 +29,13 @@ export const fullContextMenuYAML: ContextMenuYAML = {
   },
 }
 
+export const fullContextMenuSource: ContextMenu = {
+  itemType: "ContextMenu",
+  displayImportance: "High",
+  autofill: true,
+  childItems: [],
+}
+
 export const minimalContextMenu: ContextMenu = {
   itemType: "ContextMenu",
   childItems: [],

@@ -18,7 +18,7 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends M
   value?: ToYAML<To> | ToTypedYAML<To>[]
   source?: To[]
 }): To[] => {
-  const { rule } = params
+  const { rule, source } = params
 
   const narrowRule = rule as ChildItemsPropertyRule<To>
 
@@ -29,6 +29,8 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends M
       source: params.source as AllChildItem[] | undefined,
     }) as unknown as To[]
   }
+
+  if (source && source.length > 0) throw new Error("Source is not empty! Move child items to yaml")
 
   return importChildItemsTypedFromYAML({
     context: params.context,

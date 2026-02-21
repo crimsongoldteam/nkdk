@@ -7,6 +7,7 @@ import {
 import {
   fullButtonGroup,
   fullButtonGroupPartialYAML,
+  fullButtonGroupSource,
   fullButtonGroupTypedYAML,
   minimalButtonGroup,
   minimalButtonGroupPartialYAML,
@@ -44,7 +45,7 @@ describe("importButtonGroupFromYAML", () => {
         context: mockContext,
         itemType: CollectionFormElementType.ButtonGroup,
         yaml: fullButtonGroupPartialYAML,
-        source: fullButtonGroup,
+        source: fullButtonGroupSource,
       })
 
       expect(result).toEqual(fullButtonGroup)
