@@ -10,6 +10,7 @@ import {
 } from "~/metadata/forms/clientApplicationForm/base/toXML"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/base/toYAML"
 import {
+  ClientApplicationForm,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
   FormMetadataXML,
@@ -79,9 +80,15 @@ describe.skip("DO test", () => {
     const strings = structuredObject.strings.join("\n")
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
     writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
-    const childItems = importChildItemsFromStructure(configurationContext, strings)
+
+    const sourceForm: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      ...importChildItemsFromStructure(configurationContext, strings)!,
+      commands: [],
+    }
+
     const importedYaml = importFromYAML<ClientApplicationFormYAML>(yaml)
-    const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, childItems)
+    const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, sourceForm)
 
     const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
     const newXML = xmlExport({ Form: newXMLData })

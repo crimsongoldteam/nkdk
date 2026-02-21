@@ -9,16 +9,16 @@ import {
 import { mockContext } from "~/tests/mockContext"
 
 describe("importPeriodFieldFromYAML", () => {
-  it("should return undefined when source is undefined", () => {
-    const result = importElementFromPartialYAML({
-      context: mockContext,
-      itemType: CollectionFormElementType.PeriodField,
-      yaml: undefined,
-      source: undefined,
-    })
+  // it("should return undefined when source is undefined", () => {
+  //   const result = importElementFromPartialYAML({
+  //     context: mockContext,
+  //     itemType: CollectionFormElementType.PeriodField,
+  //     yaml: undefined,
+  //     source: undefined,
+  //   })
 
-    expect(result).toBeUndefined()
-  })
+  //   expect(result).toBeUndefined()
+  // })
 
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({

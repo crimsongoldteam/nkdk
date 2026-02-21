@@ -7,7 +7,11 @@ export type { ElementRule, PropertyRule }
 export const CommandBarRules: ElementRule<CommandBar> = {
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
-    childItems: { type: "ChildItems", defaultValue: [] },
+    childItems: {
+      type: "ChildItems",
+      defaultValue: [],
+      fromPartialYAML: true,
+    },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",

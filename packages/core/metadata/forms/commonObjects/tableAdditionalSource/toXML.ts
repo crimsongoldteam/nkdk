@@ -15,8 +15,11 @@ const exportTableAdditionalSourceToXML = (
 ): TableAdditionalSourceXML | undefined => {
   const ruleNarrow = rule as TableAdditionalSourcePropertyRule<any>
 
-  if (!ruleNarrow.forSingleElement && !value) {
-    return undefined
+  if (!ruleNarrow.forSingleElement) {
+    if (!value) {
+      return undefined
+    }
+    return { Item: value, Type: ruleNarrow.additionalSourceType }
   }
 
   const parent = getParentFromContext(context, CollectionFormElementType.Table)

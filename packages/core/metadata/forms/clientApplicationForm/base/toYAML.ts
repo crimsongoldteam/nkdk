@@ -23,7 +23,7 @@ export const exportClientApplicationFormToYAML = (
 
   const allElements = getAllElements(data)
   const childItemsPartial = exportChildItemsToPartialYAML(context, allElements)
-  const childItems = childItemsPartial ? { Элементы: childItemsPartial } : {}
+  const childItems = childItemsPartial ? { ПодчиненныеЭлементы: childItemsPartial } : {}
 
   return { ...result, ...events, ...childItems }
 }
