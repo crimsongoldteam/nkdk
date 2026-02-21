@@ -5,7 +5,7 @@ import { ClientApplicationForm, FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplicationForm> = {
-  tags: [FormRulesTags.Form, FormRulesTags.Metadata, FormRulesTags.Catalog] as const,
+  tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
   properties: {
     // #region Form
     attributes: {
@@ -273,24 +273,24 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     choiceAvailable: {
       yaml: "ВыборДоступен",
       type: "boolean",
-      tag: FormRulesTags.Catalog,
+      tag: FormRulesTags.Form,
     },
     useForFoldersAndItems: {
       yaml: "ИспользованиеДляГруппИЭлементов",
       type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
-      tag: FormRulesTags.Catalog,
+      tag: FormRulesTags.Form,
     },
     choiceParameters: {
       yaml: "ПараметрыВыбора",
       type: "ChoiceParameters",
-      tag: FormRulesTags.Catalog,
+      tag: FormRulesTags.Form,
     },
     choiceMode: {
       yaml: "РежимВыбора",
       type: "SystemEnumeration",
       typeSE: "ChoiceMode",
-      tag: FormRulesTags.Catalog,
+      tag: FormRulesTags.Form,
     },
     // #endregion
   },

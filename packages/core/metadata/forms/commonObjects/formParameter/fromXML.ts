@@ -7,13 +7,13 @@ import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } fr
 export const importFormParametersFromXML = (
   context: ConfigurationContext,
   _rule: PropertyRule<any> | undefined,
-  xml: FormParametersXML | undefined
+  xml: { Parameter: FormParametersXML } | undefined
 ): FormParameters | undefined => {
   if (xml === undefined) {
     return undefined
   }
 
-  const items = Array.isArray(xml) ? xml : [xml]
+  const items = Array.isArray(xml.Parameter) ? xml.Parameter : [xml.Parameter]
   return items.map((item) => importFormParameterFromXML(context, undefined, item))
 }
 

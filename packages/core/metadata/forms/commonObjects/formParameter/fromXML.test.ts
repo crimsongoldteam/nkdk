@@ -13,7 +13,7 @@ describe("importFormParametersFromXML", () => {
 
   it("should import form parameters correctly", () => {
     const xmlData = readAndParseXMLFile<{ Parameter: FormParametersXML }>("formParameter/full.xml")
-    const result = importFormParametersFromXML(mockContext, mockRule, xmlData.Parameter)
+    const result = importFormParametersFromXML(mockContext, mockRule, xmlData)
     expect(result).toEqual(fullFormParameters)
   })
 })

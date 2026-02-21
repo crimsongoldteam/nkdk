@@ -25,6 +25,13 @@
 	</ChildItems>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
 	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
+	<ChoiceAvailable>true</ChoiceAvailable>
+	<ChoiceMode>QuickChoice</ChoiceMode>
+	<ChoiceParameters>
+		<app:item name="Отбор.Параметр">
+			<app:value xsi:type="xs:string">Значение</app:value>
+		</app:item>
+	</ChoiceParameters>
 	<CloseOnChoice>true</CloseOnChoice>
 	<CloseOnOwnerClose>false</CloseOnOwnerClose>
 	<CollapseItemsByImportance>Use</CollapseItemsByImportance>
@@ -57,37 +64,38 @@
 	<Enabled>true</Enabled>
 	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
 	<Events>
-		<Event name="ActivationProcessing">Процедура3</Event>
-		<Event name="AddInDetachmentOnError">Процедура13</Event>
+		<Event name="ActivationProcessing">ОбработкаАктивизации</Event>
+		<Event name="AddInDetachmentOnError">ОтключениеВнешнейКомпонентыПриОшибке</Event>
 		<Event name="AfterWrite">ПослеЗаписи</Event>
 		<Event name="AfterWriteAtServer">ПослеЗаписиНаСервере</Event>
-		<Event name="BeforeClose">Процедура15</Event>
-		<Event name="BeforeLoadDataFromSettingsAtServer">Процедура14</Event>
-		<Event name="BeforeReopenFromOtherServer">Процедура16</Event>
+		<Event name="BeforeClose">ПередЗакрытием</Event>
+		<Event name="BeforeLoadDataFromSettingsAtServer">ПередЗагрузкойДанныхИзНастроекНаСервере</Event>
+		<Event name="BeforeReopenFromOtherServer">ПередПереоткрытиемСДругогоСервера</Event>
 		<Event name="BeforeWrite">ПередЗаписью</Event>
 		<Event name="BeforeWriteAtServer">ПередЗаписьюНаСервере</Event>
-		<Event name="ChoiceProcessing">Процедура4</Event>
-		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>
-		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">Процедура11</Event>
-		<Event name="ExternalEvent">Процедура2</Event>
-		<Event name="FillCheckProcessingAtServer">Процедура12</Event>
-		<Event name="NavigationProcessing">Процедура8</Event>
-		<Event name="NewWriteProcessing">Процедура5</Event>
-		<Event name="NotificationProcessing">Процедура7</Event>
-		<Event name="OnChangeDisplaySettings">Процедура21</Event>
-		<Event name="OnClose">Процедура19</Event>
-		<Event name="OnCreateAtServer">Процедура24</Event>
-		<Event name="OnLoadDataFromSettingsAtServer">Процедура18</Event>
-		<Event name="OnMainServerAvailabilityChange">Процедура20</Event>
-		<Event name="OnOpen">Процедура22</Event>
-		<Event name="OnPasteFromClipboard">Процедура17</Event>
+		<Event name="ChoiceProcessing">ОбработкаВыбора</Event>
+		<Event name="CollaborationSystemUsersAutoComplete">АвтоПодборПользователейСистемыВзаимодействия</Event>
+		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия</Event>
+		<Event name="ExternalEvent">ВнешнееСобытие</Event>
+		<Event name="FillCheckProcessingAtServer">ОбработкаПроверкиЗаполненияНаСервере</Event>
+		<Event name="NavigationProcessing">ОбработкаПерехода</Event>
+		<Event name="NewWriteProcessing">ОбработкаЗаписиНового</Event>
+		<Event name="NotificationProcessing">ОбработкаОповещения</Event>
+		<Event name="OnChangeDisplaySettings">ПриИзмененииПараметровЭкрана</Event>
+		<Event name="OnClose">ПриЗакрытии</Event>
+		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
+		<Event name="OnLoadDataFromSettingsAtServer">ПриЗагрузкеДанныхИзНастроекНаСервере</Event>
+		<Event name="OnMainServerAvailabilityChange">ПриИзмененииДоступностиОсновногоСервера</Event>
+		<Event name="OnOpen">ПриОткрытии</Event>
+		<Event name="OnPasteFromClipboard">ПриВставкеИзБуфераОбмена</Event>
 		<Event name="OnReadAtServer">ПриЧтенииНаСервере</Event>
-		<Event name="OnReopenFromOtherServer">Процедура23</Event>
-		<Event name="OnSaveDataInSettingsAtServer">Процедура25</Event>
+		<Event name="OnReopen">ПриПовторномОткрытии</Event>
+		<Event name="OnReopenFromOtherServer">ПриПереоткрытииСДругогоСервера</Event>
+		<Event name="OnSaveDataInSettingsAtServer">ПриСохраненииДанныхВНастройкахНаСервере</Event>
 		<Event name="OnWriteAtServer">ПриЗаписиНаСервере</Event>
-		<Event name="URLGetProcessing">Процедура9</Event>
-		<Event name="URLListGetProcessing">Процедура10</Event>
-		<Event name="URLProcessing">Процедура6</Event>
+		<Event name="URLGetProcessing">ОбработкаПолученияНавигационнойСсылки</Event>
+		<Event name="URLListGetProcessing">ОбработкаПолученияСпискаНавигационныхСсылок</Event>
+		<Event name="URLProcessing">ОбработкаНавигационнойСсылки</Event>
 		<Event name="ValueChoice">ВыборЗначения</Event>
 	</Events>
 	<Group>Horizontal</Group>
@@ -119,6 +127,7 @@
 		</v8:item>
 	</Title>
 	<UsedFormServer>Main</UsedFormServer>
+	<UseForFoldersAndItems>Folders</UseForFoldersAndItems>
 	<VerticalScroll>useIfNecessary</VerticalScroll>
 	<VerticalSpacing>Single</VerticalSpacing>
 	<Width>800</Width>

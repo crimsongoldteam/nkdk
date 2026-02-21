@@ -344,6 +344,5 @@ export type PreviewAttributesMap = Record<string, PreviewAttributeMapItem>
 
 export const FormRulesTags = {
   Form: "Form",
-  Catalog: "Catalog",
   Metadata: "Metadata",
 } as const
