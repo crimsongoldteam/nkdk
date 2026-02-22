@@ -21,7 +21,7 @@ export const importFormattedI8nTextFromNKDK = (
   context: ConfigurationContext,
   value: string | undefined
 ): FormattedI8nText | undefined => {
-  const result = importI8nTextFromString({ context, value })
+  const result = importI8nTextFromNKDK(context, value)
   if (result === undefined) return undefined
   return { formatted: false, items: result.items }
 }

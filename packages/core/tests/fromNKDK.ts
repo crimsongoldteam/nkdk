@@ -11,10 +11,18 @@ export const testImportElementFromNKDK = async (context: ConfigurationContext, i
   const inputString = structureToNkdkString(rawString)
   const result = await nkdkParse(inputString)
 
+  if (!result) {
+    throw new Error("Failed to parse input")
+  }
+
   const parsed = importClientApplicationFromFromNKDK({
     context: context,
     value: result?.parseResult.value,
   })
+
+  if (result.parseResult.parserErrors.length > 0) {
+    throw new Error(`Parser errors: ${result.parseResult.parserErrors.join("\n")}`)
+  }
 
   return parsed?.childItems[0]
 }

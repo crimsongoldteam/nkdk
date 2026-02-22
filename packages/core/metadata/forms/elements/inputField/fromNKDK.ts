@@ -1,8 +1,7 @@
 import * as NKDK from "nkdk-language"
-import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { InputField } from "./types"
 
 export const importInputFieldFromNKDK = (params: {
@@ -13,7 +12,7 @@ export const importInputFieldFromNKDK = (params: {
   const result: InputField = {
     itemType: CollectionFormElementType.InputField,
     name: importNameFromNKDK(source.name),
-    title: importI8nTextFromString({ context, value: source.title }),
+    title: importI8nTextFromNKDK(context, source.title),
   }
 
   return result
