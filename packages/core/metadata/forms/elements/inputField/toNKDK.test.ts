@@ -7,7 +7,7 @@ describe("exportInputFieldToStructure", () => {
   it.each(inputFieldStructureFixturesTable)(
     "should export input field $name",
     ({ element: input, structured: expected }) => {
-      const result = exportInputFieldToNKDK(mockContext, input)
+      const result = exportInputFieldToNKDK({ context: mockContext, element: input })
 
       expect(result).toEqual(expected)
     }

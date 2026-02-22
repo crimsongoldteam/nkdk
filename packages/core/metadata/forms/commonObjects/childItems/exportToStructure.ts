@@ -8,7 +8,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
   items: From[]
 ): ToNKDKResult => {
-  let   let result: ToNKDKResult = []
+  let result: ToNKDKResult = []
 
   // const separatedItems: readonly (
   //   | typeof CollectionFormElementType.Pages
