@@ -36,7 +36,7 @@ ChildItem:
     | Pages
     |
        (PictureField
-        | InputField  
+        | NkdkInputField  
         | LabelField
         | OtherField  
         | LabelDecoration 
@@ -50,7 +50,7 @@ ChildItem:
 
 OneLineGroupField:
     PictureField
-    | InputField  
+    | NkdkInputField 
     | LabelField
     | OtherField  
     | LabelDecoration 
@@ -61,7 +61,7 @@ OneLineGroupField:
     | Button  
     | CommandBar;
 
-InputField:
+NkdkInputField:
     Field;
 
 LabelField:

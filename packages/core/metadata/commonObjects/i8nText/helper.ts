@@ -1,5 +1,4 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormattedI8nText } from "../formattedI8nText/types"
 import { I8nText } from "./types"
 
 export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): boolean => {
@@ -16,8 +15,16 @@ export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): bo
   return true
 }
 
-export const isEmptyFormattedI8nText = (context: ConfigurationContext, data: FormattedI8nText): boolean => {
-  if (data.formatted) return false
+export const importI8nTextFromString = (params: {
+  context: ConfigurationContext
+  value: string | undefined
+}): I8nText | undefined => {
+  const { context, value: value } = params
+  if (value === undefined) return undefined
 
-  return isEmptyI8nText(context, data)
+  return {
+    items: {
+      [context.defaultLanguage]: value,
+    },
+  }
 }

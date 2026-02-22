@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
-import { isEmptyI8nText } from "./helper"
+import { importI8nTextFromString, isEmptyI8nText } from "./helper"
 import { I8nText } from "./types"
 
 describe("isEmptyI8nText", () => {
@@ -66,5 +66,35 @@ describe("isEmptyI8nText", () => {
     const result = isEmptyI8nText(mockContext, data)
 
     expect(result).toBe(false)
+  })
+})
+
+describe("importI8nTextFromString", () => {
+  it("should return undefined when value is undefined", () => {
+    const result = importI8nTextFromString({ context: mockContext, value: undefined })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("should return I8nText with default language and given string", () => {
+    const result = importI8nTextFromString({
+      context: mockContext,
+      value: "Текст поля",
+    })
+
+    expect(result).toEqual({
+      items: { ru: "Текст поля" },
+    })
+  })
+
+  it("should return I8nText with empty string when value is empty", () => {
+    const result = importI8nTextFromString({
+      context: mockContext,
+      value: "",
+    })
+
+    expect(result).toEqual({
+      items: { ru: "" },
+    })
   })
 })

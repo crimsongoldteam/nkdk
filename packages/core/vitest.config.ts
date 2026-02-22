@@ -16,6 +16,7 @@ export default defineConfig({
     setupFiles: [resolve(__dirname, "./tests/setupTests.ts")],
     alias: {
       "~": resolve(__dirname, "./"),
+      "nkdk-language": resolve(__dirname, "../language/src/index.ts"),
     },
   },
 })

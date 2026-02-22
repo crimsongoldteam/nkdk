@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "lib": ["ES2020"],
     "strict": true,
     "esModuleInterop": true,
@@ -19,7 +19,7 @@
     "strictNullChecks": true,
     "plugins": [],
     "baseUrl": ".",
-    "paths": { "~/*": ["./*"] }
+    "paths": { "~/*": ["./*"], "nkdk-language": ["../language/src/index.ts"] }
   },
   "include": ["**/*.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
