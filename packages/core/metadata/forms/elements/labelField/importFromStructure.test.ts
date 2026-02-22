@@ -7,7 +7,7 @@ describe("importLabelFieldFromStructure", () => {
   it.each(labelFieldStructureFixturesTable)(
     "should import label field $name",
     async ({ element: label, structured }) => {
-      const result = await testImportElementFromNKDK(mockContext, structured.strings)
+      const result = await testImportElementFromNKDK(mockContext, structured)
 
       expect(result).toEqual(label)
     }

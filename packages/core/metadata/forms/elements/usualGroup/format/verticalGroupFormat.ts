@@ -7,22 +7,18 @@ import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemE
 import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): ToNKDKResult => {
-  let result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  let result: ToNKDKResult = []
   const childItems = element.childItems ?? []
 
   // if (params.wrapInGroup != WrapInGroupStrategy.None) {
   const header = getHeader(context, element)
-  result.strings.push(header)
+  result.push(header)
   // }
 
   const lines = exportChildItemsToStructure(context, childItems)
 
-  for (const line of lines.strings) {
-    result.strings.push("  " + line)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || lines.haveSimpleHorizontalGroup
+  for (const line of lines) {
+    result.push("  " + line)
   }
 
   // result.push(...formatElements(element.childItems))

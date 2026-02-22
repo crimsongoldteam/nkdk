@@ -1,8 +1,6 @@
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { ToNKDKResult } from "~/metadata/forms/format/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { InputField } from "./types"
@@ -36,7 +34,7 @@ export const exportInputFieldToNKDK = ({ context: ConfigurationContext, element:
     haveSimpleHorizontalGroup: false,
   }
 
-  // result.strings.push(...getMultilineString(element, header.length, value.length))
+  // result.push(...getMultilineString(element, header.length, value.length))
 
   return result
 }
@@ -70,4 +68,3 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
 // }
 
 registerElementOperation("ExportToStructure", "InputField", exportInputFieldToNKDK as ExportToStructureFn)
-registerIsOneLineElementCheck(CollectionFormElementType.InputField, () => true)

@@ -9,7 +9,7 @@ describe("exportCommandBarToStructure", () => {
     ({ element: input, structured: expected }) => {
       const result = exportCommandBarToStructure(mockContext, input)
 
-      expect(result.strings).toEqual(expected.strings)
+      expect(result).toEqual(expected)
     }
   )
 })

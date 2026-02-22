@@ -9,7 +9,7 @@ describe("exportAutoCommandBarToStructure", () => {
     ({ element: input, structured: expected }) => {
       const result = exportAutoCommandBarToStructure(mockContext, input)
 
-      expect(result.strings).toEqual(expected.strings)
+      expect(result).toEqual(expected)
     }
   )
 })

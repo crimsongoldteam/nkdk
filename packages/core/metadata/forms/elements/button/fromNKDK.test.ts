@@ -5,7 +5,7 @@ import { mockContext } from "~/tests/mockContext"
 
 describe("importButtonFromStructure", () => {
   it.each(buttonStructureFixturesTable)("should import button $name", async ({ element: input, structured }) => {
-    const result = await testImportElementFromNKDK(mockContext, structured.strings)
+    const result = await testImportElementFromNKDK(mockContext, structured)
 
     expect(result).toEqual(input)
   })

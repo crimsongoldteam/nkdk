@@ -9,7 +9,7 @@ describe("exportInputFieldToStructure", () => {
     ({ element: input, structured: expected }) => {
       const result = exportInputFieldToNKDK(mockContext, input)
 
-      expect(result.strings).toEqual(expected.strings)
+      expect(result).toEqual(expected)
     }
   )
 })

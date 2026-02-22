@@ -9,7 +9,7 @@ describe("exportButtonGroupContentToStructure", () => {
     ({ element: input, structured: expected }) => {
       const result = exportButtonGroupContentToStructure(mockContext, input)
 
-      expect(result.strings).toEqual(expected.strings)
+      expect(result).toEqual(expected)
     }
   )
 })

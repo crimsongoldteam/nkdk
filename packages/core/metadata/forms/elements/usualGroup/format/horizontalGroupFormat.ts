@@ -15,14 +15,11 @@ export const formatHorizontalGroup = (context: ConfigurationContext, element: Us
     element.group === undefined || element.group === "HorizontalIfPossible"
       ? horizontalIfPossibleGroupPrefix
       : horizontalGroupPrefix
-  let result: ToNKDKResult = {
-    strings: [prefix + formatElementName(element)],
-    haveSimpleHorizontalGroup: false,
-  }
+  let result: ToNKDKResult = [prefix + formatElementName(element)]
 
-  let verticalGroups: string[][] = getVerticalItems(context, element)
+  let verticalGroups: ToNKDKResult[] = getVerticalItems(context, element)
 
-  result.strings.push(...verticalGroups.flat())
+  result.push(...verticalGroups.flat())
   return result
 }
 
@@ -39,7 +36,7 @@ const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): s
     } else {
       formattedItem = exportFunction(context, item) as ToNKDKResult
     }
-    result.push(addSimpleIndent(formattedItem.strings))
+    result.push(addSimpleIndent(formattedItem))
   }
   return result
 }

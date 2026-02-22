@@ -31,10 +31,7 @@ export const formatElement = <T extends NamedElement>(context: ConfigurationCont
 }
 
 export const formatElements = (context: ConfigurationContext, items: AllChildItems): ToNKDKResult => {
-  let result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  let result: ToNKDKResult = []
 
   const separatedItems: readonly (
     | typeof CollectionFormElementType.Pages
@@ -52,14 +49,13 @@ export const formatElements = (context: ConfigurationContext, items: AllChildIte
           prevItem.itemType as typeof CollectionFormElementType.Pages | typeof CollectionFormElementType.UsualGroup
         ))
     ) {
-      result.strings.push("")
+      result.push("")
     }
 
     prevItem = item
 
     const text = formatElement(context, item)
-    result.strings.push(...text.strings)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    result.push(...text)
   }
   return result
 }

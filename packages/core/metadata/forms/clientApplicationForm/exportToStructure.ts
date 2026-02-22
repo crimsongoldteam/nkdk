@@ -9,17 +9,13 @@ export const exportClientApplicationFormToStructure = (
   element: ClientApplicationForm
 ): ToNKDKResult => {
   const childItems = element.childItems ?? []
-  const result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  const result: ToNKDKResult = []
 
   const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
-  result.strings.push(...autoCommandBar.strings)
+  result.push(...autoCommandBar)
 
   const itemsResult = exportChildItemsToStructure(context, childItems)
-  result.strings.push(...itemsResult.strings)
-  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
+  result.push(...itemsResult)
 
   return result
 }

@@ -16,6 +16,6 @@ describe("formatOtherElement", () => {
 
     const result = exportOtherElementToStructure(mockContext, element as OtherElement)
 
-    expect(result.strings).toEqual(expectedResult)
+    expect(result).toEqual(expectedResult)
   })
 })

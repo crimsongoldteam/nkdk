@@ -9,7 +9,7 @@ describe("exportLabelDecorationToStructure", () => {
     ({ element: input, structured: expected }) => {
       const result = exportLabelDecorationToStructure(mockContext, mockRule, input)
 
-      expect(result.strings).toEqual(expected.strings)
+      expect(result).toEqual(expected)
     }
   )
 })

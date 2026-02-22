@@ -67,10 +67,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<... | Номер 1 {Кнопка1} | Номер 2 {Кнопка2}>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<... | Номер 1 {Кнопка1} | Номер 2 {Кнопка2}>",
   },
   {
     name: "without autofill",
@@ -90,10 +87,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<Номер 1 {Кнопка1} | Номер 2 {Кнопка2}>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<Номер 1 {Кнопка1} | Номер 2 {Кнопка2}>",
   },
   {
     name: "without buttons",
@@ -102,11 +96,9 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: true,
       childItems: [],
     },
-    structured: {
-      strings: ["<...|>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<...|>",
   },
+
   {
     name: "without autofill and buttons",
     element: {
@@ -114,10 +106,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: false,
       childItems: [],
     },
-    structured: {
-      strings: ["<|>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<|>",
   },
   {
     name: "with buttons",
@@ -142,10 +131,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}>",
   },
 
   {
@@ -162,10 +148,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<#Группа кнопок {ГруппаКнопок1} |>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<#Группа кнопок {ГруппаКнопок1} |>",
   },
 
   {
@@ -182,10 +165,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<^Выпадающее меню {Меню} |>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<^Выпадающее меню {Меню} |>",
   },
   {
     name: "with search control addition",
@@ -200,10 +180,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<?УправлениеПоиском {Дополнение} |>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<?УправлениеПоиском {Дополнение} |>",
   },
   {
     name: "with search string addition",
@@ -217,9 +194,6 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: {
-      strings: ["<?ОтображениеСтрокиПоиска {Дополнение} |>"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "<?ОтображениеСтрокиПоиска {Дополнение} |>",
   },
 ]

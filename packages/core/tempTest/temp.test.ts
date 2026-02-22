@@ -74,7 +74,7 @@ describe.skip("DO test", () => {
     const yamlObject = exportClientApplicationFormToYAML(configurationContext, form)
     const yaml = exportToYAML(yamlObject)
     const structuredObject = exportClientApplicationFormToStructure(configurationContext, form)
-    const strings = structuredObject.strings.join("\n")
+    const strings = structuredObject.join("\n")
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
     writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
 

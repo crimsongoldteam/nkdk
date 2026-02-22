@@ -382,10 +382,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       itemType: CollectionFormElementType.InputField,
       title: { items: { ru: "Поле" } },
     },
-    structured: {
-      strings: ["Поле: %ИмяПоля"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "Поле: %ИмяПоля",
   },
   {
     name: "without title",
@@ -393,10 +390,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       name: "ИмяПоля",
       itemType: CollectionFormElementType.InputField,
     },
-    structured: {
-      strings: ["%ИмяПоля: "],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "%ИмяПоля: ",
   },
 ]
 

@@ -15,20 +15,16 @@ const SLASH = (t.Slash.LABEL as string).repeat(2)
 export const exportPagesToStructure = (context: ConfigurationContext, element: Pages): ToNKDKResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
-  const result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  const result: ToNKDKResult = []
 
   const header = getHeader(pagesElement)
-  result.strings.push(header)
+  result.push(header)
 
   const childResult = exportChildItemsToStructure(context, childItems)
 
-  const indentedStrings = addSimpleIndent(childResult.strings)
+  const indentedStrings = addSimpleIndent(childResult)
 
-  result.strings.push(...indentedStrings)
-  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup
+  result.push(...indentedStrings)
   return result
 }
 

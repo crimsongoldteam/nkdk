@@ -10,10 +10,7 @@ import { CheckBoxField } from "./types"
 export const exportCheckBoxFieldToStructure = (context: ConfigurationContext, element: CheckBoxField): ToNKDKResult => {
   const result = formatCheckBoxFieldContent(context, element, false)
 
-  return {
-    strings: [result],
-    haveSimpleHorizontalGroup: false,
-  }
+  return result
 }
 
 export const exportCheckBoxFieldContentToStructure = (
@@ -22,10 +19,7 @@ export const exportCheckBoxFieldContentToStructure = (
 ): ToNKDKResult => {
   const result = formatCheckBoxFieldContent(context, element, true)
 
-  return {
-    strings: [result],
-    haveSimpleHorizontalGroup: false,
-  }
+  return result
 }
 
 const formatCheckBoxFieldContent = (

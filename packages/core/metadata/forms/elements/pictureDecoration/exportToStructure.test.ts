@@ -8,7 +8,7 @@ describe("exportPictureDecorationToStructure", () => {
     "should export input field $name",
     ({ element: input, structured: expected }) => {
       const result = exportPictureDecorationToStructure(mockContext, input)
-      expect(result.strings).toEqual(expected.strings)
+      expect(result).toEqual(expected)
     }
   )
 })

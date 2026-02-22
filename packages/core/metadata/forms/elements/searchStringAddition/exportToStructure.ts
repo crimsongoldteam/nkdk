@@ -10,10 +10,7 @@ export function exportSearchStringAdditionContentToStructure(
   element: SearchStringAddition
 ): ToNKDKResult {
   const resultString = "?ОтображениеСтрокиПоиска " + formatElementName(element)
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 registerElementOperation(

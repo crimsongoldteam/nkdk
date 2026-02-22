@@ -15,10 +15,7 @@ export const exportPictureFieldContentToStructure = (
 ): ToNKDKResult => {
   const resultString = AT_SYMBOL + formatElementName(element)
 
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 export const exportPictureFieldToStructure = (_context: ConfigurationContext, element: PictureField): ToNKDKResult => {

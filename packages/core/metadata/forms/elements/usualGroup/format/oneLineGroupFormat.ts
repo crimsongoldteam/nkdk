@@ -14,12 +14,9 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 
-  let result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  let result: ToNKDKResult = []
 
-  let groupItems: string[][] = []
+  let groupItems: ToNKDKResult[] = []
 
   if (element.childItems) {
     for (const item of element.childItems) {
@@ -30,7 +27,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       } else {
         itemResult = exportFunction(context, item) as ToNKDKResult
       }
-      groupItems.push(itemResult.strings)
+      groupItems.push(itemResult)
     }
   }
 
@@ -43,7 +40,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       : horizontalGroupPrefix
   let resultLine = prefix + header + oneLineGroupSuffix + " " + joinedItems
 
-  result.strings.push(resultLine)
+  result.push(resultLine)
 
   return result
 }

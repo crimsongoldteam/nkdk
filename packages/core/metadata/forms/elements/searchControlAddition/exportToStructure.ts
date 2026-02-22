@@ -10,10 +10,7 @@ export function exportSearchControlAdditionContentToStructure(
   element: SearchControlAddition
 ): ToNKDKResult {
   const resultString = "?УправлениеПоиском " + formatElementName(element)
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 registerElementOperation(

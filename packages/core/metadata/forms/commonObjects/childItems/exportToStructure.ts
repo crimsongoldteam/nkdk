@@ -8,10 +8,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
   items: From[]
 ): ToNKDKResult => {
-  let result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  let   let result: ToNKDKResult = []
 
   // const separatedItems: readonly (
   //   | typeof CollectionFormElementType.Pages
@@ -36,7 +33,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     //           | typeof CollectionFormElementType.Table
     //       ))
     //   ) {
-    //     result.strings.push("")
+    //     result.push("")
     //   }
 
     //   prevItem = item
@@ -47,8 +44,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
       ? (exportFunction(context, item) as ToNKDKResult)
       : exportOtherElementToStructure(context, item as OtherElement)
 
-    result.strings.push(...text.strings)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    result.push(...text)
   }
   return result
 }

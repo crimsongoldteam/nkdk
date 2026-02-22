@@ -9,18 +9,12 @@ import { Button } from "./types"
 
 export function exportButtonToStructure(context: ConfigurationContext, element: Button): ToNKDKResult {
   const resultString = wrapButtonContent(formatContent(context, element))
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 export function exportButtonContentToStructure(context: ConfigurationContext, element: Button): ToNKDKResult {
   const resultString = formatContent(context, element)
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 const formatContent = (context: ConfigurationContext, element: Button): string => {

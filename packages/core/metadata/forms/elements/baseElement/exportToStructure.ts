@@ -7,10 +7,7 @@ import { OtherElement } from "../../commonObjects/childItems/types"
 export const exportOtherElementToStructure = (context: ConfigurationContext, element: OtherElement): ToNKDKResult => {
   const itemType = exportFormElementTypeToYAML(context, element.itemType)
 
-  const result: ToNKDKResult = {
-    strings: ["?" + itemType + " " + formatElementName(element)],
-    haveSimpleHorizontalGroup: false,
-  }
+  const result = "?" + itemType + " " + formatElementName(element)
 
   return result
 }

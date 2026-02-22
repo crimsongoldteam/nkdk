@@ -18,7 +18,7 @@ const formatTableColumn = (context: ConfigurationContext, column: NamedElement):
   const exportContentFunction = getElementOperationFunction("ExportToStructureContent", column.itemType)
   if (exportContentFunction) {
     const result = exportContentFunction(context, column) as ToNKDKResult
-    return result.strings[0] || formatElementName(column)
+    return result[0] || formatElementName(column)
   }
 
   return formatElementTitleAndName(context, column)
@@ -39,10 +39,7 @@ export const exportTableContentToStructure = (context: ConfigurationContext, ele
 
   const resultString = V_BAR + " " + parts.join(" | ")
 
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 export const exportTableToStructure: FormatElementFunction = (
@@ -51,16 +48,13 @@ export const exportTableToStructure: FormatElementFunction = (
 ): ToNKDKResult => {
   const table = element as Table
 
-  const result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  const result: ToNKDKResult = []
 
   const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)
-  result.strings.push(...autoCommandBar.strings)
+  result.push(...autoCommandBar)
 
   const tableContent = exportTableContentToStructure(context, table)
-  result.strings.push(...tableContent.strings)
+  result.push(...tableContent)
 
   return result
 }

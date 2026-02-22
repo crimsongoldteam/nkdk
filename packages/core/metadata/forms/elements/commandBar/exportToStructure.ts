@@ -10,10 +10,7 @@ export const exportCommandBarToStructure = (context: ConfigurationContext, eleme
   const content = exportCommandBarContentToStructure(context, element)
   const resultString = `${content} ${formatElementName(element)}`
 
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 export const exportCommandBarContentToStructure = (

@@ -98,7 +98,7 @@ const importForm = (path: string, name: string, outputPath: string) => {
 
     const formStructuredObject = exportClientApplicationFormToStructure(context, formData)
     if (formStructuredObject) {
-      writeFileSync(join(outputFormDir, "Форма.nkdk"), formStructuredObject.strings.join("\n"), "utf-8")
+      writeFileSync(join(outputFormDir, "Форма.nkdk"), formStructuredObject.join("\n"), "utf-8")
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

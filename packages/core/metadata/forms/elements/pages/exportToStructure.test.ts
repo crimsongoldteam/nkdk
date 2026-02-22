@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
 import { exportPagesToStructure } from "./exportToStructure"
 import { Pages } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("exportPagesToStructure", () => {
   it("should format pages", () => {
@@ -29,6 +29,6 @@ describe("exportPagesToStructure", () => {
 
     const result = exportPagesToStructure(mockContext, mockElement)
 
-    expect(result.strings.join("\n")).toEqual(expectedResult)
+    expect(result.join("\n")).toEqual(expectedResult)
   })
 })

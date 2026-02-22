@@ -15,18 +15,14 @@ export const exportPageToStructure = (context: ConfigurationContext, element: Na
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []
 
-  const result: ToNKDKResult = {
-    strings: [],
-    haveSimpleHorizontalGroup: false,
-  }
+  const result: ToNKDKResult = []
 
   const header = getHeader(context, pageElement)
-  result.strings.push(header)
+  result.push(header)
 
   const childResult = exportChildItemsToStructure(context, childItems)
-  const indentedStrings = addSimpleIndent(childResult.strings)
-  result.strings.push(...indentedStrings)
-  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup
+  const indentedStrings = addSimpleIndent(childResult)
+  result.push(...indentedStrings)
   return result
 }
 

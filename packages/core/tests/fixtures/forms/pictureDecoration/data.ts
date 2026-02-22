@@ -163,10 +163,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
       itemType: CollectionFormElementType.PictureDecoration,
     },
-    structured: {
-      strings: ["![Печать] %ИмяПоля"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "![Печать] %ИмяПоля",
   },
   {
     name: "with common picture",
@@ -175,10 +172,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: false },
       itemType: CollectionFormElementType.PictureDecoration,
     },
-    structured: {
-      strings: ["![Предупреждение32] %ИмяПоля"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "![Предупреждение32] %ИмяПоля",
   },
   {
     name: "without picture",
@@ -186,10 +180,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       name: "ИмяПоля",
       itemType: CollectionFormElementType.PictureDecoration,
     },
-    structured: {
-      strings: ["!%ИмяПоля"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "!%ИмяПоля",
   },
   {
     name: "with absolute picture",
@@ -202,10 +193,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
         loadTransparent: true,
       },
     },
-    structured: {
-      strings: ["!%ИмяПоля"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "!%ИмяПоля",
     skipImport: true,
   },
 ]

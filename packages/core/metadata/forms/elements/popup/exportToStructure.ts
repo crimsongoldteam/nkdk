@@ -7,10 +7,7 @@ import { Popup } from "./types"
 
 export function exportPopupContentToStructure(context: ConfigurationContext, element: Popup): ToNKDKResult {
   const resultString = "^" + formatContent(context, element)
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 const formatContent = (context: ConfigurationContext, element: Popup): string => {

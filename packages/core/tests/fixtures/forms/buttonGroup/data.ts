@@ -140,10 +140,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
       title: { items: { ru: "Группа кнопок" } },
       childItems: [],
     },
-    structured: {
-      strings: ["#Группа кнопок {ГруппаКнопок}"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "#Группа кнопок {ГруппаКнопок}",
   },
   {
     name: "without title",
@@ -153,9 +150,6 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
       title: undefined,
       childItems: [],
     },
-    structured: {
-      strings: ["#{ГруппаКнопок}"],
-      haveSimpleHorizontalGroup: false,
-    },
+    structured: "#{ГруппаКнопок}",
   },
 ]

@@ -15,10 +15,7 @@ export const exportColumnGroupContentToStructure = (
 ): ToNKDKResult => {
   const resultString = HASH + formatElementName(element)
 
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return resultString
 }
 
 export const exportColumnGroupToStructure = (_context: ConfigurationContext, element: ColumnGroup): ToNKDKResult => {
