@@ -31,3 +31,5 @@ import "./childItems/fromYAML"
 import "./childItems/toEnterprise"
 import "./childItems/toXML"
 import "./childItems/toYAML"
+
+import "./dataPath/toEnterprise"

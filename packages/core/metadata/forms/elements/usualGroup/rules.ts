@@ -112,7 +112,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       type: "I8nText",
       yamlPartialOthers: true,
     },
-    titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "string" },
+    titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath" },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },
     toolTip: { yaml: "Подсказка", type: "I8nText" },

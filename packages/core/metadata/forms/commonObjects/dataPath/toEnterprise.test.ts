@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { GetAttributeNameFixture, getAttributeNameFixtures } from "~/tests/fixtures/preview/data"
+import { GetAttributeNameFixture, getAttributeNameFixtures } from "~/tests/fixtures/dataPath/data"
 import { mockContext } from "~/tests/mockContext"
-import { getAttributeName } from "./getAttributeName"
+import { exportDataPathToEnterprise } from "./toEnterprise"
 
-describe("getAttributeName", () => {
+describe("DataPath to Enterprise", () => {
   it.each(getAttributeNameFixtures)(
     "should $name",
     ({ attributes, tableDataPath, dataPath, expectedDataPath, expectedAttributes }: GetAttributeNameFixture) => {
@@ -14,7 +14,7 @@ describe("getAttributeName", () => {
           prefix: "p_",
         },
       }
-      const result = getAttributeName(context, dataPath, tableDataPath)
+      const result = exportDataPathToEnterprise({ context, value: dataPath, tableDataPath })
       expect(result).toEqual(expectedDataPath)
       expect(context.preview?.attributes).toEqual(expectedAttributes)
     }

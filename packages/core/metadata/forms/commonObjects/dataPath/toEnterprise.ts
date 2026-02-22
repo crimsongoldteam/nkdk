@@ -1,11 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { EnterpriseAttributeMapItem } from "../clientApplicationForm/types"
+import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
 
-export const getAttributeName = (
-  context: ConfigurationContext,
-  dataPath?: string,
+export const exportDataPathToEnterprise = (params: {
+  context: ConfigurationContext
+  value?: string
   tableDataPath?: string
-): string | undefined => {
+}): string | undefined => {
+  const { context, value: dataPath, tableDataPath } = params
   if (!dataPath) return undefined
 
   const preview = context.preview!
@@ -70,3 +72,5 @@ export const getAttributeName = (
 
   return attributeDataPath
 }
+
+registerTypeRule("DataPath", "exportToEnterprise", exportDataPathToEnterprise)

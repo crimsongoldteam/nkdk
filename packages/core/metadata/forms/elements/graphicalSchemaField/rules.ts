@@ -10,7 +10,7 @@ export const GraphicalSchemaFieldRules: ElementRule<GraphicalSchemaField> = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
-    dataPath: { yaml: "ПутьКДанным", type: "dataPath" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath" },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
@@ -32,7 +32,7 @@ export const GraphicalSchemaFieldRules: ElementRule<GraphicalSchemaField> = {
       typeSE: "FixingInTable",
     },
     footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color" },
-    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "string" },
+    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath" },
     footerFont: { yaml: "ШрифтПодвала", type: "Font" },
     footerHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеВПодвале",

@@ -56,6 +56,7 @@ export type TypeRulesNames =
   | "MetadataCommands"
   | "CharacteristicsDescription"
   | "MetadataTabularSections"
+  | "DataPath"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContext,
@@ -151,6 +152,7 @@ type TypesMap =
   | ["SystemEnumeration", unknown, SystemEnumerationEnterprise]
   | ["Color", unknown, ColorEnterprise]
   | ["TypeDescription", unknown, TypeDescriptionEnterprise]
+  | ["DataPath", unknown, string]
 
 export type TypeRulesNamesNew = TypesMap extends [infer First, any, any] ? First : never
 export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
@@ -162,5 +164,6 @@ const TypesNamesList: TypeRulesNamesNew[] = [
   "SystemEnumeration",
   "Color",
   "TypeDescription",
+  "DataPath",
 ]
 export const TypesNames = TypesNamesList
