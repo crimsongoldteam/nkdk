@@ -1,12 +1,10 @@
-import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { AllChildItem } from "~/metadata/forms/commonObjects/childItems/types"
-import { importFromNKDKFn } from "./toNKDKFactory/types"
+import { FromNKDKResult, importFromNKDKFn, NkdkChildItem } from "./fromNKDKFactory/types"
 
-export const importElementFromNKDK = (params: {
+export const importElementFromNKDK = <NkdkItem extends NkdkChildItem>(params: {
   context: ConfigurationContext
-  value: NKDK.ChildItem
-}): AllChildItem => {
+  value: NkdkItem
+}): FromNKDKResult<NkdkItem> => {
   const { context, value } = params
 
   const fn = importFromNKDKFn[value.$type]
@@ -16,5 +14,5 @@ export const importElementFromNKDK = (params: {
 
   const result = fn({ context, source: value as never })
 
-  return result as AllChildItem
+  return result as FromNKDKResult<NkdkItem>
 }

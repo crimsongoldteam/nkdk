@@ -41,3 +41,12 @@ export const importCheckBoxFieldTumblerFromNKDK = (params: {
     title: importI8nTextFromString({ context, value: source.title }),
   }
 }
+
+export const importTableCheckboxFromNKDK = (params: {
+  context: ConfigurationContext
+  source: NKDK.TableCheckbox
+}): CheckBoxField =>
+  importCheckBoxFieldFromNKDK({
+    context: params.context,
+    source: { name: params.source.name, title: params.source.title } as NKDK.CheckBoxField,
+  })

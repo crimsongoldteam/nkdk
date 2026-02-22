@@ -1,15 +1,14 @@
-import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importElementFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDK"
-import { AllChildItems } from "./types"
+import { FromNKDKResult, NkdkChildItem } from "~/metadata/metadataFactory/elements/fromNKDKFactory/types"
 
-export const importChildItemsFromNKDK = (params: {
+export const importChildItemsFromNKDK = <NkdkItem extends NkdkChildItem>(params: {
   context: ConfigurationContext
-  value: NKDK.ChildItem[]
-}): AllChildItems => {
+  value: NkdkItem[]
+}): FromNKDKResult<NkdkItem>[] => {
   const { context, value } = params
 
-  const result: AllChildItems = []
+  const result = [] as FromNKDKResult<NkdkItem>[]
 
   for (const item of value) {
     const resultItem = importElementFromNKDK({ context, value: item })

@@ -17,3 +17,12 @@ export const importPictureFieldFromNKDK = (params: {
 
   return result
 }
+
+export const importTablePictureFieldFromNKDK = (params: {
+  context: ConfigurationContext
+  source: NKDK.TablePictureField
+}): PictureField =>
+  importPictureFieldFromNKDK({
+    context: params.context,
+    source: { name: params.source.name, title: params.source.title } as NKDK.PictureField,
+  })
