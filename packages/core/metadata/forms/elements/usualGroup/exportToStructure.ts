@@ -1,7 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn } from "../../../metadataFactory/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { NamedElement } from "../baseElement/types"
 import { formatHorizontalGroup } from "./format/horizontalGroupFormat"
@@ -9,7 +10,6 @@ import { formatOneLineGroup } from "./format/oneLineGroupFormat"
 import { formatVerticalGroup } from "./format/verticalGroupFormat"
 import { isOneLineGroup, isVerticalGroup } from "./helpers"
 import { UsualGroup } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const exportUsualGroupToStructure: FormatElementFunction = (
   context: ConfigurationContext,
@@ -23,4 +23,4 @@ export const exportUsualGroupToStructure: FormatElementFunction = (
 }
 
 registerIsOneLineElementCheck(CollectionFormElementType.UsualGroup, () => false)
-registerMetadata("ExportToStructure", "UsualGroup", exportUsualGroupToStructure as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "UsualGroup", exportUsualGroupToStructure as ExportToStructureFn)

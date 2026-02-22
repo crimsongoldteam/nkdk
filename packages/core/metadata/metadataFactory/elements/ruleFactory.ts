@@ -3,13 +3,12 @@ import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { importSingleElementFromYAML, PropertyRule } from ".."
 import { FormElementType } from "../metadataType/types"
 import { ToYAML } from "../rules"
-import { ElementXML } from "../types"
 import { registerTypeRule } from "../types/factory"
 import { TypeRulesNames } from "../types/types"
 import { importSingleElementFromXML } from "./fromXML"
 import { exportSingleElementToXML } from "./toXML"
 import { exportElementToPartialYAML } from "./toYAML"
-import { ElementRule, RegisterAsTypeRule } from "./types"
+import { ElementRule, ElementXML, RegisterAsTypeRule } from "./types"
 
 export const getElementRule = <T extends BaseElement>(itemType: FormElementType): ElementRule<T> => {
   const rule = elementRulesRegistry.get(itemType)

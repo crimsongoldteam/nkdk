@@ -1,6 +1,6 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/factory"
+import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"

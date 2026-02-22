@@ -3,7 +3,7 @@ import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/l
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { ColumnGroup } from "./types"
 
@@ -28,6 +28,6 @@ export const exportColumnGroupToStructure = (
   return exportColumnGroupContentToStructure(_context, element)
 }
 
-registerMetadata("ExportToStructureContent", "ColumnGroup", exportColumnGroupContentToStructure)
-registerMetadata("ExportToStructure", "ColumnGroup", exportColumnGroupToStructure)
+registerElementOperation("ExportToStructureContent", "ColumnGroup", exportColumnGroupContentToStructure)
+registerElementOperation("ExportToStructure", "ColumnGroup", exportColumnGroupToStructure)
 registerIsOneLineElementCheck<ColumnGroup>(CollectionFormElementType.ColumnGroup, () => true)

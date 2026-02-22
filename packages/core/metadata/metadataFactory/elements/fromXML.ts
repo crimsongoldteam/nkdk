@@ -4,10 +4,9 @@ import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elem
 import { Events, EventsXML } from "~/metadata/metadataFactory/events/types"
 import { FormElementType } from "../metadataType/types"
 import { importPropertiesFromXML } from "../properties/fromXML"
-import { ElementXML } from "../types"
-import { getElementRule } from "./factory"
 import { isEmptyMetadataItem } from "./helper"
-import { ElementRule } from "./types"
+import { getElementRule } from "./ruleFactory"
+import { ElementRule, ElementXML } from "./types"
 
 export const importSingleElementFromXML = <T extends BaseElement>(params: {
   context: ConfigurationContext

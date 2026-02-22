@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
 import { AllChildItem, OtherElement } from "./types"
 
@@ -41,7 +41,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
 
     //   prevItem = item
 
-    const exportFunction = getOperationFunction("ExportToStructure", item.itemType)
+    const exportFunction = getElementOperationFunction("ExportToStructure", item.itemType)
 
     const text = exportFunction
       ? (exportFunction(context, item) as IFormatElementResult)

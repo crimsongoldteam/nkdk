@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { wrapButtonContent } from "./helpers"
 
@@ -8,7 +8,7 @@ export const exportCommandBarItemsToStructure = (
   childItems: { itemType: FormElementType }[]
 ): string[] => {
   return childItems.flatMap((item) => {
-    const exportFunction = getOperationFunction("ExportToStructureContent", item.itemType)
+    const exportFunction = getElementOperationFunction("ExportToStructureContent", item.itemType)
 
     if (!exportFunction)
       throw new Error(`ExportToStructureContent function not found for element type: ${item.itemType}`)

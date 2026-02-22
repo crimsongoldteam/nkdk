@@ -3,7 +3,10 @@ import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/l
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"
-import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import {
+  getElementOperationFunction,
+  registerElementOperation,
+} from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"
@@ -12,7 +15,7 @@ import { Table } from "./types"
 const V_BAR = t.VBar.LABEL as string
 
 const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
-  const exportContentFunction = getOperationFunction("ExportToStructureContent", column.itemType)
+  const exportContentFunction = getElementOperationFunction("ExportToStructureContent", column.itemType)
   if (exportContentFunction) {
     const result = exportContentFunction(context, column) as IFormatElementResult
     return result.strings[0] || formatElementName(column)
@@ -63,5 +66,9 @@ export const exportTableToStructure: FormatElementFunction = (
 }
 
 registerIsOneLineElementCheck(CollectionFormElementType.Table, () => false)
-registerMetadata("ExportToStructureContent", "Table", exportTableContentToStructure as ExportToStructureContentFn)
-registerMetadata("ExportToStructure", "Table", exportTableToStructure as ExportToStructureFn)
+registerElementOperation(
+  "ExportToStructureContent",
+  "Table",
+  exportTableContentToStructure as ExportToStructureContentFn
+)
+registerElementOperation("ExportToStructure", "Table", exportTableToStructure as ExportToStructureFn)

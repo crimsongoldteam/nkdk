@@ -6,7 +6,7 @@ import { exportFormElementTypeToYAML } from "../metadataType/toYAML"
 import { exportPropertyToYAML } from "../properties/toYAML"
 import { PropertyRule } from "../properties/types"
 import { ToTypedYAML, ToYAML } from "../rules"
-import { getElementRule } from "./factory"
+import { getElementRule } from "./ruleFactory"
 import { ElementRule } from "./types"
 
 export function exportElementToTypedYAML<T extends TypedElement>(params: {

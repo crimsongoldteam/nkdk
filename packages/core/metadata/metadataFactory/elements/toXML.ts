@@ -5,9 +5,8 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportEventsToXML } from "../events/toXML"
 import { FormElementType } from "../metadataType/types"
 import { exportPropertiesToXML } from "../properties/toXML"
-import { ElementXML } from "../types"
-import { getElementRule } from "./factory"
-import { ElementRule } from "./types"
+import { getElementRule } from "./ruleFactory"
+import { ElementRule, ElementXML } from "./types"
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContext

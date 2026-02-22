@@ -1,12 +1,11 @@
+export * from "./elements/elementOperationFactory"
 export * from "./elements/fromXML"
 export * from "./elements/fromYAML"
 export * from "./elements/toXML"
 export * from "./elements/toYAML"
 export * from "./elements/types"
-export * from "./metadataFactory"
 export * from "./properties/types"
 export * from "./rules"
-export * from "./types"
 
 export * from "./types/factory"
 export * from "./types/types"

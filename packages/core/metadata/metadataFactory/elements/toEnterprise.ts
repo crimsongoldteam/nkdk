@@ -3,7 +3,7 @@ import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../metadataType/types"
 import { exportPropertiesToEnterprise } from "../properties/toEnterprise"
 import { ToEnterprise } from "../rules"
-import { getElementRule } from "./factory"
+import { getElementRule } from "./ruleFactory"
 
 export const exportElementToEnterprise = <T extends NamedElement>(params: {
   context: ConfigurationContext

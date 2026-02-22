@@ -3,7 +3,7 @@ export type { FormMetadataXML } from "./clientApplicationForm/types"
 
 export { importChildItemsFromStructure } from "./commonObjects/childItems/importFromStructure"
 
-export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/factory"
+export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/ruleFactory"
 export type { ElementRule } from "../metadataFactory/elements/types"
 
 import "./elements/exportToStructure"

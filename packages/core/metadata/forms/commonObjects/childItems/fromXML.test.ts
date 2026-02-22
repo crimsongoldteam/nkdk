@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML } from "~/metadata/metadataFactory/types"
+import { ElementXML } from "~/metadata/metadataFactory/elements/types"
 import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

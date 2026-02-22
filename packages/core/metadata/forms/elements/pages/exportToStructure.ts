@@ -3,8 +3,8 @@ import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/l
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn } from "../../../metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { exportChildItemsToStructure } from "../../commonObjects/childItems/exportToStructure"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { addSimpleIndent } from "../../format/wrap/addIndents"
@@ -43,4 +43,4 @@ const getHeader = (element: Pages): string => {
 }
 
 registerIsOneLineElementCheck(CollectionFormElementType.Pages, () => false)
-registerMetadata("ExportToStructure", "Pages", exportPagesToStructure as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "Pages", exportPagesToStructure as ExportToStructureFn)

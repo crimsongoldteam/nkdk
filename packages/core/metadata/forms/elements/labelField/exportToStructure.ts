@@ -3,8 +3,8 @@ import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/l
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { LabelField } from "./types"
 
@@ -63,10 +63,10 @@ const formatNamePart = (element: LabelField, hasTitle: boolean): string => {
   return formatElementName(element)
 }
 
-registerMetadata(
+registerElementOperation(
   "ExportToStructureContent",
   "LabelField",
   exportLabelFieldContentToStructure as ExportToStructureContentFn
 )
-registerMetadata("ExportToStructure", "LabelField", exportLabelFieldToStructure as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "LabelField", exportLabelFieldToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck<LabelField>(CollectionFormElementType.LabelField, () => true)

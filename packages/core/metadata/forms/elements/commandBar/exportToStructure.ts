@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
 import { formatElementName } from "../../format/helpers"
 import { CommandBar } from "./types"
@@ -29,4 +29,4 @@ export const exportCommandBarContentToStructure = (
   return formatCommandBarContent(buttonStrings, autofill)
 }
 
-registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "CommandBar", exportCommandBarToStructure as ExportToStructureFn)

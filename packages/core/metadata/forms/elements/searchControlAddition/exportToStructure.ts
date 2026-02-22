@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureContentFn } from "~/metadata/metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementName } from "../../format/helpers"
 import { SearchControlAddition } from "./types"
 
@@ -16,7 +16,7 @@ export function exportSearchControlAdditionContentToStructure(
   }
 }
 
-registerMetadata(
+registerElementOperation(
   "ExportToStructureContent",
   "SearchControlAddition",
   exportSearchControlAdditionContentToStructure as ExportToStructureContentFn

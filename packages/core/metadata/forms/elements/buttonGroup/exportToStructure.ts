@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureContentFn } from "~/metadata/metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { ButtonGroup } from "./types"
 
@@ -20,7 +20,7 @@ const formatContent = (context: ConfigurationContext, element: ButtonGroup): str
   return formatElementTitleAndName(context, element)
 }
 
-registerMetadata(
+registerElementOperation(
   "ExportToStructureContent",
   "ButtonGroup",
   exportButtonGroupContentToStructure as ExportToStructureContentFn

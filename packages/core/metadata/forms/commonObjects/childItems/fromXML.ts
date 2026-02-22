@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML } from "~/metadata/metadataFactory/elements/types"
 import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
-import { ElementXML } from "~/metadata/metadataFactory/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { NamedElement } from "../../elements/baseElement/types"
 import { PropertyRule } from "../../elements/calendarField/rules"

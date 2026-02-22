@@ -19,7 +19,7 @@ terminal INDENT: '\*Ё';
 terminal DEDENT: '\*ё';
 hidden terminal WS: /[\t ]+/;
 
-entry Model:
+entry Form:
     (childItems+=ChildItem)*;
 
 fragment Named:
@@ -36,7 +36,7 @@ ChildItem:
     | Pages
     |
        (PictureField
-        | NkdkInputField  
+        | InputField  
         | LabelField
         | OtherField  
         | LabelDecoration 
@@ -50,7 +50,7 @@ ChildItem:
 
 OneLineGroupField:
     PictureField
-    | NkdkInputField 
+    | InputField 
     | LabelField
     | OtherField  
     | LabelDecoration 
@@ -61,7 +61,7 @@ OneLineGroupField:
     | Button  
     | CommandBar;
 
-NkdkInputField:
+InputField:
     Field;
 
 LabelField:

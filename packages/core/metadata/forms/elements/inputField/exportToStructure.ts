@@ -4,8 +4,8 @@ import { formatElementName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { InputField } from "./types"
 
 // const UNDERLINE = t.Underscore.LABEL as string
@@ -73,5 +73,5 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
 //     .join("")
 // }
 
-registerMetadata("ExportToStructure", "InputField", exportInputFieldToStructure as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "InputField", exportInputFieldToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck(CollectionFormElementType.InputField, () => true)

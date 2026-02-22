@@ -2,8 +2,8 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { formatDefaultLanguageText, formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { CheckBoxField } from "./types"
 
@@ -57,10 +57,10 @@ const formatCheckBoxFieldContent = (
   return `${name} ${symbol}`
 }
 
-registerMetadata(
+registerElementOperation(
   "ExportToStructureContent",
   "CheckBoxField",
   exportCheckBoxFieldContentToStructure as ExportToStructureContentFn
 )
-registerMetadata("ExportToStructure", "CheckBoxField", exportCheckBoxFieldToStructure as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "CheckBoxField", exportCheckBoxFieldToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck<CheckBoxField>(CollectionFormElementType.CheckBoxField, () => true)

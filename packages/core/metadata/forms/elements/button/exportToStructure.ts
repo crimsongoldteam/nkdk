@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { Button } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export function exportButtonToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = wrapButtonContent(formatContent(context, element))
@@ -27,6 +27,10 @@ const formatContent = (context: ConfigurationContext, element: Button): string =
   return formatElementTitleAndName(context, element)
 }
 
-registerMetadata("ExportToStructureContent", "Button", exportButtonContentToStructure as ExportToStructureContentFn)
-registerMetadata("ExportToStructure", "Button", exportButtonToStructure as ExportToStructureFn)
+registerElementOperation(
+  "ExportToStructureContent",
+  "Button",
+  exportButtonContentToStructure as ExportToStructureContentFn
+)
+registerElementOperation("ExportToStructure", "Button", exportButtonToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck<Button>(CollectionFormElementType.Button, () => true)

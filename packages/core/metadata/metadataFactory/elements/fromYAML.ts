@@ -5,8 +5,8 @@ import { importFormElementTypeFromYAML } from "../metadataType/fromYAML"
 import { FormElementType } from "../metadataType/types"
 import { importPropertiesFromYAML } from "../properties/fromYAML"
 import { ToTypedYAML, ToYAML } from "../rules"
-import { getElementRule } from "./factory"
 import { isEmptyMetadataItem } from "./helper"
+import { getElementRule } from "./ruleFactory"
 import { ElementRule } from "./types"
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {

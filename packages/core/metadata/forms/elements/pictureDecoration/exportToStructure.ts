@@ -4,8 +4,8 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportToStructureFn } from "../../../metadataFactory/types"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { PictureDecoration } from "./types"
 
@@ -26,4 +26,8 @@ export const exportPictureDecorationToStructure = (
 }
 
 registerIsOneLineElementCheck<PictureDecoration>(CollectionFormElementType.PictureDecoration, () => true)
-registerMetadata("ExportToStructure", "PictureDecoration", exportPictureDecorationToStructure as ExportToStructureFn)
+registerElementOperation(
+  "ExportToStructure",
+  "PictureDecoration",
+  exportPictureDecorationToStructure as ExportToStructureFn
+)
