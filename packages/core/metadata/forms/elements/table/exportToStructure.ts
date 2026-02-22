@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { FormatElementFunction, ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"
 import {
   getElementOperationFunction,
@@ -17,14 +17,14 @@ const V_BAR = t.VBar.LABEL as string
 const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
   const exportContentFunction = getElementOperationFunction("ExportToStructureContent", column.itemType)
   if (exportContentFunction) {
-    const result = exportContentFunction(context, column) as IFormatElementResult
+    const result = exportContentFunction(context, column) as ToNKDKResult
     return result.strings[0] || formatElementName(column)
   }
 
   return formatElementTitleAndName(context, column)
 }
 
-export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): IFormatElementResult => {
+export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): ToNKDKResult => {
   const childItems = element.childItems ?? []
 
   const parts: string[] = []
@@ -48,10 +48,10 @@ export const exportTableContentToStructure = (context: ConfigurationContext, ele
 export const exportTableToStructure: FormatElementFunction = (
   context: ConfigurationContext,
   element: NamedElement | undefined
-): IFormatElementResult => {
+): ToNKDKResult => {
   const table = element as Table
 
-  const result: IFormatElementResult = {
+  const result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }

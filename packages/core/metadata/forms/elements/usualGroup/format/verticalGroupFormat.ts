@@ -2,12 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToStructure } from "~/metadata/forms/commonObjects/childItems/exportToStructure"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
 import { UsualGroup } from "../types"
 
-export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
-  let result: IFormatElementResult = {
+export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): ToNKDKResult => {
+  let result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }

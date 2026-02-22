@@ -1,5 +1,5 @@
 import { LabelDecoration, LabelDecorationPartialYAML } from "~/metadata/forms/elements/labelDecoration/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -121,7 +121,7 @@ export const minimalLabelDecorationYAML: LabelDecorationPartialYAML = minimalLab
 export interface LabelDecorationStructureFixture {
   name: string
   element: LabelDecoration
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixture[] = [

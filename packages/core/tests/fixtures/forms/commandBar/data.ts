@@ -1,6 +1,6 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   fullCommandBarChildItemsAllYAML,
@@ -107,7 +107,7 @@ export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
 export interface CommandBarStructureFixture {
   name: string
   element: CommandBar
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [

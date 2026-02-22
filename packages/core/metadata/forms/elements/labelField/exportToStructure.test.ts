@@ -10,7 +10,7 @@ describe("exportLabelFieldToStructure", () => {
       ({ element: label, structured: expected }) => {
         const result = exportLabelFieldToStructure(mockContext, label)
 
-        expect(result.strings).toEqual(expected.strings)
+        expect(result).toEqual(expected)
       }
     )
   })
@@ -21,7 +21,7 @@ describe("exportLabelFieldToStructure", () => {
       ({ element: label, content: content }) => {
         const result = exportLabelFieldContentToStructure(mockContext, label)
 
-        expect(result.strings).toEqual(content.strings)
+        expect(result).toEqual(content)
       }
     )
   })

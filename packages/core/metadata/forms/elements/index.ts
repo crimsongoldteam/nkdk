@@ -50,8 +50,8 @@ import "./graphicalSchemaField/types"
 import "./htmlDocumentField/rules"
 import "./htmlDocumentField/types"
 
-import "./inputField/exportToStructure"
 import "./inputField/rules"
+import "./inputField/toNKDK"
 import "./inputField/types"
 
 import "./labelDecoration/exportToStructure"

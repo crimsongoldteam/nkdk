@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
@@ -12,10 +12,10 @@ export const exportLabelDecorationToStructure = (
   context: ConfigurationContext,
   _rule: PropertyRule<any>,
   element: LabelDecoration
-): IFormatElementResult => {
+): ToNKDKResult => {
   const titleText = formatElementTitleAndName(context, element)
 
-  const result: IFormatElementResult = {
+  const result: ToNKDKResult = {
     strings: [titleText],
     haveSimpleHorizontalGroup: false,
   }

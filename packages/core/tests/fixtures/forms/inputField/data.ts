@@ -4,7 +4,7 @@ import {
   InputFieldPartialYAML,
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -371,7 +371,7 @@ export const minimalInputFieldTypedYAML: InputFieldTypedYAML = {
 export interface InputFieldStructureFixture {
   name: string
   element: InputField
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [

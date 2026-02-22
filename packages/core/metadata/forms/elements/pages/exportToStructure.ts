@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
@@ -12,10 +12,10 @@ import { Pages } from "./types"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const exportPagesToStructure = (context: ConfigurationContext, element: Pages): IFormatElementResult => {
+export const exportPagesToStructure = (context: ConfigurationContext, element: Pages): ToNKDKResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
-  const result: IFormatElementResult = {
+  const result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }

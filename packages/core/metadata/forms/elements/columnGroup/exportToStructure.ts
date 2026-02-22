@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
@@ -12,7 +12,7 @@ const HASH = t.Hash.LABEL as string
 export const exportColumnGroupContentToStructure = (
   _context: ConfigurationContext,
   element: ColumnGroup
-): IFormatElementResult => {
+): ToNKDKResult => {
   const resultString = HASH + formatElementName(element)
 
   return {
@@ -21,10 +21,7 @@ export const exportColumnGroupContentToStructure = (
   }
 }
 
-export const exportColumnGroupToStructure = (
-  _context: ConfigurationContext,
-  element: ColumnGroup
-): IFormatElementResult => {
+export const exportColumnGroupToStructure = (_context: ConfigurationContext, element: ColumnGroup): ToNKDKResult => {
   return exportColumnGroupContentToStructure(_context, element)
 }
 

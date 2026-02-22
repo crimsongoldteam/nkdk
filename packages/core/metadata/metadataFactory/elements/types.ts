@@ -1,4 +1,4 @@
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { MetadataItemRule } from ".."
 import { ConfigurationContext } from "../../context/types"
 import { BaseElement } from "../../forms/elements/baseElement/types"
@@ -39,15 +39,12 @@ export interface EventedXML extends ElementXML {
 
 // #region factory
 
-export type ExportToStructureFn = <From extends BaseElement>(
-  context: ConfigurationContext,
-  data: From
-) => IFormatElementResult
+export type ExportToStructureFn = <From extends BaseElement>(context: ConfigurationContext, data: From) => ToNKDKResult
 
 export type ExportToStructureContentFn = <From extends BaseElement>(
   context: ConfigurationContext,
   data: From
-) => IFormatElementResult
+) => ToNKDKResult
 
 export type ImportFromNKDKFn = <To extends BaseElement>(params: { context: ConfigurationContext; source: any }) => To
 

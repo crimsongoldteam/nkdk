@@ -3,7 +3,7 @@ import {
   CheckBoxFieldPartialYAML,
   CheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -175,7 +175,7 @@ export const minimalCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
 export interface CheckBoxFieldStructureFixture {
   name: string
   element: CheckBoxField
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[] = [

@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { addSimpleIndent } from "~/metadata/forms/format/wrap/addIndents"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
@@ -11,11 +11,11 @@ import { exportChildItemsToStructure } from "../../commonObjects/childItems/expo
 import { NamedElement } from "../baseElement/types"
 import { Page } from "./types"
 
-export const exportPageToStructure = (context: ConfigurationContext, element: NamedElement): IFormatElementResult => {
+export const exportPageToStructure = (context: ConfigurationContext, element: NamedElement): ToNKDKResult => {
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []
 
-  const result: IFormatElementResult = {
+  const result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }

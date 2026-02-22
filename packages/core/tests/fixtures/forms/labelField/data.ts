@@ -4,7 +4,7 @@ import {
   LabelFieldPartialYAML,
   LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -195,8 +195,8 @@ export const minimalLabelFieldTypedYAML: LabelFieldTypedYAML = {
 export interface LabelFieldStructureFixture {
   name: string
   element: LabelField
-  structured: IFormatElementResult
-  content: IFormatElementResult
+  structured: ToNKDKResult
+  content: ToNKDKResult
 }
 
 export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
