@@ -113,11 +113,16 @@ CommandBar:
     '>' Named;
 
 // vertical group
-
+ 
 Group:
     group=(GROUP | HGROUP | VGROUP | ABSGROUP) Titled Named 
-    (((NEWLINE | EOF) (INDENT (childItems+=ChildItem)* DEDENT)?)
-    | OneLineGroupFragment);
+    (
+        (
+            (NEWLINE | EOF) 
+            (INDENT (childItems+=ChildItem)+ DEDENT)? 
+        ) 
+        | OneLineGroupFragment
+    );
 
 // one-line group
 
