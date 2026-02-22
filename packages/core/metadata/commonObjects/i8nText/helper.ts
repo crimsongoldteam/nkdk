@@ -18,13 +18,14 @@ export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): bo
 export const importI8nTextFromString = (params: {
   context: ConfigurationContext
   value: string | undefined
+  trim?: boolean
 }): I8nText | undefined => {
-  const { context, value: value } = params
+  const { context, value: value, trim } = params
   if (value === undefined) return undefined
 
   return {
     items: {
-      [context.defaultLanguage]: value,
+      [context.defaultLanguage]: trim ? value.trim() : value,
     },
   }
 }

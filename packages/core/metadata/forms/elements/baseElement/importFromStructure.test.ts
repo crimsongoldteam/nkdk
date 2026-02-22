@@ -1,17 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { testImportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
-import { parseElement } from "../../commonObjects/childItems/parser/elementsParser/parse"
-import { tokenize } from "../../commonObjects/childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "../../commonObjects/childItems/parser/treeParser/treeParser"
 
 describe("import other field from structure", () => {
-  it("should import other element from structure", () => {
-    const structure = "?ПолеПереключателя {ИмяПоля}"
-
-    const tokens = tokenize(structure)
-    const treeNodes = parseTree(mockContext, tokens)
-    const result = parseElement(mockContext, treeNodes[0])
+  it("should import other element from structure", async () => {
+    const result = await testImportElementFromNKDK(mockContext, "?ПолеПереключателя {ИмяПоля}")
 
     expect(result).toEqual({
       itemType: CollectionFormElementType.RadioButtonField,

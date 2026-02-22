@@ -1,6 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { Table } from "./types"
 
 export const importTableFromNKDK = (params: {
@@ -10,7 +11,7 @@ export const importTableFromNKDK = (params: {
   const { source } = params
   const result: Table = {
     itemType: CollectionFormElementType.Table,
-    name: source.name,
+    name: importNameFromNKDK(source.name),
     childItems: [],
   }
 

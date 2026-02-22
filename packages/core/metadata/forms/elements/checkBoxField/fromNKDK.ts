@@ -2,6 +2,7 @@ import * as NKDK from "nkdk-language"
 import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { CheckBoxField } from "./types"
 
 export const importCheckBoxFieldFromNKDK = (params: {
@@ -11,7 +12,7 @@ export const importCheckBoxFieldFromNKDK = (params: {
   const { context, source } = params
   const result: CheckBoxField = {
     itemType: CollectionFormElementType.CheckBoxField,
-    name: source.name,
+    name: importNameFromNKDK(source.name),
     title: importI8nTextFromString({ context, value: source.title }),
   }
 
@@ -25,7 +26,7 @@ export const importCheckBoxFieldSwitchFromNKDK = (params: {
   const { context, source } = params
   return {
     itemType: CollectionFormElementType.CheckBoxField,
-    name: source.name,
+    name: importNameFromNKDK(source.name),
     title: importI8nTextFromString({ context, value: source.title }),
   }
 }
@@ -37,7 +38,7 @@ export const importCheckBoxFieldTumblerFromNKDK = (params: {
   const { context, source } = params
   return {
     itemType: CollectionFormElementType.CheckBoxField,
-    name: source.name,
+    name: importNameFromNKDK(source.name),
     title: importI8nTextFromString({ context, value: source.title }),
   }
 }

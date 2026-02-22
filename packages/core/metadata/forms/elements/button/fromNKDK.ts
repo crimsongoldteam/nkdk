@@ -2,16 +2,14 @@ import * as NKDK from "nkdk-language"
 import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { Button } from "./types"
 
-export const importButtonFromNKDK = (params: {
-  context: ConfigurationContext
-  source: NKDK.Button
-}): Button => {
+export const importButtonFromNKDK = (params: { context: ConfigurationContext; source: NKDK.Button }): Button => {
   const { context, source } = params
   const result: Button = {
     itemType: CollectionFormElementType.Button,
-    name: source.name,
+    name: importNameFromNKDK(source.name),
     title: importI8nTextFromString({ context, value: source.title }),
   }
 

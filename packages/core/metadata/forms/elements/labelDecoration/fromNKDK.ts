@@ -1,6 +1,10 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import {
+  importFormattedI8nTextFromNKDK,
+  importNameFromNKDK,
+} from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { LabelDecoration } from "./types"
 
 export const importLabelDecorationFromNKDK = (params: {
@@ -10,10 +14,8 @@ export const importLabelDecorationFromNKDK = (params: {
   const { context, source } = params
   const result: LabelDecoration = {
     itemType: CollectionFormElementType.LabelDecoration,
-    name: source.name,
-    title: source.title
-      ? { formatted: false, items: { [context.defaultLanguage]: source.title } }
-      : undefined,
+    name: importNameFromNKDK(source.name),
+    title: importFormattedI8nTextFromNKDK(context, source.title),
   }
 
   return result

@@ -1,25 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
 import { tableStructureFixtures } from "~/tests/fixtures/forms/table/data"
+import { testImportTableFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
-import { parseElement } from "../../commonObjects/childItems/parser/elementsParser/parse"
-import { tokenize } from "../../commonObjects/childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "../../commonObjects/childItems/parser/treeParser/treeParser"
 
 describe("importTableFromStructure", () => {
-  it.each(tableStructureFixtures)("should import table $name", ({ table: expected, structure }) => {
-    const result = importTableFromStructure(mockContext, [structure])
+  it.each(tableStructureFixtures)("should import table $name", async ({ table: expected, structure }) => {
+    const result = await testImportTableFromNKDK(mockContext, structure)
 
     expect(result).toEqual(expected)
   })
 })
-
-const importTableFromStructure = (mockContext: ConfigurationContext, mock: string[]) => {
-  const tokens = tokenize(mock[0])
-
-  const treeNodes = parseTree(mockContext, tokens, true)
-
-  const node = treeNodes[0].type === "AutoCommandBar" ? treeNodes[1] : treeNodes[0]
-
-  return parseElement(mockContext, node)
-}
