@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
 import { exportEventsToYAML } from "~/metadata/metadataFactory/events"
+import { exportChildItemsToPartialYAML } from "../commonObjects/childItems/toYAML"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationFormRules } from "./rules"
-import { exportChildItemsToPartialYAML } from "../commonObjects/childItems/toYAML"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
 export const exportClientApplicationFormToYAML = (
   context: ConfigurationContext,
