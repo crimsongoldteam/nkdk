@@ -31,7 +31,7 @@ import {
 } from "~/metadata/forms/elements/pictureField/fromNKDK"
 import { importPopupFromNKDK } from "~/metadata/forms/elements/popup/fromNKDK"
 import { importTableFromNKDK } from "~/metadata/forms/elements/table/fromNKDK"
-import { importGroupFromNKDK } from "~/metadata/forms/elements/usualGroup/fromNKDK"
+import { importUsualGroupFromNKDK } from "~/metadata/forms/elements/usualGroup/fromNKDK"
 
 export type NkdkChildItem = NKDK.ChildItem | NKDK.CommandBarChildItem | NKDK.TableField | NKDK.Page
 
@@ -61,7 +61,7 @@ export const importFromNKDKFn = {
   CommandBar: importCommandBarFromNKDK,
   CommandBarButton: importCommandBarButtonFromNKDK,
   CommandGroup: importCommandGroupFromNKDK,
-  Group: importGroupFromNKDK,
+  Group: importUsualGroupFromNKDK,
   LabelDecoration: importLabelDecorationFromNKDK,
   LabelField: importLabelFieldFromNKDK,
   OtherField: importOtherFieldFromNKDK,

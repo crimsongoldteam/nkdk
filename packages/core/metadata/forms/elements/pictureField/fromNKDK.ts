@@ -2,6 +2,7 @@ import * as NKDK from "nkdk-language"
 import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { PictureField } from "./types"
 
 export const importPictureFieldFromNKDK = (params: {
@@ -11,7 +12,7 @@ export const importPictureFieldFromNKDK = (params: {
   const { context, source } = params
   const result: PictureField = {
     itemType: CollectionFormElementType.PictureField,
-    name: source.name,
+    name: importNameFromNKDK(source.name),
     title: importI8nTextFromString({ context, value: source.title }),
   }
 
