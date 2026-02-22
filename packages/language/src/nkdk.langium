@@ -1,6 +1,6 @@
 grammar Nkdk
 
-terminal NEWLINE: /[\r\n]+/;
+hidden terminal NEWLINE: /[\r\n]+/;
 
 terminal GROUP: /(\=|\+|\-)\1{1,4}/;
 
@@ -35,20 +35,19 @@ fragment Field:
 ChildItem:
       Group 
     | Pages
-    |
-       (PictureField
-        | InputField  
-        | LabelField
-        | OtherField  
-        | LabelDecoration 
-        | PictureDecoration 
-        | CheckBoxField
-        | CheckBoxFieldSwitch
-        | CheckBoxFieldTumbler
-        | Button  
-        | CommandBar  
-        | Table) (NEWLINE | EOF);
-
+    | PictureField
+    | InputField  
+    | LabelField
+    | OtherField  
+    | LabelDecoration 
+    | PictureDecoration 
+    | CheckBoxField
+    | CheckBoxFieldSwitch
+    | CheckBoxFieldTumbler
+    | Button  
+    | CommandBar  
+    | Table;
+ 
 OneLineGroupField:
     PictureField
     | InputField 
@@ -116,18 +115,15 @@ CommandBar:
  
 Group:
     group=(GROUP | HGROUP | VGROUP | ABSGROUP) Titled Named 
-    (
         (
-            (NEWLINE | EOF) 
-            (INDENT (childItems+=ChildItem)+ DEDENT)? 
-        ) 
-        | OneLineGroupFragment
-    );
+            (INDENT childItems+=ChildItem* DEDENT)?
+            | OneLineGroupFragment
+        );
 
 // one-line group
 
 fragment OneLineGroupFragment:
-    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )* (NEWLINE | EOF);
+    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )*;
 
 // table
 
@@ -167,11 +163,11 @@ TableField:
 // pages
 
 Pages:
-    '//' Titled Named (NEWLINE | EOF)
+    '//' Titled Named
     (INDENT (childItems+=Page)* DEDENT)?; 
 
 Page:
-    '/' Titled Named (NEWLINE | EOF)
+    '/' Titled Named
     (INDENT (childItems+=ChildItem)* DEDENT)?;
 
 // other

@@ -1,6 +1,6 @@
 // import type { ValidationAcceptor, ValidationChecks } from 'langium';
 // import type { NkdkAstType, Person } from './generated/ast.js';
-import type { NkdkServices } from "./nkdk-module.js"
+import type { NkdkServices } from "./nkdk-module"
 
 /**
  * Register custom validation checks.

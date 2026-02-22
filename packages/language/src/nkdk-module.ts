@@ -1,15 +1,22 @@
-import { type Module, inject, IndentationAwareTokenBuilder, IndentationAwareLexer} from 'langium';
-import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
-import { NkdkGeneratedModule, NkdkGeneratedSharedModule } from './generated/module.js';
-import { NkdkValidator, registerValidationChecks } from './nkdk-validator.js';
+import { IndentationAwareLexer, IndentationAwareTokenBuilder, inject, type Module } from "langium"
+import {
+  createDefaultModule,
+  createDefaultSharedModule,
+  type DefaultSharedModuleContext,
+  type LangiumServices,
+  type LangiumSharedServices,
+  type PartialLangiumServices,
+} from "langium/lsp"
+import { NkdkGeneratedModule, NkdkGeneratedSharedModule } from "./generated/module"
+import { NkdkValidator, registerValidationChecks } from "./nkdk-validator"
 
 /**
  * Declaration of custom services - add your own service classes here.
  */
 export type NkdkAddedServices = {
-    validation: {
-        NkdkValidator: NkdkValidator
-    }
+  validation: {
+    NkdkValidator: NkdkValidator
+  }
 }
 
 /**
@@ -24,15 +31,15 @@ export type NkdkServices = LangiumServices & NkdkAddedServices
  * selected services, while the custom services must be fully specified.
  */
 export const NkdkModule: Module<NkdkServices, PartialLangiumServices & NkdkAddedServices> = {
-    validation: {
-        NkdkValidator: () => new NkdkValidator()
-    },
+  validation: {
+    NkdkValidator: () => new NkdkValidator(),
+  },
 
-    parser: {
-        TokenBuilder: () => new IndentationAwareTokenBuilder(),
-        Lexer: (services) => new IndentationAwareLexer(services),
-    },
-};  
+  parser: {
+    TokenBuilder: () => new IndentationAwareTokenBuilder(),
+    Lexer: (services) => new IndentationAwareLexer(services),
+  },
+}
 
 /**
  * Create the full set of services required by Langium.
@@ -50,24 +57,17 @@ export const NkdkModule: Module<NkdkServices, PartialLangiumServices & NkdkAdded
  * @returns An object wrapping the shared services and the language-specific services
  */
 export function createNkdkServices(context: DefaultSharedModuleContext): {
-    shared: LangiumSharedServices,
-    Nkdk: NkdkServices
+  shared: LangiumSharedServices
+  Nkdk: NkdkServices
 } {
-    const shared = inject(
-        createDefaultSharedModule(context),
-        NkdkGeneratedSharedModule
-    );
-    const Nkdk = inject(
-        createDefaultModule({ shared }),
-        NkdkGeneratedModule,
-        NkdkModule
-    );
-    shared.ServiceRegistry.register(Nkdk);
-    registerValidationChecks(Nkdk);
-    if (!context.connection) {
-        // We don't run inside a language server
-        // Therefore, initialize the configuration provider instantly
-        shared.workspace.ConfigurationProvider.initialized({});
-    }
-    return { shared, Nkdk };
+  const shared = inject(createDefaultSharedModule(context), NkdkGeneratedSharedModule)
+  const Nkdk = inject(createDefaultModule({ shared }), NkdkGeneratedModule, NkdkModule)
+  shared.ServiceRegistry.register(Nkdk)
+  registerValidationChecks(Nkdk)
+  if (!context.connection) {
+    // We don't run inside a language server
+    // Therefore, initialize the configuration provider instantly
+    shared.workspace.ConfigurationProvider.initialized({})
+  }
+  return { shared, Nkdk }
 }
