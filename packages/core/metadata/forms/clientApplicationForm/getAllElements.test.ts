@@ -14,6 +14,8 @@ describe("getAllElements", () => {
         {
           name: "Группа",
           itemType: CollectionFormElementType.UsualGroup,
+          group: "HorizontalIfPossible",
+          showTitle: false,
           childItems: [
             {
               name: "ПолеВвода",

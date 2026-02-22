@@ -2,17 +2,18 @@ import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKDK"
 import { Table } from "./types"
 
-export const importTableFromNKDK = (params: {
-  context: ConfigurationContext
-  source: NKDK.Table
-}): Table => {
+export const importTableFromNKDK = (params: { context: ConfigurationContext; source: NKDK.Table }): Table => {
   const { source } = params
+
+  const childItems = importChildItemsFromNKDK({ context: params.context, value: source.childItems })
+
   const result: Table = {
     itemType: CollectionFormElementType.Table,
     name: importNameFromNKDK(source.name),
-    childItems: [],
+    childItems: childItems,
   }
 
   return result

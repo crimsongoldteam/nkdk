@@ -1,53 +1,112 @@
 import * as NKDK from "nkdk-language"
-import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { CheckBoxField } from "./types"
 
 export const importCheckBoxFieldFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.CheckBoxField
 }): CheckBoxField => {
-  const { context, source } = params
-  const result: CheckBoxField = {
-    itemType: CollectionFormElementType.CheckBoxField,
-    name: importNameFromNKDK(source.name),
-    title: importI8nTextFromString({ context, value: source.title }),
-  }
-
-  return result
+  return importFromNKDK({
+    context: params.context,
+    source: params.source,
+  })
 }
 
+export const importCheckBoxFieldRightTitledFromNKDK = (params: {
+  context: ConfigurationContext
+  source: NKDK.CheckBoxFieldRightTitled
+}): CheckBoxField => {
+  return importFromNKDK({
+    context: params.context,
+    source: params.source,
+    titleLocation: "Right",
+  })
+}
 export const importCheckBoxFieldSwitchFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.CheckBoxFieldSwitch
 }): CheckBoxField => {
-  const { context, source } = params
-  return {
-    itemType: CollectionFormElementType.CheckBoxField,
-    name: importNameFromNKDK(source.name),
-    title: importI8nTextFromString({ context, value: source.title }),
-  }
+  return importFromNKDK({
+    context: params.context,
+    source: params.source,
+    type: "Switch",
+  })
+}
+
+export const importCheckBoxFieldSwitchRightTitledFromNKDK = (params: {
+  context: ConfigurationContext
+  source: NKDK.CheckBoxFieldSwitchRightTitled
+}): CheckBoxField => {
+  return importFromNKDK({
+    context: params.context,
+    source: params.source,
+    type: "Switch",
+    titleLocation: "Right",
+  })
 }
 
 export const importCheckBoxFieldTumblerFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.CheckBoxFieldTumbler
 }): CheckBoxField => {
-  const { context, source } = params
-  return {
-    itemType: CollectionFormElementType.CheckBoxField,
-    name: importNameFromNKDK(source.name),
-    title: importI8nTextFromString({ context, value: source.title }),
-  }
+  return importFromNKDK({
+    context: params.context,
+    source: params.source,
+    type: "Tumbler",
+  })
+}
+
+export const importCheckBoxFieldTumblerRightTitledFromNKDK = (params: {
+  context: ConfigurationContext
+  source: NKDK.CheckBoxFieldTumblerRightTitled
+}): CheckBoxField => {
+  return importFromNKDK({
+    context: params.context,
+    source: params.source,
+    type: "Tumbler",
+    titleLocation: "Right",
+  })
 }
 
 export const importTableCheckboxFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.TableCheckbox
 }): CheckBoxField =>
-  importCheckBoxFieldFromNKDK({
+  importFromNKDK({
     context: params.context,
-    source: { name: params.source.name, title: params.source.title } as NKDK.CheckBoxField,
+    source: params.source,
   })
+
+const importFromNKDK = (params: {
+  context: ConfigurationContext
+  source:
+    | NKDK.CheckBoxField
+    | NKDK.CheckBoxFieldRightTitled
+    | NKDK.CheckBoxFieldSwitch
+    | NKDK.CheckBoxFieldSwitchRightTitled
+    | NKDK.CheckBoxFieldTumbler
+    | NKDK.CheckBoxFieldTumblerRightTitled
+    | NKDK.TableCheckbox
+  type?: SE.CheckBoxType
+  titleLocation?: SE.FormItemTitleLocation
+}): CheckBoxField => {
+  const { context, source, type, titleLocation } = params
+
+  const result: CheckBoxField = {
+    itemType: CollectionFormElementType.CheckBoxField,
+    name: importNameFromNKDK(source.name),
+    title: importI8nTextFromNKDK(context, source.title ?? ""),
+  }
+
+  if (titleLocation) {
+    result.titleLocation = titleLocation
+  }
+  if (type) {
+    result.checkBoxType = type
+  }
+
+  return result
+}

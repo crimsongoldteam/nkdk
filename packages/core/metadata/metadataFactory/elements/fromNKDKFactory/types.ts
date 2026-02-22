@@ -5,8 +5,11 @@ import { importButtonFromNKDK, importCommandBarButtonFromNKDK } from "~/metadata
 import { importCommandGroupFromNKDK } from "~/metadata/forms/elements/buttonGroup/fromNKDK"
 import {
   importCheckBoxFieldFromNKDK,
+  importCheckBoxFieldRightTitledFromNKDK,
   importCheckBoxFieldSwitchFromNKDK,
+  importCheckBoxFieldSwitchRightTitledFromNKDK,
   importCheckBoxFieldTumblerFromNKDK,
+  importCheckBoxFieldTumblerRightTitledFromNKDK,
   importTableCheckboxFromNKDK,
 } from "~/metadata/forms/elements/checkBoxField/fromNKDK"
 import {
@@ -56,8 +59,11 @@ export const importFromNKDKFn = {
   InputField: importInputFieldFromNKDK,
   Button: importButtonFromNKDK,
   CheckBoxField: importCheckBoxFieldFromNKDK,
+  CheckBoxFieldRightTitled: importCheckBoxFieldRightTitledFromNKDK,
   CheckBoxFieldSwitch: importCheckBoxFieldSwitchFromNKDK,
+  CheckBoxFieldSwitchRightTitled: importCheckBoxFieldSwitchRightTitledFromNKDK,
   CheckBoxFieldTumbler: importCheckBoxFieldTumblerFromNKDK,
+  CheckBoxFieldTumblerRightTitled: importCheckBoxFieldTumblerRightTitledFromNKDK,
   CommandBar: importCommandBarFromNKDK,
   CommandBarButton: importCommandBarButtonFromNKDK,
   CommandGroup: importCommandGroupFromNKDK,

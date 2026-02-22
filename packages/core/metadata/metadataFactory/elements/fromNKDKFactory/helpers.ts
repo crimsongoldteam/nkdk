@@ -8,13 +8,14 @@ export const importNameFromNKDK = (name: string | undefined): string => {
   return name.startsWith("%") ? name.slice(1) : name
 }
 
-export const importI8nTextFromNKDK = (
-  context: ConfigurationContext,
-  value: string | undefined
-): I8nText | undefined => {
+export function importI8nTextFromNKDK(context: ConfigurationContext, value: undefined): undefined
+export function importI8nTextFromNKDK(context: ConfigurationContext, value: string): I8nText
+export function importI8nTextFromNKDK(context: ConfigurationContext, value: string | undefined): I8nText | undefined
+export function importI8nTextFromNKDK(context: ConfigurationContext, value: string | undefined): I8nText | undefined {
   const unescapedValue = unescapeText(value)
   const result = importI8nTextFromString({ context, value: unescapedValue, trim: true })
   if (result === undefined) return undefined
+
   return result
 }
 

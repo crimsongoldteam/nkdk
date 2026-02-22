@@ -100,6 +100,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
       editMode: "EnterOnInput",
       itemType: "CheckBoxField",
       name: "ТаблицаФлажок",
+      title: { items: { ru: "Поле флажка" } },
     },
     {
       dataPath: "Таблица.Картинка",
@@ -545,12 +546,12 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   {
     name: "table with input field",
     table: inputColumnTable,
-    structure: `| Колонка 1 {Колонка1} | {Таблица1}`,
+    structure: `| Колонка 1 %Колонка1 | %Таблица1`,
   },
   {
     name: "table with checkbox field",
     table: checkboxColumnTable,
-    structure: `| [ ] Флажок {Колонка1} | {Таблица1}`,
+    structure: `| [ ] Флажок %Колонка1 | %Таблица1`,
   },
   {
     name: "table with label field",
@@ -560,22 +561,32 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   {
     name: "table with picture field",
     table: pictureColumnTable,
-    structure: `| @{Колонка1} | {Таблица1}`,
+    structure: `| !{Колонка1} | {Таблица1}`,
   },
   {
-    name: "table with group",
+    name: "table with horizontal group",
     table: columnGroupTable,
-    structure: `| #{Колонка1} | {Таблица1}`,
+    structure: `| -%Колонка1 | %Таблица1`,
+  },
+  {
+    name: "table with vertical group",
+    table: columnGroupTable,
+    structure: `| +%Колонка1 | %Таблица1`,
+  },
+  {
+    name: "table with in cell group",
+    table: columnGroupTable,
+    structure: `| =%Колонка1 | %Таблица1`,
   },
   {
     name: "two-column table",
     table: twoColumnTable,
-    structure: `| Колонка 1 {Колонка1} | Колонка 2 {Колонка2} | {Таблица1}`,
+    structure: `| Колонка 1 %Колонка1 | Колонка 2 %Колонка2 | %Таблица1`,
   },
   {
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
-    structure: `<... | Кнопка 1 {КнопкаТаблицы}>
-| Колонка таблицы 1 {Колонка1} | {Таблица1}`,
+    structure: `<<... | Кнопка 1 %КнопкаТаблицы>>
+| Колонка таблицы 1 %Колонка1 | %Таблица1`,
   },
 ]

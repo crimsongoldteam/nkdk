@@ -38,9 +38,13 @@ const formatCheckBoxFieldContent = (
 ): string => {
   const title = formatDefaultLanguageText(context, element.title)
   const isSwitch = element.checkBoxType === "Switch" && !forContent
-  const symbol = isSwitch ? "[ |1]" : "[ ]"
+  const isTumbler = element.checkBoxType === "Tumbler" && !forContent
+  const symbol = isTumbler ? "<|>" : isSwitch ? "[ |1]" : "[ ]"
   const name = formatElementName(element)
-  const isRightTitled = element.headerHorizontalAlign === "Right" || forContent
+  const isRightTitled =
+    element.titleLocation === "Right" ||
+    element.headerHorizontalAlign === "Right" ||
+    forContent
 
   if (title) {
     if (isRightTitled) {

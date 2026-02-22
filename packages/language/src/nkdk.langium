@@ -21,6 +21,7 @@ terminal DEDENT: '\*ё';
 hidden terminal WS: /[\t ]+/;
 
 entry Form:
+    (autoCommandBar=AutoCommandBar)?
     (childItems+=ChildItem)*;
 
 fragment Named:
@@ -33,7 +34,7 @@ fragment Field:
     ((Named ':') | (Titled ':' Named));
 
 ChildItem:
-      Group 
+     Group 
     | Pages
     | PictureField
     | InputField  
@@ -42,10 +43,13 @@ ChildItem:
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField
+    | CheckBoxFieldRightTitled
     | CheckBoxFieldSwitch
+    | CheckBoxFieldSwitchRightTitled
     | CheckBoxFieldTumbler
-    | Button  
+    | CheckBoxFieldTumblerRightTitled
     | CommandBar  
+    | Button  
     | Table;
  
 OneLineGroupField:
@@ -77,13 +81,25 @@ PictureDecoration:
     '!' picture=PICTURE Named | '!' Named;
 
 CheckBoxField:
-    ((titleLeft=TEXT)? '['']' Titled Named) | (Named '['']');
+    ( title=TEXT '['']' Named) 
+    | (Named '['']');
+
+CheckBoxFieldRightTitled:
+    '['']' Titled Named;
 
 CheckBoxFieldSwitch:
-    ((titleLeft=TEXT)? '[''|'']' Titled Named) | (Named '[''|'']');
+     (title=TEXT '[' '|' ']' Named)
+     | (Named '[' '|' ']');
+
+CheckBoxFieldSwitchRightTitled:
+    '[''|'']' Titled Named;
 
 CheckBoxFieldTumbler:
-    ((titleLeft=TEXT)? '<''|''>' Titled Named) | (Named '<''|''>');
+    (title=TEXT '<''|''>' Named)
+    | (Named '<''|''>');
+
+CheckBoxFieldTumblerRightTitled:
+    '<''|''>' Titled Named;
 
 Button:
     '<' Titled Named '>';
@@ -106,10 +122,14 @@ CommandBarChildItem:
 fragment CommandBarChildItemFragment:
     ('|' childItems+=CommandBarChildItem )*;
 
+AutoCommandBar:
+    '<<' (( autofill?='...' CommandBarChildItemFragment) |
+    (childItems+=CommandBarChildItem CommandBarChildItemFragment ))? '>>'; 
+
 CommandBar:
-    '<' (( autofill?='...' CommandBarChildItemFragment) |
-    (childItems+=CommandBarButton CommandBarChildItemFragment ))?
+    '<' (childItems+=CommandBarChildItem CommandBarChildItemFragment)?
     '>' Named;
+
 
 // vertical group
  
@@ -128,6 +148,7 @@ fragment OneLineGroupFragment:
 // table
 
 Table:
+    (autoCommandBar = AutoCommandBar)?
     '|' ( childItems+=TableField ('|' childItems+=TableField )*)? '|' Named;
 
 TableHorizontalGroup:

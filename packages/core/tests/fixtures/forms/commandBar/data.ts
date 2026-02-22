@@ -135,7 +135,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}> {КоманднаяПанель}"],
+      strings: ["<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3> %КоманднаяПанель"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -155,7 +155,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<#Группа кнопок {ГруппаКнопок1} |> {КоманднаяПанель}"],
+      strings: ["<-Группа кнопок %ГруппаКнопок1> %КоманднаяПанель"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -175,7 +175,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<^Выпадающее меню {Меню} |> {КоманднаяПанель}"],
+      strings: ["<+Выпадающее меню %Меню> %КоманднаяПанель"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -193,7 +193,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<?УправлениеПоиском {Дополнение} |> {КоманднаяПанель}"],
+      strings: ["<?УправлениеПоиском %Дополнение> %КоманднаяПанель"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -210,7 +210,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<?ОтображениеСтрокиПоиска {Дополнение} |> {КоманднаяПанель}"],
+      strings: ["<?ОтображениеСтрокиПоиска %Дополнение> %КоманднаяПанель"],
       haveSimpleHorizontalGroup: false,
     },
   },
