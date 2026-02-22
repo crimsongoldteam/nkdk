@@ -59,6 +59,8 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
       toPartialYAML: false,
+      defaultValue: "HorizontalIfPossible",
+      defaultValueXML: "HorizontalIfPossible",
     },
     height: { yaml: "Высота", type: "number" },
     hiddenRepresentationTitleBackColor: {

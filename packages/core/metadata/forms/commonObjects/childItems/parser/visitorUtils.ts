@@ -8,16 +8,7 @@ export function joinTokens(tokens: { image: string }[]): string | undefined {
     .map((token) => {
       // Handle EscapedText tokens: strip quotes from the image and convert doubled quotes
       if ((token as IToken).tokenType?.name === "EscapedText") {
-        let image = token.image.trim()
-        // Remove leading and trailing quotes (single or double)
-        if ((image.startsWith('"') && image.endsWith('"')) || (image.startsWith("'") && image.endsWith("'"))) {
-          const quote = image[0]
-          // For EscapedText, preserve empty string content (don't trim the content itself)
-          let content = image.slice(1, -1)
-          return unescapeText(content, quote)
-        }
-        // If no outer quotes, still try to convert doubled quotes (in case tokenizer already stripped them)
-        return unescapeText(image, '"')
+        return unescapeText(token.image.trim())
       }
       return token.image
     })
@@ -34,34 +25,16 @@ export function visitAll(visitor: any, ctx: CstElement[], param?: any): CstNode[
   return ctx.map((item) => visitor.visit(item, param))
 }
 
-/**
- * Обрабатывает escape-последовательности в строке.
- * Поддерживает doubled quotes (для " и ') и backslash escapes (\n, \t, \r, \\, \", \', \uXXXX, \xXX).
- */
-export function unescapeText(content: string, quote: string): string {
-  // 1. Обрабатываем удвоенные кавычки (например, "" -> ")
-  const doubledQuote = quote + quote
-  let result = content.replace(new RegExp(doubledQuote, "g"), quote)
+const ESC_RE = /\\(n|t|r|\\|"|'|u[0-9A-Fa-f]{4}|x[0-9A-Fa-f]{2})/g
+const ESC: Record<string, string> = { n: "\n", t: "\t", r: "\r", "\\": "\\", '"': '"', "'": "'" }
 
-  // 2. Обрабатываем backslash escapes
-  return result.replace(/\\(n|t|r|\\|"|'|u[0-9A-Fa-f]{4}|x[0-9A-Fa-f]{2})/g, (match, p1) => {
-    switch (p1) {
-      case "n":
-        return "\n"
-      case "t":
-        return "\t"
-      case "r":
-        return "\r"
-      case "\\":
-        return "\\"
-      case '"':
-        return '"'
-      case "'":
-        return "'"
-      default:
-        if (p1.startsWith("u")) return String.fromCharCode(parseInt(p1.slice(1), 16))
-        if (p1.startsWith("x")) return String.fromCharCode(parseInt(p1.slice(1), 16))
-        return match
-    }
-  })
+/** Escape-последовательности: снятие кавычек, ""/'' → одна кавычка, \\n \\t \\r \\ \\" \\' \\uXXXX \\xXX */
+export function unescapeText(content: string): string {
+  let s = content
+  if (content.length >= 2) {
+    const q = content[0]
+    if ((q === '"' || q === "'") && content[content.length - 1] === q) s = content.slice(1, -1)
+  }
+  s = s.replace(/""|''/g, (m) => m[0])
+  return s.replace(ESC_RE, (_, p1) => ESC[p1] ?? (p1[0] === "u" ? String.fromCharCode(parseInt(p1.slice(1), 16)) : p1[0] === "x" ? String.fromCharCode(parseInt(p1.slice(1), 16)) : "\\" + p1))
 }

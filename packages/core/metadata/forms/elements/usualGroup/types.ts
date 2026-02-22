@@ -44,7 +44,7 @@ export interface UsualGroup {
   displayImportance?: SE.DisplayImportance
   extendedTooltip?: ExtendedTooltip
   format?: I8nText
-  group?: SE.ChildFormItemsGroup
+  group: SE.ChildFormItemsGroup
   hiddenRepresentationTitleBackColor?: Color
   horizontalSpacing?: SE.FormItemSpacing
   itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
