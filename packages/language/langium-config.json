@@ -1,0 +1,16 @@
+{
+    "projectName": "Nkdk",
+    "languages": [
+        {
+            "id": "nkdk",
+            "grammar": "src/nkdk.langium",
+            "fileExtensions": [
+                "nkdk"
+            ],
+            "textMate": {
+                "out": "syntaxes/nkdk.tmLanguage.json"
+            }
+        }
+    ],
+    "out": "src/generated"
+}
