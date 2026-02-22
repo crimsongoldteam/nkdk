@@ -22,13 +22,7 @@
       "name": "Debug Current Test File",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "exec",
-        "vitest",
-        "run",
-        "${relativeFile}",
-        "--no-coverage"
-      ],
+      "runtimeArgs": ["exec", "vitest", "run", "${relativeFile}", "--no-coverage"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "autoAttachChildProcesses": true,
@@ -36,18 +30,31 @@
         "NODE_ENV": "test"
       },
       "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
-      "outFiles": ["${workspaceFolder}/extension/out/**/*.js"],
-      "preLaunchTask": "compile extension"
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/extension"],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/packages/language/out/**/*.js",
+        "${workspaceFolder}/packages/extension/out/**/*.js"
+      ]
+    },
+    {
+      "name": "Attach to Language Server",
+      "type": "node",
+      "port": 6009,
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/packages/language/out/**/*.js",
+        "${workspaceFolder}/packages/extension/out/**/*.js",
+        "${workspaceFolder}/node_modules/langium"
+      ]
     }
   ]
 }

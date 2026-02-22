@@ -112,10 +112,6 @@ describe.skip("DO test", () => {
   //   const newXmlString = xmlExport({ MetaDataObject: newXml })
   //   writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
   // })
-  // it("should export schema ", () => {
-  //   const catalogSchema = typia.json.schemas<[MetadataCatalogYAML], "3.1">()
-  //   writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
-  // })
 })
 
 // Правила определения элементов

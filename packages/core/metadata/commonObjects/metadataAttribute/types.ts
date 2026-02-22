@@ -1,4 +1,3 @@
-import { tags } from "typia"
 import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
@@ -58,7 +57,7 @@ export interface MetadataAttribute {
 }
 
 export interface MetadataAttributeXML {
-  _uuid: string & tags.Format<"uuid">
+  _uuid: string
   Properties: {
     BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
     BinaryDataStorageLocationUseField?: StringboolXML

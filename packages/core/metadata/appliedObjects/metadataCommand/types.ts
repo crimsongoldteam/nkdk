@@ -1,4 +1,3 @@
-import { tags } from "typia"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
@@ -27,7 +26,7 @@ export interface MetadataCommand {
 }
 
 export interface MetadataCommandXML {
-  _uuid: string & tags.Format<"uuid">
+  _uuid: string
   Properties: {
     CommandParameterType?: TypeDescriptionXML
     Comment?: string

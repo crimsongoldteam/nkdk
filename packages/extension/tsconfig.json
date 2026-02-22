@@ -1,15 +1,15 @@
 {
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-        "noEmit": true,
-        "rootDir": "."
-    },
-    "references": [
-        {
-            "path": "../language/tsconfig.src.json"
-        }
-    ],
-    "include": [
-        "src/**/*.ts"
-    ]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  },
+  "references": [
+    {
+      "path": "../language/tsconfig.src.json"
+    }
+  ],
+  "include": ["src/**/*.ts"]
 }
