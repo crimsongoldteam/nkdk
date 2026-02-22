@@ -1,13 +1,9 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { ConfigurationContext } from "../../context/types"
 import { Picture, PictureEnterprise } from "./types"
 
-export const exportPictureToEnterprise = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  picture: Picture | undefined
-): PictureEnterprise | undefined => {
+export const exportPictureToEnterprise = (params: { value: Picture | undefined }): PictureEnterprise | undefined => {
+  const { value: picture } = params
+
   if (!picture || !picture.ref) return undefined
 
   if (picture.type === "AbsolutePicture") {

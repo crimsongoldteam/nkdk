@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportTypeDescriptionToEnterprise } from "./toEnterprise"
 import { TypeDescription } from "./types"
 
 describe("exportTypeDescriptionToEnterprise", () => {
   it("should return undefined when typeDescription is undefined", () => {
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, undefined)
+    const result = exportTypeDescriptionToEnterprise({ value: undefined })
     expect(result).toBeUndefined()
   })
 
@@ -13,7 +12,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
     const typeDescription: TypeDescription = {
       type: ["string"],
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({ Type: ["string"] })
   })
 
@@ -21,7 +20,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
     const typeDescription: TypeDescription = {
       type: ["string", "decimal", "boolean", "dateTime"],
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({ Type: ["string", "decimal", "boolean", "dateTime"] })
   })
 
@@ -29,7 +28,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
     const typeDescription: TypeDescription = {
       type: ["CatalogRef", "DocumentRef"],
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toBeUndefined()
   })
 
@@ -37,7 +36,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
     const typeDescription: TypeDescription = {
       type: ["CatalogRef", "string"],
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({ Type: ["string"] })
   })
 
@@ -49,7 +48,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         allowedLength: "Variable",
       },
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({
       Type: ["string"],
       StringQualifiers: {
@@ -68,7 +67,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         allowedSign: "Any",
       },
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({
       Type: ["decimal"],
       NumberQualifiers: {
@@ -86,7 +85,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         dateFractions: "Date",
       },
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({
       Type: ["date"],
       DateQualifiers: {
@@ -111,7 +110,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         dateFractions: "DateTime",
       },
     }
-    const result = exportTypeDescriptionToEnterprise(mockContext, mockRule, typeDescription)
+    const result = exportTypeDescriptionToEnterprise({ value: typeDescription })
     expect(result).toEqual({
       Type: ["string", "decimal", "date"],
       StringQualifiers: {

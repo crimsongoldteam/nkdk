@@ -62,36 +62,11 @@ export const exportPropertyToYAML = <T extends MetadataItem>(params: {
 
   if (!context.exportToYAML.toTyped && rule.toPartialYAML === false) return undefined
 
-  // if (rule.type == "UserVisible") {
-  //   const result = exportUserVisibleToYAML(context, rule, value as UserVisible)
-  //   return result
-  // }
-
-  // if (rule.type == "FormattedI8nText") {
-  //   const tempRule: FormattedI8nTextPropertyRule<T> = {
-  //     ...rule,
-  //     yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
-  //   }
-  //   const result = exportFormattedI8nTextToYAML(context, tempRule, value)
-  //   return result
-  // }
-
   const yamlKey = rule.yaml
 
   if (!yamlKey) {
     return undefined
   }
-
-  // if (rule.type == "I8nText") {
-  //   const tempRule: I8nTextPropertyRule<T> = {
-  //     ...rule,
-  //     yamlPartialOthers: toTyped ? undefined : rule.yamlPartialOthers,
-  //   }
-  //   const result = exportI8nTextToYAML(context, tempRule, value)
-  //   if (result === undefined) return undefined
-
-  //   return { [yamlKey]: result }
-  // }
 
   const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToYAML")
 

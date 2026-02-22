@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportChildItemsToEnterprise } from "../../collections/childItems/toEnterprise"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -6,13 +7,12 @@ import {
   EnterpriseAttributes,
   EnterpriseAttributesMap,
 } from "./types"
-import { exportChildItemsToEnterprise } from "../../collections/childItems/exportToPreview"
 
 export const exportClientApplicationFormToEnterprise = (
   context: ConfigurationContext,
   form: ClientApplicationForm
 ): ClientApplicationFormEnterprise => {
-  const childItems = exportChildItemsToEnterprise(context, form.childItems)
+  const childItems = exportChildItemsToEnterprise({ context, value: form.childItems })
 
   return {
     prefix: context.preview!.prefix!,

@@ -1,13 +1,8 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { ConfigurationContext } from "../../context/types"
 import { Font, FontEnterprise } from "./types"
 
-export const exportFontToEnterprise = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  font: Font | undefined
-): FontEnterprise | undefined => {
+export const exportFontToEnterprise = (params: { value: Font | undefined }): FontEnterprise | undefined => {
+  const { value: font } = params
   if (!font) return undefined
 
   const result: FontEnterprise = {

@@ -105,11 +105,11 @@ export type ExportToYAMLFunctionNew = <T extends MetadataItem | never = never>(p
   name?: string
 }) => any | undefined
 
-export type ExportToEnterpriseFunction = (
-  context: ConfigurationContext,
-  rule: PropertyRule<any>,
+export type ExportToEnterpriseFunction = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
   value: any | undefined
-) => any | undefined
+}) => any | undefined
 
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction

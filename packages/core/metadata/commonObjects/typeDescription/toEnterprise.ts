@@ -1,21 +1,18 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { ConfigurationContext } from "../../context/types"
 import { TypeDescription, TypeDescriptionEnterprise, TypeDescriptionRules } from "./types"
 
-export const exportTypeDescriptionToEnterprise = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  typeDescription: TypeDescription | undefined
-): TypeDescriptionEnterprise | undefined => {
+export const exportTypeDescriptionToEnterprise = (params: {
+  value: TypeDescription | undefined
+}): TypeDescriptionEnterprise | undefined => {
+  const { value: typeDescription } = params
   if (!typeDescription) return undefined
 
-  // Filter out ignored types (complex types like CatalogRef, DocumentRef, etc.)
+  if (!typeDescription) return undefined
+
   const nonIgnoredTypes = typeDescription.type.filter(
     (type) => !TypeDescriptionRules[type as keyof typeof TypeDescriptionRules]?.ignoreInEnterprise
   )
 
-  // If all types were ignored, return undefined
   if (nonIgnoredTypes.length === 0) return undefined
 
   const result: TypeDescriptionEnterprise = {

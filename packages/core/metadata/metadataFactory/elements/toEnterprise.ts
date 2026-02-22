@@ -1,45 +1,29 @@
-import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../metadataType/types"
-import { PropertyRule } from "../properties/types"
-import { getTypeRule } from "../types/factory"
-import { TypeRulesNames } from "../types/types"
+import { exportPropertiesToEnterprise } from "../properties/toEnterprise"
+import { ToEnterprise } from "../rules"
 import { getElementRule } from "./factory"
 
-export const exportElementToEnterprise = <T extends NamedElement>(
-  context: ConfigurationContext,
-  itemType: FormElementType,
-  data: T | undefined
-): ToEnterpriseType<T> | undefined => {
-  if (data === undefined) return undefined
+export const exportElementToEnterprise = <T extends NamedElement>(params: {
+  context: ConfigurationContext
+  itemType: FormElementType
+  value: T
+}): ToEnterprise<T> => {
+  const { context, itemType, value: element } = params
 
   const rules = getElementRule<T>(itemType)
 
-  const result: any = {
+  const properties = exportPropertiesToEnterprise({
+    context,
+    metadataItem: element,
+    rule: rules,
+  })
+
+  const result: ToEnterprise<T> = {
     itemType: rules.enterpriseField,
-    Name: data.name,
+    ...properties,
   }
 
-  for (const [key, rule] of Object.entries(rules.properties) as [string, PropertyRule<T>][]) {
-    if (rule.toYAML === false) continue
-
-    const value = (data as any)[key]
-
-    const enterpriseKey = capitalize(key)
-
-    const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToEnterprise")
-
-    if (!typeExportFn) {
-      result[enterpriseKey] = value
-      continue
-    }
-
-    const exportedValue = typeExportFn(context, rule, value)
-    if (exportedValue !== undefined) {
-      result[enterpriseKey] = exportedValue
-    }
-  }
-
-  return result as ToEnterpriseType<T>
+  return result
 }

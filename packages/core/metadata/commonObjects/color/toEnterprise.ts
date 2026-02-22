@@ -1,17 +1,12 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { ConfigurationContext } from "../../context/types"
 import { Color, ColorEnterprise } from "./types"
 
-export const exportColorToEnterprise = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
-  color: Color | undefined
-): ColorEnterprise | undefined => {
-  if (!color) return undefined
+export const exportColorToEnterprise = (params: { value: Color | undefined }): ColorEnterprise | undefined => {
+  const { value } = params
+  if (!value) return undefined
 
-  if (color.type === "WebColor" && color.value.startsWith("#")) {
-    const hex = color.value.slice(1)
+  if (value.type === "WebColor" && value.value.startsWith("#")) {
+    const hex = value.value.slice(1)
     const red = parseInt(hex.slice(0, 2), 16)
     const green = parseInt(hex.slice(2, 4), 16)
     const blue = parseInt(hex.slice(4, 6), 16)
@@ -19,11 +14,11 @@ export const exportColorToEnterprise = (
   }
 
   const prefix =
-    color.type === "WebColor" ? "WebColors" : color.type === "WindowsColor" ? "WindowsColors" : "StyleItems"
+    value.type === "WebColor" ? "WebColors" : value.type === "WindowsColor" ? "WindowsColors" : "StyleItems"
 
   return {
     Type: "Color",
-    Value: `${prefix}.${color.value}`,
+    Value: `${prefix}.${value.value}`,
   }
 }
 
