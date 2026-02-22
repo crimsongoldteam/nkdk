@@ -50,7 +50,7 @@ export interface UsualGroup {
   itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
   representation?: SE.UsualGroupRepresentation
   showLeftMargin?: boolean
-  showTitle?: boolean
+  showTitle: boolean
   // slaveItemsWidth?: SE.ChildFormItemsWidth // depricated in 8.3.7
   throughAlign?: SE.ThroughAlign
   titleDataPath?: string

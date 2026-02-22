@@ -72,6 +72,7 @@ export const fullUsualGroupSource: UsualGroup = {
   name: "ОбычнаяГруппа",
   title: { items: { ru: "Обычная группа" } },
   group: "HorizontalIfPossible",
+  showTitle: true,
   childItems: [],
 }
 
@@ -169,6 +170,7 @@ export const minimalUsualGroup: UsualGroup = {
   itemType: CollectionFormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
   group: "HorizontalIfPossible",
+  showTitle: true,
   childItems: [],
 }
 
@@ -213,6 +215,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       name: "Группа",
       itemType: CollectionFormElementType.UsualGroup,
       group: "AlwaysHorizontal",
+      showTitle: true,
       title: { items: { ru: "Заголовок группы" } },
       childItems: [
         {
@@ -233,6 +236,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       name: "Группа",
       itemType: CollectionFormElementType.UsualGroup,
       group: "AlwaysHorizontal",
+      showTitle: true,
       title: { items: { ru: "" } },
       childItems: [
         {
@@ -253,11 +257,13 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       name: "Группа",
       itemType: CollectionFormElementType.UsualGroup,
       group: "AlwaysHorizontal",
+      showTitle: false,
       childItems: [
         {
           name: "ВертикальнаяГруппа1",
           itemType: CollectionFormElementType.UsualGroup,
           group: "Vertical",
+          showTitle: false,
           childItems: [
             {
               name: "Элемент1",
@@ -282,11 +288,13 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       name: "Группа",
       itemType: CollectionFormElementType.UsualGroup,
       group: "HorizontalIfPossible",
+      showTitle: false,
       childItems: [
         {
           name: "ВертикальнаяГруппа1",
           itemType: CollectionFormElementType.UsualGroup,
           group: "Vertical",
+          showTitle: false,
           childItems: [
             {
               name: "Элемент1",
@@ -330,6 +338,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     element: {
       name: "Группа",
       group: "HorizontalIfPossible",
+      showTitle: true,
       itemType: CollectionFormElementType.UsualGroup,
       title: { items: { ru: "Заголовок группы" } },
       childItems: [
@@ -350,6 +359,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     element: {
       name: "Группа",
       group: "HorizontalIfPossible",
+      showTitle: true,
       itemType: CollectionFormElementType.UsualGroup,
       title: { items: { ru: "" } },
       childItems: [
@@ -372,6 +382,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       group: "Vertical",
       title: { items: { ru: "Заголовок группы" } },
       itemType: CollectionFormElementType.UsualGroup,
+      showTitle: true,
       childItems: [
         {
           name: "Элемент1",

@@ -97,7 +97,12 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       type: "string",
     },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
-    showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
+    showTitle: {
+      yaml: "ОтображатьЗаголовок",
+      type: "boolean",
+      defaultValue: true,
+      defaultValueXML: true,
+    },
     table: {
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
