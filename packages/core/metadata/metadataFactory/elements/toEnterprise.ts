@@ -20,10 +20,11 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
     rule: rules,
   })
 
-  const result: ToEnterprise<T> = {
-    itemType: rules.enterpriseField,
+  const result = {
+    ElementType: rules.enterpriseField,
     ...properties,
-  }
+    Name: element.name,
+  } satisfies ToEnterprise<T>
 
   return result
 }
