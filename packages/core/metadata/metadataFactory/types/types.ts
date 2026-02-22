@@ -155,4 +155,12 @@ type TypesMap =
 export type TypeRulesNamesNew = TypesMap extends [infer First, any, any] ? First : never
 export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
 
-export type d = EnterpriseTypeByKey<"TypeDescription">
+const TypesNamesList: TypeRulesNamesNew[] = [
+  "number",
+  "string",
+  "boolean",
+  "SystemEnumeration",
+  "Color",
+  "TypeDescription",
+]
+export const TypesNames = TypesNamesList

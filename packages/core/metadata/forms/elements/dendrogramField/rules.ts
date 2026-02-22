@@ -18,7 +18,8 @@ export const DendrogramFieldRules: ElementRule<DendrogramField> = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
-    dataPath: { yaml: "ПутьКДанным", type: "string" },
+    dataPath: { yaml: "ПутьКДанным", type: "dataPath" },
+
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

@@ -2,6 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToEnterprise } from "../rules"
 import { getTypeRule } from "../types/factory"
+import { TypesNames } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
@@ -19,6 +20,7 @@ export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
   ][]) {
     if (ruleProp.toEnterprise === false) continue
 
+    if (ruleProp.type == null || !(TypesNames as readonly string[]).includes(ruleProp.type)) continue
     const value = metadataItem[key]
 
     const exportedValue = exportPropertyToEnterprise({
