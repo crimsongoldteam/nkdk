@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { EnterpriseAttributeMapItem } from "../clientApplicationForm/base/types"
+import { EnterpriseAttributeMapItem } from "../clientApplicationForm/types"
 
 export const getAttributeName = (
   context: ConfigurationContext,

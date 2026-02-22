@@ -6,7 +6,7 @@ import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedYAML } from "../../collections/childItems/types"
+import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 
 export interface Popup {
   itemType: "Popup"

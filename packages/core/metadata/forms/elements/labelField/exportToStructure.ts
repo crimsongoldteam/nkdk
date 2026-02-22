@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
+import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { LabelField } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const TILDE = t.Tilde.LABEL as string
 const COLON = t.Colon.LABEL as string

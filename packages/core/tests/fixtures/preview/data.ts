@@ -1,4 +1,4 @@
-import { EnterpriseAttributesMap } from "~/metadata/forms/clientApplicationForm/base/types"
+import { EnterpriseAttributesMap } from "~/metadata/forms/clientApplicationForm/types"
 
 export interface GetAttributeNameFixture {
   name: string

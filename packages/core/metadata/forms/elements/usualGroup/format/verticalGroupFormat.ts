@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
+import { exportChildItemsToStructure } from "~/metadata/forms/commonObjects/childItems/exportToStructure"
+import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
-import { exportChildItemsToStructure } from "../../../collections/childItems/exportToStructure"
 import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {

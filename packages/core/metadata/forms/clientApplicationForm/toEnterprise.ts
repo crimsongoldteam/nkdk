@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportChildItemsToEnterprise } from "../../collections/childItems/toEnterprise"
+import { exportChildItemsToEnterprise } from "../commonObjects/childItems/toEnterprise"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
-  EnterpriseAttribute,
-  EnterpriseAttributes,
   EnterpriseAttributesMap,
+  EnterpriseAttributes,
+  EnterpriseAttribute,
 } from "./types"
 
 export const exportClientApplicationFormToEnterprise = (

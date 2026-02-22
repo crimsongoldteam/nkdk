@@ -1,6 +1,6 @@
 import { MetadataItem } from "."
 import { MetadataCatalog, MetadataCatalogYAML } from "../appliedObjects/metadataCatalog"
-import { ClientApplicationForm, ClientApplicationFormYAML } from "../forms/clientApplicationForm/base/types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import {
   CommandInterface,
   CommandInterfaceItem,

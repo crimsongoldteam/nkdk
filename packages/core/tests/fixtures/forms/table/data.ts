@@ -1,4 +1,4 @@
-import { TableChildItemsPartialYAML } from "~/metadata/forms/collections/childItems/types"
+import { TableChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"

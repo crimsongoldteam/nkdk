@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
+import { OtherElement } from "../../commonObjects/childItems/types"
 import { exportOtherElementToStructure } from "./exportToStructure"
 import { NamedElement } from "./types"
-import { OtherElement } from "../../collections/childItems/types"
 
 describe("formatOtherElement", () => {
   it("should format element", () => {

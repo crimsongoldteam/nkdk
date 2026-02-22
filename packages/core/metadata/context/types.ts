@@ -1,5 +1,5 @@
-import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/base/types"
-import { AllChildItemsPartialYAML } from "../forms/collections/childItems/types"
+import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
+import { AllChildItemsPartialYAML } from "../forms/commonObjects/childItems/types"
 import { FormElementType } from "../metadataFactory"
 
 export type ContextElementTreeItem = { name: string; itemType: FormElementType }

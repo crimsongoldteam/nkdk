@@ -4,7 +4,7 @@ import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { PagesChildItems } from "../../collections/childItems/types"
+import { PagesChildItems } from "../../commonObjects/childItems/types"
 import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 

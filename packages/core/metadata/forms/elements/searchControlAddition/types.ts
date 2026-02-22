@@ -6,7 +6,7 @@ import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisib
 
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarChildItems, CommandBarChildItemsTypedYAML } from "../../collections/childItems/types"
+import { CommandBarChildItems, CommandBarChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
-import { tokenize } from "~/metadata/forms/collections/childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "~/metadata/forms/collections/childItems/parser/treeParser/treeParser"
+import { parseElement } from "~/metadata/forms/commonObjects/childItems/parser/elementsParser/parse"
+import { tokenize } from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "~/metadata/forms/commonObjects/childItems/parser/treeParser/treeParser"
 import { pictureDecorationStructureFixturesTable } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockContext } from "~/tests/mockContext"
 

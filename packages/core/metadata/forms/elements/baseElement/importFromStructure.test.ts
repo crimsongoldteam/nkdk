@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
-import { parseElement } from "../../collections/childItems/parser/elementsParser/parse"
-import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
+import { parseElement } from "../../commonObjects/childItems/parser/elementsParser/parse"
+import { tokenize } from "../../commonObjects/childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "../../commonObjects/childItems/parser/treeParser/treeParser"
 
 describe("import other field from structure", () => {
   it("should import other element from structure", () => {

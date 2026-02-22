@@ -1,5 +1,5 @@
 import { registerTypeRule } from "~/metadata/metadataFactory"
-import { exportChildItemsToXML } from "../../collections/childItems/toXML"
+import { exportChildItemsToXML } from "../../commonObjects/childItems/toXML"
 
 export type TableAdditionalSourceTypes = "SearchStringRepresentation" | "SearchControl" | "ViewStatusRepresentation"
 

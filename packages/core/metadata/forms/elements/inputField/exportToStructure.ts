@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
+import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 import { InputField } from "./types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 // const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string

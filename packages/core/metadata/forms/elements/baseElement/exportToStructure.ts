@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { exportFormElementTypeToYAML } from "~/metadata/metadataFactory/metadataType/toYAML"
-import { OtherElement } from "../../collections/childItems/types"
+import { OtherElement } from "../../commonObjects/childItems/types"
 
 export const exportOtherElementToStructure = (
   context: ConfigurationContext,

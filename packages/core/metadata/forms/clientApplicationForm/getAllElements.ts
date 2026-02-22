@@ -1,4 +1,4 @@
-import { AllChildItem, AllChildItems } from "../../collections/childItems/types"
+import { AllChildItem, AllChildItems } from "../commonObjects/childItems/types"
 import { ClientApplicationForm } from "./types"
 
 export const getAllElements = (form: ClientApplicationForm): AllChildItems => {

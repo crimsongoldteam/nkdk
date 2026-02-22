@@ -1,4 +1,4 @@
-import { AllChildItems, AllChildItemsPartialYAML } from "~/metadata/forms/collections/childItems/types"
+import { AllChildItems, AllChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export interface ChildItemsFixture {

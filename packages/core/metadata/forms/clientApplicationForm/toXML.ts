@@ -3,9 +3,9 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/metadataFactory"
 import { exportEventsToXML } from "~/metadata/metadataFactory/events/toXML"
-import { PropertyRule } from "../../elements/calendarField/rules"
+import { PropertyRule } from "../elements/calendarField/rules"
 import { ClientApplicationFormRules } from "./rules"
-import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML, FormRulesTags, FormMetadataXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,

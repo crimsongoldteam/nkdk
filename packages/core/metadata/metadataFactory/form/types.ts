@@ -1,4 +1,4 @@
-import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/base/types"
+import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
 import { MetadataItemRule } from ".."
 import { EventsRules } from "../events"
 

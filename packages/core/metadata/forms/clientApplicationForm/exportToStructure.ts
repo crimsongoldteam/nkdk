@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
-import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
-import { exportAutoCommandBarToStructure } from "../../elements/autoCommandBar/exportToStructure"
+import { exportChildItemsToStructure } from "../commonObjects/childItems/exportToStructure"
+import { exportAutoCommandBarToStructure } from "../elements/autoCommandBar/exportToStructure"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToStructure = (

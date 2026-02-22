@@ -5,10 +5,10 @@ import {
   fullClientApplicationFormYAML,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContext } from "~/tests/mockContext"
-import { ButtonGroup, ButtonGroupPartialYAML } from "../../elements/buttonGroup/types"
-import { Table } from "../../elements/table/types"
+import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
+import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
-import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
+import { ClientApplicationFormYAML, ClientApplicationForm } from "./types"
 
 describe("importClientApplicationFormFromYAML", () => {
   it("should import all fields from YAML", () => {

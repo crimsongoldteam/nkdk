@@ -9,7 +9,7 @@ import {
   GroupChildItems,
   // GroupChildItemsEnterprise,
   GroupChilItemPartialYAML,
-} from "../../collections/childItems/types"
+} from "../../commonObjects/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 
 export interface UsualGroup {

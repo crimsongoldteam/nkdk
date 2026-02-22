@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
+import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"

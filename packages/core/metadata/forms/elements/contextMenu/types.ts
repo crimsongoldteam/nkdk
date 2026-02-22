@@ -1,6 +1,6 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../collections/childItems/types"
+import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { BaseElement } from "../baseElement/types"
 
 export interface ContextMenu extends BaseElement {

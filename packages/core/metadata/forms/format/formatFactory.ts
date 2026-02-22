@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { AllChildItems, OtherElement } from "../collections/childItems/types"
+import { AllChildItems, OtherElement } from "../commonObjects/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"

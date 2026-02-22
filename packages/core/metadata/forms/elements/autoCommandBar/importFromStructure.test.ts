@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { parseAutoCommandBar } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
+import { parseAutoCommandBar } from "~/metadata/forms/commonObjects/childItems/parser/elementsParser/parse"
 import { autoCommandBarStructureFixturesTable } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext } from "~/tests/mockContext"
-import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
-import { ParseElementType } from "../../collections/childItems/parser/treeParser/types"
+import { tokenize } from "../../commonObjects/childItems/parser/tokenizer/tokenizer"
+import { ParseElementType } from "../../commonObjects/childItems/parser/treeParser/types"
 
 describe("importAutoCommandBarFromStructure", () => {
   it.each(autoCommandBarStructureFixturesTable)(

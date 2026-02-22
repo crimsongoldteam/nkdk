@@ -125,5 +125,5 @@ import "./usualGroup/types"
 import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
 
-import "../clientApplicationForm/base/exportToStructure"
+import "../clientApplicationForm/exportToStructure"
 import "./baseElement/exportToStructure"

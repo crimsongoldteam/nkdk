@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { TypedElement } from "~/metadata/forms/collections/childItems/types"
+import { TypedElement } from "~/metadata/forms/commonObjects/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportEventsToYAML } from "../events"
 import { exportFormElementTypeToYAML } from "../metadataType/toYAML"

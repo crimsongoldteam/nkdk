@@ -1,5 +1,5 @@
 import { IToken } from "chevrotain"
-import { ParseElementType, TreeNode } from "~/metadata/forms/collections/childItems/parser/treeParser/types"
+import { ParseElementType, TreeNode } from "~/metadata/forms/commonObjects/childItems/parser/treeParser/types"
 export type TSimplifyToken = { type: string; value: string }
 
 export type SimplifiedDetectedTreeNode = {

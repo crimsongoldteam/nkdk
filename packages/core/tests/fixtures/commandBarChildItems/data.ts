@@ -2,7 +2,7 @@ import {
   CommandBarChildItem,
   CommandBarChildItemsPartialYAML,
   CommandBarChildItemsTypedYAML,
-} from "~/metadata/forms/collections/childItems/types"
+} from "~/metadata/forms/commonObjects/childItems/types"
 import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 

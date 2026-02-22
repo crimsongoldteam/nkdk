@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { OtherElement } from "~/metadata/forms/commonObjects/childItems/types"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { UsualGroup } from "../types"
-import { OtherElement } from "~/metadata/forms/collections/childItems/types"
 
 const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"

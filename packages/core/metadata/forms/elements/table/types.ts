@@ -8,12 +8,12 @@ import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextM
 
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { TableChildItems } from "../../collections/childItems/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { SingleSearchControlAddition, SingleSearchControlAdditionYAML } from "../searchControlAddition/types"
 import { SearchStringAdditionYAML, SingleSearchStringAddition } from "../searchStringAddition/types"
 import { ViewStatusAddition, ViewStatusAdditionYAML } from "../viewStatusAddition/types"
+import { TableChildItems } from "../../commonObjects/childItems/types"
 
 export interface Table {
   itemType: "Table"

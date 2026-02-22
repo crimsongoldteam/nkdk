@@ -1,21 +1,18 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
-import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
-import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/fromXML"
-import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/base/fromYAML"
-import {
-  exportClientApplicationFormToXML,
-  exportFormMetadataToXML,
-} from "~/metadata/forms/clientApplicationForm/base/toXML"
-import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/base/toYAML"
+import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
+import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/fromXML"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
+import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import {
   ClientApplicationForm,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
   FormMetadataXML,
-} from "~/metadata/forms/clientApplicationForm/base/types"
-import { importChildItemsFromStructure } from "~/metadata/forms/collections/childItems/importFromStructure"
+} from "~/metadata/forms/clientApplicationForm/types"
+import { importChildItemsFromStructure } from "~/metadata/forms/commonObjects/childItems/importFromStructure"
 import { xmlExport } from "~/xml/export/exporter"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"

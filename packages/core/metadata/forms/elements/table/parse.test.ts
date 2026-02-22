@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
-import { mockContext } from "~/tests/mockContext"
-import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
-import { Table } from "./types"
+import { parseElement } from "~/metadata/forms/commonObjects/childItems/parser/elementsParser/parse"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { mockContext } from "~/tests/mockContext"
+import { tokenize } from "../../commonObjects/childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "../../commonObjects/childItems/parser/treeParser/treeParser"
+import { Table } from "./types"
 
 describe("parse Table", () => {
   it("should parse table", () => {

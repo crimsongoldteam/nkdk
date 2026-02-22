@@ -1,7 +1,7 @@
-export { exportFormMetadataToXML } from "./clientApplicationForm/base/toXML"
-export type { FormMetadataXML } from "./clientApplicationForm/base/types"
+export { exportFormMetadataToXML } from "./clientApplicationForm/toXML"
+export type { FormMetadataXML } from "./clientApplicationForm/types"
 
-export { importChildItemsFromStructure } from "./collections/childItems/importFromStructure"
+export { importChildItemsFromStructure } from "./commonObjects/childItems/importFromStructure"
 
 export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/factory"
 export type { ElementRule } from "../metadataFactory/elements/types"

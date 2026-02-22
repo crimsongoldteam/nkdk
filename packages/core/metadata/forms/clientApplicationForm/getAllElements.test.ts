@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory"
-import { Button } from "../../elements/button/types"
-import { ButtonGroup } from "../../elements/buttonGroup/types"
-import { Table } from "../../elements/table/types"
+import { Button } from "../elements/button/types"
+import { ButtonGroup } from "../elements/buttonGroup/types"
+import { Table } from "../elements/table/types"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 

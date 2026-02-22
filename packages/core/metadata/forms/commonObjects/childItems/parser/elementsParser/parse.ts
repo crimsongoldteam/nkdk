@@ -1,13 +1,13 @@
 import type { CstNode, IToken } from "chevrotain"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { AllChildItem, AllChildItems } from "~/metadata/forms/collections/childItems/types"
+import { AllChildItem, AllChildItems } from "~/metadata/forms/commonObjects/childItems/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { Table } from "~/metadata/forms/elements/table/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parseElement = (context: ConfigurationContext, element: TreeNode): AllChildItem => {
   const ast = parseByElementType(element)
