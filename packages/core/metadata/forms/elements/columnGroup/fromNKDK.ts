@@ -1,8 +1,8 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { ColumnGroup } from "./types"
-import { importI8nTextFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 
 const importColumnGroupFromNKDKBase = (params: {
   context: ConfigurationContext
@@ -12,7 +12,7 @@ const importColumnGroupFromNKDKBase = (params: {
   const { context, name, title } = params
   return {
     itemType: CollectionFormElementType.ColumnGroup,
-    name,
+    name: importNameFromNKDK(name),
     title: importI8nTextFromNKDK(context, title ?? ""),
     childItems: [],
   }
