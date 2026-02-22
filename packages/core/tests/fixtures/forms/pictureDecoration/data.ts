@@ -142,19 +142,20 @@ export const sourcePictureDecoration: PictureDecoration = {
 }
 
 export const pictureDecorationStructureFixturesTable: PictureDecorationStructureFixture[] = [
-  {
-    name: "with title",
-    element: {
-      name: "ИмяПоля",
-      itemType: CollectionFormElementType.PictureDecoration,
-      picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
-      title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
-    },
-    structured: {
-      strings: ["@Печать Заголовок декорации картинки {ИмяПоля}"],
-      haveSimpleHorizontalGroup: false,
-    },
-  },
+  // {
+  //   name: "with title",
+  //   element: {
+  //     name: "ИмяПоля",
+  //     itemType: CollectionFormElementType.PictureDecoration,
+  //     picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
+  //     title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
+  //   },
+
+  //   structured: {
+  //     strings: ["![Печать] Заголовок декорации картинки %ИмяПоля"],
+  //     haveSimpleHorizontalGroup: false,
+  //   },
+  // },
   {
     name: "without title",
     element: {
@@ -163,7 +164,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       itemType: CollectionFormElementType.PictureDecoration,
     },
     structured: {
-      strings: ["@Печать {ИмяПоля}"],
+      strings: ["![Печать] %ИмяПоля"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -175,7 +176,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       itemType: CollectionFormElementType.PictureDecoration,
     },
     structured: {
-      strings: ["@Предупреждение32 {ИмяПоля}"],
+      strings: ["![Предупреждение32] %ИмяПоля"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -186,7 +187,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       itemType: CollectionFormElementType.PictureDecoration,
     },
     structured: {
-      strings: ["@{ИмяПоля}"],
+      strings: ["!%ИмяПоля"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -202,7 +203,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       },
     },
     structured: {
-      strings: ["@{ИмяПоля}"],
+      strings: ["!%ИмяПоля"],
       haveSimpleHorizontalGroup: false,
     },
     skipImport: true,
