@@ -2,15 +2,15 @@ import * as NKDK from "nkdk-language"
 import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { InputField } from "./types"
+import { PictureField } from "./types"
 
-export const importInputFieldFromNKDK = (params: {
+export const importPictureFieldFromNKDK = (params: {
   context: ConfigurationContext
-  source: NKDK.InputField
-}): InputField => {
+  source: NKDK.PictureField
+}): PictureField => {
   const { context, source } = params
-  const result: InputField = {
-    itemType: CollectionFormElementType.InputField,
+  const result: PictureField = {
+    itemType: CollectionFormElementType.PictureField,
     name: source.name,
     title: importI8nTextFromString({ context, value: source.title }),
   }

@@ -2,17 +2,18 @@ import * as NKDK from "nkdk-language"
 import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { InputField } from "./types"
+import { ButtonGroup } from "./types"
 
-export const importInputFieldFromNKDK = (params: {
+export const importCommandGroupFromNKDK = (params: {
   context: ConfigurationContext
-  source: NKDK.InputField
-}): InputField => {
+  source: NKDK.CommandGroup
+}): ButtonGroup => {
   const { context, source } = params
-  const result: InputField = {
-    itemType: CollectionFormElementType.InputField,
+  const result: ButtonGroup = {
+    itemType: CollectionFormElementType.ButtonGroup,
     name: source.name,
     title: importI8nTextFromString({ context, value: source.title }),
+    childItems: [],
   }
 
   return result

@@ -1,12 +1,12 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { AllChildItems } from "~/metadata/forms/commonObjects/childItems/types"
+import { AllChildItem } from "~/metadata/forms/commonObjects/childItems/types"
 import { importFromNKDKFn } from "./toNKDKFactory/types"
 
 export const importElementFromNKDK = (params: {
   context: ConfigurationContext
   value: NKDK.ChildItem
-}): AllChildItems => {
+}): AllChildItem => {
   const { context, value } = params
 
   const fn = importFromNKDKFn[value.$type]
@@ -14,7 +14,7 @@ export const importElementFromNKDK = (params: {
     throw new Error(`Unknown child item type: ${value.$type}`)
   }
 
-  const result = fn({ context, source: value })
+  const result = fn({ context, source: value as never })
 
-  return result
+  return result as AllChildItem
 }
