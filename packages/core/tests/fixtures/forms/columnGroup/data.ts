@@ -108,6 +108,9 @@ export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
 export const minimalColumnGroup: ColumnGroup = {
   itemType: CollectionFormElementType.ColumnGroup,
   name: "ГруппаКолонок",
+  title: {
+    items: { ru: "" },
+  },
   childItems: [],
 }
 

@@ -16,10 +16,10 @@ export const exportAutoCommandBarToNKDK = (params: {
   const { context, element } = params
   if (!element) return { strings: [], toOneLineGroup: false }
 
-  const buttonStrings = exportChildItemsContentToNKDK(context, element.childItems)
+  const childItems = exportChildItemsContentToNKDK(context, element.childItems)
   const autofill = element.autofill !== false
 
-  const content = formatContent(buttonStrings.strings, autofill)
+  const content = formatContent(childItems.strings, autofill)
 
   return {
     strings: [content],

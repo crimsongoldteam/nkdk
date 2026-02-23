@@ -3,7 +3,7 @@ import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { TableColumnSeparator } from "~/nkdk/terminal"
 import { exportChildItemsContentToNKDK } from "../../commonObjects/childItems/toNKDK"
-import { exportAutoCommandBarToStructure } from "../autoCommandBar/toNKDK"
+import { exportAutoCommandBarToNKDK } from "../autoCommandBar/toNKDK"
 import { Table } from "./types"
 
 export const exportTableToNKDK = (params: { context: ConfigurationContext; element: Table }): ToNKDKResult => {
@@ -14,16 +14,16 @@ export const exportTableToNKDK = (params: { context: ConfigurationContext; eleme
     toOneLineGroup: false,
   }
 
-  const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToNKDK({ context, element: element.autoCommandBar })
   result.strings.push(...autoCommandBar.strings)
 
-  const tableContent = exportTableContentToStructure(context, element)
+  const tableContent = exportTableContentToNKDK(context, element)
   result.strings.push(...tableContent.strings)
 
   return result
 }
 
-const exportTableContentToStructure = (context: ConfigurationContext, element: Table): ToNKDKResult => {
+const exportTableContentToNKDK = (context: ConfigurationContext, element: Table): ToNKDKResult => {
   const childItems = element.childItems ?? []
 
   const parts: string[] = []

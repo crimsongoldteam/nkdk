@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
+import { PopupPrefix } from "~/nkdk/terminal"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { Popup } from "./types"
 
-export function exportPopupContentToStructure(context: ConfigurationContext, element: Popup): ToNKDKResult {
-  const resultString = "+" + formatContent(context, element)
+export function exportPopupContentToNKDK(params: { context: ConfigurationContext; element: Popup }): ToNKDKResult {
+  const { context, element } = params
+  const resultString = PopupPrefix + formatContent(context, element)
   return {
     strings: [resultString],
     toOneLineGroup: false,
@@ -16,9 +16,3 @@ export function exportPopupContentToStructure(context: ConfigurationContext, ele
 const formatContent = (context: ConfigurationContext, element: Popup): string => {
   return formatElementTitleAndName(context, element)
 }
-
-registerElementOperation(
-  "ExportToStructureContent",
-  "Popup",
-  exportPopupContentToStructure as ExportToStructureContentFn
-)

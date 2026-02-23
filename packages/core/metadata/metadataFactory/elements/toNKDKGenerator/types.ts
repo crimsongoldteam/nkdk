@@ -1,14 +1,19 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, FormElementTypeAll } from "~/metadata/forms/elements/baseElement/types"
+import { exportButtonContentToNKDK, exportButtonToNKDK } from "~/metadata/forms/elements/button/toNKDK"
 import {
   exportCheckBoxFieldContentToNKDK,
   exportCheckBoxFieldToNKDK,
 } from "~/metadata/forms/elements/checkBoxField/toNKDK"
 import { exportColumnGroupContentToNKDK } from "~/metadata/forms/elements/columnGroup/toNKDK"
+import { exportCommandBarToNKDK } from "~/metadata/forms/elements/commandBar/toNKDK"
 import { exportInputFieldContentToNKDK, exportInputFieldToNKDK } from "~/metadata/forms/elements/inputField/toNKDK"
 import { exportLabelDecorationToNKDK } from "~/metadata/forms/elements/labelDecoration/toNKDK"
+import { exportLabelFieldContentToNKDK, exportLabelFieldToNKDK } from "~/metadata/forms/elements/labelField/toNKDK"
 import { exportPageToNKDK } from "~/metadata/forms/elements/page/toNKDK"
 import { exportPagesToNKDK } from "~/metadata/forms/elements/pages/toNKDK"
+import { exportPictureFieldContentToNKDK } from "~/metadata/forms/elements/pictureField/toNKDK"
+import { exportPopupContentToNKDK } from "~/metadata/forms/elements/popup/toNKDK"
 import { exportUsualGroupToNKDK } from "~/metadata/forms/elements/usualGroup/toNKDK"
 
 export interface ToNKDKResult {
@@ -26,16 +31,23 @@ export type ExportToNKDKFnMap = {
 }
 
 export const ExportToNKDKGeneratorFn = {
+  Button: exportButtonToNKDK,
   UsualGroup: exportUsualGroupToNKDK,
   InputField: exportInputFieldToNKDK,
+  LabelField: exportLabelFieldToNKDK,
   LabelDecoration: exportLabelDecorationToNKDK,
   Page: exportPageToNKDK,
   Pages: exportPagesToNKDK,
   CheckBoxField: exportCheckBoxFieldToNKDK,
+  CommandBar: exportCommandBarToNKDK,
 } satisfies ExportToNKDKFnMap
 
 export const ExportToNKDKContentGeneratorFn = {
+  Button: exportButtonContentToNKDK,
   InputField: exportInputFieldContentToNKDK,
+  LabelField: exportLabelFieldContentToNKDK,
+  PictureField: exportPictureFieldContentToNKDK,
   ColumnGroup: exportColumnGroupContentToNKDK,
+  Popup: exportPopupContentToNKDK,
   CheckBoxField: exportCheckBoxFieldContentToNKDK,
 } satisfies ExportToNKDKFnMap

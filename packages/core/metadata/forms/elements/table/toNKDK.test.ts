@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { tableStructureFixtures } from "~/tests/fixtures/forms/table/data"
 import { mockContextToYAML } from "~/tests/mockContext"
-import { exportTableToNKDK } from "./exportToStructure"
+import { exportTableToNKDK } from "./toNKDK"
 
 describe("exportTableToStructure", () => {
   it.each(tableStructureFixtures)("$name", ({ table, structure: expectedResult }) => {

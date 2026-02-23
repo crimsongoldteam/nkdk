@@ -25,8 +25,8 @@ import "./columnGroup/types"
 import "./contextMenu/rules"
 import "./contextMenu/types"
 
-import "./commandBar/exportToStructure"
 import "./commandBar/rules"
+import "./commandBar/toNKDK"
 import "./commandBar/types"
 
 import "./dendrogramField/rules"
@@ -80,8 +80,8 @@ import "./pictureDecoration/exportToStructure"
 import "./pictureDecoration/rules"
 import "./pictureDecoration/types"
 
-import "./pictureField/exportToStructure"
 import "./pictureField/rules"
+import "./pictureField/toNKDK"
 import "./pictureField/types"
 
 import "./plannerField/rules"
@@ -108,8 +108,8 @@ import "./searchStringAddition/types"
 import "./spreadSheetDocumentField/rules"
 import "./spreadSheetDocumentField/types"
 
-import "./table/exportToStructure"
 import "./table/rules"
+import "./table/toNKDK"
 import "./table/types"
 
 import "./textDocumentField/rules"
