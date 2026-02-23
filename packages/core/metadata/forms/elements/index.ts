@@ -54,16 +54,16 @@ import "./inputField/rules"
 import "./inputField/toNKDK"
 import "./inputField/types"
 
-import "./labelDecoration/exportToStructure"
 import "./labelDecoration/rules"
+import "./labelDecoration/toNKDK"
 import "./labelDecoration/types"
 
 import "./labelField/exportToStructure"
 import "./labelField/rules"
 import "./labelField/types"
 
-import "./page/exportToStructure"
 import "./page/rules"
+import "./page/toNKDK"
 import "./page/types"
 
 import "./pages/exportToStructure"

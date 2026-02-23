@@ -9,7 +9,7 @@ import {
   VerticalGroupPrefix,
 } from "~/nkdk/lexer"
 import { exportChildItemsToNKDK } from "../../commonObjects/childItems/exportToStructure"
-import { formatElementTitleAndName } from "../../format/helpers"
+import { formatElementName, formatElementTitleAndName } from "../../format/helpers"
 import { UsualGroup } from "./types"
 
 export const exportUsualGroupToNKDK = (params: {
@@ -25,7 +25,7 @@ export const formatUsualGroup = (context: ConfigurationContext, element: UsualGr
 
   const header = getHeader(context, element)
 
-  if (chiltItems.toOneLineGroup) {
+  if (isOneLineGroup(element, chiltItems)) {
     return formatOneLineGroup(header, chiltItems.strings)
   }
 
@@ -37,18 +37,29 @@ export const formatUsualGroup = (context: ConfigurationContext, element: UsualGr
   }
 }
 
+const isOneLineGroup = (element: UsualGroup, childItems: ToNKDKResult): boolean => {
+  return element.group !== "Vertical" && childItems.toOneLineGroup
+}
+
 function formatOneLineGroup(header: string, childItems: string[]): ToNKDKResult {
   const joinedItems = joinLines(childItems, OneLineGroupSeparator)
-  const resultLine = joinLines([header, joinedItems], " ")
+  const resultLine = joinLines([header, joinedItems], " ").trim()
   return {
     strings: [resultLine],
     toOneLineGroup: false,
   }
 }
 
+// Правила отображения заголовков
+// Если установлено показывать заголовок, то отображаем заголовок даже если он пустой
+// Если установлено не показывать заголовок, то не отображаем заголовок, а передаем его в YAML
+
 const getHeader = (context: ConfigurationContext, element: UsualGroup): string => {
   const prefix = getGroupPrefix(element.group)
-  return prefix + formatElementTitleAndName(context, element, true)
+
+  const title = element.showTitle ? formatElementTitleAndName(context, element, true) : formatElementName(element)
+
+  return prefix + title
 }
 
 function getGroupPrefix(group: SE.ChildFormItemsGroup): string {

@@ -4,3 +4,5 @@ export const VerticalGroupPrefix = "+"
 export const OneLineGroupSeparator = "; "
 
 export const InputFieldSeparator = ": "
+
+export const TableColumnSeparator = "|"

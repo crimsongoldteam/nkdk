@@ -1,44 +1,40 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
-import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { FormatElementFunction } from "~/metadata/forms/format/types"
-import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"
-import {
-  getElementOperationFunction,
-  registerElementOperation,
-} from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
+import { TableColumnSeparator } from "~/nkdk/lexer"
+import { exportChildItemsToNKDK } from "../../commonObjects/childItems/exportToStructure"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
-import { NamedElement } from "../baseElement/types"
 import { Table } from "./types"
 
-const V_BAR = t.VBar.LABEL as string
+export const exportTableToNKDK = (params: { context: ConfigurationContext; element: Table }): ToNKDKResult => {
+  const { context, element } = params
 
-const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
-  const exportContentFunction = getElementOperationFunction("ExportToStructureContent", column.itemType)
-  if (exportContentFunction) {
-    const result = exportContentFunction(context, column) as ToNKDKResult
-    return result.strings[0] || formatElementName(column)
+  const result: ToNKDKResult = {
+    strings: [],
+    toOneLineGroup: false,
   }
 
-  return formatElementTitleAndName(context, column)
+  const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
+  result.strings.push(...autoCommandBar.strings)
+
+  const tableContent = exportTableContentToStructure(context, element)
+  result.strings.push(...tableContent.strings)
+
+  return result
 }
 
-export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): ToNKDKResult => {
+const exportTableContentToStructure = (context: ConfigurationContext, element: Table): ToNKDKResult => {
   const childItems = element.childItems ?? []
 
   const parts: string[] = []
 
-  for (const column of childItems) {
-    const columnFormatted = formatTableColumn(context, column)
-    parts.push(columnFormatted)
-  }
+  const columns = exportChildItemsToNKDK(context, childItems)
+  parts.push(...columns.strings)
 
   const tableName = formatElementName(element)
   parts.push(tableName)
 
-  const resultString = V_BAR + " " + parts.join(" | ")
+  const resultString = TableColumnSeparator + " " + parts.join(" " + TableColumnSeparator + " ")
 
   return {
     strings: [resultString],
@@ -46,30 +42,12 @@ export const exportTableContentToStructure = (context: ConfigurationContext, ele
   }
 }
 
-export const exportTableToStructure: FormatElementFunction = (
-  context: ConfigurationContext,
-  element: NamedElement | undefined
-): ToNKDKResult => {
-  const table = element as Table
+// const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
+//   const exportContentFunction = getElementOperationFunction("ExportToStructureContent", column.itemType)
+//   if (exportContentFunction) {
+//     const result = exportContentFunction(context, column) as ToNKDKResult
+//     return result.strings[0] || formatElementName(column)
+//   }
 
-  const result: ToNKDKResult = {
-    strings: [],
-    toOneLineGroup: false,
-  }
-
-  const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)
-  result.strings.push(...autoCommandBar.strings)
-
-  const tableContent = exportTableContentToStructure(context, table)
-  result.strings.push(...tableContent.strings)
-
-  return result
-}
-
-registerIsOneLineElementCheck(CollectionFormElementType.Table, () => false)
-registerElementOperation(
-  "ExportToStructureContent",
-  "Table",
-  exportTableContentToStructure as ExportToStructureContentFn
-)
-registerElementOperation("ExportToStructure", "Table", exportTableToStructure as ExportToStructureFn)
+//   return formatElementTitleAndName(context, column)
+// }
