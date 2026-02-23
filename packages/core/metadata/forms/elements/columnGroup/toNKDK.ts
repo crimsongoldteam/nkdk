@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ColumnGroupPrefix } from "~/nkdk/terminal"
 import { ColumnGroup } from "./types"
-import { ColumnGroupPrefix } from "~/nkdk/lexer"
 
 export const exportColumnGroupContentToNKDK = (params: {
   context: ConfigurationContext

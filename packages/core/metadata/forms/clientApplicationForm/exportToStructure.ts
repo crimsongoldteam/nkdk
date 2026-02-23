@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { exportChildItemsToNKDK } from "../commonObjects/childItems/toNKDK"
-import { exportAutoCommandBarToStructure } from "../elements/autoCommandBar/exportToStructure"
+import { exportAutoCommandBarToStructure } from "../elements/autoCommandBar/toNKDK"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToStructure = (

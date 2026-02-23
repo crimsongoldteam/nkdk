@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { addIndentation } from "~/nkdk/helper"
-import { PagesPrefix } from "~/nkdk/lexer"
+import { PagesPrefix } from "~/nkdk/terminal"
 import { exportChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { Pages } from "./types"

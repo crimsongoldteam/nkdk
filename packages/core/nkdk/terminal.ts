@@ -15,3 +15,8 @@ export const ColumnGroupPrefix = "-"
 export const CheckBoxFieldPrefix = "[ ]"
 export const CheckBoxFieldSwitchPrefix = "[ | ]"
 export const CheckBoxFieldTumblerPrefix = "< | >"
+
+export const AutoCommandBarPrefix = "<<"
+export const AutoCommandBarAutofillPrefix = "..."
+export const AutoCommandBarSeparator = " | "
+export const AutoCommandBarSuffix = ">>"

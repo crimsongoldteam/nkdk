@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { TableColumnSeparator } from "~/nkdk/lexer"
-import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
-import { Table } from "./types"
+import { TableColumnSeparator } from "~/nkdk/terminal"
 import { exportChildItemsContentToNKDK } from "../../commonObjects/childItems/toNKDK"
+import { exportAutoCommandBarToStructure } from "../autoCommandBar/toNKDK"
+import { Table } from "./types"
 
 export const exportTableToNKDK = (params: { context: ConfigurationContext; element: Table }): ToNKDKResult => {
   const { context, element } = params

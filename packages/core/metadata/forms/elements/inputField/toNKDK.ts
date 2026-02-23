@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatDefaultLanguageText, formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { InputFieldSeparator } from "~/nkdk/lexer"
+import { InputFieldSeparator } from "~/nkdk/terminal"
 import { InputField } from "./types"
 
 export const exportInputFieldToNKDK = (params: {

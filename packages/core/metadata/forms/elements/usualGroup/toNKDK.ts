@@ -7,7 +7,7 @@ import {
   HorizontalIfPossibleGroupPrefix,
   OneLineGroupSeparator,
   VerticalGroupPrefix,
-} from "~/nkdk/lexer"
+} from "~/nkdk/terminal"
 import { exportChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
 import { formatElementName, formatElementTitleAndName } from "../../format/helpers"
 import { UsualGroup } from "./types"

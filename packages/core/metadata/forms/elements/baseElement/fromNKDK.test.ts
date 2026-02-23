@@ -5,7 +5,7 @@ import { mockContext } from "~/tests/mockContext"
 
 describe("import other field from structure", () => {
   it("should import other element from structure", async () => {
-    const result = await testImportElementFromNKDK(mockContext, "?ПолеПереключателя {ИмяПоля}")
+    const result = await testImportElementFromNKDK(mockContext, "?ПолеПереключателя %ИмяПоля")
 
     expect(result).toEqual({
       itemType: CollectionFormElementType.RadioButtonField,
