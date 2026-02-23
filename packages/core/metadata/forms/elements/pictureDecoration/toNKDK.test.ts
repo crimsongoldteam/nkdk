@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { pictureDecorationStructureFixturesTable } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportPictureDecorationToStructure } from "./exportToStructure"
+import { exportPictureDecorationToNKDK } from "./toNKDK"
 
-describe("exportPictureDecorationToStructure", () => {
+describe("exportPictureDecorationToNKDK", () => {
   it.each(pictureDecorationStructureFixturesTable)(
     "should export input field $name",
     ({ element: input, structured: expected }) => {
-      const result = exportPictureDecorationToStructure(mockContext, input)
+      const result = exportPictureDecorationToNKDK({ context: mockContext, element: input })
       expect(result).toEqual(expected)
     }
   )

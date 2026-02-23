@@ -7,9 +7,9 @@ import {
 } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { exportOtherElementToNKDK } from "../../elements/baseElement/exportToStructure"
 import { FormElementTypeAll } from "../../elements/baseElement/types"
-import { AllChildItem, CommandBarChildItem, TableChildItem } from "./types"
+import { CommandBarChildItem, GenerateChildItem, TableChildItem } from "./types"
 
-export const exportChildItemsToNKDK = <From extends AllChildItem>(
+export const exportChildItemsToNKDK = <From extends GenerateChildItem>(
   context: ConfigurationContext,
   items: From[]
 ): ToNKDKResult => {

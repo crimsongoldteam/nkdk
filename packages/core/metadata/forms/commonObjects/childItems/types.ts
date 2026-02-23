@@ -224,7 +224,24 @@ export type OtherElement =
   | SpreadSheetDocumentField
   | TextDocumentField
   | TrackBarField
+  | SearchStringAddition
+  | SearchControlAddition
+  | PictureField
 
 export type OtherElementElementType = OtherElement extends { itemType: infer ItemType } ? ItemType : never
+
+export type GenerateChildItem =
+  | Button
+  | CheckBoxField
+  | CommandBar
+  | InputField
+  | LabelDecoration
+  | LabelField
+  | Page
+  | Pages
+  | PictureDecoration
+  | Table
+  | UsualGroup
+  | OtherElement
 
 // #endregion

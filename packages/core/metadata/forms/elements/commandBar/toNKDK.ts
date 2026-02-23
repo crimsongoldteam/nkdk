@@ -2,6 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { CommandBarPrefix, CommandBarSeparator, CommandBarSuffix } from "~/nkdk/terminal"
 import { exportCommandBarChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
+import { formatElementName } from "../../format/helpers"
 import { CommandBar } from "./types"
 
 export const exportCommandBarToNKDK = (params: {
@@ -13,16 +14,11 @@ export const exportCommandBarToNKDK = (params: {
 
   const childItems = exportCommandBarChildItemsToNKDK(context, element.childItems)
 
-  const content = formatContent(childItems.strings)
+  const content = childItems.strings.length > 0 ? childItems.strings.join(CommandBarSeparator) : ""
 
+  const name = formatElementName(element)
   return {
-    strings: [content],
-    toOneLineGroup: false,
+    strings: [`${CommandBarPrefix}${content}${CommandBarSuffix} ${name}`],
+    toOneLineGroup: true,
   }
-}
-
-export const formatContent = (buttonStrings: string[]): string => {
-  const content = buttonStrings.length > 0 ? buttonStrings.join(CommandBarSeparator) : ""
-
-  return `${CommandBarPrefix}${content}${CommandBarSuffix}`
 }

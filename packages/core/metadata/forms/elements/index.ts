@@ -76,8 +76,8 @@ import "./pdfDocumentField/types"
 import "./periodField/rules"
 import "./periodField/types"
 
-import "./pictureDecoration/exportToStructure"
 import "./pictureDecoration/rules"
+import "./pictureDecoration/toNKDK"
 import "./pictureDecoration/types"
 
 import "./pictureField/rules"

@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { AllChildItems } from "~/metadata/forms/commonObjects/childItems/types"
-import { BaseElement, FormElementTypeAll } from "~/metadata/forms/elements/baseElement/types"
+import { CommandBarChildItem, GenerateChildItem, TableChildItem } from "~/metadata/forms/commonObjects/childItems/types"
+import { exportOtherElementToNKDK } from "~/metadata/forms/elements/baseElement/exportToStructure"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportButtonContentToNKDK, exportButtonToNKDK } from "~/metadata/forms/elements/button/toNKDK"
 import { exportButtonGroupContentToNKDK } from "~/metadata/forms/elements/buttonGroup/toNKDK"
 import {
@@ -14,8 +15,10 @@ import { exportLabelDecorationToNKDK } from "~/metadata/forms/elements/labelDeco
 import { exportLabelFieldContentToNKDK, exportLabelFieldToNKDK } from "~/metadata/forms/elements/labelField/toNKDK"
 import { exportPageToNKDK } from "~/metadata/forms/elements/page/toNKDK"
 import { exportPagesToNKDK } from "~/metadata/forms/elements/pages/toNKDK"
+import { exportPictureDecorationToNKDK } from "~/metadata/forms/elements/pictureDecoration/toNKDK"
 import { exportPictureFieldContentToNKDK } from "~/metadata/forms/elements/pictureField/toNKDK"
 import { exportPopupContentToNKDK } from "~/metadata/forms/elements/popup/toNKDK"
+import { exportTableToNKDK } from "~/metadata/forms/elements/table/toNKDK"
 import { exportUsualGroupToNKDK } from "~/metadata/forms/elements/usualGroup/toNKDK"
 
 export interface ToNKDKResult {
@@ -25,10 +28,10 @@ export interface ToNKDKResult {
 
 export type ExportToNKDKFn = (params: { context: ConfigurationContext; element: BaseElement }) => ToNKDKResult
 
-export type ExportToNKDKFnMap = {
-  [K in FormElementTypeAll]: (params: {
+export type ExportToNKDKFnMap<T extends { itemType: string } = BaseElement> = {
+  [K in T["itemType"]]: (params: {
     context: ConfigurationContext
-    element: Extract<AllChildItems, { itemType: K }>
+    element: Extract<T, { itemType: K }>
   }) => ToNKDKResult
 }
 
@@ -42,7 +45,28 @@ export const ExportToNKDKGeneratorFn = {
   Pages: exportPagesToNKDK,
   CheckBoxField: exportCheckBoxFieldToNKDK,
   CommandBar: exportCommandBarToNKDK,
-} satisfies ExportToNKDKFnMap
+  CalendarField: exportOtherElementToNKDK,
+  ChartField: exportOtherElementToNKDK,
+  DendrogramField: exportOtherElementToNKDK,
+  FormattedDocumentField: exportOtherElementToNKDK,
+  GanttChartField: exportOtherElementToNKDK,
+  GeographicalSchemaField: exportOtherElementToNKDK,
+  GraphicalSchemaField: exportOtherElementToNKDK,
+  HTMLDocumentField: exportOtherElementToNKDK,
+  PDFDocumentField: exportOtherElementToNKDK,
+  PeriodField: exportOtherElementToNKDK,
+  PictureDecoration: exportPictureDecorationToNKDK,
+  PictureField: exportOtherElementToNKDK,
+  PlannerField: exportOtherElementToNKDK,
+  ProgressBarField: exportOtherElementToNKDK,
+  RadioButtonField: exportOtherElementToNKDK,
+  SpreadSheetDocumentField: exportOtherElementToNKDK,
+  Table: exportTableToNKDK,
+  TextDocumentField: exportOtherElementToNKDK,
+  TrackBarField: exportOtherElementToNKDK,
+  SearchStringAddition: exportOtherElementToNKDK,
+  SearchControlAddition: exportOtherElementToNKDK,
+} satisfies ExportToNKDKFnMap<GenerateChildItem>
 
 export const ExportToNKDKTableChildItemsGeneratorFn = {
   InputField: exportInputFieldContentToNKDK,
@@ -50,10 +74,12 @@ export const ExportToNKDKTableChildItemsGeneratorFn = {
   PictureField: exportPictureFieldContentToNKDK,
   ColumnGroup: exportColumnGroupContentToNKDK,
   CheckBoxField: exportCheckBoxFieldContentToNKDK,
-} satisfies ExportToNKDKFnMap
+} satisfies ExportToNKDKFnMap<TableChildItem>
 
 export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
   Button: exportButtonContentToNKDK,
   Popup: exportPopupContentToNKDK,
   ButtonGroup: exportButtonGroupContentToNKDK,
-} satisfies ExportToNKDKFnMap
+  SearchStringAddition: exportOtherElementToNKDK,
+  SearchControlAddition: exportOtherElementToNKDK,
+} satisfies ExportToNKDKFnMap<CommandBarChildItem>

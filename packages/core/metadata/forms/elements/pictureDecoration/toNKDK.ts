@@ -5,10 +5,11 @@ import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerato
 import { formatElementTitleAndName } from "../../format/helpers"
 import { PictureDecoration } from "./types"
 
-export const exportPictureDecorationToStructure = (
-  context: ConfigurationContext,
+export const exportPictureDecorationToNKDK = (params: {
+  context: ConfigurationContext
   element: PictureDecoration
-): ToNKDKResult => {
+}): ToNKDKResult => {
+  const { context, element } = params
   const picture: PictureYAML | undefined = exportPictureToYAML(context, undefined, element.picture)
 
   const pictureString = typeof picture === "string" ? picture : ""
