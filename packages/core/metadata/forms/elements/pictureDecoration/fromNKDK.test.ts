@@ -7,7 +7,7 @@ describe("importPictureDecorationFromStructure", () => {
   it.each(pictureDecorationStructureFixturesTable.filter((tc) => !tc.skipImport))(
     "should import picture decoration $name",
     async ({ element: input, structured }) => {
-      const result = await testImportElementFromNKDK(mockContext, structured)
+      const result = await testImportElementFromNKDK(mockContext, structured.strings)
 
       expect(result).toEqual(input)
     }

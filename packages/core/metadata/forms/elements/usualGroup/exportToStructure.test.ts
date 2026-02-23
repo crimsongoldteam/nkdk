@@ -7,6 +7,6 @@ describe("exportUsualGroupToStructure", () => {
   it.each(usualGroupStructureFixtures)("should format $name", ({ element, structured }) => {
     const result = exportUsualGroupToStructure(mockContext, element)
 
-    expect(result.join("\n")).toEqual(structured)
+    expect(result).toEqual(structured.strings)
   })
 })

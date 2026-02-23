@@ -20,9 +20,9 @@ export const formatHorizontalGroup = (context: ConfigurationContext, element: Us
     haveSimpleHorizontalGroup: false,
   }
 
-  let verticalGroups: ToNKDKResult[] = getVerticalItems(context, element)
+  let verticalGroups: string[][] = getVerticalItems(context, element)
 
-  result.push(...verticalGroups.flat())
+  result.strings.push(...verticalGroups.flat())
   return result
 }
 
@@ -39,7 +39,7 @@ const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): s
     } else {
       formattedItem = exportFunction(context, item) as ToNKDKResult
     }
-    result.push(addSimpleIndent(formattedItem))
+    result.push(addSimpleIndent(formattedItem.strings))
   }
   return result
 }

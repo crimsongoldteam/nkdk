@@ -29,6 +29,6 @@ describe("exportPagesToStructure", () => {
 
     const result = exportPagesToStructure(mockContext, mockElement)
 
-    expect(result.join("\n")).toEqual(expectedResult)
+    expect(result.strings.join("\n")).toEqual(expectedResult)
   })
 })

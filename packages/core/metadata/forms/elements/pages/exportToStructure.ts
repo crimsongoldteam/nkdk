@@ -21,13 +21,14 @@ export const exportPagesToStructure = (context: ConfigurationContext, element: P
   }
 
   const header = getHeader(pagesElement)
-  result.push(header)
+  result.strings.push(header)
 
   const childResult = exportChildItemsToStructure(context, childItems)
 
-  const indentedStrings = addSimpleIndent(childResult)
+  const indentedStrings = addSimpleIndent(childResult.strings)
 
-  result.push(...indentedStrings)
+  result.strings.push(...indentedStrings)
+  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup
   return result
 }
 

@@ -12,7 +12,7 @@ import {
   ClientApplicationFormYAML,
   FormMetadataXML,
 } from "~/metadata/forms/clientApplicationForm/types"
-import { importChildItemsFromStructure } from "~/metadata/forms/commonObjects/childItems/importFromStructure"
+import { importChildItemsFromNKDK } from "~/metadata/forms/index"
 import { xmlExport } from "~/xml/export/exporter"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
@@ -74,13 +74,13 @@ describe.skip("DO test", () => {
     const yamlObject = exportClientApplicationFormToYAML(configurationContext, form)
     const yaml = exportToYAML(yamlObject)
     const structuredObject = exportClientApplicationFormToStructure(configurationContext, form)
-    const strings = structuredObject.join("\n")
+    const strings = structuredObject.strings.join("\n")
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
     writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
 
     const sourceForm: ClientApplicationForm = {
       itemType: "ClientApplicationForm",
-      ...importChildItemsFromStructure(configurationContext, strings)!,
+      ...importChildItemsFromNKDK({ context: configurationContext, value: structuredObject.strings }),
       commands: [],
     }
 

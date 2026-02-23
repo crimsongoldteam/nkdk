@@ -5,6 +5,7 @@ import {
   UsualGroupPartialYAML,
   UsualGroupTypedYAML,
 } from "~/metadata/forms/elements/usualGroup/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullUsualGroup: Required<UsualGroup> = {
@@ -183,7 +184,7 @@ export const minimalUsualGroupTypedYAML: UsualGroupTypedYAML = {
 export interface StructureFixture<T> {
   name: string
   element: T
-  structured: string
+  structured: ToNKDKResult
 }
 
 export type StructureFixturesTable<T> = StructureFixture<T>[]
@@ -207,7 +208,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `=%Группа %Элемент1: ; %Элемент2: `,
+    structured: {
+      strings: ["=%Группа %Элемент1: ; %Элемент2: "],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "one-line group with title",
@@ -228,7 +232,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `=Заголовок группы %Группа %Элемент1: ; %Элемент2: `,
+    structured: {
+      strings: ["=Заголовок группы %Группа %Элемент1: ; %Элемент2: "],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "one-line group with empty title",
@@ -249,7 +256,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `="" %Группа %Элемент1: ; %Элемент2: `,
+    structured: {
+      strings: [`="" %Группа %Элемент1: ; %Элемент2: `],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "horizontal group",
@@ -277,10 +287,15 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `=%Группа
+    structured: {
+      strings: [
+        `=%Группа
   +%ВертикальнаяГруппа1
     %Элемент1: 
   %Элемент2: `,
+      ],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "horizontal (if possible) group",
@@ -308,10 +323,15 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `-%Группа
+    structured: {
+      strings: [
+        `-%Группа
   +%ВертикальнаяГруппа1
     %Элемент1: 
   %Элемент2: `,
+      ],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "one-line group (if possible) without title",
@@ -331,7 +351,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `-%Группа %Элемент1: ; %Элемент2: `,
+    structured: {
+      strings: [`-%Группа %Элемент1: ; %Элемент2: `],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "one-line group (if possible) with title",
@@ -352,7 +375,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `-Заголовок группы %Группа %Элемент1: ; %Элемент2: `,
+    structured: {
+      strings: [`-Заголовок группы %Группа %Элемент1: ; %Элемент2: `],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "one-line group (if possible) with empty title",
@@ -373,7 +399,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `-"" {Группа}% {Элемент1}: ; {Элемент2}: `,
+    structured: {
+      strings: [`-"" {Группа}% {Элемент1}: ; {Элемент2}: `],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "vertical group",
@@ -394,9 +423,14 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     },
-    structured: `+Заголовок группы %Группа
+    structured: {
+      strings: [
+        `+Заголовок группы %Группа
   %Элемент1: 
   %Элемент2: `,
+      ],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "empty horizontal group",
@@ -407,7 +441,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [],
       showTitle: false,
     },
-    structured: `=%Группа`,
+    structured: {
+      strings: [`=%Группа`],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "empty vertical group",
@@ -418,7 +455,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [],
       showTitle: false,
     },
-    structured: `+%Группа`,
+    structured: {
+      strings: [`+%Группа`],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "empty horizontal (if possible) group",
@@ -429,6 +469,9 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [],
       showTitle: false,
     },
-    structured: `-%Группа`,
+    structured: {
+      strings: [`-%Группа`],
+      haveSimpleHorizontalGroup: false,
+    },
   },
 ]

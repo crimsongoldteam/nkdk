@@ -1,7 +1,7 @@
 export { exportFormMetadataToXML } from "./clientApplicationForm/toXML"
 export type { FormMetadataXML } from "./clientApplicationForm/types"
 
-export { importChildItemsFromStructure } from "./commonObjects/childItems/importFromStructure"
+export { importChildItemsFromNKDK } from "./commonObjects/childItems/fromNKDK"
 
 export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/ruleFactory"
 export type { ElementRule } from "../metadataFactory/elements/types"
