@@ -1,3 +1,4 @@
+import { readFile } from "fs/promises"
 import { parse } from "yaml"
 
 const convertNullToUndefined = <T>(value: T): T => {
@@ -25,4 +26,9 @@ const convertNullToUndefined = <T>(value: T): T => {
 export const importFromYAML = <T>(data: string): T => {
   const parsed = parse(data) as T
   return convertNullToUndefined(parsed)
+}
+
+export const importFromYAMLFile = async <T>(filePath: string): Promise<T> => {
+  const data = await readFile(filePath, "utf-8")
+  return importFromYAML(data)
 }
