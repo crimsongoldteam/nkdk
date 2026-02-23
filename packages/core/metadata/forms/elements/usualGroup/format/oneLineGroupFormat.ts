@@ -16,7 +16,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
 
   let result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   let groupItems: string[][] = []

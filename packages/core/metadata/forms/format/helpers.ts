@@ -4,7 +4,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 
 export const formatElementName = (element: { name: string }) => {
   // return ""
-  return "{" + element.name + "}"
+  return "%" + element.name
 }
 
 export const formatDefaultLanguageText = (

@@ -11,7 +11,7 @@ export const exportClientApplicationFormToStructure = (
   const childItems = element.childItems ?? []
   const result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
@@ -19,7 +19,7 @@ export const exportClientApplicationFormToStructure = (
 
   const itemsResult = exportChildItemsToStructure(context, childItems)
   result.strings.push(...itemsResult.strings)
-  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
+  result.toOneLineGroup = result.toOneLineGroup || itemsResult.toOneLineGroup
 
   return result
 }

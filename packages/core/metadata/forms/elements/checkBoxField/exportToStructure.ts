@@ -10,7 +10,7 @@ export const exportCheckBoxFieldToStructure = (context: ConfigurationContext, el
 
   return {
     strings: [result],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 
@@ -22,7 +22,7 @@ export const exportCheckBoxFieldContentToStructure = (
 
   return {
     strings: [result],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

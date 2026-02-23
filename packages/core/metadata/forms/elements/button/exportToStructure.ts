@@ -11,7 +11,7 @@ export function exportButtonToStructure(context: ConfigurationContext, element: 
   const resultString = wrapButtonContent(formatContent(context, element))
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 
@@ -19,7 +19,7 @@ export function exportButtonContentToStructure(context: ConfigurationContext, el
   const resultString = formatContent(context, element)
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

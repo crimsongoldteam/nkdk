@@ -69,7 +69,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<<... | Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -92,7 +92,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<<Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -104,7 +104,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<<...>>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
 
@@ -117,7 +117,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<<>>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -145,7 +145,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3>>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
 
@@ -165,7 +165,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<< -Группа кнопок %ГруппаКнопок1 >>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
 
@@ -185,7 +185,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<< +Выпадающее меню %Меню >>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -203,7 +203,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<< ?УправлениеПоиском %Дополнение >>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -220,7 +220,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     },
     structured: {
       strings: ["<< ?ОтображениеСтрокиПоиска %Дополнение >>"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
 ]

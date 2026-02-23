@@ -189,7 +189,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["Заголовок флажка [ ] %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -201,7 +201,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["%Флажок [ ]"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -214,7 +214,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["[ ] Заголовок флажка %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -227,7 +227,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["[ ] %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   // #endregion
@@ -242,7 +242,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["Заголовок флажка [ | ] %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -255,7 +255,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["%Флажок [ | ]"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -269,7 +269,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["[ | ] Заголовок флажка %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -283,7 +283,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["[ | ] %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   // #endregion
@@ -298,7 +298,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["Заголовок флажка <|> %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -311,7 +311,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["%Флажок <|>"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -325,7 +325,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["<|> Заголовок флажка %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -339,7 +339,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     },
     structured: {
       strings: ["<|> %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   // #endregion
@@ -355,7 +355,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
     },
     structured: {
       strings: ["[ ] Заголовок флажка %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -367,7 +367,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
     },
     structured: {
       strings: ["[ ] %Флажок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
 ]

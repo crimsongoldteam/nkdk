@@ -165,7 +165,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     },
     structured: {
       strings: ["![Печать] %ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -177,7 +177,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     },
     structured: {
       strings: ["![Предупреждение32] %ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -188,7 +188,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     },
     structured: {
       strings: ["!%ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -204,7 +204,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     },
     structured: {
       strings: ["!%ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
     skipImport: true,
   },

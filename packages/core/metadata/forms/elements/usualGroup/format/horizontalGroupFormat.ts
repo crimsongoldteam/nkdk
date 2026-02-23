@@ -17,7 +17,7 @@ export const formatHorizontalGroup = (context: ConfigurationContext, element: Us
       : horizontalGroupPrefix
   let result: ToNKDKResult = {
     strings: [prefix + formatElementName(element)],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   let verticalGroups: string[][] = getVerticalItems(context, element)

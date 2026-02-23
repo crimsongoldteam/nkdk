@@ -17,7 +17,7 @@ export const exportPageToStructure = (context: ConfigurationContext, element: Na
 
   const result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   const header = getHeader(context, pageElement)
@@ -26,7 +26,7 @@ export const exportPageToStructure = (context: ConfigurationContext, element: Na
   const childResult = exportChildItemsToStructure(context, childItems)
   const indentedStrings = addSimpleIndent(childResult.strings)
   result.strings.push(...indentedStrings)
-  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup
+  result.toOneLineGroup = result.toOneLineGroup || childResult.toOneLineGroup
   return result
 }
 

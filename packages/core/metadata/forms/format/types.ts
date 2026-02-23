@@ -15,7 +15,7 @@ export interface IFormatterParams {
 
 export interface ToNKDKResult {
   strings: string[]
-  haveSimpleHorizontalGroup: boolean
+  toOneLineGroup: boolean
 }
 
 export type FormatElementFunction = (context: ConfigurationContext, element: NamedElement) => ToNKDKResult

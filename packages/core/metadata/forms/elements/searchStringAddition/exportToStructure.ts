@@ -12,7 +12,7 @@ export function exportSearchStringAdditionContentToStructure(
   const resultString = "?ОтображениеСтрокиПоиска " + formatElementName(element)
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

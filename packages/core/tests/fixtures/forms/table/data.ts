@@ -549,7 +549,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: inputColumnTable,
     structure: {
       strings: ["| Колонка 1 %Колонка1 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -557,7 +557,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: checkboxColumnTable,
     structure: {
       strings: ["| [ ] Флажок %Колонка1 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -565,7 +565,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: labelColumnTable,
     structure: {
       strings: ["| ~{Колонка1} | {Таблица1}"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -573,7 +573,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: pictureColumnTable,
     structure: {
       strings: ["| !{Колонка1} | {Таблица1}"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -581,7 +581,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: columnGroupTable,
     structure: {
       strings: ["| -%Колонка1 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -589,7 +589,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: columnGroupTable,
     structure: {
       strings: ["| +%Колонка1 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -597,7 +597,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: columnGroupTable,
     structure: {
       strings: ["| =%Колонка1 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -605,7 +605,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: twoColumnTable,
     structure: {
       strings: ["| Колонка 1 %Колонка1 | Колонка 2 %Колонка2 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -613,7 +613,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     table: tableWithAutoCommandBar,
     structure: {
       strings: ["<<... | Кнопка 1 %КнопкаТаблицы>>", "| Колонка таблицы 1 %Колонка1 | %Таблица1"],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
 ]

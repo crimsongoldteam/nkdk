@@ -34,7 +34,7 @@ export const exportInputFieldToNKDK = (params: {
 
   let result: ToNKDKResult = {
     strings: [header + value + namePart],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   // result.push(...getMultilineString(element, header.length, value.length))

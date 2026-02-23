@@ -134,7 +134,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     },
     structured: {
       strings: ["Заголовок %ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -146,7 +146,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     },
     structured: {
       strings: ["%ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
 
@@ -159,7 +159,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     },
     structured: {
       strings: ['"Заголовок ""формы""" %ИмяПоля'],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
 ]

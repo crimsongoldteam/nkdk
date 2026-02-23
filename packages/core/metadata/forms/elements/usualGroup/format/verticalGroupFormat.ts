@@ -9,7 +9,7 @@ import { UsualGroup } from "../types"
 export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): ToNKDKResult => {
   let result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
   const childItems = element.childItems ?? []
 
@@ -22,7 +22,7 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || lines.haveSimpleHorizontalGroup
+    result.toOneLineGroup = result.toOneLineGroup || lines.toOneLineGroup
   }
 
   // result.push(...formatElements(element.childItems))

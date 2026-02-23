@@ -7,7 +7,7 @@ describe("importCommandBarFromStructure", () => {
   it.each(commandBarStructureFixturesTable)(
     "should import command bar $name",
     async ({ element: input, structured }) => {
-      const result = await testImportElementFromNKDK(mockContext, structured)
+      const result = await testImportElementFromNKDK(mockContext, structured.strings)
 
       expect(result).toEqual(input)
     }

@@ -10,7 +10,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
 ): ToNKDKResult => {
   let result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   // const separatedItems: readonly (
@@ -48,7 +48,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
       : exportOtherElementToStructure(context, item as OtherElement)
 
     result.strings.push(...text.strings)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    result.toOneLineGroup = result.toOneLineGroup || text.toOneLineGroup
   }
   return result
 }

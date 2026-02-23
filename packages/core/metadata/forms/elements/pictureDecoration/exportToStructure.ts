@@ -14,8 +14,8 @@ export const exportPictureDecorationToStructure = (
   const pictureString = typeof picture === "string" ? picture : ""
 
   const result: ToNKDKResult = {
-    strings: ["@" + (pictureString ? pictureString + " " : "") + formatElementTitleAndName(context, element)],
-    haveSimpleHorizontalGroup: false,
+    strings: ["!" + (pictureString ? "[" + pictureString + "] " : "") + formatElementTitleAndName(context, element)],
+    toOneLineGroup: true,
   }
 
   return result

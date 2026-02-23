@@ -17,7 +17,7 @@ export const exportPictureFieldContentToStructure = (
 
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

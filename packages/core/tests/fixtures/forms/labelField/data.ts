@@ -209,11 +209,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     },
     structured: {
       strings: ["~Поле надписи: {ПолеНадписи}"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
     content: {
       strings: ["~Поле надписи {ПолеНадписи}"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -224,11 +224,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     },
     structured: {
       strings: ["~{ПолеНадписи}: "],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
     content: {
       strings: ["~{ПолеНадписи}"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
 ]

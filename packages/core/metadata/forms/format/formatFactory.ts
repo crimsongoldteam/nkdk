@@ -33,7 +33,7 @@ export const formatElement = <T extends NamedElement>(context: ConfigurationCont
 export const formatElements = (context: ConfigurationContext, items: AllChildItems): ToNKDKResult => {
   let result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   const separatedItems: readonly (
@@ -59,7 +59,7 @@ export const formatElements = (context: ConfigurationContext, items: AllChildIte
 
     const text = formatElement(context, item)
     result.strings.push(...text.strings)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    result.toOneLineGroup = result.toOneLineGroup || text.toOneLineGroup
   }
   return result
 }

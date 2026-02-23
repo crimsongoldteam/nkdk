@@ -9,7 +9,7 @@ export function exportPopupContentToStructure(context: ConfigurationContext, ele
   const resultString = "^" + formatContent(context, element)
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

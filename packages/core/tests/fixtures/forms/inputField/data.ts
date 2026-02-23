@@ -384,7 +384,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     },
     structured: {
       strings: ["Поле: %ИмяПоля"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -395,7 +395,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     },
     structured: {
       strings: ["%ИмяПоля: "],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
 ]

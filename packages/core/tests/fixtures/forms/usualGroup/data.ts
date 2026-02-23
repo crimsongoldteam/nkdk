@@ -210,7 +210,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: ["=%Группа %Элемент1: ; %Элемент2: "],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -234,7 +234,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: ["=Заголовок группы %Группа %Элемент1: ; %Элемент2: "],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -258,7 +258,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`="" %Группа %Элемент1: ; %Элемент2: `],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -294,7 +294,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     %Элемент1: 
   %Элемент2: `,
       ],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -330,7 +330,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     %Элемент1: 
   %Элемент2: `,
       ],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -353,7 +353,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`-%Группа %Элемент1: ; %Элемент2: `],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -377,7 +377,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`-Заголовок группы %Группа %Элемент1: ; %Элемент2: `],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -401,7 +401,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`-"" {Группа}% {Элемент1}: ; {Элемент2}: `],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -429,7 +429,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
   %Элемент1: 
   %Элемент2: `,
       ],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -443,7 +443,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`=%Группа`],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -457,7 +457,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`+%Группа`],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
   {
@@ -471,7 +471,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [`-%Группа`],
-      haveSimpleHorizontalGroup: false,
+      toOneLineGroup: false,
     },
   },
 ]

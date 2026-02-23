@@ -22,7 +22,7 @@ export const exportLabelFieldToStructure = (_context: ConfigurationContext, elem
 
   return {
     strings: [header + namePart],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 
@@ -44,7 +44,7 @@ export const exportLabelFieldContentToStructure = (
 
   return {
     strings: [header + namePart],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

@@ -17,7 +17,7 @@ export const exportColumnGroupContentToStructure = (
 
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

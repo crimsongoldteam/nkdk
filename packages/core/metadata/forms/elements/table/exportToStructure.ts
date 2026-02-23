@@ -41,7 +41,7 @@ export const exportTableContentToStructure = (context: ConfigurationContext, ele
 
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 
@@ -53,7 +53,7 @@ export const exportTableToStructure: FormatElementFunction = (
 
   const result: ToNKDKResult = {
     strings: [],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)

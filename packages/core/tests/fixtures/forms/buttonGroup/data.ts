@@ -142,7 +142,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     },
     structured: {
       strings: ["#Группа кнопок %ГруппаКнопок"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
   {
@@ -155,7 +155,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     },
     structured: {
       strings: ["#{ГруппаКнопок}"],
-      haveSimpleHorizontalGroup: true,
+      toOneLineGroup: true,
     },
   },
 ]

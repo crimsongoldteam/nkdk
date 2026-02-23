@@ -208,8 +208,8 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
-      strings: ["<Заголовок {Заголовок}>"],
-      haveSimpleHorizontalGroup: true,
+      strings: ["<Заголовок %Заголовок>"],
+      toOneLineGroup: true,
     },
   },
   {
@@ -220,8 +220,8 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       title: undefined,
     },
     structured: {
-      strings: ["<{Кнопка}>"],
-      haveSimpleHorizontalGroup: true,
+      strings: ["<%Кнопка>"],
+      toOneLineGroup: true,
     },
   },
 ]

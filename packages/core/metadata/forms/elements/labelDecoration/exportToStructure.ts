@@ -17,7 +17,7 @@ export const exportLabelDecorationToStructure = (
 
   const result: ToNKDKResult = {
     strings: [titleText],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   return result

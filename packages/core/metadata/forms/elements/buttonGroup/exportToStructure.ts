@@ -9,7 +9,7 @@ export function exportButtonGroupContentToStructure(context: ConfigurationContex
   const resultString = "#" + formatContent(context, element)
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

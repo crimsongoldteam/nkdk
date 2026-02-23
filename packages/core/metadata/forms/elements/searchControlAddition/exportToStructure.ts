@@ -12,7 +12,7 @@ export function exportSearchControlAdditionContentToStructure(
   const resultString = "?УправлениеПоиском " + formatElementName(element)
   return {
     strings: [resultString],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 }
 

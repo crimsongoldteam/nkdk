@@ -9,7 +9,7 @@ export const exportOtherElementToStructure = (context: ConfigurationContext, ele
 
   const result: ToNKDKResult = {
     strings: ["?" + itemType + " " + formatElementName(element)],
-    haveSimpleHorizontalGroup: false,
+    toOneLineGroup: false,
   }
 
   return result
