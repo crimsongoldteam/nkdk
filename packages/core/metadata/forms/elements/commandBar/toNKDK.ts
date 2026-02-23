@@ -6,7 +6,7 @@ import { CommandBar } from "./types"
 
 export const exportCommandBarToNKDK = (params: {
   context: ConfigurationContext
-  element: CommandBar | undefined
+  element: CommandBar
 }): ToNKDKResult => {
   const { context, element } = params
   if (!element) return { strings: [], toOneLineGroup: false }

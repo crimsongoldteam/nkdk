@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { AllChildItems } from "~/metadata/forms/commonObjects/childItems/types"
 import { BaseElement, FormElementTypeAll } from "~/metadata/forms/elements/baseElement/types"
 import { exportButtonContentToNKDK, exportButtonToNKDK } from "~/metadata/forms/elements/button/toNKDK"
 import { exportButtonGroupContentToNKDK } from "~/metadata/forms/elements/buttonGroup/toNKDK"
@@ -25,9 +26,9 @@ export interface ToNKDKResult {
 export type ExportToNKDKFn = (params: { context: ConfigurationContext; element: BaseElement }) => ToNKDKResult
 
 export type ExportToNKDKFnMap = {
-  [K in FormElementTypeAll]?: (params: {
+  [K in FormElementTypeAll]: (params: {
     context: ConfigurationContext
-    element: Extract<BaseElement, { itemType: K }>
+    element: Extract<AllChildItems, { itemType: K }>
   }) => ToNKDKResult
 }
 

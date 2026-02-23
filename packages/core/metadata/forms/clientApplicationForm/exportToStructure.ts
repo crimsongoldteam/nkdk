@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { exportChildItemsToNKDK } from "../commonObjects/childItems/toNKDK"
-import { exportAutoCommandBarToStructure } from "../elements/autoCommandBar/toNKDK"
 import { ClientApplicationForm } from "./types"
+import { exportAutoCommandBarToNKDK } from "../elements/autoCommandBar/toNKDK"
 
 export const exportClientApplicationFormToStructure = (
   context: ConfigurationContext,
@@ -14,7 +14,7 @@ export const exportClientApplicationFormToStructure = (
     toOneLineGroup: false,
   }
 
-  const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToNKDK({ context, element: element.autoCommandBar })
   result.strings.push(...autoCommandBar.strings)
 
   const itemsResult = exportChildItemsToNKDK(context, childItems)

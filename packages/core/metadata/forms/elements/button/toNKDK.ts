@@ -3,7 +3,7 @@ import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerato
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { Button } from "./types"
 
-export function exportButtonToNKDK(params: { context: ConfigurationContext; element: Button }): ToNKDKResult {
+export const exportButtonToNKDK = (params: { context: ConfigurationContext; element: Button }): ToNKDKResult => {
   const { context, element } = params
   const resultString = wrapButtonContent(formatContent(context, element))
   return {
@@ -12,7 +12,7 @@ export function exportButtonToNKDK(params: { context: ConfigurationContext; elem
   }
 }
 
-export function exportButtonContentToNKDK(params: { context: ConfigurationContext; element: Button }): ToNKDKResult {
+export const exportButtonContentToNKDK = (params: { context: ConfigurationContext; element: Button }): ToNKDKResult => {
   const { context, element } = params
   const resultString = formatContent(context, element)
   return {
