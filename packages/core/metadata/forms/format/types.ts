@@ -13,7 +13,7 @@ export interface IFormatterParams {
   isFirst?: boolean
 }
 
-export type ToNKDKResult = string | string[]
+export type ToNKDKResult = string[]
 
 export type FormatElementFunction = (context: ConfigurationContext, element: NamedElement) => ToNKDKResult
 export type CheckFormatFunction<T = NamedElement> = (element: T) => boolean

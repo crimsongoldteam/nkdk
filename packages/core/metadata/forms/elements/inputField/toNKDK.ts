@@ -1,14 +1,17 @@
+import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/forms/format/types"
-import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
-import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { InputField } from "./types"
 
 // const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
-export const exportInputFieldToNKDK = ({ context: ConfigurationContext, element: InputField }): ToNKDKResult => {
+export const exportInputFieldToNKDK = (params: {
+  context: ConfigurationContext
+  element: InputField
+}): ToNKDKResult => {
+  const { element } = params
   const hasTitle = element.title?.items.ru !== undefined
 
   let header = formatTitle(element, hasTitle)
@@ -67,4 +70,4 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
 //     .join("")
 // }
 
-registerElementOperation("ExportToStructure", "InputField", exportInputFieldToNKDK as ExportToStructureFn)
+// registerElementOperation("ExportToStructure", "InputField", exportInputFieldToNKDK as ExportToStructureFn)

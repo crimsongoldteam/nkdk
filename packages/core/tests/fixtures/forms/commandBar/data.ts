@@ -134,7 +134,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: "<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3> %КоманднаяПанель",
+    structured: ["<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3> %КоманднаяПанель"],
   },
 
   {
@@ -151,7 +151,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: "<-Группа кнопок %ГруппаКнопок1> %КоманднаяПанель",
+    structured: ["<-Группа кнопок %ГруппаКнопок1> %КоманднаяПанель"],
   },
 
   {
@@ -168,7 +168,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: "<+Выпадающее меню %Меню> %КоманднаяПанель",
+    structured: ["<+Выпадающее меню %Меню> %КоманднаяПанель"],
   },
   {
     name: "with search control addition",
@@ -183,7 +183,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: "<?УправлениеПоиском %Дополнение> %КоманднаяПанель",
+    structured: ["<?УправлениеПоиском %Дополнение> %КоманднаяПанель"],
   },
   {
     name: "with search string addition",
@@ -197,6 +197,6 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: "<?ОтображениеСтрокиПоиска %Дополнение> %КоманднаяПанель",
+    structured: ["<?ОтображениеСтрокиПоиска %Дополнение> %КоманднаяПанель"],
   },
 ]

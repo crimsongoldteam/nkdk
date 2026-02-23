@@ -20,10 +20,7 @@ export const exportLabelFieldToStructure = (_context: ConfigurationContext, elem
 
   let namePart = formatNamePart(element, hasTitle)
 
-  return {
-    strings: [header + namePart],
-    haveSimpleHorizontalGroup: false,
-  }
+  return [header + namePart]
 }
 
 export const exportLabelFieldContentToStructure = (
@@ -42,10 +39,7 @@ export const exportLabelFieldContentToStructure = (
     header = header + " "
   }
 
-  return {
-    strings: [header + namePart],
-    haveSimpleHorizontalGroup: false,
-  }
+  return [header + namePart]
 }
 
 const formatTitle = (element: LabelField, hasTitle: boolean): string => {

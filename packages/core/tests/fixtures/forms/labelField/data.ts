@@ -207,8 +207,8 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       itemType: CollectionFormElementType.LabelField,
       title: { items: { ru: "Поле надписи" } },
     },
-    structured: "~Поле надписи: {ПолеНадписи}",
-    content: "~Поле надписи {ПолеНадписи}",
+    structured: ["~Поле надписи: {ПолеНадписи}"],
+    content: ["~Поле надписи {ПолеНадписи}"],
   },
   {
     name: "without title",
@@ -216,8 +216,8 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       name: "ПолеНадписи",
       itemType: CollectionFormElementType.LabelField,
     },
-    structured: "~{ПолеНадписи}: ",
-    content: "~{ПолеНадписи}",
+    structured: ["~{ПолеНадписи}: "],
+    content: ["~{ПолеНадписи}"],
   },
 ]
 

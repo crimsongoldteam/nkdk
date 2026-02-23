@@ -7,14 +7,11 @@ export const exportAutoCommandBarToStructure = (
   context: ConfigurationContext,
   element: AutoCommandBar | undefined
 ): ToNKDKResult => {
-  if (!element) return { strings: [], haveSimpleHorizontalGroup: false }
+  if (!element) return []
 
   const content = exportAutoCommandBarContentToStructure(context, element)
 
-  return {
-    strings: [content],
-    haveSimpleHorizontalGroup: false,
-  }
+  return [content]
 }
 
 export const exportAutoCommandBarContentToStructure = (

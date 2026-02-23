@@ -207,7 +207,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       itemType: CollectionFormElementType.Button,
       title: { items: { ru: "Заголовок" } },
     },
-    structured: "<Заголовок {Заголовок}>",
+    structured: ["<Заголовок {Заголовок}>"],
   },
   {
     name: "without title",
@@ -216,6 +216,6 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       itemType: CollectionFormElementType.Button,
       title: undefined,
     },
-    structured: "<{Кнопка}>",
+    structured: ["<{Кнопка}>"],
   },
 ]
