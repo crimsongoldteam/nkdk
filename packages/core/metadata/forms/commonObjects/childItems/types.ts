@@ -225,4 +225,6 @@ export type OtherElement =
   | TextDocumentField
   | TrackBarField
 
+export type OtherElementElementType = OtherElement extends { itemType: infer ItemType } ? ItemType : never
+
 // #endregion

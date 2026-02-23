@@ -1,5 +1,9 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  importCommandAdditionFieldFromNKDK,
+  importOtherFieldFromNKDK,
+} from "~/metadata/forms/elements/baseElement/fromNKDK"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { importButtonFromNKDK, importCommandBarButtonFromNKDK } from "~/metadata/forms/elements/button/fromNKDK"
 import { importCommandGroupFromNKDK } from "~/metadata/forms/elements/buttonGroup/fromNKDK"
@@ -20,11 +24,7 @@ import {
 import { importCommandBarFromNKDK } from "~/metadata/forms/elements/commandBar/fromNKDK"
 import { importInputFieldFromNKDK, importTableInputFieldFromNKDK } from "~/metadata/forms/elements/inputField/fromNKDK"
 import { importLabelDecorationFromNKDK } from "~/metadata/forms/elements/labelDecoration/fromNKDK"
-import {
-  importLabelFieldFromNKDK,
-  importOtherFieldFromNKDK,
-  importTableLabelFieldFromNKDK,
-} from "~/metadata/forms/elements/labelField/fromNKDK"
+import { importLabelFieldFromNKDK, importTableLabelFieldFromNKDK } from "~/metadata/forms/elements/labelField/fromNKDK"
 import { importPageFromNKDK } from "~/metadata/forms/elements/page/fromNKDK"
 import { importPagesFromNKDK } from "~/metadata/forms/elements/pages/fromNKDK"
 import { importPictureDecorationFromNKDK } from "~/metadata/forms/elements/pictureDecoration/fromNKDK"
@@ -72,6 +72,7 @@ export const importFromNKDKFn = {
   LabelDecoration: importLabelDecorationFromNKDK,
   LabelField: importLabelFieldFromNKDK,
   OtherField: importOtherFieldFromNKDK,
+  CommandAdditionField: importCommandAdditionFieldFromNKDK,
   Page: importPageFromNKDK,
   Pages: importPagesFromNKDK,
   PictureDecoration: importPictureDecorationFromNKDK,

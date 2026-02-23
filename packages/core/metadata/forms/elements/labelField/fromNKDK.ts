@@ -19,15 +19,6 @@ export const importLabelFieldFromNKDK = (params: {
   return result
 }
 
-export const importOtherFieldFromNKDK = (params: {
-  context: ConfigurationContext
-  source: NKDK.OtherField
-}): LabelField =>
-  importLabelFieldFromNKDK({
-    context: params.context,
-    source: { name: params.source.name, title: params.source.type } as NKDK.LabelField,
-  })
-
 export const importTableLabelFieldFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.TableLabelField

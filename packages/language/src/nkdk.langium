@@ -14,6 +14,8 @@ terminal NAME: /%[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*/;
 /** Обычный текст или в кавычках: в двойных "" экранирует ", в одинарных '' экранирует '. */
 terminal TEXT: /([a-zA-Zа-яА-ЯёЁ0-9_]+[a-zA-Zа-яА-ЯёЁ0-9_ ]*)|"(?:[^"]|"")*"|'(?:[^']|'')*'/;
 
+terminal SEARCHFIELD: /\?(УправлениеПоиском|ОтображениеСтрокиПоиска)/;
+
 terminal OTHERFIELD: /\?(ПолеФорматированногоДокумента|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
 
 terminal INDENT: '\*Ё';
@@ -107,6 +109,9 @@ Button:
 
 // command bar
 
+CommandAdditionField:
+    type=SEARCHFIELD Named;
+
 CommandGroup:
     HGROUP Titled Named;
 
@@ -117,7 +122,7 @@ CommandBarButton:
     Titled Named;
 
 CommandBarChildItem:
-    CommandGroup | Popup | CommandBarButton;
+    CommandGroup | Popup | CommandBarButton | CommandAdditionField;
 
 fragment CommandBarChildItemFragment:
     ('|' childItems+=CommandBarChildItem )*;
