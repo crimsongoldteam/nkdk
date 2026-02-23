@@ -64,8 +64,6 @@ export const ExportToNKDKGeneratorFn = {
   Table: exportTableToNKDK,
   TextDocumentField: exportOtherElementToNKDK,
   TrackBarField: exportOtherElementToNKDK,
-  SearchStringAddition: exportOtherElementToNKDK,
-  SearchControlAddition: exportOtherElementToNKDK,
 } satisfies ExportToNKDKFnMap<GenerateChildItem>
 
 export const ExportToNKDKTableChildItemsGeneratorFn = {

@@ -224,8 +224,6 @@ export type OtherElement =
   | SpreadSheetDocumentField
   | TextDocumentField
   | TrackBarField
-  | SearchStringAddition
-  | SearchControlAddition
   | PictureField
 
 export type OtherElementElementType = OtherElement extends { itemType: infer ItemType } ? ItemType : never

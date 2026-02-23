@@ -163,7 +163,7 @@ export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
 export const minimalCheckBoxField: CheckBoxField = {
   itemType: CollectionFormElementType.CheckBoxField,
   name: "Флажок",
-  title: { items: { ru: "Флажок формы" } },
+  title: { items: { ru: "" } },
 }
 
 export const minimalCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {}
