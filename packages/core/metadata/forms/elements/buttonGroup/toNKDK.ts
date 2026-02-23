@@ -6,10 +6,10 @@ import { formatElementTitleAndName } from "../../format/helpers"
 import { ButtonGroup } from "./types"
 
 export function exportButtonGroupContentToStructure(context: ConfigurationContext, element: ButtonGroup): ToNKDKResult {
-  const resultString = "#" + formatContent(context, element)
+  const resultString = "-" + formatContent(context, element)
   return {
     strings: [resultString],
-    toOneLineGroup: false,
+    toOneLineGroup: true,
   }
 }
 

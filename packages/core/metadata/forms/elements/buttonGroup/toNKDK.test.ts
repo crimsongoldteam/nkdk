@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { buttonGroupStructureFixturesTable } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportButtonGroupContentToStructure } from "./exportToStructure"
+import { exportButtonGroupContentToStructure } from "./toNKDK"
 
 describe("exportButtonGroupContentToStructure", () => {
   it.each(buttonGroupStructureFixturesTable)(

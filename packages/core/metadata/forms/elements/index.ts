@@ -4,8 +4,8 @@ import "./button/exportToStructure"
 import "./button/rules"
 import "./button/types"
 
-import "./buttonGroup/exportToStructure"
 import "./buttonGroup/rules"
+import "./buttonGroup/toNKDK"
 import "./buttonGroup/types"
 
 import "./calendarField/rules"
@@ -87,8 +87,8 @@ import "./pictureField/types"
 import "./plannerField/rules"
 import "./plannerField/types"
 
-import "./popup/exportToStructure"
 import "./popup/rules"
+import "./popup/toNKDK"
 import "./popup/types"
 
 import "./progressBarField/rules"

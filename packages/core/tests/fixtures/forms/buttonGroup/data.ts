@@ -141,7 +141,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
       childItems: [],
     },
     structured: {
-      strings: ["#Группа кнопок %ГруппаКнопок"],
+      strings: ["-Группа кнопок %ГруппаКнопок"],
       toOneLineGroup: true,
     },
   },
@@ -154,7 +154,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
       childItems: [],
     },
     structured: {
-      strings: ["#{ГруппаКнопок}"],
+      strings: ["-%ГруппаКнопок"],
       toOneLineGroup: true,
     },
   },
