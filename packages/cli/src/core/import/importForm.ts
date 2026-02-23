@@ -1,11 +1,15 @@
-import { exportToYAML, FormMetadataXML, importContentFromXML } from "@nakidka/core"
+import {
+  exportClientApplicationFormToStructure,
+  exportToYAML,
+  exportClientApplicationFormToYAML,
+  FormMetadataXML,
+  importClientApplicationFormFromXML,
+  importContentFromXML,
+  type ClientApplicationFormXML,
+} from "@nakidka/core"
 import console from "console"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
-import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/fromXML"
-import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/base/toYAML"
-import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/base/types"
 /**
  * Ищет все XML файлы в каталоге inputPath/Forms и создает для каждого пустой файл Form.yaml
  * @param inputPath - путь к входящему каталогу
@@ -97,8 +101,8 @@ const importForm = (path: string, name: string, outputPath: string) => {
     writeFileSync(join(outputFormDir, `Форма.yaml`), formYamlString, "utf-8")
 
     const formStructuredObject = exportClientApplicationFormToStructure(context, formData)
-    if (formStructuredObject) {
-      writeFileSync(join(outputFormDir, "Форма.nkdk"), formStructuredObject.join("\n"), "utf-8")
+    if (formStructuredObject?.strings?.length) {
+      writeFileSync(join(outputFormDir, "Форма.nkdk"), formStructuredObject.strings.join("\n"), "utf-8")
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

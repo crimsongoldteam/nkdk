@@ -1,16 +1,17 @@
 import {
-  // exportCatalogFormToXML,
+  createEmptyClientApplicationForm,
+  exportClientApplicationFormToXML,
   exportFormMetadataToXML,
+  importClientApplicationFormFromYAML,
+  importClientApplicationFromFromNKDK,
   importFromYAML,
   xmlExport,
+  type ClientApplicationFormYAML,
 } from "@nakidka/core"
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
-import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/toXML"
-import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
-// import { CatalogFormEnterprise } from "~/metadata/forms/index"
+import { parseNKDKFromString } from "../../langium/util.js"
 
 /**
  * Экспортирует форму из Enterprise формата в XML
@@ -18,7 +19,7 @@ import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationFor
  * @param outputPath - путь к директории для вывода XML файлов (например, .../Forms)
  * @param formName - имя формы для использования в метаданных
  */
-export const exportForm = (inputPath: string, outputPath: string, formName: string): void => {
+export const exportForm = async (inputPath: string, outputPath: string, formName: string): Promise<void> => {
   const context = {
     defaultLanguage: "ru",
     testMode: true,
@@ -39,9 +40,14 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
     childItemsStructure = readFileSync(nkdkPath, "utf-8")
   }
 
-  const sourceForm = await importFormFromNKDK(context, childItemsStructure)
+  const nkdkAst = await parseNKDKFromString(childItemsStructure)
+  const sourceForm = nkdkAst
+    ? importClientApplicationFromFromNKDK({ context, value: nkdkAst })
+    : createEmptyClientApplicationForm()
+  if (!sourceForm) {
+    throw new Error("Не удалось построить исходную форму из NKDK")
+  }
 
-  // const childItems = importChildItemsFromNKDK({ context, childItemsStructure })
   const formData = importClientApplicationFormFromYAML(context, enterpriseData, sourceForm)
 
   if (!formData) {
@@ -70,7 +76,7 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
  * @param inputPath - путь к входящему каталогу
  * @param outputPath - путь к исходящему каталогу
  */
-export const exportFormsFromDirectory = (inputPath: string, outputPath: string) => {
+export const exportFormsFromDirectory = async (inputPath: string, outputPath: string): Promise<void> => {
   const catalogsPath = join(inputPath, "Справочник")
 
   if (!existsSync(catalogsPath)) {
@@ -134,7 +140,7 @@ export const exportFormsFromDirectory = (inputPath: string, outputPath: string) 
 
       try {
         mkdirSync(formsOutputPath, { recursive: true })
-        exportForm(inputFile, formsOutputPath, dir)
+        await exportForm(inputFile, formsOutputPath, dir)
         processedCount++
       } catch (error) {
         let errorMessage = "Неизвестная ошибка"

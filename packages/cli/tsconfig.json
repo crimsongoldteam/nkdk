@@ -16,8 +16,9 @@
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
     "baseUrl": ".",
     "paths": {
-      "@nakidka/core": ["../packages/core/index.ts"],
-      "~/*": ["../packages/core/*"]
+      "@nakidka/core": ["../core/index.ts"],
+      "~/*": ["../core/*"],
+      "nkdk-language": ["../language/src/index.ts"]
     },
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true

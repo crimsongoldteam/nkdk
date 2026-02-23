@@ -40,15 +40,15 @@ program
   .description("Экспорт конфигурации в XML файлы")
   .argument("<input>", "входящий каталог")
   .argument("<output>", "исходящий каталог")
-  .action((inputPath: string, outputPath: string) => {
-    exportConfigToXML(inputPath, outputPath)
+  .action(async (inputPath: string, outputPath: string) => {
+    await exportConfigToXML(inputPath, outputPath)
   })
 
 program.parse()
 
 // cd /Users/nikita/git/nakidka-core/cli && npm run dev /Users/nikita/git/small_full/xml/Catalogs /Users/nikita/git/erp_clean/xml/Catalogs
-// cd /Users/nikita/git/nakidka-core/cli && npm run dev export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml
-// cd /Users/nikita/git/nakidka-core/cli && npm run dev import /Users/nikita/git/small_full/xml /Users/nikita/git/erp_nkdk
+// cd /Users/nikita/git/nakidka-core/packages/cli && npm run dev export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml
+// cd /Users/nikita/git/nakidka-core/packages/cli && npm run dev import /Users/nikita/git/small_full/xml /Users/nikita/git/erp_nkdk
 
 //npm run dev import /Users/nikita/git/ТестРаботы/xml /Users/nikita/git/ТестРаботы/nkdk
 //npm run dev export /Users/nikita/git/ТестРаботы/nkdk /Users/nikita/git/ТестРаботы/xml

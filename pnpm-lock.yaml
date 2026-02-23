@@ -152,6 +152,9 @@ importers:
       '@nakidka/core':
         specifier: workspace:*
         version: link:../core
+      chalk:
+        specifier: ^5.4.0
+        version: 5.6.2
       cli-progress:
         specifier: ^3.12.0
         version: 3.12.0
@@ -161,6 +164,12 @@ importers:
       fast-xml-parser:
         specifier: ^5.3.3
         version: 5.3.3(patch_hash=03b0f88d912b7ef1bc23fede5a6b717f24066bf2f991ea2eb25d7cdffa98d73e)
+      langium:
+        specifier: ~4.2.0
+        version: 4.2.1
+      nkdk-language:
+        specifier: workspace:*
+        version: link:../language
     devDependencies:
       '@types/cli-progress':
         specifier: ^3.11.6

@@ -10,6 +10,18 @@ export {
 } from "./metadata/appliedObjects/metadataCatalog/index"
 export { exportFormMetadataToXML, importChildItemsFromNKDK } from "./metadata/forms/index"
 export type { FormMetadataXML } from "./metadata/forms/index"
+export { createEmptyClientApplicationForm } from "./metadata/forms/clientApplicationForm/createEmpty"
+export { importClientApplicationFromFromNKDK } from "./metadata/forms/clientApplicationForm/fromNKDK"
+export { importClientApplicationFormFromYAML } from "./metadata/forms/clientApplicationForm/fromYAML"
+export { importClientApplicationFormFromXML } from "./metadata/forms/clientApplicationForm/fromXML"
+export { exportClientApplicationFormToStructure } from "./metadata/forms/clientApplicationForm/exportToStructure"
+export { exportClientApplicationFormToXML } from "./metadata/forms/clientApplicationForm/toXML"
+export { exportClientApplicationFormToYAML } from "./metadata/forms/clientApplicationForm/toYAML"
+export type {
+  ClientApplicationForm,
+  ClientApplicationFormXML,
+  ClientApplicationFormYAML,
+} from "./metadata/forms/clientApplicationForm/types"
 export { xmlExport } from "./xml/export/exporter"
 export { importContentFromXML } from "./xml/import/importer"
 export { exportToYAML } from "./yaml/export"

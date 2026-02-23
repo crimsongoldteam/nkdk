@@ -1,7 +1,7 @@
 import { exportCatalogsFromDirectory } from "../core/export/exportCatalog"
 import { exportFormsFromDirectory } from "../core/export/exportForm"
 
-export const exportConfigToXML = (inputPath: string, outputPath: string) => {
+export const exportConfigToXML = async (inputPath: string, outputPath: string): Promise<void> => {
   exportCatalogsFromDirectory(inputPath, outputPath)
-  exportFormsFromDirectory(inputPath, outputPath)
+  await exportFormsFromDirectory(inputPath, outputPath)
 }
