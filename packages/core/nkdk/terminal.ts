@@ -20,3 +20,5 @@ export const AutoCommandBarPrefix = "<<"
 export const AutoCommandBarAutofillPrefix = "..."
 export const AutoCommandBarSeparator = " | "
 export const AutoCommandBarSuffix = ">>"
+
+export const LabelFieldPrefix = "~"

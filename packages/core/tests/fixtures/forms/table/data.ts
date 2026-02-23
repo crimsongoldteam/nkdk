@@ -564,7 +564,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     name: "table with label field",
     table: labelColumnTable,
     structure: {
-      strings: ["| ~{Колонка1} | {Таблица1}"],
+      strings: ["| ~%Колонка1 | %Таблица1"],
       toOneLineGroup: false,
     },
   },
@@ -572,7 +572,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
     name: "table with picture field",
     table: pictureColumnTable,
     structure: {
-      strings: ["| !{Колонка1} | {Таблица1}"],
+      strings: ["| !%Колонка1 | %Таблица1"],
       toOneLineGroup: false,
     },
   },

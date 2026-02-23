@@ -208,11 +208,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       title: { items: { ru: "Поле надписи" } },
     },
     structured: {
-      strings: ["~Поле надписи: {ПолеНадписи}"],
+      strings: ["~Поле надписи: %ПолеНадписи"],
       toOneLineGroup: true,
     },
     content: {
-      strings: ["~Поле надписи {ПолеНадписи}"],
+      strings: ["~Поле надписи %ПолеНадписи"],
       toOneLineGroup: true,
     },
   },
@@ -223,11 +223,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       itemType: CollectionFormElementType.LabelField,
     },
     structured: {
-      strings: ["~{ПолеНадписи}: "],
+      strings: ["~%ПолеНадписи: "],
       toOneLineGroup: true,
     },
     content: {
-      strings: ["~{ПолеНадписи}"],
+      strings: ["~%ПолеНадписи"],
       toOneLineGroup: true,
     },
   },

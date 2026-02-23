@@ -5,12 +5,12 @@ import {
   formatElementTitleAndName,
 } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { InputFieldSeparator } from "~/nkdk/terminal"
-import { InputField } from "./types"
+import { InputFieldSeparator, LabelFieldPrefix } from "~/nkdk/terminal"
+import { LabelField } from "./types"
 
-export const exportInputFieldToNKDK = (params: {
+export const exportLabelFieldToNKDK = (params: {
   context: ConfigurationContext
-  element: InputField
+  element: LabelField
 }): ToNKDKResult => {
   const { context, element } = params
 
@@ -19,36 +19,36 @@ export const exportInputFieldToNKDK = (params: {
   const namePart = formatNamePart(element, title)
 
   const result: ToNKDKResult = {
-    strings: [header + namePart],
+    strings: [LabelFieldPrefix + header + namePart],
     toOneLineGroup: true,
   }
 
   return result
 }
 
-export const exportInputFieldContentToNKDK = (params: {
+export const exportLabelFieldContentToNKDK = (params: {
   context: ConfigurationContext
-  element: InputField
+  element: LabelField
 }): ToNKDKResult => {
   const { context, element } = params
 
   const title = formatElementTitleAndName(context, element)
 
   const result: ToNKDKResult = {
-    strings: [title],
+    strings: [LabelFieldPrefix + title],
     toOneLineGroup: true,
   }
 
   return result
 }
 
-const formatTitle = (element: InputField, title: string | undefined): string => {
+const formatTitle = (element: LabelField, title: string | undefined): string => {
   if (title === undefined) return formatElementName(element)
 
   return title
 }
 
-const formatNamePart = (element: InputField, title: string | undefined): string => {
+const formatNamePart = (element: LabelField, title: string | undefined): string => {
   if (title === undefined) return ""
 
   return formatElementName(element)

@@ -99,6 +99,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: {
       yaml: "ОтображатьЗаголовок",
+      toPartialYAML: false,
       type: "boolean",
       defaultValue: true,
       defaultValueXML: true,

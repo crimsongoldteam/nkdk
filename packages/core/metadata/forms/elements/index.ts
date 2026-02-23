@@ -58,8 +58,8 @@ import "./labelDecoration/rules"
 import "./labelDecoration/toNKDK"
 import "./labelDecoration/types"
 
-import "./labelField/exportToStructure"
 import "./labelField/rules"
+import "./labelField/toNKDK"
 import "./labelField/types"
 
 import "./page/rules"
