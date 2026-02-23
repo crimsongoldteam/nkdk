@@ -1,5 +1,5 @@
 import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullButton: Required<Button> = {
@@ -196,7 +196,7 @@ export const fullButtonEnterprise: Required<ButtonEnterprise> = {
 export interface ButtonStructureFixture {
   name: string
   element: Button
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
@@ -207,7 +207,10 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       itemType: CollectionFormElementType.Button,
       title: { items: { ru: "Заголовок" } },
     },
-    structured: ["<Заголовок {Заголовок}>"],
+    structured: {
+      strings: ["<Заголовок {Заголовок}>"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "without title",
@@ -216,6 +219,9 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       itemType: CollectionFormElementType.Button,
       title: undefined,
     },
-    structured: ["<{Кнопка}>"],
+    structured: {
+      strings: ["<{Кнопка}>"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]

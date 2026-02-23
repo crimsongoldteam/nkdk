@@ -7,6 +7,6 @@ describe("exportTableToStructure", () => {
   it.each(tableStructureFixtures)("$name", ({ table, structure: expectedResult }) => {
     const result = exportTableToStructure(mockContextToYAML, table)
 
-    expect(result.join("\n")).toEqual(expectedResult)
+    expect(result.strings.join("\n")).toEqual(expectedResult)
   })
 })

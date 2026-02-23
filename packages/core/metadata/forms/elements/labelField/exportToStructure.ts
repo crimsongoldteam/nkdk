@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
@@ -11,10 +11,7 @@ import { LabelField } from "./types"
 const TILDE = t.Tilde.LABEL as string
 const COLON = t.Colon.LABEL as string
 
-export const exportLabelFieldToStructure = (
-  _context: ConfigurationContext,
-  element: LabelField
-): IFormatElementResult => {
+export const exportLabelFieldToStructure = (_context: ConfigurationContext, element: LabelField): ToNKDKResult => {
   const hasTitle = element.title?.items.ru !== undefined
 
   let header = formatTitle(element, hasTitle)
@@ -23,13 +20,16 @@ export const exportLabelFieldToStructure = (
 
   let namePart = formatNamePart(element, hasTitle)
 
-  return [header + namePart]
+  return {
+    strings: [header + namePart],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 export const exportLabelFieldContentToStructure = (
   _context: ConfigurationContext,
   element: LabelField
-): IFormatElementResult => {
+): ToNKDKResult => {
   const hasTitle = element.title?.items.ru !== undefined
 
   let header = formatTitle(element, hasTitle)
@@ -42,7 +42,10 @@ export const exportLabelFieldContentToStructure = (
     header = header + " "
   }
 
-  return [header + namePart]
+  return {
+    strings: [header + namePart],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 const formatTitle = (element: LabelField, hasTitle: boolean): string => {

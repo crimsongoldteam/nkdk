@@ -1,15 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
 import { formatElementName } from "../../format/helpers"
 import { CommandBar } from "./types"
 
-export const exportCommandBarToStructure = (
-  context: ConfigurationContext,
-  element: CommandBar
-): IFormatElementResult => {
+export const exportCommandBarToStructure = (context: ConfigurationContext, element: CommandBar): ToNKDKResult => {
   const content = exportCommandBarContentToStructure(context, element)
   const resultString = `${content} ${formatElementName(element)}`
 

@@ -1,13 +1,16 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { Popup } from "./types"
 
-export function exportPopupContentToStructure(context: ConfigurationContext, element: Popup): IFormatElementResult {
+export function exportPopupContentToStructure(context: ConfigurationContext, element: Popup): ToNKDKResult {
   const resultString = "^" + formatContent(context, element)
-  return resultString
+  return {
+    strings: [resultString],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 const formatContent = (context: ConfigurationContext, element: Popup): string => {

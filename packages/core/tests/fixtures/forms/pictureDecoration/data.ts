@@ -1,5 +1,5 @@
 import { PictureDecoration, PictureDecorationPartialYAML } from "~/metadata/forms/elements/pictureDecoration/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -131,7 +131,7 @@ export const minimalPictureDecorationPartialYAML: PictureDecorationPartialYAML =
 export interface PictureDecorationStructureFixture {
   name: string
   element: PictureDecoration
-  structured: IFormatElementResult
+  structured: ToNKDKResult
   skipImport?: boolean
 }
 
@@ -163,7 +163,10 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
       itemType: CollectionFormElementType.PictureDecoration,
     },
-    structured: ["![Печать] %ИмяПоля"],
+    structured: {
+      strings: ["![Печать] %ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "with common picture",
@@ -172,7 +175,10 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: false },
       itemType: CollectionFormElementType.PictureDecoration,
     },
-    structured: ["![Предупреждение32] %ИмяПоля"],
+    structured: {
+      strings: ["![Предупреждение32] %ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "without picture",
@@ -180,7 +186,10 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       name: "ИмяПоля",
       itemType: CollectionFormElementType.PictureDecoration,
     },
-    structured: ["!%ИмяПоля"],
+    structured: {
+      strings: ["!%ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "with absolute picture",
@@ -193,7 +202,10 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
         loadTransparent: true,
       },
     },
-    structured: ["!%ИмяПоля"],
+    structured: {
+      strings: ["!%ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
     skipImport: true,
   },
 ]

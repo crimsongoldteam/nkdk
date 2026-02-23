@@ -1,28 +1,29 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatDefaultLanguageText, formatElementName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
-import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { CheckBoxField } from "./types"
 
-export const exportCheckBoxFieldToStructure = (
-  context: ConfigurationContext,
-  element: CheckBoxField
-): IFormatElementResult => {
+export const exportCheckBoxFieldToStructure = (context: ConfigurationContext, element: CheckBoxField): ToNKDKResult => {
   const result = formatCheckBoxFieldContent(context, element, false)
 
-  return result
+  return {
+    strings: [result],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 export const exportCheckBoxFieldContentToStructure = (
   context: ConfigurationContext,
   element: CheckBoxField
-): IFormatElementResult => {
+): ToNKDKResult => {
   const result = formatCheckBoxFieldContent(context, element, true)
 
-  return result
+  return {
+    strings: [result],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 const formatCheckBoxFieldContent = (
@@ -32,13 +33,9 @@ const formatCheckBoxFieldContent = (
 ): string => {
   const title = formatDefaultLanguageText(context, element.title)
   const isSwitch = element.checkBoxType === "Switch" && !forContent
-  const isTumbler = element.checkBoxType === "Tumbler" && !forContent
-  const symbol = isTumbler ? "<|>" : isSwitch ? "[ |1]" : "[ ]"
+  const symbol = isSwitch ? "[ |1]" : "[ ]"
   const name = formatElementName(element)
-  const isRightTitled =
-    element.titleLocation === "Right" ||
-    element.headerHorizontalAlign === "Right" ||
-    forContent
+  const isRightTitled = element.headerHorizontalAlign === "Right" || forContent
 
   if (title) {
     if (isRightTitled) {
@@ -55,10 +52,10 @@ const formatCheckBoxFieldContent = (
   return `${name} ${symbol}`
 }
 
-registerElementOperation(
-  "ExportToStructureContent",
-  "CheckBoxField",
-  exportCheckBoxFieldContentToStructure as ExportToStructureContentFn
-)
-registerElementOperation("ExportToStructure", "CheckBoxField", exportCheckBoxFieldToStructure as ExportToStructureFn)
+// registerElementOperation(
+//   "ExportToStructureContent",
+//   "CheckBoxField",
+//   exportCheckBoxFieldContentToStructure as ExportToStructureContentFn
+// )
+// registerElementOperation("ExportToStructure", "CheckBoxField", exportCheckBoxFieldToStructure as ExportToStructureFn)
 registerIsOneLineElementCheck<CheckBoxField>(CollectionFormElementType.CheckBoxField, () => true)

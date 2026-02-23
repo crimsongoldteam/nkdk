@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
 import { AllChildItem, OtherElement } from "./types"
@@ -7,8 +7,8 @@ import { AllChildItem, OtherElement } from "./types"
 export const exportChildItemsToStructure = <From extends AllChildItem>(
   context: ConfigurationContext,
   items: From[]
-): IFormatElementResult => {
-  let result: IFormatElementResult = {
+): ToNKDKResult => {
+  let result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
@@ -36,7 +36,7 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     //           | typeof CollectionFormElementType.Table
     //       ))
     //   ) {
-    //     result.push("")
+    //     result.strings.push("")
     //   }
 
     //   prevItem = item
@@ -44,10 +44,11 @@ export const exportChildItemsToStructure = <From extends AllChildItem>(
     const exportFunction = getElementOperationFunction("ExportToStructure", item.itemType)
 
     const text = exportFunction
-      ? (exportFunction(context, item) as IFormatElementResult)
+      ? (exportFunction(context, item) as ToNKDKResult)
       : exportOtherElementToStructure(context, item as OtherElement)
 
-    result.push(...text)
+    result.strings.push(...text.strings)
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }
   return result
 }

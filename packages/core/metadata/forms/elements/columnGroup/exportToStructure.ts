@@ -1,7 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { ColumnGroup } from "./types"
 
 const HASH = t.Hash.LABEL as string
@@ -9,18 +12,19 @@ const HASH = t.Hash.LABEL as string
 export const exportColumnGroupContentToStructure = (
   _context: ConfigurationContext,
   element: ColumnGroup
-): IFormatElementResult => {
+): ToNKDKResult => {
   const resultString = HASH + formatElementName(element)
 
-  return resultString
+  return {
+    strings: [resultString],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
-export const exportColumnGroupToStructure = (
-  _context: ConfigurationContext,
-  element: ColumnGroup
-): IFormatElementResult => {
+export const exportColumnGroupToStructure = (_context: ConfigurationContext, element: ColumnGroup): ToNKDKResult => {
   return exportColumnGroupContentToStructure(_context, element)
 }
 
-// registerElementOperation("ExportToStructureContent", "ColumnGroup", exportColumnGroupContentToStructure)
-// registerElementOperation("ExportToStructure", "ColumnGroup", exportColumnGroupToStructure)
+registerElementOperation("ExportToStructureContent", "ColumnGroup", exportColumnGroupContentToStructure)
+registerElementOperation("ExportToStructure", "ColumnGroup", exportColumnGroupToStructure)
+registerIsOneLineElementCheck<ColumnGroup>(CollectionFormElementType.ColumnGroup, () => true)

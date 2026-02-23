@@ -1,16 +1,16 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { ButtonGroup } from "./types"
 
-export function exportButtonGroupContentToStructure(
-  context: ConfigurationContext,
-  element: ButtonGroup
-): IFormatElementResult {
+export function exportButtonGroupContentToStructure(context: ConfigurationContext, element: ButtonGroup): ToNKDKResult {
   const resultString = "#" + formatContent(context, element)
-  return [resultString]
+  return {
+    strings: [resultString],
+    haveSimpleHorizontalGroup: false,
+  }
 }
 
 const formatContent = (context: ConfigurationContext, element: ButtonGroup): string => {

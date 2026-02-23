@@ -2,12 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToStructure } from "~/metadata/forms/commonObjects/childItems/exportToStructure"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
 import { UsualGroup } from "../types"
 
-export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
-  let result: IFormatElementResult = {
+export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): ToNKDKResult => {
+  let result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
@@ -15,13 +15,14 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
 
   // if (params.wrapInGroup != WrapInGroupStrategy.None) {
   const header = getHeader(context, element)
-  result.push(header)
+  result.strings.push(header)
   // }
 
   const lines = exportChildItemsToStructure(context, childItems)
 
-  for (const line of lines) {
-    result.push("  " + line)
+  for (const line of lines.strings) {
+    result.strings.push("  " + line)
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || lines.haveSimpleHorizontalGroup
   }
 
   // result.push(...formatElements(element.childItems))

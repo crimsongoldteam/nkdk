@@ -7,7 +7,7 @@ describe("importCheckBoxFieldFromStructure", () => {
   it.each(checkBoxFieldStructureFixturesTable)(
     "should import check box field $name",
     async ({ element: input, structured }) => {
-      const result = await testImportElementFromNKDK(mockContext, structured)
+      const result = await testImportElementFromNKDK(mockContext, structured.strings)
 
       expect(result).toEqual(input)
     }

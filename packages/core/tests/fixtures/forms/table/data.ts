@@ -1,6 +1,7 @@
 import { TableChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -14,7 +15,7 @@ export interface TableFixture {
 export interface TableExportToStructureFixture {
   name: string
   table: Table
-  structure: string
+  structure: ToNKDKResult
 }
 
 export const sourceTable: Table = {
@@ -546,47 +547,73 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   {
     name: "table with input field",
     table: inputColumnTable,
-    structure: `| Колонка 1 %Колонка1 | %Таблица1`,
+    structure: {
+      strings: ["| Колонка 1 %Колонка1 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with checkbox field",
     table: checkboxColumnTable,
-    structure: `| [ ] Флажок %Колонка1 | %Таблица1`,
+    structure: {
+      strings: ["| [ ] Флажок %Колонка1 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with label field",
     table: labelColumnTable,
-    structure: `| ~{Колонка1} | {Таблица1}`,
+    structure: {
+      strings: ["| ~{Колонка1} | {Таблица1}"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with picture field",
     table: pictureColumnTable,
-    structure: `| !{Колонка1} | {Таблица1}`,
+    structure: {
+      strings: ["| !{Колонка1} | {Таблица1}"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with horizontal group",
     table: columnGroupTable,
-    structure: `| -%Колонка1 | %Таблица1`,
+    structure: {
+      strings: ["| -%Колонка1 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with vertical group",
     table: columnGroupTable,
-    structure: `| +%Колонка1 | %Таблица1`,
+    structure: {
+      strings: ["| +%Колонка1 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with in cell group",
     table: columnGroupTable,
-    structure: `| =%Колонка1 | %Таблица1`,
+    structure: {
+      strings: ["| =%Колонка1 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "two-column table",
     table: twoColumnTable,
-    structure: `| Колонка 1 %Колонка1 | Колонка 2 %Колонка2 | %Таблица1`,
+    structure: {
+      strings: ["| Колонка 1 %Колонка1 | Колонка 2 %Колонка2 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
-    structure: `<<... | Кнопка 1 %КнопкаТаблицы>>
-| Колонка таблицы 1 %Колонка1 | %Таблица1`,
+    structure: {
+      strings: ["<<... | Кнопка 1 %КнопкаТаблицы>>", "| Колонка таблицы 1 %Колонка1 | %Таблица1"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
 ]

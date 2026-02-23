@@ -1,6 +1,6 @@
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullCommandBarChildItemsAllYAML,
@@ -45,7 +45,7 @@ export const minimalAutoCommandBar: AutoCommandBar = {
 export interface AutoCommandBarStructureFixture {
   name: string
   element: AutoCommandBar
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixture[] = [
@@ -67,7 +67,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<... | Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
+    structured: {
+      strings: ["<<... | Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "without autofill",
@@ -87,7 +90,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
+    structured: {
+      strings: ["<<Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "without buttons",
@@ -96,7 +102,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: true,
       childItems: [],
     },
-    structured: ["<<...>>"],
+    structured: {
+      strings: ["<<...>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
 
   {
@@ -106,7 +115,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: false,
       childItems: [],
     },
-    structured: ["<<>>"],
+    structured: {
+      strings: ["<<>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "with buttons",
@@ -131,7 +143,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3>>"],
+    structured: {
+      strings: ["<<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
 
   {
@@ -148,7 +163,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<#Группа кнопок %ГруппаКнопок1>>"],
+    structured: {
+      strings: ["<<#Группа кнопок %ГруппаКнопок1>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
 
   {
@@ -165,7 +183,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<^Выпадающее меню %Меню>>"],
+    structured: {
+      strings: ["<<^Выпадающее меню %Меню>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "with search control addition",
@@ -180,7 +201,10 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<?УправлениеПоиском %Дополнение>>"],
+    structured: {
+      strings: ["<<?УправлениеПоиском %Дополнение>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
   {
     name: "with search string addition",
@@ -194,6 +218,9 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
         },
       ],
     },
-    structured: ["<<?ОтображениеСтрокиПоиска %Дополнение>>"],
+    structured: {
+      strings: ["<<?ОтображениеСтрокиПоиска %Дополнение>>"],
+      haveSimpleHorizontalGroup: false,
+    },
   },
 ]

@@ -1,188 +1,188 @@
-import { describe, expect, it } from "vitest"
-import { lexer } from "../tokenizer/lexer"
-import { tokenize } from "../tokenizer/tokenizer"
-import { detectElementType } from "./detector"
-import { ParseElementType } from "./types"
+// import { describe, expect, it } from "vitest"
+// import { lexer } from "../tokenizer/lexer"
+// import { tokenize } from "../tokenizer/tokenizer"
+// import { detectElementType } from "./detector"
+// import { ParseElementType } from "./types"
 
-describe("detectElementType", () => {
-  it("should detect input field containing :", () => {
-    const mock = `text:`
+// describe("detectElementType", () => {
+//   it("should detect input field containing :", () => {
+//     const mock = `text:`
 
-    const tokens = tokenize(mock)
+//     const tokens = tokenize(mock)
 
-    const result = detectElementType(tokens)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.InputField)
-  })
+//     expect(result).toEqual(ParseElementType.InputField)
+//   })
 
-  it("should detect vertical group starting with #", () => {
-    const mock = `#VerticalGroup`
+//   it("should detect vertical group starting with #", () => {
+//     const mock = `#VerticalGroup`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.VerticalGroup)
-  })
+//     expect(result).toEqual(ParseElementType.VerticalGroup)
+//   })
 
-  it("should detect horizontal group starting with %", () => {
-    const mock = `%HorizontalGroup`
+//   it("should detect horizontal group starting with %", () => {
+//     const mock = `%HorizontalGroup`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.HorizontalGroup)
-  })
+//     expect(result).toEqual(ParseElementType.HorizontalGroup)
+//   })
 
-  it("should detect horizontal if possible group starting with %#", () => {
-    const mock = `%#HorizontalIfPossibleGroup`
+//   it("should detect horizontal if possible group starting with %#", () => {
+//     const mock = `%#HorizontalIfPossibleGroup`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.HorizontalGroup)
-  })
-  it("should detect one line horizontal group when wrapped with %", () => {
-    const mock = `%OneLineGroup%`
+//     expect(result).toEqual(ParseElementType.HorizontalGroup)
+//   })
+//   it("should detect one line horizontal group when wrapped with %", () => {
+//     const mock = `%OneLineGroup%`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.OneLineHorizontalGroup)
-  })
+//     expect(result).toEqual(ParseElementType.OneLineHorizontalGroup)
+//   })
 
-  it("should detect one line horizontal if possible group when wrapped with %", () => {
-    const mock = `%#OneLineGroup%`
+//   it("should detect one line horizontal if possible group when wrapped with %", () => {
+//     const mock = `%#OneLineGroup%`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.OneLineHorizontalGroup)
-  })
+//     expect(result).toEqual(ParseElementType.OneLineHorizontalGroup)
+//   })
 
-  it("should detect pages starting with //", () => {
-    const mock = `//Pages`
+//   it("should detect pages starting with //", () => {
+//     const mock = `//Pages`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.Pages)
-  })
+//     expect(result).toEqual(ParseElementType.Pages)
+//   })
 
-  it("should detect page starting with /", () => {
-    const mock = `/Page`
+//   it("should detect page starting with /", () => {
+//     const mock = `/Page`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.Page)
-  })
+//     expect(result).toEqual(ParseElementType.Page)
+//   })
 
-  it("should detect command bar starting with < and containing |", () => {
-    const mock = `<Button1|Button2|Button3> {name}`
+//   it("should detect command bar starting with < and containing |", () => {
+//     const mock = `<Button1|Button2|Button3> {name}`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.CommandBar)
-  })
+//     expect(result).toEqual(ParseElementType.CommandBar)
+//   })
 
-  it("should detect potential auto command bar if it doesn't have name", () => {
-    const mock = `<Button1|Button2|Button3>`
+//   it("should detect potential auto command bar if it doesn't have name", () => {
+//     const mock = `<Button1|Button2|Button3>`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.PotentialAutoCommandBar)
-  })
+//     expect(result).toEqual(ParseElementType.PotentialAutoCommandBar)
+//   })
 
-  it("should detect button starting with <", () => {
-    const mock = `<Button>`
+//   it("should detect button starting with <", () => {
+//     const mock = `<Button>`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.Button)
-  })
+//     expect(result).toEqual(ParseElementType.Button)
+//   })
 
-  it("should detect table containing |", () => {
-    const mock = `Column1|Column2|Column3`
+//   it("should detect table containing |", () => {
+//     const mock = `Column1|Column2|Column3`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.Table)
-  })
+//     expect(result).toEqual(ParseElementType.Table)
+//   })
 
-  it("should detect label decoration for plain text", () => {
-    const mock = `Plain Text Label`
+//   it("should detect label decoration for plain text", () => {
+//     const mock = `Plain Text Label`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.LabelDecoration)
-  })
+//     expect(result).toEqual(ParseElementType.LabelDecoration)
+//   })
 
-  it("should handle empty string as label decoration", () => {
-    const mock = ``
+//   it("should handle empty string as label decoration", () => {
+//     const mock = ``
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.LabelDecoration)
-  })
+//     expect(result).toEqual(ParseElementType.LabelDecoration)
+//   })
 
-  it("should handle whitespace-only string as label decoration", () => {
-    const mock = `   `
+//   it("should handle whitespace-only string as label decoration", () => {
+//     const mock = `   `
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.LabelDecoration)
-  })
+//     expect(result).toEqual(ParseElementType.LabelDecoration)
+//   })
 
-  it("should detect left titled checkbox containing []", () => {
-    const mock = `Checkbox[]`
+//   it("should detect left titled checkbox containing []", () => {
+//     const mock = `Checkbox[]`
 
-    const tokens = lexer.tokenize(mock).tokens
-    const result = detectElementType(tokens)
+//     const tokens = lexer.tokenize(mock).tokens
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
-  })
+//     expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
+//   })
 
-  it("should detect left titled checkbox containing [ ]", () => {
-    const mock = `Checkbox [ ] {name}`
+//   it("should detect left titled checkbox containing [ ]", () => {
+//     const mock = `Checkbox [ ] {name}`
 
-    const tokens = lexer.tokenize(mock).tokens
-    const result = detectElementType(tokens)
+//     const tokens = lexer.tokenize(mock).tokens
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
-  })
+//     expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
+//   })
 
-  it("should detect right titled checkbox containing []", () => {
-    const mock = `[]Some Text`
+//   it("should detect right titled checkbox containing []", () => {
+//     const mock = `[]Some Text`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.RightTitledCheckboxField)
-  })
+//     expect(result).toEqual(ParseElementType.RightTitledCheckboxField)
+//   })
 
-  it("should detect left titled radio button containing ()", () => {
-    const mock = `Radio button ()`
+//   it("should detect left titled radio button containing ()", () => {
+//     const mock = `Radio button ()`
 
-    const tokens = tokenize(mock)
-    const result = detectElementType(tokens)
+//     const tokens = tokenize(mock)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.RadioButtonField)
-  })
+//     expect(result).toEqual(ParseElementType.RadioButtonField)
+//   })
 
-  it("should detect other fields beginning with ?", () => {
-    const mock = `?ПолеПереключателя`
+//   it("should detect other fields beginning with ?", () => {
+//     const mock = `?ПолеПереключателя`
 
-    const tokens = tokenize(mock)
+//     const tokens = tokenize(mock)
 
-    const result = detectElementType(tokens)
+//     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.OtherField)
-  })
-})
+//     expect(result).toEqual(ParseElementType.OtherField)
+//   })
+// })

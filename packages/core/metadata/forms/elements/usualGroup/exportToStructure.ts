@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { FormatElementFunction, ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
@@ -14,7 +14,7 @@ import { UsualGroup } from "./types"
 export const exportUsualGroupToStructure: FormatElementFunction = (
   context: ConfigurationContext,
   element: NamedElement
-): IFormatElementResult => {
+): ToNKDKResult => {
   const usualGroup = element as UsualGroup
   if (isVerticalGroup(usualGroup)) return formatVerticalGroup(context, usualGroup)
   if (isOneLineGroup(context, usualGroup)) return formatOneLineGroup(context, usualGroup)

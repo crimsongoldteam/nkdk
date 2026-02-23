@@ -4,7 +4,7 @@ import {
   InputFieldPartialYAML,
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -371,7 +371,7 @@ export const minimalInputFieldTypedYAML: InputFieldTypedYAML = {
 export interface InputFieldStructureFixture {
   name: string
   element: InputField
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
@@ -382,7 +382,10 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       itemType: CollectionFormElementType.InputField,
       title: { items: { ru: "Поле" } },
     },
-    structured: ["Поле: %ИмяПоля"],
+    structured: {
+      strings: ["Поле: %ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "without title",
@@ -390,7 +393,10 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       name: "ИмяПоля",
       itemType: CollectionFormElementType.InputField,
     },
-    structured: ["%ИмяПоля: "],
+    structured: {
+      strings: ["%ИмяПоля: "],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]
 

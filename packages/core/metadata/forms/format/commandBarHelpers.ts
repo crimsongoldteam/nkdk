@@ -13,7 +13,7 @@ export const exportCommandBarItemsToStructure = (
     if (!exportFunction)
       throw new Error(`ExportToStructureContent function not found for element type: ${item.itemType}`)
     const result = exportFunction(context, item)
-    return result
+    return result.strings
   })
 }
 

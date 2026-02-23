@@ -1,5 +1,5 @@
 import { ButtonGroup, ButtonGroupPartialYAML, ButtonGroupTypedYAML } from "~/metadata/forms/elements/buttonGroup/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
@@ -128,7 +128,7 @@ export const minimalButtonGroupTypedYAML: ButtonGroupTypedYAML = {
 export interface ButtonGroupStructureFixture {
   name: string
   element: ButtonGroup
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = [
@@ -140,7 +140,10 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
       title: { items: { ru: "Группа кнопок" } },
       childItems: [],
     },
-    structured: ["#Группа кнопок %ГруппаКнопок"],
+    structured: {
+      strings: ["#Группа кнопок %ГруппаКнопок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "without title",
@@ -150,6 +153,9 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
       title: undefined,
       childItems: [],
     },
-    structured: ["#{ГруппаКнопок}"],
+    structured: {
+      strings: ["#{ГруппаКнопок}"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]

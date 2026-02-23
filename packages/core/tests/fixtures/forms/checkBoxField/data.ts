@@ -3,7 +3,7 @@ import {
   CheckBoxFieldPartialYAML,
   CheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -175,7 +175,7 @@ export const minimalCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
 export interface CheckBoxFieldStructureFixture {
   name: string
   element: CheckBoxField
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[] = [
@@ -187,7 +187,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["Заголовок флажка [ ] %Флажок"],
+    structured: {
+      strings: ["Заголовок флажка [ ] %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "left titled without title",
@@ -196,7 +199,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "" } },
     },
-    structured: ["%Флажок [ ]"],
+    structured: {
+      strings: ["%Флажок [ ]"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "right titled",
@@ -206,7 +212,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       titleLocation: "Right",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["[ ] Заголовок флажка %Флажок"],
+    structured: {
+      strings: ["[ ] Заголовок флажка %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "right titled without title",
@@ -216,7 +225,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       titleLocation: "Right",
       title: { items: { ru: "" } },
     },
-    structured: ["[ ] %Флажок"],
+    structured: {
+      strings: ["[ ] %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   // #endregion
   // #region switch
@@ -228,7 +240,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["Заголовок флажка [ | ] %Флажок"],
+    structured: {
+      strings: ["Заголовок флажка [ | ] %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "left titled switch without title",
@@ -238,7 +253,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       title: { items: { ru: "" } },
     },
-    structured: ["%Флажок [ | ]"],
+    structured: {
+      strings: ["%Флажок [ | ]"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "right titled switch",
@@ -249,7 +267,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["[ | ] Заголовок флажка %Флажок"],
+    structured: {
+      strings: ["[ | ] Заголовок флажка %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "right titled switch without title",
@@ -260,7 +281,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       title: { items: { ru: "" } },
     },
-    structured: ["[ | ] %Флажок"],
+    structured: {
+      strings: ["[ | ] %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   // #endregion
   // #region tumbler
@@ -272,7 +296,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["Заголовок флажка <|> %Флажок"],
+    structured: {
+      strings: ["Заголовок флажка <|> %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "left titled tumbler without title",
@@ -282,7 +309,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       title: { items: { ru: "" } },
     },
-    structured: ["%Флажок <|>"],
+    structured: {
+      strings: ["%Флажок <|>"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "right titled tumbler",
@@ -293,7 +323,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["<|> Заголовок флажка %Флажок"],
+    structured: {
+      strings: ["<|> Заголовок флажка %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "right titled tumbler without title",
@@ -304,7 +337,10 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       title: { items: { ru: "" } },
     },
-    structured: ["<|> %Флажок"],
+    structured: {
+      strings: ["<|> %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   // #endregion
 ]
@@ -317,7 +353,10 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
       itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: ["[ ] Заголовок флажка %Флажок"],
+    structured: {
+      strings: ["[ ] Заголовок флажка %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "left titled without title",
@@ -326,6 +365,9 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
       itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "" } },
     },
-    structured: ["[ ] %Флажок"],
+    structured: {
+      strings: ["[ ] %Флажок"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]

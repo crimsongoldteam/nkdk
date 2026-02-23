@@ -1,5 +1,5 @@
 import { LabelDecoration, LabelDecorationPartialYAML } from "~/metadata/forms/elements/labelDecoration/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -121,7 +121,7 @@ export const minimalLabelDecorationYAML: LabelDecorationPartialYAML = minimalLab
 export interface LabelDecorationStructureFixture {
   name: string
   element: LabelDecoration
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixture[] = [
@@ -132,7 +132,10 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       itemType: CollectionFormElementType.LabelDecoration,
       title: { items: { ru: "Заголовок" }, formatted: false },
     },
-    structured: ["Заголовок %ИмяПоля"],
+    structured: {
+      strings: ["Заголовок %ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "without title",
@@ -141,7 +144,10 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       title: { items: { ru: "" }, formatted: false },
       itemType: CollectionFormElementType.LabelDecoration,
     },
-    structured: ["%ИмяПоля"],
+    structured: {
+      strings: ["%ИмяПоля"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 
   {
@@ -151,6 +157,9 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       itemType: CollectionFormElementType.LabelDecoration,
       title: { items: { ru: 'Заголовок "формы"' }, formatted: false },
     },
-    structured: ['"Заголовок ""формы""" %ИмяПоля'],
+    structured: {
+      strings: ['"Заголовок ""формы""" %ИмяПоля'],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]

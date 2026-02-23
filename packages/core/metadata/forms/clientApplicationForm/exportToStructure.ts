@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { exportChildItemsToStructure } from "../commonObjects/childItems/exportToStructure"
 import { exportAutoCommandBarToStructure } from "../elements/autoCommandBar/exportToStructure"
 import { ClientApplicationForm } from "./types"
@@ -7,18 +7,19 @@ import { ClientApplicationForm } from "./types"
 export const exportClientApplicationFormToStructure = (
   context: ConfigurationContext,
   element: ClientApplicationForm
-): IFormatElementResult => {
+): ToNKDKResult => {
   const childItems = element.childItems ?? []
-  const result: IFormatElementResult = {
+  const result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
 
   const autoCommandBar = exportAutoCommandBarToStructure(context, element.autoCommandBar)
-  result.push(...autoCommandBar)
+  result.strings.push(...autoCommandBar.strings)
 
   const itemsResult = exportChildItemsToStructure(context, childItems)
-  result.push(...itemsResult)
+  result.strings.push(...itemsResult.strings)
+  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 
   return result
 }

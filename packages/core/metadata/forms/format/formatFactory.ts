@@ -3,7 +3,7 @@ import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { AllChildItems, OtherElement } from "../commonObjects/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
-import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
+import { CheckFormatFunction, FormatElementFunction, ToNKDKResult } from "./types"
 
 type FormatRegistry = {
   format: FormatElementFunction
@@ -22,10 +22,7 @@ export const registerFormat = <T extends NamedElement>(
   })
 }
 
-export const formatElement = <T extends NamedElement>(
-  context: ConfigurationContext,
-  element: T
-): IFormatElementResult => {
+export const formatElement = <T extends NamedElement>(context: ConfigurationContext, element: T): ToNKDKResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
   if (!formatter) return exportOtherElementToStructure(context, element as OtherElement)
 
@@ -33,8 +30,8 @@ export const formatElement = <T extends NamedElement>(
   return result
 }
 
-export const formatElements = (context: ConfigurationContext, items: AllChildItems): IFormatElementResult => {
-  let result: IFormatElementResult = {
+export const formatElements = (context: ConfigurationContext, items: AllChildItems): ToNKDKResult => {
+  let result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
@@ -55,13 +52,14 @@ export const formatElements = (context: ConfigurationContext, items: AllChildIte
           prevItem.itemType as typeof CollectionFormElementType.Pages | typeof CollectionFormElementType.UsualGroup
         ))
     ) {
-      result.push("")
+      result.strings.push("")
     }
 
     prevItem = item
 
     const text = formatElement(context, item)
-    result.push(...text)
+    result.strings.push(...text.strings)
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }
   return result
 }

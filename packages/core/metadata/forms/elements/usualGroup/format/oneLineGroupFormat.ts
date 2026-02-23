@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { OtherElement } from "~/metadata/forms/commonObjects/childItems/types"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { IFormatElementResult, ToNKDKResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { UsualGroup } from "../types"
@@ -10,27 +10,27 @@ const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
 const oneLineGroupSuffix = "%"
 
-export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
+export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): ToNKDKResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 
-  let result: IFormatElementResult = {
+  let result: ToNKDKResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
 
-  let groupItems: ToNKDKResult[] = []
+  let groupItems: string[][] = []
 
   if (element.childItems) {
     for (const item of element.childItems) {
       const exportFunction = getElementOperationFunction("ExportToStructure", item.itemType)
-      let itemResult: IFormatElementResult
+      let itemResult: ToNKDKResult
       if (!exportFunction) {
         itemResult = exportOtherElementToStructure(context, item as OtherElement)
       } else {
-        itemResult = exportFunction(context, item) as IFormatElementResult
+        itemResult = exportFunction(context, item) as ToNKDKResult
       }
-      groupItems.push(itemResult)
+      groupItems.push(itemResult.strings)
     }
   }
 
@@ -43,7 +43,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       : horizontalGroupPrefix
   let resultLine = prefix + header + oneLineGroupSuffix + " " + joinedItems
 
-  result.push(resultLine)
+  result.strings.push(resultLine)
 
   return result
 }

@@ -4,7 +4,7 @@ import {
   LabelFieldPartialYAML,
   LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -195,8 +195,8 @@ export const minimalLabelFieldTypedYAML: LabelFieldTypedYAML = {
 export interface LabelFieldStructureFixture {
   name: string
   element: LabelField
-  structured: IFormatElementResult
-  content: IFormatElementResult
+  structured: ToNKDKResult
+  content: ToNKDKResult
 }
 
 export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
@@ -207,8 +207,14 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       itemType: CollectionFormElementType.LabelField,
       title: { items: { ru: "Поле надписи" } },
     },
-    structured: ["~Поле надписи: {ПолеНадписи}"],
-    content: ["~Поле надписи {ПолеНадписи}"],
+    structured: {
+      strings: ["~Поле надписи: {ПолеНадписи}"],
+      haveSimpleHorizontalGroup: true,
+    },
+    content: {
+      strings: ["~Поле надписи {ПолеНадписи}"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "without title",
@@ -216,8 +222,14 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       name: "ПолеНадписи",
       itemType: CollectionFormElementType.LabelField,
     },
-    structured: ["~{ПолеНадписи}: "],
-    content: ["~{ПолеНадписи}"],
+    structured: {
+      strings: ["~{ПолеНадписи}: "],
+      haveSimpleHorizontalGroup: true,
+    },
+    content: {
+      strings: ["~{ПолеНадписи}"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]
 

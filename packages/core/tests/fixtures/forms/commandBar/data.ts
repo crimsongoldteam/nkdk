@@ -1,6 +1,6 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   fullCommandBarChildItemsAllYAML,
@@ -107,7 +107,7 @@ export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
 export interface CommandBarStructureFixture {
   name: string
   element: CommandBar
-  structured: IFormatElementResult
+  structured: ToNKDKResult
 }
 
 export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
@@ -134,7 +134,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: ["<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3> %КоманднаяПанель"],
+    structured: {
+      strings: ["<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3> %КоманднаяПанель"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 
   {
@@ -151,7 +154,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: ["<-Группа кнопок %ГруппаКнопок1> %КоманднаяПанель"],
+    structured: {
+      strings: ["<-Группа кнопок %ГруппаКнопок1> %КоманднаяПанель"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 
   {
@@ -168,7 +174,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: ["<+Выпадающее меню %Меню> %КоманднаяПанель"],
+    structured: {
+      strings: ["<+Выпадающее меню %Меню> %КоманднаяПанель"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "with search control addition",
@@ -183,7 +192,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: ["<?УправлениеПоиском %Дополнение> %КоманднаяПанель"],
+    structured: {
+      strings: ["<?УправлениеПоиском %Дополнение> %КоманднаяПанель"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
   {
     name: "with search string addition",
@@ -197,6 +209,9 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         },
       ],
     },
-    structured: ["<?ОтображениеСтрокиПоиска %Дополнение> %КоманднаяПанель"],
+    structured: {
+      strings: ["<?ОтображениеСтрокиПоиска %Дополнение> %КоманднаяПанель"],
+      haveSimpleHorizontalGroup: true,
+    },
   },
 ]
