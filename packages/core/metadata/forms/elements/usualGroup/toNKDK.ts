@@ -8,7 +8,7 @@ import {
   OneLineGroupSeparator,
   VerticalGroupPrefix,
 } from "~/nkdk/lexer"
-import { exportChildItemsToNKDK } from "../../commonObjects/childItems/exportToStructure"
+import { exportChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
 import { formatElementName, formatElementTitleAndName } from "../../format/helpers"
 import { UsualGroup } from "./types"
 

@@ -66,8 +66,8 @@ import "./page/rules"
 import "./page/toNKDK"
 import "./page/types"
 
-import "./pages/exportToStructure"
 import "./pages/rules"
+import "./pages/toNKDK"
 import "./pages/types"
 
 import "./pdfDocumentField/rules"

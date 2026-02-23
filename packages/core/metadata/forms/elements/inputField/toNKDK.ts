@@ -11,14 +11,28 @@ export const exportInputFieldToNKDK = (params: {
   const { context, element } = params
 
   const title = formatDefaultLanguageText(context, element.title)
+  const header = formatTitle(element, title) + InputFieldSeparator
+  const namePart = formatNamePart(element, title)
 
-  let header = formatTitle(element, title)
+  const result: ToNKDKResult = {
+    strings: [header + namePart],
+    toOneLineGroup: true,
+  }
 
-  header += InputFieldSeparator
+  return result
+}
 
-  let namePart = formatNamePart(element, title)
+export const exportInputFieldContentToNKDK = (params: {
+  context: ConfigurationContext
+  element: InputField
+}): ToNKDKResult => {
+  const { context, element } = params
 
-  let result: ToNKDKResult = {
+  const title = formatDefaultLanguageText(context, element.title)
+  const header = formatTitle(element, title)
+  const namePart = formatNamePart(element, title)
+
+  const result: ToNKDKResult = {
     strings: [header + namePart],
     toOneLineGroup: true,
   }

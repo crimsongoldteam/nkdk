@@ -2,9 +2,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { TableColumnSeparator } from "~/nkdk/lexer"
-import { exportChildItemsToNKDK } from "../../commonObjects/childItems/exportToStructure"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { Table } from "./types"
+import { exportChildItemsContentToNKDK } from "../../commonObjects/childItems/toNKDK"
 
 export const exportTableToNKDK = (params: { context: ConfigurationContext; element: Table }): ToNKDKResult => {
   const { context, element } = params
@@ -28,7 +28,7 @@ const exportTableContentToStructure = (context: ConfigurationContext, element: T
 
   const parts: string[] = []
 
-  const columns = exportChildItemsToNKDK(context, childItems)
+  const columns = exportChildItemsContentToNKDK(context, childItems)
   parts.push(...columns.strings)
 
   const tableName = formatElementName(element)

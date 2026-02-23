@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
-import { exportPagesToStructure } from "./exportToStructure"
+import { exportPagesToNKDK } from "./toNKDK"
 import { Pages } from "./types"
 
 describe("exportPagesToStructure", () => {
@@ -23,11 +23,11 @@ describe("exportPagesToStructure", () => {
       ],
     }
 
-    const expectedResult = `//{Страницы}
-  /{Страница1}
-    {Элемент1}: `
+    const expectedResult = `//%Страницы
+  /%Страница1
+    %Элемент1: `
 
-    const result = exportPagesToStructure(mockContext, mockElement)
+    const result = exportPagesToNKDK({ context: mockContext, element: mockElement })
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

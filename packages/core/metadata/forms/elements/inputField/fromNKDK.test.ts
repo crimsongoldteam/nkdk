@@ -11,7 +11,7 @@ describe("importInputFieldFromStructure", () => {
     "should import input field $name",
     async (row: InputFieldStructureFixture) => {
       const { element: input, structured } = row
-      const result = await testImportElementFromNKDK(mockContext, structured)
+      const result = await testImportElementFromNKDK(mockContext, structured.strings.join("\n"))
 
       expect(result).toEqual(input)
     }

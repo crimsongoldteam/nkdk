@@ -6,3 +6,8 @@ export const OneLineGroupSeparator = "; "
 export const InputFieldSeparator = ": "
 
 export const TableColumnSeparator = "|"
+
+export const PagesPrefix = "//"
+export const PagePrefix = "/"
+
+export const ColumnGroupPrefix = "-"

@@ -1,30 +1,31 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { addIndentation } from "~/nkdk/helper"
-import { PagePrefix } from "~/nkdk/lexer"
+import { PagesPrefix } from "~/nkdk/lexer"
 import { exportChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
-import { Page } from "./types"
+import { formatElementTitleAndName } from "../../format/helpers"
+import { Pages } from "./types"
 
-export const exportPageToNKDK = (params: { context: ConfigurationContext; element: Page }): ToNKDKResult => {
+export const exportPagesToNKDK = (params: { context: ConfigurationContext; element: Pages }): ToNKDKResult => {
   const { context, element } = params
-
-  const childItems = element.childItems ?? []
-
+  const pagesElement = element as Pages
+  const childItems = pagesElement.childItems ?? []
   const result: ToNKDKResult = {
     strings: [],
     toOneLineGroup: false,
   }
 
-  const header = getHeader(context, element)
+  const header = getHeader(context, pagesElement)
   result.strings.push(header)
 
   const childResult = exportChildItemsToNKDK(context, childItems)
+
   const indentedStrings = addIndentation(childResult.strings)
+
   result.strings.push(...indentedStrings)
   return result
 }
 
-const getHeader = (context: ConfigurationContext, element: Page): string => {
-  return PagePrefix + formatElementTitleAndName(context, element)
+const getHeader = (context: ConfigurationContext, element: Pages): string => {
+  return PagesPrefix + formatElementTitleAndName(context, element)
 }
