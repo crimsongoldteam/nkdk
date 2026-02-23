@@ -6,8 +6,8 @@ import {
   AutoCommandBarSeparator,
   AutoCommandBarSuffix,
 } from "~/nkdk/terminal"
-import { exportChildItemsContentToNKDK } from "../../commonObjects/childItems/toNKDK"
 import { AutoCommandBar } from "./types"
+import { exportCommandBarChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
 
 export const exportAutoCommandBarToNKDK = (params: {
   context: ConfigurationContext
@@ -16,7 +16,7 @@ export const exportAutoCommandBarToNKDK = (params: {
   const { context, element } = params
   if (!element) return { strings: [], toOneLineGroup: false }
 
-  const childItems = exportChildItemsContentToNKDK(context, element.childItems)
+  const childItems = exportCommandBarChildItemsToNKDK(context, element.childItems)
   const autofill = element.autofill !== false
 
   const content = formatContent(childItems.strings, autofill)

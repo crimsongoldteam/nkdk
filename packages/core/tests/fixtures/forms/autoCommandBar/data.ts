@@ -164,7 +164,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<< -Группа кнопок %ГруппаКнопок1 >>"],
+      strings: ["<<-Группа кнопок %ГруппаКнопок1>>"],
       toOneLineGroup: false,
     },
   },
@@ -184,7 +184,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<< +Выпадающее меню %Меню >>"],
+      strings: ["<<+Выпадающее меню %Меню>>"],
       toOneLineGroup: false,
     },
   },
@@ -202,7 +202,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<< ?УправлениеПоиском %Дополнение >>"],
+      strings: ["<<?УправлениеПоиском %Дополнение>>"],
       toOneLineGroup: false,
     },
   },
@@ -219,7 +219,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<< ?ОтображениеСтрокиПоиска %Дополнение >>"],
+      strings: ["<<?ОтображениеСтрокиПоиска %Дополнение>>"],
       toOneLineGroup: false,
     },
   },
