@@ -8,23 +8,20 @@ import { exportCheckBoxFieldContentToNKDK, exportCheckBoxFieldToNKDK } from "./t
 
 describe("exportCheckBoxFieldToStructure", () => {
   describe("exportCheckBoxFieldToStructure", () => {
-    it.each(checkBoxFieldStructureFixturesTable)(
-      "should export check box field $name",
-      ({ element: input, structured: expected }) => {
-        const result = exportCheckBoxFieldToNKDK({ context: mockContext, element: input })
+    it.each(checkBoxFieldStructureFixturesTable)("should export check box field $description", ({ element, nkdk }) => {
+      const result = exportCheckBoxFieldToNKDK({ context: mockContext, element: element })
 
-        expect(result).toEqual(expected)
-      }
-    )
+      expect(result).toEqual(nkdk)
+    })
   })
 
   describe("exportCheckBoxFieldContentToStructure", () => {
     it.each(checkBoxFieldContentStructureFixturesTable)(
-      "should export check box field $name",
-      ({ element: input, structured: expected }) => {
-        const result = exportCheckBoxFieldContentToNKDK({ context: mockContext, element: input })
+      "should export check box field $description",
+      ({ element, nkdk }) => {
+        const result = exportCheckBoxFieldContentToNKDK({ context: mockContext, element: element })
 
-        expect(result).toEqual(expected)
+        expect(result).toEqual(nkdk)
       }
     )
   })

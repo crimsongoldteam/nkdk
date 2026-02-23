@@ -1,5 +1,6 @@
+import { exportTitleToNKDK } from "~/metadata/commonObjects/title/toNKDK"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { formatDefaultLanguageText, formatElementName } from "~/metadata/forms/format/helpers"
+import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { CheckBoxField } from "./types"
 
@@ -34,12 +35,12 @@ const formatCheckBoxFieldContent = (
   element: CheckBoxField,
   forContent: boolean
 ): string => {
-  const title = formatDefaultLanguageText(context, element.title)
+  const title = exportTitleToNKDK({ context, title: element.title })
   const symbol = getCheckBoxFieldSymbol(element)
   const name = formatElementName(element)
   const isRightTitled = element.titleLocation == "Right" || forContent
 
-  if (title) {
+  if (title !== undefined) {
     if (isRightTitled) {
       return `${symbol} ${title} ${name}`
     } else {

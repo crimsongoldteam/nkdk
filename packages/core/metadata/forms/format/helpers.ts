@@ -14,7 +14,7 @@ export const formatDefaultLanguageText = (
   if (!text) return undefined
 
   const defaultLanguage = context.defaultLanguage
-  return escapeWithDoubleQuotes(text.items[defaultLanguage])
+  return escapeText(text.items[defaultLanguage])
 }
 
 export const formatElementTitleAndName = (
@@ -51,7 +51,7 @@ export const wrapButtonContent = (content: string): string => {
  * @param text - текст для экранирования
  * @returns экранированный текст в двойных кавычках или исходный текст
  */
-export const escapeWithDoubleQuotes = (text: string | undefined): string | undefined => {
+export const escapeText = (text: string | undefined): string | undefined => {
   if (!text) return undefined
 
   // Специальные символы из лексера, которые требуют экранирования

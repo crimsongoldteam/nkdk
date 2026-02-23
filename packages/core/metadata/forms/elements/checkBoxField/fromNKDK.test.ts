@@ -5,8 +5,8 @@ import { mockContext } from "~/tests/mockContext"
 
 describe("importCheckBoxFieldFromStructure", () => {
   it.each(checkBoxFieldStructureFixturesTable)(
-    "should import check box field $name",
-    async ({ element: input, structured }) => {
+    "should import check box field $description",
+    async ({ element: input, nkdk: structured }) => {
       const result = await testImportElementFromNKDK(mockContext, structured.strings)
 
       expect(result).toEqual(input)

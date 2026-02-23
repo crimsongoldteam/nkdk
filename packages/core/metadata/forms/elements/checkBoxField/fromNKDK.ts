@@ -95,10 +95,15 @@ const importFromNKDK = (params: {
 }): CheckBoxField => {
   const { context, source, type, titleLocation } = params
 
+  const title = importI8nTextFromNKDK(context, source.title)
+
   const result: CheckBoxField = {
     itemType: CollectionFormElementType.CheckBoxField,
     name: importNameFromNKDK(source.name),
-    title: importI8nTextFromNKDK(context, source.title ?? ""),
+  }
+
+  if (title !== undefined) {
+    result.title = title
   }
 
   if (titleLocation) {

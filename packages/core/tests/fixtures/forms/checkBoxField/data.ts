@@ -163,7 +163,6 @@ export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
 export const minimalCheckBoxField: CheckBoxField = {
   itemType: CollectionFormElementType.CheckBoxField,
   name: "Флажок",
-  title: { items: { ru: "" } },
 }
 
 export const minimalCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {}
@@ -173,93 +172,103 @@ export const minimalCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
 }
 
 export interface CheckBoxFieldStructureFixture {
-  name: string
+  description: string
   element: CheckBoxField
-  structured: ToNKDKResult
+  nkdk: ToNKDKResult
+  xml?: string
 }
 
+// НЕДЕЙСТВИТЕЛЬНО
+// Если заголовок (pascalCase) равен имени, title = undefined, не выводится в NKDK
+// Если заголовок не равен имени, заголовок на основном языке выводится в NKDK, на остальных в YAML
+// Если заголовок пустой, на форму выводится ''
+// Если ПоложениеЗаголовка = Нет, пока непонятно
+
+// ДЕЙСТВИТЕЛЬНО
+// Если заголовок, есть заголовок выводим его
+// Если заголовок пустой, title = undefined, не выводится в NKDK
 export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[] = [
   // #region checkbox
   {
-    name: "left titled",
+    description: "left titled",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
-      strings: ["Заголовок флажка [ ] %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["Заголовок флажка [ ] %Флажок"], toOneLineGroup: true },
   },
   {
-    name: "left titled without title",
+    description: "left titled without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
-      title: { items: { ru: "" } },
     },
-    structured: {
-      strings: ["%Флажок [ ]"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["%Флажок [ ]"], toOneLineGroup: true },
   },
+  // {
+  //   description: "left titled with empty title",
+  //   element: {
+  //     name: "Флажок",
+  //     itemType: CollectionFormElementType.CheckBoxField,
+  //     title: { items: { ru: "" } },
+  //   },
+  //   nkdk: { strings: ["'' [ ] %Флажок"], toOneLineGroup: true },
+  // },
   {
-    name: "right titled",
+    description: "right titled",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       titleLocation: "Right",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
-      strings: ["[ ] Заголовок флажка %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["[ ] Заголовок флажка %Флажок"], toOneLineGroup: true },
   },
   {
-    name: "right titled without title",
+    description: "right titled without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       titleLocation: "Right",
-      title: { items: { ru: "" } },
     },
-    structured: {
-      strings: ["[ ] %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["[ ] %Флажок"], toOneLineGroup: true },
   },
+  // {
+  //   description: "right titled with empty title",
+  //   element: {
+  //     name: "Флажок",
+  //     itemType: CollectionFormElementType.CheckBoxField,
+  //     titleLocation: "Right",
+  //     title: { items: { ru: "" } },
+  //   },
+  //   nkdk: { strings: ["[ ] '' %Флажок"], toOneLineGroup: true },
+  // },
+
   // #endregion
+
   // #region switch
   {
-    name: "left titled switch",
+    description: "left titled switch",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
-      strings: ["Заголовок флажка [ | ] %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["Заголовок флажка [ | ] %Флажок"], toOneLineGroup: true },
   },
   {
-    name: "left titled switch without title",
+    description: "left titled switch without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       checkBoxType: "Switch",
-      title: { items: { ru: "" } },
     },
-    structured: {
-      strings: ["%Флажок [ | ]"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["%Флажок [ | ]"], toOneLineGroup: true },
   },
   {
-    name: "right titled switch",
+    description: "right titled switch",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
@@ -267,55 +276,47 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
-      strings: ["[ | ] Заголовок флажка %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["[ | ] Заголовок флажка %Флажок"], toOneLineGroup: true },
   },
   {
-    name: "right titled switch without title",
+    description: "right titled switch without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       titleLocation: "Right",
       checkBoxType: "Switch",
-      title: { items: { ru: "" } },
     },
-    structured: {
-      strings: ["[ | ] %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["[ | ] %Флажок"], toOneLineGroup: true },
   },
   // #endregion
   // #region tumbler
   {
-    name: "left titled tumbler",
+    description: "left titled tumbler",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       checkBoxType: "Tumbler",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
+    nkdk: {
       strings: ["Заголовок флажка < | > %Флажок"],
       toOneLineGroup: true,
     },
   },
   {
-    name: "left titled tumbler without title",
+    description: "left titled tumbler without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       checkBoxType: "Tumbler",
-      title: { items: { ru: "" } },
     },
-    structured: {
+    nkdk: {
       strings: ["%Флажок < | >"],
       toOneLineGroup: true,
     },
   },
   {
-    name: "right titled tumbler",
+    description: "right titled tumbler",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
@@ -323,51 +324,40 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
+    nkdk: {
       strings: ["< | > Заголовок флажка %Флажок"],
       toOneLineGroup: true,
     },
   },
   {
-    name: "right titled tumbler without title",
+    description: "right titled tumbler without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       titleLocation: "Right",
       checkBoxType: "Tumbler",
-      title: { items: { ru: "" } },
     },
-    structured: {
-      strings: ["< | > %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["< | > %Флажок"], toOneLineGroup: true },
   },
   // #endregion
 ]
 
 export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureFixture[] = [
   {
-    name: "left titled",
+    description: "left titled",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок флажка" } },
     },
-    structured: {
-      strings: ["[ ] Заголовок флажка %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["[ ] Заголовок флажка %Флажок"], toOneLineGroup: true },
   },
   {
-    name: "left titled without title",
+    description: "left titled without title",
     element: {
       name: "Флажок",
       itemType: CollectionFormElementType.CheckBoxField,
-      title: { items: { ru: "" } },
     },
-    structured: {
-      strings: ["[ ] %Флажок"],
-      toOneLineGroup: true,
-    },
+    nkdk: { strings: ["[ ] %Флажок"], toOneLineGroup: true },
   },
 ]

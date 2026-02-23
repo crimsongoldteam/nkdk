@@ -32,6 +32,7 @@ export const sourceTable: Table = {
       name: "ТаблицаГруппа1",
       title: { items: { ru: "Группа 1" } },
       childItems: [],
+      group: "Vertical",
     },
     {
       itemType: "CheckBoxField",
@@ -531,7 +532,7 @@ export const pictureColumnTable: Table = {
   ],
 }
 
-export const columnGroupTable: Table = {
+export const tableWithHorizontalColumnGroup: Table = {
   name: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
@@ -539,7 +540,33 @@ export const columnGroupTable: Table = {
       name: "Колонка1",
       itemType: "ColumnGroup",
       childItems: [],
-      title: { items: { ru: "" } },
+      group: "Horizontal",
+    },
+  ],
+}
+
+export const tableWithVerticalColumnGroup: Table = {
+  name: "Таблица1",
+  itemType: CollectionFormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      itemType: "ColumnGroup",
+      childItems: [],
+      group: "Vertical",
+    },
+  ],
+}
+
+export const tableWithInCellColumnGroup: Table = {
+  name: "Таблица1",
+  itemType: CollectionFormElementType.Table,
+  childItems: [
+    {
+      name: "Колонка1",
+      itemType: "ColumnGroup",
+      childItems: [],
+      group: "InCell",
     },
   ],
 }
@@ -579,7 +606,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   },
   {
     name: "table with horizontal group",
-    table: columnGroupTable,
+    table: tableWithHorizontalColumnGroup,
     structure: {
       strings: ["| -%Колонка1 | %Таблица1"],
       toOneLineGroup: false,
@@ -587,7 +614,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   },
   {
     name: "table with vertical group",
-    table: columnGroupTable,
+    table: tableWithVerticalColumnGroup,
     structure: {
       strings: ["| +%Колонка1 | %Таблица1"],
       toOneLineGroup: false,
@@ -595,7 +622,7 @@ export const tableStructureFixtures: TableExportToStructureFixture[] = [
   },
   {
     name: "table with in cell group",
-    table: columnGroupTable,
+    table: tableWithInCellColumnGroup,
     structure: {
       strings: ["| =%Колонка1 | %Таблица1"],
       toOneLineGroup: false,

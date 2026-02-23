@@ -51,7 +51,7 @@ export interface CheckBoxField extends NamedElement {
   showInHeader?: boolean
   skipOnInput?: boolean
   table?: string
-  title: I8nText
+  title?: I8nText
   titleBackColor?: Color
   titleFont?: Font
   titleHeight?: number

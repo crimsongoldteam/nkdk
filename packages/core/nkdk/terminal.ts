@@ -10,7 +10,9 @@ export const TableColumnSeparator = "|"
 export const PagesPrefix = "//"
 export const PagePrefix = "/"
 
-export const ColumnGroupPrefix = "-"
+export const HorizontalColumnGroupPrefix = "-"
+export const VerticalColumnGroupPrefix = "+"
+export const InCellColumnGroupPrefix = "="
 
 export const CheckBoxFieldPrefix = "[ ]"
 export const CheckBoxFieldSwitchPrefix = "[ | ]"

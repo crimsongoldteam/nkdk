@@ -26,7 +26,7 @@ export interface FormAttributeAdditionalColumn {
 export interface FormAttribute extends MetadataItem {
   itemType: "FormAttribute"
   name: string
-  title: I8nText
+  title?: I8nText
   type?: TypeDescription
   columns: FormAttributeColumns
   valueType?: TypeDescription

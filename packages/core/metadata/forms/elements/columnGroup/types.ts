@@ -12,7 +12,7 @@ import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 export interface ColumnGroup extends NamedElement {
   itemType: "ColumnGroup"
   fixingInTable?: SE.FixingInTable
-  group?: SE.ColumnsGroup
+  group: SE.ColumnsGroup
   headerDataPath?: string
   headerFormat?: string
   headerHorizontalAlign?: SE.ItemHorizontalLocation
@@ -28,7 +28,7 @@ export interface ColumnGroup extends NamedElement {
   horizontalStretch?: boolean
   readOnly?: boolean
   shortcut?: string
-  title: I8nText
+  title?: I8nText
   titleFont?: Font
   titleTextColor?: Color
   toolTip?: I8nText
