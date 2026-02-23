@@ -56,6 +56,7 @@ export type FromNKDKResult<NkdkItem extends NkdkChildItem> = NkdkItem extends {
   : never
 
 export const importFromNKDKFn = {
+  // AutoCommandBar: importAutoCommandBarFromNKDK,
   InputField: importInputFieldFromNKDK,
   Button: importButtonFromNKDK,
   CheckBoxField: importCheckBoxFieldFromNKDK,
