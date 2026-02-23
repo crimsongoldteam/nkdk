@@ -1,7 +1,7 @@
 import "./autoCommandBar/rules"
 
-import "./button/exportToStructure"
 import "./button/rules"
+import "./button/toNKDK"
 import "./button/types"
 
 import "./buttonGroup/rules"
@@ -14,8 +14,8 @@ import "./calendarField/types"
 import "./chartField/rules"
 import "./chartField/types"
 
-import "./checkBoxField/exportToStructure"
 import "./checkBoxField/rules"
+import "./checkBoxField/toNKDK"
 import "./checkBoxField/types"
 
 import "./columnGroup/rules"

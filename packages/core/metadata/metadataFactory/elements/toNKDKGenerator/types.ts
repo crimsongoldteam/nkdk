@@ -1,5 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, FormElementTypeAll } from "~/metadata/forms/elements/baseElement/types"
+import {
+  exportCheckBoxFieldContentToNKDK,
+  exportCheckBoxFieldToNKDK,
+} from "~/metadata/forms/elements/checkBoxField/toNKDK"
 import { exportColumnGroupContentToNKDK } from "~/metadata/forms/elements/columnGroup/toNKDK"
 import { exportInputFieldContentToNKDK, exportInputFieldToNKDK } from "~/metadata/forms/elements/inputField/toNKDK"
 import { exportLabelDecorationToNKDK } from "~/metadata/forms/elements/labelDecoration/toNKDK"
@@ -27,10 +31,11 @@ export const ExportToNKDKGeneratorFn = {
   LabelDecoration: exportLabelDecorationToNKDK,
   Page: exportPageToNKDK,
   Pages: exportPagesToNKDK,
+  CheckBoxField: exportCheckBoxFieldToNKDK,
 } satisfies ExportToNKDKFnMap
 
 export const ExportToNKDKContentGeneratorFn = {
   InputField: exportInputFieldContentToNKDK,
   ColumnGroup: exportColumnGroupContentToNKDK,
-  // CheckBoxField: exportCheckBoxFieldContentToNKDK,
+  CheckBoxField: exportCheckBoxFieldContentToNKDK,
 } satisfies ExportToNKDKFnMap

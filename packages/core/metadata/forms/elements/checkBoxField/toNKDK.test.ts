@@ -4,24 +4,25 @@ import {
   checkBoxFieldStructureFixturesTable,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportCheckBoxFieldContentToStructure, exportCheckBoxFieldToStructure } from "./exportToStructure"
+import { exportCheckBoxFieldContentToNKDK, exportCheckBoxFieldToNKDK } from "./toNKDK"
 
 describe("exportCheckBoxFieldToStructure", () => {
   describe("exportCheckBoxFieldToStructure", () => {
     it.each(checkBoxFieldStructureFixturesTable)(
       "should export check box field $name",
       ({ element: input, structured: expected }) => {
-        const result = exportCheckBoxFieldToStructure(mockContext, input)
+        const result = exportCheckBoxFieldToNKDK({ context: mockContext, element: input })
 
         expect(result).toEqual(expected)
       }
     )
   })
+
   describe("exportCheckBoxFieldContentToStructure", () => {
     it.each(checkBoxFieldContentStructureFixturesTable)(
       "should export check box field $name",
       ({ element: input, structured: expected }) => {
-        const result = exportCheckBoxFieldContentToStructure(mockContext, input)
+        const result = exportCheckBoxFieldContentToNKDK({ context: mockContext, element: input })
 
         expect(result).toEqual(expected)
       }

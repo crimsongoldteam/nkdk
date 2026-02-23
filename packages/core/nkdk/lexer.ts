@@ -11,3 +11,7 @@ export const PagesPrefix = "//"
 export const PagePrefix = "/"
 
 export const ColumnGroupPrefix = "-"
+
+export const CheckBoxFieldPrefix = "[ ]"
+export const CheckBoxFieldSwitchPrefix = "[ | ]"
+export const CheckBoxFieldTumblerPrefix = "< | >"

@@ -297,7 +297,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["Заголовок флажка <|> %Флажок"],
+      strings: ["Заголовок флажка < | > %Флажок"],
       toOneLineGroup: true,
     },
   },
@@ -310,7 +310,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "" } },
     },
     structured: {
-      strings: ["%Флажок <|>"],
+      strings: ["%Флажок < | >"],
       toOneLineGroup: true,
     },
   },
@@ -324,7 +324,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
     },
     structured: {
-      strings: ["<|> Заголовок флажка %Флажок"],
+      strings: ["< | > Заголовок флажка %Флажок"],
       toOneLineGroup: true,
     },
   },
@@ -338,7 +338,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "" } },
     },
     structured: {
-      strings: ["<|> %Флажок"],
+      strings: ["< | > %Флажок"],
       toOneLineGroup: true,
     },
   },
