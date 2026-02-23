@@ -149,15 +149,34 @@ importers:
 
   packages/cli:
     dependencies:
-      chalk:
-        specifier: ~5.3.0
-        version: 5.3.0
-      commander:
-        specifier: ~11.1.0
-        version: 11.1.0
-      nkdk-language:
+      '@nakidka/core':
         specifier: workspace:*
-        version: link:../language
+        version: link:../core
+      cli-progress:
+        specifier: ^3.12.0
+        version: 3.12.0
+      commander:
+        specifier: ^14.0.2
+        version: 14.0.3
+      fast-xml-parser:
+        specifier: ^5.3.3
+        version: 5.3.3(patch_hash=03b0f88d912b7ef1bc23fede5a6b717f24066bf2f991ea2eb25d7cdffa98d73e)
+    devDependencies:
+      '@types/cli-progress':
+        specifier: ^3.11.6
+        version: 3.11.6
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.4
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.15(@types/node@24.10.4)(jsdom@27.2.0)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/core:
     dependencies:
@@ -1311,6 +1330,9 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
+  '@types/cli-progress@3.11.6':
+    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
+
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -1679,10 +1701,6 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
-  chalk@5.3.0:
-    resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-
   chalk@5.6.2:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
@@ -1720,6 +1738,10 @@ packages:
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
+  cli-progress@3.12.0:
+    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
+    engines: {node: '>=4'}
+
   cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
     engines: {node: '>=12'}
@@ -1737,10 +1759,6 @@ packages:
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
-
-  commander@11.1.0:
-    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
-    engines: {node: '>=16'}
 
   commander@14.0.3:
     resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
@@ -4231,6 +4249,10 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
+  '@types/cli-progress@3.11.6':
+    dependencies:
+      '@types/node': 24.10.4
+
   '@types/deep-eql@4.0.2': {}
 
   '@types/eslint-scope@3.7.7':
@@ -4722,8 +4744,6 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  chalk@5.3.0: {}
-
   chalk@5.6.2: {}
 
   change-case@5.4.4: {}
@@ -4771,6 +4791,10 @@ snapshots:
 
   classnames@2.5.1: {}
 
+  cli-progress@3.12.0:
+    dependencies:
+      string-width: 4.2.3
+
   cliui@8.0.1:
     dependencies:
       string-width: 4.2.3
@@ -4786,8 +4810,6 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
-
-  commander@11.1.0: {}
 
   commander@14.0.3: {}
 
@@ -4992,7 +5014,6 @@ snapshots:
       '@esbuild/win32-arm64': 0.27.2
       '@esbuild/win32-ia32': 0.27.2
       '@esbuild/win32-x64': 0.27.2
-    optional: true
 
   escalade@3.2.0: {}
 
@@ -5937,7 +5958,6 @@ snapshots:
       get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
-    optional: true
 
   typescript@5.8.2: {}
 

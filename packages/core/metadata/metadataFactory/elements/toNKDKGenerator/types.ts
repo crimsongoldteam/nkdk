@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, FormElementTypeAll } from "~/metadata/forms/elements/baseElement/types"
 import { exportButtonContentToNKDK, exportButtonToNKDK } from "~/metadata/forms/elements/button/toNKDK"
+import { exportButtonGroupContentToNKDK } from "~/metadata/forms/elements/buttonGroup/toNKDK"
 import {
   exportCheckBoxFieldContentToNKDK,
   exportCheckBoxFieldToNKDK,
@@ -42,12 +43,16 @@ export const ExportToNKDKGeneratorFn = {
   CommandBar: exportCommandBarToNKDK,
 } satisfies ExportToNKDKFnMap
 
-export const ExportToNKDKContentGeneratorFn = {
-  Button: exportButtonContentToNKDK,
+export const ExportToNKDKTableChildItemsGeneratorFn = {
   InputField: exportInputFieldContentToNKDK,
   LabelField: exportLabelFieldContentToNKDK,
   PictureField: exportPictureFieldContentToNKDK,
   ColumnGroup: exportColumnGroupContentToNKDK,
-  Popup: exportPopupContentToNKDK,
   CheckBoxField: exportCheckBoxFieldContentToNKDK,
+} satisfies ExportToNKDKFnMap
+
+export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
+  Button: exportButtonContentToNKDK,
+  Popup: exportPopupContentToNKDK,
+  ButtonGroup: exportButtonGroupContentToNKDK,
 } satisfies ExportToNKDKFnMap

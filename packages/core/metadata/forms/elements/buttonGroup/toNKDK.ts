@@ -1,24 +1,17 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
+import { ButtonGroupPrefix } from "~/nkdk/terminal"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { ButtonGroup } from "./types"
 
-export function exportButtonGroupContentToStructure(context: ConfigurationContext, element: ButtonGroup): ToNKDKResult {
-  const resultString = "-" + formatContent(context, element)
+export function exportButtonGroupContentToNKDK(params: {
+  context: ConfigurationContext
+  element: ButtonGroup
+}): ToNKDKResult {
+  const { context, element } = params
+  const resultString = ButtonGroupPrefix + formatElementTitleAndName(context, element)
   return {
     strings: [resultString],
     toOneLineGroup: true,
   }
 }
-
-const formatContent = (context: ConfigurationContext, element: ButtonGroup): string => {
-  return formatElementTitleAndName(context, element)
-}
-
-registerElementOperation(
-  "ExportToStructureContent",
-  "ButtonGroup",
-  exportButtonGroupContentToStructure as ExportToStructureContentFn
-)

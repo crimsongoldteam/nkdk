@@ -23,10 +23,11 @@ export const AutoCommandBarSuffix = ">>"
 
 export const LabelFieldPrefix = "~"
 
-export const PopupPrefix = "+"
-
 export const PictureFieldPrefix = "!"
 
 export const CommandBarPrefix = "<"
 export const CommandBarSeparator = " | "
 export const CommandBarSuffix = ">"
+
+export const ButtonGroupPrefix = "-"
+export const PopupPrefix = "+"

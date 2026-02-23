@@ -1,8 +1,8 @@
-import { CommandBar } from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { CommandBarPrefix, CommandBarSeparator, CommandBarSuffix } from "~/nkdk/terminal"
-import { exportChildItemsContentToNKDK } from "../../commonObjects/childItems/toNKDK"
+import { exportCommandBarChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
+import { CommandBar } from "./types"
 
 export const exportCommandBarToNKDK = (params: {
   context: ConfigurationContext
@@ -11,7 +11,7 @@ export const exportCommandBarToNKDK = (params: {
   const { context, element } = params
   if (!element) return { strings: [], toOneLineGroup: false }
 
-  const childItems = exportChildItemsContentToNKDK(context, element.childItems)
+  const childItems = exportCommandBarChildItemsToNKDK(context, element.childItems)
 
   const content = formatContent(childItems.strings)
 
