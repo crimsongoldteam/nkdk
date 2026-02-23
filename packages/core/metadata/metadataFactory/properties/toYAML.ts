@@ -100,5 +100,5 @@ const getExportToYAMLResult = (
 
   if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return undefined
 
-  return value === undefined ? undefined : { [yamlKey]: value }
+  return value === rule.defaultValue ? undefined : { [yamlKey]: value }
 }

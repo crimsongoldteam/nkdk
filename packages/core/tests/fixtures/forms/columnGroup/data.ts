@@ -64,7 +64,7 @@ export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   Ширина: 300,
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ГоризонтальноеПоложениеВШапке: "Лево",
-  Группировка: "Горизонтальная",
+  // Группировка: "Горизонтальная",
   КартинкаШапки: "Печать",
   ОтображатьВШапке: "Истина",
   ОтображатьЗаголовок: "Истина",
@@ -109,6 +109,7 @@ export const minimalColumnGroup: ColumnGroup = {
   itemType: CollectionFormElementType.ColumnGroup,
   name: "ГруппаКолонок",
   childItems: [],
+  group: "Vertical",
 }
 
 export const minimalColumnGroupPartialYAML: ColumnGroupPartialYAML = {}

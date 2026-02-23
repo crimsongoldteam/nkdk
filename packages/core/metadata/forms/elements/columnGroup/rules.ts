@@ -17,6 +17,8 @@ export const ColumnGroupRules: ElementRule<ColumnGroup> = {
       yaml: "Группировка",
       type: "SystemEnumeration",
       typeSE: "ColumnsGroup",
+      defaultValue: "Vertical",
+      toPartialYAML: false,
     },
     headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath" },
     headerFormat: { yaml: "ФорматШапки", type: "string" },
