@@ -539,6 +539,7 @@ export const columnGroupTable: Table = {
       name: "Колонка1",
       itemType: "ColumnGroup",
       childItems: [],
+      title: { items: { ru: "" } },
     },
   ],
 }
