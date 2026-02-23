@@ -26,7 +26,7 @@ export interface ToNKDKResult {
   toOneLineGroup: boolean
 }
 
-export type ExportToNKDKFn = (params: { context: ConfigurationContext; element: BaseElement }) => ToNKDKResult
+// export type ExportToNKDKFn = (params: { context: ConfigurationContext; element: BaseElement }) => ToNKDKResult
 
 export type ExportToNKDKFnMap<T extends { itemType: string } = BaseElement> = {
   [K in T["itemType"]]: (params: {
@@ -35,7 +35,7 @@ export type ExportToNKDKFnMap<T extends { itemType: string } = BaseElement> = {
   }) => ToNKDKResult
 }
 
-export const ExportToNKDKGeneratorFn = {
+export const ExportToNKDKGeneratorFn: ExportToNKDKFnMap<GenerateChildItem> = {
   Button: exportButtonToNKDK,
   UsualGroup: exportUsualGroupToNKDK,
   InputField: exportInputFieldToNKDK,
@@ -64,7 +64,10 @@ export const ExportToNKDKGeneratorFn = {
   Table: exportTableToNKDK,
   TextDocumentField: exportOtherElementToNKDK,
   TrackBarField: exportOtherElementToNKDK,
-} satisfies ExportToNKDKFnMap<GenerateChildItem>
+} as const satisfies ExportToNKDKFnMap<GenerateChildItem>
+
+/** Тип функции экспорта для конкретного itemType */
+export type ExportToNKDKGeneratorFnFor<K extends GenerateChildItem["itemType"]> = (typeof ExportToNKDKGeneratorFn)[K]
 
 export const ExportToNKDKTableChildItemsGeneratorFn = {
   InputField: exportInputFieldContentToNKDK,
@@ -72,7 +75,7 @@ export const ExportToNKDKTableChildItemsGeneratorFn = {
   PictureField: exportPictureFieldContentToNKDK,
   ColumnGroup: exportColumnGroupContentToNKDK,
   CheckBoxField: exportCheckBoxFieldContentToNKDK,
-} satisfies ExportToNKDKFnMap<TableChildItem>
+} as const satisfies ExportToNKDKFnMap<TableChildItem>
 
 export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
   Button: exportButtonContentToNKDK,
@@ -80,4 +83,4 @@ export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
   ButtonGroup: exportButtonGroupContentToNKDK,
   SearchStringAddition: exportOtherElementToNKDK,
   SearchControlAddition: exportOtherElementToNKDK,
-} satisfies ExportToNKDKFnMap<CommandBarChildItem>
+} as const satisfies ExportToNKDKFnMap<CommandBarChildItem>

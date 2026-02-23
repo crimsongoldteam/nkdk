@@ -5,8 +5,6 @@ import {
   ExportToNKDKTableChildItemsGeneratorFn,
   ToNKDKResult,
 } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { exportOtherElementToNKDK } from "../../elements/baseElement/exportToStructure"
-import { FormElementTypeAll } from "../../elements/baseElement/types"
 import { CommandBarChildItem, GenerateChildItem, TableChildItem } from "./types"
 
 export const exportChildItemsToNKDK = <From extends GenerateChildItem>(
@@ -33,10 +31,10 @@ export const exportCommandBarChildItemsToNKDK = (
   let toOneLineGroup = true
   let strings: string[] = []
   for (const item of items) {
-    const exportFunction =
-      ExportToNKDKCommandBarChildItemsGeneratorFn[
-        item.itemType as keyof typeof ExportToNKDKCommandBarChildItemsGeneratorFn
-      ]
+    const exportFunction = ExportToNKDKCommandBarChildItemsGeneratorFn[item.itemType] as (params: {
+      context: ConfigurationContext
+      element: CommandBarChildItem
+    }) => ToNKDKResult
 
     const result = exportFunction({ context, element: item })
     strings.push(...result.strings)
@@ -50,8 +48,10 @@ export const exportTableChildItemsToNKDK = (context: ConfigurationContext, items
   let toOneLineGroup = true
   let strings: string[] = []
   for (const item of items) {
-    const exportFunction =
-      ExportToNKDKTableChildItemsGeneratorFn[item.itemType as keyof typeof ExportToNKDKTableChildItemsGeneratorFn]
+    const exportFunction = ExportToNKDKTableChildItemsGeneratorFn[item.itemType] as (params: {
+      context: ConfigurationContext
+      element: TableChildItem
+    }) => ToNKDKResult
 
     const result = exportFunction({ context, element: item })
     strings.push(...result.strings)
@@ -61,9 +61,11 @@ export const exportTableChildItemsToNKDK = (context: ConfigurationContext, items
   return { strings, toOneLineGroup }
 }
 
-const getExportFunction = (itemType: FormElementTypeAll) => {
-  if (itemType in ExportToNKDKGeneratorFn) {
-    return ExportToNKDKGeneratorFn[itemType as keyof typeof ExportToNKDKGeneratorFn]
-  }
-  return exportOtherElementToNKDK
+const getExportFunction = <T extends GenerateChildItem["itemType"]>(
+  itemType: T
+): ((params: { context: ConfigurationContext; element: GenerateChildItem }) => ToNKDKResult) => {
+  return ExportToNKDKGeneratorFn[itemType] as (params: {
+    context: ConfigurationContext
+    element: GenerateChildItem
+  }) => ToNKDKResult
 }
