@@ -13,7 +13,12 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
       type: "SystemEnumeration",
       typeSE: "UsualGroupBehavior",
     },
-    childItems: { type: "ChildItems", defaultValue: [] },
+    childItems: {
+      type: "ChildItems",
+      defaultValue: [],
+      fromPartialYAML: true,
+      toPartialYAML: false,
+    },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       type: "SystemEnumeration",

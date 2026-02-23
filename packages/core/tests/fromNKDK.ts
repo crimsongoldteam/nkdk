@@ -31,7 +31,7 @@ export const testImportFormAutoCommandBarFromNKDK = async (context: Configuratio
 //   )
 // }
 
-const importFormFromNKDK = async (context: ConfigurationContext, input: string | string[]) => {
+export const importFormFromNKDK = async (context: ConfigurationContext, input: string | string[]) => {
   const rawString = Array.isArray(input) ? input.join("\n") : input
   const result = await nkdkParse(rawString)
 

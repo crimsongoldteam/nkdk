@@ -11,6 +11,7 @@ export const CommandBarRules: ElementRule<CommandBar> = {
       type: "ChildItems",
       defaultValue: [],
       fromPartialYAML: true,
+      toPartialYAML: false,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

@@ -29,7 +29,3 @@ afterEach(async () => {
     documentsToClear.length = 0
   }
 })
-
-export function registerNkdkDocument(doc: LangiumDocument<NkdkForm>): void {
-  documentsToClear.push(doc)
-}

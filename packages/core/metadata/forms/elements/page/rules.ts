@@ -9,7 +9,12 @@ export const PageRules: ElementRule<Page> = {
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
-    childItems: { type: "ChildItems", defaultValue: [] },
+    childItems: {
+      type: "ChildItems",
+      defaultValue: [],
+      toPartialYAML: false,
+      fromPartialYAML: true,
+    },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       type: "SystemEnumeration",

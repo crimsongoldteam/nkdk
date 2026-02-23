@@ -1,18 +1,18 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/fromXML"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import {
-  ClientApplicationForm,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
   FormMetadataXML,
 } from "~/metadata/forms/clientApplicationForm/types"
-import { importChildItemsFromNKDK } from "~/metadata/forms/index"
+import { importFormFromNKDK } from "~/tests/fromNKDK"
 import { xmlExport } from "~/xml/export/exporter"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
@@ -22,8 +22,9 @@ vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
 }))
 
-const configurationContext = {
+const configurationContext: ConfigurationContext = {
   defaultLanguage: "ru",
+  exportToYAML: { toTyped: false },
 }
 
 // const mockMetadataCatalogContext = {
@@ -56,8 +57,8 @@ const configurationContext = {
 // const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
 // const originalFormXml = readAndParseXMLFile<ClientApplicationFormXML>("forms/clientApplicationForm/full.xml")
 
-describe.skip("DO test", () => {
-  it("should import-export form", () => {
+describe("DO test", () => {
+  it("should import-export form", async () => {
     const fullPath = join(__dirname, "Before/Form.xml")
     const xml = readFileSync(fullPath, "utf-8")
 
@@ -78,14 +79,10 @@ describe.skip("DO test", () => {
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
     writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
 
-    const sourceForm: ClientApplicationForm = {
-      itemType: "ClientApplicationForm",
-      ...importChildItemsFromNKDK({ context: configurationContext, value: structuredObject.strings }),
-      commands: [],
-    }
+    const sourceForm = await importFormFromNKDK(configurationContext, strings)
 
     const importedYaml = importFromYAML<ClientApplicationFormYAML>(yaml)
-    const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, sourceForm)
+    const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, sourceForm!)
 
     const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
     const newXML = xmlExport({ Form: newXMLData })
@@ -113,21 +110,3 @@ describe.skip("DO test", () => {
   //   writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
   // })
 })
-
-// Правила определения элементов
-// начинается с # - вертикальная группа
-// начинается с // - страницы
-// начинается с / - страница
-// начинается с % - горизонтальная группа
-// содержит : - поле ввода
-// начинается с < - кнопка
-// начинается с < и содержит | - командная панель
-// содержит [] - флажок
-// содержит () - радиокнопка
-// содержит | - таблица
-// все остальное - надпись
-
-// Какие есть способы работы с ентерпрайс:
-// 1 одиночный элемент с генерацией имени (расширенная подсказка, контекстное меню, etc) - имя не нужно, тип не нужен, все необязательные
-// 2 подчиненные элементы сложных объектов Командая панель и Таблица (Кнопки, Поля ввода и так далее) - имя нужно (ключ структуры, тип определяется по полю Тип)
-// 3 свойства полей присутствующих в схеме (группы, поля ввода, флажки, картинки, декорации) - имя не нужно, все необязательные
