@@ -37,6 +37,12 @@
 			<DataPath>Таблица.Флажок</DataPath>
 			<EditMode>EnterOnInput</EditMode>
 			<ExtendedTooltip name="ТаблицаФлажокРасширеннаяПодсказка" id="11"/>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Поле флажка</v8:content>
+				</v8:item>
+			</Title>
 		</CheckBoxField>
 		<PictureField name="ТаблицаКартинка" id="12">
 			<ContextMenu name="ТаблицаКартинкаКонтекстноеМеню" id="13"/>

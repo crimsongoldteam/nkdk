@@ -4,9 +4,10 @@ import { mockContextToYAML } from "~/tests/mockContext"
 import { exportTableToNKDK } from "./toNKDK"
 
 describe("exportTableToStructure", () => {
-  it.each(tableStructureFixtures)("$name", ({ table, structure: expectedResult }) => {
+  it.each(tableStructureFixtures)("$name", ({ table, nkdk, nkdkExport }) => {
+    const nkdkResult = nkdkExport ?? nkdk
     const result = exportTableToNKDK({ context: mockContextToYAML, element: table })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(nkdkResult)
   })
 })
