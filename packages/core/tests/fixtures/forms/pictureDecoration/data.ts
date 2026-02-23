@@ -1,5 +1,5 @@
 import { PictureDecoration, PictureDecorationPartialYAML } from "~/metadata/forms/elements/pictureDecoration/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -131,7 +131,7 @@ export const minimalPictureDecorationPartialYAML: PictureDecorationPartialYAML =
 export interface PictureDecorationStructureFixture {
   name: string
   element: PictureDecoration
-  structured: ToNKDKResult
+  structured: IFormatElementResult
   skipImport?: boolean
 }
 

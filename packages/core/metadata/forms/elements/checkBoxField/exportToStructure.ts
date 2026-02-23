@@ -1,13 +1,16 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatDefaultLanguageText, formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { CheckBoxField } from "./types"
 
-export const exportCheckBoxFieldToStructure = (context: ConfigurationContext, element: CheckBoxField): ToNKDKResult => {
+export const exportCheckBoxFieldToStructure = (
+  context: ConfigurationContext,
+  element: CheckBoxField
+): IFormatElementResult => {
   const result = formatCheckBoxFieldContent(context, element, false)
 
   return result
@@ -16,7 +19,7 @@ export const exportCheckBoxFieldToStructure = (context: ConfigurationContext, el
 export const exportCheckBoxFieldContentToStructure = (
   context: ConfigurationContext,
   element: CheckBoxField
-): ToNKDKResult => {
+): IFormatElementResult => {
   const result = formatCheckBoxFieldContent(context, element, true)
 
   return result
@@ -32,7 +35,10 @@ const formatCheckBoxFieldContent = (
   const isTumbler = element.checkBoxType === "Tumbler" && !forContent
   const symbol = isTumbler ? "<|>" : isSwitch ? "[ |1]" : "[ ]"
   const name = formatElementName(element)
-  const isRightTitled = element.titleLocation === "Right" || element.headerHorizontalAlign === "Right" || forContent
+  const isRightTitled =
+    element.titleLocation === "Right" ||
+    element.headerHorizontalAlign === "Right" ||
+    forContent
 
   if (title) {
     if (isRightTitled) {

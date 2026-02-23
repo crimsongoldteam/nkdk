@@ -1,17 +1,20 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { registerIsOneLineElementCheck } from "~/metadata/forms/format/isOneLineElementCheckFactory"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { InputField } from "./types"
 
 // const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
-export const exportInputFieldToNKDK = (params: {
-  context: ConfigurationContext
+export const exportInputFieldToStructure = (
+  _context: ConfigurationContext,
   element: InputField
-}): ToNKDKResult => {
-  const { element } = params
+): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
 
   let header = formatTitle(element, hasTitle)
@@ -32,7 +35,7 @@ export const exportInputFieldToNKDK = (params: {
   const hasValue = value.length > 0 || modificators.length > 0
   let namePart = formatNamePart(element, hasTitle, hasValue)
 
-  let result: ToNKDKResult = {
+  let result: IFormatElementResult = {
     strings: [header + value + namePart],
     haveSimpleHorizontalGroup: false,
   }
@@ -70,4 +73,5 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
 //     .join("")
 // }
 
-// registerElementOperation("ExportToStructure", "InputField", exportInputFieldToNKDK as ExportToStructureFn)
+registerElementOperation("ExportToStructure", "InputField", exportInputFieldToStructure as ExportToStructureFn)
+registerIsOneLineElementCheck(CollectionFormElementType.InputField, () => true)

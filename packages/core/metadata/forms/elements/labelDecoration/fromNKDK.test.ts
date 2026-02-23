@@ -7,7 +7,7 @@ describe("importLabelDecorationFromStructure", () => {
   it.each(labelDecorationStructureFixturesTable)(
     "should import label decoration $name",
     async ({ element: input, structured }) => {
-      const result = await testImportElementFromNKDK(mockContext, structured)
+      const result = await testImportElementFromNKDK(mockContext, structured.strings)
 
       expect(result).toEqual(input)
     }

@@ -1,20 +1,22 @@
 import { exportPictureToYAML } from "~/metadata/commonObjects/picture/toYAML"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { PictureDecoration } from "./types"
 
 export const exportPictureDecorationToStructure = (
   context: ConfigurationContext,
   element: PictureDecoration
-): ToNKDKResult => {
+): IFormatElementResult => {
   const picture: PictureYAML | undefined = exportPictureToYAML(context, undefined, element.picture)
 
   const pictureString = typeof picture === "string" ? picture : ""
 
-  const result: ToNKDKResult =
-    "!" + (pictureString ? pictureString + " " : "") + formatElementTitleAndName(context, element)
+  const result: IFormatElementResult = {
+    strings: ["@" + (pictureString ? pictureString + " " : "") + formatElementTitleAndName(context, element)],
+    haveSimpleHorizontalGroup: false,
+  }
 
   return result
 }

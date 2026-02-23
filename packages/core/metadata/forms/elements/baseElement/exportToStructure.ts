@@ -1,13 +1,19 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { exportFormElementTypeToYAML } from "~/metadata/metadataFactory/metadataType/toYAML"
 import { OtherElement } from "../../commonObjects/childItems/types"
 
-export const exportOtherElementToStructure = (context: ConfigurationContext, element: OtherElement): ToNKDKResult => {
+export const exportOtherElementToStructure = (
+  context: ConfigurationContext,
+  element: OtherElement
+): IFormatElementResult => {
   const itemType = exportFormElementTypeToYAML(context, element.itemType)
 
-  const result = "?" + itemType + " " + formatElementName(element)
+  const result: IFormatElementResult = {
+    strings: ["?" + itemType + " " + formatElementName(element)],
+    haveSimpleHorizontalGroup: false,
+  }
 
   return result
 }

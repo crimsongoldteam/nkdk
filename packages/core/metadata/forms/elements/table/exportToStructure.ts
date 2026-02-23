@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { FormatElementFunction, ToNKDKResult } from "~/metadata/forms/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"
 import {
   getElementOperationFunction,
@@ -17,14 +17,14 @@ const V_BAR = t.VBar.LABEL as string
 const formatTableColumn = (context: ConfigurationContext, column: NamedElement): string => {
   const exportContentFunction = getElementOperationFunction("ExportToStructureContent", column.itemType)
   if (exportContentFunction) {
-    const result = exportContentFunction(context, column) as ToNKDKResult
-    return result[0] || formatElementName(column)
+    const result = exportContentFunction(context, column) as IFormatElementResult
+    return result.strings[0] || formatElementName(column)
   }
 
   return formatElementTitleAndName(context, column)
 }
 
-export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): ToNKDKResult => {
+export const exportTableContentToStructure = (context: ConfigurationContext, element: Table): IFormatElementResult => {
   const childItems = element.childItems ?? []
 
   const parts: string[] = []
@@ -45,10 +45,13 @@ export const exportTableContentToStructure = (context: ConfigurationContext, ele
 export const exportTableToStructure: FormatElementFunction = (
   context: ConfigurationContext,
   element: NamedElement | undefined
-): ToNKDKResult => {
+): IFormatElementResult => {
   const table = element as Table
 
-  const result: ToNKDKResult = []
+  const result: IFormatElementResult = {
+    strings: [],
+    haveSimpleHorizontalGroup: false,
+  }
 
   const autoCommandBar = exportAutoCommandBarToStructure(context, table.autoCommandBar)
   result.push(...autoCommandBar)

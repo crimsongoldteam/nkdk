@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
@@ -7,12 +7,12 @@ import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpe
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { Button } from "./types"
 
-export function exportButtonToStructure(context: ConfigurationContext, element: Button): ToNKDKResult {
+export function exportButtonToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = wrapButtonContent(formatContent(context, element))
   return resultString
 }
 
-export function exportButtonContentToStructure(context: ConfigurationContext, element: Button): ToNKDKResult {
+export function exportButtonContentToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = formatContent(context, element)
   return resultString
 }

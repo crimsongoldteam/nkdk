@@ -1,5 +1,5 @@
 import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullButton: Required<Button> = {
@@ -196,7 +196,7 @@ export const fullButtonEnterprise: Required<ButtonEnterprise> = {
 export interface ButtonStructureFixture {
   name: string
   element: Button
-  structured: ToNKDKResult
+  structured: IFormatElementResult
 }
 
 export const buttonStructureFixturesTable: ButtonStructureFixture[] = [

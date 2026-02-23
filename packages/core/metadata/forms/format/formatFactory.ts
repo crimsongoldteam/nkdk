@@ -3,7 +3,7 @@ import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { AllChildItems, OtherElement } from "../commonObjects/childItems/types"
 import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
-import { CheckFormatFunction, FormatElementFunction, ToNKDKResult } from "./types"
+import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
 
 type FormatRegistry = {
   format: FormatElementFunction
@@ -22,7 +22,10 @@ export const registerFormat = <T extends NamedElement>(
   })
 }
 
-export const formatElement = <T extends NamedElement>(context: ConfigurationContext, element: T): ToNKDKResult => {
+export const formatElement = <T extends NamedElement>(
+  context: ConfigurationContext,
+  element: T
+): IFormatElementResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
   if (!formatter) return exportOtherElementToStructure(context, element as OtherElement)
 
@@ -30,8 +33,11 @@ export const formatElement = <T extends NamedElement>(context: ConfigurationCont
   return result
 }
 
-export const formatElements = (context: ConfigurationContext, items: AllChildItems): ToNKDKResult => {
-  let result: ToNKDKResult = []
+export const formatElements = (context: ConfigurationContext, items: AllChildItems): IFormatElementResult => {
+  let result: IFormatElementResult = {
+    strings: [],
+    haveSimpleHorizontalGroup: false,
+  }
 
   const separatedItems: readonly (
     | typeof CollectionFormElementType.Pages

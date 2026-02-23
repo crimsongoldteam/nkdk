@@ -13,9 +13,12 @@ export interface IFormatterParams {
   isFirst?: boolean
 }
 
-export type ToNKDKResult = string[]
+export interface IFormatElementResult {
+  strings: string[]
+  haveSimpleHorizontalGroup: boolean
+}
 
-export type FormatElementFunction = (context: ConfigurationContext, element: NamedElement) => ToNKDKResult
+export type FormatElementFunction = (context: ConfigurationContext, element: NamedElement) => IFormatElementResult
 export type CheckFormatFunction<T = NamedElement> = (element: T) => boolean
 
 export type CheckIsOneLineElementFunction<T = NamedElement> = (element: T) => boolean

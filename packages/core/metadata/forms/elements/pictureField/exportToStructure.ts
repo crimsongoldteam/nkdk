@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
@@ -12,13 +12,16 @@ const AT_SYMBOL = "@"
 export const exportPictureFieldContentToStructure = (
   _context: ConfigurationContext,
   element: PictureField
-): ToNKDKResult => {
+): IFormatElementResult => {
   const resultString = AT_SYMBOL + formatElementName(element)
 
   return resultString
 }
 
-export const exportPictureFieldToStructure = (_context: ConfigurationContext, element: PictureField): ToNKDKResult => {
+export const exportPictureFieldToStructure = (
+  _context: ConfigurationContext,
+  element: PictureField
+): IFormatElementResult => {
   return exportPictureFieldContentToStructure(_context, element)
 }
 

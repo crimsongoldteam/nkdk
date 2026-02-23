@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { OtherElement } from "~/metadata/forms/commonObjects/childItems/types"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult, ToNKDKResult } from "~/metadata/forms/format/types"
 import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { UsualGroup } from "../types"
@@ -10,22 +10,25 @@ const horizontalGroupPrefix = "%"
 const horizontalIfPossibleGroupPrefix = "%#"
 const oneLineGroupSuffix = "%"
 
-export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): ToNKDKResult => {
+export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 
-  let result: ToNKDKResult = []
+  let result: IFormatElementResult = {
+    strings: [],
+    haveSimpleHorizontalGroup: false,
+  }
 
   let groupItems: ToNKDKResult[] = []
 
   if (element.childItems) {
     for (const item of element.childItems) {
       const exportFunction = getElementOperationFunction("ExportToStructure", item.itemType)
-      let itemResult: ToNKDKResult
+      let itemResult: IFormatElementResult
       if (!exportFunction) {
         itemResult = exportOtherElementToStructure(context, item as OtherElement)
       } else {
-        itemResult = exportFunction(context, item) as ToNKDKResult
+        itemResult = exportFunction(context, item) as IFormatElementResult
       }
       groupItems.push(itemResult)
     }

@@ -1,13 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
-import { ToNKDKResult } from "../../format/types"
+import { IFormatElementResult } from "../../format/types"
 import { AutoCommandBar } from "./types"
 
 export const exportAutoCommandBarToStructure = (
   context: ConfigurationContext,
   element: AutoCommandBar | undefined
-): ToNKDKResult => {
-  if (!element) return []
+): IFormatElementResult => {
+  if (!element) return { strings: [], haveSimpleHorizontalGroup: false }
 
   const content = exportAutoCommandBarContentToStructure(context, element)
 
