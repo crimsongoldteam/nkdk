@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { usualGroupStructureFixtures } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportUsualGroupToStructure } from "./exportToStructure"
+import { exportUsualGroupToNKDK } from "./toNKDK"
 
-describe("exportUsualGroupToStructure", () => {
+describe("export UsualGroup to NKDK", () => {
   it.each(usualGroupStructureFixtures)("should format $name", ({ element, structured }) => {
-    const result = exportUsualGroupToStructure(mockContext, element)
+    const result = exportUsualGroupToNKDK({ context: mockContext, element })
 
-    expect(result).toEqual(structured.strings)
+    expect(result.strings.join("\n")).toEqual(structured.strings.join("\n"))
   })
 })

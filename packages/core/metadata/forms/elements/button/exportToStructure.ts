@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"

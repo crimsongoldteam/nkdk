@@ -1,6 +1,6 @@
 import { PictureDecoration, PictureDecorationPartialYAML } from "~/metadata/forms/elements/pictureDecoration/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {

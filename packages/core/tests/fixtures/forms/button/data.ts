@@ -1,6 +1,6 @@
 import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
 export const fullButton: Required<Button> = {
   itemType: CollectionFormElementType.Button,

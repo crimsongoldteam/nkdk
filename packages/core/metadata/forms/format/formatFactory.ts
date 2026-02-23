@@ -1,9 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { AllChildItems, OtherElement } from "../commonObjects/childItems/types"
-import { exportOtherElementToStructure } from "../elements/baseElement/exportToStructure"
+import { exportOtherElementToNKDK } from "../elements/baseElement/exportToStructure"
 import { NamedElement } from "../elements/baseElement/types"
-import { CheckFormatFunction, FormatElementFunction, ToNKDKResult } from "./types"
+import { CheckFormatFunction, FormatElementFunction } from "./types"
 
 type FormatRegistry = {
   format: FormatElementFunction
@@ -24,7 +25,7 @@ export const registerFormat = <T extends NamedElement>(
 
 export const formatElement = <T extends NamedElement>(context: ConfigurationContext, element: T): ToNKDKResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return exportOtherElementToStructure(context, element as OtherElement)
+  if (!formatter) return exportOtherElementToNKDK(context, element as OtherElement)
 
   const result = formatter.format(context, element)
   return result

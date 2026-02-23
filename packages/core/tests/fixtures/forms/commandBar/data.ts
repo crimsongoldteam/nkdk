@@ -1,7 +1,7 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,

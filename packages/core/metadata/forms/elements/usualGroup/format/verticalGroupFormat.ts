@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportChildItemsToStructure } from "~/metadata/forms/commonObjects/childItems/exportToStructure"
+import { exportChildItemsToNKDK } from "~/metadata/forms/commonObjects/childItems/exportToStructure"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
 import { UsualGroup } from "../types"
 
@@ -18,7 +18,7 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
   result.strings.push(header)
   // }
 
-  const lines = exportChildItemsToStructure(context, childItems)
+  const lines = exportChildItemsToNKDK(context, childItems)
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)

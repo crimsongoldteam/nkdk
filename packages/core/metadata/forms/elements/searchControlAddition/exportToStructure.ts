@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { ExportToStructureContentFn } from "~/metadata/metadataFactory/elements/types"
 import { formatElementName } from "../../format/helpers"
 import { SearchControlAddition } from "./types"

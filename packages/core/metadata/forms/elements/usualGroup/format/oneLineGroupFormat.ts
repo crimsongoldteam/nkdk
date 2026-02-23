@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { OtherElement } from "~/metadata/forms/commonObjects/childItems/types"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
-import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { exportOtherElementToNKDK } from "../../baseElement/exportToStructure"
 import { UsualGroup } from "../types"
 
 const horizontalGroupPrefix = "%"
@@ -26,7 +26,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       const exportFunction = getElementOperationFunction("ExportToStructure", item.itemType)
       let itemResult: ToNKDKResult
       if (!exportFunction) {
-        itemResult = exportOtherElementToStructure(context, item as OtherElement)
+        itemResult = exportOtherElementToNKDK(context, item as OtherElement)
       } else {
         itemResult = exportFunction(context, item) as ToNKDKResult
       }

@@ -1,6 +1,6 @@
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullCommandBarChildItemsAllYAML,

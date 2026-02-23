@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementOperation } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { ExportToStructureFn } from "~/metadata/metadataFactory/elements/types"
-import { exportChildItemsToStructure } from "../../commonObjects/childItems/exportToStructure"
+import { exportChildItemsToNKDK } from "../../commonObjects/childItems/exportToStructure"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { addSimpleIndent } from "../../format/wrap/addIndents"
 import { Pages } from "./types"
@@ -23,7 +23,7 @@ export const exportPagesToStructure = (context: ConfigurationContext, element: P
   const header = getHeader(pagesElement)
   result.strings.push(header)
 
-  const childResult = exportChildItemsToStructure(context, childItems)
+  const childResult = exportChildItemsToNKDK(context, childItems)
 
   const indentedStrings = addSimpleIndent(childResult.strings)
 

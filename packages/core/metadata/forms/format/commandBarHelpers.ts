@@ -21,8 +21,6 @@ export const formatCommandBarContent = (buttonStrings: string[], autofill: boole
   const buttons = autofill ? ["...", ...buttonStrings] : buttonStrings
 
   const content = buttons.length > 0 ? buttons.join(" | ") : ""
-  const finalContent =
-    buttons.length === 0 ? "|" : buttons.length === 1 ? (buttons[0] === "..." ? "...|" : buttons[0] + " |") : content
 
-  return wrapButtonContent(finalContent)
+  return wrapButtonContent(content)
 }

@@ -18,8 +18,8 @@ import "./checkBoxField/exportToStructure"
 import "./checkBoxField/rules"
 import "./checkBoxField/types"
 
-import "./columnGroup/exportToStructure"
 import "./columnGroup/rules"
+import "./columnGroup/toNKDK"
 import "./columnGroup/types"
 
 import "./contextMenu/rules"
@@ -118,8 +118,8 @@ import "./textDocumentField/types"
 import "./trackBarField/rules"
 import "./trackBarField/types"
 
-import "./usualGroup/exportToStructure"
 import "./usualGroup/rules"
+import "./usualGroup/toNKDK"
 import "./usualGroup/types"
 
 import "./viewStatusAddition/rules"

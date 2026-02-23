@@ -1,0 +1,5 @@
+const horizontalGroupPrefix = "%"
+const horizontalIfPossibleGroupPrefix = "%#"
+const oneLineGroupSuffix = "%"
+const separatorSymbol = ";"
+const separator = separatorSymbol + " "

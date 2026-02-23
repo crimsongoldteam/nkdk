@@ -1,6 +1,6 @@
 import { ButtonGroup, ButtonGroupPartialYAML, ButtonGroupTypedYAML } from "~/metadata/forms/elements/buttonGroup/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
   itemType: "ButtonGroup",

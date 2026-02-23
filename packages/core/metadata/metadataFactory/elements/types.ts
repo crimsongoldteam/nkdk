@@ -1,9 +1,9 @@
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { MetadataItemRule } from ".."
 import { ConfigurationContext } from "../../context/types"
 import { BaseElement } from "../../forms/elements/baseElement/types"
 import { EventXML } from "../events"
 import { ExportToEnterpriseFunction, TypeRulesNames } from "../types/types"
+import { ToNKDKResult } from "./toNKDKGenerator/types"
 
 // #region rules
 

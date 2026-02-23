@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
 import { OtherElement } from "../../commonObjects/childItems/types"
-import { exportOtherElementToStructure } from "./exportToStructure"
+import { exportOtherElementToNKDK } from "./exportToStructure"
 import { NamedElement } from "./types"
 
 describe("formatOtherElement", () => {
@@ -14,7 +14,7 @@ describe("formatOtherElement", () => {
 
     const expectedResult = ["?ПолеВвода {ИмяПоля}"]
 
-    const result = exportOtherElementToStructure(mockContext, element as OtherElement)
+    const result = exportOtherElementToNKDK(mockContext, element as OtherElement)
 
     expect(result).toEqual(expectedResult)
   })

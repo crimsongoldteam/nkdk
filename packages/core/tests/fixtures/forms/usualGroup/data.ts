@@ -5,8 +5,8 @@ import {
   UsualGroupPartialYAML,
   UsualGroupTypedYAML,
 } from "~/metadata/forms/elements/usualGroup/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
 export const fullUsualGroup: Required<UsualGroup> = {
   itemType: CollectionFormElementType.UsualGroup,
@@ -288,12 +288,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: [
-        `=%Группа
-  +%ВертикальнаяГруппа1
-    %Элемент1: 
-  %Элемент2: `,
-      ],
+      strings: [`=%Группа`, `  +%ВертикальнаяГруппа1`, `    %Элемент1: `, `    %Элемент2: `],
       toOneLineGroup: false,
     },
   },

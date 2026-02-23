@@ -3,8 +3,8 @@ import {
   CheckBoxFieldPartialYAML,
   CheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {

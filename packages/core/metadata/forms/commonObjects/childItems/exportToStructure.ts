@@ -1,54 +1,29 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/forms/format/types"
-import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
-import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
-import { AllChildItem, OtherElement } from "./types"
+import { ExportToNKDKGeneratorFn, ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { exportOtherElementToNKDK } from "../../elements/baseElement/exportToStructure"
+import { FormElementTypeAll } from "../../elements/baseElement/types"
+import { AllChildItem } from "./types"
 
-export const exportChildItemsToStructure = <From extends AllChildItem>(
+export const exportChildItemsToNKDK = <From extends AllChildItem>(
   context: ConfigurationContext,
   items: From[]
 ): ToNKDKResult => {
-  let result: ToNKDKResult = {
-    strings: [],
-    toOneLineGroup: false,
-  }
-
-  // const separatedItems: readonly (
-  //   | typeof CollectionFormElementType.Pages
-  //   | typeof CollectionFormElementType.UsualGroup
-  //   | typeof CollectionFormElementType.Table
-  // )[] = [CollectionFormElementType.Pages, CollectionFormElementType.UsualGroup, CollectionFormElementType.Table]
-
-  // let prevItem: NamedElement | null = null
+  let toOneLineGroup = true
+  let strings: string[] = []
   for (const item of items) {
-    //   if (
-    //     prevItem &&
-    //     (separatedItems.includes(
-    //       item.itemType as
-    //         | typeof CollectionFormElementType.Pages
-    //         | typeof CollectionFormElementType.UsualGroup
-    //         | typeof CollectionFormElementType.Table
-    //     ) ||
-    //       separatedItems.includes(
-    //         prevItem.itemType as
-    //           | typeof CollectionFormElementType.Pages
-    //           | typeof CollectionFormElementType.UsualGroup
-    //           | typeof CollectionFormElementType.Table
-    //       ))
-    //   ) {
-    //     result.strings.push("")
-    //   }
+    const exportFunction = getExportFunction(item.itemType)
 
-    //   prevItem = item
+    const result = exportFunction({ context, element: item })
+    strings.push(...result.strings)
 
-    const exportFunction = getElementOperationFunction("ExportToStructure", item.itemType)
-
-    const text = exportFunction
-      ? (exportFunction(context, item) as ToNKDKResult)
-      : exportOtherElementToStructure(context, item as OtherElement)
-
-    result.strings.push(...text.strings)
-    result.toOneLineGroup = result.toOneLineGroup || text.toOneLineGroup
+    toOneLineGroup = toOneLineGroup && result.toOneLineGroup
   }
-  return result
+  return { strings, toOneLineGroup }
+}
+
+const getExportFunction = (itemType: FormElementTypeAll) => {
+  if (itemType in ExportToNKDKGeneratorFn) {
+    return ExportToNKDKGeneratorFn[itemType as keyof typeof ExportToNKDKGeneratorFn]
+  }
+  return exportOtherElementToNKDK
 }

@@ -1,12 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/commonObjects/childItems/parser/tokenizer/lexer"
 import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { FormatElementFunction, ToNKDKResult } from "~/metadata/forms/format/types"
+import { FormatElementFunction } from "~/metadata/forms/format/types"
 import { CollectionFormElementType, ExportToStructureContentFn, ExportToStructureFn } from "~/metadata/metadataFactory"
 import {
   getElementOperationFunction,
   registerElementOperation,
 } from "~/metadata/metadataFactory/elements/elementOperationFactory"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { exportAutoCommandBarToStructure } from "../autoCommandBar/exportToStructure"
 import { NamedElement } from "../baseElement/types"

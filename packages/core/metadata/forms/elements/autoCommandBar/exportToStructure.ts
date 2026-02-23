@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { exportCommandBarItemsToStructure, formatCommandBarContent } from "../../format/commandBarHelpers"
-import { ToNKDKResult } from "../../format/types"
 import { AutoCommandBar } from "./types"
 
 export const exportAutoCommandBarToStructure = (
