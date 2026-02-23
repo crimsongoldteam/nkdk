@@ -1,16 +1,15 @@
 import {
   // exportCatalogFormToXML,
   exportFormMetadataToXML,
-  importChildItemsFromNKDK,
   importFromYAML,
   xmlExport,
 } from "@nakidka/core"
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/base/fromYAML"
-import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/base/toXML"
-import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/base/types"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/toXML"
+import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 // import { CatalogFormEnterprise } from "~/metadata/forms/index"
 
 /**
@@ -40,8 +39,10 @@ export const exportForm = (inputPath: string, outputPath: string, formName: stri
     childItemsStructure = readFileSync(nkdkPath, "utf-8")
   }
 
-  const childItems = importChildItemsFromNKDK({ context, childItemsStructure })
-  const formData = importClientApplicationFormFromYAML(context, enterpriseData, childItems)
+  const sourceForm = await importFormFromNKDK(context, childItemsStructure)
+
+  // const childItems = importChildItemsFromNKDK({ context, childItemsStructure })
+  const formData = importClientApplicationFormFromYAML(context, enterpriseData, sourceForm)
 
   if (!formData) {
     throw new Error("Не удалось импортировать форму из Enterprise формата")

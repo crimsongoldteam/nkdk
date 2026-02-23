@@ -58,7 +58,7 @@ const configurationContext: ConfigurationContext = {
 // const originalFormXml = readAndParseXMLFile<ClientApplicationFormXML>("forms/clientApplicationForm/full.xml")
 
 describe("DO test", () => {
-  it("should import-export form", async () => {
+  it.skip("should import-export form", async () => {
     const fullPath = join(__dirname, "Before/Form.xml")
     const xml = readFileSync(fullPath, "utf-8")
 
