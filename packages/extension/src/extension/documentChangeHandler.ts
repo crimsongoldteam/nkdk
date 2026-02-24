@@ -16,7 +16,7 @@ type FormContext = Parameters<typeof importClientApplicationFromFromNKDK>[0]["co
 const minimalContext: FormContext = {
   defaultLanguage: "ru",
   preview: {
-    prefix: "",
+    prefix: "р_",
     attributes: {},
   },
 }
