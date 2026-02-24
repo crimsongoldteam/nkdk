@@ -1,17 +1,23 @@
+import * as fs from "node:fs/promises"
 import * as http from "node:http"
+import * as path from "node:path"
 
 const SSE_PORT = 3456
 
 const sseClients: http.ServerResponse[] = []
+
+const SCRIPT_PLACEHOLDER = '<script type="module" src="./script.js"></script>'
 
 export interface SseServerHandle {
   stop(): Promise<void>
   broadcast(data: unknown): void
 }
 
-export function startSseServer(): SseServerHandle {
-  let server: http.Server | undefined = http.createServer((req, res) => {
-    if (req.url === "/sse" || req.url === "/") {
+export function startSseServer(formPreviewDir: string | undefined): SseServerHandle {
+  let server: http.Server | undefined = http.createServer(async (req, res) => {
+    const url = req.url?.split("?")[0] ?? "/"
+
+    if (url === "/sse") {
       res.writeHead(200, {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
@@ -22,14 +28,37 @@ export function startSseServer(): SseServerHandle {
         const i = sseClients.indexOf(res)
         if (i !== -1) sseClients.splice(i, 1)
       })
-    } else {
-      res.writeHead(404)
-      res.end()
+      return
     }
+
+    if (formPreviewDir && (url === "/" || url === "/index.html")) {
+      try {
+        const [htmlRaw, scriptRaw] = await Promise.all([
+          fs.readFile(path.join(formPreviewDir, "index.html"), "utf-8"),
+          fs.readFile(path.join(formPreviewDir, "script.js"), "utf-8"),
+        ])
+        const scriptTag = `<script type="module">\n${scriptRaw}\n</script>`
+        const page = htmlRaw.replace(SCRIPT_PLACEHOLDER, scriptTag)
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+        res.end(page)
+      } catch (err) {
+        console.warn("[nkdk] Form preview files not found:", err)
+        res.writeHead(404)
+        res.end()
+      }
+      return
+    }
+
+    res.writeHead(404)
+    res.end()
   })
 
+  const baseUrl = "http://127.0.0.1:" + SSE_PORT
   server.listen(SSE_PORT, "127.0.0.1", () => {
-    console.log("[nkdk] SSE server listening on http://127.0.0.1:" + SSE_PORT + "/sse")
+    console.log("[nkdk] SSE server: " + baseUrl + "/sse")
+    if (formPreviewDir) {
+      console.log("[nkdk] Form preview: " + baseUrl + "/")
+    }
   })
 
   return {

@@ -12,7 +12,8 @@ let sseServer: SseServerHandle | undefined
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   client = await startLanguageClient(context)
-  sseServer = startSseServer()
+  const formPreviewDir = context.asAbsolutePath("formPreview")
+  sseServer = startSseServer(formPreviewDir)
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
 }

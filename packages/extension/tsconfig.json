@@ -2,12 +2,13 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
-    "rootDir": ".",
+    "allowImportingTsExtensions": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@nakidka/core": ["../core/index.ts"]
+      "@nakidka/core": ["../core/index.ts"],
+      "~/*": ["../core/*"]
     }
   },
   "references": [
