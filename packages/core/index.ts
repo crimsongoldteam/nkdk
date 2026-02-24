@@ -15,10 +15,12 @@ export { importClientApplicationFromFromNKDK } from "./metadata/forms/clientAppl
 export { importClientApplicationFormFromYAML } from "./metadata/forms/clientApplicationForm/fromYAML"
 export { importClientApplicationFormFromXML } from "./metadata/forms/clientApplicationForm/fromXML"
 export { exportClientApplicationFormToStructure } from "./metadata/forms/clientApplicationForm/exportToStructure"
+export { exportClientApplicationFormToEnterprise } from "./metadata/forms/clientApplicationForm/toEnterprise"
 export { exportClientApplicationFormToXML } from "./metadata/forms/clientApplicationForm/toXML"
 export { exportClientApplicationFormToYAML } from "./metadata/forms/clientApplicationForm/toYAML"
 export type {
   ClientApplicationForm,
+  ClientApplicationFormEnterprise,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
 } from "./metadata/forms/clientApplicationForm/types"

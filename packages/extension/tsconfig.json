@@ -4,7 +4,11 @@
     "noEmit": true,
     "rootDir": ".",
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@nakidka/core": ["../core/index.ts"]
+    }
   },
   "references": [
     {

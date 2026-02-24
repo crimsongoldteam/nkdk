@@ -42,6 +42,7 @@
     "watch": "npm run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\""
   },
   "dependencies": {
+    "@nakidka/core": "workspace:*",
     "langium": "~4.2.0",
     "nkdk-language": "workspace:*",
     "vscode-languageclient": "~9.0.1",

@@ -22,7 +22,7 @@
 //   //   childItemsStructure = readFileSync(nkdkPath, "utf-8")
 //   // }
 
-//   // const nkdkAst = await parseNKDKFromString(childItemsStructure)
+//   const nkdkAst = await parseNKDKFromString(childItemsStructure)
 //   // const sourceForm = nkdkAst
 //   //   ? importClientApplicationFromFromNKDK({ context, value: nkdkAst })
 //   //   : createEmptyClientApplicationForm()
