@@ -29,7 +29,7 @@ describe("Parsing nkdk language", () => {
 
     const parseResult = document.parseResult
 
-    // expect(parseResult.parserErrors).toHaveLength(0)
+    expect(parseResult.parserErrors).toHaveLength(0)
 
     const element = parseResult.value?.childItems?.[0]
     const cleanedElement = cleanElement(element)

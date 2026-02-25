@@ -7,6 +7,60 @@ export interface ParsingFixture {
 }
 
 export const parsingFixtures: ParsingFixture[] = [
+  // #region Attributes
+  {
+    name: "form attribute",
+    input: `%РеквизитОбъекта:`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      dataPath: ["РеквизитОбъекта"],
+      $container: undefined,
+    },
+  },
+  {
+    name: "main attribute",
+    input: `%%РеквизитОбъекта:`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: true,
+      dataPath: ["РеквизитОбъекта"],
+      $container: undefined,
+    },
+  },
+  {
+    name: "form attribute with dots",
+    input: `%Объект.Реквизит:`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      dataPath: ["Объект", "Реквизит"],
+      $container: undefined,
+    },
+  },
+  {
+    name: "form attribute different from data path",
+    input: `%ИмяЭлементаФормы(Объект.Реквизит):`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      dataPath: ["Объект", "Реквизит"],
+      elementName: "ИмяЭлементаФормы",
+      $container: undefined,
+    },
+  },
+  {
+    name: "main attribute different from data path",
+    input: `%%ИмяЭлементаФормы(Объект.Реквизит):`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: true,
+      dataPath: ["Объект", "Реквизит"],
+      elementName: "ИмяЭлементаФормы",
+      $container: undefined,
+    },
+  },
+  // #endregion
   // #region LabelDecoration
   {
     name: "label decoration",
@@ -605,61 +659,6 @@ export const parsingFixtures: ParsingFixture[] = [
       type: "?ПолеПериода",
       isMainAttribute: false,
       elementName: "Реквизит",
-      $container: undefined,
-    },
-  },
-  // #endregion
-
-  // #region Attributes
-  {
-    name: "form attribute",
-    input: `%РеквизитОбъекта:`,
-    expected: {
-      $type: "InputField",
-      isMainAttribute: false,
-      dataPath: ["РеквизитОбъекта"],
-      $container: undefined,
-    },
-  },
-  {
-    name: "main attribute",
-    input: `%%РеквизитОбъекта:`,
-    expected: {
-      $type: "InputField",
-      isMainAttribute: true,
-      dataPath: ["РеквизитОбъекта"],
-      $container: undefined,
-    },
-  },
-  {
-    name: "form attribute with dots",
-    input: `%Объект.Реквизит:`,
-    expected: {
-      $type: "InputField",
-      isMainAttribute: false,
-      dataPath: ["Объект", "Реквизит"],
-      $container: undefined,
-    },
-  },
-  {
-    name: "form attribute different from data path",
-    input: `%ИмяЭлементаФормы(Объект.Реквизит):`,
-    expected: {
-      $type: "InputField",
-      isMainAttribute: false,
-      dataPath: ["Объект", "Реквизит"],
-      elementName: "ИмяЭлементаФормы",
-      $container: undefined,
-    },
-  },
-  {
-    name: "main attribute different from data path",
-    input: `%%ИмяЭлементаФормы(Объект.Реквизит):`,
-    expected: {
-      $type: "InputField",
-      isMainAttribute: true,
-      dataPath: ["Объект", "Реквизит"],
-      elementName: "ИмяЭлементаФормы",
       $container: undefined,
     },
   },
