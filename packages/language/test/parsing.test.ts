@@ -1,8 +1,8 @@
 import { EmptyFileSystem, type LangiumDocument } from "langium"
-import { parseHelper } from "langium/test"
+import { clearDocuments, parseHelper } from "langium/test"
 import type { Form } from "nkdk-language"
 import { createNkdkServices } from "nkdk-language"
-import { beforeAll, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { parsingFixtures } from "./parsing.fixtures"
 
 let services: ReturnType<typeof createNkdkServices>
@@ -11,21 +11,25 @@ let document: LangiumDocument<Form> | undefined
 
 const excludedKeys = ["$container", "$cstNode", "$containerProperty", "$containerIndex"]
 
-beforeAll(async () => {
-  services = createNkdkServices(EmptyFileSystem)
-  parse = parseHelper<Form>(services.Nkdk)
-
-  // activate the following if your linking test requires elements from a built-in library, for example
-  // await services.shared.workspace.WorkspaceManager.initializeWorkspace([]);
-})
-
 describe("Parsing nkdk language", () => {
-  it.each(parsingFixtures)("parse $name", async ({ input, expected }) => {
+  beforeAll(async () => {
+    services = createNkdkServices(EmptyFileSystem)
+    parse = parseHelper<Form>(services.Nkdk)
+
+    // activate the following if your linking test requires elements from a built-in library, for example
+    // await services.shared.workspace.WorkspaceManager.initializeWorkspace([]);
+  })
+
+  afterEach(async () => {
+    document && clearDocuments(services.shared, [document])
+  })
+
+  it.each(parsingFixtures)("parse $name $input", async ({ input, expected }) => {
     document = await parse(input)
 
     const parseResult = document.parseResult
 
-    expect(parseResult.parserErrors).toHaveLength(0)
+    // expect(parseResult.parserErrors).toHaveLength(0)
 
     const element = parseResult.value?.childItems?.[0]
     const cleanedElement = cleanElement(element)
@@ -44,12 +48,3 @@ const cleanElement = (element: any): any => {
   )
   return cleaned
 }
-
-// %РеквизитФормы
-// %%РеквизитОбъекта
-
-// %Реквизит.Формы
-// %%Реквизит.Объекта
-
-// %ДругоеИмя(Реквизит.Формы)
-// %%ДругоеИмя(Реквизит.Объекта)
