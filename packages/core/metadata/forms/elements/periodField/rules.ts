@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PeriodFieldRules: ElementRule<PeriodField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.PeriodField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PlannerFieldRules: ElementRule<PlannerField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.PlannerField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

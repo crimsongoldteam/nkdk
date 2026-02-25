@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const InputFieldRules = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.InputField",
   properties: {
     allowInputEmptyMultipleValues: {
       yaml: "РазрешитьВводПустыхМножественныхЗначений",

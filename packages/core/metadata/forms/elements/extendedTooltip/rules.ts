@@ -8,6 +8,7 @@ import { ExtendedTooltip } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
+  enterpriseFieldType: "None",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

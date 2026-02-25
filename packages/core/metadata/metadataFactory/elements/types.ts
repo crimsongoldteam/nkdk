@@ -1,3 +1,4 @@
+import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from ".."
 import { ConfigurationContext } from "../../context/types"
 import { BaseElement } from "../../forms/elements/baseElement/types"
@@ -16,6 +17,13 @@ export interface ElementRule<T extends BaseElement, ExtraProperties extends stri
   ExtraProperties
 > {
   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
+  enterpriseFieldType:
+    | `FormFieldType.${FormFieldType}`
+    | `FormButton.${FormButtonType}`
+    | `FormGroup.${FormGroupType}`
+    | `FormDecoration.${FormDecorationType}`
+    | "FormTable"
+    | "None"
   alwaysExportToXML?: true
 
   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>

@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const ChartFieldRules: ElementRule<ChartField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.ChartField",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

@@ -7,6 +7,7 @@ import { ContextMenu } from "./types"
 export type { ElementRule }
 
 export const ContextMenuRules: ElementRule<ContextMenu> = {
+  enterpriseFieldType: "FormGroup.ContextMenu",
   properties: {
     displayImportance: {
       yaml: "ВажностьПриОтображении",

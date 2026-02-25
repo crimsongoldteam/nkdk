@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PageRules: ElementRule<Page> = {
   enterpriseField: "FormGroup",
+  enterpriseFieldType: "FormGroup.Page",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },

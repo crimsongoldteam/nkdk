@@ -13,13 +13,6 @@ const nkdkServices = createNkdkServices(EmptyFileSystem)
 const parseNkdk = parseHelper<NkdkForm>(nkdkServices.Nkdk)
 
 type FormContext = Parameters<typeof importClientApplicationFromFromNKDK>[0]["context"]
-const minimalContext: FormContext = {
-  defaultLanguage: "ru",
-  preview: {
-    prefix: "р_",
-    attributes: {},
-  },
-}
 
 export function registerDocumentChangeHandler(sseServer: SseServerHandle | undefined): vscode.Disposable {
   return vscode.workspace.onDidChangeTextDocument(async (e) => {
@@ -32,6 +25,13 @@ export function registerDocumentChangeHandler(sseServer: SseServerHandle | undef
 }
 
 export async function getPayload(document: vscode.TextDocument): Promise<ClientApplicationFormEnterprise> {
+  const minimalContext: FormContext = {
+    defaultLanguage: "ru",
+    preview: {
+      prefix: "р_",
+      attributes: {},
+    },
+  }
   const nkdkString = document.getText()
   const doc = await parseNkdk(nkdkString)
   const nkdkAst = doc.parseResult?.value

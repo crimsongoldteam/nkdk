@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const UsualGroupRules: ElementRule<UsualGroup> = {
   enterpriseField: "FormGroup",
+  enterpriseFieldType: "FormGroup.UsualGroup",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     behavior: {

@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const DendrogramFieldRules: ElementRule<DendrogramField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.DendrogramField",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

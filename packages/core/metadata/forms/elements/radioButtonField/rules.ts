@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const RadioButtonFieldRules: ElementRule<RadioButtonField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },

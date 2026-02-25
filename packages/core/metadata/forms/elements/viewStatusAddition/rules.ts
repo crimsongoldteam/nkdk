@@ -11,6 +11,7 @@ export type { ElementRule, PropertyRule }
 // В YAML этот элемент может быть только в свойствах, не может быть в структуре
 
 export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionSource"> = {
+  enterpriseFieldType: "None",
   properties: {
     additionSource: {
       type: "TableAdditionalSource",

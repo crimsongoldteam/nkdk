@@ -58,6 +58,7 @@ const commonProperties: ElementRule<SearchControlAddition>["properties"] = {
 }
 
 export const SingleSearchControlAdditionRules: ElementRule<SingleSearchControlAddition, "additionSource"> = {
+  enterpriseFieldType: "None",
   properties: {
     additionSource: {
       type: "TableAdditionalSource",
@@ -81,6 +82,7 @@ export const SingleSearchControlAdditionRules: ElementRule<SingleSearchControlAd
 }
 
 export const SearchControlAdditionRules: ElementRule<SearchControlAddition> = {
+  enterpriseFieldType: "None",
   properties: {
     additionSource: {
       yaml: "Источник",

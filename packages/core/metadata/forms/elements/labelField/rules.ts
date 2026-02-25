@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const LabelFieldRules: ElementRule<LabelField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.LabelField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

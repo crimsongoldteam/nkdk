@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const HTMLDocumentFieldRules: ElementRule<HTMLDocumentField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.HTMLDocumentField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

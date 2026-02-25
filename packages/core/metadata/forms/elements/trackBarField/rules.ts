@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const TrackBarFieldRules: ElementRule<TrackBarField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.TrackBarField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

@@ -5,6 +5,7 @@ import { CommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const CommandBarRules: ElementRule<CommandBar> = {
+  enterpriseFieldType: "FormGroup.CommandBar",
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
     childItems: {

@@ -11,7 +11,7 @@ import {
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { parseNKDKFromString } from "../../langium/util.js"
+import { parseNKDKFromString } from "../../langium/util"
 
 /**
  * Экспортирует форму из Enterprise формата в XML

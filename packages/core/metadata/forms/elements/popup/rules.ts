@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PopupRules: ElementRule<Popup, "extendedTooltip"> = {
   enterpriseField: "FormGroup",
+  enterpriseFieldType: "FormGroup.Popup",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },

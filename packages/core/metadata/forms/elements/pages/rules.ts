@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PagesRules: ElementRule<Pages> = {
   enterpriseField: "FormGroup",
+  enterpriseFieldType: "FormGroup.Pages",
   properties: {
     childItems: {
       type: "ChildItems",

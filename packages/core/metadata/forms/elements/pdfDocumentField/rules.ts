@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PdfDocumentFieldRules: ElementRule<PdfDocumentField> = {
   enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.PDFDocumentField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
