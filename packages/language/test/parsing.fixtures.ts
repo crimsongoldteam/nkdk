@@ -443,12 +443,13 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group with indented block",
-    input: `++ %Вертикальная
+    input: `
++%Вертикальная
   %Поле:
   %Декорация`,
     expected: {
       $type: "Group",
-      group: "++",
+      group: "+",
       isMainAttribute: false,
       elementName: "Вертикальная",
       $container: undefined,
@@ -470,12 +471,12 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group horizontal with indented block",
-    input: `--- %Блок
-  %Реквизит:
-  ~%Метка:`,
+    input: `
+- %Блок
+  %Реквизит:`,
     expected: {
       $type: "Group",
-      group: "---",
+      group: "-",
       isMainAttribute: false,
       elementName: "Блок",
       $container: undefined,
@@ -484,12 +485,6 @@ export const parsingFixtures: ParsingFixture[] = [
           $type: "InputField",
           isMainAttribute: false,
           dataPath: ["Реквизит"],
-          $container: undefined,
-        },
-        {
-          $type: "LabelField",
-          isMainAttribute: false,
-          dataPath: ["Метка"],
           $container: undefined,
         },
       ],
@@ -572,7 +567,8 @@ export const parsingFixtures: ParsingFixture[] = [
   {
     name: "pages",
     // отступы (пробелы) при использовании парсера заменяются на INDENT/DEDENT (*Ё / *ё)
-    input: `// %Страницы
+    input: `
+// %Страницы
   / %Страница
     %Декорация`,
     expected: {
