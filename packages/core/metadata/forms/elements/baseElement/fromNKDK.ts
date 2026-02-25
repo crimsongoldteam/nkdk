@@ -49,5 +49,6 @@ const importFromNKDK = <T extends NKDK.OtherField | NKDK.CommandAdditionField>(p
 
   const itemType = importFormElementTypeFromYAML(context, sourceType) as FormElementType
 
-  return { itemType: itemType, name: importNameFromNKDK(source.name) }
+  const name = importNameFromNKDK(source)
+  return { itemType: itemType, name: name }
 }

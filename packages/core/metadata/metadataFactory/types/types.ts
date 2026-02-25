@@ -153,6 +153,7 @@ type TypesMap =
   | ["Color", unknown, ColorEnterprise]
   | ["TypeDescription", unknown, TypeDescriptionEnterprise]
   | ["DataPath", unknown, string]
+  | ["I8nText", unknown, string]
 
 export type TypeRulesNamesNew = TypesMap extends [infer First, any, any] ? First : never
 export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
@@ -165,5 +166,6 @@ const TypesNamesList: TypeRulesNamesNew[] = [
   "Color",
   "TypeDescription",
   "DataPath",
+  "I8nText",
 ]
 export const TypesNames = TypesNamesList

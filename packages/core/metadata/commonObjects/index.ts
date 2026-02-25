@@ -65,6 +65,7 @@ import "./i8nText/fromXML"
 import "./i8nText/fromYAML"
 import "./i8nText/toXML"
 import "./i8nText/toYAML"
+import "./i8nText/toEnterprise"
 
 import "./indexField/fromXML"
 import "./indexField/fromYAML"

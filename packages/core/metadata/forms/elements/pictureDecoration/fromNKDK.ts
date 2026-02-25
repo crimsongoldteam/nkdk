@@ -16,7 +16,7 @@ export const importPictureDecorationFromNKDK = (params: {
 
   const result: PictureDecoration = {
     itemType: CollectionFormElementType.PictureDecoration,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     picture: picture,
   }
 

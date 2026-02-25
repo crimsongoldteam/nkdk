@@ -8,6 +8,7 @@ export const exportDataPathToEnterprise = (params: {
   tableDataPath?: string
 }): string | undefined => {
   const { context, value: dataPath, tableDataPath } = params
+  //TODO нет пути
   if (!dataPath) return undefined
 
   const preview = context.preview!

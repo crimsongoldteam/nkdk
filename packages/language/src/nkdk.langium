@@ -9,10 +9,15 @@ terminal HGROUP: /\-/;
 terminal ABSGROUP: /\=/;
 
 terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*[\t ]*\]/;
-terminal NAME: /%[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*/;
 
-/** Обычный текст или в кавычках: в двойных "" экранирует ", в одинарных '' экранирует '. */
-terminal TEXT: /([a-zA-Zа-яА-ЯёЁ0-9_]+[a-zA-Zа-яА-ЯёЁ0-9_ ]*)|"(?:[^"]|"")*"|'(?:[^']|'')*'/;
+/** Несколько слов с пробелами (для заголовка без кавычек). Минимум два слова — не конфликтует с NAME. */
+terminal UNQUOTED_TITLE: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*[\t ]+[a-zA-Zа-яА-ЯёЁ0-9_]+([\t ]*[a-zA-Zа-яА-ЯёЁ0-9_]*)*/;
+
+/** Идентификатор (имя поля и т.д.). Одно слово — не конфликтует с QUOTED_TEXT и UNQUOTED_TITLE. */
+terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*/;
+
+/** Заголовок в кавычках: в двойных "" экранирует ", в одинарных '' экранирует '. */
+terminal QUOTED_TEXT: /"(?:[^"]|"")*"|'(?:[^']|'')*'/;
 
 terminal SEARCHFIELD: /\?(УправлениеПоиском|ОтображениеСтрокиПоиска)/;
 
@@ -26,14 +31,24 @@ entry Form:
     (autoCommandBar=AutoCommandBar)?
     (childItems+=ChildItem)*;
 
-fragment Named:
-    name=NAME;
+
+fragment DataPath:
+  dataPath+=NAME ('.' dataPath+=NAME)*;
+
+fragment Name:
+    '%'(isMainAttribute?='%')? elementName=NAME;
+
+fragment NameAndDataPath:
+    '%'(isMainAttribute?='%')? ((elementName=NAME '(' DataPath ')') | DataPath);
+
+/** Заголовок: в кавычках, несколько слов без кавычек или одно слово (NAME). */
+TEXT returns string: QUOTED_TEXT | UNQUOTED_TITLE | NAME;
 
 fragment Titled:
     (title=TEXT)?;
 
 fragment Field:
-    ((Named ':') | (Titled ':' Named));
+    ((NameAndDataPath ':') | (Titled ':' NameAndDataPath));
 
 ChildItem:
      Group 
@@ -77,49 +92,49 @@ PictureField:
     '!' Field;
 
 LabelDecoration:
-    Titled Named;
+    Titled Name;
 
 PictureDecoration:
-    '!' picture=PICTURE Named | '!' Named;
+    '!' picture=PICTURE Name | '!' Name;
 
 CheckBoxField:
-    ( title=TEXT '['']' Named) 
-    | (Named '['']');
+    ( title=TEXT '['']' NameAndDataPath) 
+    | (NameAndDataPath '['']');
 
 CheckBoxFieldRightTitled:
-    '['']' Titled Named;
+    '['']' Titled NameAndDataPath;
 
 CheckBoxFieldSwitch:
-     (title=TEXT '[' '|' ']' Named)
-     | (Named '[' '|' ']');
+     (title=TEXT '[' '|' ']' NameAndDataPath)
+     | (NameAndDataPath '[' '|' ']');
 
 CheckBoxFieldSwitchRightTitled:
-    '[''|'']' Titled Named;
+    '[''|'']' Titled NameAndDataPath;
 
 CheckBoxFieldTumbler:
-    (title=TEXT '<''|''>' Named)
-    | (Named '<''|''>');
+    (title=TEXT '<''|''>' NameAndDataPath)
+    | (NameAndDataPath '<''|''>');
 
 CheckBoxFieldTumblerRightTitled:
-    '<''|''>' Titled Named;
+    '<''|''>' Titled NameAndDataPath;
 
 Button:
-    '<' Titled Named '>';
+    '<' Titled Name '>';
 
 
 // command bar
 
 CommandAdditionField:
-    type=SEARCHFIELD Named;
+    type=SEARCHFIELD Name;
 
 CommandGroup:
-    HGROUP Titled Named;
+    HGROUP Titled Name;
 
 Popup:
-    VGROUP Titled Named;
+    VGROUP Titled Name;
 
 CommandBarButton:
-    Titled Named;
+    Titled Name;
 
 CommandBarChildItem:
     CommandGroup | Popup | CommandBarButton | CommandAdditionField;
@@ -133,13 +148,13 @@ AutoCommandBar:
 
 CommandBar:
     '<' (childItems+=CommandBarChildItem CommandBarChildItemFragment)?
-    '>' Named;
+    '>' Name;
 
 
 // vertical group
  
 Group:
-    group=(GROUP | HGROUP | VGROUP | ABSGROUP) Titled Named 
+    group=(GROUP | HGROUP | VGROUP | ABSGROUP) Titled Name 
         (
             (INDENT childItems+=ChildItem* DEDENT)?
             | OneLineGroupFragment
@@ -154,28 +169,28 @@ fragment OneLineGroupFragment:
 
 Table:
     (autoCommandBar = AutoCommandBar)?
-    '|' ( childItems+=TableField ('|' childItems+=TableField )*)? '|' Named;
+    '|' ( childItems+=TableField ('|' childItems+=TableField )*)? '|' NameAndDataPath;
 
 TableHorizontalGroup:
-    HGROUP Titled Named;
+    HGROUP Titled Name;
 
 TableVerticalGroup:
-   VGROUP Titled Named;
+   VGROUP Titled Name;
 
 TableInCellGroup:
-    ABSGROUP Titled Named;
+    ABSGROUP Titled Name;
 
 TablePictureField:
-    '!' Titled Named;
+    '!' Titled NameAndDataPath;
 
 TableCheckbox:
-    '['']' Titled Named;
+    '['']' Titled NameAndDataPath;
 
 TableInputField:
-    Titled Named;
+    Titled NameAndDataPath;
 
 TableLabelField:
-    '~' Titled Named;
+    '~' Titled NameAndDataPath;
 
 TableField:
     TableHorizontalGroup 
@@ -189,14 +204,14 @@ TableField:
 // pages
 
 Pages:
-    '//' Titled Named
+    '//' Titled Name
     (INDENT (childItems+=Page)* DEDENT)?; 
 
 Page:
-    '/' Titled Named
+    '/' Titled Name
     (INDENT (childItems+=ChildItem)* DEDENT)?;
 
 // other
 
 OtherField:
-    type=OTHERFIELD Named;
+    type=OTHERFIELD Name;

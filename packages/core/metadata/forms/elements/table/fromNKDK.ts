@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+import { importDataPathFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKDK"
 import { importAutoCommandBarFromNKDK } from "../autoCommandBar/fromNKDK"
 import { Table } from "./types"
@@ -15,11 +15,16 @@ export const importTableFromNKDK = (params: { context: ConfigurationContext; sou
 
   const result: Table = {
     itemType: CollectionFormElementType.Table,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     childItems: childItems,
   }
 
   if (autoCommandBar) result.autoCommandBar = autoCommandBar
+
+  const dataPath = importDataPathFromNKDK(source)
+  if (dataPath) {
+    result.dataPath = dataPath
+  }
 
   return result
 }

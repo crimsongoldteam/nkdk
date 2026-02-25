@@ -15,8 +15,7 @@ export const importCommandBarFromNKDK = (params: {
 
   const result: CommandBar = {
     itemType: CollectionFormElementType.CommandBar,
-    name: importNameFromNKDK(source.name ?? ""),
-    // autofill: source.autofill,
+    name: importNameFromNKDK(source),
     childItems: childItems,
   }
 

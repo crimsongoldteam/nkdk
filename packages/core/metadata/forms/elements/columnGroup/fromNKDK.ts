@@ -1,4 +1,5 @@
 import * as NKDK from "nkdk-language"
+import { title } from "process"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
@@ -7,17 +8,17 @@ import { ColumnGroup } from "./types"
 
 const importColumnGroupFromNKDKBase = (params: {
   context: ConfigurationContext
-  name: string
+  source: NKDK.TableHorizontalGroup | NKDK.TableInCellGroup | NKDK.TableVerticalGroup
   group: SE.ColumnsGroup
-  title?: string
+  // title?: string
 }): ColumnGroup => {
-  const { context, name, title, group } = params
+  const { context, source, group } = params
 
-  const titleText = importI8nTextFromNKDK(context, title)
+  const titleText = importI8nTextFromNKDK(context, source.title)
 
   const result: ColumnGroup = {
     itemType: CollectionFormElementType.ColumnGroup,
-    name: importNameFromNKDK(name),
+    name: importNameFromNKDK(source),
     group: group,
     childItems: [],
   }
@@ -35,9 +36,8 @@ export const importTableHorizontalGroupFromNKDK = (params: {
 }): ColumnGroup =>
   importColumnGroupFromNKDKBase({
     context: params.context,
-    name: params.source.name,
+    source: params.source,
     group: "Horizontal",
-    title: params.source.title,
   })
 
 export const importTableInCellGroupFromNKDK = (params: {
@@ -46,9 +46,8 @@ export const importTableInCellGroupFromNKDK = (params: {
 }): ColumnGroup =>
   importColumnGroupFromNKDKBase({
     context: params.context,
-    name: params.source.name,
+    source: params.source,
     group: "InCell",
-    title: params.source.title,
   })
 
 export const importTableVerticalGroupFromNKDK = (params: {
@@ -57,7 +56,6 @@ export const importTableVerticalGroupFromNKDK = (params: {
 }): ColumnGroup =>
   importColumnGroupFromNKDKBase({
     context: params.context,
-    name: params.source.name,
+    source: params.source,
     group: "Vertical",
-    title: params.source.title,
   })

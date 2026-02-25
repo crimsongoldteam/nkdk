@@ -12,7 +12,7 @@ export const importCommandGroupFromNKDK = (params: {
 
   const result: ButtonGroup = {
     itemType: CollectionFormElementType.ButtonGroup,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title ?? ""),
     childItems: [],
   }

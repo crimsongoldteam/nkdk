@@ -26,7 +26,7 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends M
     return importChildItemsFromPartialYAML({
       context: params.context,
       rule: params.rule,
-      source: params.source as AllChildItem[] | undefined,
+      source: params.source as unknown as AllChildItem[] | undefined,
     }) as unknown as To[]
   }
 

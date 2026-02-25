@@ -14,7 +14,7 @@ export const importLabelDecorationFromNKDK = (params: {
   const { context, source } = params
   const result: LabelDecoration = {
     itemType: CollectionFormElementType.LabelDecoration,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     title: importFormattedI8nTextFromNKDK(context, source.title ?? ""),
   }
 

@@ -8,7 +8,7 @@ export const importPageFromNKDK = (params: { context: ConfigurationContext; sour
   const { context, source } = params
   const result: Page = {
     itemType: CollectionFormElementType.Page,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
     childItems: [],
   }

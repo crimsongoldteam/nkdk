@@ -3,9 +3,17 @@ import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 
-export const importNameFromNKDK = (name: string | undefined): string => {
-  if (name == null) return ""
-  return name.startsWith("%") ? name.slice(1) : name
+export function importNameFromNKDK(source: { elementName: string; dataPath?: never }): string
+export function importNameFromNKDK(source: { elementName?: string; dataPath: string[] }): string
+export function importNameFromNKDK(source: { elementName?: string; dataPath?: string[] }): string {
+  if (source.elementName !== undefined) return source.elementName
+
+  if (source.dataPath === undefined) throw new Error("Data path is required")
+  return source.dataPath.join("")
+}
+
+export const importDataPathFromNKDK = (source: { dataPath: string[] }): string => {
+  return source.dataPath.join(".")
 }
 
 export function importI8nTextFromNKDK(context: ConfigurationContext, value: undefined): undefined

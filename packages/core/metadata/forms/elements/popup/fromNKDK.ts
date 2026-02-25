@@ -8,7 +8,7 @@ export const importPopupFromNKDK = (params: { context: ConfigurationContext; sou
   const { context, source } = params
   const result: Popup = {
     itemType: CollectionFormElementType.Popup,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title ?? ""),
     childItems: [],
   }

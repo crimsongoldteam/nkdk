@@ -24,7 +24,7 @@ export const importUsualGroupFromNKDK = (params: { context: ConfigurationContext
   const result: UsualGroup = {
     group: groupFromGroupText(groupText),
     itemType: CollectionFormElementType.UsualGroup,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     showTitle: source.title !== undefined,
     childItems: childItems,
   }

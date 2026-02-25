@@ -8,7 +8,7 @@ export const importButtonFromNKDK = (params: { context: ConfigurationContext; so
   const { context, source } = params
   const result: Button = {
     itemType: CollectionFormElementType.Button,
-    name: importNameFromNKDK(source.name),
+    name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
   }
 
@@ -21,5 +21,8 @@ export const importCommandBarButtonFromNKDK = (params: {
 }): Button =>
   importButtonFromNKDK({
     context: params.context,
-    source: { name: params.source.name, title: params.source.title } as NKDK.Button,
+    source: {
+      elementName: params.source.elementName,
+      title: params.source.title,
+    } as NKDK.Button,
   })
