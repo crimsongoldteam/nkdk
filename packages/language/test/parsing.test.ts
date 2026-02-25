@@ -24,7 +24,7 @@ describe("Parsing nkdk language", () => {
     document && clearDocuments(services.shared, [document])
   })
 
-  it.each(parsingFixtures)("parse $name $input", async ({ input, expected }) => {
+  it.sequential.each(parsingFixtures)("parse $name $input", async ({ input, expected }) => {
     document = await parse(input)
 
     const parseResult = document.parseResult
