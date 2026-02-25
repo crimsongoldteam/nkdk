@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/toEnterprise"
 import { FormElementType } from "../metadataType/types"
 import { exportPropertiesToEnterprise } from "../properties/toEnterprise"
 import { ToEnterprise } from "../rules"
@@ -22,13 +21,9 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
   })
 
   const result = {
-    ElementType: rules.enterpriseField,
-    Type: exportSystemEnumerationToEnterprise({
-      context,
-      rule: { type: "SystemEnumeration", typeSE: "FormFieldType" },
-      value: itemType,
-    }),
     ...properties,
+    ElementType: rules.enterpriseField,
+    Type: { Type: "SystemEnumeration", Value: rules.enterpriseFieldType },
     Name: element.name,
   } satisfies ToEnterprise<T>
 

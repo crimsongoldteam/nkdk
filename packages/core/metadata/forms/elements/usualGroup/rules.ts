@@ -55,10 +55,7 @@ export const UsualGroupRules = {
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: {
-      yaml: "РасширеннаяПодсказка",
-      type: "ExtendedTooltip",
-    },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     format: { yaml: "Формат", type: "I8nText" },
     group: {
       yaml: "Группировка",

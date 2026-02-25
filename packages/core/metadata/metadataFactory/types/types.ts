@@ -1,4 +1,5 @@
 import { ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { FontEnterprise } from "~/metadata/commonObjects/font/types"
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -154,6 +155,7 @@ type TypesMap =
   | ["TypeDescription", unknown, TypeDescriptionEnterprise]
   | ["DataPath", unknown, string]
   | ["I8nText", unknown, string]
+  | ["Font", unknown, FontEnterprise]
 
 export type TypeRulesNamesNew = TypesMap extends [infer First, any, any] ? First : never
 export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
@@ -167,5 +169,6 @@ const TypesNamesList: TypeRulesNamesNew[] = [
   "TypeDescription",
   "DataPath",
   "I8nText",
+  "Font",
 ]
 export const TypesNames = TypesNamesList

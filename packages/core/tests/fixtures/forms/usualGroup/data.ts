@@ -128,101 +128,46 @@ export const fullUsualGroupTypedYAML: UsualGroupTypedYAML = {
 }
 
 export const fullUsualGroupEnterprise = {
-  BackColor: {
-    Type: "Color",
-    Value: "WebColors.White",
-  },
-  Behavior: {
-    Type: "SystemEnumeration",
-    Value: "UsualGroupBehavior.Collapsible",
-  },
-  ChildItemsHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Center",
-  },
-  ChildItemsVerticalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Bottom",
-  },
+  BackColor: { Type: "Color", Value: "WebColors.White" },
+  Behavior: { Type: "SystemEnumeration", Value: "UsualGroupBehavior.Collapsible" },
+  ChildItemsHorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Center" },
+  ChildItemsVerticalAlign: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Bottom" },
   Collapsed: true,
   CollapsedRepresentationTitle: "Заголовок свернутого отображения",
-  ControlRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "UsualGroupControlRepresentation.Picture",
-  },
-  CurrentRowUse: {
-    Type: "SystemEnumeration",
-    Value: "CurrentRowUse.DontUse",
-  },
-  DisplayImportance: {
-    Type: "SystemEnumeration",
-    Value: "DisplayImportance.High",
-  },
+  ControlRepresentation: { Type: "SystemEnumeration", Value: "UsualGroupControlRepresentation.Picture" },
+  CurrentRowUse: { Type: "SystemEnumeration", Value: "CurrentRowUse.DontUse" },
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
   ElementType: "FormGroup",
   EnableContentChange: true,
   Enabled: false,
   Format: "БЛ=Выключено",
-  Group: {
-    Type: "SystemEnumeration",
-    Value: "ChildFormItemsGroup.Vertical",
-  },
+  Group: { Type: "SystemEnumeration", Value: "ChildFormItemsGroup.Vertical" },
   Height: 200,
-  HiddenRepresentationTitleBackColor: {
-    Type: "Color",
-    Value: "WebColors.Gold",
-  },
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalSpacing: {
-    Type: "SystemEnumeration",
-    Value: "FormItemSpacing.Single",
-  },
+  HiddenRepresentationTitleBackColor: { Type: "Color", Value: "WebColors.Gold" },
+  HorizontalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  HorizontalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
   HorizontalStretch: true,
-  ItemsAndTitlesAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemsAndTitlesAlignVariant.ItemsLeftTitlesLeft",
-  },
+  ItemsAndTitlesAlign: { Type: "SystemEnumeration", Value: "ItemsAndTitlesAlignVariant.ItemsLeftTitlesLeft" },
   Name: "ОбычнаяГруппа",
   ReadOnly: true,
-  Representation: {
-    Type: "SystemEnumeration",
-    Value: "UsualGroupRepresentation.NormalSeparation",
-  },
+  Representation: { Type: "SystemEnumeration", Value: "UsualGroupRepresentation.NormalSeparation" },
   ShowLeftMargin: false,
   ShowTitle: false,
-  ThroughAlign: {
-    Type: "SystemEnumeration",
-    Value: "ThroughAlign.DontUse",
-  },
+  ThroughAlign: { Type: "SystemEnumeration", Value: "ThroughAlign.DontUse" },
   Title: "Обычная группа",
   TitleDataPath: "prefix_ТекстовыйРеквизит",
-  TitleTextColor: {
-    Type: "Color",
-    Value: "WebColors.Black",
-  },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
   ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  Type: {
-    Type: "SystemEnumeration",
-    Value: "FormFieldType.UsualGroup",
-  },
+  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.UsualGroup" },
   United: false,
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalSpacing: {
-    Type: "SystemEnumeration",
-    Value: "FormItemSpacing.Single",
-  },
+  VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
+  VerticalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
   VerticalStretch: true,
   Visible: false,
   Width: 300,
+  ChildItems: undefined,
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
 } satisfies Required<UsualGroupEnterprise>
 
 export const minimalUsualGroup: UsualGroup = {

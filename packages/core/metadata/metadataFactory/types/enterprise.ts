@@ -15,7 +15,7 @@ export type EnterpriseType<
           : unknown
         : never
     } & {
-      EnterpriseField: T["enterpriseField"]
+      ElementType: T["enterpriseField"]
       Name: string
       Type: { Type: "SystemEnumeration"; Value: T["enterpriseFieldType"] }
     }
