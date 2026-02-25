@@ -381,6 +381,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       name: "ИмяПоля",
       itemType: CollectionFormElementType.InputField,
       title: { items: { ru: "Поле" } },
+      dataPath: "ИмяПоля",
     },
     structured: {
       strings: ["Поле: %ИмяПоля"],
@@ -392,6 +393,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     element: {
       name: "ИмяПоля",
       itemType: CollectionFormElementType.InputField,
+      dataPath: "ИмяПоля",
     },
     structured: {
       strings: ["%ИмяПоля: "],

@@ -200,10 +200,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -224,10 +226,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -248,10 +252,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -277,12 +283,14 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
           childItems: [
             {
               name: "Элемент1",
+              dataPath: "Элемент1",
               itemType: CollectionFormElementType.InputField,
             } as InputField,
           ],
         },
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -313,12 +321,14 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
           childItems: [
             {
               name: "Элемент1",
+              dataPath: "Элемент1",
               itemType: CollectionFormElementType.InputField,
             } as InputField,
           ],
         },
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -343,10 +353,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -367,10 +379,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -391,10 +405,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],
@@ -415,10 +431,12 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       childItems: [
         {
           name: "Элемент1",
+          dataPath: "Элемент1",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
+          dataPath: "Элемент2",
           itemType: CollectionFormElementType.InputField,
         } as InputField,
       ],

@@ -437,6 +437,7 @@ export const minimalTableYAML: TablePartialYAML = {}
 
 export const oneColumnTable: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
@@ -449,15 +450,18 @@ export const oneColumnTable: Table = {
 
 export const twoColumnTable: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
+      dataPath: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
       itemType: CollectionFormElementType.InputField,
     } as InputField,
     {
       name: "Колонка2",
+      dataPath: "Колонка2",
       title: { items: { ru: "Колонка 2" } },
       itemType: CollectionFormElementType.InputField,
     } as InputField,
@@ -466,6 +470,7 @@ export const twoColumnTable: Table = {
 
 export const tableWithAutoCommandBar: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   autoCommandBar: {
     itemType: "AutoCommandBar",
@@ -481,6 +486,7 @@ export const tableWithAutoCommandBar: Table = {
   childItems: [
     {
       name: "Колонка1",
+      dataPath: "Колонка1",
       itemType: "InputField",
       title: { items: { ru: "Колонка таблицы 1" } },
     },
@@ -489,11 +495,13 @@ export const tableWithAutoCommandBar: Table = {
 
 export const inputColumnTable: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
+      dataPath: "Колонка1",
       itemType: CollectionFormElementType.InputField,
     } as InputField,
   ],
@@ -501,11 +509,13 @@ export const inputColumnTable: Table = {
 
 export const checkboxColumnTable: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Флажок" } },
+      dataPath: "Колонка1",
       itemType: "CheckBoxField",
     },
   ],
@@ -513,10 +523,12 @@ export const checkboxColumnTable: Table = {
 
 export const labelColumnTable: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
+      dataPath: "Колонка1",
       itemType: "LabelField",
     },
   ],
@@ -524,10 +536,12 @@ export const labelColumnTable: Table = {
 
 export const pictureColumnTable: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
       name: "Колонка1",
+      dataPath: "Колонка1",
       itemType: "PictureField",
     },
   ],
@@ -535,6 +549,7 @@ export const pictureColumnTable: Table = {
 
 export const tableWithHorizontalColumnGroup: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
@@ -548,6 +563,7 @@ export const tableWithHorizontalColumnGroup: Table = {
 
 export const tableWithVerticalColumnGroup: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
@@ -561,6 +577,7 @@ export const tableWithVerticalColumnGroup: Table = {
 
 export const tableWithInCellColumnGroup: Table = {
   name: "Таблица1",
+  dataPath: "Таблица1",
   itemType: CollectionFormElementType.Table,
   childItems: [
     {
