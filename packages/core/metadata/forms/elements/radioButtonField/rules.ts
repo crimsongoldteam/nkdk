@@ -46,7 +46,7 @@ export const RadioButtonFieldRules: ElementRule<RadioButtonField> = {
       typeSE: "ColumnEditMode",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",
       type: "SystemEnumeration",

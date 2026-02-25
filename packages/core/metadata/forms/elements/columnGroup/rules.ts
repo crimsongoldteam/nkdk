@@ -67,7 +67,7 @@ export const ColumnGroupRules: ElementRule<ColumnGroup> = {
       type: "SystemEnumeration",
       typeSE: "FormGroupType",
     },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     verticalAlignInGroup: {
       yaml: "ВертикальноеПоложениеВГруппе",
       xml: "GroupVerticalAlign",

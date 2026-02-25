@@ -28,7 +28,7 @@ export const CommandBarRules: ElementRule<CommandBar> = {
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",

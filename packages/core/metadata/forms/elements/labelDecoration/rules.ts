@@ -18,7 +18,7 @@ export const LabelDecorationRules: ElementRule<LabelDecoration> = {
       typeSE: "DisplayImportance",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     font: { yaml: "Шрифт", type: "Font" },
     height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {

@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { UsualGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const UsualGroupRules: ElementRule<UsualGroup> = {
+export const UsualGroupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroup.UsualGroup",
   properties: {
@@ -101,6 +101,7 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     shortcut: {
       yaml: "СочетаниеКлавиш",
       type: "string",
+      toEnterprise: false,
     },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: {
@@ -157,6 +158,6 @@ export const UsualGroupRules: ElementRule<UsualGroup> = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-}
+} as const satisfies ElementRule<UsualGroup>
 
 registerElementRule("UsualGroup", UsualGroupRules)

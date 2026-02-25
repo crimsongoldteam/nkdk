@@ -57,7 +57,7 @@ export const TableRules: ElementRule<Table> = {
       yaml: "РазрешитьНачалоПеретаскивания",
       type: "boolean",
     },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
       type: "SystemEnumeration",

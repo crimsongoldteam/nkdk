@@ -45,7 +45,7 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionS
       typeSE: "DisplayImportance",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     title: {
       yaml: "Заголовок",
       type: "I8nText",

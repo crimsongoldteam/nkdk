@@ -1,16 +1,17 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
   // GroupChildItemsEnterprise,
   GroupChilItemPartialYAML,
 } from "../../commonObjects/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { UsualGroupRules } from "./rules"
 
 export interface UsualGroup {
   itemType: "UsualGroup"
@@ -109,42 +110,44 @@ export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
   ПодчиненныеЭлементы?: GroupChilItemPartialYAML
 }
 
-export interface UsualGroupEnterprise {
-  itemType: "FormGroup"
-  Name: string
-  BackColor?: ColorEnterprise
-  Behavior?: SystemEnumerationEnterprise
-  Collapsed?: boolean
-  CollapsedRepresentationTitle?: string
-  ControlRepresentation?: SystemEnumerationEnterprise
-  CurrentRowUse?: SystemEnumerationEnterprise
-  DisplayImportance?: SystemEnumerationEnterprise
-  EnableContentChange?: boolean
-  Enabled?: boolean
-  Format?: string
-  Group?: SystemEnumerationEnterprise
-  Height?: number
-  HiddenRepresentationTitleBackColor?: ColorEnterprise
-  HorizontalAlign?: SystemEnumerationEnterprise
-  HorizontalSpacing?: SystemEnumerationEnterprise
-  HorizontalStretch?: boolean
-  ItemsAndTitlesAlign?: SystemEnumerationEnterprise
-  ReadOnly?: boolean
-  Representation?: SystemEnumerationEnterprise
-  ShowLeftMargin?: boolean
-  ShowTitle?: boolean
-  ThroughAlign?: SystemEnumerationEnterprise
-  Title?: string
-  TitleDataPath?: string
-  TitleFont?: FontEnterprise
-  TitleTextColor?: ColorEnterprise
-  ToolTip?: string
-  ToolTipRepresentation?: SystemEnumerationEnterprise
-  United?: boolean
-  VerticalAlign?: SystemEnumerationEnterprise
-  VerticalSpacing?: SystemEnumerationEnterprise
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-  // ChildItems: GroupChildItemsEnterprise
-}
+export type UsualGroupEnterprise = EnterpriseType<typeof UsualGroupRules>
+
+// export interface UsualGroupEnterprise {
+//   itemType: "FormGroup"
+//   Name: string
+//   BackColor?: ColorEnterprise
+//   Behavior?: SystemEnumerationEnterprise
+//   Collapsed?: boolean
+//   CollapsedRepresentationTitle?: string
+//   ControlRepresentation?: SystemEnumerationEnterprise
+//   CurrentRowUse?: SystemEnumerationEnterprise
+//   DisplayImportance?: SystemEnumerationEnterprise
+//   EnableContentChange?: boolean
+//   Enabled?: boolean
+//   Format?: string
+//   Group?: SystemEnumerationEnterprise
+//   Height?: number
+//   HiddenRepresentationTitleBackColor?: ColorEnterprise
+//   HorizontalAlign?: SystemEnumerationEnterprise
+//   HorizontalSpacing?: SystemEnumerationEnterprise
+//   HorizontalStretch?: boolean
+//   ItemsAndTitlesAlign?: SystemEnumerationEnterprise
+//   ReadOnly?: boolean
+//   Representation?: SystemEnumerationEnterprise
+//   ShowLeftMargin?: boolean
+//   ShowTitle?: boolean
+//   ThroughAlign?: SystemEnumerationEnterprise
+//   Title?: string
+//   TitleDataPath?: string
+//   TitleFont?: FontEnterprise
+//   TitleTextColor?: ColorEnterprise
+//   ToolTip?: string
+//   ToolTipRepresentation?: SystemEnumerationEnterprise
+//   United?: boolean
+//   VerticalAlign?: SystemEnumerationEnterprise
+//   VerticalSpacing?: SystemEnumerationEnterprise
+//   VerticalStretch?: boolean
+//   Visible?: boolean
+//   Width?: number
+//   // ChildItems: GroupChildItemsEnterprise
+// }

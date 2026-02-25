@@ -44,7 +44,7 @@ export const FormattedDocumentFieldRules: ElementRule<FormattedDocumentField> = 
       typeSE: "ColumnEditMode",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",
       type: "SystemEnumeration",

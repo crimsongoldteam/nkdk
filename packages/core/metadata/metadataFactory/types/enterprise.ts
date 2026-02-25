@@ -1,7 +1,9 @@
-import { InputFieldRules } from "~/metadata/forms/elements/inputField/rules"
+import { PropertyRule } from "../properties/types"
 import { EnterpriseTypeByKey, TypeRulesNamesNew } from "./types"
 
-export type EnterpriseType<T extends typeof InputFieldRules> = T["properties"] extends infer Properties
+export type EnterpriseType<
+  T extends { properties: Record<string, PropertyRule>; enterpriseField: string; enterpriseFieldType: string },
+> = T["properties"] extends infer Properties
   ? {
       [K in keyof Properties as Properties[K] extends { toEnterprise?: false }
         ? never
@@ -15,6 +17,7 @@ export type EnterpriseType<T extends typeof InputFieldRules> = T["properties"] e
     } & {
       EnterpriseField: T["enterpriseField"]
       Name: string
+      Type: { Type: "SystemEnumeration"; Value: T["enterpriseFieldType"] }
     }
   : never
 

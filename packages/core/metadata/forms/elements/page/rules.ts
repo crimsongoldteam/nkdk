@@ -9,7 +9,7 @@ export const PageRules: ElementRule<Page> = {
   enterpriseFieldType: "FormGroup.Page",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     childItems: {
       type: "ChildItems",
       defaultValue: [],
