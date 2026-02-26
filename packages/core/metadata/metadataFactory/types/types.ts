@@ -1,6 +1,7 @@
 import { ColorEnterprise } from "~/metadata/commonObjects/color/types"
 import { FontEnterprise } from "~/metadata/commonObjects/font/types"
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { AllChildItemsEnterprise } from "~/metadata/forms/commonObjects/childItems/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataItem, PropertyRule } from "../properties/types"
@@ -146,6 +147,19 @@ export type ImportExportFunction<O extends TypeRulesOperations> = O extends "imp
           ? ExportToEnterpriseFunction | undefined
           : never
 
+const TypesNamesList = [
+  "number",
+  "string",
+  "boolean",
+  "SystemEnumeration",
+  "Color",
+  "TypeDescription",
+  "DataPath",
+  "I8nText",
+  "Font",
+  "ChildItems",
+] as const
+
 type TypesMap =
   | ["number", number, number]
   | ["string", string, string]
@@ -156,19 +170,10 @@ type TypesMap =
   | ["DataPath", unknown, string]
   | ["I8nText", unknown, string]
   | ["Font", unknown, FontEnterprise]
+  | ["ChildItems", unknown, AllChildItemsEnterprise]
 
-export type TypeRulesNamesNew = TypesMap extends [infer First, any, any] ? First : never
+export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
+
 export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
 
-const TypesNamesList: TypeRulesNamesNew[] = [
-  "number",
-  "string",
-  "boolean",
-  "SystemEnumeration",
-  "Color",
-  "TypeDescription",
-  "DataPath",
-  "I8nText",
-  "Font",
-]
 export const TypesNames = TypesNamesList

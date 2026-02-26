@@ -62,7 +62,7 @@ export const PeriodFieldRules: ElementRule<PeriodField> = {
       typeSE: "ItemHorizontalLocation",
     },
     readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
+    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     showInFooter: { yaml: "ОтображатьВПодвале", type: "boolean" },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },

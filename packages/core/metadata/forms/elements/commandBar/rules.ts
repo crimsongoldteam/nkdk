@@ -38,7 +38,7 @@ export const CommandBarRules: ElementRule<CommandBar> = {
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
+    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     title: {
       yaml: "Заголовок",
       type: "I8nText",

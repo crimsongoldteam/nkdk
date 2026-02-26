@@ -166,7 +166,7 @@ export const TableRules: ElementRule<Table> = {
       type: "SystemEnumeration",
       typeSE: "TableSelectionMode",
     },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
+    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {

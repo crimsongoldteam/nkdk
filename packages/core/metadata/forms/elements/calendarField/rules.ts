@@ -54,7 +54,7 @@ export const CalendarFieldRules: ElementRule<CalendarField> = {
       type: "SystemEnumeration",
       typeSE: "DateSelectionMode",
     },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
+    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     showCurrentDate: { yaml: "ОтображатьТекущуюДату", type: "boolean" },
     showMonthsPanel: { yaml: "ОтображатьПанельМесяцев", type: "boolean" },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },

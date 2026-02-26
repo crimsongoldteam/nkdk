@@ -30,7 +30,7 @@ export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string" },
+    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {

@@ -7,6 +7,7 @@ import {
 } from "~/metadata/forms/elements/usualGroup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { minimalInputField, minimalInputFieldEnterprise } from "../inputField/data"
 
 export const fullUsualGroup: Required<UsualGroup> = {
   itemType: CollectionFormElementType.UsualGroup,
@@ -65,7 +66,7 @@ export const fullUsualGroup: Required<UsualGroup> = {
     itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
-  childItems: [],
+  childItems: [minimalInputField],
 }
 
 export const fullUsualGroupSource: UsualGroup = {
@@ -166,7 +167,7 @@ export const fullUsualGroupEnterprise = {
   VerticalStretch: true,
   Visible: false,
   Width: 300,
-  ChildItems: undefined,
+  ChildItems: [minimalInputFieldEnterprise],
   TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
 } satisfies Required<UsualGroupEnterprise>
 

@@ -1,4 +1,4 @@
-import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
+import { ToEnterprise, ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML } from "../../elements/button/types"
@@ -81,6 +81,7 @@ export type AllChildItem = ChildItem
 
 export type AllChildItemsPartialYAML = Record<string, ToYAML<AllChildItem>>
 
+export type AllChildItemsEnterprise = ToEnterprise<AllChildItem>[]
 // #endregion
 
 // #region ClientApplicationFormChildItem
@@ -118,7 +119,7 @@ export type GroupChildItems = GroupChildItem[]
 
 export type GroupChilItemPartialYAML = Record<string, ToYAML<GroupChildItem>>
 
-// export type GroupChildItemsEnterprise = ToEnterpriseType<GroupChildItem>[]
+export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem>[]
 
 // #endregion
 

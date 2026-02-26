@@ -11,14 +11,12 @@ export const exportChildItemsToEnterprise = <From extends AllChildItem>(params: 
 
   if (!items || items.length === 0) return []
 
-  const result = []
+  const result = [] as ToEnterprise<From>[]
   for (const item of items) {
     const resultItem = exportElementToEnterprise({ context, itemType: item.itemType, value: item })
     result.push(resultItem)
   }
   return result
-
-  return []
 }
 
 registerTypeRule("ChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
