@@ -197,10 +197,10 @@ export const fullPictureFieldEnterprise = {
   Width: 300,
   Zoomable: false,
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
-  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
   Border: { Type: "Border", Value: "Border.Single" },
-  ValuesPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  ValuesPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PictureFieldEnterprise>
 
 export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {

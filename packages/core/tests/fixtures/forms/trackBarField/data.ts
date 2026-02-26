@@ -177,8 +177,8 @@ export const fullTrackBarFieldEnterprise = {
   Step: 1,
   VerticalStretch: false,
   Width: 200,
-  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
-  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {

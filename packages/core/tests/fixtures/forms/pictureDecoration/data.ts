@@ -123,7 +123,7 @@ export const fullPictureDecorationEnterprise = {
   Zoomable: true,
   Title: undefined,
   Border: { Type: "Border", Value: "Border.Single" },
-  Picture: { Type: "Picture", Value: "StandardPicture.Print" },
+  Picture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PictureDecorationEnterprise>
 
 export const fullPictureDecorationPartialYAML: Required<

@@ -596,7 +596,7 @@ export const fullTableEnterprise = {
   UserSettingsGroup: "ГруппаПользовательскихНастроек",
   AutoCommandBar: undefined,
   CommandSet: undefined,
-  RowsPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
   SearchControl: undefined,
   SearchStringRepresentation: undefined,
   ViewStatusRepresentation: undefined,

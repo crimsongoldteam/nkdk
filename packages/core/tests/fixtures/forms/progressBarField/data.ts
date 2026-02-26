@@ -176,8 +176,8 @@ export const fullProgressBarFieldEnterprise = {
   ShowPercent: true,
   VerticalStretch: true,
   Width: 300,
-  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
-  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<ProgressBarFieldEnterprise>
 
 export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {

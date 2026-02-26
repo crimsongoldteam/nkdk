@@ -99,7 +99,7 @@ export const fullPopupEnterprise = {
   VerticalStretch: false,
   Visible: false,
   Width: 18,
-  Picture: { Type: "Picture", Value: "StandardPicture.Print" },
+  Picture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PopupEnterprise>
 
 export const sourcePopup: Popup = {

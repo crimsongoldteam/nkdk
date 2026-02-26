@@ -174,8 +174,8 @@ export const fullRadioButtonFieldEnterprise = {
     Value: "WarningOnEditRepresentation.DontShow",
   },
   ChoiceList: undefined,
-  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
-  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<RadioButtonFieldEnterprise>
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {

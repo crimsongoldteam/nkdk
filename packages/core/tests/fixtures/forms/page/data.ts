@@ -164,7 +164,7 @@ export const fullPageEnterprise = {
   VerticalStretch: true,
   Visible: true,
   Width: 300,
-  Picture: { Type: "Picture", Value: "StandardPicture.Print" },
+  Picture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PageEnterprise>
 
 export const minimalPage: Page = {

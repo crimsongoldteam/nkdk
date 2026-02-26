@@ -158,8 +158,8 @@ export const fullChartFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "WarningOnEditRepresentation.DontShow",
   },
-  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
-  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<ChartFieldEnterprise>
 
 export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {

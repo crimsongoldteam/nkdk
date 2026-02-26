@@ -93,7 +93,7 @@ export const fullColumnGroupEnterprise = {
   VerticalStretch: true,
   Visible: true,
   Width: 300,
-  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<ColumnGroupEnterprise>
 
 export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
