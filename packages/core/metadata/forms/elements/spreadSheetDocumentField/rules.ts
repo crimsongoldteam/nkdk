@@ -6,6 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const SpreadSheetDocumentFieldRules = {
   enterpriseFieldType: "FormFieldType.SpreadsheetDocumentField",
+  enterpriseField: "FormField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },

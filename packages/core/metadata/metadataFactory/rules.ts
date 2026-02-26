@@ -13,26 +13,54 @@ import {
   FormAttributeColumnYAML,
   FormAttributeYAML,
 } from "../forms/commonObjects/formAttribute/types"
-import { Button, ButtonPartialYAML, ButtonTypedYAML } from "../forms/elements/button/types"
-import { ButtonGroup, ButtonGroupPartialYAML, ButtonGroupTypedYAML } from "../forms/elements/buttonGroup/types"
-import { CalendarField, CalendarFieldPartialYAML } from "../forms/elements/calendarField/types"
+import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "../forms/elements/button/types"
+import {
+  ButtonGroup,
+  ButtonGroupEnterprise,
+  ButtonGroupPartialYAML,
+  ButtonGroupTypedYAML,
+} from "../forms/elements/buttonGroup/types"
+import { CalendarField, CalendarFieldEnterprise, CalendarFieldPartialYAML } from "../forms/elements/calendarField/types"
 import { ChartField, ChartFieldPartialYAML } from "../forms/elements/chartField/types"
-import { CheckBoxField, CheckBoxFieldPartialYAML, CheckBoxFieldTypedYAML } from "../forms/elements/checkBoxField/types"
-import { ColumnGroup, ColumnGroupPartialYAML, ColumnGroupTypedYAML } from "../forms/elements/columnGroup/types"
-import { CommandBar, CommandBarPartialYAML } from "../forms/elements/commandBar/types"
+import {
+  CheckBoxField,
+  CheckBoxFieldEnterprise,
+  CheckBoxFieldPartialYAML,
+  CheckBoxFieldTypedYAML,
+} from "../forms/elements/checkBoxField/types"
+import {
+  ColumnGroup,
+  ColumnGroupEnterprise,
+  ColumnGroupPartialYAML,
+  ColumnGroupTypedYAML,
+} from "../forms/elements/columnGroup/types"
+import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "../forms/elements/commandBar/types"
 import { ContextMenu, ContextMenuYAML } from "../forms/elements/contextMenu/types"
-import { DendrogramField, DendrogramFieldPartialYAML } from "../forms/elements/dendrogramField/types"
+import {
+  DendrogramField,
+  DendrogramFieldEnterprise,
+  DendrogramFieldPartialYAML,
+} from "../forms/elements/dendrogramField/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../forms/elements/extendedTooltip/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldPartialYAML,
 } from "../forms/elements/formattedDocumentField/types"
-import { GanttChartField, GanttChartFieldPartialYAML } from "../forms/elements/ganttChartField/types"
+import {
+  GanttChartField,
+  GanttChartFieldEnterprise,
+  GanttChartFieldPartialYAML,
+} from "../forms/elements/ganttChartField/types"
 import {
   GeographicalSchemaField,
+  GeographicalSchemaFieldEnterprise,
   GeographicalSchemaFieldPartialYAML,
 } from "../forms/elements/geographicalSchemaField/types"
-import { GraphicalSchemaField, GraphicalSchemaFieldPartialYAML } from "../forms/elements/graphicalSchemaField/types"
+import {
+  GraphicalSchemaField,
+  GraphicalSchemaFieldEnterprise,
+  GraphicalSchemaFieldPartialYAML,
+} from "../forms/elements/graphicalSchemaField/types"
 import { HTMLDocumentField, HTMLDocumentFieldPartialYAML } from "../forms/elements/htmlDocumentField/types"
 import {
   InputField,
@@ -40,18 +68,48 @@ import {
   InputFieldPartialYAML,
   InputFieldTypedYAML,
 } from "../forms/elements/inputField/types"
-import { LabelDecoration, LabelDecorationPartialYAML } from "../forms/elements/labelDecoration/types"
-import { LabelField, LabelFieldPartialYAML, LabelFieldTypedYAML } from "../forms/elements/labelField/types"
-import { Page, PagePartialYAML } from "../forms/elements/page/types"
-import { Pages, PagesPartialYAML } from "../forms/elements/pages/types"
-import { PdfDocumentField, PdfDocumentFieldPartialYAML } from "../forms/elements/pdfDocumentField/types"
-import { PeriodField, PeriodFieldPartialYAML } from "../forms/elements/periodField/types"
-import { PictureDecoration, PictureDecorationPartialYAML } from "../forms/elements/pictureDecoration/types"
-import { PictureField, PictureFieldPartialYAML, PictureFieldTypedYAML } from "../forms/elements/pictureField/types"
-import { PlannerField, PlannerFieldPartialYAML } from "../forms/elements/plannerField/types"
-import { Popup, PopupPartialYAML, PopupTypedYAML } from "../forms/elements/popup/types"
-import { ProgressBarField, ProgressBarFieldPartialYAML } from "../forms/elements/progressBarField/types"
-import { RadioButtonField, RadioButtonFieldPartialYAML } from "../forms/elements/radioButtonField/types"
+import {
+  LabelDecoration,
+  LabelDecorationEnterprise,
+  LabelDecorationPartialYAML,
+} from "../forms/elements/labelDecoration/types"
+import {
+  LabelField,
+  LabelFieldEnterprise,
+  LabelFieldPartialYAML,
+  LabelFieldTypedYAML,
+} from "../forms/elements/labelField/types"
+import { Page, PageEnterprise, PagePartialYAML } from "../forms/elements/page/types"
+import { Pages, PagesEnterprise, PagesPartialYAML } from "../forms/elements/pages/types"
+import {
+  PdfDocumentField,
+  PdfDocumentFieldEnterprise,
+  PdfDocumentFieldPartialYAML,
+} from "../forms/elements/pdfDocumentField/types"
+import { PeriodField, PeriodFieldEnterprise, PeriodFieldPartialYAML } from "../forms/elements/periodField/types"
+import {
+  PictureDecoration,
+  PictureDecorationEnterprise,
+  PictureDecorationPartialYAML,
+} from "../forms/elements/pictureDecoration/types"
+import {
+  PictureField,
+  PictureFieldEnterprise,
+  PictureFieldPartialYAML,
+  PictureFieldTypedYAML,
+} from "../forms/elements/pictureField/types"
+import { PlannerField, PlannerFieldEnterprise, PlannerFieldPartialYAML } from "../forms/elements/plannerField/types"
+import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "../forms/elements/popup/types"
+import {
+  ProgressBarField,
+  ProgressBarFieldEnterprise,
+  ProgressBarFieldPartialYAML,
+} from "../forms/elements/progressBarField/types"
+import {
+  RadioButtonField,
+  RadioButtonFieldEnterprise,
+  RadioButtonFieldPartialYAML,
+} from "../forms/elements/radioButtonField/types"
 import {
   SearchControlAddition,
   SearchControlAdditionYAML,
@@ -66,11 +124,16 @@ import {
 } from "../forms/elements/searchStringAddition/types"
 import {
   SpreadSheetDocumentField,
+  SpreadSheetDocumentFieldEnterprise,
   SpreadSheetDocumentFieldPartialYAML,
 } from "../forms/elements/spreadSheetDocumentField/types"
-import { Table, TablePartialYAML } from "../forms/elements/table/types"
-import { TextDocumentField, TextDocumentFieldPartialYAML } from "../forms/elements/textDocumentField/types"
-import { TrackBarField, TrackBarFieldPartialYAML } from "../forms/elements/trackBarField/types"
+import { Table, TableEnterprise, TablePartialYAML } from "../forms/elements/table/types"
+import {
+  TextDocumentField,
+  TextDocumentFieldEnterprise,
+  TextDocumentFieldPartialYAML,
+} from "../forms/elements/textDocumentField/types"
+import { TrackBarField, TrackBarFieldEnterprise, TrackBarFieldPartialYAML } from "../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML } from "../forms/elements/usualGroup/types"
 
 export type ToYAML<T extends MetadataItem> = ExtractRule<T, ToYAMLRule>
@@ -78,44 +141,38 @@ export type ToEnterprise<T extends MetadataItem> = ExtractRule<T, ToEnterpriseRu
 export type ToTypedYAML<T extends MetadataItem> = ExtractRule<T, ToTypedYAMLRule>
 
 type ToEnterpriseRule =
-  // | [Button, ButtonEnterprise]
-  // | [ButtonGroup, ButtonGroupEnterprise]
-  // | [CalendarField, CalendarFieldEnterprise]
-  // | [ChartField, ChartFieldPartialYAML]
-  // | [CheckBoxField, CheckBoxFieldEnterprise]
-  // | [ColumnGroup, ColumnGroupEnterprise]
-  // | [CommandBar, CommandBarEnterprise]
-  // | [DendrogramField, DendrogramFieldEnterprise]
-  // | [FormattedDocumentField, FormattedDocumentFieldPartialYAML]
-  // | [GanttChartField, GanttChartFieldEnterprise]
-  // | [GeographicalSchemaField, GeographicalSchemaFieldEnterprise]
-  // | [GraphicalSchemaField, GraphicalSchemaFieldEnterprise]
-  // | [HTMLDocumentField, HTMLDocumentFieldPartialYAML]
+  | [Button, ButtonEnterprise]
+  | [ButtonGroup, ButtonGroupEnterprise]
+  | [CalendarField, CalendarFieldEnterprise]
+  | [ChartField, ChartFieldPartialYAML]
+  | [CheckBoxField, CheckBoxFieldEnterprise]
+  | [ColumnGroup, ColumnGroupEnterprise]
+  | [CommandBar, CommandBarEnterprise]
+  | [DendrogramField, DendrogramFieldEnterprise]
+  | [FormattedDocumentField, FormattedDocumentFieldPartialYAML]
+  | [GanttChartField, GanttChartFieldEnterprise]
+  | [GeographicalSchemaField, GeographicalSchemaFieldEnterprise]
+  | [GraphicalSchemaField, GraphicalSchemaFieldEnterprise]
+  | [HTMLDocumentField, HTMLDocumentFieldPartialYAML]
   | [InputField, InputFieldEnterprise]
-  // | [LabelDecoration, LabelDecorationEnterprise]
-  // | [LabelField, LabelFieldEnterprise]
-  // | [Page, PageEnterprise]
-  // | [Pages, PagesEnterprise]
-  // | [PdfDocumentField, PdfDocumentFieldEnterprise]
-  // | [PeriodField, PeriodFieldEnterprise]
-  // | [PictureDecoration, PictureDecorationEnterprise]
-  // | [PictureField, PictureFieldEnterprise]
-  // | [PlannerField, PlannerFieldEnterprise]
-  // | [Popup, PopupEnterprise]
-  // | [ProgressBarField, ProgressBarFieldEnterprise]
-  // | [RadioButtonField, RadioButtonFieldEnterprise]
-  // | [SpreadSheetDocumentField, SpreadSheetDocumentFieldEnterprise]
-  // | [Table, TableEnterprise]
-  // | [SearchControlAddition, SearchControlAdditionEnterprise]
-  // | [SingleSearchControlAddition, SingleSearchControlAdditionEnterprise]
-  // | [SingleSearchStringAddition, SingleSearchStringAdditionEnterprise]
-  // | [SearchStringAddition, SearchStringAdditionEnterprise]
-  // | [TextDocumentField, TextDocumentFieldEnterprise]
-  // | [TrackBarField, TrackBarFieldEnterprise]
+  | [LabelDecoration, LabelDecorationEnterprise]
+  | [LabelField, LabelFieldEnterprise]
+  | [Page, PageEnterprise]
+  | [Pages, PagesEnterprise]
+  | [PdfDocumentField, PdfDocumentFieldEnterprise]
+  | [PeriodField, PeriodFieldEnterprise]
+  | [PictureDecoration, PictureDecorationEnterprise]
+  | [PictureField, PictureFieldEnterprise]
+  | [PlannerField, PlannerFieldEnterprise]
+  | [Popup, PopupEnterprise]
+  | [ProgressBarField, ProgressBarFieldEnterprise]
+  | [RadioButtonField, RadioButtonFieldEnterprise]
+  | [SpreadSheetDocumentField, SpreadSheetDocumentFieldEnterprise]
+  | [Table, TableEnterprise]
+  | [TextDocumentField, TextDocumentFieldEnterprise]
+  | [TrackBarField, TrackBarFieldEnterprise]
   | [UsualGroup, UsualGroupEnterprise]
-// | [ContextMenu, ContextMenuEnterprise]
-// | [CommandBar, CommandBarEnterprise]
-// | [ExtendedTooltip, ExtendedTooltipEnterprise]
+  | [CommandBar, CommandBarEnterprise]
 
 type ToYAMLRule =
   | [Button, ButtonPartialYAML]
