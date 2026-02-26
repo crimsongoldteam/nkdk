@@ -37,7 +37,7 @@ export const ViewStatusAdditionRules = {
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },
     width: { yaml: "Ширина", type: "number" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",

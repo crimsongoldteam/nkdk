@@ -10,7 +10,7 @@ export const PictureDecorationRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",

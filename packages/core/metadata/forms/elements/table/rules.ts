@@ -36,7 +36,7 @@ export const TableRules = {
       typeSE: "FormItemCommandBarLabelLocation",
     },
     commandSet: { yaml: "Команда", type: "CommandSet" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
       type: "SystemEnumeration",

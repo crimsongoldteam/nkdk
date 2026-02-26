@@ -10,7 +10,7 @@ export const TrackBarFieldRules = {
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
     dataPath: { yaml: "ПутьКДанным", type: "DataPath" },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
