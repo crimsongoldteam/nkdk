@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { DendrogramField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const DendrogramFieldRules: ElementRule<DendrogramField> = {
+export const DendrogramFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.DendrogramField",
   properties: {
@@ -128,6 +128,6 @@ export const DendrogramFieldRules: ElementRule<DendrogramField> = {
     selection: "Выбор",
     detailProcessing: "ОбработкаРасшифровки",
   },
-}
+} as const satisfies ElementRule<DendrogramField>
 
-registerElementRule("DendrogramField", DendrogramFieldRules)
+registerElementRule("DendrogramField", DendrogramFieldRules as ElementRule<DendrogramField>)

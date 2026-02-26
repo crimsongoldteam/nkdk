@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { GeographicalSchemaField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const GeographicalSchemaFieldRules: ElementRule<GeographicalSchemaField> = {
+export const GeographicalSchemaFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GeographicalSchemaField",
   properties: {
@@ -137,6 +137,6 @@ export const GeographicalSchemaFieldRules: ElementRule<GeographicalSchemaField> 
     beforePrint: "ПередПечатью",
     afterWrite: "ПослеЗаписи",
   },
-}
+} as const satisfies ElementRule<GeographicalSchemaField>
 
-registerElementRule("GeographicalSchemaField", GeographicalSchemaFieldRules)
+registerElementRule("GeographicalSchemaField", GeographicalSchemaFieldRules as ElementRule<GeographicalSchemaField>)

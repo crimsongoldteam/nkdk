@@ -6,9 +6,11 @@ import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { DendrogramFieldRules } from "./rules"
 
 export interface DendrogramField extends NamedElement {
   itemType: "DendrogramField"
@@ -128,3 +130,5 @@ export interface DendrogramFieldPartialYAML {
     ОбработкаРасшифровки?: string
   }
 }
+
+export type DendrogramFieldEnterprise = EnterpriseType<typeof DendrogramFieldRules>

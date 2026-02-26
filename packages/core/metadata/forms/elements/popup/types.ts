@@ -4,9 +4,11 @@ import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
+import { PopupRules } from "./rules"
 
 export interface Popup {
   itemType: "Popup"
@@ -75,3 +77,5 @@ export interface PopupPartialYAML {
 export interface PopupTypedYAML extends PopupPartialYAML {
   Тип: "Подменю"
 }
+
+export type PopupEnterprise = EnterpriseType<typeof PopupRules>

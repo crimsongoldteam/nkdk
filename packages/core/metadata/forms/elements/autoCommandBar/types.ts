@@ -1,8 +1,10 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems } from "../../commonObjects/childItems/types"
 import { BaseElement } from "../baseElement/types"
+import { AutoCommandBarRules } from "./rules"
 
 export interface AutoCommandBar extends BaseElement {
   itemType: "AutoCommandBar"
@@ -19,3 +21,5 @@ export interface AutoCommandBarYAML {
   РазрешитьИспользование?: UserVisibleYAML
   ЗапретитьИспользование?: UserVisibleYAML
 }
+
+export type AutoCommandBarEnterprise = EnterpriseType<typeof AutoCommandBarRules>

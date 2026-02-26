@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { ButtonGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ButtonGroupRules: ElementRule<ButtonGroup> = {
+export const ButtonGroupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroup.ButtonGroup",
   properties: {
@@ -69,6 +69,6 @@ export const ButtonGroupRules: ElementRule<ButtonGroup> = {
     width: { yaml: "Ширина", type: "number" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
   },
-}
+} as const satisfies ElementRule<ButtonGroup>
 
-registerElementRule("ButtonGroup", ButtonGroupRules)
+registerElementRule("ButtonGroup", ButtonGroupRules as ElementRule<ButtonGroup>)

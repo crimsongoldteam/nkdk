@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { PlannerField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PlannerFieldRules: ElementRule<PlannerField> = {
+export const PlannerFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PlannerField",
   properties: {
@@ -154,6 +154,6 @@ export const PlannerFieldRules: ElementRule<PlannerField> = {
     dragCheck: "ПроверкаПеретаскивания",
     insideDragCheck: "ПроверкаПеретаскиванияВнутри",
   },
-}
+} as const satisfies ElementRule<PlannerField>
 
-registerElementRule("PlannerField", PlannerFieldRules)
+registerElementRule("PlannerField", PlannerFieldRules as ElementRule<PlannerField>)

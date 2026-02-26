@@ -6,9 +6,11 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { PictureFieldRules } from "./rules"
 
 export interface PictureField {
   itemType: "PictureField"
@@ -166,3 +168,5 @@ export interface PictureFieldPartialYAML {
 export interface PictureFieldTypedYAML extends PictureFieldPartialYAML {
   Тип: "ПолеРисунка"
 }
+
+export type PictureFieldEnterprise = EnterpriseType<typeof PictureFieldRules>

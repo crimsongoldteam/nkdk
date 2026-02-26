@@ -5,9 +5,11 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { PdfDocumentFieldRules } from "./rules"
 
 export interface PdfDocumentField {
   itemType: "PDFDocumentField"
@@ -141,3 +143,5 @@ export interface PdfDocumentFieldPartialYAML {
   ШрифтЗаголовка?: FontYAML
   ШрифтПодвала?: FontYAML
 }
+
+export type PdfDocumentFieldEnterprise = EnterpriseType<typeof PdfDocumentFieldRules>

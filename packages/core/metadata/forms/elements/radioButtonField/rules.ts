@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { RadioButtonField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const RadioButtonFieldRules: ElementRule<RadioButtonField> = {
+export const RadioButtonFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
@@ -133,6 +133,6 @@ export const RadioButtonFieldRules: ElementRule<RadioButtonField> = {
   events: {
     onChange: "ПриИзменении",
   },
-}
+} as const satisfies ElementRule<RadioButtonField>
 
-registerElementRule("RadioButtonField", RadioButtonFieldRules)
+registerElementRule("RadioButtonField", RadioButtonFieldRules as ElementRule<RadioButtonField>)

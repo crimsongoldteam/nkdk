@@ -59,3 +59,5 @@ export interface ExtendedTooltipYAML {
   Ширина?: number
   Шрифт?: FontYAML
 }
+
+// export type ExtendedTooltipEnterprise = EnterpriseType<typeof ExtendedTooltipRules>

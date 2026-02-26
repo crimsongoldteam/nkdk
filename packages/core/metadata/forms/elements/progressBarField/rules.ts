@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { ProgressBarField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ProgressBarFieldRules: ElementRule<ProgressBarField> = {
+export const ProgressBarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ProgressBarField",
   properties: {
@@ -141,6 +141,6 @@ export const ProgressBarFieldRules: ElementRule<ProgressBarField> = {
   events: {
     onChange: "ПриИзменении",
   },
-}
+} as const satisfies ElementRule<ProgressBarField>
 
-registerElementRule("ProgressBarField", ProgressBarFieldRules)
+registerElementRule("ProgressBarField", ProgressBarFieldRules as ElementRule<ProgressBarField>)

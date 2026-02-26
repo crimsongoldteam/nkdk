@@ -9,7 +9,7 @@ import { getAutoCommandBarName } from "./helper"
 import { AutoCommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
+export const AutoCommandBarRules = {
   enterpriseFieldType: "FormGroup.CommandBar",
   properties: {
     autofill: {
@@ -53,6 +53,6 @@ export const AutoCommandBarRules: ElementRule<AutoCommandBar> = {
       },
     },
   } as any,
-}
+} as const satisfies ElementRule<AutoCommandBar>
 
-registerElementRule("AutoCommandBar", AutoCommandBarRules)
+registerElementRule("AutoCommandBar", AutoCommandBarRules as ElementRule<AutoCommandBar>)

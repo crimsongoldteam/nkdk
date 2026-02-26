@@ -5,9 +5,11 @@ import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { LabelDecorationRules } from "./rules"
 
 export interface LabelDecoration {
   itemType: "LabelDecoration"
@@ -90,3 +92,5 @@ export interface LabelDecorationPartialYAML {
     ОбработкаНавигационнойСсылки?: string
   }
 }
+
+export type LabelDecorationEnterprise = EnterpriseType<typeof LabelDecorationRules>

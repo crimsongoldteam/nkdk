@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { GanttChartField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const GanttChartFieldRules: ElementRule<GanttChartField> = {
+export const GanttChartFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GanttChartField",
   properties: {
@@ -151,6 +151,6 @@ export const GanttChartFieldRules: ElementRule<GanttChartField> = {
     onActivateInterval: "ПриАктивизацииИнтервала",
     onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
   },
-}
+} as const satisfies ElementRule<GanttChartField>
 
-registerElementRule("GanttChartField", GanttChartFieldRules)
+registerElementRule("GanttChartField", GanttChartFieldRules as ElementRule<GanttChartField>)

@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { GraphicalSchemaField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const GraphicalSchemaFieldRules: ElementRule<GraphicalSchemaField> = {
+export const GraphicalSchemaFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GraphicalSchemaField",
   properties: {
@@ -139,6 +139,6 @@ export const GraphicalSchemaFieldRules: ElementRule<GraphicalSchemaField> = {
     afterWrite: "ПослеЗаписи",
     onActivate: "ПриАктивизации",
   },
-}
+} as const satisfies ElementRule<GraphicalSchemaField>
 
-registerElementRule("GraphicalSchemaField", GraphicalSchemaFieldRules)
+registerElementRule("GraphicalSchemaField", GraphicalSchemaFieldRules as ElementRule<GraphicalSchemaField>)

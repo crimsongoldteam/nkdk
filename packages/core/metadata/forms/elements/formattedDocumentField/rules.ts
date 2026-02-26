@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { FormattedDocumentField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const FormattedDocumentFieldRules: ElementRule<FormattedDocumentField> = {
+export const FormattedDocumentFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.FormattedDocumentField",
   properties: {
@@ -140,6 +140,6 @@ export const FormattedDocumentFieldRules: ElementRule<FormattedDocumentField> = 
     beforePrint: "ПередПечатью",
     afterWrite: "ПослеЗаписи",
   },
-}
+} as const satisfies ElementRule<FormattedDocumentField>
 
-registerElementRule("FormattedDocumentField", FormattedDocumentFieldRules)
+registerElementRule("FormattedDocumentField", FormattedDocumentFieldRules as ElementRule<FormattedDocumentField>)

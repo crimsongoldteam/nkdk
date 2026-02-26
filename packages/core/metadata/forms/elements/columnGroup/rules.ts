@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { ColumnGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ColumnGroupRules: ElementRule<ColumnGroup> = {
+export const ColumnGroupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroup.ColumnGroup",
   properties: {
@@ -78,6 +78,6 @@ export const ColumnGroupRules: ElementRule<ColumnGroup> = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-}
+} as const satisfies ElementRule<ColumnGroup>
 
-registerElementRule("ColumnGroup", ColumnGroupRules)
+registerElementRule("ColumnGroup", ColumnGroupRules as ElementRule<ColumnGroup>)

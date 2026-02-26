@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { Popup } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PopupRules: ElementRule<Popup, "extendedTooltip"> = {
+export const PopupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroup.Popup",
   properties: {
@@ -66,6 +66,6 @@ export const PopupRules: ElementRule<Popup, "extendedTooltip"> = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-}
+} as const satisfies ElementRule<Popup, "extendedTooltip">
 
-registerElementRule("Popup", PopupRules)
+registerElementRule("Popup", PopupRules as ElementRule<Popup, "extendedTooltip">)

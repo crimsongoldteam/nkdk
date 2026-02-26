@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { CommandBar } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const CommandBarRules: ElementRule<CommandBar> = {
+export const CommandBarRules = {
   enterpriseFieldType: "FormGroup.CommandBar",
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
@@ -72,6 +72,6 @@ export const CommandBarRules: ElementRule<CommandBar> = {
     width: { yaml: "Ширина", type: "number" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
   },
-}
+} as const satisfies ElementRule<CommandBar>
 
-registerElementRule("CommandBar", CommandBarRules)
+registerElementRule("CommandBar", CommandBarRules as ElementRule<CommandBar>)

@@ -15,3 +15,5 @@ export interface ContextMenuYAML {
   Автозаполнение?: StringboolYAML
   ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedYAML
 }
+
+// export type ContextMenuEnterprise = EnterpriseType<typeof ContextMenuRules>

@@ -57,7 +57,7 @@ const commonProperties: ElementRule<SearchControlAddition>["properties"] = {
   width: { yaml: "Ширина", type: "number" },
 }
 
-export const SingleSearchControlAdditionRules: ElementRule<SingleSearchControlAddition, "additionSource"> = {
+export const SingleSearchControlAdditionRules = {
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -79,9 +79,9 @@ export const SingleSearchControlAdditionRules: ElementRule<SingleSearchControlAd
       },
     },
   },
-}
+} as const satisfies ElementRule<SingleSearchControlAddition, "additionSource">
 
-export const SearchControlAdditionRules: ElementRule<SearchControlAddition> = {
+export const SearchControlAdditionRules = {
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -91,7 +91,7 @@ export const SearchControlAdditionRules: ElementRule<SearchControlAddition> = {
     },
     ...commonProperties,
   },
-}
+} as const satisfies ElementRule<SearchControlAddition>
 
-registerElementRule("SearchControlAddition", SearchControlAdditionRules)
-registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules)
+registerElementRule("SearchControlAddition", SearchControlAdditionRules as ElementRule<SearchControlAddition>)
+registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules as ElementRule<SingleSearchControlAddition, "additionSource">)

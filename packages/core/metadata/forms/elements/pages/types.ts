@@ -3,10 +3,12 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PagesChildItems } from "../../commonObjects/childItems/types"
 import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { PagesRules } from "./rules"
 
 export interface Pages extends NamedElement {
   itemType: "Pages"
@@ -71,3 +73,5 @@ export interface PagesPartialYAML {
 export interface PagesTypedYAML extends PagesPartialYAML {
   Тип: "Страницы"
 }
+
+export type PagesEnterprise = EnterpriseType<typeof PagesRules>

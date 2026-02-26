@@ -5,10 +5,12 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems, CommandBarChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { SearchControlAdditionRules } from "./rules"
 
 export interface SearchControlAddition {
   itemType: "SearchControlAddition"
@@ -67,3 +69,5 @@ export interface SearchControlAdditionYAML {
 }
 
 export interface SingleSearchControlAdditionYAML extends Omit<SearchControlAdditionYAML, "Источник"> {}
+
+export type SearchControlAdditionEnterprise = EnterpriseType<typeof SearchControlAdditionRules>

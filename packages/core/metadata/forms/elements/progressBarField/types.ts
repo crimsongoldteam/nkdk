@@ -5,9 +5,11 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ProgressBarFieldRules } from "./rules"
 
 export interface ProgressBarField {
   itemType: "ProgressBarField"
@@ -137,3 +139,5 @@ export interface ProgressBarFieldPartialYAML {
   ШрифтЗаголовка?: FontYAML
   ШрифтПодвала?: FontYAML
 }
+
+export type ProgressBarFieldEnterprise = EnterpriseType<typeof ProgressBarFieldRules>

@@ -3,10 +3,12 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItem } from "../../commonObjects/childItems/types"
 import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { CommandBarRules } from "./rules"
 
 export interface CommandBar extends NamedElement {
   itemType: "CommandBar"
@@ -62,3 +64,5 @@ export interface CommandBarPartialYAML {
   ИсточникКоманд?: string
   РасширеннаяПодсказка?: ExtendedTooltipYAML //Поле недоступно в конфигураторе
 }
+
+export type CommandBarEnterprise = EnterpriseType<typeof CommandBarRules>

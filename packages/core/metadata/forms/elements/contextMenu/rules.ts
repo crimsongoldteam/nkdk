@@ -6,7 +6,7 @@ import { getContextMenuName } from "./helper"
 import { ContextMenu } from "./types"
 export type { ElementRule }
 
-export const ContextMenuRules: ElementRule<ContextMenu> = {
+export const ContextMenuRules = {
   enterpriseFieldType: "FormGroup.ContextMenu",
   properties: {
     displayImportance: {
@@ -34,6 +34,6 @@ export const ContextMenuRules: ElementRule<ContextMenu> = {
       },
     },
   },
-}
+} as const satisfies ElementRule<ContextMenu>
 
-registerElementRule("ContextMenu", ContextMenuRules)
+registerElementRule("ContextMenu", ContextMenuRules as ElementRule<ContextMenu>)

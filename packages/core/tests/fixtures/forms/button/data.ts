@@ -151,7 +151,7 @@ export const minimalButtonTypedYAML: ButtonTypedYAML = {
 }
 
 export const fullButtonEnterprise: Required<ButtonEnterprise> = {
-  itemType: "FormButton",
+  ElementType: "FormButton",
   Name: "ОбычнаяКнопка",
   AutoMaxHeight: false,
   AutoMaxWidth: false,
@@ -186,7 +186,7 @@ export const fullButtonEnterprise: Required<ButtonEnterprise> = {
   Title: "Заголовок кнопки",
   TitleHeight: 3,
   ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.Balloon" },
-  Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
+  Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
   VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
   VerticalStretch: true,
   Visible: false,

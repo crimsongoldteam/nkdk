@@ -157,4 +157,4 @@ export const UsualGroupRules = {
   },
 } as const satisfies ElementRule<UsualGroup>
 
-registerElementRule("UsualGroup", UsualGroupRules)
+registerElementRule("UsualGroup", UsualGroupRules as ElementRule<UsualGroup>)

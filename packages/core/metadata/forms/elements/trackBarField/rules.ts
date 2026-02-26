@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { TrackBarField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const TrackBarFieldRules: ElementRule<TrackBarField> = {
+export const TrackBarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.TrackBarField",
   properties: {
@@ -142,6 +142,6 @@ export const TrackBarFieldRules: ElementRule<TrackBarField> = {
   events: {
     onChange: "ПриИзменении",
   },
-}
+} as const satisfies ElementRule<TrackBarField>
 
-registerElementRule("TrackBarField", TrackBarFieldRules)
+registerElementRule("TrackBarField", TrackBarFieldRules as ElementRule<TrackBarField>)

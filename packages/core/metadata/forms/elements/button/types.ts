@@ -1,12 +1,14 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElementPropsYAML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ButtonRules } from "./rules"
 
 export interface Button extends NamedElement {
   itemType: "Button"
@@ -96,43 +98,4 @@ export interface ButtonTypedYAML extends ButtonPartialYAML {
   Тип: "Кнопка"
 }
 
-export interface ButtonEnterprise {
-  Name: string
-  itemType: "FormButton"
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BackColor?: ColorEnterprise
-  BorderColor?: ColorEnterprise
-  Check?: boolean
-  CommandName?: string
-  CommandUniqueness?: boolean
-  DefaultButton?: boolean
-  DefaultItem?: boolean
-  DisplayImportance?: SE.SystemEnumerationEnterprise
-  Enabled?: boolean
-  // ExtendedTooltip?: ExtendedTooltipEnterprise
-  Font?: FontEnterprise
-  Height?: number
-  HorizontalAlignInGroup?: SE.SystemEnumerationEnterprise
-  HorizontalStretch?: boolean
-  LocationInCommandBar?: SE.SystemEnumerationEnterprise
-  MaxHeight?: number
-  MaxWidth?: number
-  OnMainServerUnavalableBehavior?: SE.SystemEnumerationEnterprise
-  OnlyInAllActions?: boolean
-  Picture?: PictureEnterprise
-  PictureLocation?: SE.SystemEnumerationEnterprise
-  Representation?: SE.SystemEnumerationEnterprise
-  Shape?: SE.SystemEnumerationEnterprise
-  ShapeRepresentation?: SE.SystemEnumerationEnterprise
-  SkipOnInput?: boolean
-  TextColor?: ColorEnterprise
-  Title?: string
-  TitleHeight?: number
-  ToolTipRepresentation?: SE.SystemEnumerationEnterprise
-  Type?: SE.SystemEnumerationEnterprise
-  VerticalAlignInGroup?: SE.SystemEnumerationEnterprise
-  VerticalStretch?: boolean
-  Visible?: boolean
-  Width?: number
-}
+export type ButtonEnterprise = EnterpriseType<typeof ButtonRules>

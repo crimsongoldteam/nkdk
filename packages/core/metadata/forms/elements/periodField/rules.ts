@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { PeriodField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PeriodFieldRules: ElementRule<PeriodField> = {
+export const PeriodFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PeriodField",
   properties: {
@@ -131,6 +131,6 @@ export const PeriodFieldRules: ElementRule<PeriodField> = {
     onChange: "ПриИзменении",
     selection: "Выбор",
   },
-}
+} as const satisfies ElementRule<PeriodField>
 
-registerElementRule("PeriodField", PeriodFieldRules)
+registerElementRule("PeriodField", PeriodFieldRules as ElementRule<PeriodField>)

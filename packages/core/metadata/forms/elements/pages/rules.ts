@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { Pages } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PagesRules: ElementRule<Pages> = {
+export const PagesRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroup.Pages",
   properties: {
@@ -78,6 +78,6 @@ export const PagesRules: ElementRule<Pages> = {
   events: {
     onCurrentPageChange: "ПриСменеСтраницы",
   },
-}
+} as const satisfies ElementRule<Pages>
 
-registerElementRule("Pages", PagesRules)
+registerElementRule("Pages", PagesRules as ElementRule<Pages>)

@@ -1,15 +1,16 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Border, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { LabelFieldRules } from "./rules"
 
 export interface LabelField {
   itemType: "LabelField"
@@ -154,64 +155,4 @@ export interface LabelFieldTypedYAML extends LabelFieldPartialYAML {
   Тип: "ПолеНадписи"
 }
 
-export interface LabelFieldEnterprise {
-  itemType: "FormField"
-  Name: string
-  Type: SystemEnumerationEnterprise
-  AutoCellHeight?: boolean
-  CellHyperlink?: boolean
-  DataPath?: string
-  DefaultItem?: boolean
-  DisplayImportance?: SystemEnumerationEnterprise
-  EditMode?: SystemEnumerationEnterprise
-  Enabled?: boolean
-  FixingInTable?: SystemEnumerationEnterprise
-  FooterBackColor?: ColorEnterprise
-  FooterDataPath?: string
-  FooterFont?: FontEnterprise
-  FooterHorizontalAlign?: SystemEnumerationEnterprise
-  FooterPicture?: PictureEnterprise
-  FooterText?: string
-  FooterTextColor?: ColorEnterprise
-  HeaderHorizontalAlign?: SystemEnumerationEnterprise
-  HeaderPicture?: PictureEnterprise
-  HorizontalAlign?: SystemEnumerationEnterprise
-  HorizontalAlignInGroup?: SystemEnumerationEnterprise
-  ReadOnly?: boolean
-  ShowInFooter?: boolean
-  ShowInHeader?: boolean
-  SkipOnInput?: boolean
-  Title?: string
-  TitleBackColor?: ColorEnterprise
-  TitleFont?: FontEnterprise
-  TitleHeight?: number
-  TitleLocation?: SystemEnumerationEnterprise
-  TitleTextColor?: ColorEnterprise
-  ToolTip?: string
-  ToolTipRepresentation?: SystemEnumerationEnterprise
-  VerticalAlign?: SystemEnumerationEnterprise
-  VerticalAlignInGroup?: SystemEnumerationEnterprise
-  Visible?: boolean
-  WarningOnEdit?: string
-  WarningOnEditRepresentation?: SystemEnumerationEnterprise
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  BackColor?: ColorEnterprise
-  Border?: BorderEnterprise
-  BorderColor?: ColorEnterprise
-  Font?: FontEnterprise
-  Format?: string
-  Height?: number
-  HorizontalStretch?: boolean
-  Hyperlink?: boolean
-  MarkNegatives?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  PasswordMode?: boolean
-  TextColor?: ColorEnterprise
-  VerticalStretch?: boolean
-  Width?: number
-}
-
-// Для обратной совместимости
-export type LabelFieldYAML = LabelFieldPartialYAML
+export type LabelFieldEnterprise = EnterpriseType<typeof LabelFieldRules>

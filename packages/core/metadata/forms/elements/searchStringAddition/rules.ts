@@ -54,7 +54,7 @@ const commonProperties: ElementRule<SearchStringAddition>["properties"] = {
   visible: { yaml: "Видимость", type: "boolean" },
 }
 
-export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddition, "additionSource"> = {
+export const SingleSearchStringAdditionRules = {
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -76,9 +76,9 @@ export const SingleSearchStringAdditionRules: ElementRule<SingleSearchStringAddi
       },
     },
   },
-}
+} as const satisfies ElementRule<SingleSearchStringAddition, "additionSource">
 
-export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
+export const SearchStringAdditionRules = {
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -88,7 +88,7 @@ export const SearchStringAdditionRules: ElementRule<SearchStringAddition> = {
     },
     ...commonProperties,
   },
-}
+} as const satisfies ElementRule<SearchStringAddition>
 
-registerElementRule("SearchStringAddition", SearchStringAdditionRules)
-registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)
+registerElementRule("SearchStringAddition", SearchStringAdditionRules as ElementRule<SearchStringAddition>)
+registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules as ElementRule<SingleSearchStringAddition, "additionSource">)

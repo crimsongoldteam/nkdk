@@ -59,3 +59,5 @@ export interface ViewStatusAdditionYAML {
   Подсказка?: I8nTextYAML
   РасширеннаяПодсказка?: ExtendedTooltipYAML
 }
+
+// export type ViewStatusAdditionEnterprise = EnterpriseType<typeof ViewStatusAdditionRules>

@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { Table } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const TableRules: ElementRule<Table> = {
+export const TableRules = {
   enterpriseField: "FormTable",
   enterpriseFieldType: "FormTable",
   properties: {
@@ -264,6 +264,6 @@ export const TableRules: ElementRule<Table> = {
     onCurrentParentChange: "ПриСменеТекущегоРодителя",
     dragCheck: "ПроверкаПеретаскивания",
   },
-}
+} as const satisfies ElementRule<Table>
 
-registerElementRule("Table", TableRules)
+registerElementRule("Table", TableRules as ElementRule<Table>)

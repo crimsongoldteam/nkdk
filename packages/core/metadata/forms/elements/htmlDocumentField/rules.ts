@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { HTMLDocumentField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const HTMLDocumentFieldRules: ElementRule<HTMLDocumentField> = {
+export const HTMLDocumentFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.HTMLDocumentField",
   properties: {
@@ -139,6 +139,6 @@ export const HTMLDocumentFieldRules: ElementRule<HTMLDocumentField> = {
     afterWrite: "ПослеЗаписи",
     onClick: "ПриНажатии",
   },
-}
+} as const satisfies ElementRule<HTMLDocumentField>
 
-registerElementRule("HTMLDocumentField", HTMLDocumentFieldRules)
+registerElementRule("HTMLDocumentField", HTMLDocumentFieldRules as ElementRule<HTMLDocumentField>)

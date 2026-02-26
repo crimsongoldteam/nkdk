@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { ChartField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ChartFieldRules: ElementRule<ChartField> = {
+export const ChartFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ChartField",
   properties: {
@@ -130,6 +130,6 @@ export const ChartFieldRules: ElementRule<ChartField> = {
     detailProcessing: "ОбработкаРасшифровки",
     onActivate: "ПриАктивизации",
   },
-}
+} as const satisfies ElementRule<ChartField>
 
-registerElementRule("ChartField", ChartFieldRules)
+registerElementRule("ChartField", ChartFieldRules as ElementRule<ChartField>)

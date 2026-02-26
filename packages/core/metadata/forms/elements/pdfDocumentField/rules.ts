@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { PdfDocumentField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PdfDocumentFieldRules: ElementRule<PdfDocumentField> = {
+export const PdfDocumentFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PDFDocumentField",
   properties: {
@@ -143,6 +143,6 @@ export const PdfDocumentFieldRules: ElementRule<PdfDocumentField> = {
     onChange: "ПриИзменении",
     uRLClick: "НажатиеНаНавигационнойСсылке",
   },
-}
+} as const satisfies ElementRule<PdfDocumentField>
 
-registerElementRule("PDFDocumentField", PdfDocumentFieldRules)
+registerElementRule("PDFDocumentField", PdfDocumentFieldRules as ElementRule<PdfDocumentField>)

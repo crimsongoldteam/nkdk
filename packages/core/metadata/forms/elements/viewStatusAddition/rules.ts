@@ -10,7 +10,7 @@ export type { ElementRule, PropertyRule }
 
 // В YAML этот элемент может быть только в свойствах, не может быть в структуре
 
-export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionSource"> = {
+export const ViewStatusAdditionRules = {
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -69,6 +69,6 @@ export const ViewStatusAdditionRules: ElementRule<ViewStatusAddition, "additionS
       },
     },
   },
-}
+} as const satisfies ElementRule<ViewStatusAddition, "additionSource">
 
-registerElementRule("ViewStatusAddition", ViewStatusAdditionRules)
+registerElementRule("ViewStatusAddition", ViewStatusAdditionRules as ElementRule<ViewStatusAddition, "additionSource">)

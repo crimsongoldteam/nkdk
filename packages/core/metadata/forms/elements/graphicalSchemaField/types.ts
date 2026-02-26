@@ -5,10 +5,12 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { GraphicalSchemaFieldRules } from "./rules"
 
 export interface GraphicalSchemaField extends NamedElement {
   itemType: "GraphicalSchemaField"
@@ -141,3 +143,5 @@ export interface GraphicalSchemaFieldPartialYAML {
     ПриАктивизации?: string
   }
 }
+
+export type GraphicalSchemaFieldEnterprise = EnterpriseType<typeof GraphicalSchemaFieldRules>

@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { Page } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const PageRules: ElementRule<Page> = {
+export const PageRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroup.Page",
   properties: {
@@ -113,6 +113,6 @@ export const PageRules: ElementRule<Page> = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-}
+} as const satisfies ElementRule<Page>
 
-registerElementRule("Page", PageRules)
+registerElementRule("Page", PageRules as ElementRule<Page>)

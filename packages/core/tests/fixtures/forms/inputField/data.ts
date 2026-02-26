@@ -1,7 +1,6 @@
 import {
   InputField,
   InputFieldEnterprise,
-  InputFieldEnterprise,
   InputFieldPartialYAML,
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"

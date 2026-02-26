@@ -236,7 +236,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
 ]
 
 export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
-  itemType: "FormField",
+  ElementType: "FormField",
   Name: "ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
   AutoCellHeight: true,

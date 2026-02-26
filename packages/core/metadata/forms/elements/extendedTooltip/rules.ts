@@ -7,7 +7,7 @@ import { getExtendedTooltipName } from "./helper"
 import { ExtendedTooltip } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
+export const ExtendedTooltipRules = {
   enterpriseFieldType: "None",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
@@ -75,6 +75,6 @@ export const ExtendedTooltipRules: ElementRule<ExtendedTooltip> = {
       },
     },
   },
-}
+} as const satisfies ElementRule<ExtendedTooltip>
 
-registerElementRule("ExtendedTooltip", ExtendedTooltipRules)
+registerElementRule("ExtendedTooltip", ExtendedTooltipRules as ElementRule<ExtendedTooltip>)

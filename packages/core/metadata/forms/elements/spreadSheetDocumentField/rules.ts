@@ -4,7 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 import { SpreadSheetDocumentField } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const SpreadSheetDocumentFieldRules: ElementRule<SpreadSheetDocumentField> = {
+export const SpreadSheetDocumentFieldRules = {
   enterpriseFieldType: "FormFieldType.SpreadsheetDocumentField",
   properties: {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
@@ -191,6 +191,6 @@ export const SpreadSheetDocumentFieldRules: ElementRule<SpreadSheetDocumentField
     onChangeAreaContentEvent: "ПриИзмененииСодержимогоОбласти",
     dragCheck: "ПроверкаПеретаскивания",
   },
-}
+} as const satisfies ElementRule<SpreadSheetDocumentField>
 
-registerElementRule("SpreadSheetDocumentField", SpreadSheetDocumentFieldRules)
+registerElementRule("SpreadSheetDocumentField", SpreadSheetDocumentFieldRules as ElementRule<SpreadSheetDocumentField>)

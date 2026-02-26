@@ -3,11 +3,13 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ButtonGroupRules } from "./rules"
 
 export interface ButtonGroup extends NamedElement {
   itemType: "ButtonGroup"
@@ -64,3 +66,5 @@ export interface ButtonGroupPartialYAML {
 export interface ButtonGroupTypedYAML extends ButtonGroupPartialYAML {
   Тип: "ГруппаКнопок"
 }
+
+export type ButtonGroupEnterprise = EnterpriseType<typeof ButtonGroupRules>
