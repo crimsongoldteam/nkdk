@@ -90,7 +90,7 @@ export const SpreadSheetDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "FormFieldType",
     },
-    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription" },
+    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
     verticalAlign: {
       yaml: "ВертикальноеПоложение",
       type: "SystemEnumeration",
@@ -118,7 +118,7 @@ export const SpreadSheetDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "DrawingSelectionShowMode",
     },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable" },
+    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable", toEnterprise: false },
     edit: { yaml: "Редактирование", type: "boolean" },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
@@ -174,6 +174,7 @@ export const SpreadSheetDocumentFieldRules = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
   },
   events: {

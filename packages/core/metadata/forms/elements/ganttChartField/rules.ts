@@ -29,6 +29,7 @@ export const GanttChartFieldRules = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     valuesSelectionMode: {
       yaml: "РежимВыделенияЗначений",
@@ -95,7 +96,7 @@ export const GanttChartFieldRules = {
     showInFooter: { yaml: "ОтображатьВПодвале", type: "boolean" },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable" },
+    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable", toEnterprise: false },
     title: {
       yaml: "Заголовок",
       type: "I8nText",
@@ -121,7 +122,7 @@ export const GanttChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "FormFieldType",
     },
-    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription" },
+    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
     verticalAlign: {
       yaml: "ВертикальноеПоложение",
       type: "SystemEnumeration",

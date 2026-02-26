@@ -61,6 +61,7 @@ export const PopupRules = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     visible: { yaml: "Видимость", type: "boolean" },

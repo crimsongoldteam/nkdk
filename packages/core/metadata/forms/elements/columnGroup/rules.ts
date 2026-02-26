@@ -36,6 +36,7 @@ export const ColumnGroupRules = {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },

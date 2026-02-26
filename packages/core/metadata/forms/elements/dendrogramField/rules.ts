@@ -98,11 +98,12 @@ export const DendrogramFieldRules = {
       type: "SystemEnumeration",
       typeSE: "FormFieldType",
     },
-    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription" },
+    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
     userVisible: {
       yaml: "РазрешитьИспользование",
       yamlDeny: "ЗапретитьИспользование",
       type: "UserVisible",
+      toEnterprise: false,
     },
     verticalAlign: {
       yaml: "ВертикальноеПоложение",

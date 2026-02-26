@@ -617,9 +617,9 @@ export const fullInputFieldEnterprise = {
     Value: "FormFieldType.InputField",
   },
   TypeDomainEnabled: true,
-  TypeRestriction: {
-    Type: ["string"],
-  },
+  // TypeRestriction: {
+  //   Type: ["string"],
+  // },
   VerticalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemVerticalAlign.Top",
