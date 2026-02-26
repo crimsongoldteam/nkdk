@@ -1,4 +1,8 @@
-import { LabelDecoration, LabelDecorationPartialYAML } from "~/metadata/forms/elements/labelDecoration/types"
+import {
+  LabelDecoration,
+  LabelDecorationEnterprise,
+  LabelDecorationPartialYAML,
+} from "~/metadata/forms/elements/labelDecoration/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -62,6 +66,60 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
     uRLProcessing: "ПроцедураОбработкиНавигационнойСсылки",
   },
 }
+
+export const fullLabelDecorationEnterprise = {
+  ElementType: "FormDecoration",
+  Name: "Заголовок",
+  Type: { Type: "SystemEnumeration", Value: "FormDecoration.Label" },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  Enabled: true,
+  Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: true,
+  MaxHeight: 500,
+  MaxWidth: 400,
+  SkipOnInput: false,
+  TextColor: { Type: "Color", Value: "WebColors.Blue" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+  BackColor: { Type: "Color", Value: "WebColors.Blue" },
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  GroupVerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  HorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  Hyperlink: true,
+  TitleHeight: 20,
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Title: undefined,
+  Border: { Type: "Border", Value: "Border.Single" },
+} satisfies Required<LabelDecorationEnterprise>
 
 export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",

@@ -1,5 +1,7 @@
+import { BorderEnterprise } from "~/metadata/commonObjects/border/types"
 import { ColorEnterprise } from "~/metadata/commonObjects/color/types"
 import { FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { PictureEnterprise } from "~/metadata/commonObjects/picture/types"
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { AllChildItemsEnterprise } from "~/metadata/forms/commonObjects/childItems/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
@@ -158,6 +160,8 @@ const TypesNamesList = [
   "I8nText",
   "Font",
   "ChildItems",
+  "Picture",
+  "Border",
 ] as const
 
 type TypesMap =
@@ -171,6 +175,8 @@ type TypesMap =
   | ["I8nText", unknown, string]
   | ["Font", unknown, FontEnterprise]
   | ["ChildItems", unknown, AllChildItemsEnterprise]
+  | ["Picture", unknown, PictureEnterprise]
+  | ["Border", unknown, BorderEnterprise]
 
 export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
 

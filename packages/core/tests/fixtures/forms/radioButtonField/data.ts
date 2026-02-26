@@ -1,4 +1,8 @@
-import { RadioButtonField, RadioButtonFieldPartialYAML } from "~/metadata/forms/elements/radioButtonField/types"
+import {
+  RadioButtonField,
+  RadioButtonFieldEnterprise,
+  RadioButtonFieldPartialYAML,
+} from "~/metadata/forms/elements/radioButtonField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -96,6 +100,83 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
     onChange: "ПроцедураПриИзменении",
   },
 }
+
+export const fullRadioButtonFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеПереключателя",
+  Type: { Type: "SystemEnumeration", Value: "FormFieldType.RadioButtonField" },
+  BackColor: { Type: "Color", Value: "WebColors.Blue" },
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  ColumnsCount: 2,
+  EqualColumnsWidth: true,
+  Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  ItemHeight: 20,
+  ItemTitleHeight: 15,
+  ItemWidth: 100,
+  RadioButtonType: {
+    Type: "SystemEnumeration",
+    Value: "RadioButtonType.RadioButton",
+  },
+  TextColor: { Type: "Color", Value: "WebColors.Yellow" },
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
+  EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
+  Enabled: true,
+  FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.None" },
+  FooterBackColor: { Type: "Color", Value: "WebColors.White" },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: { Type: "Color", Value: "WebColors.Black" },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле переключателя",
+  TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  ChoiceList: undefined,
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<RadioButtonFieldEnterprise>
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
   Заголовок: "Поле переключателя",

@@ -1,4 +1,8 @@
-import { TrackBarField, TrackBarFieldPartialYAML } from "~/metadata/forms/elements/trackBarField/types"
+import {
+  TrackBarField,
+  TrackBarFieldEnterprise,
+  TrackBarFieldPartialYAML,
+} from "~/metadata/forms/elements/trackBarField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullTrackBarField: Required<TrackBarField> = {
@@ -92,6 +96,90 @@ export const fullTrackBarField: Required<TrackBarField> = {
   verticalStretch: false,
   width: 200,
 }
+
+export const fullTrackBarFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеПолосыПрокрутки",
+  Type: { Type: "SystemEnumeration", Value: "FormFieldType.TrackBarField" },
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
+  EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
+  Enabled: true,
+  FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.None" },
+  FooterBackColor: { Type: "Color", Value: "WebColors.White" },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: { Type: "Color", Value: "WebColors.Black" },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле полосы прокрутки",
+  TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  Height: 100,
+  HorizontalStretch: true,
+  LargeStep: 10,
+  MarkingAppearance: {
+    Type: "SystemEnumeration",
+    Value: "TrackBarMarkingAppearance.TopLeft",
+  },
+  MarkingStep: 5,
+  MaxHeight: 200,
+  MaxValue: 100,
+  MaxWidth: 300,
+  MinValue: 0,
+  Orientation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemOrientation.Horizontal",
+  },
+  Step: 1,
+  VerticalStretch: false,
+  Width: 200,
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",

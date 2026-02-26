@@ -1,5 +1,5 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import {
@@ -60,6 +60,76 @@ export const fullCommandBar: Required<CommandBar> = {
   commandSource: "Form",
   childItems: fullCommandBarChildItemsTyped,
 }
+
+export const fullCommandBarEnterprise = {
+  ElementType: "FormGroup",
+  Name: "КоманднаяПанель",
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.CommandBar" },
+  Autofill: true,
+  ChildItems: [
+    {
+      CommandName: "ВыполнитьКоманда1",
+      ElementType: "FormButton",
+      Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+      Name: "Кнопка1",
+    },
+    {
+      ChildItems: [
+        {
+          CommandName: "ВыполнитьКоманда2",
+          ElementType: "FormButton",
+          Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+          Name: "Кнопка2",
+        },
+      ],
+      ToolTip: "Подсказка для группы кнопок",
+      ElementType: "FormGroup",
+      Type: { Type: "SystemEnumeration", Value: "FormGroup.ButtonGroup" },
+      Name: "ГруппаКнопок",
+    },
+    {
+      ChildItems: [
+        {
+          CommandName: "ВыполнитьКоманда3",
+          ElementType: "FormButton",
+          Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+          Name: "Кнопка3",
+        },
+      ],
+      ToolTip: "Подсказка для подменю",
+      ElementType: "FormGroup",
+      Type: { Type: "SystemEnumeration", Value: "FormGroup.Popup" },
+      Name: "Подменю",
+    },
+  ],
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
+  HorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  EnableContentChange: true,
+  Enabled: true,
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Center",
+  },
+  HorizontalStretch: true,
+  ReadOnly: false,
+  Title: "Командная панель",
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+  CommandSource: "Form",
+} satisfies Required<CommandBarEnterprise>
 
 export const fullCommandBarAllItems = fullCommandBarChildItemsAllYAML
 

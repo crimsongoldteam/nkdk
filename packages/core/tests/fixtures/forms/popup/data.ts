@@ -1,4 +1,4 @@
-import { Popup, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
+import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
@@ -61,6 +61,46 @@ export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
   visible: false,
   width: 18,
 }
+
+export const fullPopupEnterprise = {
+  ElementType: "FormGroup",
+  Name: "Подменю",
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.Popup" },
+  BackColor: { Type: "Color", Value: "WebColors.CornFlowerBlue" },
+  BorderColor: { Type: "Color", Value: "WebColors.Aquamarine" },
+  CommandSource: "FormCommandPanelGlobalCommands",
+  ChildItems: [],
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.VeryHigh",
+  },
+  EnableContentChange: true,
+  Enabled: false,
+  Height: 19,
+  HorizontalStretch: false,
+  ReadOnly: true,
+  Representation: {
+    Type: "SystemEnumeration",
+    Value: "ButtonRepresentation.PictureAndText",
+  },
+  Shape: { Type: "SystemEnumeration", Value: "ButtonShape.Oval" },
+  ShapeRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ButtonShapeRepresentation.WhenActive",
+  },
+  Title: "Заголовок подменю",
+  TitleFont: { Type: "Font", Value: "StyleFonts.TextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Fuchsia" },
+  ToolTip: "Подсказка подменю",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.Button",
+  },
+  VerticalStretch: false,
+  Visible: false,
+  Width: 18,
+  Picture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<PopupEnterprise>
 
 export const sourcePopup: Popup = {
   itemType: CollectionFormElementType.Popup,

@@ -1,4 +1,9 @@
-import { ButtonGroup, ButtonGroupPartialYAML, ButtonGroupTypedYAML } from "~/metadata/forms/elements/buttonGroup/types"
+import {
+  ButtonGroup,
+  ButtonGroupEnterprise,
+  ButtonGroupPartialYAML,
+  ButtonGroupTypedYAML,
+} from "~/metadata/forms/elements/buttonGroup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
@@ -43,6 +48,48 @@ export const fullButtonGroup: Required<ButtonGroup> = {
     title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
   },
 }
+
+export const fullButtonGroupEnterprise = {
+  ElementType: "FormGroup",
+  Name: "ГруппаКнопок",
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.ButtonGroup" },
+  ChildItems: [
+    {
+      ElementType: "FormButton",
+      Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+      Name: "Кнопка",
+    },
+  ],
+  Representation: {
+    Type: "SystemEnumeration",
+    Value: "ButtonGroupRepresentation.Compact",
+  },
+  EnableContentChange: true,
+  Enabled: true,
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: true,
+  ReadOnly: false,
+  Title: "Группа кнопок",
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+  CommandSource: "FormCommandPanelGlobalCommands",
+} satisfies Required<ButtonGroupEnterprise>
 
 export const fullButtonGroupSource: ButtonGroup = {
   itemType: CollectionFormElementType.ButtonGroup,

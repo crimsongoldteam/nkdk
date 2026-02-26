@@ -1,4 +1,4 @@
-import { Page, PagePartialYAML } from "~/metadata/forms/elements/page/types"
+import { Page, PageEnterprise, PagePartialYAML } from "~/metadata/forms/elements/page/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPage: Required<Page> = {
@@ -92,6 +92,80 @@ export const fullPagePartialYAML: PagePartialYAML = {
   ЦветФона: "Белый",
   ШиринаПодчиненныхЭлементов: "Авто",
 }
+
+export const fullPageEnterprise = {
+  ElementType: "FormGroup",
+  Name: "Страница",
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.Page" },
+  BackColor: { Type: "Color", Value: "WebColors.White" },
+  ChildItems: [],
+  ChildItemsHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ChildItemsVerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  Format: "Формат",
+  Group: {
+    Type: "SystemEnumeration",
+    Value: "ChildFormItemsGroup.Vertical",
+  },
+  HorizontalSpacing: {
+    Type: "SystemEnumeration",
+    Value: "FormItemSpacing.Single",
+  },
+  ItemsAndTitlesAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemsAndTitlesAlignVariant.Auto",
+  },
+  ScrollOnCompress: true,
+  ShowTitle: true,
+  SlaveItemsWidth: {
+    Type: "SystemEnumeration",
+    Value: "ChildFormItemsWidth.Auto",
+  },
+  TitleDataPath: "Объект.Заголовок",
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalScrollOnReduceSize: true,
+  VerticalSpacing: {
+    Type: "SystemEnumeration",
+    Value: "FormItemSpacing.Single",
+  },
+  EnableContentChange: true,
+  Enabled: true,
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: true,
+  ReadOnly: false,
+  Title: "Страница",
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+  Picture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<PageEnterprise>
 
 export const minimalPage: Page = {
   itemType: CollectionFormElementType.Page,

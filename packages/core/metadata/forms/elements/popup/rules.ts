@@ -24,7 +24,7 @@ export const PopupRules = {
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { type: "ExtendedTooltip" },
+    extendedTooltip: { type: "ExtendedTooltip", toEnterprise: false },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     picture: { yaml: "Картинка", type: "Picture" },

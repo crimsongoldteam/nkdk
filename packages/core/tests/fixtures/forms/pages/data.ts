@@ -1,4 +1,4 @@
-import { Pages, PagesPartialYAML, PagesTypedYAML } from "~/metadata/forms/elements/pages/types"
+import { Pages, PagesEnterprise, PagesPartialYAML, PagesTypedYAML } from "~/metadata/forms/elements/pages/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPages: Pages = {
@@ -37,6 +37,49 @@ export const fullPages: Pages = {
   },
   childItems: [],
 }
+
+export const fullPagesEnterprise = {
+  ElementType: "FormGroup",
+  Name: "Страницы",
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.Pages" },
+  ChildItems: [],
+  CurrentPagesState: {
+    Type: "SystemEnumeration",
+    Value: "FormPagesState.Titles",
+  },
+  CurrentRowUse: {
+    Type: "SystemEnumeration",
+    Value: "CurrentRowUse.DontUse",
+  },
+  EnableContentChange: true,
+  Enabled: true,
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: true,
+  PagesRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "FormPagesRepresentation.Auto",
+  },
+  ReadOnly: false,
+  Title: "Страницы",
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+} satisfies Required<PagesEnterprise>
 
 export const fullPagesSource: Pages = {
   itemType: CollectionFormElementType.Pages,

@@ -1,4 +1,8 @@
-import { CalendarField, CalendarFieldPartialYAML } from "~/metadata/forms/elements/calendarField/types"
+import {
+  CalendarField,
+  CalendarFieldEnterprise,
+  CalendarFieldPartialYAML,
+} from "~/metadata/forms/elements/calendarField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -81,6 +85,75 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
   width: 4,
   widthInMonths: 2,
 }
+
+export const fullCalendarFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеКалендаря",
+  Type: { Type: "SystemEnumeration", Value: "FormFieldType.CalendarField" },
+  AutoCellHeight: true,
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
+  BeginOfRepresentationPeriod: "2024-01-01T00:00:00",
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  CalendarNavigation: false,
+  CellHyperlink: true,
+  DataPath: "prefix_ДатаРеквизит",
+  DefaultItem: true,
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
+  EnableDrag: true,
+  EnableStartDrag: true,
+  Enabled: false,
+  EndOfRepresentationPeriod: "2024-12-31T00:00:00",
+  Font: { Type: "Font", Value: "StyleFonts.SmallTextFont" },
+  Height: 4,
+  HeightInMonths: 3,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: false,
+  MaxHeight: 5,
+  MaxWidth: 4,
+  OnMainServerUnavalableBehavior: {
+    Type: "SystemEnumeration",
+    Value: "OnMainServerUnavalableBehavior.DontChangeBehavior",
+  },
+  ReadOnly: true,
+  SelectionMode: {
+    Type: "SystemEnumeration",
+    Value: "DateSelectionMode.Multiple",
+  },
+  ShowCurrentDate: false,
+  ShowMonthsPanel: true,
+  SkipOnInput: false,
+  Title: "Заголовок поле календаря",
+  TitleFont: { Type: "Font", Value: "StyleFonts.LargeTextFont" },
+  TitleHeight: 6,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Right",
+  },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.Button",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: false,
+  Visible: false,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  Width: 4,
+  WidthInMonths: 2,
+  Border: { Type: "Border", Value: "Border.Single" },
+} satisfies Required<CalendarFieldEnterprise>
 
 export const fullCalendarFieldPartialYAML: Omit<
   Required<CalendarFieldPartialYAML>,

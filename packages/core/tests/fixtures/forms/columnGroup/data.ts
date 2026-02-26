@@ -1,4 +1,9 @@
-import { ColumnGroup, ColumnGroupPartialYAML, ColumnGroupTypedYAML } from "~/metadata/forms/elements/columnGroup/types"
+import {
+  ColumnGroup,
+  ColumnGroupEnterprise,
+  ColumnGroupPartialYAML,
+  ColumnGroupTypedYAML,
+} from "~/metadata/forms/elements/columnGroup/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullColumnGroup: ColumnGroup = {
@@ -44,6 +49,52 @@ export const fullColumnGroup: ColumnGroup = {
   titleBackColor: { type: "WebColor", value: "Blue" },
   childItems: [],
 }
+
+export const fullColumnGroupEnterprise = {
+  ElementType: "FormGroup",
+  Name: "ГруппаКолонок",
+  Type: { Type: "SystemEnumeration", Value: "FormGroup.ColumnGroup" },
+  ChildItems: [],
+  FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.None" },
+  Group: {
+    Type: "SystemEnumeration",
+    Value: "ColumnsGroup.Horizontal",
+  },
+  HeaderDataPath: "prefix_ОбъектРеквизит",
+  HeaderFormat: "Формат",
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ShowInHeader: true,
+  ShowTitle: true,
+  TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
+  EnableContentChange: true,
+  Enabled: true,
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: true,
+  ReadOnly: false,
+  Title: "Группа колонок",
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<ColumnGroupEnterprise>
 
 export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   ВертикальноеПоложениеВГруппе: "Верх",

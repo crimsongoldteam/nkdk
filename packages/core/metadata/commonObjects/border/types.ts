@@ -24,7 +24,7 @@ export interface BorderYAML {
 }
 
 export interface BorderEnterprise {
-  type: "border"
-  width?: number
-  borderType?: string
+  Type: "Border"
+  Width?: number
+  Value?: string
 }

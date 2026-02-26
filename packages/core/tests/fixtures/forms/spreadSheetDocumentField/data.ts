@@ -1,5 +1,6 @@
 import {
   SpreadSheetDocumentField,
+  SpreadSheetDocumentFieldEnterprise,
   SpreadSheetDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
@@ -122,6 +123,160 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
     onChangeAreaContentEvent: "ПроцедураПриИзмененииСодержимогоОбласти",
   },
 }
+
+export const fullSpreadSheetDocumentFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеТабличногоДокумента",
+  Type: {
+    Type: "SystemEnumeration",
+    Value: "FormFieldType.SpreadsheetDocumentField",
+  },
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  EditMode: {
+    Type: "SystemEnumeration",
+    Value: "ColumnEditMode.EnterOnInput",
+  },
+  Enabled: true,
+  FixingInTable: {
+    Type: "SystemEnumeration",
+    Value: "FixingInTable.None",
+  },
+  FooterBackColor: {
+    Type: "Color",
+    Value: "WebColors.White",
+  },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле табличного документа",
+  TitleBackColor: {
+    Type: "Color",
+    Value: "WebColors.Blue",
+  },
+  TitleFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  BlackAndWhiteView: false,
+  BorderColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  DrawingSelectionShowMode: {
+    Type: "SystemEnumeration",
+    Value: "DrawingSelectionShowMode.Auto",
+  },
+  Edit: true,
+  EnableDrag: true,
+  EnableStartDrag: true,
+  Height: 200,
+  HorizontalScrollBar: {
+    Type: "SystemEnumeration",
+    Value: "ScrollBarUse.AutoUse",
+  },
+  HorizontalStretch: true,
+  MaxHeight: 500,
+  MaxWidth: 400,
+  Output: {
+    Type: "SystemEnumeration",
+    Value: "UseOutput.Auto",
+  },
+  PointerType: {
+    Type: "SystemEnumeration",
+    Value: "SpreadsheetDocumentPointerType.Regular",
+  },
+  Protection: false,
+  SelectionShowMode: {
+    Type: "SystemEnumeration",
+    Value: "SelectionShowMode.Always",
+  },
+  ShowCellNames: true,
+  ShowGrid: true,
+  ShowGroups: true,
+  ShowHeaders: true,
+  ShowRowAndColumnNames: true,
+  StatePresentation: {
+    Type: "SystemEnumeration",
+    Value: "StatePresentation.Visible",
+  },
+  UsedFileName: "test.xlsx",
+  VerticalScrollBar: {
+    Type: "SystemEnumeration",
+    Value: "ScrollBarUse.AutoUse",
+  },
+  VerticalStretch: true,
+  ViewScalingMode: {
+    Type: "SystemEnumeration",
+    Value: "ViewScalingMode.Auto",
+  },
+  Width: 300,
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<SpreadSheetDocumentFieldEnterprise>
 
 export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",

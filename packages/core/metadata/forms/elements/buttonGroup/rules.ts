@@ -16,6 +16,7 @@ export const ButtonGroupRules = {
     extendedTooltip: {
       yaml: "РасширеннаяПодсказка",
       type: "ExtendedTooltip",
+      toEnterprise: false,
     },
     representation: {
       yaml: "Отображение",

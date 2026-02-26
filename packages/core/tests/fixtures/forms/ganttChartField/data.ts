@@ -1,4 +1,8 @@
-import { GanttChartField, GanttChartFieldPartialYAML } from "~/metadata/forms/elements/ganttChartField/types"
+import {
+  GanttChartField,
+  GanttChartFieldEnterprise,
+  GanttChartFieldPartialYAML,
+} from "~/metadata/forms/elements/ganttChartField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -98,6 +102,127 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
     onIntervalEditEnd: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
 }
+
+export const fullGanttChartFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеДиаграммыГанта",
+  Type: {
+    Type: "SystemEnumeration",
+    Value: "FormFieldType.GanttChartField",
+  },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  Height: 200,
+  HorizontalLines: true,
+  HorizontalStretch: true,
+  IntervalsSelectionMode: {
+    Type: "SystemEnumeration",
+    Value: "GanttChartIntervalsSelectionMode.Single",
+  },
+  MaxHeight: 500,
+  MaxWidth: 400,
+  TableLocation: {
+    Type: "SystemEnumeration",
+    Value: "GanttChartTableLocation.None",
+  },
+  ValuesSelectionMode: {
+    Type: "SystemEnumeration",
+    Value: "GanttChartValuesSelectionMode.Single",
+  },
+  VerticalLines: true,
+  VerticalStretch: true,
+  Width: 300,
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  EditMode: {
+    Type: "SystemEnumeration",
+    Value: "ColumnEditMode.EnterOnInput",
+  },
+  Enabled: true,
+  FixingInTable: {
+    Type: "SystemEnumeration",
+    Value: "FixingInTable.None",
+  },
+  FooterBackColor: {
+    Type: "Color",
+    Value: "WebColors.White",
+  },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле диаграммы Ганта",
+  TitleBackColor: {
+    Type: "Color",
+    Value: "WebColors.Blue",
+  },
+  TitleFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<GanttChartFieldEnterprise>
 
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",

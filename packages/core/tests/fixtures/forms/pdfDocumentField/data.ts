@@ -1,4 +1,8 @@
-import { PdfDocumentField, PdfDocumentFieldPartialYAML } from "~/metadata/forms/elements/pdfDocumentField/types"
+import {
+  PdfDocumentField,
+  PdfDocumentFieldEnterprise,
+  PdfDocumentFieldPartialYAML,
+} from "~/metadata/forms/elements/pdfDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -96,6 +100,129 @@ export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
     uRLClick: "ПроцедураНажатияНаНавигационнойСсылке",
   },
 }
+
+export const fullPdfDocumentFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеPDFДокумента",
+  Type: {
+    Type: "SystemEnumeration",
+    Value: "FormFieldType.PDFDocumentField",
+  },
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  EditMode: {
+    Type: "SystemEnumeration",
+    Value: "ColumnEditMode.EnterOnInput",
+  },
+  Enabled: true,
+  FixingInTable: {
+    Type: "SystemEnumeration",
+    Value: "FixingInTable.None",
+  },
+  FooterBackColor: {
+    Type: "Color",
+    Value: "WebColors.White",
+  },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле PDF документа",
+  TitleBackColor: {
+    Type: "Color",
+    Value: "WebColors.Blue",
+  },
+  TitleFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  BorderColor: {
+    Type: "Color",
+    Value: "WebColors.Green",
+  },
+  CurrentPageNumber: 1,
+  Height: 200,
+  HorizontalStretch: true,
+  MaxHeight: 500,
+  MaxWidth: 400,
+  Orientation: 0,
+  Output: {
+    Type: "SystemEnumeration",
+    Value: "UseOutput.Enable",
+  },
+  Scale: 100,
+  UsedFileName: "Документ.pdf",
+  VerticalStretch: true,
+  ViewStatusLocation: {
+    Type: "SystemEnumeration",
+    Value: "ViewStatusLocation.Auto",
+  },
+  Width: 300,
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<PdfDocumentFieldEnterprise>
 
 export const fullPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",

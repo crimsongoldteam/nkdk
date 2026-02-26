@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { exportElementToEnterprise } from "~/metadata/metadataFactory/elements/toEnterprise"
 import {
-  fullCheckBoxField,
-  fullCheckBoxFieldEnterprise,
-} from "~/tests/fixtures/forms/checkBoxField/data"
+  fullButtonGroup,
+  fullButtonGroupEnterprise,
+} from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("export CheckBoxField to Enterprise", () => {
+describe("export ButtonGroup to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const context = {
       ...mockContext,
@@ -18,9 +18,9 @@ describe("export CheckBoxField to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: CollectionFormElementType.CheckBoxField,
-      value: fullCheckBoxField,
+      itemType: CollectionFormElementType.ButtonGroup,
+      value: fullButtonGroup,
     })
-    expect(result).toEqual(fullCheckBoxFieldEnterprise)
+    expect(result).toEqual(fullButtonGroupEnterprise)
   })
 })

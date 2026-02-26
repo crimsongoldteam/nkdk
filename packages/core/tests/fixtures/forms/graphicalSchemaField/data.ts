@@ -1,5 +1,6 @@
 import {
   GraphicalSchemaField,
+  GraphicalSchemaFieldEnterprise,
   GraphicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
@@ -97,6 +98,122 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
     onActivate: "ПроцедураАктивации",
   },
 }
+
+export const fullGraphicalSchemaFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеГрафическойСхемы",
+  Type: {
+    Type: "SystemEnumeration",
+    Value: "FormFieldType.GraphicalSchemaField",
+  },
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  EditMode: {
+    Type: "SystemEnumeration",
+    Value: "ColumnEditMode.EnterOnInput",
+  },
+  Enabled: true,
+  FixingInTable: {
+    Type: "SystemEnumeration",
+    Value: "FixingInTable.None",
+  },
+  FooterBackColor: {
+    Type: "Color",
+    Value: "WebColors.White",
+  },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле графической схемы",
+  TitleBackColor: {
+    Type: "Color",
+    Value: "WebColors.Blue",
+  },
+  TitleFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  BorderColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  Edit: true,
+  Height: 200,
+  HorizontalStretch: true,
+  MaxHeight: 500,
+  MaxWidth: 400,
+  Output: {
+    Type: "SystemEnumeration",
+    Value: "UseOutput.Enable",
+  },
+  VerticalStretch: true,
+  Width: 300,
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<GraphicalSchemaFieldEnterprise>
 
 export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",

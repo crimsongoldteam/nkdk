@@ -1,4 +1,8 @@
-import { HTMLDocumentField, HTMLDocumentFieldPartialYAML } from "~/metadata/forms/elements/htmlDocumentField/types"
+import {
+  HTMLDocumentField,
+  HTMLDocumentFieldEnterprise,
+  HTMLDocumentFieldPartialYAML,
+} from "~/metadata/forms/elements/htmlDocumentField/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -94,6 +98,122 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
     onClick: "ПроцедураНажатия",
   },
 }
+
+export const fullHtmlDocumentFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "ПолеHTMLДокумента",
+  Type: {
+    Type: "SystemEnumeration",
+    Value: "FormFieldType.HTMLDocumentField",
+  },
+  AutoCellHeight: true,
+  CellHyperlink: true,
+  DataPath: "prefix_ОбъектРеквизит",
+  DefaultItem: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  EditMode: {
+    Type: "SystemEnumeration",
+    Value: "ColumnEditMode.EnterOnInput",
+  },
+  Enabled: true,
+  FixingInTable: {
+    Type: "SystemEnumeration",
+    Value: "FixingInTable.None",
+  },
+  FooterBackColor: {
+    Type: "Color",
+    Value: "WebColors.White",
+  },
+  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  FooterHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FooterText: "Текст подвала",
+  FooterTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  ReadOnly: false,
+  ShowInFooter: true,
+  ShowInHeader: true,
+  SkipOnInput: false,
+  Title: "Поле HTML документа",
+  TitleBackColor: {
+    Type: "Color",
+    Value: "WebColors.Blue",
+  },
+  TitleFont: {
+    Type: "Font",
+    Value: "StyleFonts.NormalTextFont",
+  },
+  TitleHeight: 20,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Left",
+  },
+  TitleTextColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  Visible: true,
+  WarningOnEdit: "Предупреждение",
+  WarningOnEditRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "WarningOnEditRepresentation.DontShow",
+  },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  BorderColor: {
+    Type: "Color",
+    Value: "WebColors.Black",
+  },
+  Height: 200,
+  HorizontalStretch: true,
+  MaxHeight: 500,
+  MaxWidth: 400,
+  Output: {
+    Type: "SystemEnumeration",
+    Value: "UseOutput.Enable",
+  },
+  UserAgentInformation: "Информация программы просмотра",
+  VerticalStretch: true,
+  Width: 300,
+  FooterPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  HeaderPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<HTMLDocumentFieldEnterprise>
 
 export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",

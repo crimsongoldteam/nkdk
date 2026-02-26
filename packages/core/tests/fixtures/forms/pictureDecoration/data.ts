@@ -1,4 +1,8 @@
-import { PictureDecoration, PictureDecorationPartialYAML } from "~/metadata/forms/elements/pictureDecoration/types"
+import {
+  PictureDecoration,
+  PictureDecorationEnterprise,
+  PictureDecorationPartialYAML,
+} from "~/metadata/forms/elements/pictureDecoration/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -70,6 +74,57 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
     dragCheck: "ПроцедураПриПроверкеПеретаскивания",
   },
 }
+
+export const fullPictureDecorationEnterprise = {
+  ElementType: "FormDecoration",
+  Name: "ДекорацияКартинки",
+  Type: { Type: "SystemEnumeration", Value: "FormDecoration.Picture" },
+  AutoMaxHeight: true,
+  AutoMaxWidth: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.High",
+  },
+  Enabled: true,
+  Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  Height: 200,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalStretch: true,
+  MaxHeight: 500,
+  MaxWidth: 400,
+  SkipOnInput: false,
+  TextColor: { Type: "Color", Value: "WebColors.Blue" },
+  ToolTip: "Подсказка",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.None",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Top",
+  },
+  VerticalStretch: true,
+  Visible: true,
+  Width: 300,
+  BorderColor: { Type: "Color", Value: "WebColors.Black" },
+  EnableDrag: true,
+  EnableStartDrag: true,
+  FileDragMode: {
+    Type: "SystemEnumeration",
+    Value: "FileDragMode.AsFile",
+  },
+  Hyperlink: false,
+  NonselectedPictureText: "Нет картинки",
+  PictureSize: { Type: "SystemEnumeration", Value: "PictureSize.AutoSize" },
+  Scale: 100,
+  Zoomable: true,
+  Title: undefined,
+  Border: { Type: "Border", Value: "Border.Single" },
+  Picture: { Type: "Picture", Value: "StandardPicture.Print" },
+} satisfies Required<PictureDecorationEnterprise>
 
 export const fullPictureDecorationPartialYAML: Required<
   Omit<PictureDecorationPartialYAML, "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование">

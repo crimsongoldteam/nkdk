@@ -2,25 +2,22 @@ import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { exportElementToEnterprise } from "~/metadata/metadataFactory/elements/toEnterprise"
 import {
-  fullCheckBoxField,
-  fullCheckBoxFieldEnterprise,
-} from "~/tests/fixtures/forms/checkBoxField/data"
+  fullPdfDocumentField,
+  fullPdfDocumentFieldEnterprise,
+} from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("export CheckBoxField to Enterprise", () => {
+describe("export PDFDocumentField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const context = {
       ...mockContext,
-      preview: {
-        prefix: "prefix_",
-        attributes: {},
-      },
+      preview: { prefix: "prefix_", attributes: {} },
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: CollectionFormElementType.CheckBoxField,
-      value: fullCheckBoxField,
+      itemType: CollectionFormElementType.PDFDocumentField,
+      value: fullPdfDocumentField,
     })
-    expect(result).toEqual(fullCheckBoxFieldEnterprise)
+    expect(result).toEqual(fullPdfDocumentFieldEnterprise)
   })
 })

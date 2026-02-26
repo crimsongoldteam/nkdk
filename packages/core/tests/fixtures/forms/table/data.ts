@@ -1,6 +1,6 @@
 import { TableChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
-import { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
+import { Table, TableEnterprise, TablePartialYAML } from "~/metadata/forms/elements/table/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -401,6 +401,206 @@ export const fullTableYAML: TablePartialYAML = {
   Шрифт: "КрупныйШрифтТекста",
   ШрифтЗаголовка: "МелкийШрифтТекста",
 }
+
+export const fullTableEnterprise = {
+  ElementType: "FormTable",
+  Name: "Таблица",
+  Type: { Type: "SystemEnumeration", Value: "FormTable" },
+  AutoAddIncomplete: true,
+  AutoInsertNewRow: true,
+  AutoMarkIncomplete: true,
+  AutoMaxHeight: false,
+  AutoMaxHeightInTableRows: false,
+  AutoMaxWidth: false,
+  BackColor: { Type: "Color", Value: "WebColors.Red" },
+  BehaviorOnHorizontalCompression: {
+    Type: "SystemEnumeration",
+    Value: "TableBehaviorOnHorizontalCompression.HideItemsByImportance",
+  },
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  ChangeRowOrder: false,
+  ChangeRowSet: false,
+  ChildItems: [
+    {
+      MultipleValuesExtendedEdit: true,
+      DataPath: "prefix_ТаблицаВвод",
+      EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
+      ElementType: "FormField",
+      Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
+      Name: "ТаблицаВвод",
+    },
+    {
+      DataPath: "prefix_ТаблицаНадпись",
+      EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
+      ElementType: "FormField",
+      Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
+      Name: "ТаблицаНадпись",
+    },
+    {
+      CheckBoxType: { Type: "SystemEnumeration", Value: "CheckBoxType.Auto" },
+      DataPath: "prefix_ТаблицаФлажок",
+      EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
+      Title: "Поле флажка",
+      ElementType: "FormField",
+      Type: { Type: "SystemEnumeration", Value: "FormFieldType.CheckBoxField" },
+      Name: "ТаблицаФлажок",
+    },
+    {
+      DataPath: "prefix_ТаблицаКартинка",
+      EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
+      ElementType: "FormField",
+      Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
+      Name: "ТаблицаКартинка",
+    },
+  ],
+  ChoiceMode: true,
+  CommandBarLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemCommandBarLabelLocation.Top",
+  },
+  CurrentRowUse: {
+    Type: "SystemEnumeration",
+    Value: "TableCurrentRowUse.SelectionPresentationAndChoice",
+  },
+  DataPath: "prefix_Таблица",
+  DefaultItem: true,
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.VeryHigh",
+  },
+  Enabled: false,
+  EnableDrag: true,
+  EnableStartDrag: true,
+  FileDragMode: {
+    Type: "SystemEnumeration",
+    Value: "FileDragMode.AsFile",
+  },
+  Font: { Type: "Font", Value: "StyleFonts.LargeTextFont" },
+  Footer: true,
+  FooterHeight: 9,
+  Header: false,
+  HeaderHeight: 8,
+  Height: 4,
+  HeightControlVariant: {
+    Type: "SystemEnumeration",
+    Value: "TableHeightControlVariant.UseContentHeight",
+  },
+  HeightInTableRows: 6,
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  HorizontalLines: false,
+  HorizontalScrollBar: {
+    Type: "SystemEnumeration",
+    Value: "ScrollBarUse.UseAlways",
+  },
+  HorizontalStretch: false,
+  InitialListView: {
+    Type: "SystemEnumeration",
+    Value: "InitialListView.Beginning",
+  },
+  InitialTreeView: {
+    Type: "SystemEnumeration",
+    Value: "InitialTreeView.ExpandTopLevel",
+  },
+  MaxHeight: 5,
+  MaxHeightInTableRows: 7,
+  MaxWidth: 3,
+  MultipleChoice: true,
+  OnMainServerUnavalableBehavior: {
+    Type: "SystemEnumeration",
+    Value: "OnMainServerUnavalableBehavior.DontChangeBehavior",
+  },
+  Output: { Type: "SystemEnumeration", Value: "UseOutput.Enable" },
+  ReadOnly: true,
+  RefreshRequest: {
+    Type: "SystemEnumeration",
+    Value: "RefreshRequestMethod.PullFromTop",
+  },
+  Representation: {
+    Type: "SystemEnumeration",
+    Value: "TableRepresentation.Tree",
+  },
+  RowInputMode: {
+    Type: "SystemEnumeration",
+    Value: "TableRowInputMode.AfterCurrentRow",
+  },
+  RowPictureDataPath: "prefix_ТаблицаКартинка1",
+  RowSelectionMode: {
+    Type: "SystemEnumeration",
+    Value: "TableRowSelectionMode.Row",
+  },
+  SearchControlLocation: {
+    Type: "SystemEnumeration",
+    Value: "SearchControlLocation.CommandBar",
+  },
+  SearchOnInput: {
+    Type: "SystemEnumeration",
+    Value: "SearchInTableOnInput.Use",
+  },
+  SearchStringLocation: {
+    Type: "SystemEnumeration",
+    Value: "SearchStringLocation.Top",
+  },
+  SelectionMode: {
+    Type: "SystemEnumeration",
+    Value: "TableSelectionMode.SingleRow",
+  },
+  SkipOnInput: false,
+  TextColor: { Type: "Color", Value: "WebColors.Blue" },
+  Title: "Заголовок таблицы",
+  TitleFont: { Type: "Font", Value: "StyleFonts.SmallTextFont" },
+  TitleHeight: 10,
+  TitleLocation: {
+    Type: "SystemEnumeration",
+    Value: "FormItemTitleLocation.Top",
+  },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Yellow" },
+  ToolTip: "Текст подсказки",
+  ToolTipRepresentation: {
+    Type: "SystemEnumeration",
+    Value: "ToolTipRepresentation.Balloon",
+  },
+  UseAlternationRowColor: true,
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Center",
+  },
+  VerticalLines: false,
+  VerticalScrollBar: {
+    Type: "SystemEnumeration",
+    Value: "ScrollBarUse.UseAlways",
+  },
+  VerticalStretch: false,
+  ViewStatusLocation: {
+    Type: "SystemEnumeration",
+    Value: "ViewStatusLocation.Top",
+  },
+  Visible: false,
+  Width: 1,
+  AutoRefresh: true,
+  RestoreCurrentRow: true,
+  ChoiceFoldersAndItems: {
+    Type: "SystemEnumeration",
+    Value: "FoldersAndItemsUse.FoldersAndItems",
+  },
+  UpdateOnDataChange: {
+    Type: "SystemEnumeration",
+    Value: "UpdateOnDataChange.DontUpdate",
+  },
+  ShowRoot: true,
+  AutoRefreshPeriod: 30,
+  AllowRootChoice: true,
+  AllowGettingCurrentRowURL: true,
+  UserSettingsGroup: "ГруппаПользовательскихНастроек",
+  AutoCommandBar: undefined,
+  CommandSet: undefined,
+  RowsPicture: { Type: "Picture", Value: "StandardPicture.Print" },
+  SearchControl: undefined,
+  SearchStringRepresentation: undefined,
+  ViewStatusRepresentation: undefined,
+} satisfies Required<TableEnterprise>
 
 export const fullTableChildItems: TableChildItemsPartialYAML = {
   ТаблицаГруппа1: {
