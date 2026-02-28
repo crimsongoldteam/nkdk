@@ -519,7 +519,8 @@
       "ДобавляемыеЭлементы": [],
       "ПеремещаемыеЭлементы": [
         {
-          "Name": "р_Элемент1"
+          "Name": "р_Элемент2",
+          "Before": "р_Элемент1"
         }
       ],
       "ИзменяемыеЭлементы": {}
@@ -578,7 +579,8 @@
       ],
       "ПеремещаемыеЭлементы": [
         {
-          "Name": "р_Элемент1"
+          "Name": "р_Элемент2",
+          "Before": "р_Элемент1"
         }
       ],
       "ИзменяемыеЭлементы": {
@@ -664,9 +666,7 @@
       "ДобавляемыеРеквизиты": [],
       "ИзменяемыеРеквизиты": [],
       "УдаляемыеЭлементы": [
-        {
-          "Name": "р_Элемент2"
-        }
+        "р_Элемент2"
       ],
       "ДобавляемыеЭлементы": [
         {
@@ -677,7 +677,7 @@
       "ПеремещаемыеЭлементы": [
         {
           "Name": "р_Элемент4",
-          "Before": "р_Элемент1"
+          "Before": "р_Элемент3"
         }
       ],
       "ИзменяемыеЭлементы": {
@@ -689,6 +689,138 @@
           "Title": "Заголовок 4"
         }
       }
+    }
+  },
+  "ПеремещениеЭлементаИзГруппы": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "Name": "р_Группа1",
+          "ElementType": "FormGroup",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.UsualGroup"
+          },
+          "Title": "Группа 1",
+          "ChildItems": [
+            {
+              "Name": "р_Элемент1",
+              "ElementType": "FormField",
+              "Type": {
+                "Type": "SystemEnumeration",
+                "Value": "FormFieldType.InputField"
+              },
+              "Title": "Заголовок 1"
+            }
+          ]
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "Name": "р_Элемент1",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 1"
+        },
+        {
+          "Name": "р_Группа1",
+          "ElementType": "FormGroup",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.UsualGroup"
+          },
+          "Title": "Группа 1"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [],
+      "ДобавляемыеЭлементы": [],
+      "ПеремещаемыеЭлементы": [
+        {
+          "Name": "р_Элемент1",
+          "Before": "р_Группа1"
+        }
+      ],
+      "ИзменяемыеЭлементы": {}
+    }
+  },
+  "ПеремещениеЭлементаВГруппу": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "Name": "р_Элемент1",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 1"
+        },
+        {
+          "Name": "р_Группа1",
+          "ElementType": "FormGroup",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.UsualGroup"
+          },
+          "Title": "Группа 1"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "Name": "р_Группа1",
+          "ElementType": "FormGroup",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.UsualGroup"
+          },
+          "Title": "Группа 1",
+          "ChildItems": [
+            {
+              "Name": "р_Элемент1",
+              "ElementType": "FormField",
+              "Type": {
+                "Type": "SystemEnumeration",
+                "Value": "FormFieldType.InputField"
+              },
+              "Title": "Заголовок 1"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [],
+      "ДобавляемыеЭлементы": [],
+      "ПеремещаемыеЭлементы": [
+        {
+          "Name": "р_Элемент1",
+          "Parent": "р_Группа1"
+        }
+      ],
+      "ИзменяемыеЭлементы": {}
     }
   }
 }
