@@ -380,8 +380,8 @@
       "УдаляемыеЭлементы": [],
       "ДобавляемыеЭлементы": [
         {
-          "ElementType": "FormField",
-          "Name": "р_Элемент"
+          "Name": "р_Элемент",
+          "ElementType": "FormField"
         }
       ],
       "ПеремещаемыеЭлементы": [],
@@ -426,12 +426,13 @@
           "Title": "Заголовок группы",
           "ChildItems": [
             {
+              "Name": "р_Элемент",
               "ElementType": "FormField",
               "Type": {
                 "Type": "SystemEnumeration",
-                "Value": "FormFieldType.InputField",
-                "Title": "Заголовок элемента"
-              }
+                "Value": "FormFieldType.InputField"
+              },
+              "Title": "Заголовок элемента"
             }
           ]
         }
@@ -444,6 +445,7 @@
       "УдаляемыеЭлементы": [],
       "ДобавляемыеЭлементы": [
         {
+          "Name": "р_Элемент",
           "ElementType": "FormField",
           "ParentName": "р_Группа"
         }
