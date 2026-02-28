@@ -582,12 +582,111 @@
         }
       ],
       "ИзменяемыеЭлементы": {
-        "р_Элемент1": {
+        "р_Элемент2": {
           "Type": {
             "Type": "SystemEnumeration",
             "Value": "FormFieldType.InputField"
           },
           "Title": "Заголовок 2"
+        }
+      }
+    }
+  },
+  "ДобавлениеЭлементаПередУдаленнымЭлементом": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "Name": "р_Элемент1",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 1"
+        },
+        {
+          "Name": "р_Элемент2",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 2"
+        },
+        {
+          "Name": "р_Элемент3",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 3"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "Name": "р_Элемент1",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 1"
+        },
+        {
+          "Name": "р_Элемент4",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 4"
+        },
+        {
+          "Name": "р_Элемент3",
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 3"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [
+        {
+          "Name": "р_Элемент2"
+        }
+      ],
+      "ДобавляемыеЭлементы": [
+        {
+          "Name": "р_Элемент4",
+          "ElementType": "FormField"
+        }
+      ],
+      "ПеремещаемыеЭлементы": [
+        {
+          "Name": "р_Элемент4",
+          "Before": "р_Элемент1"
+        }
+      ],
+      "ИзменяемыеЭлементы": {
+        "р_Элемент4": {
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 4"
         }
       }
     }
