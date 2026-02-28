@@ -1,0 +1,868 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://v8.1c.ru/8.2/data/spreadsheet" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<languageSettings>
+		<currentLanguage>ru</currentLanguage>
+		<defaultLanguage>ru</defaultLanguage>
+		<languageInfo>
+			<id>ru</id>
+			<code>Русский</code>
+			<description>Русский</description>
+		</languageInfo>
+	</languageSettings>
+	<columns>
+		<size>4</size>
+		<columnsItem>
+			<index>0</index>
+			<column>
+				<formatIndex>1</formatIndex>
+			</column>
+		</columnsItem>
+		<columnsItem>
+			<index>1</index>
+			<column>
+				<formatIndex>2</formatIndex>
+			</column>
+		</columnsItem>
+		<columnsItem>
+			<index>2</index>
+			<column>
+				<formatIndex>3</formatIndex>
+			</column>
+		</columnsItem>
+		<columnsItem>
+			<index>3</index>
+			<column>
+				<formatIndex>4</formatIndex>
+			</column>
+		</columnsItem>
+	</columns>
+	<rowsItem>
+		<index>0</index>
+		<row>
+			<c>
+				<c>
+					<f>5</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Название</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>6</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>До</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>6</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>После</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>7</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Изменения</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>1</index>
+		<row>
+			<c>
+				<c>
+					<f>8</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Добавление реквизита</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>9</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>9</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_НовыйРеквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>10</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [],
+  "ДобавляемыеРеквизиты": [
+    {
+      "Name": "р_НовыйРеквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>2</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Удаление реквизита</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_УдаляемыйРеквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [
+    "р_УдаляемыйРеквизит"
+  ],
+  "ДобавляемыеРеквизиты": [],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>3</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Изменение заголовка реквизита</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Измененный заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [
+    "р_Реквизит"
+  ],
+  "ДобавляемыеРеквизиты": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Измененный заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>4</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Изменение типа реквизита</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "boolean"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [
+    "р_Реквизит"
+  ],
+  "ДобавляемыеРеквизиты": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "boolean"
+        ]
+      }
+    }
+  ],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>5</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Добавление реквизита таблицы</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{  "prefix": "р_",  "attributes": [    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },  ],  "childItems": []}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{  "prefix": "р_",  "attributes": [    {      "Name": "р_ТаблицаЗначений",      "Title": "Заголовок",      "Type": {        "Type": [          "ValueTable"        ]      },    },    {      "Name": "р_Реквизит",      "Title": "Заголовок реквизита",      "Path": "р_ТаблицаЗначений",      "Type": {        "Type": [          "string"        ]      }    }  ],  "childItems": []}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [],
+  "ДобавляемыеРеквизиты": [
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок реквизита",
+      "Path": "р_ТаблицаЗначений",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>6</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Удаление реквизита таблицы</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок реквизита",
+      "Path": "р_ТаблицаЗначений",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [
+    "р_Реквизит"
+  ],
+  "ДобавляемыеРеквизиты": [],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>7</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Удаление таблицы</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок реквизита",
+      "Path": "р_ТаблицаЗначений",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [
+    "р_ТаблицаЗначений"
+  ],
+  "ДобавляемыеРеквизиты": [],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<rowsItem>
+		<index>8</index>
+		<row>
+			<c>
+				<c>
+					<f>11</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Изменение заголовка таблицы</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>13</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок реквизита",
+      "Path": "р_ТаблицаЗначений",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>12</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Новый заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок реквизита",
+      "Path": "р_ТаблицаЗначений",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+			<c>
+				<c>
+					<f>14</f>
+					<tl>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>{
+  "УдаляемыеРеквизиты": [
+    "р_ТаблицаЗначений"
+  ],
+  "ДобавляемыеРеквизиты": [],
+  "УдаляемыеЭлементы": [],
+  "ДобавляемыеЭлементы": [],
+  "ПеремещаемыеЭлементы": []
+}</v8:content>
+						</v8:item>
+					</tl>
+				</c>
+			</c>
+		</row>
+	</rowsItem>
+	<templateMode>true</templateMode>
+	<defaultFormatIndex>15</defaultFormatIndex>
+	<height>9</height>
+	<vgRows>9</vgRows>
+	<line width="1" gap="false">
+		<v8ui:style xsi:type="v8ui:SpreadsheetDocumentCellLineType">Solid</v8ui:style>
+	</line>
+	<font faceName="Arial" height="8" bold="true" italic="false" underline="false" strikeout="false" kind="Absolute" scale="100"/>
+	<format>
+		<width>354</width>
+	</format>
+	<format>
+		<width>363</width>
+	</format>
+	<format>
+		<width>359</width>
+	</format>
+	<format>
+		<width>362</width>
+	</format>
+	<format>
+		<font>0</font>
+		<leftBorder>0</leftBorder>
+		<topBorder>0</topBorder>
+	</format>
+	<format>
+		<font>0</font>
+		<topBorder>0</topBorder>
+	</format>
+	<format>
+		<font>0</font>
+		<topBorder>0</topBorder>
+		<rightBorder>0</rightBorder>
+	</format>
+	<format>
+		<leftBorder>0</leftBorder>
+		<bottomBorder>0</bottomBorder>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<bottomBorder>0</bottomBorder>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<rightBorder>0</rightBorder>
+		<bottomBorder>0</bottomBorder>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<leftBorder>0</leftBorder>
+		<bottomBorder>0</bottomBorder>
+		<width>354</width>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<bottomBorder>0</bottomBorder>
+		<width>359</width>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<bottomBorder>0</bottomBorder>
+		<width>363</width>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<rightBorder>0</rightBorder>
+		<bottomBorder>0</bottomBorder>
+		<width>362</width>
+		<verticalAlignment>Top</verticalAlignment>
+	</format>
+	<format>
+		<width>72</width>
+	</format>
+</document>
