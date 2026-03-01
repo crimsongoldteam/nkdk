@@ -96,6 +96,11 @@
 				<Event name="OnClick">HTMLДокументПриНажатии</Event>
 			</Events>
 		</HTMLDocumentField>
+		<Button name="ТудаИОбратно" id="21">
+			<Type>UsualButton</Type>
+			<CommandName>Form.Command.ТудаИОбратно</CommandName>
+			<ExtendedTooltip name="ТудаИОбратноРасширеннаяПодсказка" id="22"/>
+		</Button>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Объект" id="1">
@@ -170,7 +175,22 @@
 					<v8:content>Выполнить тесты</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>Команда1</Action>
+			<Action>ВыполнитьТесты</Action>
+		</Command>
+		<Command name="ТудаИОбратно" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Туда и обратно</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Туда и обратно</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ТудаИОбратно</Action>
 		</Command>
 	</Commands>
 </Form>

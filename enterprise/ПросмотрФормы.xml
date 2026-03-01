@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
-	<ExternalDataProcessor uuid="3ab2001e-f24a-45d1-a67b-d6bb83898940">
+	<ExternalDataProcessor uuid="d5a0eec8-9864-4110-8c7c-94a1369f7b72">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>c3831ec8-d8d5-4f93-8a22-f9bfae07327f</xr:ClassId>
-				<xr:ObjectId>7cdde846-8e46-4125-9b86-6b8d88e79036</xr:ObjectId>
+				<xr:ObjectId>27465987-d66a-4ee7-9ff0-740ac3843959</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:GeneratedType name="ExternalDataProcessorObject.ПросмотрФормы" category="Object">
-				<xr:TypeId>1addfd2a-1f03-4afc-9d3a-a3546c44bbe7</xr:TypeId>
-				<xr:ValueId>9ba4d4b5-1042-4f71-8ea1-c0a62750f0a8</xr:ValueId>
+				<xr:TypeId>4feb8afc-04ac-4da1-b24d-ebbfe0933978</xr:TypeId>
+				<xr:ValueId>75eeb17a-92d2-4b38-b6e1-ab3f5a4f5a84</xr:ValueId>
 			</xr:GeneratedType>
 		</InternalInfo>
 		<Properties>
@@ -25,8 +25,10 @@
 		</Properties>
 		<ChildObjects>
 			<Form>Форма</Form>
-			<Form>СистемныеПеречисления</Form>
+			<Form>ПолучениеИзменений</Form>
+			<Form>ОбновлениеСвойствЭлементов</Form>
 			<Template>ТестовыеДанные</Template>
+			<Template>СистемныеПеречисления</Template>
 		</ChildObjects>
 	</ExternalDataProcessor>
 </MetaDataObject>
