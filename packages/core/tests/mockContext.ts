@@ -18,6 +18,15 @@ export const mockContextToTypedYAML: ConfigurationContext = {
   exportToYAML: { toTyped: true },
 }
 
+export const mockContextToEnterprise: ConfigurationContext = {
+  ...mockContext,
+  enterprise: {
+    prefix: "prefix_",
+    attributes: {},
+    elementsTree: [],
+  },
+}
+
 export const mockRule: PropertyRule<Table> = {
   yaml: "Шапка",
   type: "string",

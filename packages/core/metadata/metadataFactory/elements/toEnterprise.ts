@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../metadataType/types"
 import { exportPropertiesToEnterprise } from "../properties/toEnterprise"
@@ -12,16 +12,20 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
 }): ToEnterprise<T> => {
   const { context, itemType, value: element } = params
 
-  const elementsTree: ConfigurationContext["elementsTree"] = []
-  if (context.elementsTree !== undefined) {
-    elementsTree.push(...context.elementsTree)
+  const elementsTree: ContextElementToEnterprise[] = []
+  if (context.enterprise?.elementsTree !== undefined) {
+    elementsTree.push(...context.enterprise.elementsTree)
   }
 
-  elementsTree.push({ name: element.name, itemType: itemType })
+  const dataPath: string | undefined = "dataPath" in element ? (element.dataPath as string) : undefined
+  elementsTree.push({ itemType: itemType, dataPath: dataPath })
 
   const currentContext: ConfigurationContext = {
     ...context,
-    elementsTree: elementsTree,
+    enterprise: {
+      ...(context.enterprise ? context.enterprise : { prefix: "", attributes: {}, elementsTree: [] }),
+      elementsTree: elementsTree,
+    },
   }
 
   const rules = getElementRule<T>(itemType)

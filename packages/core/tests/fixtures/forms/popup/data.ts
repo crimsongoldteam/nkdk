@@ -21,7 +21,7 @@ export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
   name: "Подменю",
   picture: {
     loadTransparent: true,
-    ref: "ChartOfAccounts",
+    ref: "Print",
     transparentPixel: undefined,
     type: "StandardPicture",
   },

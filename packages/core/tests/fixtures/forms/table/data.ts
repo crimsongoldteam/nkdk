@@ -422,14 +422,14 @@ export const fullTableEnterprise = {
   ChildItems: [
     {
       MultipleValuesExtendedEdit: true,
-      DataPath: "prefix_ТаблицаВвод",
+      DataPath: "prefix_Таблица.Ввод",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
       Name: "ТаблицаВвод",
     },
     {
-      DataPath: "prefix_ТаблицаНадпись",
+      DataPath: "prefix_Таблица.Надпись",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
@@ -437,7 +437,7 @@ export const fullTableEnterprise = {
     },
     {
       CheckBoxType: { Type: "SystemEnumeration", Value: "CheckBoxType.Auto" },
-      DataPath: "prefix_ТаблицаФлажок",
+      DataPath: "prefix_Таблица.Флажок",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       Title: "Поле флажка",
       ElementType: "FormField",
@@ -445,7 +445,7 @@ export const fullTableEnterprise = {
       Name: "ТаблицаФлажок",
     },
     {
-      DataPath: "prefix_ТаблицаКартинка",
+      DataPath: "prefix_Таблица.Картинка",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
@@ -525,7 +525,7 @@ export const fullTableEnterprise = {
     Type: "SystemEnumeration",
     Value: "TableRowInputMode.AfterCurrentRow",
   },
-  RowPictureDataPath: "prefix_ТаблицаКартинка1",
+  RowPictureDataPath: "prefix_ТаблицаКартинка",
   RowSelectionMode: {
     Type: "SystemEnumeration",
     Value: "TableRowSelectionMode.Row",

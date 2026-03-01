@@ -17,6 +17,7 @@ describe("exportClientApplicationFormToEnterprise", () => {
       preview: {
         attributes: {},
         prefix: "p_",
+        elementsTree: [],
       },
     }
 
