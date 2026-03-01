@@ -38,7 +38,10 @@ export async function activate(context: ExtensionContext): Promise<SchemaExtensi
     // telemetry,
     schemaCache,
   }
-  return startClient(context, newLanguageClient, runtime)
+  const schemaExtensionAPI = await startClient(context, newLanguageClient, runtime)
+  const { createSimpleSchemaProvider } = await import("../simple-schema-provider")
+  schemaExtensionAPI.registerCustomSchemaProvider(createSimpleSchemaProvider())
+  return schemaExtensionAPI
   // } catch (e) {
   // console.log(e)
   // }

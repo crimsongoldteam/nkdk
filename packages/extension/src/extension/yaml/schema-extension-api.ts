@@ -34,6 +34,13 @@ namespace SchemaModificationNotification {
   export const type: RequestType<SchemaAdditions | SchemaDeletions, void, {}> = new RequestType("json/schema/modify")
 }
 
+export interface CustomSchemaProvider {
+  schema: string
+  requestSchema: (resource: string) => string
+  requestSchemaContent: (uri: string) => Promise<string> | string
+  label?: string
+}
+
 export interface ExtensionAPI {
   registerContributor(
     schema: string,
@@ -41,6 +48,7 @@ export interface ExtensionAPI {
     requestSchemaContent: (uri: string) => Promise<string> | string,
     label?: string
   ): boolean
+  registerCustomSchemaProvider(schemaProvider: CustomSchemaProvider): boolean
   modifySchemaContent(schemaModifications: SchemaAdditions | SchemaDeletions): Promise<void>
 }
 
@@ -93,13 +101,28 @@ class SchemaExtensionAPI implements ExtensionAPI {
   }
 
   /**
+   * Register a custom schema provider (convenience wrapper around registerContributor).
+   */
+  public registerCustomSchemaProvider(schemaProvider: CustomSchemaProvider): boolean {
+    return this.registerContributor(
+      schemaProvider.schema,
+      schemaProvider.requestSchema,
+      schemaProvider.requestSchemaContent,
+      schemaProvider.label
+    )
+  }
+
+  /** URI схемы по умолчанию для любого YAML (подставляется в matches в requestCustomSchema). */
+  static readonly DEFAULT_SCHEMA_URI = "simple://example/simple.json"
+
+  /**
    * Call requestSchema for each provider and finds all matches.
    *
    * @param {string} resource
    * @returns {string} the schema uri
    */
   public requestCustomSchema(resource: string): string[] {
-    const matches = []
+    const matches: string[] = []
     for (const customKey of Object.keys(this._customSchemaContributors)) {
       try {
         const contributor = this._customSchemaContributors[customKey]
@@ -126,6 +149,10 @@ class SchemaExtensionAPI implements ExtensionAPI {
           `Error thrown while requesting schema "${error}" when calling the registered contributor "${customKey}"`
         )
       }
+    }
+    // Всегда добавляем схему по умолчанию для любого YAML, если её ещё нет в списке
+    if (matches.indexOf(SchemaExtensionAPI.DEFAULT_SCHEMA_URI) === -1) {
+      matches.push(SchemaExtensionAPI.DEFAULT_SCHEMA_URI)
     }
     return matches
   }

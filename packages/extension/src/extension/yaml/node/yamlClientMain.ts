@@ -43,7 +43,10 @@ export async function activateYAML(context: ExtensionContext): Promise<SchemaExt
     schemaCache: new JSONSchemaCache(context.globalStorageUri.fsPath, context.globalState),
   }
 
-  return startClient(context, newLanguageClient, runtime)
+  const schemaExtensionAPI = await startClient(context, newLanguageClient, runtime)
+  const { createSimpleSchemaProvider } = await import("../simple-schema-provider")
+  schemaExtensionAPI.registerCustomSchemaProvider(createSimpleSchemaProvider())
+  return schemaExtensionAPI
 }
 
 function startedFromSources(): boolean {
