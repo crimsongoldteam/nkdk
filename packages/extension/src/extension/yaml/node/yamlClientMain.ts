@@ -17,12 +17,7 @@ export async function activateYAML(context: ExtensionContext): Promise<SchemaExt
   // Create Telemetry Service
   // const telemetry = await (await getRedHatService(context)).getTelemetryService()
 
-  let serverModule: string
-  // if (startedFromSources()) {
-  //   serverModule = context.asAbsolutePath("../yaml-language-server/out/server/src/server.js")
-  // } else {
-  // The YAML language server is implemented in node
-  serverModule = context.asAbsolutePath("./out/umd/server.js")
+  const serverModule = context.asAbsolutePath("./node_modules/yaml-language-server/out/server/src/server.js")
   // }
 
   // The debug options for the server

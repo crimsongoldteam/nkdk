@@ -22,7 +22,6 @@ import {
 import { joinPath } from "./paths"
 import { initializeRecommendation } from "./recommendation"
 import { CUSTOM_CONTENT_REQUEST, CUSTOM_SCHEMA_REQUEST, SchemaExtensionAPI } from "./schema-extension-api"
-import { createJSONSchemaStatusBarItem } from "./schema-status-bar-item"
 
 export interface ISchemaAssociations {
   [pattern: string]: string[]
@@ -241,9 +240,9 @@ export function startClient(
         }
       })
 
-      client.onNotification(SchemaSelectionRequests.schemaStoreInitialized, () => {
-        createJSONSchemaStatusBarItem(context, client)
-      })
+      // client.onNotification(SchemaSelectionRequests.schemaStoreInitialized, () => {
+      //   createJSONSchemaStatusBarItem(context, client)
+      // })
 
       initializeRecommendation(context)
     })
