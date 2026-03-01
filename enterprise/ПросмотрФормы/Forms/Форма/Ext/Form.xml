@@ -47,16 +47,8 @@
 			<Collapsed>true</Collapsed>
 			<Representation>None</Representation>
 			<ExtendedTooltip name="ГруппаНастройкиРасширеннаяПодсказка" id="12"/>
-			<ChildItems>
-				<TextDocumentField name="JSON" id="1">
-					<DataPath>JSON</DataPath>
-					<Height>3</Height>
-					<ContextMenu name="JSONКонтекстноеМеню" id="2"/>
-					<ExtendedTooltip name="JSONРасширеннаяПодсказка" id="3"/>
-				</TextDocumentField>
-			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="ГруппаПросмотр" id="4">
+		<UsualGroup name="___ГруппаПросмотр" id="4">
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
@@ -72,9 +64,9 @@
 			<Group>Vertical</Group>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ГруппаПросмотрРасширеннаяПодсказка" id="5"/>
+			<ExtendedTooltip name="___ГруппаПросмотрРасширеннаяПодсказка" id="5"/>
 		</UsualGroup>
-		<HTMLDocumentField name="HTMLДокумент" id="8">
+		<HTMLDocumentField name="___HTMLДокумент" id="8">
 			<DataPath>HTMLДокумент</DataPath>
 			<SkipOnInput>true</SkipOnInput>
 			<TitleTextColor>style:FormBackColor</TitleTextColor>
@@ -89,8 +81,8 @@
 			<VerticalStretch>false</VerticalStretch>
 			<Output>Disable</Output>
 			<BorderColor>style:FormBackColor</BorderColor>
-			<ContextMenu name="HTMLДокументКонтекстноеМеню" id="9"/>
-			<ExtendedTooltip name="HTMLДокументРасширеннаяПодсказка" id="10"/>
+			<ContextMenu name="___HTMLДокументКонтекстноеМеню" id="9"/>
+			<ExtendedTooltip name="___HTMLДокументРасширеннаяПодсказка" id="10"/>
 			<Events>
 				<Event name="DocumentComplete">HTMLДокументДокументСформирован</Event>
 				<Event name="OnClick">HTMLДокументПриНажатии</Event>
@@ -98,12 +90,6 @@
 		</HTMLDocumentField>
 	</ChildItems>
 	<Attributes>
-		<Attribute name="Объект" id="1">
-			<Type>
-				<v8:Type>cfg:ExternalDataProcessorObject.ПросмотрФормы</v8:Type>
-			</Type>
-			<MainAttribute>true</MainAttribute>
-		</Attribute>
 		<Attribute name="JSON" id="2">
 			<Title>
 				<v8:item>
@@ -171,6 +157,20 @@
 				</v8:item>
 			</ToolTip>
 			<Action>ВыполнитьТесты</Action>
+		</Command>
+		<Command name="ОткрытьНастройки" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Открыть настройки</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Открыть настройки</v8:content>
+				</v8:item>
+			</ToolTip>
 		</Command>
 	</Commands>
 </Form>
