@@ -23,7 +23,11 @@ describe("DataPath to Enterprise", () => {
           elementsTree: elementsTree,
         },
       } satisfies ConfigurationContext
-      const result = exportDataPathToEnterprise({ context, value: dataPath })
+      const result = exportDataPathToEnterprise({
+        context,
+        rule: { type: "DataPath", defaultType: "string" },
+        value: dataPath,
+      })
       expect(result).toEqual(expectedDataPath)
       expect(context.enterprise?.attributes).toEqual(expectedAttributes)
     }

@@ -36,3 +36,14 @@ export const getCurrentTableFromContext = (context: ConfigurationContext): Conte
 
   return undefined
 }
+
+export const getCurrentElementFromContext = (context: ConfigurationContext): ContextElementToEnterprise | undefined => {
+  if (!context.enterprise) throw new Error("Enterprise context is not defined")
+
+  const elements = context.enterprise.elementsTree
+  if (!elements || elements.length === 0) {
+    return undefined
+  }
+
+  return elements[elements.length - 1]
+}

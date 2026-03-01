@@ -1,15 +1,19 @@
+import { getCurrentTableFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { DataPathPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
-import { getCurrentTableFromContext } from "~/metadata/context/helpers"
 
 export const exportDataPathToEnterprise = (params: {
   context: ConfigurationContext
+  rule: PropertyRule
   value?: string
 }): string | undefined => {
-  const { context, value: dataPath } = params
+  const { context, rule, value: dataPath } = params
   //TODO нет пути
   if (!dataPath) return undefined
+
+  const dataPathRule = rule as DataPathPropertyRule
 
   const preview = context.enterprise!
 
@@ -63,7 +67,7 @@ export const exportDataPathToEnterprise = (params: {
   const attribute: EnterpriseAttributeMapItem = {
     name: name,
     title: title,
-    type: { Type: ["string"] },
+    type: { Type: [dataPathRule.defaultType] },
   }
 
   // Добавляем parentPath только для табличных данных
