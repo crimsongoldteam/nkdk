@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const TableRules = {
   enterpriseField: "FormTable",
-  enterpriseFieldType: "FormTable",
+  enterpriseFieldType: "None",
   properties: {
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
     autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar" },

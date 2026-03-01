@@ -17,8 +17,9 @@ export type EnterpriseType<
     } & {
       ElementType: T["enterpriseField"]
       Name: string
-      Type: { Type: "SystemEnumeration"; Value: T["enterpriseFieldType"] }
-    }
+    } & (T["enterpriseFieldType"] extends "None"
+        ? {}
+        : { Type: { Type: "SystemEnumeration"; Value: T["enterpriseFieldType"] } })
   : never
 
 // as Extra

@@ -9,6 +9,7 @@
 	<Events>
 		<Event name="OnOpen">ПриОткрытии</Event>
 		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
+		<Event name="ActivationProcessing">ОбработкаАктивизации</Event>
 	</Events>
 	<ChildItems>
 		<UsualGroup name="ГруппаПанель" id="26" DisplayImportance="VeryLow">

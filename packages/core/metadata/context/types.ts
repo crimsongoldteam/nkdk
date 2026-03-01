@@ -2,19 +2,17 @@ import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types
 import { AllChildItemsPartialYAML } from "../forms/commonObjects/childItems/types"
 import { FormElementType } from "../metadataFactory"
 
-export type ContextElementTreeItem = { name: string; itemType: FormElementType }
+export type ContextElementToXML = { name: string; itemType: FormElementType }
+export type ContextElementToEnterprise = { itemType: FormElementType; dataPath: string | undefined }
 
 export interface ConfigurationContext {
   testMode?: boolean
   defaultLanguage: string
   context?: object
   allElements?: AllChildItemsPartialYAML
-  preview?: {
-    prefix: string
-    attributes: Record<string, EnterpriseAttributeMapItem>
-  }
+  enterprise?: EnterpriseContext
 
-  elementsTree?: Array<ContextElementTreeItem>
+  elementsTree?: Array<ContextElementToXML>
 
   exportToYAML?: FormExportToYAMLContext
   // formAttributeImportFromYAML?: FormAttributeImportFromYAMLContext
@@ -28,6 +26,8 @@ export interface FormImportFromYAMLContext {
   allElements?: AllChildItemsPartialYAML
 }
 
-// export interface FormAttributeImportFromYAMLContext {
-//   isFormObject: boolean
-// }
+export interface EnterpriseContext {
+  prefix: string
+  attributes: Record<string, EnterpriseAttributeMapItem>
+  elementsTree: Array<ContextElementToEnterprise>
+}

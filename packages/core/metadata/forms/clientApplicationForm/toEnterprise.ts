@@ -3,9 +3,9 @@ import { exportChildItemsToEnterprise } from "../commonObjects/childItems/toEnte
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
-  EnterpriseAttributesMap,
-  EnterpriseAttributes,
   EnterpriseAttribute,
+  EnterpriseAttributes,
+  EnterpriseAttributesMap,
 } from "./types"
 
 export const exportClientApplicationFormToEnterprise = (
@@ -15,14 +15,15 @@ export const exportClientApplicationFormToEnterprise = (
   const childItems = exportChildItemsToEnterprise({ context, value: form.childItems })
 
   return {
-    prefix: context.preview!.prefix!,
-    attributes: getAttributesFromMap(context.preview?.attributes!),
+    prefix: context.enterprise!.prefix!,
+    attributes: getAttributesFromMap(context.enterprise?.attributes!),
     childItems: childItems,
   }
 }
 
 const getAttributesFromMap = (map: EnterpriseAttributesMap): EnterpriseAttributes => {
-  const result: EnterpriseAttributes = []
+  const withoutPath: EnterpriseAttributes = []
+  const withPath: EnterpriseAttributes = []
   for (const key in map) {
     const item = map[key]
     const attribute: EnterpriseAttribute = {
@@ -31,7 +32,8 @@ const getAttributesFromMap = (map: EnterpriseAttributesMap): EnterpriseAttribute
       Title: item.title,
       Type: item.type,
     }
-    result.push(attribute)
+    const hasPath = attribute.Path != null && attribute.Path !== ""
+    ;(hasPath ? withPath : withoutPath).push(attribute)
   }
-  return result
+  return [...withoutPath, ...withPath]
 }

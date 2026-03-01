@@ -1,17 +1,17 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
+import { getCurrentTableFromContext } from "~/metadata/context/helpers"
 
 export const exportDataPathToEnterprise = (params: {
   context: ConfigurationContext
   value?: string
-  tableDataPath?: string
 }): string | undefined => {
-  const { context, value: dataPath, tableDataPath } = params
+  const { context, value: dataPath } = params
   //TODO нет пути
   if (!dataPath) return undefined
 
-  const preview = context.preview!
+  const preview = context.enterprise!
 
   const nameWithoutDot = dataPath.replace(/\./g, "")
   const title = dataPath.split(".").pop() ?? dataPath
@@ -20,6 +20,10 @@ export const exportDataPathToEnterprise = (params: {
   let name: string
   let attributeDataPath: string
   let existingTableAttribute: [string, EnterpriseAttributeMapItem] | undefined
+
+  const parentTable = getCurrentTableFromContext(context)
+
+  const tableDataPath = parentTable !== undefined ? parentTable.dataPath : undefined
 
   if (tableDataPath) {
     // Для табличных данных ищем существующий атрибут по tableDataPath

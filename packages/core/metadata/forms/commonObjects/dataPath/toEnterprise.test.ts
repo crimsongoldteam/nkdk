@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { GetAttributeNameFixture, getAttributeNameFixtures } from "~/tests/fixtures/dataPath/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportDataPathToEnterprise } from "./toEnterprise"
@@ -7,16 +9,23 @@ describe("DataPath to Enterprise", () => {
   it.each(getAttributeNameFixtures)(
     "should $name",
     ({ attributes, tableDataPath, dataPath, expectedDataPath, expectedAttributes }: GetAttributeNameFixture) => {
+      const elementsTree: ContextElementToEnterprise[] = []
+      if (tableDataPath) {
+        elementsTree.push({ itemType: CollectionFormElementType.Table, dataPath: tableDataPath })
+      }
+      elementsTree.push({ itemType: CollectionFormElementType.InputField, dataPath: dataPath })
+
       const context = {
         ...mockContext,
-        preview: {
+        enterprise: {
           attributes: attributes,
           prefix: "p_",
+          elementsTree: elementsTree,
         },
-      }
-      const result = exportDataPathToEnterprise({ context, value: dataPath, tableDataPath })
+      } satisfies ConfigurationContext
+      const result = exportDataPathToEnterprise({ context, value: dataPath })
       expect(result).toEqual(expectedDataPath)
-      expect(context.preview?.attributes).toEqual(expectedAttributes)
+      expect(context.enterprise?.attributes).toEqual(expectedAttributes)
     }
   )
 })

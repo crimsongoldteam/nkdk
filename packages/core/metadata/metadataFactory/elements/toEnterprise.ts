@@ -12,10 +12,22 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
 }): ToEnterprise<T> => {
   const { context, itemType, value: element } = params
 
+  const elementsTree: ConfigurationContext["elementsTree"] = []
+  if (context.elementsTree !== undefined) {
+    elementsTree.push(...context.elementsTree)
+  }
+
+  elementsTree.push({ name: element.name, itemType: itemType })
+
+  const currentContext: ConfigurationContext = {
+    ...context,
+    elementsTree: elementsTree,
+  }
+
   const rules = getElementRule<T>(itemType)
 
   const properties = exportPropertiesToEnterprise({
-    context,
+    context: currentContext,
     metadataItem: element,
     rule: rules,
   })
@@ -23,8 +35,10 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
   const result = {
     ...properties,
     ElementType: rules.enterpriseField,
-    Type: { Type: "SystemEnumeration", Value: rules.enterpriseFieldType },
     Name: element.name,
+    ...(rules.enterpriseFieldType !== "None"
+      ? { Type: { Type: "SystemEnumeration", Value: rules.enterpriseFieldType } }
+      : {}),
   } satisfies ToEnterprise<T>
 
   return result

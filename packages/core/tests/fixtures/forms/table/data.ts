@@ -405,7 +405,6 @@ export const fullTableYAML: TablePartialYAML = {
 export const fullTableEnterprise = {
   ElementType: "FormTable",
   Name: "Таблица",
-  Type: { Type: "SystemEnumeration", Value: "FormTable" },
   AutoAddIncomplete: true,
   AutoInsertNewRow: true,
   AutoMarkIncomplete: true,
