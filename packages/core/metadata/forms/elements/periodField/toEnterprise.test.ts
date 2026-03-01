@@ -1,20 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { exportElementToEnterprise } from "~/metadata/metadataFactory/elements/toEnterprise"
-import {
-  fullPeriodField,
-  fullPeriodFieldEnterprise,
-} from "~/tests/fixtures/forms/periodField/data"
-import { mockContext } from "~/tests/mockContext"
+import { fullPeriodField, fullPeriodFieldEnterprise } from "~/tests/fixtures/forms/periodField/data"
+import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export PeriodField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const context = {
-      ...mockContext,
-      preview: { prefix: "prefix_", attributes: {} },
-    }
     const result = exportElementToEnterprise({
-      context,
+      context: mockContextToEnterprise,
       itemType: CollectionFormElementType.PeriodField,
       value: fullPeriodField,
     })

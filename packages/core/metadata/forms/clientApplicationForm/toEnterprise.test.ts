@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { fullInputField } from "~/tests/fixtures/forms/inputField/data"
-import { mockContext } from "~/tests/mockContext"
 import { exportClientApplicationFormToEnterprise } from "./toEnterprise"
 import { ClientApplicationForm } from "./types"
+import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("exportClientApplicationFormToEnterprise", () => {
   it("should export ClientApplicationForm to ClientApplicationFormEnterprise", () => {
@@ -12,16 +12,7 @@ describe("exportClientApplicationFormToEnterprise", () => {
       itemType: "ClientApplicationForm",
     }
 
-    const context = {
-      ...mockContext,
-      preview: {
-        attributes: {},
-        prefix: "p_",
-        elementsTree: [],
-      },
-    }
-
-    const preview = exportClientApplicationFormToEnterprise(context, form)
+    const preview = exportClientApplicationFormToEnterprise(mockContextToEnterprise, form)
 
     const text = JSON.stringify(preview, null, 2)
 

@@ -5,16 +5,12 @@ import {
   fullGraphicalSchemaField,
   fullGraphicalSchemaFieldEnterprise,
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export GraphicalSchemaField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const context = {
-      ...mockContext,
-      preview: { prefix: "prefix_", attributes: {} },
-    }
     const result = exportElementToEnterprise({
-      context,
+      context: mockContextToEnterprise,
       itemType: CollectionFormElementType.GraphicalSchemaField,
       value: fullGraphicalSchemaField,
     })
