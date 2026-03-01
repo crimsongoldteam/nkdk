@@ -6,19 +6,9 @@
       "type": "shell",
       "command": "source ~/.zshrc 2>/dev/null; source ~/.zprofile 2>/dev/null; pnpm dev",
       "isBackground": true,
-      "options": {
-        "shell": {
-          "executable": "/bin/zsh",
-          "args": ["-c"]
-        }
-      },
+      "options": { "shell": { "executable": "/bin/zsh", "args": ["-c"] } },
       "problemMatcher": {
-        "pattern": {
-          "regexp": "^$",
-          "file": 1,
-          "location": 2,
-          "message": 3
-        },
+        "pattern": { "regexp": "^$", "file": 1, "location": 2, "message": 3 },
         "background": {
           "activeOnStart": true,
           "beginsPattern": ".*",
@@ -26,7 +16,6 @@
         }
       }
     },
-
     {
       "label": "format all metadata files",
       "type": "shell",
@@ -37,17 +26,17 @@
       "label": "compile extension",
       "type": "shell",
       "command": "source ~/.zshrc 2>/dev/null; source ~/.zprofile 2>/dev/null; cd extension && pnpm run compile",
-      "options": {
-        "shell": {
-          "executable": "/bin/zsh",
-          "args": ["-c"]
-        }
-      },
+      "options": { "shell": { "executable": "/bin/zsh", "args": ["-c"] } },
       "problemMatcher": "$tsc",
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      }
+      "group": { "kind": "build", "isDefault": false }
+    },
+    {
+      "label": "build extension",
+      "type": "shell",
+      "command": "source ~/.zshrc 2>/dev/null; source ~/.zprofile 2>/dev/null; cd packages/extension && pnpm run build",
+      "options": { "shell": { "executable": "/bin/zsh", "args": ["-c"] } },
+      "problemMatcher": "$tsc",
+      "group": { "kind": "build", "isDefault": true }
     }
   ]
 }
