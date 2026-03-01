@@ -61,6 +61,7 @@ export type TypeRulesNames =
   | "CharacteristicsDescription"
   | "MetadataTabularSections"
   | "DataPath"
+  | "CommandName"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContext,
@@ -162,6 +163,7 @@ const TypesNamesList = [
   "ChildItems",
   "Picture",
   "Border",
+  "CommandName",
 ] as const
 
 type TypesMap =
@@ -177,6 +179,7 @@ type TypesMap =
   | ["ChildItems", unknown, AllChildItemsEnterprise]
   | ["Picture", unknown, PictureEnterprise]
   | ["Border", unknown, BorderEnterprise]
+  | ["CommandName", unknown, string]
 
 export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
 

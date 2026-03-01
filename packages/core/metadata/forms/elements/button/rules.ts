@@ -13,7 +13,7 @@ export const ButtonRules = {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     check: { yaml: "Пометка", type: "boolean" },
-    commandName: { yaml: "ИмяКоманды", type: "string" },
+    commandName: { yaml: "ИмяКоманды", type: "CommandName" },
     commandUniqueness: { yaml: "УникальностьКоманды", type: "boolean" },
     defaultButton: { yaml: "КнопкаПоУмолчанию", type: "boolean" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },

@@ -33,3 +33,5 @@ import "./childItems/toXML"
 import "./childItems/toYAML"
 
 import "./dataPath/toEnterprise"
+
+import "./commandName/toEnterprise"

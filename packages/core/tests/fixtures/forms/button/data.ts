@@ -158,7 +158,7 @@ export const fullButtonEnterprise: Required<ButtonEnterprise> = {
   BackColor: { Type: "Color", Value: "WebColors.Red" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },
   Check: true,
-  CommandName: "Form.Command.КакаяТоКоманда",
+  CommandName: "КомандаЗаглушка",
   CommandUniqueness: false,
   DefaultButton: true,
   DefaultItem: true,
