@@ -32,7 +32,7 @@ export const CheckBoxFieldRules = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "boolean" },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
@@ -54,7 +54,7 @@ export const CheckBoxFieldRules = {
       typeSE: "FixingInTable",
     },
     footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color" },
-    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath" },
+    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath", defaultType: "boolean" },
     footerFont: { yaml: "ШрифтПодвала", type: "Font" },
     footerHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеВПодвале",

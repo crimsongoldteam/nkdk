@@ -42,8 +42,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableCurrentRowUse",
     },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath" },
-
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "ValueTable" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -133,7 +132,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableRowInputMode",
     },
-    rowPictureDataPath: { yaml: "ПутьКДаннымКартинкиСтроки", type: "DataPath" },
+    rowPictureDataPath: { yaml: "ПутьКДаннымКартинкиСтроки", type: "DataPath", defaultType: "string" },
     rowSelectionMode: {
       yaml: "РежимВыделенияСтроки",
       type: "SystemEnumeration",

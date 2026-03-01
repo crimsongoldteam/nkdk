@@ -29,7 +29,7 @@ export const FormattedDocumentFieldRules = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "string" },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
@@ -51,7 +51,7 @@ export const FormattedDocumentFieldRules = {
       typeSE: "FixingInTable",
     },
     footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color" },
-    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath" },
+    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath", defaultType: "string" },
     footerFont: { yaml: "ШрифтПодвала", type: "Font" },
     footerHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеВПодвале",

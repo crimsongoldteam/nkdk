@@ -113,6 +113,11 @@ export interface TypeDescriptionPropertyRule<T extends MetadataItem | never = ne
   addTypeDescriptionAttributeToXML?: true
 }
 
+export interface DataPathPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+  type: "DataPath"
+  defaultType: string
+}
+
 export interface CleanPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
   type: Exclude<
     TypeRulesNames,
@@ -124,6 +129,7 @@ export interface CleanPropertyRule<T extends MetadataItem | never = never> exten
     | "StandardAttributeDescription"
     | "ChildItems"
     | "TypeDescription"
+    | "DataPath"
   >
 }
 
@@ -143,6 +149,7 @@ export type PropertyRule<T extends MetadataItem | never = never> =
   | StandardAttributeDescriptionPropertyRule<T>
   | ChildItemsPropertyRule<T>
   | TypeDescriptionPropertyRule<T>
+  | DataPathPropertyRule<T>
 
 type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
   Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule<T>>

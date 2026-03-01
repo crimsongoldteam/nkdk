@@ -21,7 +21,7 @@ export const ColumnGroupRules = {
       defaultValue: "Vertical",
       toPartialYAML: false,
     },
-    headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath" },
+    headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath", defaultType: "string" },
     headerFormat: { yaml: "ФорматШапки", type: "string" },
     headerHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеВШапке",

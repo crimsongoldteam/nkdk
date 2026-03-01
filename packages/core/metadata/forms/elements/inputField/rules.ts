@@ -117,7 +117,11 @@ export const InputFieldRules = {
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     minValue: { yaml: "МинимальноеЗначение", type: "number" },
     multiLine: { yaml: "МногострочныйРежим", type: "boolean" },
-    multipleValuePictureDataPath: { yaml: "ПутьКДаннымКартинкиМножественногоЗначения", type: "DataPath" },
+    multipleValuePictureDataPath: {
+      yaml: "ПутьКДаннымКартинкиМножественногоЗначения",
+      type: "DataPath",
+      defaultType: "string",
+    },
     multipleValuePictureShape: {
       yaml: "ФигураКартинкиМножественногоЗначения",
       type: "SystemEnumeration",
@@ -128,7 +132,11 @@ export const InputFieldRules = {
       type: "SystemEnumeration",
       typeSE: "InputFieldMultipleValuePictureSize",
     },
-    multipleValuePresentationDataPath: { yaml: "ПутьКДаннымПредставленияМножественногоЗначения", type: "DataPath" },
+    multipleValuePresentationDataPath: {
+      yaml: "ПутьКДаннымПредставленияМножественногоЗначения",
+      type: "DataPath",
+      defaultType: "string",
+    },
     multipleValuesBackColor: { yaml: "ЦветФонаМножественныхЗначений", type: "Color" },
     multipleValuesExtendedEdit: {
       yaml: "РасширенноеРедактированиеМножественныхЗначений",
@@ -139,7 +147,11 @@ export const InputFieldRules = {
     multipleValuesHyperlink: { yaml: "ГиперссылкаМножественныхЗначений", type: "boolean" },
     multipleValuesPicture: { yaml: "КартинкаМножественныхЗначений", type: "Picture" },
     multipleValuesTextColor: { yaml: "ЦветТекстаМножественныхЗначений", type: "Color" },
-    multipleValueValueDataPath: { yaml: "ПутьКДаннымЗначенияМножественногоЗначения", type: "DataPath" },
+    multipleValueValueDataPath: {
+      yaml: "ПутьКДаннымЗначенияМножественногоЗначения",
+      type: "DataPath",
+      defaultType: "string",
+    },
     onScreenKeyboardReturnKeyText: {
       yaml: "ТекстКнопкиВводаЭкраннойКлавиатуры",
       type: "SystemEnumeration",
@@ -179,7 +191,7 @@ export const InputFieldRules = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "string" },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
@@ -201,7 +213,7 @@ export const InputFieldRules = {
       typeSE: "FixingInTable",
     },
     footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color" },
-    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath" },
+    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath", defaultType: "string" },
     footerFont: { yaml: "ШрифтПодвала", type: "Font" },
     footerHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеВПодвале",
