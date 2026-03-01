@@ -78,7 +78,7 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
 export const fullPictureDecorationEnterprise = {
   ElementType: "FormDecoration",
   Name: "ДекорацияКартинки",
-  Type: { Type: "SystemEnumeration", Value: "FormDecoration.Picture" },
+  Type: { Type: "SystemEnumeration", Value: "FormDecorationType.Picture" },
   AutoMaxHeight: true,
   AutoMaxWidth: true,
   DisplayImportance: {

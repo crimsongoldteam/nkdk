@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PopupRules = {
   enterpriseField: "FormGroup",
-  enterpriseFieldType: "FormGroup.Popup",
+  enterpriseFieldType: "FormGroupType.Popup",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },

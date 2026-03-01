@@ -64,13 +64,13 @@ export const fullCommandBar: Required<CommandBar> = {
 export const fullCommandBarEnterprise = {
   ElementType: "FormGroup",
   Name: "КоманднаяПанель",
-  Type: { Type: "SystemEnumeration", Value: "FormGroup.CommandBar" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroupType.CommandBar" },
   Autofill: true,
   ChildItems: [
     {
       CommandName: "ВыполнитьКоманда1",
       ElementType: "FormButton",
-      Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+      Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
       Name: "Кнопка1",
     },
     {
@@ -78,13 +78,13 @@ export const fullCommandBarEnterprise = {
         {
           CommandName: "ВыполнитьКоманда2",
           ElementType: "FormButton",
-          Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+          Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
           Name: "Кнопка2",
         },
       ],
       ToolTip: "Подсказка для группы кнопок",
       ElementType: "FormGroup",
-      Type: { Type: "SystemEnumeration", Value: "FormGroup.ButtonGroup" },
+      Type: { Type: "SystemEnumeration", Value: "FormGroupType.ButtonGroup" },
       Name: "ГруппаКнопок",
     },
     {
@@ -92,13 +92,13 @@ export const fullCommandBarEnterprise = {
         {
           CommandName: "ВыполнитьКоманда3",
           ElementType: "FormButton",
-          Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+          Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
           Name: "Кнопка3",
         },
       ],
       ToolTip: "Подсказка для подменю",
       ElementType: "FormGroup",
-      Type: { Type: "SystemEnumeration", Value: "FormGroup.Popup" },
+      Type: { Type: "SystemEnumeration", Value: "FormGroupType.Popup" },
       Name: "Подменю",
     },
   ],

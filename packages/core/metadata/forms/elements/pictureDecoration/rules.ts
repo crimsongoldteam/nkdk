@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const PictureDecorationRules = {
   enterpriseField: "FormDecoration",
-  enterpriseFieldType: "FormDecoration.Picture",
+  enterpriseFieldType: "FormDecorationType.Picture",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

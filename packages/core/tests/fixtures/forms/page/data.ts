@@ -96,7 +96,7 @@ export const fullPagePartialYAML: PagePartialYAML = {
 export const fullPageEnterprise = {
   ElementType: "FormGroup",
   Name: "Страница",
-  Type: { Type: "SystemEnumeration", Value: "FormGroup.Page" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroupType.Page" },
   BackColor: { Type: "Color", Value: "WebColors.White" },
   ChildItems: [],
   ChildItemsHorizontalAlign: {

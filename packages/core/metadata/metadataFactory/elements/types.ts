@@ -19,9 +19,9 @@ export interface ElementRule<T extends BaseElement, ExtraProperties extends stri
   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   enterpriseFieldType:
     | `FormFieldType.${FormFieldType}`
-    | `FormButton.${FormButtonType}`
-    | `FormGroup.${FormGroupType}`
-    | `FormDecoration.${FormDecorationType}`
+    | `FormButtonType.${FormButtonType}`
+    | `FormGroupType.${FormGroupType}`
+    | `FormDecorationType.${FormDecorationType}`
     | "FormTable"
     | "None"
   alwaysExportToXML?: true

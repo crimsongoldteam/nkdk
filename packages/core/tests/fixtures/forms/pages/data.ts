@@ -41,7 +41,7 @@ export const fullPages: Pages = {
 export const fullPagesEnterprise = {
   ElementType: "FormGroup",
   Name: "Страницы",
-  Type: { Type: "SystemEnumeration", Value: "FormGroup.Pages" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroupType.Pages" },
   ChildItems: [],
   CurrentPagesState: {
     Type: "SystemEnumeration",

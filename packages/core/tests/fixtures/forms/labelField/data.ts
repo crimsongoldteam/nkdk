@@ -243,7 +243,7 @@ export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
   AutoMaxHeight: true,
   AutoMaxWidth: true,
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
-  Border: { type: "border", borderType: "Single" },
+  Border: { Type: "Border", Value: "Border.Single" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   Format: "Формат",

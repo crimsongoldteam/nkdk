@@ -160,7 +160,7 @@ export const fullUsualGroupEnterprise = {
   TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
   ToolTip: "Подсказка",
   ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
-  Type: { Type: "SystemEnumeration", Value: "FormGroup.UsualGroup" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroupType.UsualGroup" },
   United: false,
   VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
   VerticalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },

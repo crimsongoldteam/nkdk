@@ -52,11 +52,11 @@ export const fullButtonGroup: Required<ButtonGroup> = {
 export const fullButtonGroupEnterprise = {
   ElementType: "FormGroup",
   Name: "ГруппаКнопок",
-  Type: { Type: "SystemEnumeration", Value: "FormGroup.ButtonGroup" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroupType.ButtonGroup" },
   ChildItems: [
     {
       ElementType: "FormButton",
-      Type: { Type: "SystemEnumeration", Value: "FormButton.UsualButton" },
+      Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
       Name: "Кнопка",
     },
   ],

@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const ButtonRules = {
   enterpriseField: "FormButton",
-  enterpriseFieldType: "FormButton.UsualButton",
+  enterpriseFieldType: "FormButtonType.UsualButton",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

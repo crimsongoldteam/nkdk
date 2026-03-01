@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const ButtonGroupRules = {
   enterpriseField: "FormGroup",
-  enterpriseFieldType: "FormGroup.ButtonGroup",
+  enterpriseFieldType: "FormGroupType.ButtonGroup",
   properties: {
     childItems: {
       yaml: "ПодчиненныеЭлементы",

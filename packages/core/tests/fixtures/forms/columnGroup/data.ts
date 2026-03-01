@@ -53,7 +53,7 @@ export const fullColumnGroup: ColumnGroup = {
 export const fullColumnGroupEnterprise = {
   ElementType: "FormGroup",
   Name: "ГруппаКолонок",
-  Type: { Type: "SystemEnumeration", Value: "FormGroup.ColumnGroup" },
+  Type: { Type: "SystemEnumeration", Value: "FormGroupType.ColumnGroup" },
   ChildItems: [],
   FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.None" },
   Group: {

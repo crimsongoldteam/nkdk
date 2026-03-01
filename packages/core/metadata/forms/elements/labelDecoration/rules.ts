@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const LabelDecorationRules = {
   enterpriseField: "FormDecoration",
-  enterpriseFieldType: "FormDecoration.Label",
+  enterpriseFieldType: "FormDecorationType.Label",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
