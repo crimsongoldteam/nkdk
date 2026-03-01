@@ -27,9 +27,10 @@ export function registerDocumentChangeHandler(sseServer: SseServerHandle | undef
 export async function getPayload(document: vscode.TextDocument): Promise<ClientApplicationFormEnterprise> {
   const minimalContext: FormContext = {
     defaultLanguage: "ru",
-    preview: {
+    enterprise: {
       prefix: "р_",
       attributes: {},
+      elementsTree: [],
     },
   }
   const nkdkString = document.getText()

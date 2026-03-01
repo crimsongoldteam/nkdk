@@ -1,5 +1,11 @@
 <Page name="Страница" id="1" DisplayImportance="High">
 	<BackColor>web:White</BackColor>
+	<ChildItems>
+		<InputField name="ПолеВвода" id="3">
+			<ContextMenu name="ПолеВводаКонтекстноеМеню" id="4"/>
+			<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="5"/>
+		</InputField>
+	</ChildItems>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
 	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
 	<EnableContentChange>true</EnableContentChange>
@@ -26,7 +32,7 @@
 	<HorizontalStretch>true</HorizontalStretch>
 	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
 	<Picture>
-		<xr:Ref>StdPicture.Picture</xr:Ref>
+		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</Picture>
 	<ReadOnly>false</ReadOnly>
