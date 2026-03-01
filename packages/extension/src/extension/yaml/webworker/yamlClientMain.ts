@@ -15,7 +15,7 @@ import { SchemaExtensionAPI } from "../schema-extension-api"
 export async function activate(context: ExtensionContext): Promise<SchemaExtensionAPI | undefined> {
   const extensionUri = context.extensionUri
   const serverMain = extensionUri.with({
-    path: extensionUri.path + "/dist/languageserver-web.js",
+    path: extensionUri.path + "/out/languageserver-web.js",
   })
   try {
     const worker = new Worker(serverMain.toString())

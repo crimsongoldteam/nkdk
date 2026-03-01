@@ -22,7 +22,7 @@ export async function activateYAML(context: ExtensionContext): Promise<SchemaExt
   //   serverModule = context.asAbsolutePath("../yaml-language-server/out/server/src/server.js")
   // } else {
   // The YAML language server is implemented in node
-  serverModule = context.asAbsolutePath("../../node_modules/yaml-language-server/out/server/src/server.js")
+  serverModule = context.asAbsolutePath("./out/languageserver.js")
   // }
 
   // The debug options for the server

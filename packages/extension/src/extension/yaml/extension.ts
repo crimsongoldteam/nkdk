@@ -116,34 +116,32 @@ export function startClient(
 ): SchemaExtensionAPI {
   // const telemetryErrorHandler = new TelemetryErrorHandler(runtime.telemetry, lsName, 4)
   const outputChannel = window.createOutputChannel(lsName)
-  const l10nPath = context.asAbsolutePath("./dist/l10n")
+  // const l10nPath = context.asAbsolutePath("./dist/l10n")
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for on disk and newly created YAML documents
     documentSelector: [
       { language: "yaml" },
-      { language: "yaml-textmate" },
-      { language: "yaml-tmlanguage" },
-      { language: "ansible" },
-      { language: "azure-pipelines" },
-      { language: "dockercompose" },
-      { language: "github-actions-workflow" },
-      { language: "home-assistant" },
-      { language: "manifest-yaml" },
-      { language: "spring-boot-properties-yaml" },
+      // { language: "yaml-textmate" },
+      // { language: "yaml-tmlanguage" },
+      // { language: "ansible" },
+      // { language: "azure-pipelines" },
+      // { language: "dockercompose" },
+      // { language: "github-actions-workflow" },
+      // { language: "home-assistant" },
+      // { language: "manifest-yaml" },
+      // { language: "spring-boot-properties-yaml" },
     ],
     synchronize: {
       // Notify the server about file changes to YAML and JSON files contained in the workspace
-      fileEvents: [
-        workspace.createFileSystemWatcher("**/*.?(e)y?(a)ml"),
-        workspace.createFileSystemWatcher("**/*.json"),
-      ],
+      fileEvents: [workspace.createFileSystemWatcher("**/*.yaml")],
+      // workspace.createFileSystemWatcher("**/*.json")],
     },
     revealOutputChannelOn: RevealOutputChannelOn.Never,
     // errorHandler: telemetryErrorHandler,
     // outputChannel: new TelemetryOutputChannel(outputChannel, runtime.telemetry),
     initializationOptions: {
-      l10nPath,
+      // l10nPath,
     },
   }
 
