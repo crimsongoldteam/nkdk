@@ -22,11 +22,11 @@ export async function activateYAML(context: ExtensionContext): Promise<SchemaExt
   //   serverModule = context.asAbsolutePath("../yaml-language-server/out/server/src/server.js")
   // } else {
   // The YAML language server is implemented in node
-  serverModule = context.asAbsolutePath("./out/languageserver.js")
+  serverModule = context.asAbsolutePath("./out/umd/server.js")
   // }
 
   // The debug options for the server
-  const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] }
+  const debugOptions = { execArgv: ["--nolazy", "--inspect=6012"] }
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
