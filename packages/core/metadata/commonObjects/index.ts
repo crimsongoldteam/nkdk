@@ -7,6 +7,7 @@ import "./boolean/fromXML"
 
 import "./border/fromXML"
 import "./border/fromYAML"
+import "./border/toEnterprise"
 import "./border/toXML"
 import "./border/toYAML"
 

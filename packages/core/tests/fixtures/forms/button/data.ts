@@ -176,7 +176,7 @@ export const fullButtonEnterprise: Required<ButtonEnterprise> = {
     Value: "OnMainServerUnavalableBehavior.DontChangeBehavior",
   },
   OnlyInAllActions: true,
-  Picture: { Type: "Picture", Value: "Print" },
+  Picture: { Type: "Picture", Value: "PictureLib.Print" },
   PictureLocation: { Type: "SystemEnumeration", Value: "FormButtonPictureLocation.Left" },
   Representation: { Type: "SystemEnumeration", Value: "ButtonRepresentation.PictureAndText" },
   Shape: { Type: "SystemEnumeration", Value: "ButtonShape.Oval" },
