@@ -34,7 +34,7 @@ export const fullPage: Required<Page> = {
     itemType: "ExtendedTooltip",
     title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
-  picture: { ref: "Picture", type: "StandardPicture", loadTransparent: true },
+  picture: { ref: "Print", type: "StandardPicture", loadTransparent: true },
   childItemsHorizontalAlign: "Left",
   childItemsVerticalAlign: "Top",
   displayImportance: "High",
@@ -51,7 +51,12 @@ export const fullPage: Required<Page> = {
   verticalAlign: "Top",
   verticalScrollOnReduceSize: true,
   verticalSpacing: "Single",
-  childItems: [],
+  childItems: [
+    {
+      name: "ПолеВвода",
+      itemType: CollectionFormElementType.InputField,
+    },
+  ],
 }
 
 export const fullPagePartialYAML: PagePartialYAML = {
@@ -98,7 +103,13 @@ export const fullPageEnterprise = {
   Name: "Страница",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.Page" },
   BackColor: { Type: "Color", Value: "WebColors.White" },
-  ChildItems: [],
+  ChildItems: [
+    {
+      ElementType: "FormField",
+      Name: "ПолеВвода",
+      Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
+    },
+  ],
   ChildItemsHorizontalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",

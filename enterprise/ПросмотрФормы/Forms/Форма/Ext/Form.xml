@@ -11,62 +11,98 @@
 		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="ГруппаНастройки" id="11">
+		<UsualGroup name="ГруппаПанель" id="26" DisplayImportance="VeryLow">
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
-					<v8:content>?</v8:content>
+					<v8:content>Группа панель</v8:content>
 				</v8:item>
 			</Title>
-			<TitleFont ref="style:NormalTextFont" height="6" kind="StyleItem" scale="100"/>
-			<Group>Vertical</Group>
-			<Behavior>Collapsible</Behavior>
-			<CollapsedRepresentationTitle>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>?</v8:content>
-				</v8:item>
-			</CollapsedRepresentationTitle>
-			<Collapsed>true</Collapsed>
 			<Representation>None</Representation>
-			<ExtendedTooltip name="ГруппаНастройкиРасширеннаяПодсказка" id="12"/>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ГруппаПанельРасширеннаяПодсказка" id="27"/>
 			<ChildItems>
-				<UsualGroup name="ГруппаТесты" id="24">
+				<UsualGroup name="ГруппаНастройки" id="11" DisplayImportance="VeryLow">
+					<EnableContentChange>true</EnableContentChange>
 					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
-							<v8:content>Группа тесты</v8:content>
+							<v8:content>?</v8:content>
 						</v8:item>
 					</Title>
-					<ToolTip>
+					<TitleFont ref="style:NormalTextFont" height="6" kind="StyleItem" scale="100"/>
+					<Group>Vertical</Group>
+					<Behavior>PopUp</Behavior>
+					<CollapsedRepresentationTitle>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
-							<v8:content>Группа тесты</v8:content>
+							<v8:content>?</v8:content>
 						</v8:item>
-					</ToolTip>
+					</CollapsedRepresentationTitle>
+					<Collapsed>true</Collapsed>
 					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ГруппаТестыРасширеннаяПодсказка" id="25"/>
+					<ExtendedTooltip name="ГруппаНастройкиРасширеннаяПодсказка" id="12"/>
 					<ChildItems>
-						<InputField name="ОтборТестов" id="18">
-							<DataPath>ОтборТестов</DataPath>
-							<ClearButton>true</ClearButton>
-							<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-							<ContextMenu name="ОтборТестовКонтекстноеМеню" id="19"/>
-							<ExtendedTooltip name="ОтборТестовРасширеннаяПодсказка" id="20"/>
-						</InputField>
-						<Button name="ВыполнитьТесты" id="16">
-							<Type>UsualButton</Type>
-							<CommandName>Form.Command.ВыполнитьТесты</CommandName>
-							<ExtendedTooltip name="ВыполнитьТестыРасширеннаяПодсказка" id="17"/>
-						</Button>
+						<UsualGroup name="ГруппаТесты" id="24">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Группа тесты</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Группа тесты</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ГруппаТестыРасширеннаяПодсказка" id="25"/>
+							<ChildItems>
+								<InputField name="ОтборТестов" id="18">
+									<DataPath>ОтборТестов</DataPath>
+									<ClearButton>true</ClearButton>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="ОтборТестовКонтекстноеМеню" id="19"/>
+									<ExtendedTooltip name="ОтборТестовРасширеннаяПодсказка" id="20"/>
+								</InputField>
+								<Button name="ВыполнитьТесты" id="16">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.ВыполнитьТесты</CommandName>
+									<ExtendedTooltip name="ВыполнитьТестыРасширеннаяПодсказка" id="17"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+						<TextDocumentField name="ОтладочнаяИнформация" id="21">
+							<DataPath>ОтладочнаяИнформация</DataPath>
+							<ContextMenu name="ОтладочнаяИнформацияКонтекстноеМеню" id="22"/>
+							<ExtendedTooltip name="ОтладочнаяИнформацияРасширеннаяПодсказка" id="23"/>
+						</TextDocumentField>
 					</ChildItems>
 				</UsualGroup>
-				<TextDocumentField name="ОтладочнаяИнформация" id="21">
-					<DataPath>ОтладочнаяИнформация</DataPath>
-					<ContextMenu name="ОтладочнаяИнформацияКонтекстноеМеню" id="22"/>
-					<ExtendedTooltip name="ОтладочнаяИнформацияРасширеннаяПодсказка" id="23"/>
-				</TextDocumentField>
+				<HTMLDocumentField name="HTMLДокумент" id="8">
+					<DataPath>HTMLДокумент</DataPath>
+					<SkipOnInput>true</SkipOnInput>
+					<TitleTextColor>style:FormBackColor</TitleTextColor>
+					<TitleLocation>None</TitleLocation>
+					<Width>1</Width>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<MaxWidth>1</MaxWidth>
+					<Height>1</Height>
+					<AutoMaxHeight>false</AutoMaxHeight>
+					<MaxHeight>1</MaxHeight>
+					<HorizontalStretch>false</HorizontalStretch>
+					<VerticalStretch>false</VerticalStretch>
+					<Output>Disable</Output>
+					<BorderColor>style:FormBackColor</BorderColor>
+					<ContextMenu name="HTMLДокументКонтекстноеМеню" id="9"/>
+					<ExtendedTooltip name="HTMLДокументРасширеннаяПодсказка" id="10"/>
+					<Events>
+						<Event name="DocumentComplete">HTMLДокументДокументСформирован</Event>
+						<Event name="OnClick">HTMLДокументПриНажатии</Event>
+					</Events>
+				</HTMLDocumentField>
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="ГруппаПросмотр" id="4">
@@ -87,28 +123,6 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ГруппаПросмотрРасширеннаяПодсказка" id="5"/>
 		</UsualGroup>
-		<HTMLDocumentField name="HTMLДокумент" id="8">
-			<DataPath>HTMLДокумент</DataPath>
-			<SkipOnInput>true</SkipOnInput>
-			<TitleTextColor>style:FormBackColor</TitleTextColor>
-			<TitleLocation>None</TitleLocation>
-			<Width>1</Width>
-			<AutoMaxWidth>false</AutoMaxWidth>
-			<MaxWidth>1</MaxWidth>
-			<Height>1</Height>
-			<AutoMaxHeight>false</AutoMaxHeight>
-			<MaxHeight>1</MaxHeight>
-			<HorizontalStretch>false</HorizontalStretch>
-			<VerticalStretch>false</VerticalStretch>
-			<Output>Disable</Output>
-			<BorderColor>style:FormBackColor</BorderColor>
-			<ContextMenu name="HTMLДокументКонтекстноеМеню" id="9"/>
-			<ExtendedTooltip name="HTMLДокументРасширеннаяПодсказка" id="10"/>
-			<Events>
-				<Event name="DocumentComplete">HTMLДокументДокументСформирован</Event>
-				<Event name="OnClick">HTMLДокументПриНажатии</Event>
-			</Events>
-		</HTMLDocumentField>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="HTMLДокумент" id="4">
