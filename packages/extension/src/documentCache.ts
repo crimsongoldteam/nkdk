@@ -1,62 +1,160 @@
-// import { TextDocument } from "vscode"
+import {
+  ClientApplicationForm,
+  ClientApplicationFormYAML,
+  importClientApplicationFormFromYAML,
+  importClientApplicationFromFromNKDK,
+  importFromYAML,
+} from "@nakidka/core"
+import { EmptyFileSystem } from "langium"
+import { parseHelper } from "langium/test"
+import { createNkdkServices, type Form as NkdkForm } from "nkdk-language"
+import { TextDocument, workspace } from "vscode"
+import { ConfigurationContext } from "~/metadata/context/types"
 
-import { ClientApplicationForm } from "@nakidka/core"
-import { TextDocument } from "vscode"
+const nkdkServices = createNkdkServices(EmptyFileSystem)
+const parseNkdk = parseHelper<NkdkForm>(nkdkServices.Nkdk)
 
 type NkdkDocumentCache = {
   versionNkdk: number
   versionYaml: number
-  formNkdk?: ClientApplicationForm
-  formYaml?: ClientApplicationForm
+  formNkdk: ClientApplicationForm
+  yaml: ClientApplicationFormYAML
+  form: ClientApplicationForm
+  schema: string
 }
 
 const cache = new Map<string, NkdkDocumentCache>()
 
-export const ensureCache = (document: TextDocument) => {
-  const cacheKey = document.uri.toString()
+export function getOrCreateCache(document: TextDocument): NkdkDocumentCache {
+  const uri = document.uri.toString()
+  const canonicalUri = getCanonicalUri(uri)
 
-  const pairedDocumentUri = getPairedDocumentUri(document)
+  const isYAML = isYAMLDocument(document)
+  const documentYAML = isYAML ? document : undefined
+  const documentNKDK = isYAML ? undefined : document
 
-  //   if (isYAMLDocument(document)) {
-  //     cache.versionYaml = document.version
-  //   } else {
-  //     cache.versionNkdk = document.version
-  //   }
+  return getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
 }
 
-const getCache = (document: TextDocument) => {
-  if (isYAMLDocument(document)) {
-    return yamlCache
+export const getJSONSchema = (canonicalUri: string): string => {
+  const entry = getOrCreateCacheByCanonicalUri({ canonicalUri })
+
+  return entry.schema
+}
+
+export function getCacheByDocument(document: TextDocument): NkdkDocumentCache | undefined {
+  const uri = document.uri.toString()
+  return cache.get(uri) ?? cache.get(getPairedUri(uri))
+}
+
+export const getOrCreateCacheByCanonicalUri = (params: {
+  canonicalUri: string
+  documentNKDK?: TextDocument
+  documentYAML?: TextDocument
+}): NkdkDocumentCache => {
+  const { canonicalUri, documentNKDK, documentYAML } = params
+
+  let entry = cache.get(canonicalUri)
+
+  if (!entry) {
+    entry = {
+      versionNkdk: -1,
+      versionYaml: -1,
+      formNkdk: createEmptyClientApplicationForm(),
+      yaml: {},
+      form: createEmptyClientApplicationForm(),
+      schema: "",
+    }
+    cache.set(canonicalUri, entry)
   }
-  return nkdkCache
+
+  const docNKDK = documentNKDK ?? findDocumentById(getNKDKUri(canonicalUri))
+  const docYAML = documentYAML ?? findDocumentById(getYAMLUri(canonicalUri))
+
+  const docNKDKVersion = docNKDK?.version ?? -1
+  const docYAMLVersion = docYAML?.version ?? -1
+
+  if (docNKDKVersion > entry.versionNkdk) {
+    updateNkdkCache(entry, docNKDK)
+  }
+
+  if (docYAMLVersion > entry.versionYaml) {
+    updateYamlCache(entry, docYAML)
+  }
+
+  if (docNKDKVersion > entry.versionNkdk || docYAMLVersion > entry.versionYaml) {
+    updateForm(entry)
+  }
+
+  return entry
 }
 
-const isYAMLDocument = (document: TextDocument) => {
+const getCanonicalUri = (uri: string): string => {
+  return uri.replace(/\.(yaml|nkdk)$/i, "")
+}
+
+const getNKDKUri = (canonicalUri: string): string => {
+  return canonicalUri + ".yaml"
+}
+
+const getYAMLUri = (canonicalUri: string): string => {
+  return canonicalUri + ".nkdk"
+}
+
+const findDocumentById = (id: string): TextDocument | undefined => {
+  return workspace.textDocuments.find((d) => d.uri.toString() === id)
+}
+
+function getPairedUri(uri: string): string {
+  return uri.replace(/\.(yaml|nkdk)$/i, (_, ext) => (ext.toLowerCase() === "yaml" ? ".nkdk" : ".yaml"))
+}
+
+function isYAMLDocument(document: TextDocument): boolean {
   return document.languageId === "yaml"
 }
 
-const getOrCreateCacheByDocument = (document: TextDocument): NkdkDocumentCache => {
-  const cacheKey = document.uri.toString()
-  if (!cache.has(cacheKey)) {
-    const newCache = {
-      versionNkdk: -1,
-      versionYaml: -1,
-      formNkdk: undefined,
-      formYaml: undefined,
-    } satisfies NkdkDocumentCache
-    cache.set(cacheKey, newCache)
-  }
-  const cacheEntry = cache.get(cacheKey)
+const updateNkdkCache = async (entry: NkdkDocumentCache, document: TextDocument): Promise<void> => {
+  if (document.version === entry.versionNkdk) return
 
-  //   const newCache = {
-  //     versionNkdk: -1,
-  //     versionYaml: -1,
-  //     formNkdk: undefined,
-  //     formYaml: undefined,
-  //   }
-  //   cache.set(cacheKey, newCache)
-  return cacheEntry
+  entry.versionNkdk = document.version
+
+  const context: ConfigurationContext = getConfigurationContext()
+
+  const nkdkString = document.getText()
+
+  const parsedDocument = await parseNkdk(nkdkString)
+  const nkdkAst = parsedDocument.parseResult?.value
+  if (parsedDocument.parseResult.parserErrors.length > 0 || !nkdkAst) throw new Error("Ошибка разбора NKDK")
+
+  const form = importClientApplicationFromFromNKDK({ context: context, value: nkdkAst })
+  if (!form) throw new Error("Не удалось импортировать форму из NKDK")
+
+  entry.formNkdk = form
 }
 
-const getPairedDocumentUri = (document: TextDocument): string =>
-  document.uri.toString().replace(/\.(yaml|nkdk)$/i, (_, ext) => (ext.toLowerCase() === "yaml" ? ".nkdk" : ".yaml"))
+function updateYamlCache(entry: NkdkDocumentCache, document: TextDocument): void {
+  if (document.version === entry.versionYaml) return
+
+  entry.versionYaml = document.version
+
+  const yamlString = document.getText()
+
+  const yaml = importFromYAML(yamlString)
+
+  entry.yaml = yaml
+}
+
+const updateForm = (entry: NkdkDocumentCache): void => {
+  const context: ConfigurationContext = getConfigurationContext()
+  entry.form = importClientApplicationFormFromYAML(context, entry.yaml, entry.formNkdk)
+}
+
+const createEmptyClientApplicationForm = (): ClientApplicationForm => {
+  return { itemType: "ClientApplicationForm", childItems: [], commands: [] }
+}
+
+const getConfigurationContext = (): ConfigurationContext => {
+  return {
+    defaultLanguage: "ru",
+  }
+}

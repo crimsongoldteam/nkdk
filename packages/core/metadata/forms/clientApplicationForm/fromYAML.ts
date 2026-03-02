@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import { importEventsFromYAML } from "~/metadata/metadataFactory/events"
 import { ClientApplicationFormRules } from "./rules"
-import { ClientApplicationFormYAML, ClientApplicationForm } from "./types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
 export const importClientApplicationFormFromYAML = (
   context: ConfigurationContext,
