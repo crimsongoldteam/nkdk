@@ -88,11 +88,14 @@ export type LanguageClientConstructor = (
   clientOptions: LanguageClientOptions
 ) => BaseLanguageClient
 
-export function startClient(context: ExtensionContext, newLanguageClient: LanguageClientConstructor): void {
+export function startClient(
+  context: ExtensionContext,
+  newLanguageClient: LanguageClientConstructor
+): Promise<BaseLanguageClient> {
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ language: "yaml" }],
     synchronize: {
-      fileEvents: [workspace.createFileSystemWatcher("**/*.yaml ")],
+      fileEvents: [workspace.createFileSystemWatcher("**/*.yaml")],
     },
     revealOutputChannelOn: RevealOutputChannelOn.Never,
   }
@@ -105,7 +108,7 @@ export function startClient(context: ExtensionContext, newLanguageClient: Langua
     },
   })
 
-  void client.start().then(() => {
+  return client.start().then(() => {
     client.sendNotification(DynamicCustomSchemaRequestRegistration.type)
     client.onRequest(CUSTOM_SCHEMA_REQUEST, (resource: string) => {
       return [getJSONSchemaUri(resource)]
@@ -116,5 +119,6 @@ export function startClient(context: ExtensionContext, newLanguageClient: Langua
     client.onRequest(VSCodeContentRequest.type, (uri: string) => {
       return getJSONSchema(uri)
     })
+    return client
   })
 }

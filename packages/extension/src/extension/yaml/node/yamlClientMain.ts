@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ExtensionContext } from "vscode"
+import type { BaseLanguageClient } from "vscode-languageclient"
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node"
 import { LanguageClientConstructor, startClient } from "../extension"
 
@@ -13,18 +14,11 @@ import { LanguageClientConstructor, startClient } from "../extension"
 // import { JSONSchemaCache } from "../json-schema-cache"
 
 // this method is called when vs code is activated
-export async function activateYAML(context: ExtensionContext): Promise<void> {
-  // Create Telemetry Service
-  // const telemetry = await (await getRedHatService(context)).getTelemetryService()
-
+export async function activateYAML(context: ExtensionContext): Promise<BaseLanguageClient> {
   const serverModule = context.asAbsolutePath("./node_modules/yaml-language-server/out/server/src/server.js")
-  // }
 
-  // The debug options for the server
   const debugOptions = { execArgv: ["--nolazy", "--inspect=6012"] }
 
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
   const serverOptions: ServerOptions = {
     run: { module: serverModule, transport: TransportKind.ipc },
     debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
@@ -38,10 +32,9 @@ export async function activateYAML(context: ExtensionContext): Promise<void> {
     return new LanguageClient(id, name, serverOptions, clientOptions)
   }
 
-  await startClient(context, newLanguageClient)
-  return undefined
+  return startClient(context, newLanguageClient)
 }
 
-function startedFromSources(): boolean {
-  return process.env["DEBUG_VSCODE_YAML"] === "true"
-}
+// function startedFromSources(): boolean {
+//   return process.env["DEBUG_VSCODE_YAML"] === "true"
+// }

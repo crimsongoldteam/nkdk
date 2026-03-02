@@ -26,7 +26,22 @@ type NkdkDocumentCache = {
 
 const cache = new Map<string, NkdkDocumentCache>()
 
-export async function getOrCreateCache(document: TextDocument): Promise<NkdkDocumentCache> {
+// export async function getOrCreateCache(document: TextDocument): Promise<NkdkDocumentCache> {
+//   const uri = document.uri.toString()
+//   const canonicalUri = getCanonicalUri(uri)
+
+//   const isYAML = isYAMLDocument(document)
+//   const documentYAML = isYAML ? document : undefined
+//   const documentNKDK = isYAML ? undefined : document
+
+//   return getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
+// }
+
+export const getCanonicalUri = (uri: string): string => {
+  return uri.replace(/\.(yaml|nkdk)$/i, "")
+}
+
+export const getFormFromCache = async (document: TextDocument): Promise<ClientApplicationForm> => {
   const uri = document.uri.toString()
   const canonicalUri = getCanonicalUri(uri)
 
@@ -34,11 +49,8 @@ export async function getOrCreateCache(document: TextDocument): Promise<NkdkDocu
   const documentYAML = isYAML ? document : undefined
   const documentNKDK = isYAML ? undefined : document
 
-  return getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
-}
-
-export const getCanonicalUri = (uri: string): string => {
-  return uri.replace(/\.(yaml|nkdk)$/i, "")
+  const entry = await getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
+  return entry.form
 }
 
 export const getJSONSchemaUri = (uri: string): string => {
@@ -80,15 +92,18 @@ export const getOrCreateCacheByCanonicalUri = async (params: {
   const docNKDKVersion = docNKDK?.version ?? -1
   const docYAMLVersion = docYAML?.version ?? -1
 
-  if (docNKDKVersion > entry.versionNkdk) {
+  const isNKDKChanged = docNKDKVersion > entry.versionNkdk
+  const isYAMLChanged = docYAMLVersion > entry.versionYaml
+
+  if (isNKDKChanged) {
     updateNkdkCache(entry, docNKDK)
   }
 
-  if (docYAMLVersion > entry.versionYaml) {
+  if (isYAMLChanged) {
     updateYamlCache(entry, docYAML)
   }
 
-  if (docNKDKVersion > entry.versionNkdk || docYAMLVersion > entry.versionYaml) {
+  if (isNKDKChanged || isYAMLChanged) {
     updateForm(entry)
   }
 
@@ -130,10 +145,10 @@ const updateNkdkCache = async (entry: NkdkDocumentCache, document: TextDocument)
   const nkdkAst = parsedDocument.parseResult?.value
   if (parsedDocument.parseResult.parserErrors.length > 0 || !nkdkAst) throw new Error("Ошибка разбора NKDK")
 
-  const form = importClientApplicationFromFromNKDK({ context: context, value: nkdkAst })
-  if (!form) throw new Error("Не удалось импортировать форму из NKDK")
+  const formNkdk = importClientApplicationFromFromNKDK({ context: context, value: nkdkAst })
+  if (!formNkdk) throw new Error("Не удалось импортировать форму из NKDK")
 
-  entry.formNkdk = form
+  entry.formNkdk = formNkdk
 
   updateJSONSchema(entry)
 }

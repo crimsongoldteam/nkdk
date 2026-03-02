@@ -4,13 +4,13 @@ import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescript
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { GroupChildItem, GroupChilItemPartialYAML } from "../commonObjects/childItems/types"
 import { CommandInterface, CommandInterfaceYAML } from "../commonObjects/commandInterface/types"
 import { CommandSet, CommandSetYAML } from "../commonObjects/commandSet/types"
 import { FormAttribute, FormAttributesXML, FormAttributesYAML } from "../commonObjects/formAttribute/types"
 import { FormCommand, FormCommandsXML, FormCommandsYAML } from "../commonObjects/formCommand/types"
 import { FormParameters, FormParametersXML, FormParametersYAML } from "../commonObjects/formParameter/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "../elements/autoCommandBar/types"
-import { GroupChildItem, GroupChilItemPartialYAML } from "../commonObjects/childItems/types"
 
 export interface ClientApplicationForm extends MetadataItem {
   itemType: "ClientApplicationForm"
@@ -284,7 +284,7 @@ export interface ClientApplicationFormYAML {
     // #endregion
   }
   Команды?: FormCommandsYAML
-  ПодчиненныеЭлементы?: GroupChilItemPartialYAML
+  Элементы?: GroupChilItemPartialYAML
 
   Синоним?: I8nTextYAML
   Комментарий?: string

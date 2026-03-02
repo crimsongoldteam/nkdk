@@ -11,7 +11,7 @@ export const importClientApplicationFormFromYAML = (
 ): ClientApplicationForm => {
   const itemsContext: ConfigurationContext = {
     ...context,
-    allElements: data.ПодчиненныеЭлементы,
+    allElements: data.Элементы,
   }
 
   const autoCommandBar = importPropertyFromYAML({

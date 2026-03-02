@@ -1,5 +1,6 @@
 import * as path from "node:path"
 import * as vscode from "vscode"
+import type { BaseLanguageClient } from "vscode-languageclient"
 import type { LanguageClientOptions, ServerOptions } from "vscode-languageclient/node.js"
 import { LanguageClient, TransportKind } from "vscode-languageclient/node.js"
 import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
@@ -7,17 +8,19 @@ import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
 import { activateYAML } from "./yaml/node/yamlClientMain.js"
 
-let client: LanguageClient
+const languageClients: BaseLanguageClient[] = []
 let sseServer: SseServerHandle | undefined
-let yamlClient: LanguageClient | undefined
 
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  client = await startNKDKLanguageClient(context)
-  const formPreviewDir = context.asAbsolutePath("formPreview")
-  sseServer = startSseServer(formPreviewDir)
+  const nkdkClient = await startNKDKLanguageClient(context)
+  languageClients.push(nkdkClient)
 
   const yamlClient = await activateYAML(context)
+  languageClients.push(yamlClient)
+
+  const formPreviewDir = context.asAbsolutePath("formPreview")
+  sseServer = startSseServer(formPreviewDir)
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
 }
@@ -28,13 +31,8 @@ export async function deactivate(): Promise<void> {
     await sseServer.stop()
     sseServer = undefined
   }
-  if (client) {
-    return client.stop()
-  }
-
-  if (yamlClient) {
-    await yamlClient.stop()
-  }
+  await Promise.all(languageClients.map((client) => client.stop()))
+  languageClients.length = 0
 }
 
 async function startNKDKLanguageClient(context: vscode.ExtensionContext): Promise<LanguageClient> {
