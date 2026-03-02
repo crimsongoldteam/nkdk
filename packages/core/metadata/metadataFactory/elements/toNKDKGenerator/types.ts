@@ -1,4 +1,3 @@
-import { createRequire } from "node:module"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBarChildItem, GenerateChildItem, TableChildItem } from "~/metadata/forms/commonObjects/childItems/types"
 import { exportOtherElementToNKDK } from "~/metadata/forms/elements/baseElement/exportToStructure"
@@ -10,6 +9,7 @@ import {
   exportCheckBoxFieldToNKDK,
 } from "~/metadata/forms/elements/checkBoxField/toNKDK"
 import { exportColumnGroupContentToNKDK } from "~/metadata/forms/elements/columnGroup/toNKDK"
+import { exportCommandBarToNKDK } from "~/metadata/forms/elements/commandBar/toNKDK"
 import { exportInputFieldContentToNKDK, exportInputFieldToNKDK } from "~/metadata/forms/elements/inputField/toNKDK"
 import { exportLabelDecorationToNKDK } from "~/metadata/forms/elements/labelDecoration/toNKDK"
 import { exportLabelFieldContentToNKDK, exportLabelFieldToNKDK } from "~/metadata/forms/elements/labelField/toNKDK"
@@ -35,11 +35,8 @@ export type ExportToNKDKFnMap<T extends { itemType: string } = BaseElement> = {
   }) => ToNKDKResult
 }
 
-const require = createRequire(import.meta.url)
-
-/** Ленивая загрузка commandBar/toNKDK, чтобы разорвать цикл: types → commandBar → childItems → types */
 function getExportCommandBarToNKDK() {
-  return require("../../../forms/elements/commandBar/toNKDK").exportCommandBarToNKDK
+  return exportCommandBarToNKDK
 }
 
 export const ExportToNKDKGeneratorFn: ExportToNKDKFnMap<GenerateChildItem> = {

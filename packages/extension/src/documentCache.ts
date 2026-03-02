@@ -36,6 +36,10 @@ export function getOrCreateCache(document: TextDocument): NkdkDocumentCache {
   return getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
 }
 
+export const getCanonicalUri = (uri: string): string => {
+  return uri.replace(/\.(yaml|nkdk)$/i, "")
+}
+
 export const getJSONSchema = (canonicalUri: string): string => {
   const entry = getOrCreateCacheByCanonicalUri({ canonicalUri })
 
@@ -87,10 +91,6 @@ export const getOrCreateCacheByCanonicalUri = (params: {
   }
 
   return entry
-}
-
-const getCanonicalUri = (uri: string): string => {
-  return uri.replace(/\.(yaml|nkdk)$/i, "")
 }
 
 const getNKDKUri = (canonicalUri: string): string => {
