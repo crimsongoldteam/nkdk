@@ -14,14 +14,9 @@ import {
   RequestType,
   RevealOutputChannelOn,
 } from "vscode-languageclient"
-import {
-  getJsonSchemaContent,
-  IJSONSchemaCache,
-  JSONSchemaDocumentContentProvider,
-} from "./json-schema-content-provider"
+// import { getJsonSchemaContent, IJSONSchemaCache } from "./json-schema-content-provider"
 import { joinPath } from "./paths"
-import { initializeRecommendation } from "./recommendation"
-import { CUSTOM_CONTENT_REQUEST, CUSTOM_SCHEMA_REQUEST, SchemaExtensionAPI } from "./schema-extension-api"
+// import { CUSTOM_CONTENT_REQUEST, CUSTOM_SCHEMA_REQUEST, SchemaExtensionAPI } from "./schema-extension-api"
 
 export interface ISchemaAssociations {
   [pattern: string]: string[]
@@ -112,25 +107,14 @@ export function startClient(
   context: ExtensionContext,
   newLanguageClient: LanguageClientConstructor,
   runtime: RuntimeEnvironment
-): SchemaExtensionAPI {
+): void {
   // const telemetryErrorHandler = new TelemetryErrorHandler(runtime.telemetry, lsName, 4)
-  const outputChannel = window.createOutputChannel(lsName)
+  // const outputChannel = window.createOutputChannel(lsName)
   // const l10nPath = context.asAbsolutePath("./dist/l10n")
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for on disk and newly created YAML documents
-    documentSelector: [
-      { language: "yaml" },
-      // { language: "yaml-textmate" },
-      // { language: "yaml-tmlanguage" },
-      // { language: "ansible" },
-      // { language: "azure-pipelines" },
-      // { language: "dockercompose" },
-      // { language: "github-actions-workflow" },
-      // { language: "home-assistant" },
-      // { language: "manifest-yaml" },
-      // { language: "spring-boot-properties-yaml" },
-    ],
+    documentSelector: [{ language: "yaml" }],
     synchronize: {
       // Notify the server about file changes to YAML and JSON files contained in the workspace
       fileEvents: [workspace.createFileSystemWatcher("**/*.yaml")],
@@ -147,21 +131,19 @@ export function startClient(
   // Create the language client and start it
   client = newLanguageClient("yaml", lsName, clientOptions)
 
-  const schemaExtensionAPI = new SchemaExtensionAPI(client)
+  // const schemaExtensionAPI = new SchemaExtensionAPI(client)
 
-  // Push the disposable to the context's subscriptions so that the
-  // client can be deactivated on extension deactivation
   context.subscriptions.push({
     dispose: () => {
       void client.dispose()
     },
   })
-  context.subscriptions.push(
-    workspace.registerTextDocumentContentProvider(
-      "json-schema",
-      new JSONSchemaDocumentContentProvider(runtime.schemaCache, schemaExtensionAPI)
-    )
-  )
+  // context.subscriptions.push(
+  //   workspace.registerTextDocumentContentProvider(
+  //     "json-schema",
+  //     new JSONSchemaDocumentContentProvider(runtime.schemaCache, schemaExtensionAPI)
+  //   )
+  // )
 
   // context.subscriptions.push(
   //   client.onTelemetry((e) => {
@@ -244,7 +226,7 @@ export function startClient(
       //   createJSONSchemaStatusBarItem(context, client)
       // })
 
-      initializeRecommendation(context)
+      // initializeRecommendation(context)
     })
     .catch((err) => {
       // sendStartupTelemetryEvent(runtime.telemetry, false, err)

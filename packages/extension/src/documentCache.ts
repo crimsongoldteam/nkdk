@@ -37,18 +37,13 @@ export function getOrCreateCache(document: TextDocument): NkdkDocumentCache {
 }
 
 export const getCanonicalUri = (uri: string): string => {
-  return uri.replace(/\.(yaml|nkdk)$/i, "")
+  return uri.replace(/\.(yaml|nkdk)$/i, ".json")
 }
 
 export const getJSONSchema = (canonicalUri: string): string => {
   const entry = getOrCreateCacheByCanonicalUri({ canonicalUri })
 
   return entry.schema
-}
-
-export function getCacheByDocument(document: TextDocument): NkdkDocumentCache | undefined {
-  const uri = document.uri.toString()
-  return cache.get(uri) ?? cache.get(getPairedUri(uri))
 }
 
 export const getOrCreateCacheByCanonicalUri = (params: {
@@ -94,19 +89,15 @@ export const getOrCreateCacheByCanonicalUri = (params: {
 }
 
 const getNKDKUri = (canonicalUri: string): string => {
-  return canonicalUri + ".yaml"
+  return canonicalUri.replace(/\.json$/i, ".yaml")
 }
 
 const getYAMLUri = (canonicalUri: string): string => {
-  return canonicalUri + ".nkdk"
+  return canonicalUri.replace(/\.json$/i, ".nkdk")
 }
 
 const findDocumentById = (id: string): TextDocument | undefined => {
   return workspace.textDocuments.find((d) => d.uri.toString() === id)
-}
-
-function getPairedUri(uri: string): string {
-  return uri.replace(/\.(yaml|nkdk)$/i, (_, ext) => (ext.toLowerCase() === "yaml" ? ".nkdk" : ".yaml"))
 }
 
 function isYAMLDocument(document: TextDocument): boolean {
