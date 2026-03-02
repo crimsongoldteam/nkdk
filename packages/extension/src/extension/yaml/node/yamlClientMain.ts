@@ -5,15 +5,15 @@
 
 import { ExtensionContext } from "vscode"
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node"
-import { LanguageClientConstructor, RuntimeEnvironment, startClient } from "../extension"
+import { LanguageClientConstructor, startClient } from "../extension"
 
-import { SchemaExtensionAPI } from "../schema-extension-api"
+// import { SchemaExtensionAPI } from "../schema-extension-api"
 
 // import { getRedHatService } from '@redhat-developer/vscode-redhat-telemetry';
-import { JSONSchemaCache } from "../json-schema-cache"
+// import { JSONSchemaCache } from "../json-schema-cache"
 
 // this method is called when vs code is activated
-export async function activateYAML(context: ExtensionContext): Promise<SchemaExtensionAPI> {
+export async function activateYAML(context: ExtensionContext): Promise<void> {
   // Create Telemetry Service
   // const telemetry = await (await getRedHatService(context)).getTelemetryService()
 
@@ -38,15 +38,8 @@ export async function activateYAML(context: ExtensionContext): Promise<SchemaExt
     return new LanguageClient(id, name, serverOptions, clientOptions)
   }
 
-  const runtime: RuntimeEnvironment = {
-    // telemetry,
-    schemaCache: new JSONSchemaCache(context.globalStorageUri.fsPath, context.globalState),
-  }
-
-  const schemaExtensionAPI = await startClient(context, newLanguageClient, runtime)
-  const { createSimpleSchemaProvider } = await import("../simple-schema-provider")
-  schemaExtensionAPI.registerCustomSchemaProvider(createSimpleSchemaProvider())
-  return schemaExtensionAPI
+  await startClient(context, newLanguageClient)
+  return undefined
 }
 
 function startedFromSources(): boolean {

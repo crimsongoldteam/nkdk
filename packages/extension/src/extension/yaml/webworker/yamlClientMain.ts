@@ -8,11 +8,9 @@
 import { ExtensionContext, l10n } from "vscode"
 import { LanguageClientOptions } from "vscode-languageclient"
 import { LanguageClient } from "vscode-languageclient/browser"
-import { LanguageClientConstructor, RuntimeEnvironment, startClient } from "../extension"
-import { IJSONSchemaCache } from "../json-schema-content-provider"
-import { SchemaExtensionAPI } from "../schema-extension-api"
+import { LanguageClientConstructor, startClient } from "../extension"
 // this method is called when vs code is activated
-export async function activate(context: ExtensionContext): Promise<SchemaExtensionAPI | undefined> {
+export async function activate(context: ExtensionContext): Promise<void> {
   const extensionUri = context.extensionUri
   const serverMain = extensionUri.with({
     path: extensionUri.path + "./node_modules/yaml-language-server/out/languageserver-web.js",
@@ -28,21 +26,5 @@ export async function activate(context: ExtensionContext): Promise<SchemaExtensi
     return new LanguageClient(id, name, clientOptions, worker)
   }
 
-  const schemaCache: IJSONSchemaCache = {
-    getETag: () => undefined,
-    getSchema: async () => undefined,
-    putSchema: () => Promise.resolve(),
-  }
-  // const telemetry = await (await getRedHatService(context)).getTelemetryService()
-  const runtime: RuntimeEnvironment = {
-    // telemetry,
-    schemaCache,
-  }
-  const schemaExtensionAPI = await startClient(context, newLanguageClient, runtime)
-  const { createSimpleSchemaProvider } = await import("../customSchemaProvider")
-  schemaExtensionAPI.registerCustomSchemaProvider(createSimpleSchemaProvider())
-  return schemaExtensionAPI
-  // } catch (e) {
-  // console.log(e)
-  // }
+  startClient(context, newLanguageClient)
 }

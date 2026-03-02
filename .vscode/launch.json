@@ -60,6 +60,19 @@
         "${workspaceFolder}/packages/extension/out/**/*.js",
         "${workspaceFolder}/node_modules/langium"
       ]
+    },
+    {
+      "name": "Attach to YAML Language Server",
+      "type": "node",
+      "port": 6012,
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/packages/language/out/**/*.js",
+        "${workspaceFolder}/packages/extension/out/**/*.js",
+        "${workspaceFolder}/node_modules/langium"
+      ]
     }
   ]
 }
