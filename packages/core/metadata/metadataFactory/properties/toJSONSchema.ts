@@ -1,0 +1,55 @@
+import { TSchema } from "@sinclair/typebox"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { getTypeRule } from "../types/factory"
+import { TypesNames } from "../types/types"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+
+export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  metadataItem: T
+  rule: MetadataItemRule<T>
+}): TSchema => {
+  const { context, metadataItem, rule } = params
+
+  const result = {} as TSchema
+
+  for (const [key, ruleProp] of Object.entries(rule.properties) as [
+    keyof T extends string ? keyof T : never,
+    PropertyRule<T>,
+  ][]) {
+    if (ruleProp.fromEnterprise === false) continue
+
+    if (ruleProp.type == null || !(TypesNames as readonly string[]).includes(ruleProp.type)) continue
+    const value = metadataItem[key]
+
+    const exportedValue = exportPropertyToJSONSchema({
+      context,
+      rule: ruleProp,
+      value,
+    })
+  }
+
+  return result
+}
+
+export const exportPropertyToJSONSchema = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: any
+}): TSchema | undefined => {
+  const { context, rule, value } = params
+
+  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToEnterprise") : undefined
+
+  if (!typeExportFn) {
+    return value
+  }
+
+  const exportedValue = typeExportFn({
+    context,
+    rule,
+    value,
+  })
+
+  return exportedValue
+}

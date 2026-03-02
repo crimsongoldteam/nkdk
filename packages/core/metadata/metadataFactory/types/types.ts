@@ -1,3 +1,4 @@
+import { TSchema } from "@sinclair/typebox"
 import { BorderEnterprise } from "~/metadata/commonObjects/border/types"
 import { ColorEnterprise } from "~/metadata/commonObjects/color/types"
 import { FontEnterprise } from "~/metadata/commonObjects/font/types"
@@ -117,12 +118,19 @@ export type ExportToEnterpriseFunction = (params: {
   value: any | undefined
 }) => any | undefined
 
+export type ExportToJSONSchemaFn = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule<any>
+  value: any | undefined
+}) => TSchema | undefined
+
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
   importFromYAML?: ImportFromYAMLFunction | ImportFromYAMLFunctionNew
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
+  exportToJSONSchema?: ExportToJSONSchemaFn
 }
 
 export type TypeRulesOperations =
@@ -131,7 +139,7 @@ export type TypeRulesOperations =
   | "importFromYAML"
   | "exportToYAML"
   | "exportToEnterprise"
-
+  | "exportToJSONSchema"
 type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations): TypeRuleKey => {
@@ -148,7 +156,9 @@ export type ImportExportFunction<O extends TypeRulesOperations> = O extends "imp
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
           ? ExportToEnterpriseFunction | undefined
-          : never
+          : O extends "exportToJSONSchema"
+            ? ExportToJSONSchemaFn | undefined
+            : never
 
 const TypesNamesList = [
   "number",

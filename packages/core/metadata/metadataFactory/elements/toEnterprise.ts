@@ -5,12 +5,12 @@ import { exportPropertiesToEnterprise } from "../properties/toEnterprise"
 import { ToEnterprise } from "../rules"
 import { getElementRule } from "./ruleFactory"
 
-export const exportElementToEnterprise = <T extends NamedElement>(params: {
+function pushElementToContext(params: {
   context: ConfigurationContext
   itemType: FormElementType
-  value: T
-}): ToEnterprise<T> => {
-  const { context, itemType, value: element } = params
+  element: NamedElement
+}): ConfigurationContext {
+  const { context, itemType, element } = params
 
   const elementsTree: ContextElementToEnterprise[] = []
   if (context.enterprise?.elementsTree !== undefined) {
@@ -20,13 +20,23 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
   const dataPath: string | undefined = "dataPath" in element ? (element.dataPath as string) : undefined
   elementsTree.push({ itemType: itemType, dataPath: dataPath })
 
-  const currentContext: ConfigurationContext = {
+  return {
     ...context,
     enterprise: {
       ...(context.enterprise ? context.enterprise : { prefix: "", attributes: {}, elementsTree: [] }),
       elementsTree: elementsTree,
     },
   }
+}
+
+export const exportElementToEnterprise = <T extends NamedElement>(params: {
+  context: ConfigurationContext
+  itemType: FormElementType
+  value: T
+}): ToEnterprise<T> => {
+  const { context, itemType, value: element } = params
+
+  const currentContext = pushElementToContext({ context, itemType, element })
 
   const rules = getElementRule<T>(itemType)
 
