@@ -1,7 +1,6 @@
 import { TSchema } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../types/factory"
-import { TypesNames } from "../types/types"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
@@ -19,7 +18,9 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   ][]) {
     if (ruleProp.fromEnterprise === false) continue
 
-    if (ruleProp.type == null || !(TypesNames as readonly string[]).includes(ruleProp.type)) continue
+    const yamlKey = ruleProp.yaml
+    if (!yamlKey) continue
+
     const value = metadataItem[key]
 
     const exportedValue = exportPropertyToJSONSchema({
@@ -27,6 +28,9 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       rule: ruleProp,
       value,
     })
+    if (exportedValue !== undefined) {
+      result[yamlKey] = exportedValue.Optional()
+    }
   }
 
   return result
@@ -39,7 +43,7 @@ export const exportPropertyToJSONSchema = (params: {
 }): TSchema | undefined => {
   const { context, rule, value } = params
 
-  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToEnterprise") : undefined
+  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToJSONSchema") : undefined
 
   if (!typeExportFn) {
     return value

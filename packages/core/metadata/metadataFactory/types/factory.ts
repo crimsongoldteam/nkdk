@@ -1,5 +1,6 @@
 import {
   ExportToEnterpriseFunction,
+  ExportToJSONSchemaFn,
   ExportToXMLFunction,
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
@@ -47,7 +48,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
           ? ExportToEnterpriseFunction | undefined
-          : never => {
+          : O extends "exportToJSONSchema"
+            ? ExportToJSONSchemaFn | undefined
+            : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

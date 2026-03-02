@@ -1,11 +1,25 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclair/typebox"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToJSONSchema } from "../commonObjects/childItems/toJSONSchema"
 import { ClientApplicationForm } from "./types"
 
-export const exportClientApplicationFormToJSONSchema = (form: ClientApplicationForm): TSchema => {
-  const childItems = exportChildItemsToJSONSchema(form.childItems)
+export const exportClientApplicationFormToJSONSchema = (params: {
+  context: ConfigurationContext
+  value: ClientApplicationForm
+}): TSchema => {
+  const { context, value: form } = params
+  const childItems = exportChildItemsToJSONSchema({
+    context,
+    rule: { type: "ChildItems", defaultValue: [] },
+    value: form.childItems,
+  })
 
-  return {
-    Элементы: childItems,
-  }
+  const schema = Type.Object(
+    {
+      ...(childItems ? { Элементы: childItems } : {}),
+    },
+    { additionalProperties: false }
+  )
+
+  return schema
 }
