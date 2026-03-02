@@ -1,6 +1,7 @@
 import {
   ClientApplicationForm,
   ClientApplicationFormYAML,
+  exportClientApplicationFormToJSONSchema,
   importClientApplicationFormFromYAML,
   importClientApplicationFromFromNKDK,
   importFromYAML,
@@ -8,7 +9,7 @@ import {
 import { EmptyFileSystem } from "langium"
 import { parseHelper } from "langium/test"
 import { createNkdkServices, type Form as NkdkForm } from "nkdk-language"
-import { TextDocument, workspace } from "vscode"
+import { TextDocument, Uri, workspace } from "vscode"
 import { ConfigurationContext } from "~/metadata/context/types"
 
 const nkdkServices = createNkdkServices(EmptyFileSystem)
@@ -25,7 +26,7 @@ type NkdkDocumentCache = {
 
 const cache = new Map<string, NkdkDocumentCache>()
 
-export function getOrCreateCache(document: TextDocument): NkdkDocumentCache {
+export async function getOrCreateCache(document: TextDocument): Promise<NkdkDocumentCache> {
   const uri = document.uri.toString()
   const canonicalUri = getCanonicalUri(uri)
 
@@ -37,20 +38,26 @@ export function getOrCreateCache(document: TextDocument): NkdkDocumentCache {
 }
 
 export const getCanonicalUri = (uri: string): string => {
-  return uri.replace(/\.(yaml|nkdk)$/i, ".json")
+  return uri.replace(/\.(yaml|nkdk)$/i, "")
 }
 
-export const getJSONSchema = (canonicalUri: string): string => {
-  const entry = getOrCreateCacheByCanonicalUri({ canonicalUri })
+export const getJSONSchemaUri = (uri: string): string => {
+  const canonicalUri = getCanonicalUri(uri)
+  return `schema://${canonicalUri}.json`
+}
+
+export const getJSONSchema = async (schemaUri: string): Promise<string> => {
+  const canonicalUri = schemaUri.replace(/^schema:\/\//i, "").replace(/\.json$/i, "")
+  const entry = await getOrCreateCacheByCanonicalUri({ canonicalUri })
 
   return entry.schema
 }
 
-export const getOrCreateCacheByCanonicalUri = (params: {
+export const getOrCreateCacheByCanonicalUri = async (params: {
   canonicalUri: string
   documentNKDK?: TextDocument
   documentYAML?: TextDocument
-}): NkdkDocumentCache => {
+}): Promise<NkdkDocumentCache> => {
   const { canonicalUri, documentNKDK, documentYAML } = params
 
   let entry = cache.get(canonicalUri)
@@ -67,8 +74,8 @@ export const getOrCreateCacheByCanonicalUri = (params: {
     cache.set(canonicalUri, entry)
   }
 
-  const docNKDK = documentNKDK ?? findDocumentById(getNKDKUri(canonicalUri))
-  const docYAML = documentYAML ?? findDocumentById(getYAMLUri(canonicalUri))
+  const docNKDK = documentNKDK ?? (await findDocumentById(getNKDKUri(canonicalUri)))
+  const docYAML = documentYAML ?? (await findDocumentById(getYAMLUri(canonicalUri)))
 
   const docNKDKVersion = docNKDK?.version ?? -1
   const docYAMLVersion = docYAML?.version ?? -1
@@ -89,15 +96,21 @@ export const getOrCreateCacheByCanonicalUri = (params: {
 }
 
 const getNKDKUri = (canonicalUri: string): string => {
-  return canonicalUri.replace(/\.json$/i, ".yaml")
+  return canonicalUri + ".nkdk"
 }
 
 const getYAMLUri = (canonicalUri: string): string => {
-  return canonicalUri.replace(/\.json$/i, ".nkdk")
+  return canonicalUri + ".yaml"
 }
 
-const findDocumentById = (id: string): TextDocument | undefined => {
-  return workspace.textDocuments.find((d) => d.uri.toString() === id)
+const findDocumentById = async (id: string): Promise<TextDocument | undefined> => {
+  const open = workspace.textDocuments.find((d) => d.uri.toString() === id)
+  if (open) return open
+  try {
+    return await workspace.openTextDocument(Uri.parse(id))
+  } catch {
+    return undefined
+  }
 }
 
 function isYAMLDocument(document: TextDocument): boolean {
@@ -121,6 +134,13 @@ const updateNkdkCache = async (entry: NkdkDocumentCache, document: TextDocument)
   if (!form) throw new Error("Не удалось импортировать форму из NKDK")
 
   entry.formNkdk = form
+
+  updateJSONSchema(entry)
+}
+
+const updateJSONSchema = (entry: NkdkDocumentCache): void => {
+  const schema = exportClientApplicationFormToJSONSchema({ context: getConfigurationContext(), value: entry.formNkdk })
+  entry.schema = JSON.stringify(schema)
 }
 
 function updateYamlCache(entry: NkdkDocumentCache, document: TextDocument): void {

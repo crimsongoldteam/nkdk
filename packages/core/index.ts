@@ -18,6 +18,7 @@ export { exportClientApplicationFormToStructure } from "./metadata/forms/clientA
 export { exportClientApplicationFormToEnterprise } from "./metadata/forms/clientApplicationForm/toEnterprise"
 export { exportClientApplicationFormToXML } from "./metadata/forms/clientApplicationForm/toXML"
 export { exportClientApplicationFormToYAML } from "./metadata/forms/clientApplicationForm/toYAML"
+export { exportClientApplicationFormToJSONSchema } from "./metadata/forms/clientApplicationForm/toJSONSchema"
 export {
   buildClientApplicationFormJsonSchema,
   ClientApplicationFormJsonSchema,

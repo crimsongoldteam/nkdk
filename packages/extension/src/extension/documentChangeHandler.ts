@@ -16,11 +16,11 @@ type FormContext = Parameters<typeof importClientApplicationFromFromNKDK>[0]["co
 
 export function registerDocumentChangeHandler(sseServer: SseServerHandle | undefined): vscode.Disposable {
   return vscode.workspace.onDidChangeTextDocument(async (e) => {
-    const payload = await getPayload(e.document)
-    if (!payload) {
-      throw new Error("Не удалось получить payload")
-    }
-    sseServer?.broadcast(payload)
+    // const payload = await getPayload(e.document)
+    // if (!payload) {
+    //   throw new Error("Не удалось получить payload")
+    // }
+    // sseServer?.broadcast(payload)
   })
 }
 

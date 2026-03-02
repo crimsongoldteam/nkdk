@@ -19,7 +19,7 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {
       itemType: item.itemType,
       value: item,
     })
-    result[item.itemType] = Type.Optional(resultItem)
+    result[item.name] = Type.Optional(resultItem)
   }
   return Type.Object(result, { additionalProperties: false })
 }

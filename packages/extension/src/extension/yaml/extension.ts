@@ -6,7 +6,8 @@
  *--------------------------------------------------------------------------------------------*/
 "use strict"
 
-import { ExtensionContext, Uri, window, workspace } from "vscode"
+import { getJSONSchema, getJSONSchemaUri } from "src/documentCache"
+import { ExtensionContext, workspace } from "vscode"
 import {
   BaseLanguageClient,
   LanguageClientOptions,
@@ -14,8 +15,6 @@ import {
   RequestType,
   RevealOutputChannelOn,
 } from "vscode-languageclient"
-// import { getJsonSchemaContent, IJSONSchemaCache } from "./json-schema-content-provider"
-import { getCanonicalUri, getJSONSchema } from "src/documentCache"
 
 export const CUSTOM_SCHEMA_REQUEST = "custom/schema/request"
 export const CUSTOM_CONTENT_REQUEST = "custom/schema/content"
@@ -74,12 +73,6 @@ namespace DynamicCustomSchemaRequestRegistration {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-namespace ResultLimitReachedNotification {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  export const type: NotificationType<string> = new NotificationType("yaml/resultLimitReached")
-}
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace SchemaSelectionRequests {
   export const type: NotificationType<void> = new NotificationType("yaml/supportSchemaSelection")
   export const schemaStoreInitialized: NotificationType<void> = new NotificationType("yaml/schema/store/initialized")
@@ -95,29 +88,15 @@ export type LanguageClientConstructor = (
   clientOptions: LanguageClientOptions
 ) => BaseLanguageClient
 
-// export interface RuntimeEnvironment {
-//   // readonly telemetry: TelemetryService
-//   readonly schemaCache: IJSONSchemaCache
-// }
-
 export function startClient(context: ExtensionContext, newLanguageClient: LanguageClientConstructor): void {
   const clientOptions: LanguageClientOptions = {
-    // Register the server for on disk and newly created YAML documents
     documentSelector: [{ language: "yaml" }],
     synchronize: {
-      // Notify the server about file changes to YAML and JSON files contained in the workspace
-      fileEvents: [workspace.createFileSystemWatcher("**/*.yaml")],
-      // workspace.createFileSystemWatcher("**/*.json")],
+      fileEvents: [workspace.createFileSystemWatcher("**/*.yaml ")],
     },
     revealOutputChannelOn: RevealOutputChannelOn.Never,
-    // errorHandler: telemetryErrorHandler,
-    // outputChannel: new TelemetryOutputChannel(outputChannel, runtime.telemetry),
-    initializationOptions: {
-      // l10nPath,
-    },
   }
 
-  // Create the language client and start it
   client = newLanguageClient("yaml", lsName, clientOptions)
 
   context.subscriptions.push({
@@ -125,155 +104,17 @@ export function startClient(context: ExtensionContext, newLanguageClient: Langua
       void client.dispose()
     },
   })
-  // context.subscriptions.push(
-  //   workspace.registerTextDocumentContentProvider(
-  //     "json-schema",
-  //     new JSONSchemaDocumentContentProvider(runtime.schemaCache, schemaExtensionAPI)
-  //   )
-  // )
 
-  // context.subscriptions.push(
-  //   client.onTelemetry((e) => {
-  //     runtime.telemetry.send(e)
-  //   })
-  // )
-
-  // findConflicts()
-  void client
-    .start()
-    .then(() => {
-      // Send a notification to the server with any YAML schema associations in all extensions
-      // client.sendNotification(SchemaAssociationNotification.type, getSchemaAssociations())
-
-      // If the extensions change, fire this notification again to pick up on any association changes
-      // extensions.onDidChange(() => {
-      //   client.sendNotification(SchemaAssociationNotification.type, getSchemaAssociations())
-      //   // findConflicts()
-      // })
-      // Tell the server that the client is ready to provide custom schema content
-      client.sendNotification(DynamicCustomSchemaRequestRegistration.type)
-      // Tell the server that the client supports schema requests sent directly to it
-      client.sendNotification(VSCodeContentRequestRegistration.type)
-      // Tell the server that the client supports schema selection requests
-      // client.sendNotification(SchemaSelectionRequests.type)
-      // If the server asks for custom schema content, get it and send it back
-      client.onRequest(CUSTOM_SCHEMA_REQUEST, (resource: string) => {
-        return getCanonicalUri(resource)
-      })
-      client.onRequest(CUSTOM_CONTENT_REQUEST, (uri: string) => {
-        return getJSONSchema(uri)
-      })
-      client.onRequest(VSCodeContentRequest.type, (uri: string) => {
-        return getJSONSchema(uri)
-      })
-      client.onRequest(FSReadFile.type, async (fsPath: string) => {
-        try {
-          const uint8array = await workspace.fs.readFile(Uri.file(fsPath))
-          return new TextDecoder().decode(uint8array)
-        } catch {
-          const workspaceFolderBasedPath = workspace.workspaceFolders[0].uri.with({ path: fsPath })
-          const uint8array = await workspace.fs.readFile(workspaceFolderBasedPath)
-          return new TextDecoder().decode(uint8array)
-        }
-      })
-      client.onRequest(FSReadUriType, async (uri: string) => {
-        try {
-          const parsedUri = Uri.parse(uri)
-          const uint8array = await workspace.fs.readFile(parsedUri)
-          return new TextDecoder().decode(uint8array)
-        } catch (e) {
-          window.showErrorMessage(`Error while retrieving content of '${uri}': ${e}`)
-        }
-      })
-
-      // sendStartupTelemetryEvent(runtime.telemetry, true)
-      // Adapted from:
-      // https://github.com/microsoft/vscode/blob/94c9ea46838a9a619aeafb7e8afd1170c967bb55/extensions/json-language-features/client/src/jsonClient.ts#L305-L318
-      // client.onNotification(ResultLimitReachedNotification.type, async (message) => {
-      //   const shouldPrompt = context.globalState.get<boolean>(StorageIds.maxItemsExceededInformation) !== false
-      //   if (shouldPrompt) {
-      //     const ok = "Ok"
-      //     const openSettings = "Open Settings"
-      //     const neverAgain = "Don't Show Again"
-      //     const pick = await window.showInformationMessage(
-      //       `${message}\nUse setting '${SettingIds.maxItemsComputed}' to configure the limit.`,
-      //       ok,
-      //       openSettings,
-      //       neverAgain
-      //     )
-      //     if (pick === neverAgain) {
-      //       await context.globalState.update(StorageIds.maxItemsExceededInformation, false)
-      //     } else if (pick === openSettings) {
-      //       await commands.executeCommand("workbench.action.openSettings", SettingIds.maxItemsComputed)
-      //     }
-      //   }
-      // })
-
-      // client.onNotification(SchemaSelectionRequests.schemaStoreInitialized, () => {
-      //   createJSONSchemaStatusBarItem(context, client)
-      // })
-
-      // initializeRecommendation(context)
+  void client.start().then(() => {
+    client.sendNotification(DynamicCustomSchemaRequestRegistration.type)
+    client.onRequest(CUSTOM_SCHEMA_REQUEST, (resource: string) => {
+      return [getJSONSchemaUri(resource)]
     })
-    .catch((err) => {
-      // sendStartupTelemetryEvent(runtime.telemetry, false, err)
+    client.onRequest(CUSTOM_CONTENT_REQUEST, (uri: string) => {
+      return getJSONSchema(uri)
     })
-}
-
-// function getSchemaAssociations(): ISchemaAssociation[] {
-//   const associations: ISchemaAssociation[] = []
-//   extensions.all.forEach((extension) => {
-//     const packageJSON = extension.packageJSON
-//     if (packageJSON && packageJSON.contributes && packageJSON.contributes.yamlValidation) {
-//       const yamlValidation = packageJSON.contributes.yamlValidation
-//       if (Array.isArray(yamlValidation)) {
-//         yamlValidation.forEach((jv) => {
-//           // eslint-disable-next-line prefer-const
-//           let { fileMatch, url } = jv
-//           if (typeof fileMatch === "string") {
-//             fileMatch = [fileMatch]
-//           }
-//           if (Array.isArray(fileMatch) && typeof url === "string") {
-//             let uri: string = url
-//             if (uri[0] === "." && uri[1] === "/") {
-//               uri = joinPath(extension.extensionUri, uri).toString()
-//             }
-//             fileMatch = fileMatch.map((fm) => {
-//               if (fm[0] === "%") {
-//                 fm = fm.replace(/%APP_SETTINGS_HOME%/, "/User")
-//                 fm = fm.replace(/%MACHINE_SETTINGS_HOME%/, "/Machine")
-//                 fm = fm.replace(/%APP_WORKSPACES_HOME%/, "/Workspaces")
-//               } else if (!fm.match(/^(\w+:\/\/|\/|!)/)) {
-//                 fm = "/" + fm
-//               }
-//               return fm
-//             })
-//             associations.push({ fileMatch, uri })
-//           }
-//         })
-//       }
-//     }
-//   })
-//   return associations
-// }
-
-// async function sendStartupTelemetryEvent(
-//   telemetry: TelemetryService,
-//   initialized: boolean,
-//   err?: Error
-// ): Promise<void> {
-//   const startUpEvent = {
-//     name: "startup",
-//     properties: {
-//       "yaml.server.initialized": initialized,
-//     },
-//   }
-//   if (err?.message) {
-//     startUpEvent.properties["error"] = err.message
-//   }
-//   await telemetry.send(startUpEvent)
-// }
-
-export function logToExtensionOutputChannel(message: string): void {
-  client.outputChannel.appendLine(message)
+    client.onRequest(VSCodeContentRequest.type, (uri: string) => {
+      return getJSONSchema(uri)
+    })
+  })
 }
