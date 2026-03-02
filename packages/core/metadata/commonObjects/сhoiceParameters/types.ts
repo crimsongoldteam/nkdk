@@ -29,7 +29,10 @@ export interface ChoiceParametersXML {
 
 export type ChoiceParameterYAML = string
 
-export const ChoiceParametersJSONSchema = Type.Record(Type.String(), MetadataValueJSONSchema)
+export const ChoiceParametersJSONSchema = Type.Record(
+  Type.String(),
+  Type.Union([MetadataValueJSONSchema, Type.Undefined()])
+)
 export type ChoiceParametersYAML = Static<typeof ChoiceParametersJSONSchema>
 
 //#endregion
