@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../types/factory"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
@@ -29,7 +29,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       value,
     })
     if (exportedValue !== undefined) {
-      result[yamlKey] = exportedValue.Optional()
+      result[yamlKey] = Type.Optional(exportedValue)
     }
   }
 

@@ -1,6 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/metadataFactory"
+import { ExportToJSONSchemaFn } from "~/metadata/metadataFactory"
 import { exportElementToJSONSchema } from "~/metadata/metadataFactory/elements/toJSONSchema"
 import { AllChildItem } from "./types"
 
@@ -19,9 +19,9 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {
       itemType: item.itemType,
       value: item,
     })
-    result[item.itemType] = resultItem.Optional()
+    result[item.itemType] = Type.Optional(resultItem)
   }
   return Type.Object(result, { additionalProperties: false })
 }
 
-registerTypeRule("ChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+// registerTypeRule("ChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
