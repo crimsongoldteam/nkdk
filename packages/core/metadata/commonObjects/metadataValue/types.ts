@@ -1,5 +1,5 @@
-import { I8nText, I8nTextXML } from "../i8nText/types"
-import { I8nTextYAML } from "../i8nText/types.ts"
+import { Type } from "@sinclair/typebox"
+import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
 
 //#region MetadataValue
 
@@ -118,6 +118,16 @@ export interface MetadataFormChoiceListComplexValueYAML {
 }
 
 export type MetadataFormChoiceListValueYAML = MetadataFormChoiceListComplexValueYAML | string
+
+export const MetadataValueJSONSchema = Type.Union([
+  Type.String(),
+  Type.Number(),
+  Type.Array(Type.Union([Type.String(), Type.Number()])),
+  Type.Object({
+    Представление: I8nTextJSONSchema,
+    Значение: Type.Any(),
+  }),
+])
 
 export type MetadataValueYAML = MetadataSingleValueYAML | MetadataFixedArrayValueYAML | MetadataFormChoiceListValueYAML
 

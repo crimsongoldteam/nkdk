@@ -1,5 +1,6 @@
 //#region MetadataValueCollection
 
+import { Static, Type } from "@sinclair/typebox"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 
 export type MetadataValueCollectionItem = string
@@ -22,6 +23,7 @@ export type MetadataValueCollectionXML = {
 
 export type MetadataValueCollectionItemYAML = string
 
-export type MetadataValueCollectionYAML = MetadataValueCollectionItemYAML[]
+export const MetadataValueCollectionJSONSchema = Type.Array(Type.String())
+export type MetadataValueCollectionYAML = Static<typeof MetadataValueCollectionJSONSchema>
 
 //#endregion

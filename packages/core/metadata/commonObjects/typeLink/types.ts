@@ -1,3 +1,4 @@
+import { Static, Type } from "@sinclair/typebox"
 import { MetadataField } from "../metadataField/types"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 
@@ -11,4 +12,6 @@ export interface TypeLink {
   linkItem: number
 }
 
-export type TypeLinkYAML = string
+export const TypeLinkJSONSchema = Type.String()
+
+export type TypeLinkYAML = Static<typeof TypeLinkJSONSchema>

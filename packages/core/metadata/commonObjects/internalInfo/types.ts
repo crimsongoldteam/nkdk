@@ -1,3 +1,5 @@
+import { Static, Type } from "@sinclair/typebox"
+
 export interface InternalInfoParam {
   name: string
   category: string
@@ -20,3 +22,9 @@ export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {
 }
 
 export type InternalInfoParams = InternalInfoParam[]
+
+export const InternalInfoParamJSONSchema = Type.Object({
+  name: Type.String(),
+  category: Type.String(),
+})
+export type InternalInfoParamFromSchema = Static<typeof InternalInfoParamJSONSchema>

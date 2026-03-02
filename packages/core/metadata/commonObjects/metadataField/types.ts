@@ -1,8 +1,11 @@
+import { Static, Type } from "@sinclair/typebox"
+
 export type MetadataField = string
 
 export type MetadataFieldXML = string
 
-export type MetadataFieldYAML = string
+export const MetadataFieldJSONSchema = Type.String()
+export type MetadataFieldYAML = Static<typeof MetadataFieldJSONSchema>
 
 export type MetadataFields = MetadataField[]
 export type MetadataFieldsXML = {

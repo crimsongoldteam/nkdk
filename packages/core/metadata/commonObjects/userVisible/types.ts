@@ -1,4 +1,5 @@
-import { StringboolYAML } from "../boolean/types"
+import { Static, Type } from "@sinclair/typebox"
+import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
   _name: string
@@ -35,7 +36,9 @@ export const UserEditKeysYAML = {
   Deny: "ЗапретитьРедактирование",
 } as const
 
-export type UserVisibleYAML = Record<string, StringboolYAML>
+export const UserVisibleJSONSchema = Type.Record(Type.String(), BooleanJSONSchema)
+
+export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>
 
 export type UserVisibleKeysYAML = (typeof UserVisibleKeysYAML)[keyof typeof UserVisibleKeysYAML]
 
