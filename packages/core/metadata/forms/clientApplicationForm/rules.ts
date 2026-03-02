@@ -336,4 +336,4 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     onReadAtServer: "ПриЧтенииНаСервере",
     // #endregion
   },
-}
+} as const satisfies ClientApplicationFormRule<ClientApplicationForm>

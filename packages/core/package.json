@@ -16,6 +16,7 @@
     "prepare": "ts-patch install"
   },
   "dependencies": {
+    "@sinclair/typebox": "^0.34.48",
     "change-case": "^5.4.4",
     "chevrotain": "^11.0.3",
     "date-fns": "^4.1.0",
