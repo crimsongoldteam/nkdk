@@ -1,10 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
-import {
-  IndexFieldJSONSchema,
-  IndexFields,
-  IndexFieldsXML,
-  IndexFieldsYAML,
-} from "~/metadata/commonObjects/indexField/types"
+import { IndexFieldJSONSchema, IndexFields, IndexFieldsXML } from "~/metadata/commonObjects/indexField/types"
 
 export interface AdditionalIndex {
   additionalFields?: IndexFields
@@ -26,12 +21,8 @@ export const AdditionalIndexJSONSchema = Type.Object({
   ИндексируемыеПоля: Type.Optional(Type.Array(IndexFieldJSONSchema)),
   Таблица: Type.Optional(Type.String()),
 })
-export interface AdditionalIndexYAML {
-  ДополнительныеПоля?: IndexFieldsYAML
-  Имя?: string
-  ИндексируемыеПоля?: IndexFieldsYAML
-  Таблица?: string
-}
+
+export type AdditionalIndexYAML = Static<typeof AdditionalIndexJSONSchema>
 
 export type AdditionalIndexes = AdditionalIndex[]
 

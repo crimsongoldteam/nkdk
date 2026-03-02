@@ -12,4 +12,4 @@ export type MetadataItemLinkYAML = string
 export type MetadataItemLinks = MetadataItemLink[]
 export type MetadataItemLinksXML = MetadataItemLinkXML[]
 export const MetadataItemLinksJSONSchema = Type.Array(Type.String())
-export type MetadataItemLinksYAML = MetadataItemLinkYAML[]
+export type MetadataItemLinksYAML = Static<typeof MetadataItemLinksJSONSchema>

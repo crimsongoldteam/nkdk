@@ -28,7 +28,7 @@ export interface ChoiceListXML {
 //#region ChoiceListYAML
 
 export const ChoiceListJSONSchema = Type.Array(
-  Type.Union([Type.String(), Type.Object({ Представление: Type.Any(), Значение: Type.Any() })])
+  MetadataFormChoiceListValueJSONSchema)
 )
 export type ChoiceListYAML = MetadataFormChoiceListValueYAML[]
 

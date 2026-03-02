@@ -1,5 +1,5 @@
-import { Type } from "@sinclair/typebox"
-import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
+import { Static, Type } from "@sinclair/typebox"
+import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
 
 //#region MetadataValue
 
@@ -108,27 +108,30 @@ export type MetadataValueXML = MetadataSimpleValueXML | MetadataFixedArrayValueX
 
 //#region MetadataValueYAML
 
-export type MetadataSingleValueYAML = string | number
+export const MetadataSingleValueJSONSchema = Type.Union([Type.String(), Type.Number()])
+export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchema>
 
-export type MetadataFixedArrayValueYAML = MetadataSingleValueYAML[]
+export const MetadataFixedArrayValueJSONSchema = Type.Array(MetadataSingleValueJSONSchema)
+export type MetadataFixedArrayValueYAML = Static<typeof MetadataFixedArrayValueJSONSchema>
 
-export interface MetadataFormChoiceListComplexValueYAML {
-  Представление: I8nTextYAML
-  Значение: MetadataValueYAML
-}
+export const MetadataFormChoiceListComplexValueJSONSchema = Type.Object({
+  Представление: I8nTextJSONSchema,
+  Значение: MetadataValueJSONSchema,
+})
+export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormChoiceListComplexValueJSONSchema>
 
+export const MetadataFormChoiceListValueJSONSchema = Type.Union([
+  MetadataFormChoiceListComplexValueJSONSchema,
+  Type.String(),
+])
 export type MetadataFormChoiceListValueYAML = MetadataFormChoiceListComplexValueYAML | string
 
 export const MetadataValueJSONSchema = Type.Union([
-  Type.String(),
-  Type.Number(),
-  Type.Array(Type.Union([Type.String(), Type.Number()])),
-  Type.Object({
-    Представление: I8nTextJSONSchema,
-    Значение: Type.Any(),
-  }),
+  MetadataSingleValueJSONSchema,
+  MetadataFixedArrayValueJSONSchema,
+  MetadataFormChoiceListValueJSONSchema,
 ])
 
-export type MetadataValueYAML = MetadataSingleValueYAML | MetadataFixedArrayValueYAML | MetadataFormChoiceListValueYAML
+export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 
 //#endregion

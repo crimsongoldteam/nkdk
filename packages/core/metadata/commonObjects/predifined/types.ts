@@ -29,4 +29,4 @@ export interface PredefinedYAML {
 export type PredefinedItems = Predefined[]
 export type PredefinedItemsXML = PredefinedXML[]
 export const PredefinedItemsYAMLJSONSchema = Type.Record(Type.String(), PredefinedYAMLJSONSchema)
-export type PredefinedItemsYAML = Record<string, PredefinedYAML>
+export type PredefinedItemsYAML = Static<typeof PredefinedItemsYAMLJSONSchema>
