@@ -2,6 +2,12 @@
 	<AssociatedTableElementId xsi:type="xs:string">ИспользуемаяТаблица</AssociatedTableElementId>
 	<BackColor>web:White</BackColor>
 	<Behavior>Collapsible</Behavior>
+	<ChildItems>
+		<InputField name="ПолеВвода" id="2">
+			<ContextMenu name="ПолеВводаКонтекстноеМеню" id="3"/>
+			<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="4"/>
+		</InputField>
+	</ChildItems>
 	<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>
 	<Collapsed>true</Collapsed>
 	<CollapsedRepresentationTitle>
@@ -14,7 +20,7 @@
 	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>false</Enabled>
-	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="2">
+	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="5">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
