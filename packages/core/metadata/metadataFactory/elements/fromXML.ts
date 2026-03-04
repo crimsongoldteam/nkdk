@@ -39,7 +39,7 @@ export function importElementFromXML<T extends NamedElement>(params: {
 
   if (xml === undefined) return undefined
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   const props = importFromXML(context, xml, rules)
 

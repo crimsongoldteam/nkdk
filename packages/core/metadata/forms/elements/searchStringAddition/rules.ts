@@ -1,14 +1,15 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
+import { MetadataItemRule, PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
+import { BaseElement } from "../baseElement/types"
 import { getSearchStringAdditionName } from "./helper"
-import { SearchStringAddition, SingleSearchStringAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
-const commonProperties: ElementRule<SearchStringAddition>["properties"] = {
+const commonProperties: MetadataItemRule["properties"] = {
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
   font: { yaml: "Шрифт", type: "Font" },
@@ -55,6 +56,8 @@ const commonProperties: ElementRule<SearchStringAddition>["properties"] = {
 }
 
 export const SingleSearchStringAdditionRules = {
+  itemType: "SingleSearchStringAddition",
+  enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -64,21 +67,12 @@ export const SingleSearchStringAdditionRules = {
       forSingleElement: true,
     },
     ...commonProperties,
-  } as any,
-  registerAsType: {
-    SearchStringAddition: {
-      toXML: (context, _element) => {
-        if (!context.elementsTree) throw new Error("elementContext is not defined")
-        const parent = getParentFromContext(context, CollectionFormElementType.Table)
-        const id = getElementId(context)
-        const name = getSearchStringAdditionName(parent)
-        return { name, id }
-      },
-    },
   },
-} as const satisfies ElementRule<SingleSearchStringAddition, "additionSource">
+} as const satisfies ElementRule
 
 export const SearchStringAdditionRules = {
+  itemType: "SearchStringAddition",
+  enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -88,7 +82,19 @@ export const SearchStringAdditionRules = {
     },
     ...commonProperties,
   },
-} as const satisfies ElementRule<SearchStringAddition>
+} as const satisfies ElementRule
 
-registerElementRule("SearchStringAddition", SearchStringAdditionRules as ElementRule<SearchStringAddition>)
-registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules as ElementRule<SingleSearchStringAddition, "additionSource">)
+registerElementAsType({
+  propertyType: "SearchStringAddition",
+  elementRule: SearchStringAdditionRules,
+  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+    if (!context.elementsTree) throw new Error("elementContext is not defined")
+    const parent = getParentFromContext(context, CollectionFormElementType.Table)
+    const id = getElementId(context)
+    const name = getSearchStringAdditionName(parent)
+    return { name, id }
+  },
+})
+
+registerElementRule("SearchStringAddition", SearchStringAdditionRules)
+registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

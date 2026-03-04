@@ -38,7 +38,7 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
 
   const currentContext = pushElementToContext({ context, itemType, element })
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   const properties = exportPropertiesToEnterprise({
     context: currentContext,

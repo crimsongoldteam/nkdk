@@ -4,16 +4,16 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/metadataFactory"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
-    FormAttribute,
-    FormAttributeAdditionalColumn,
-    FormAttributeAdditionalColumnYAML,
-    FormAttributeColumn,
-    FormAttributeColumnYAML,
-    FormAttributeColumns,
-    FormAttributeColumnsYAML,
-    FormAttributeYAML,
-    FormAttributes,
-    FormAttributesYAML,
+  FormAttribute,
+  FormAttributeAdditionalColumn,
+  FormAttributeAdditionalColumnYAML,
+  FormAttributeColumn,
+  FormAttributeColumnYAML,
+  FormAttributeColumns,
+  FormAttributeColumnsYAML,
+  FormAttributeYAML,
+  FormAttributes,
+  FormAttributesYAML,
 } from "./types"
 
 export const importFormAttributesFromYAML = (
@@ -41,7 +41,7 @@ const importFormAttributeFromYAML = (
     name,
   })
 
-  const columns = importFormAttributeColumnsFromYAMLYAML(context, yaml, properties)
+  const columns = importFormAttributeColumnsFromYAML(context, yaml, properties)
 
   const result: FormAttribute = {
     ...properties,
@@ -52,7 +52,7 @@ const importFormAttributeFromYAML = (
   return result
 }
 
-const importFormAttributeColumnsFromYAMLYAML = (
+const importFormAttributeColumnsFromYAML = (
   context: ConfigurationContext,
   yamlWithColumns: FormAttributeYAML | TypeDescriptionYAML,
   formAttribute: FormAttribute
@@ -74,22 +74,22 @@ const importFormAttributeColumnsFromYAMLYAML = (
   const isFormObject = formAttribute.type?.type.some((t) => formObjectTypes.includes(t))
 
   const columns = isFormObject
-    ? importFormAttributeColumnsFromYAML(context, columnsData)
-    : importFormAttributeAdditionalColumnsFromYAML(context, columnsData as FormAttributeAdditionalColumnYAML)
+    ? importColumnsFromYAML(context, columnsData)
+    : importAdditionalColumnsFromYAML(context, columnsData as FormAttributeAdditionalColumnYAML)
 
   return columns ?? []
 }
 
-const importFormAttributeColumnsFromYAML = (
+const importColumnsFromYAML = (
   context: ConfigurationContext,
   data: FormAttributeColumnsYAML | undefined
 ): FormAttributeColumns => {
   if (!data) return []
 
-  return Object.entries(data).map(([name, value]) => importFormAttributeColumnFromYAML(context, undefined, value, name))
+  return Object.entries(data).map(([name, value]) => importColumnFromYAML(context, undefined, value, name))
 }
 
-const importFormAttributeColumnFromYAML = (
+const importColumnFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: FormAttributeColumnYAML,
@@ -111,13 +111,13 @@ const importFormAttributeColumnFromYAML = (
   return result
 }
 
-const importFormAttributeAdditionalColumnsFromYAML = (
+const importAdditionalColumnsFromYAML = (
   context: ConfigurationContext,
   data: Record<string, Record<string, FormAttributeColumnYAML>>
 ): FormAttributeAdditionalColumn[] => {
   return Object.entries(data).map(([tableName, columns]) => ({
     table: tableName,
-    columns: importFormAttributeColumnsFromYAML(context, columns) as FormAttributeColumn[],
+    columns: importColumnsFromYAML(context, columns) as FormAttributeColumn[],
   }))
 }
 

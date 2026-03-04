@@ -18,7 +18,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 
   const name = element.name
   const id = getElementId(context)
-  const rule = getElementRule<T>(element.itemType)
+  const rule = getElementRule(element.itemType)
 
   if (!rule) throw new Error(`Unknown element type: ${element.itemType}`)
 

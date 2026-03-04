@@ -12,7 +12,7 @@ export const exportElementToJSONSchema = <T extends NamedElement>(params: {
 }): TSchema => {
   const { context, itemType, value: element } = params
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   const properties = exportPropertiesToJSONSchema({
     context,

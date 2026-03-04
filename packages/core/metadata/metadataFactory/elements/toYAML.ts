@@ -15,7 +15,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
 }): ToTypedYAML<T> {
   const { context, element: data } = params
 
-  const rules = getElementRule<T>(data.itemType)
+  const rules = getElementRule(data.itemType)
 
   const type = exportFormElementTypeToYAML(context, data.itemType)
 
@@ -54,7 +54,7 @@ export function exportElementToPartialYAML<T extends BaseElement>(params: {
   if (data === undefined) return undefined
   const itemType = data.itemType
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   return exportElementToYAML({ context, data, rules })
 }

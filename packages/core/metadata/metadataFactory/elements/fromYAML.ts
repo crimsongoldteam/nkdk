@@ -18,7 +18,7 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
 
   const itemType = importFormElementTypeFromYAML(params.context, yaml.Тип)
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   const properties = importPropertiesFromYAML({
     context,
@@ -50,7 +50,7 @@ export const importSingleElementFromYAML = <T extends BaseElement>(params: {
 }): T | undefined => {
   const { context, itemType } = params
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   const element = importElementFromPartialYAML(params)
 
@@ -67,7 +67,7 @@ export const importElementFromPartialYAML = <T extends BaseElement>(params: {
 }): T | undefined => {
   const { context, itemType, yaml, source } = params
 
-  const rules = getElementRule<T>(itemType)
+  const rules = getElementRule(itemType)
 
   const element = importElementFromYAML({
     context: context,

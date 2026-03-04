@@ -22,7 +22,6 @@ import {
   VerticalFormScrollFromYAML,
 } from "~/metadata/systemEnumerations/types"
 import { ClientApplicationFormRules } from "./rules"
-import type { ClientApplicationForm } from "./types"
 
 /** Реестр YAML-значений для SystemEnumeration по имени typeSE (для полей формы приложения). */
 const SE_YAML_VALUES: Record<string, readonly string[]> = {
@@ -95,7 +94,7 @@ function propertyRuleToSchema(rule: PropertyRule): TSchema {
  * Строит JSON Schema для YAML-представления формы приложения по правилам.
  * Ключи в схеме — YAML-ключи (rule.yaml), включая секцию «События».
  */
-export function buildClientApplicationFormJsonSchema(rules: ClientApplicationFormRule<ClientApplicationForm>): TSchema {
+export function buildClientApplicationFormJsonSchema(rules: ClientApplicationFormRule): TSchema {
   const properties: Record<string, TSchema> = {}
 
   for (const [_propKey, rule] of Object.entries(rules.properties)) {

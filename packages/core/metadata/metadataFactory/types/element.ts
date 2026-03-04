@@ -1,5 +1,5 @@
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormElementType, MetadataType } from "../metadataType/types"
+import { MetadataType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { ElementTypeByKey, TypeRulesNamesNew } from "./types"
 

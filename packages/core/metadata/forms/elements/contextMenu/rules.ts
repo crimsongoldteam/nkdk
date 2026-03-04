@@ -1,12 +1,15 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
+import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { ElementRule } from "../../../metadataFactory/elements/types"
+import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 export type { ElementRule }
 
 export const ContextMenuRules = {
   itemType: "ContextMenu",
+  enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ContextMenu",
   properties: {
     displayImportance: {
@@ -23,17 +26,17 @@ export const ContextMenuRules = {
       defaultValue: [],
     },
   },
-  registerAsType: {
-    ContextMenu: {
-      toXML: (context, _element) => {
-        if (!context.elementsTree) throw new Error("elementContext is not defined")
-        const parent = getParentFromContext(context)
-        const id = getElementId(context)
-        const name = getContextMenuName(parent)
-        return { id, name }
-      },
-    },
-  },
 } as const satisfies ElementRule
+
+registerElementAsType({
+  propertyType: "ContextMenu",
+  elementRule: ContextMenuRules,
+  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+    const parent = getParentFromContext(context)
+    const id = getElementId(context)
+    const name = getContextMenuName(parent)
+    return { id, name }
+  },
+})
 
 registerElementRule("ContextMenu", ContextMenuRules)
