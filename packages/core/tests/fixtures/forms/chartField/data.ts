@@ -1,5 +1,5 @@
 import { ChartField, ChartFieldEnterprise, ChartFieldPartialYAML } from "~/metadata/forms/elements/chartField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullChartField: RequiredFieldsElement<ChartField> = {

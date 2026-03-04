@@ -4,12 +4,11 @@ import {
   InputFieldPartialYAML,
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {
-  itemType: CollectionFormElementType.InputField,
+  itemType: "InputField",
   name: "ПолеВвода",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -358,7 +357,7 @@ export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
 }
 
 export const minimalInputField: InputField = {
-  itemType: CollectionFormElementType.InputField,
+  itemType: "InputField",
   name: "ПолеВвода",
 }
 
@@ -379,7 +378,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       title: { items: { ru: "Поле" } },
       dataPath: "ИмяПоля",
     },
@@ -392,7 +391,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       dataPath: "ИмяПоля",
     },
     structured: {

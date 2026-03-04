@@ -3,11 +3,11 @@ import {
   CalendarFieldEnterprise,
   CalendarFieldPartialYAML,
 } from "~/metadata/forms/elements/calendarField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
-  itemType: CollectionFormElementType.CalendarField,
+  itemType: "CalendarField",
   name: "ПолеКалендаря",
   displayImportance: "High",
   autoCellHeight: true,
@@ -221,7 +221,7 @@ export const fullCalendarFieldPartialYAML = {
 } satisfies Omit<Required<CalendarFieldPartialYAML>, "Заголовок" | "ЗапретитьИспользование">
 
 export const minimalCalendarField: CalendarField = {
-  itemType: CollectionFormElementType.CalendarField,
+  itemType: "CalendarField",
   name: "ПолеКалендаря",
 }
 

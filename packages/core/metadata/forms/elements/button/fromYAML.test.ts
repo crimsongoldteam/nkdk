@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  CollectionFormElementType,
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-} from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullButton,
   fullButtonPartialYAML,
@@ -41,7 +37,7 @@ describe("importButtonFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.Button,
+        itemType: "Button",
         yaml: fullButtonPartialYAML,
         source: fullButton,
       })

@@ -4,7 +4,7 @@
 // import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 // import type { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 // import { Table } from "~/metadata/forms/elements/table/types"
-// import { CollectionFormElementType } from "~/metadata/metadataFactory"
+//
 // import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 // import { elementsParser } from "./parser"
 // import { visitor } from "./visitor"
@@ -16,7 +16,7 @@
 
 //   addChildItemsToResult(context, cst, element)
 
-//   if (cst.itemType === CollectionFormElementType.Table && element.autoCommandBar) {
+//   if (cst.itemType === "Table" && element.autoCommandBar) {
 //     cst.autoCommandBar = parseAutoCommandBar(context, element.autoCommandBar)
 //   }
 

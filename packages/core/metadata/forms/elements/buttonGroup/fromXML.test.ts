@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullButtonGroup, minimalButtonGroup } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importButtonGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importButtonGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       xml: xmlData.ButtonGroup,
     })
 
@@ -32,7 +32,7 @@ describe("importButtonGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       xml: xmlData.ButtonGroup,
     })
 

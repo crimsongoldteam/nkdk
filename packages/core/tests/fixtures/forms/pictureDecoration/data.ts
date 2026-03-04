@@ -3,7 +3,7 @@ import {
   PictureDecorationEnterprise,
   PictureDecorationPartialYAML,
 } from "~/metadata/forms/elements/pictureDecoration/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
 

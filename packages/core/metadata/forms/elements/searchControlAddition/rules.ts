@@ -1,7 +1,6 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -92,7 +91,7 @@ registerElementAsType({
   elementRule: SingleSearchControlAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
     if (!context.elementsTree) throw new Error("elementContext is not defined")
-    const parent = getParentFromContext(context, CollectionFormElementType.Table)
+    const parent = getParentFromContext(context, "Table")
     const id = getElementId(context)
     const name = getSearchControlAdditionName(parent)
     return { name, id }

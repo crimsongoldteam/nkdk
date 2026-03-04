@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { fullPage, fullPageEnterprise } from "~/tests/fixtures/forms/page/data"
 import { mockContext } from "~/tests/mockContext"

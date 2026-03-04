@@ -12,24 +12,24 @@ describe("getParentFromContext", () => {
   it("returns the last element when no type filter is specified", () => {
     const context = createContext([
       { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
-      { itemType: CollectionFormElementType.UsualGroup, name: "group1" },
-      { itemType: CollectionFormElementType.InputField, name: "field1" },
+      { itemType: "UsualGroup", name: "group1" },
+      { itemType: "InputField", name: "field1" },
     ])
 
     const result = getParentFromContext(context)
 
-    expect(result.itemType).toBe(CollectionFormElementType.InputField)
+    expect(result.itemType).toBe("InputField")
   })
 
   it("returns the last element of the specified type", () => {
     const context = createContext([
       { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
-      { itemType: CollectionFormElementType.UsualGroup, name: "group1" },
-      { itemType: CollectionFormElementType.InputField, name: "field1" },
-      { itemType: CollectionFormElementType.UsualGroup, name: "group2" },
+      { itemType: "UsualGroup", name: "group1" },
+      { itemType: "InputField", name: "field1" },
+      { itemType: "UsualGroup", name: "group2" },
     ])
 
-    const result = getParentFromContext(context, CollectionFormElementType.UsualGroup)
+    const result = getParentFromContext(context, "UsualGroup")
 
     expect(result.name).toBe("group2")
   })
@@ -37,12 +37,12 @@ describe("getParentFromContext", () => {
   it("searches from end to start", () => {
     const context = createContext([
       { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
-      { itemType: CollectionFormElementType.UsualGroup, name: "group1" },
-      { itemType: CollectionFormElementType.InputField, name: "field1" },
-      { itemType: CollectionFormElementType.UsualGroup, name: "group2" },
+      { itemType: "UsualGroup", name: "group1" },
+      { itemType: "InputField", name: "field1" },
+      { itemType: "UsualGroup", name: "group2" },
     ])
 
-    const result = getParentFromContext(context, CollectionFormElementType.UsualGroup)
+    const result = getParentFromContext(context, "UsualGroup")
 
     expect(result.name).toBe("group2")
   })
@@ -62,30 +62,26 @@ describe("getParentFromContext", () => {
   it("throws when no element of the specified type is found", () => {
     const context = createContext([
       { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
-      { itemType: CollectionFormElementType.InputField, name: "field1" },
+      { itemType: "InputField", name: "field1" },
     ])
 
-    expect(() => getParentFromContext(context, CollectionFormElementType.UsualGroup)).toThrow(
-      "Parent element not found in context"
-    )
+    expect(() => getParentFromContext(context, "UsualGroup")).toThrow("Parent element not found in context")
   })
 
   it("returns any type when itemType is not specified", () => {
     const context = createContext([
       { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
-      { itemType: CollectionFormElementType.UsualGroup, name: "group1" },
+      { itemType: "UsualGroup", name: "group1" },
     ])
 
     const result = getParentFromContext(context)
 
-    expect(result.itemType).toBe(CollectionFormElementType.UsualGroup)
+    expect(result.itemType).toBe("UsualGroup")
   })
 })
 
 describe("getCurrentTableFromContext", () => {
-  const createEnterpriseContext = (
-    elementsTree: EnterpriseContext["elementsTree"]
-  ): ConfigurationContext => ({
+  const createEnterpriseContext = (elementsTree: EnterpriseContext["elementsTree"]): ConfigurationContext => ({
     defaultLanguage: "ru",
     enterprise: {
       prefix: "",
@@ -117,17 +113,17 @@ describe("getCurrentTableFromContext", () => {
 
   it("returns undefined when table is the last element", () => {
     const context = createEnterpriseContext([
-      { itemType: CollectionFormElementType.UsualGroup, dataPath: undefined },
-      { itemType: CollectionFormElementType.Table, dataPath: "Таблица1" },
+      { itemType: "UsualGroup", dataPath: undefined },
+      { itemType: "Table", dataPath: "Таблица1" },
     ])
 
     expect(getCurrentTableFromContext(context)).toBeUndefined()
   })
 
   it("returns the table when it has following elements", () => {
-    const tableElement = { itemType: CollectionFormElementType.Table, dataPath: "Таблица1" as const }
+    const tableElement = { itemType: "Table", dataPath: "Таблица1" as const }
     const context = createEnterpriseContext([
-      { itemType: CollectionFormElementType.UsualGroup, dataPath: undefined },
+      { itemType: "UsualGroup", dataPath: undefined },
       tableElement,
       { itemType: CollectionFormElementType.ColumnGroup, dataPath: "ГруппаКолонок1" },
     ])
@@ -139,9 +135,9 @@ describe("getCurrentTableFromContext", () => {
   })
 
   it("returns the table closest to the end (but not the last element)", () => {
-    const innerTable = { itemType: CollectionFormElementType.Table, dataPath: "ВложеннаяТаблица" }
+    const innerTable = { itemType: "Table", dataPath: "ВложеннаяТаблица" }
     const context = createEnterpriseContext([
-      { itemType: CollectionFormElementType.Table, dataPath: "ВнешняяТаблица" },
+      { itemType: "Table", dataPath: "ВнешняяТаблица" },
       innerTable,
       { itemType: CollectionFormElementType.ColumnGroup, dataPath: "ГруппаКолонок" },
     ])
@@ -154,8 +150,8 @@ describe("getCurrentTableFromContext", () => {
 
   it("returns undefined when no table is in the tree", () => {
     const context = createEnterpriseContext([
-      { itemType: CollectionFormElementType.UsualGroup, dataPath: undefined },
-      { itemType: CollectionFormElementType.InputField, dataPath: "Поле1" },
+      { itemType: "UsualGroup", dataPath: undefined },
+      { itemType: "InputField", dataPath: "Поле1" },
     ])
 
     expect(getCurrentTableFromContext(context)).toBeUndefined()

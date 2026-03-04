@@ -1,7 +1,12 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from ".."
+import { MetadataItemRule, MetadataItemTypeToYAML } from ".."
 import { EventXML } from "../event"
-import { MetadataItemType } from "../metadataItem/registry"
+import {
+  MetadataItemType,
+  MetadataItemTypeRegistry,
+  MetadataItemTypeToMdItem,
+  MetadataItemTypeToTypedYAML,
+} from "../metadataItem/registry"
 
 //#region FormElementType
 
@@ -40,6 +45,10 @@ export const FormElementTypeToYAML = {
   SearchControlAddition: "УправлениеПоиском",
   SearchStringAddition: "ОтображениеСтрокиПоиска",
 } as const
+
+export const FormElementTypeFromYAML = Object.fromEntries(
+  Object.entries(FormElementTypeToYAML).map(([key, value]) => [value, key])
+) as Record<FormElementTypeToYAMLType<FormElementType>, FormElementType>
 
 export type FormElementTypeToYAMLType<T extends FormElementType> = (typeof FormElementTypeToYAML)[T]
 
@@ -85,5 +94,23 @@ export interface ElementXML {
 export interface EventedXML extends ElementXML {
   Events: EventXML[] | EventXML
 }
+
+//#endregion
+
+//#region TypedFormElement
+
+export type TypedFormElementType = {
+  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown } ? K : never
+}[MetadataItemType]
+
+export type TypedFormElementTypeYAML = {
+  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown }
+    ? MetadataItemTypeToYAML<K>
+    : never
+}[MetadataItemType]
+
+export type TypedFormElement = MetadataItemTypeToMdItem<TypedFormElementType>
+
+export type TypedFormElementYAML = MetadataItemTypeToTypedYAML<TypedFormElementType>
 
 //#endregion

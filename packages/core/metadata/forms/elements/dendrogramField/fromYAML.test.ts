@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullDendrogramField,
   fullDendrogramFieldPartialYAML,
@@ -12,7 +12,7 @@ describe("importDendrogramFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.DendrogramField,
+      itemType: "DendrogramField",
       yaml: fullDendrogramFieldPartialYAML,
       source: fullDendrogramField,
     })
@@ -23,7 +23,7 @@ describe("importDendrogramFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.DendrogramField,
+      itemType: "DendrogramField",
       yaml: minimalDendrogramFieldPartialYAML,
       source: minimalDendrogramField,
     })

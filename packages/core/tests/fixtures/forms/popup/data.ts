@@ -1,5 +1,4 @@
 import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
   backColor: {
@@ -103,7 +102,7 @@ export const fullPopupEnterprise = {
 } satisfies Required<PopupEnterprise>
 
 export const sourcePopup: Popup = {
-  itemType: CollectionFormElementType.Popup,
+  itemType: "Popup",
   name: "Подменю",
   childItems: [],
   title: {
@@ -146,7 +145,7 @@ export const fullPopupTypedYAML: PopupTypedYAML = {
 }
 
 export const minimalPopup: Popup = {
-  itemType: CollectionFormElementType.Popup,
+  itemType: "Popup",
   name: "Подменю",
   childItems: [],
 }

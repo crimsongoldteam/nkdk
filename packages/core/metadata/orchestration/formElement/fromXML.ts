@@ -1,6 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { BaseElement, EventedElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, EventedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   ElementRule,
   ElementXML,
@@ -8,16 +8,18 @@ import {
   EventsXML,
   FormElementType,
   importPropertiesFromXML,
+  MetadataItemTypeToMdItem,
+  SingleFormElementType,
 } from "~/metadata/orchestration"
-import { isEmptyMetadataItem } from "../../metadataFactory/elements/helper"
+import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
 
-export const importSingleElementFromXML = <T extends BaseElement>(params: {
+export const importSingleElementFromXML = <Type extends SingleFormElementType>(params: {
   context: ConfigurationContext
   rule: ElementRule
-  itemType: FormElementType
+  itemType: Type
   xml: ElementXML
-}): T | undefined => {
+}): MetadataItemTypeToMdItem<Type> | undefined => {
   const { context, rule, xml, itemType } = params
 
   const props = importFromXML(context, xml, rule)
@@ -34,11 +36,11 @@ export const importSingleElementFromXML = <T extends BaseElement>(params: {
   return result
 }
 
-export function importElementFromXML<T extends NamedElement>(params: {
+export function importElementFromXML<Type extends FormElementType>(params: {
   context: ConfigurationContext
-  itemType: FormElementType
+  itemType: Type
   xml: ElementXML | undefined
-}): T | undefined {
+}): MetadataItemTypeToMdItem<Type> | undefined {
   const { context, itemType, xml } = params
 
   if (xml === undefined) return undefined
@@ -47,11 +49,11 @@ export function importElementFromXML<T extends NamedElement>(params: {
 
   const props = importFromXML(context, xml, rules)
 
-  const result = {
+  const result: MetadataItemTypeToMdItem<Type> = {
     name: xml._name,
     itemType: itemType,
     ...props,
-  } as T
+  }
 
   return result
 }

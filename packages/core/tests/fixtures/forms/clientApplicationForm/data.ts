@@ -1,6 +1,5 @@
 import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 const fullCommandInterface: CommandInterface = {
   NavigationPanel: [],
@@ -86,7 +85,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   childItems: [
     {
       name: "ПолеВвода1",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       width: 10,
     },
   ],

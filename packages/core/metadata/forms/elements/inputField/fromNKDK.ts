@@ -1,6 +1,5 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   importDataPathFromNKDK,
   importI8nTextFromNKDK,
@@ -17,7 +16,7 @@ export const importInputFieldFromNKDK = (params: {
   const dataPath = importDataPathFromNKDK(source)
 
   const result: InputField = {
-    itemType: CollectionFormElementType.InputField,
+    itemType: "InputField",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
     ...(dataPath ? { dataPath } : {}),

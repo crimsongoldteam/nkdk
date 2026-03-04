@@ -3,7 +3,7 @@ import {
   HTMLDocumentFieldEnterprise,
   HTMLDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {

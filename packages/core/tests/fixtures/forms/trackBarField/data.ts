@@ -3,7 +3,6 @@ import {
   TrackBarFieldEnterprise,
   TrackBarFieldPartialYAML,
 } from "~/metadata/forms/elements/trackBarField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullTrackBarField: Required<TrackBarField> = {
   itemType: CollectionFormElementType.TrackBarField,

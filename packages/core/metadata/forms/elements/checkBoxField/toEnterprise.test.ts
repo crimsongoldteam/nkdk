@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { fullCheckBoxField, fullCheckBoxFieldEnterprise } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"

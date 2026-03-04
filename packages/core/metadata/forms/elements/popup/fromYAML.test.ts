@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  CollectionFormElementType,
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-} from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/metadataFactory"
 import {
   fullPopup,
   fullPopupPartialYAML,
@@ -42,7 +38,7 @@ describe("Popup from YAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.Popup,
+        itemType: "Popup",
         yaml: fullPopupPartialYAML,
         source: sourcePopup,
       })
@@ -53,7 +49,7 @@ describe("Popup from YAML", () => {
     // it("should import minimal", () => {
     //   const result = importElementFromPartialYAML({
     //     context: mockContext,
-    //     itemType: CollectionFormElementType.Popup,
+    //     itemType: "Popup",
     //     yaml: minimalPopupPartialYAML,
     //     source: sourcePopup,
     //   })

@@ -1,12 +1,13 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { FormElementType } from "../../metadataFactory/metadataType/types"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
+import { FormElementType } from "./types"
 
 export const exportElementToJSONSchema = <T extends NamedElement>(params: {
   context: ConfigurationContext
+  // TODO Лишнее поле
   itemType: FormElementType
   value: T
 }): TSchema => {

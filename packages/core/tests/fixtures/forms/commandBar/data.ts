@@ -1,6 +1,6 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import {
   fullCommandBarChildItemsAllYAML,
@@ -10,11 +10,11 @@ import {
 
 export const parentElement: NamedElement = {
   name: "КоманднаяПанель",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
 }
 
 export const sourceCommandBar: CommandBar = {
-  itemType: CollectionFormElementType.CommandBar,
+  itemType: "CommandBar",
   name: "КоманднаяПанель",
   childItems: fullCommandBarChildItemsStructure,
   title: {
@@ -23,7 +23,7 @@ export const sourceCommandBar: CommandBar = {
 }
 
 export const fullCommandBar: Required<CommandBar> = {
-  itemType: CollectionFormElementType.CommandBar,
+  itemType: "CommandBar",
   name: "КоманднаяПанель",
   enableContentChange: true,
   extendedTooltip: {
@@ -134,7 +134,7 @@ export const fullCommandBarEnterprise = {
 export const fullCommandBarAllItems = fullCommandBarChildItemsAllYAML
 
 export const minimalCommandBar: CommandBar = {
-  itemType: CollectionFormElementType.CommandBar,
+  itemType: "CommandBar",
   name: "КоманднаяПанель",
   childItems: [],
 }
@@ -185,20 +185,20 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with buttons",
     element: {
       name: "КоманднаяПанель",
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       childItems: [
         {
-          itemType: CollectionFormElementType.Button,
+          itemType: "Button",
           name: "Кнопка1",
           title: { items: { ru: "Кнопка Номер 1" } },
         },
         {
-          itemType: CollectionFormElementType.Button,
+          itemType: "Button",
           name: "Кнопка2",
           title: { items: { ru: "Кнопка Номер 2" } },
         },
         {
-          itemType: CollectionFormElementType.Button,
+          itemType: "Button",
           name: "Кнопка3",
           title: { items: { ru: "Кнопка Номер 3" } },
         },
@@ -214,10 +214,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with button group",
     element: {
       name: "КоманднаяПанель",
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       childItems: [
         {
-          itemType: CollectionFormElementType.ButtonGroup,
+          itemType: "ButtonGroup",
           name: "ГруппаКнопок1",
           childItems: [],
           title: { items: { ru: "Группа кнопок" } },
@@ -234,10 +234,10 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with popup",
     element: {
       name: "КоманднаяПанель",
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       childItems: [
         {
-          itemType: CollectionFormElementType.Popup,
+          itemType: "Popup",
           name: "Меню",
           title: { items: { ru: "Выпадающее меню" } },
           childItems: [],
@@ -253,7 +253,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with search control addition",
     element: {
       name: "КоманднаяПанель",
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       childItems: [
         {
           itemType: CollectionFormElementType.SearchControlAddition,
@@ -271,7 +271,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
     name: "with search string addition",
     element: {
       name: "КоманднаяПанель",
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       childItems: [
         {
           itemType: CollectionFormElementType.SearchStringAddition,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { fullCommandBar, fullCommandBarEnterprise } from "~/tests/fixtures/forms/commandBar/data"
 import { mockContext } from "~/tests/mockContext"
@@ -15,7 +15,7 @@ describe("export CommandBar to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       value: fullCommandBar,
     })
     expect(result).toEqual(fullCommandBarEnterprise)

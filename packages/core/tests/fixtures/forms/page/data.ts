@@ -1,5 +1,4 @@
 import { Page, PageEnterprise, PagePartialYAML } from "~/metadata/forms/elements/page/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPage: Required<Page> = {
   itemType: CollectionFormElementType.Page,
@@ -54,7 +53,7 @@ export const fullPage: Required<Page> = {
   childItems: [
     {
       name: "ПолеВвода",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
     },
   ],
 }

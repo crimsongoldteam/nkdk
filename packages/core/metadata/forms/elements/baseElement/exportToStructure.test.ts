@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { mockContext } from "~/tests/mockContext"
 import { OtherElement } from "../../commonObjects/childItems/types"
 import { exportOtherElementToNKDK } from "./exportToStructure"
@@ -8,7 +7,7 @@ import { NamedElement } from "./types"
 describe("formatOtherElement", () => {
   it("should format element", () => {
     const element: NamedElement = {
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       name: "ИмяПоля",
     }
 

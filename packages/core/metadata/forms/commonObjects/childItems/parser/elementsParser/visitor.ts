@@ -47,7 +47,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: LabelField = {
-//       itemType: CollectionFormElementType.LabelField,
+//       itemType: "LabelField",
 //       name: name,
 //     }
 
@@ -117,7 +117,7 @@
 //     const modificators = this.addInputModifiers(modifiers)
 
 //     const result: InputField = {
-//       itemType: CollectionFormElementType.InputField,
+//       itemType: "InputField",
 //       name: name,
 //       ...modificators,
 //     }
@@ -174,7 +174,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: Button = {
-//       itemType: CollectionFormElementType.Button,
+//       itemType: "Button",
 //       name: name || "",
 //     }
 
@@ -290,7 +290,7 @@
 //     const name = this.visit(ctx.properties as CstNode[], context) || "CommandBar"
 
 //     const result: CommandBar = {
-//       itemType: CollectionFormElementType.CommandBar,
+//       itemType: "CommandBar",
 //       name: name,
 //       childItems: filteredChildItems,
 //     }
@@ -341,7 +341,7 @@
 
 //     if (hashToken) {
 //       return {
-//         itemType: CollectionFormElementType.ButtonGroup,
+//         itemType: "ButtonGroup",
 //         name: name || "",
 //         title: title,
 //         childItems: [],
@@ -349,7 +349,7 @@
 //     }
 
 //     const result: Button = {
-//       itemType: CollectionFormElementType.Button,
+//       itemType: "Button",
 //       name: name || "",
 //       title: title,
 //     }
@@ -364,7 +364,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: ButtonGroup = {
-//       itemType: CollectionFormElementType.ButtonGroup,
+//       itemType: "ButtonGroup",
 //       name: name || "",
 //       title: title,
 //       childItems: [],
@@ -380,7 +380,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: Popup = {
-//       itemType: CollectionFormElementType.Popup,
+//       itemType: "Popup",
 //       name: name || "",
 //       title: title,
 //       childItems: [],
@@ -477,7 +477,7 @@
 //         // Label field: ~{name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.LabelField,
+//             itemType: "LabelField",
 //             name: cell.properties,
 //           } as LabelField)
 //         }
@@ -505,7 +505,7 @@
 //             // Если в ячейке есть и name, и properties, это колонка
 //             // properties - это имя колонки, name - это заголовок
 //             childItems.push({
-//               itemType: CollectionFormElementType.InputField,
+//               itemType: "InputField",
 //               name: cell.properties,
 //               title: this.createTitle(cell.name, context.defaultLanguage),
 //             } as InputField)
@@ -515,7 +515,7 @@
 //           } else {
 //             // Если в не последней ячейке есть только properties (без name), это колонка без заголовка
 //             childItems.push({
-//               itemType: CollectionFormElementType.InputField,
+//               itemType: "InputField",
 //               name: cell.properties,
 //             } as InputField)
 //           }
@@ -523,7 +523,7 @@
 //           // Если в ячейке есть только name (без properties), это колонка с именем = name
 //           if (!isLast) {
 //             childItems.push({
-//               itemType: CollectionFormElementType.InputField,
+//               itemType: "InputField",
 //               name: cell.name,
 //             } as InputField)
 //           }
@@ -533,7 +533,7 @@
 
 //     return {
 //       name: tableName || "",
-//       itemType: CollectionFormElementType.Table,
+//       itemType: "Table",
 //       childItems: childItems,
 //     } as Table
 //   }
@@ -684,7 +684,7 @@
 
 //     const result: UsualGroup = {
 //       name: name,
-//       itemType: CollectionFormElementType.UsualGroup,
+//       itemType: "UsualGroup",
 //       group: "Vertical",
 //       childItems: [],
 //     }
@@ -706,7 +706,7 @@
 
 //     const result: UsualGroup = {
 //       name: name,
-//       itemType: CollectionFormElementType.UsualGroup,
+//       itemType: "UsualGroup",
 //       childItems: [],
 //     }
 
@@ -731,7 +731,7 @@
 
 //     const result: UsualGroup = {
 //       name: name,
-//       itemType: CollectionFormElementType.UsualGroup,
+//       itemType: "UsualGroup",
 //       childItems: [],
 //     }
 

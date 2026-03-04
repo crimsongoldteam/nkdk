@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { fullButtonGroup, fullButtonGroupEnterprise } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockContext } from "~/tests/mockContext"
@@ -15,7 +15,7 @@ describe("export ButtonGroup to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       value: fullButtonGroup,
     })
     expect(result).toEqual(fullButtonGroupEnterprise)

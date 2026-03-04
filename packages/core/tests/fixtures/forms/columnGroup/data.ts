@@ -4,7 +4,6 @@ import {
   ColumnGroupPartialYAML,
   ColumnGroupTypedYAML,
 } from "~/metadata/forms/elements/columnGroup/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullColumnGroup: ColumnGroup = {
   itemType: CollectionFormElementType.ColumnGroup,

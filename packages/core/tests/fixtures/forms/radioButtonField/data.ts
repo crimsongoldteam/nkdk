@@ -3,7 +3,7 @@ import {
   RadioButtonFieldEnterprise,
   RadioButtonFieldPartialYAML,
 } from "~/metadata/forms/elements/radioButtonField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {

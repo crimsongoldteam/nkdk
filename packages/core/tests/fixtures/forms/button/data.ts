@@ -1,9 +1,9 @@
 import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
 export const fullButton = {
-  itemType: CollectionFormElementType.Button,
+  itemType: "Button",
   autoMaxHeight: false,
   autoMaxWidth: false,
   backColor: {
@@ -83,7 +83,7 @@ export const fullButton = {
 } satisfies Required<Button>
 
 export const fullButtonSource: Button = {
-  itemType: CollectionFormElementType.Button,
+  itemType: "Button",
   name: "Кнопка",
   title: { items: { ru: "Кнопка формы" } },
 }
@@ -139,7 +139,7 @@ export const fullButtonTypedYAML: ButtonTypedYAML = {
 }
 
 export const minimalButton: Button = {
-  itemType: CollectionFormElementType.Button,
+  itemType: "Button",
   name: "ОбычнаяКнопка",
 }
 
@@ -204,7 +204,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "with title",
     element: {
       name: "Заголовок",
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
@@ -216,7 +216,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "without title",
     element: {
       name: "Кнопка",
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       title: undefined,
     },
     structured: {

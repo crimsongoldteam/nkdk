@@ -152,8 +152,9 @@ import {
   TrackBarFieldPartialYAML,
 } from "../../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML } from "../../forms/elements/usualGroup/types"
+import { TypedFormElementType } from "../formElement/types"
 
-type MetadataItemTypeRegistry = {
+export type MetadataItemTypeRegistry = {
   //#region Elements
   Button: {
     metadata: Button
@@ -409,13 +410,3 @@ export type MetadataItemTypeToMdItem<T extends MetadataItemType> = MetadataItemT
 export type MetadataItemTypeToEnterprise<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["enterprise"]
 
 export type MetadataItemTypeToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]
-
-export type TypedFormElementType = {
-  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown } ? K : never
-}[MetadataItemType]
-
-export type TypedFormElement = MetadataItemTypeToMdItem<TypedFormElementType>
-
-export type TypedFormElementYAML = MetadataItemTypeToTypedYAML<TypedFormElementType>
-
-// #endregion

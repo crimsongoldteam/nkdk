@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { title } from "process"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ColumnGroup } from "./types"

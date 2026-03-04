@@ -3,7 +3,7 @@ import {
   SpreadSheetDocumentFieldEnterprise,
   SpreadSheetDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {

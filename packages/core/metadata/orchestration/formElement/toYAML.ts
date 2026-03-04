@@ -62,7 +62,11 @@ export function exportElementToPartialYAML<T extends BaseElement>(params: {
 
   const rule = getElementRule(itemType)
 
-  return exportElementToYAML({ context, element: element, rule: rule })
+  return exportElementToYAML({
+    context,
+    element: element as unknown as MetadataItemTypeToMdItem<T["itemType"]>,
+    rule,
+  })
 }
 
 export function exportElementToYAML<Rule extends ElementRule>(params: {

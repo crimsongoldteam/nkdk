@@ -1,6 +1,6 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import {
   importFormattedI8nTextFromNKDK,
   importNameFromNKDK,

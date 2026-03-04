@@ -4,7 +4,7 @@ import {
   ButtonGroupPartialYAML,
   ButtonGroupTypedYAML,
 } from "~/metadata/forms/elements/buttonGroup/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
@@ -34,7 +34,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
   name: "ГруппаКнопок",
   childItems: [
     {
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       name: "Кнопка",
     },
   ],
@@ -93,7 +93,7 @@ export const fullButtonGroupEnterprise = {
 } satisfies Required<ButtonGroupEnterprise>
 
 export const fullButtonGroupSource: ButtonGroup = {
-  itemType: CollectionFormElementType.ButtonGroup,
+  itemType: "ButtonGroup",
   name: "ГруппаКнопок",
   title: { items: { ru: "Группа кнопок" } },
   childItems: [],
@@ -162,7 +162,7 @@ export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
 }
 
 export const minimalButtonGroup: ButtonGroup = {
-  itemType: CollectionFormElementType.ButtonGroup,
+  itemType: "ButtonGroup",
   name: "ГруппаКнопок",
   childItems: [],
 }
@@ -184,7 +184,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "with title",
     element: {
       name: "ГруппаКнопок",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       title: { items: { ru: "Группа кнопок" } },
       childItems: [],
     },
@@ -197,7 +197,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "without title",
     element: {
       name: "ГруппаКнопок",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       title: undefined,
       childItems: [],
     },

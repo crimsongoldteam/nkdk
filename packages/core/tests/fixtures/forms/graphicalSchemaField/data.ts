@@ -3,7 +3,7 @@ import {
   GraphicalSchemaFieldEnterprise,
   GraphicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {

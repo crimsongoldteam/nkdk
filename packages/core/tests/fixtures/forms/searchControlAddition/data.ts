@@ -5,7 +5,6 @@ import {
   SingleSearchControlAddition,
   SingleSearchControlAdditionYAML,
 } from "~/metadata/forms/elements/searchControlAddition/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parentElement: NamedElement = {
   itemType: CollectionFormElementType.CheckBoxField,

@@ -4,7 +4,7 @@ import {
   LabelFieldPartialYAML,
   LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -182,7 +182,7 @@ export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
 }
 
 export const minimalLabelField: LabelField = {
-  itemType: CollectionFormElementType.LabelField,
+  itemType: "LabelField",
   name: "ПолеНадписи",
 }
 
@@ -204,7 +204,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ПолеНадписи",
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       title: { items: { ru: "Поле надписи" } },
       dataPath: "ПолеНадписи",
     },
@@ -221,7 +221,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ПолеНадписи",
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       dataPath: "ПолеНадписи",
     },
     structured: {

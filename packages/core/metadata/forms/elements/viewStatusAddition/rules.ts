@@ -1,7 +1,6 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -64,7 +63,7 @@ registerElementAsType({
   propertyType: "ViewStatusAddition",
   elementRule: ViewStatusAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
-    const parent = getParentFromContext(context, CollectionFormElementType.Table)
+    const parent = getParentFromContext(context, "Table")
     const id = getElementId(context)
     const name = getViewStatusAdditionName(parent)
     return { id, name }

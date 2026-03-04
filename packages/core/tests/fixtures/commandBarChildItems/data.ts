@@ -4,7 +4,6 @@ import {
   CommandBarChildItemsTypedYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullCommandBarChildItemsAllYAML: CommandBarChildItemsPartialYAML = {
   Кнопка1: {
@@ -33,16 +32,16 @@ export const fullCommandBarChildItemsAllYAML: CommandBarChildItemsPartialYAML = 
 
 export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
   {
-    itemType: CollectionFormElementType.Button,
+    itemType: "Button",
     name: "Кнопка1",
   },
   {
-    itemType: CollectionFormElementType.ButtonGroup,
+    itemType: "ButtonGroup",
     name: "ГруппаКнопок",
     childItems: [],
   },
   {
-    itemType: CollectionFormElementType.Popup,
+    itemType: "Popup",
     name: "Подменю",
     childItems: [],
   },
@@ -50,29 +49,29 @@ export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
 
 export const fullCommandBarChildItemsTyped: CommandBarChildItem[] = [
   {
-    itemType: CollectionFormElementType.Button,
+    itemType: "Button",
     name: "Кнопка1",
     commandName: "ВыполнитьКоманда1",
   },
   {
-    itemType: CollectionFormElementType.ButtonGroup,
+    itemType: "ButtonGroup",
     name: "ГруппаКнопок",
     toolTip: { items: { ru: "Подсказка для группы кнопок" } },
     childItems: [
       {
-        itemType: CollectionFormElementType.Button,
+        itemType: "Button",
         name: "Кнопка2",
         commandName: "ВыполнитьКоманда2",
       },
     ],
   },
   {
-    itemType: CollectionFormElementType.Popup,
+    itemType: "Popup",
     name: "Подменю",
     toolTip: { items: { ru: "Подсказка для подменю" } },
     childItems: [
       {
-        itemType: CollectionFormElementType.Button,
+        itemType: "Button",
         name: "Кнопка3",
         commandName: "ВыполнитьКоманда3",
       },

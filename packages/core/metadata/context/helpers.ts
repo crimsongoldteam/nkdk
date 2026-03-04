@@ -1,4 +1,4 @@
-import { CollectionFormElementType, FormElementType } from "../metadataFactory"
+import { FormElementType } from "../metadataFactory"
 import { ConfigurationContext, ContextElementToEnterprise, ContextElementToXML } from "./types"
 
 export const getParentFromContext = (
@@ -29,7 +29,7 @@ export const getCurrentTableFromContext = (context: ConfigurationContext): Conte
 
   for (let i = elements.length - 1; i >= 0; i--) {
     const element = elements[i]
-    if (element.itemType === CollectionFormElementType.Table) {
+    if (element.itemType === "Table") {
       return i === elements.length - 1 ? undefined : element
     }
   }

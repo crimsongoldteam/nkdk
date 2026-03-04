@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { importPictureFromYAML } from "~/metadata/commonObjects/picture/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { PictureDecoration } from "./types"
 

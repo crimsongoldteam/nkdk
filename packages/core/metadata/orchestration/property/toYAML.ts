@@ -1,15 +1,15 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToYAML } from "../../metadataFactory/rules"
+import { MetadataItemTypeToMdItem, MetadataItemTypeToYAML } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import { MetadataItemRule, PropertyRule } from "./types"
 
-export function exportPropertiesToYAML<T extends MetadataItem>(params: {
+export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
-  data: T | undefined
-  rules: MetadataItemRule
-}): ToYAML<T> | undefined {
-  const { context, data, rules } = params
+  data: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+  rule: Rule
+}): MetadataItemTypeToYAML<Rule["itemType"]> | undefined {
+  const { context, data, rule: rule } = params
   if (data === undefined) return undefined
 
   const result = {}
@@ -17,12 +17,12 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   let shortValue = undefined
   let canUseShortFormat: boolean = true
 
-  for (const [key, rule] of Object.entries(rules.properties) as [Extract<keyof T, string>, PropertyRule][]) {
-    const value = data[key]
+  for (const [key, propertyRule] of Object.entries(rule.properties)) {
+    const value = data[key as keyof MetadataItemTypeToMdItem<Rule["itemType"]>]
 
     const exportedValues = exportPropertyToYAML({
       context,
-      rule,
+      rule: propertyRule,
       value,
       name: "name" in data ? (data["name"] as string) : undefined,
     })
@@ -31,7 +31,7 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
 
     Object.assign(result, exportedValues)
 
-    if (rule.useAsShortValueYAML) {
+    if (propertyRule.useAsShortValueYAML) {
       const keys = Object.keys(exportedValues)
       if (keys.length === 1 && typeof exportedValues[keys[0]] === "string") {
         shortValue = exportedValues[keys[0]]
@@ -45,7 +45,7 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
 
   if (canUseShortFormat) return shortValue
 
-  return result as ToYAML<T>
+  return result
 }
 
 export const exportPropertyToYAML = (params: {

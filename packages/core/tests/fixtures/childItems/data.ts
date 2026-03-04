@@ -1,5 +1,4 @@
 import { AllChildItems, AllChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export interface ChildItemsFixture {
   name: string
@@ -17,7 +16,7 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   // Single
   {
     name: "single",
-    element: [{ name: "Input1", itemType: CollectionFormElementType.InputField }],
+    element: [{ name: "Input1", itemType: "InputField" }],
     structure: ["{Input1}: "],
     xmlPath: "/childItems/single.xml",
     typedYAML: {
@@ -32,9 +31,9 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   {
     name: "different types",
     element: [
-      { name: "Input1", itemType: CollectionFormElementType.InputField },
-      { name: "Label2", itemType: CollectionFormElementType.LabelField },
-      { name: "Input3", itemType: CollectionFormElementType.InputField },
+      { name: "Input1", itemType: "InputField" },
+      { name: "Label2", itemType: "LabelField" },
+      { name: "Input3", itemType: "InputField" },
     ],
     structure: ["{Input1}: ", "{Label1}", "{Input3}: "],
     xmlPath: "/childItems/different.xml",

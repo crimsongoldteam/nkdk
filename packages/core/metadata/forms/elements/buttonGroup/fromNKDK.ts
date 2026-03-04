@@ -1,6 +1,6 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { ButtonGroup } from "./types"
 
@@ -11,7 +11,7 @@ export const importCommandGroupFromNKDK = (params: {
   const { context, source } = params
 
   const result: ButtonGroup = {
-    itemType: CollectionFormElementType.ButtonGroup,
+    itemType: "ButtonGroup",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title ?? ""),
     childItems: [],

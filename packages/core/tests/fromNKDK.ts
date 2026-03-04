@@ -27,7 +27,7 @@ export const testImportFormAutoCommandBarFromNKDK = async (context: Configuratio
 //   })
 
 //   return parsed?.childItems?.find(
-//     (item) => (item as { itemType?: string })?.itemType === CollectionFormElementType.Table
+//     (item) => (item as { itemType?: string })?.itemType === "Table"
 //   )
 // }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import {
   fullCommandBar,
@@ -19,7 +19,7 @@ describe("importCommandBarFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: context,
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       yaml: fullCommandBarPartialYAML,
       source: fullCommandBarSource,
     })
@@ -30,7 +30,7 @@ describe("importCommandBarFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: context,
-      itemType: CollectionFormElementType.CommandBar,
+      itemType: "CommandBar",
       yaml: minimalCommandBarPartialYAML,
       source: minimalCommandBar,
     })

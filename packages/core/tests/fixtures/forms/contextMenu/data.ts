@@ -1,9 +1,8 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const parentElement: NamedElement = {
-  itemType: CollectionFormElementType.InputField,
+  itemType: "InputField",
   name: "КакойТоЭлемент",
 }
 
@@ -13,7 +12,7 @@ export const fullContextMenu: ContextMenu = {
   autofill: true,
   childItems: [
     {
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       name: "Кнопка",
     },
   ],

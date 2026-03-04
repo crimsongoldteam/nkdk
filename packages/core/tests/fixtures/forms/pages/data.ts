@@ -1,5 +1,4 @@
 import { Pages, PagesEnterprise, PagesPartialYAML, PagesTypedYAML } from "~/metadata/forms/elements/pages/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 export const fullPages: Pages = {
   itemType: CollectionFormElementType.Pages,
