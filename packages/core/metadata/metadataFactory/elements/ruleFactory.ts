@@ -1,14 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { importSingleElementFromYAML, PropertyRule } from ".."
-import { exportSingleElementToXML } from "../../orchestration/formElement/toXML"
-import { exportElementToPartialYAML } from "../../orchestration/formElement/toYAML"
-import { ElementRule, ElementXML } from "../../orchestration/formElement/types"
-import { PropertyRuleType } from "../../orchestration/property/fn"
-import { FormElementType } from "../metadataType/types"
+import { ElementRule, ElementXML, FormElementType, PropertyRule } from "~/metadata/orchestration"
+import { exportSingleElementToXML } from "~/metadata/orchestration/formElement/toXML"
+import { exportElementToPartialYAML } from "~/metadata/orchestration/formElement/toYAML"
+import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+import { registerTypeRule } from "../../orchestration/formElement/factory"
 import { ToYAML } from "../rules"
-import { registerTypeRule } from "../types/factory"
 import { importSingleElementFromXML } from "./fromXML"
+import { importSingleElementFromYAML } from "./fromYAML"
 
 export const getElementRule = (itemType: FormElementType): ElementRule => {
   const rule = elementRulesRegistry.get(itemType)

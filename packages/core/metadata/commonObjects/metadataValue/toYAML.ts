@@ -1,22 +1,22 @@
 import { format } from "date-fns"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { exportMetadataValueStringToYAML as exportMetadataPathValueToYAML } from "../metadataPath/toYAML"
 import {
-    MetadataBooleanValue,
-    MetadataDateTimeValue,
-    MetadataDecimalValue,
-    MetadataFixedArrayValue,
-    MetadataFixedArrayValueYAML,
-    MetadataFormChoiceListValue,
-    MetadataFormChoiceListValueYAML,
-    MetadataObjectRefValue,
-    MetadataRefValue,
-    MetadataSimpleValue,
-    MetadataValue,
-    MetadataValueYAML,
+  MetadataBooleanValue,
+  MetadataDateTimeValue,
+  MetadataDecimalValue,
+  MetadataFixedArrayValue,
+  MetadataFixedArrayValueYAML,
+  MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueYAML,
+  MetadataObjectRefValue,
+  MetadataRefValue,
+  MetadataSimpleValue,
+  MetadataValue,
+  MetadataValueYAML,
 } from "./types"
 
 export const exportMetadataValueToYAML = (

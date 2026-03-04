@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { Picture, PictureEnterprise } from "./types"
 
 export const exportPictureToEnterprise = (params: { value: Picture | undefined }): PictureEnterprise | undefined => {

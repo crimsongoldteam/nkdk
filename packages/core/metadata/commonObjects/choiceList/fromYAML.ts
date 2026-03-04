@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importFormChoiceListValueFromYAML } from "../metadataValue/fromYAML"
 import { ChoiceList, ChoiceListYAML } from "./types"

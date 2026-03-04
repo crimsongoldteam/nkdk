@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
 import { ExportToYAMLFunctionNew, I8nTextPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { I8nText, I8nTextYAML } from "./types"
 
 export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {

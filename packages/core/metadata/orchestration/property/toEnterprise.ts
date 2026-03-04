@@ -1,17 +1,18 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToEnterprise, getTypeRule } from "~/metadata/metadataFactory"
+import { MetadataItemType, ToEnterprise, ToMetadataItem } from ".."
+import { getTypeRule } from "../formElement/factory"
 import { PropertyRuleTypeKeys } from "./registry"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import { MetadataItemRule, PropertyRule } from "./types"
 
-export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
+export const exportPropertiesToEnterprise = <Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  metadataItem: T
+  metadataItem: ToMetadataItem<Type>
   rule: MetadataItemRule
-}): ToEnterprise<T> => {
+}): ToEnterprise<Type> => {
   const { context, metadataItem, rule } = params
 
-  const result = {} as ToEnterprise<T>
+  const result: ToEnterprise<Type> = {} as 
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [
     keyof T extends string ? keyof T : never,

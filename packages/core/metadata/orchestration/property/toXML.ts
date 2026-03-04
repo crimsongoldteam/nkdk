@@ -1,6 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getTypeRule } from "../../metadataFactory/types/factory"
+import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
 import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 

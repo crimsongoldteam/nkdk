@@ -1,7 +1,7 @@
 import { getCurrentTableFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DataPathPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
 
 export const exportDataPathToEnterprise = (params: {

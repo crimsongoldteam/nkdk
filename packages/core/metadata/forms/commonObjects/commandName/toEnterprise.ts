@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 
 export const exportCommandNameToEnterprise = (_params: {
   context: ConfigurationContext

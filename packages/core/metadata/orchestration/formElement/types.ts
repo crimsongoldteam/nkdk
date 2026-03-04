@@ -1,54 +1,51 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { ConfigurationContext } from "../../context/types"
-import { BaseElement } from "../../forms/elements/baseElement/types"
-import { MetadataItemRule } from "../../metadataFactory"
-import { ToNKDKResult } from "../../metadataFactory/elements/toNKDKGenerator/types"
 import { EventXML } from "../event"
 import { MetadataItemType } from "../metadataItem/registry"
-import { ExportToEnterpriseFunction } from "../property/fn"
+import { MetadataItemRule } from ".."
 
-export type FormElementType = Extract<
-  MetadataItemType,
-  | "Button"
-  | "ButtonGroup"
-  | "CalendarField"
-  | "ChartField"
-  | "CheckBoxField"
-  | "ColumnGroup"
-  | "CommandBar"
-  | "DendrogramField"
-  | "FormattedDocumentField"
-  | "GanttChartField"
-  | "GeographicalSchemaField"
-  | "GraphicalSchemaField"
-  | "HTMLDocumentField"
-  | "InputField"
-  | "LabelDecoration"
-  | "LabelField"
-  | "Page"
-  | "Pages"
-  | "PdfDocumentField"
-  | "PeriodField"
-  | "PictureDecoration"
-  | "PictureField"
-  | "PlannerField"
-  | "Popup"
-  | "ProgressBarField"
-  | "RadioButtonField"
-  | "SpreadSheetDocumentField"
-  | "Table"
-  | "TextDocumentField"
-  | "TrackBarField"
-  | "UsualGroup"
-  | "SearchControlAddition"
-  | "SearchStringAddition"
->
+//#region FormElementType
 
-// #region rules
+export const FormElementTypeToYAML = {
+  Button: "Кнопка",
+  ButtonGroup: "ГруппаКнопок",
+  CalendarField: "ПолеКалендаря",
+  ChartField: "ПолеДиаграммы",
+  CheckBoxField: "ПолеФлажок",
+  ColumnGroup: "ГруппаКолонок",
+  CommandBar: "КоманднаяПанель",
+  DendrogramField: "ПолеДендрограммы",
+  FormattedDocumentField: "ПолеФорматированногоДокумента",
+  Table: "ТаблицаФормы",
+  GanttChartField: "ПолеДиаграммыГанта",
+  GeographicalSchemaField: "ПолеГеографическойСхемы",
+  GraphicalSchemaField: "ПолеГрафическойСхемы",
+  HTMLDocumentField: "ПолеHTMLДокумента",
+  InputField: "ПолеВвода",
+  LabelDecoration: "Надпись",
+  LabelField: "ПолеНадписи",
+  Page: "Страница",
+  Pages: "Страницы",
+  PDFDocumentField: "ПолеPDFДокумента",
+  PeriodField: "ПолеПериода",
+  PictureDecoration: "Рисунок",
+  PictureField: "ПолеРисунка",
+  PlannerField: "ПолеПланировщика",
+  Popup: "Подменю",
+  ProgressBarField: "ПолеИндикатора",
+  RadioButtonField: "ПолеПереключателя",
+  SpreadSheetDocumentField: "ПолеТабличногоДокумента",
+  TextDocumentField: "ПолеТекстовогоДокумента",
+  TrackBarField: "ПолеПолосыПрокрутки",
+  UsualGroup: "Группа",
+  SearchControlAddition: "УправлениеПоиском",
+  SearchStringAddition: "ОтображениеСтрокиПоиска",
+} as const
 
-export interface RegisterAsTypeRule<T extends BaseElement> {
-  toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
-}
+export type FormElementType = Extract<MetadataItemType, keyof typeof FormElementTypeToYAML>
+
+//#endregion
+
+//#region ElementRule
 
 export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
   itemType: FormElementType
@@ -62,9 +59,9 @@ export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
   alwaysExportToXML?: true
 }
 
-// #endregion
+//#endregion
 
-// #region xml
+//#region ElementXML
 
 export interface ElementXML {
   _name: string
@@ -76,27 +73,4 @@ export interface EventedXML extends ElementXML {
   Events: EventXML[] | EventXML
 }
 
-// #endregion
-
-// #region factory
-
-export type ExportToStructureFn = <From extends BaseElement>(context: ConfigurationContext, data: From) => ToNKDKResult
-
-export type ExportToStructureContentFn = <From extends BaseElement>(
-  context: ConfigurationContext,
-  data: From
-) => ToNKDKResult
-
-export type ImportFromNKDKFn = <To extends BaseElement>(params: { context: ConfigurationContext; source: any }) => To
-
-type fnPairs =
-  | ["ExportToStructure", ExportToStructureFn]
-  | ["ExportToStructureContent", ExportToStructureContentFn]
-  | ["ExportToEnterprise", ExportToEnterpriseFunction]
-  | ["ImportFromNKDK", ImportFromNKDKFn]
-
-export type ItemOperationType = fnPairs extends infer T ? (T extends [infer Op, any] ? Op : never) : never
-
-export type OperationFunction<Type extends ItemOperationType> = Extract<fnPairs, [Type, any]>[1]
-
-// #endregion
+//#endregion

@@ -1,16 +1,16 @@
 import { format, parse } from "date-fns"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
 import {
-    MetadataFixedArrayValueYAML,
-    MetadataFormChoiceListValue,
-    MetadataFormChoiceListValueYAML,
-    MetadataValue,
-    MetadataValueYAML,
+  MetadataFixedArrayValueYAML,
+  MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueYAML,
+  MetadataValue,
+  MetadataValueYAML,
 } from "./types"
 
 export const importMetadataValueFromYAML = (

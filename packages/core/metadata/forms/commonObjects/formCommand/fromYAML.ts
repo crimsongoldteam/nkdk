@@ -4,7 +4,7 @@ import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"

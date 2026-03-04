@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportI8nTextDefaultToYAML } from "../i8nText/toYAML"
 import { FormattedI8nText } from "./types"
 

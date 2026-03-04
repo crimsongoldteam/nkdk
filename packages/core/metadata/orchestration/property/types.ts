@@ -130,7 +130,7 @@ export type PropertyRule =
   | DataPathPropertyRule
   | MetadataTypePropertyRule
 
-type PropertiesType = Partial<Record<string, PropertyRule>>
+type PropertiesType = Record<string, PropertyRule>
 
 export interface ItemXML {
   [key: string]: any

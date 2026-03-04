@@ -1,7 +1,7 @@
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { StandardCommandsGroupFromYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"

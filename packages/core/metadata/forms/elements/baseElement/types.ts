@@ -1,10 +1,7 @@
-import { FormElementType, SingleFormElementType } from "~/metadata/metadataFactory"
-import { MetadataItem } from "~/metadata/orchestration/property/types"
-
-export type FormElementTypeAll = FormElementType | SingleFormElementType
+import { FormElementType, MetadataItem } from "~/metadata/orchestration"
 
 export interface BaseElement extends MetadataItem {
-  itemType: FormElementTypeAll
+  itemType: FormElementType
 }
 
 export interface NamedElement extends BaseElement {

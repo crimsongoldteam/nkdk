@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { Color, ColorEnterprise } from "./types"
 
 export const exportColorToEnterprise = (params: { value: Color | undefined }): ColorEnterprise | undefined => {

@@ -7,7 +7,7 @@ import {
   MetadataItem,
 } from "~/metadata/metadataFactory"
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialYAML, TypedElement } from "./types"
 

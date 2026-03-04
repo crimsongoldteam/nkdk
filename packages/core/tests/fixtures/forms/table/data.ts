@@ -1,8 +1,8 @@
 import { TableChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TableEnterprise, TablePartialYAML } from "~/metadata/forms/elements/table/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { CollectionFormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export interface TableFixture {

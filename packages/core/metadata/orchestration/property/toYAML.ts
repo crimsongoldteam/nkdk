@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToYAML } from "../../metadataFactory/rules"
-import { getTypeRule } from "../../metadataFactory/types/factory"
+import { getTypeRule } from "../formElement/factory"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 

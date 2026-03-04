@@ -12,7 +12,7 @@ import {
   ImportFromYAMLFunctionNew,
   TypeRulesOperations,
   createRegistryKey,
-} from "../../orchestration/property/fn"
+} from "../property/fn"
 
 const typeRulesRegistry = new Map<
   string,

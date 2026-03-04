@@ -1,19 +1,19 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import {
-    MetadataFixedArrayValueXML,
-    MetadataFormChoiceListValue,
-    MetadataFormChoiceListValueXML,
-    MetadataSimpleValue,
-    MetadataSimpleValueXML,
-    MetadataValue,
-    MetadataValueType,
-    MetadataValueTypeFromXML,
-    MetadataValueTypeXML,
-    MetadataValueXML,
+  MetadataFixedArrayValueXML,
+  MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueXML,
+  MetadataSimpleValue,
+  MetadataSimpleValueXML,
+  MetadataValue,
+  MetadataValueType,
+  MetadataValueTypeFromXML,
+  MetadataValueTypeXML,
+  MetadataValueXML,
 } from "./types"
 
 export const importMetadataValueFromXML = (

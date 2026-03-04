@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { importElementFromXML } from "~/metadata/metadataFactory/elements/fromXML"
+import { CollectionFormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { ElementXML } from "~/metadata/orchestration"
 import { fullUsualGroup, minimalUsualGroup } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

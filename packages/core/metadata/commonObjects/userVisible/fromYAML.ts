@@ -2,7 +2,7 @@ import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ImportFromYAMLFunctionNew, UserVisiblePropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleYAML, type UserVisible } from "./types"
 

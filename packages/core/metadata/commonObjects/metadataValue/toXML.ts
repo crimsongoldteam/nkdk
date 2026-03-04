@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory.ts"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory.ts"
 import { ConfigurationContext } from "../../context/types"
 import { exportI8nTextToXML } from "../i8nText/toXML"
 import {

@@ -3,7 +3,7 @@ import {
   TextDocumentFieldEnterprise,
   TextDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/textDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+import { CollectionFormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {

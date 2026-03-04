@@ -1,7 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getValueOrDefault } from "../../metadataFactory/properties/helpers"
-import { getTypeRule } from "../../metadataFactory/types/factory"
+import { getTypeRule } from "../formElement/factory"
+import { getValueOrDefault } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const importPropertiesFromXML = <T extends MetadataItem>(params: {

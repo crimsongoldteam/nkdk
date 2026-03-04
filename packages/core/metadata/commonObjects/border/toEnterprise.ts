@@ -1,9 +1,7 @@
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { Border, BorderEnterprise } from "./types"
 
-export const exportBorderToEnterprise = (params: {
-  value: Border | undefined
-}): BorderEnterprise | undefined => {
+export const exportBorderToEnterprise = (params: { value: Border | undefined }): BorderEnterprise | undefined => {
   const { value } = params
   if (!value) return undefined
 

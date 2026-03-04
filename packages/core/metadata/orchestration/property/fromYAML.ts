@@ -1,24 +1,23 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
-import { ToYAML } from "../../metadataFactory"
-import { getTypeRule } from "../../metadataFactory/types/factory"
+import { MetadataItemType, ToMetadataItem, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
+import { getTypeRule } from "../formElement/factory"
 import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault } from "./helpers"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import { MetadataItemRule, PropertyRule } from "./types"
 
-export function importPropertiesFromYAML<T extends MetadataItem>(params: {
+export function importPropertiesFromYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  yaml: ToYAML<T>
-  metadataType: MetadataItemType
+  yaml: ToYAML<Type>
+  metadataType: Type
   rules: MetadataItemRule
-  source?: T
+  source?: ToMetadataItem<Type>
   name?: string
-}): T {
+}): ToMetadataItem<Type> {
   const { context, yaml, source, rules, metadataType, name } = params
 
-  const result: T = {
+  const result: ToMetadataItem<Type> = {
     itemType: metadataType,
-  } as T
+  }
 
   const shortFormatResult = handleShortFormatYAML({
     context,
@@ -33,7 +32,7 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
     return shortFormatResult
   }
 
-  for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule][]) {
+  for (const [key, curRule] of Object.entries(rules.properties)) {
     const yamlKey = curRule.yaml
     // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue
@@ -52,11 +51,11 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
     })
 
     if (importedValue !== undefined) {
-      result[key as keyof T] = importedValue
+      result[key] = importedValue
     }
   }
 
-  return result as T
+  return result
 }
 
 export const importPropertyFromYAML = (params: {
@@ -110,23 +109,21 @@ export const importPropertyFromYAML = (params: {
   })
 }
 
-function handleShortFormatYAML<T extends MetadataItem>(params: {
+function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  yaml: ToYAML<T>
-  metadataType: MetadataItemType
+  yaml: ToYAML<Type>
+  metadataType: Type
   rules: MetadataItemRule
-  result: T
+  result: ToMetadataItem<Type>
   name?: string
-}): T | undefined {
+}): ToMetadataItem<Type> | undefined {
   const { context, yaml, rules, result, name, metadataType } = params
 
   if (typeof yaml !== "string") {
     return undefined
   }
 
-  const shortFormatEntry = (Object.entries(rules.properties) as Array<[keyof T, PropertyRule]>).find(
-    ([, rule]) => rule.useAsShortValueYAML === true
-  )
+  const shortFormatEntry = Object.entries(rules.properties).find(([, rule]) => rule.useAsShortValueYAML === true)
 
   if (!shortFormatEntry) {
     return undefined
@@ -146,10 +143,10 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
     name,
   })
 
-  const source: T = {
+  const source: ToMetadataItem<Type> = {
     itemType: result.itemType,
     [propertyKey]: importedValue,
-  } as T
+  }
 
   return importPropertiesFromYAML({
     context,
@@ -157,6 +154,6 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
     metadataType,
     name,
     source: source,
-    yaml: {} as ToYAML<T>,
+    yaml: {},
   })
 }
