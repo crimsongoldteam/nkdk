@@ -314,7 +314,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
 }
 
 export const minimalPlannerField: PlannerField = {
-  itemType: CollectionFormElementType.PlannerField,
+  itemType: "PlannerField",
   name: "ПолеПланировщика",
 }
 

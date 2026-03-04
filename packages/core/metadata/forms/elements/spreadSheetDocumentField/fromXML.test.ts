@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import {
   fullSpreadSheetDocumentField,
   minimalSpreadSheetDocumentField,
@@ -11,7 +11,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.SpreadSheetDocumentField,
+      itemType: "SpreadSheetDocumentField",
       xml: undefined,
     })
 
@@ -25,7 +25,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.SpreadSheetDocumentField,
+      itemType: "SpreadSheetDocumentField",
       xml: xmlData.SpreadSheetDocumentField,
     })
 
@@ -39,7 +39,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.SpreadSheetDocumentField,
+      itemType: "SpreadSheetDocumentField",
       xml: xmlData.SpreadSheetDocumentField,
     })
 

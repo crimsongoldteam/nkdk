@@ -102,7 +102,7 @@ const importFromNKDK = (params: {
   const title = importI8nTextFromNKDK(context, source.title)
 
   const result: CheckBoxField = {
-    itemType: CollectionFormElementType.CheckBoxField,
+    itemType: "CheckBoxField",
     name: importNameFromNKDK(source),
   }
 

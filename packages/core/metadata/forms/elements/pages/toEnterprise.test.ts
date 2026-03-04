@@ -15,7 +15,7 @@ describe("export Pages to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: CollectionFormElementType.Pages,
+      itemType: "Pages",
       value: fullPages,
     })
     expect(result).toEqual(fullPagesEnterprise)

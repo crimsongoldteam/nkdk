@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getElementOperationFunction } from "~/metadata/metadataFactory/elements/elementOperationFactory"
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { FormElementType } from "~/metadata/orchestration"
 import { wrapButtonContent } from "./helpers"
 
 export const exportCommandBarItemsToStructure = (

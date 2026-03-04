@@ -9,7 +9,7 @@ describe("exportPageToStructure", () => {
   it("should format page", () => {
     const mockElement: Page = {
       name: "Страница1",
-      itemType: CollectionFormElementType.Page,
+      itemType: "Page",
       childItems: [
         {
           name: "Элемент1",

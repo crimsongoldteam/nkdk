@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullGraphicalSchemaField,
   fullGraphicalSchemaFieldPartialYAML,
@@ -12,7 +12,7 @@ describe("importGraphicalSchemaFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.GraphicalSchemaField,
+      itemType: "GraphicalSchemaField",
       yaml: fullGraphicalSchemaFieldPartialYAML,
       source: fullGraphicalSchemaField,
     })
@@ -23,7 +23,7 @@ describe("importGraphicalSchemaFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.GraphicalSchemaField,
+      itemType: "GraphicalSchemaField",
       yaml: minimalGraphicalSchemaFieldPartialYAML,
       source: minimalGraphicalSchemaField,
     })

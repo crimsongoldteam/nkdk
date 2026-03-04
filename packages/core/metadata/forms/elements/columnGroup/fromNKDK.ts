@@ -17,7 +17,7 @@ const importColumnGroupFromNKDKBase = (params: {
   const titleText = importI8nTextFromNKDK(context, source.title)
 
   const result: ColumnGroup = {
-    itemType: CollectionFormElementType.ColumnGroup,
+    itemType: "ColumnGroup",
     name: importNameFromNKDK(source),
     group: group,
     childItems: [],

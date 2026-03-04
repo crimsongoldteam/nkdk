@@ -194,7 +194,7 @@
 
 //     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 //     const result: CheckBoxField = {
-//       itemType: CollectionFormElementType.CheckBoxField,
+//       itemType: "CheckBoxField",
 //       name,
 //       headerHorizontalAlign: "Right",
 //     }
@@ -218,7 +218,7 @@
 //     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 
 //     const result: any = {
-//       itemType: CollectionFormElementType.CheckBoxField,
+//       itemType: "CheckBoxField",
 //       name,
 //     }
 
@@ -402,7 +402,7 @@
 
 //     if (isSearchControl) {
 //       const result: SearchControlAddition = {
-//         itemType: CollectionFormElementType.SearchControlAddition,
+//         itemType: "SearchControlAddition",
 //         name: name || "",
 //         childItems: [],
 //       }
@@ -411,7 +411,7 @@
 
 //     if (isSearchString) {
 //       const result: SearchStringAddition = {
-//         itemType: CollectionFormElementType.SearchStringAddition,
+//         itemType: "SearchStringAddition",
 //         name: name || "",
 //       }
 //       return result
@@ -419,7 +419,7 @@
 
 //     // По умолчанию возвращаем SearchControlAddition
 //     const result: SearchControlAddition = {
-//       itemType: CollectionFormElementType.SearchControlAddition,
+//       itemType: "SearchControlAddition",
 //       name: name || "",
 //       childItems: [],
 //     }
@@ -467,7 +467,7 @@
 //         // Checkbox field: [ ] title {name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.CheckBoxField,
+//             itemType: "CheckBoxField",
 //             name: cell.properties,
 //             title: cell.title ? this.createTitle(cell.title, context.defaultLanguage) : undefined,
 //             checkBoxType: cell.checkBoxType,
@@ -485,7 +485,7 @@
 //         // Column group: #{name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.ColumnGroup,
+//             itemType: "ColumnGroup",
 //             name: cell.properties,
 //             childItems: [],
 //           } as ColumnGroup)
@@ -494,7 +494,7 @@
 //         // Picture field: @{name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.PictureField,
+//             itemType: "PictureField",
 //             name: cell.properties,
 //           } as PictureField)
 //         }
@@ -654,7 +654,7 @@
 //     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
 //     const name = this.visit(ctx.properties as CstNode[], context) || titleText
 //     return {
-//       itemType: CollectionFormElementType.Pages,
+//       itemType: "Pages",
 //       name: name || titleText,
 //       title: this.createTitle(titleText, context.defaultLanguage),
 //       id: undefined,
@@ -666,7 +666,7 @@
 //     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
 //     const name = this.visit(ctx.properties as CstNode[], context) || titleText
 //     return {
-//       itemType: CollectionFormElementType.Page,
+//       itemType: "Page",
 //       name: name || titleText,
 //       title: this.createTitle(titleText, context.defaultLanguage),
 //       id: undefined,

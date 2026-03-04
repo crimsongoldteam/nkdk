@@ -9,7 +9,7 @@ import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerato
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
-  itemType: CollectionFormElementType.CheckBoxField,
+  itemType: "CheckBoxField",
   name: "Флажок",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -162,7 +162,7 @@ export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
 }
 
 export const minimalCheckBoxField: CheckBoxField = {
-  itemType: CollectionFormElementType.CheckBoxField,
+  itemType: "CheckBoxField",
   name: "Флажок",
 }
 
@@ -194,7 +194,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "left titled",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
@@ -204,7 +204,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "left titled without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       dataPath: "Флажок",
     },
     nkdk: { strings: ["%Флажок [ ]"], toOneLineGroup: true },
@@ -213,7 +213,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
   //   description: "left titled with empty title",
   //   element: {
   //     name: "Флажок",
-  //     itemType: CollectionFormElementType.CheckBoxField,
+  //     itemType: "CheckBoxField",
   //     title: { items: { ru: "" } },
   //   },
   //   nkdk: { strings: ["'' [ ] %Флажок"], toOneLineGroup: true },
@@ -222,7 +222,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "right titled",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       titleLocation: "Right",
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
@@ -233,7 +233,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "right titled without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       titleLocation: "Right",
       dataPath: "Флажок",
     },
@@ -243,7 +243,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
   //   description: "right titled with empty title",
   //   element: {
   //     name: "Флажок",
-  //     itemType: CollectionFormElementType.CheckBoxField,
+  //     itemType: "CheckBoxField",
   //     titleLocation: "Right",
   //     title: { items: { ru: "" } },
   //   },
@@ -257,7 +257,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "left titled switch",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
@@ -268,7 +268,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "left titled switch without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       checkBoxType: "Switch",
       dataPath: "Флажок",
     },
@@ -278,7 +278,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "right titled switch",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       titleLocation: "Right",
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок флажка" } },
@@ -290,7 +290,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "right titled switch without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       titleLocation: "Right",
       checkBoxType: "Switch",
       dataPath: "Флажок",
@@ -303,7 +303,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "left titled tumbler",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       checkBoxType: "Tumbler",
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
@@ -317,7 +317,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "left titled tumbler without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       checkBoxType: "Tumbler",
       dataPath: "Флажок",
     },
@@ -330,7 +330,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "right titled tumbler",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       titleLocation: "Right",
       checkBoxType: "Tumbler",
       title: { items: { ru: "Заголовок флажка" } },
@@ -345,7 +345,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
     description: "right titled tumbler without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       titleLocation: "Right",
       checkBoxType: "Tumbler",
       dataPath: "Флажок",
@@ -360,7 +360,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
     description: "left titled",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
       title: { items: { ru: "Заголовок флажка" } },
     },
     nkdk: { strings: ["[ ] Заголовок флажка %Флажок"], toOneLineGroup: true },
@@ -369,7 +369,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
     description: "left titled without title",
     element: {
       name: "Флажок",
-      itemType: CollectionFormElementType.CheckBoxField,
+      itemType: "CheckBoxField",
     },
     nkdk: { strings: ["[ ] %Флажок"], toOneLineGroup: true },
   },

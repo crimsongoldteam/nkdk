@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullHtmlDocumentField, minimalHtmlDocumentField } from "~/tests/fixtures/forms/htmlDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importHtmlDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.HTMLDocumentField,
+      itemType: "HTMLDocumentField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importHtmlDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.HTMLDocumentField,
+      itemType: "HTMLDocumentField",
       xml: xmlData.HtmlDocumentField,
     })
 
@@ -32,7 +32,7 @@ describe("importHtmlDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.HTMLDocumentField,
+      itemType: "HTMLDocumentField",
       xml: xmlData.HtmlDocumentField,
     })
 

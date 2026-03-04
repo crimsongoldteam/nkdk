@@ -8,7 +8,7 @@ describe("export ChartField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.ChartField,
+      itemType: "ChartField",
       value: fullChartField,
     })
     expect(result).toEqual(fullChartFieldEnterprise)

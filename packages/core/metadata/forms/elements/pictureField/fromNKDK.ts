@@ -11,7 +11,7 @@ export const importPictureFieldFromNKDK = (params: {
 }): PictureField => {
   const { context, source } = params
   const result: PictureField = {
-    itemType: CollectionFormElementType.PictureField,
+    itemType: "PictureField",
     name: importNameFromNKDK(source),
     title: importI8nTextFromString({ context, value: source.title }),
   }

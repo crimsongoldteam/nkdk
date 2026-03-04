@@ -259,4 +259,4 @@ export const importClientApplicationFormFromXML = (
 //   return result
 // }
 
-// registerImport(CollectionFormElementType.ClientApplicationForm, importClientApplicationFormFromXML)
+// registerImport("ClientApplicationForm", importClientApplicationFormFromXML)

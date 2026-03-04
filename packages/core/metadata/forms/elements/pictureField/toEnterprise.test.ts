@@ -8,7 +8,7 @@ describe("export PictureField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.PictureField,
+      itemType: "PictureField",
       value: fullPictureField,
     })
     expect(result).toEqual(fullPictureFieldEnterprise)

@@ -291,7 +291,7 @@ export const fullPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {
 }
 
 export const minimalPdfDocumentField: PdfDocumentField = {
-  itemType: CollectionFormElementType.PDFDocumentField,
+  itemType: "PDFDocumentField",
   name: "ПолеPDFДокумента",
 }
 

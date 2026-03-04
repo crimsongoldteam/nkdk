@@ -1,7 +1,7 @@
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { SingleFormElementType } from "~/metadata/metadataFactory/metadataType/types"
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
@@ -195,7 +195,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: false,
       childItems: [
         {
-          itemType: CollectionFormElementType.SearchControlAddition,
+          itemType: "SearchControlAddition",
           name: "Дополнение",
           childItems: [],
         },
@@ -213,7 +213,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: false,
       childItems: [
         {
-          itemType: CollectionFormElementType.SearchStringAddition,
+          itemType: "SearchStringAddition",
           name: "Дополнение",
         },
       ],

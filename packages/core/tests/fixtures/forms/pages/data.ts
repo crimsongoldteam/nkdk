@@ -1,7 +1,7 @@
 import { Pages, PagesEnterprise, PagesPartialYAML, PagesTypedYAML } from "~/metadata/forms/elements/pages/types"
 
 export const fullPages: Pages = {
-  itemType: CollectionFormElementType.Pages,
+  itemType: "Pages",
   name: "Страницы",
   enableContentChange: true,
   enabled: true,
@@ -81,7 +81,7 @@ export const fullPagesEnterprise = {
 } satisfies Required<PagesEnterprise>
 
 export const fullPagesSource: Pages = {
-  itemType: CollectionFormElementType.Pages,
+  itemType: "Pages",
   name: "Страницы",
   title: { items: { ru: "Страницы" } },
   childItems: [],
@@ -142,7 +142,7 @@ export const fullPagesTypedYAML: PagesTypedYAML = {
 }
 
 export const minimalPages: Pages = {
-  itemType: CollectionFormElementType.Pages,
+  itemType: "Pages",
   name: "Страницы",
   childItems: [],
 }

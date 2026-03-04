@@ -7,7 +7,7 @@ import {
 } from "~/metadata/forms/elements/searchControlAddition/types"
 
 export const parentElement: NamedElement = {
-  itemType: CollectionFormElementType.CheckBoxField,
+  itemType: "CheckBoxField",
   name: "Дополнение",
 }
 

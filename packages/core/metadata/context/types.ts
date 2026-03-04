@@ -1,6 +1,6 @@
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { AllChildItemsPartialYAML } from "../forms/commonObjects/childItems/types"
-import { FormElementType } from "../orchestration/formElement/types"
+import { FormElementType } from "../orchestration"
 
 export type ContextElementToXML = { name: string; itemType: FormElementType }
 export type ContextElementToEnterprise = { itemType: FormElementType; dataPath: string | undefined }

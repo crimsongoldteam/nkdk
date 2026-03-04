@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
 import {
   fullSpreadSheetDocumentField,
   fullSpreadSheetDocumentFieldPartialYAML,
@@ -12,7 +12,7 @@ describe("importSpreadSheetDocumentFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.SpreadSheetDocumentField,
+      itemType: "SpreadSheetDocumentField",
       yaml: fullSpreadSheetDocumentFieldPartialYAML,
       source: fullSpreadSheetDocumentField,
     })
@@ -23,7 +23,7 @@ describe("importSpreadSheetDocumentFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.SpreadSheetDocumentField,
+      itemType: "SpreadSheetDocumentField",
       yaml: minimalSpreadSheetDocumentFieldPartialYAML,
       source: minimalSpreadSheetDocumentField,
     })

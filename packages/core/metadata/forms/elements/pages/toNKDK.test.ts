@@ -8,11 +8,11 @@ describe("exportPagesToStructure", () => {
   it("should format pages", () => {
     const mockElement: Pages = {
       name: "Страницы",
-      itemType: CollectionFormElementType.Pages,
+      itemType: "Pages",
       childItems: [
         {
           name: "Страница1",
-          itemType: CollectionFormElementType.Page,
+          itemType: "Page",
           childItems: [
             {
               name: "Элемент1",

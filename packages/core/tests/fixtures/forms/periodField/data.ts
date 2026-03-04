@@ -8,7 +8,7 @@ import {
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
-  itemType: CollectionFormElementType.PeriodField,
+  itemType: "PeriodField",
   name: "ПолеПериода",
   title: {
     items: { ru: "Поле периода" },
@@ -243,7 +243,7 @@ export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
 }
 
 export const minimalPeriodField: PeriodField = {
-  itemType: CollectionFormElementType.PeriodField,
+  itemType: "PeriodField",
   name: "ПолеПериода",
 }
 

@@ -8,7 +8,7 @@ import {
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {
-  itemType: CollectionFormElementType.PictureField,
+  itemType: "PictureField",
   name: "ПолеКартинки",
   title: {
     items: { ru: "Поле картинки" },
@@ -284,7 +284,7 @@ export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {
 }
 
 export const minimalPictureField: PictureField = {
-  itemType: CollectionFormElementType.PictureField,
+  itemType: "PictureField",
   name: "ПолеКартинки",
 }
 

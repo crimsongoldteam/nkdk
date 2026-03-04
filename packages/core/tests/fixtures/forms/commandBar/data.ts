@@ -256,7 +256,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       itemType: "CommandBar",
       childItems: [
         {
-          itemType: CollectionFormElementType.SearchControlAddition,
+          itemType: "SearchControlAddition",
           name: "Дополнение",
           childItems: [],
         },
@@ -274,7 +274,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       itemType: "CommandBar",
       childItems: [
         {
-          itemType: CollectionFormElementType.SearchStringAddition,
+          itemType: "SearchStringAddition",
           name: "Дополнение",
         },
       ],

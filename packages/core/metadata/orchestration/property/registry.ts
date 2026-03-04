@@ -297,6 +297,12 @@ export type PropertyTypeRegistry = {
     yaml: CommandInterfaceYAML
   }
 
+  AssociatedTable: {
+    item: string
+    enterprise: unknown
+    yaml: string
+  }
+
   //#endregion
 
   //#region Single form elements
@@ -413,6 +419,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   SingleSearchControlAddition: "SingleSearchControlAddition",
   SingleSearchStringAddition: "SingleSearchStringAddition",
   ViewStatusAddition: "ViewStatusAddition",
+  AssociatedTable: "AssociatedTable",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["item"]

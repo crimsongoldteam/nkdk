@@ -6,7 +6,7 @@ import {
 } from "~/metadata/forms/elements/columnGroup/types"
 
 export const fullColumnGroup: ColumnGroup = {
-  itemType: CollectionFormElementType.ColumnGroup,
+  itemType: "ColumnGroup",
   name: "ГруппаКолонок",
   enableContentChange: true,
   enabled: true,
@@ -156,7 +156,7 @@ export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
 }
 
 export const minimalColumnGroup: ColumnGroup = {
-  itemType: CollectionFormElementType.ColumnGroup,
+  itemType: "ColumnGroup",
   name: "ГруппаКолонок",
   childItems: [],
   group: "Vertical",

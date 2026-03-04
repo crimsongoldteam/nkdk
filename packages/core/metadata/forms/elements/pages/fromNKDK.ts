@@ -10,7 +10,7 @@ export const importPagesFromNKDK = (params: { context: ConfigurationContext; sou
 
   const childItems = importChildItemsFromNKDK({ context, value: source.childItems })
   const result: Pages = {
-    itemType: CollectionFormElementType.Pages,
+    itemType: "Pages",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
     childItems: childItems,

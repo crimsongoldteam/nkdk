@@ -11,7 +11,7 @@ describe("export GraphicalSchemaField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.GraphicalSchemaField,
+      itemType: "GraphicalSchemaField",
       value: fullGraphicalSchemaField,
     })
     expect(result).toEqual(fullGraphicalSchemaFieldEnterprise)

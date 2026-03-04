@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
 import { fullPdfDocumentField, minimalPdfDocumentField } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importPdfDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.PdfDocumentField,
+      itemType: "PdfDocumentField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPdfDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.PdfDocumentField,
+      itemType: "PdfDocumentField",
       xml: xmlData.PdfDocumentField,
     })
 
@@ -32,7 +32,7 @@ describe("importPdfDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.PdfDocumentField,
+      itemType: "PdfDocumentField",
       xml: xmlData.PdfDocumentField,
     })
 

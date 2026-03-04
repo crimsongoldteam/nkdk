@@ -8,7 +8,7 @@ describe("export ColumnGroup to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.ColumnGroup,
+      itemType: "ColumnGroup",
       value: fullColumnGroup,
     })
     expect(result).toEqual(fullColumnGroupEnterprise)

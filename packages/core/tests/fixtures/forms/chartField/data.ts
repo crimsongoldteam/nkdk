@@ -3,7 +3,7 @@ import { ChartField, ChartFieldEnterprise, ChartFieldPartialYAML } from "~/metad
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullChartField: RequiredFieldsElement<ChartField> = {
-  itemType: CollectionFormElementType.ChartField,
+  itemType: "ChartField",
   name: "ПолеДиаграммы",
   title: {
     items: { ru: "Поле диаграммы" },
@@ -224,7 +224,7 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
 }
 
 export const minimalChartField: ChartField = {
-  itemType: CollectionFormElementType.ChartField,
+  itemType: "ChartField",
   name: "ПолеДиаграммы",
 }
 

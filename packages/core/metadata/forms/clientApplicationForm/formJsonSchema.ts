@@ -94,18 +94,18 @@ function propertyRuleToSchema(rule: PropertyRule): TSchema {
  * Строит JSON Schema для YAML-представления формы приложения по правилам.
  * Ключи в схеме — YAML-ключи (rule.yaml), включая секцию «События».
  */
-export function buildClientApplicationFormJsonSchema(rules: ClientApplicationFormRule): TSchema {
+export function buildClientApplicationFormJsonSchema(rule: ClientApplicationFormRule): TSchema {
   const properties: Record<string, TSchema> = {}
 
-  for (const [_propKey, rule] of Object.entries(rules.properties)) {
-    const yamlKey = rule?.yaml
+  for (const [_propKey, propertyRule] of Object.entries(rule.properties)) {
+    const yamlKey = propertyRule?.yaml
     if (!yamlKey) continue
-    properties[yamlKey] = propertyRuleToSchema(rule as PropertyRule)
+    properties[yamlKey] = propertyRuleToSchema(propertyRule as PropertyRule)
   }
 
-  if (rules.events && Object.keys(rules.events).length > 0) {
+  if (rule.events && Object.keys(rule.events).length > 0) {
     const eventProps: Record<string, TSchema> = {}
-    for (const yamlKey of Object.values(rules.events)) {
+    for (const yamlKey of Object.values(rule.events)) {
       eventProps[yamlKey as string] = Type.String()
     }
     properties["События"] = Type.Object(eventProps, { additionalProperties: false })

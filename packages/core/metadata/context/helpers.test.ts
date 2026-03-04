@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "../metadataFactory"
 import { getCurrentTableFromContext, getParentFromContext } from "./helpers"
 import { ConfigurationContext, EnterpriseContext } from "./types"
 
@@ -11,7 +10,7 @@ describe("getParentFromContext", () => {
 
   it("returns the last element when no type filter is specified", () => {
     const context = createContext([
-      { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
+      { itemType: "LabelDecoration", name: "form1" },
       { itemType: "UsualGroup", name: "group1" },
       { itemType: "InputField", name: "field1" },
     ])
@@ -23,7 +22,7 @@ describe("getParentFromContext", () => {
 
   it("returns the last element of the specified type", () => {
     const context = createContext([
-      { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
+      { itemType: "LabelDecoration", name: "form1" },
       { itemType: "UsualGroup", name: "group1" },
       { itemType: "InputField", name: "field1" },
       { itemType: "UsualGroup", name: "group2" },
@@ -36,7 +35,7 @@ describe("getParentFromContext", () => {
 
   it("searches from end to start", () => {
     const context = createContext([
-      { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
+      { itemType: "LabelDecoration", name: "form1" },
       { itemType: "UsualGroup", name: "group1" },
       { itemType: "InputField", name: "field1" },
       { itemType: "UsualGroup", name: "group2" },
@@ -61,7 +60,7 @@ describe("getParentFromContext", () => {
 
   it("throws when no element of the specified type is found", () => {
     const context = createContext([
-      { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
+      { itemType: "LabelDecoration", name: "form1" },
       { itemType: "InputField", name: "field1" },
     ])
 
@@ -70,7 +69,7 @@ describe("getParentFromContext", () => {
 
   it("returns any type when itemType is not specified", () => {
     const context = createContext([
-      { itemType: CollectionFormElementType.LabelDecoration, name: "form1" },
+      { itemType: "LabelDecoration", name: "form1" },
       { itemType: "UsualGroup", name: "group1" },
     ])
 
@@ -125,7 +124,7 @@ describe("getCurrentTableFromContext", () => {
     const context = createEnterpriseContext([
       { itemType: "UsualGroup", dataPath: undefined },
       tableElement,
-      { itemType: CollectionFormElementType.ColumnGroup, dataPath: "ГруппаКолонок1" },
+      { itemType: "ColumnGroup", dataPath: "ГруппаКолонок1" },
     ])
 
     const result = getCurrentTableFromContext(context)
@@ -139,7 +138,7 @@ describe("getCurrentTableFromContext", () => {
     const context = createEnterpriseContext([
       { itemType: "Table", dataPath: "ВнешняяТаблица" },
       innerTable,
-      { itemType: CollectionFormElementType.ColumnGroup, dataPath: "ГруппаКолонок" },
+      { itemType: "ColumnGroup", dataPath: "ГруппаКолонок" },
     ])
 
     const result = getCurrentTableFromContext(context)
