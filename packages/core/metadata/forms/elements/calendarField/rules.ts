@@ -1,10 +1,10 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { CalendarField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const CalendarFieldRules = {
+  itemType: "CalendarField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CalendarField",
   properties: {
@@ -110,6 +110,6 @@ export const CalendarFieldRules = {
     onPeriodOutput: "ПриВыводеПериода",
     dragCheck: "ПроверкаПеретаскивания",
   },
-} as const satisfies ElementRule<CalendarField>
+} as const satisfies ElementRule
 
-registerElementRule("CalendarField", CalendarFieldRules as ElementRule<CalendarField>)
+registerElementRule("CalendarField", CalendarFieldRules)

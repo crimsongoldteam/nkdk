@@ -1,7 +1,6 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { ColumnGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ColumnGroupRules = {
@@ -79,6 +78,6 @@ export const ColumnGroupRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRule<ColumnGroup>
+} as const satisfies ElementRule
 
-registerElementRule("ColumnGroup", ColumnGroupRules as ElementRule<ColumnGroup>)
+registerElementRule("ColumnGroup", ColumnGroupRules)

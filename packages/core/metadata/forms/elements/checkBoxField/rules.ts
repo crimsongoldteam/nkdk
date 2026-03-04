@@ -1,10 +1,10 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { CheckBoxField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const CheckBoxFieldRules = {
+  itemType: "CheckBoxField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
@@ -135,6 +135,6 @@ export const CheckBoxFieldRules = {
   events: {
     onChange: "ПриИзменении",
   },
-} as const satisfies ElementRule<CheckBoxField>
+} as const satisfies ElementRule
 
-registerElementRule("CheckBoxField", CheckBoxFieldRules as ElementRule<CheckBoxField>)
+registerElementRule("CheckBoxField", CheckBoxFieldRules)

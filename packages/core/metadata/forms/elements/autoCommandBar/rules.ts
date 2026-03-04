@@ -6,7 +6,7 @@ import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
 import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getAutoCommandBarName } from "./helper"
-import { AutoCommandBar } from "./types"
+import { AutoCommandBar } from "nkdk-language"
 export type { ElementRule, PropertyRule }
 
 export const AutoCommandBarRules = {
@@ -53,6 +53,6 @@ export const AutoCommandBarRules = {
       },
     },
   } as any,
-} as const satisfies ElementRule<AutoCommandBar>
+} as const satisfies ElementRule
 
-registerElementRule("AutoCommandBar", AutoCommandBarRules as ElementRule<AutoCommandBar>)
+registerElementRule("AutoCommandBar", AutoCommandBarRules)

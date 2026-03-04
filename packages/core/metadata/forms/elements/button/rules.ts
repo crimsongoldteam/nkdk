@@ -1,6 +1,6 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule, ElementRuleNew } from "../../../metadataFactory/elements/types"
+import { ElementRule } from "../../../metadataFactory/elements/types"
 export type { ElementRule, PropertyRule }
 
 export const ButtonRules = {
@@ -112,6 +112,6 @@ export const ButtonRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRuleNew
+} as const satisfies ElementRule
 
 registerElementRule("Button", ButtonRules)

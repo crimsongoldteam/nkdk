@@ -8,15 +8,15 @@ import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerType
 import { DynamicList } from "../dynamicList/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
-    FormAttribute,
-    FormAttributeAdditionalColumn,
-    FormAttributeAdditionalColumnXML,
-    FormAttributeColumn,
-    FormAttributeColumns,
-    FormAttributeColumnsXML,
-    FormAttributeColumnXML,
-    FormAttributes,
-    FormAttributeXML,
+  FormAttribute,
+  FormAttributeAdditionalColumn,
+  FormAttributeAdditionalColumnXML,
+  FormAttributeColumn,
+  FormAttributeColumns,
+  FormAttributeColumnsXML,
+  FormAttributeColumnXML,
+  FormAttributes,
+  FormAttributeXML,
 } from "./types"
 
 export const exportFormAttributesToXML = (
