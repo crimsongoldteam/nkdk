@@ -1,7 +1,7 @@
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
-import { SingleFormElementType } from "~/metadata/metadataFactory/metadataType/types"
+
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
@@ -14,7 +14,7 @@ export const parentElement: NamedElement = {
 }
 
 export const sourceAutoCommandBar: AutoCommandBar = {
-  itemType: SingleFormElementType.AutoCommandBar,
+  itemType: "AutoCommandBar",
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -24,7 +24,7 @@ export const sourceAutoCommandBar: AutoCommandBar = {
 export const fullAutoCommandBarAllItems = fullCommandBarChildItemsAllYAML
 
 export const fullAutoCommandBar: Required<AutoCommandBar> = {
-  itemType: SingleFormElementType.AutoCommandBar,
+  itemType: "AutoCommandBar",
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -37,7 +37,7 @@ export const fullAutoExportCommandBarYAML: AutoCommandBarYAML = {
 }
 
 export const minimalAutoCommandBar: AutoCommandBar = {
-  itemType: SingleFormElementType.AutoCommandBar,
+  itemType: "AutoCommandBar",
   autofill: true,
   childItems: [],
 }
@@ -52,7 +52,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "autofill and buttons",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: true,
       childItems: [
         {
@@ -75,7 +75,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [
         {
@@ -98,7 +98,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without buttons",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: true,
       childItems: [],
     },
@@ -111,7 +111,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill and buttons",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [],
     },
@@ -123,7 +123,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with buttons",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [
         {
@@ -152,7 +152,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with button group",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [
         {
@@ -172,7 +172,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with popup",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [
         {
@@ -191,7 +191,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with search control addition",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [
         {
@@ -209,7 +209,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "with search string addition",
     element: {
-      itemType: SingleFormElementType.AutoCommandBar,
+      itemType: "AutoCommandBar",
       autofill: false,
       childItems: [
         {

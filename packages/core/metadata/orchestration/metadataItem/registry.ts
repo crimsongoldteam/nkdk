@@ -159,6 +159,7 @@ import { TypedFormElementType } from "../formElement/types"
 
 export type MetadataItemTypeRegistry = {
   //#region Elements
+
   Button: {
     metadata: Button
     yaml: ButtonPartialYAML

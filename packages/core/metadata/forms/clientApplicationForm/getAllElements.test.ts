@@ -52,7 +52,7 @@ describe("getAllElements", () => {
       commands: [],
       childItems: [],
       autoCommandBar: {
-        itemType: SingleFormElementType.AutoCommandBar,
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },
@@ -80,7 +80,7 @@ describe("getAllElements", () => {
       name: "Таблица1",
       itemType: "Table",
       autoCommandBar: {
-        itemType: SingleFormElementType.AutoCommandBar,
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },

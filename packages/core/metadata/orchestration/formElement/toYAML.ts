@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportEventsToYAML } from "~/metadata/orchestration/event"
 import { MetadataItemTypeToMdItem, MetadataItemTypeToTypedYAML, MetadataItemTypeToYAML, TypedFormElement } from ".."
 import { exportPropertyToYAML } from "../property/toYAML"
 import { PropertyRule } from "../property/types"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule, FormElementType, FormElementTypeToYAML, FormElementTypeToYAMLType } from "./types"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 
 export const exportFormElementTypeToYAML = <T extends FormElementType>(
   _context: ConfigurationContext,

@@ -9,17 +9,18 @@ import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault } from "./helpers"
 import { MetadataItemRule, PropertyRule } from "./types"
 
-export function importPropertiesFromYAML<Type extends MetadataItemType>(params: {
+export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
-  yaml: MetadataItemTypeToYAML<Type>
-  metadataType: Type
-  rules: MetadataItemRule
-  source?: MetadataItemTypeToMdItem<Type>
+  yaml: MetadataItemTypeToYAML<Rule["itemType"]>
+  // metadataType: Type
+  rules: Rule
+  source?: MetadataItemTypeToMdItem<Rule["itemType"]>
   name?: string
-}): MetadataItemTypeToMdItem<Type> {
-  const { context, yaml, source, rules, metadataType, name } = params
+}): MetadataItemTypeToMdItem<Rule["itemType"]> {
+  const { context, yaml, source, rules, name } = params
+  const metadataType = rules.itemType
 
-  const result: MetadataItemTypeToMdItem<Type> = {
+  const result: MetadataItemTypeToMdItem<Rule["itemType"]> = {
     itemType: metadataType,
   }
 

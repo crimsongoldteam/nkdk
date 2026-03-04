@@ -71,7 +71,7 @@ export type ExtendedFormElementType = FormElementType | SingleFormElementType
 //#region ElementRule
 
 export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
-  itemType: FormElementType
+  itemType: ExtendedFormElementType
   enterpriseField: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   enterpriseFieldType:
     | `FormFieldType.${FormFieldType}`

@@ -308,7 +308,7 @@
 //     const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
 
 //     const result: AutoCommandBar = {
-//       itemType: SingleFormElementType.AutoCommandBar,
+//       itemType: "AutoCommandBar",
 //       autofill: autofill,
 //       childItems: filteredChildItems,
 //     }
