@@ -23,15 +23,13 @@ export type ElementTypeByRule<
           : unknown
     }
   : never) &
-  (Rule["events"] extends undefined
-    ? {}
-    : Rule["events"] extends infer Events
-      ? {
-          events?: {
-            [K in keyof Events]?: string
-          }
-        }
-      : {}) & {
+  ("events" extends keyof Rule
+    ? Rule["events"] extends infer Events
+      ? Events extends undefined
+        ? {}
+        : { events?: { [K in keyof Events]?: string } }
+      : {}
+    : {}) & {
     name: string
     itemType: Rule["itemType"]
   }
