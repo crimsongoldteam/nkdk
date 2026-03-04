@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportFormattedI8nTextToXML } from "./toXML"
+import { FormattedI8nTextPropertyRule } from "./types"
 
 describe("exportFormattedI8nTextToXML", () => {
   describe("exportFormattedI8nTextToXML", () => {

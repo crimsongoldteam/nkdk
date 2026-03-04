@@ -1,7 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
-import { getTypeRule } from "../types/factory"
+import { getTypeRule } from "../../metadataFactory/types/factory"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext

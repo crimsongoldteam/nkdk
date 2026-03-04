@@ -5,7 +5,7 @@ import { registerElementAsType, registerElementRule } from "~/metadata/metadataF
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
-import { ElementRule } from "../../../metadataFactory/elements/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 import { getAutoCommandBarName } from "./helper"
 export type { ElementRule, PropertyRule }
 

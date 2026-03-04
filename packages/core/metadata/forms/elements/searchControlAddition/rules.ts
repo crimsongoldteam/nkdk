@@ -4,7 +4,7 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getSearchControlAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }

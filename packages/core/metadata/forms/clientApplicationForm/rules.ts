@@ -1,6 +1,6 @@
 import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { ElementRule } from "../../metadataFactory/elements/types"
+import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 

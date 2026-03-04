@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypedElement } from "~/metadata/forms/commonObjects/childItems/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { PropertyRule } from "../../orchestration/property/types"
-import { exportEventsToYAML } from "../events"
-import { exportFormElementTypeToYAML } from "../metadataType/toYAML"
-import { exportPropertyToYAML } from "../properties/toYAML"
-import { ToTypedYAML, ToYAML } from "../rules"
-import { getElementRule } from "./ruleFactory"
+import { exportEventsToYAML } from "~/metadata/orchestration/event"
+import { getElementRule } from "../../metadataFactory/elements/ruleFactory"
+import { exportFormElementTypeToYAML } from "../../metadataFactory/metadataType/toYAML"
+import { ToTypedYAML, ToYAML } from "../../metadataFactory/rules"
+import { exportPropertyToYAML } from "../property/toYAML"
+import { PropertyRule } from "../property/types"
 import { ElementRule } from "./types"
 
 export function exportElementToTypedYAML<T extends TypedElement>(params: {

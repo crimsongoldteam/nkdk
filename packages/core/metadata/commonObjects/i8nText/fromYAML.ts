@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { I8nTextPropertyRule, ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/metadataFactory"
+import { ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
-import { I8nText, I8nTextYAML } from "./types"
+import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext

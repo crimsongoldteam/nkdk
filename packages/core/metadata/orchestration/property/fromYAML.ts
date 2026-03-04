@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
-import { ToYAML } from ".."
-import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "../../orchestration/property/fn"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
-import { getTypeRule } from "../types/factory"
+import { ToYAML } from "../../metadataFactory"
+import { getTypeRule } from "../../metadataFactory/types/factory"
+import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault } from "./helpers"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext

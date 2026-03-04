@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement as MetadataItem } from "~/metadata/forms/elements/baseElement/types"
+import { ElementRule } from "../../orchestration/formElement/types"
+import { getValueOrDefault } from "../../orchestration/property/helpers"
 import { PropertyRule } from "../../orchestration/property/types"
-import { getValueOrDefault } from "../properties/helpers"
-import { ElementRule } from "./types"
 
 const isEmptyValue = (v: unknown): boolean =>
   (Array.isArray(v) && v.length === 0) ||

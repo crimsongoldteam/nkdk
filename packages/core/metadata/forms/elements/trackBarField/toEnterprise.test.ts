@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { exportElementToEnterprise } from "~/metadata/metadataFactory/elements/toEnterprise"
+import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { fullTrackBarField, fullTrackBarFieldEnterprise } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 

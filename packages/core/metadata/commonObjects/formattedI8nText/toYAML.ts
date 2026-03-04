@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormattedI8nTextPropertyRule, PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
 import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "../i8nText/toYAML"
 import { I8nTextYAML } from "../i8nText/types"
-import { FormattedI8nText, FormattedI8nTextYAML } from "./types"
+import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextYAML } from "./types"
 
 export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule>(params: {
   context: ConfigurationContext

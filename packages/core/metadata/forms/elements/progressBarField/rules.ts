@@ -1,6 +1,6 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const ProgressBarFieldRules = {

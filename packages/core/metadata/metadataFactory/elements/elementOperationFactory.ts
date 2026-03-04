@@ -1,5 +1,5 @@
+import { ItemOperationType, OperationFunction } from "../../orchestration/formElement/types"
 import { FormElementType } from "../metadataType/types"
-import { ItemOperationType, OperationFunction } from "./types"
 
 const operationRegistries = new Map<ItemOperationType, Map<FormElementType, OperationFunction<ItemOperationType>>>()
 

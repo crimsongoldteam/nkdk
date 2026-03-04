@@ -1,11 +1,45 @@
+import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
+import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
+import {
+  CharacteristicsDescription,
+  CharacteristicsDescriptionYAML,
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
+import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { IndexField, IndexFieldYAML } from "~/metadata/commonObjects/indexField/types"
+import {
+  MetadataAttribute,
+  MetadataAttributes,
+  MetadataAttributesYAML,
+  MetadataAttributeYAML,
+} from "~/metadata/commonObjects/metadataAttribute/types"
+import { MetadataCommandGroup, MetadataCommandGroupYAML } from "~/metadata/commonObjects/metadataCommandGroup/types"
+import { MetadataField, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
 import { DataPathYAML, MetadataType, MetadataTypeYAML } from "~/metadata/commonObjects/metadataPath/types"
+import {
+  MetadataItemLink,
+  MetadataItemLinks,
+  MetadataItemLinksYAML,
+  MetadataItemLinkYAML,
+} from "~/metadata/commonObjects/metadataRef/types"
+import {
+  MetadataTabularSection,
+  MetadataTabularSectionYAML,
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import {
+  MetadataValueCollection,
+  MetadataValueCollectionYAML,
+} from "~/metadata/commonObjects/metadataValueCollection/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predifined/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
@@ -15,7 +49,11 @@ import {
   TypeDescriptionEnterprise,
   TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
+import { UsePurposes, UsePurposesYAML } from "~/metadata/commonObjects/usePurposes/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import {
   AllChildItemsEnterprise,
   CommandBarChildItems,
@@ -28,7 +66,19 @@ import {
   TableChildItemsEnterprise,
   TableChildItemsPartialYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
+import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
+import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
+import {
+  SingleSearchControlAddition,
+  SingleSearchControlAdditionYAML,
+} from "~/metadata/forms/elements/searchControlAddition/types"
+import {
+  SingleSearchStringAddition,
+  SingleSearchStringAdditionYAML,
+} from "~/metadata/forms/elements/searchStringAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 
 export type PropertyTypeRegistry = {
@@ -129,6 +179,158 @@ export type PropertyTypeRegistry = {
     enterprise: string[]
     yaml: MetadataTypeYAML[]
   }
+  AdditionalIndex: {
+    item: AdditionalIndex
+    enterprise: unknown
+    yaml: AdditionalIndexYAML
+  }
+  CharacteristicsDescription: {
+    item: CharacteristicsDescription
+    enterprise: unknown
+    yaml: CharacteristicsDescriptionYAML
+  }
+  ChoiceList: {
+    item: ChoiceList
+    enterprise: unknown
+    yaml: ChoiceListYAML
+  }
+  ChoiceParameterLinks: {
+    item: ChoiceParameterLinks
+    enterprise: string
+    yaml: ChoiceParameterLinksYAML
+  }
+  ChoiceParameters: {
+    item: ChoiceParameters
+    enterprise: unknown
+    yaml: ChoiceParametersYAML
+  }
+  FieldsList: {
+    item: FieldsList
+    enterprise: string[]
+    yaml: FieldsListYAML
+  }
+  FunctionalOptions: {
+    item: FunctionalOptions
+    enterprise: string[]
+    yaml: FunctionalOptionsYAML
+  }
+  IndexField: {
+    item: IndexField
+    enterprise: string
+    yaml: IndexFieldYAML
+  }
+  MetadataAttribute: {
+    item: MetadataAttribute
+    enterprise: unknown
+    yaml: MetadataAttributeYAML
+  }
+  MetadataCommandGroup: {
+    item: MetadataCommandGroup
+    enterprise: string
+    yaml: MetadataCommandGroupYAML
+  }
+  MetadataField: {
+    item: MetadataField
+    enterprise: string
+    yaml: MetadataFieldYAML
+  }
+  MetadataItemLink: {
+    item: MetadataItemLink
+    enterprise: string
+    yaml: MetadataItemLinkYAML
+  }
+  MetadataTabularSection: {
+    item: MetadataTabularSection
+    enterprise: unknown
+    yaml: MetadataTabularSectionYAML
+  }
+  MetadataValue: {
+    item: MetadataValue
+    enterprise: unknown
+    yaml: MetadataValueYAML
+  }
+  MetadataValueCollection: {
+    item: MetadataValueCollection
+    enterprise: string[]
+    yaml: MetadataValueCollectionYAML
+  }
+  Predefined: {
+    item: Predefined
+    enterprise: unknown
+    yaml: PredefinedYAML
+  }
+  TypeLink: {
+    item: TypeLink
+    enterprise: unknown
+    yaml: TypeLinkYAML
+  }
+  UsePurposes: {
+    item: UsePurposes
+    enterprise: string[]
+    yaml: UsePurposesYAML
+  }
+
+  FunctionalOptionsProperty: {
+    item: FunctionalOptions
+    enterprise: string[]
+    yaml: FunctionalOptionsYAML
+  }
+
+  MetadataAttributes: {
+    item: MetadataAttributes
+    enterprise: unknown
+    yaml: MetadataAttributesYAML
+  }
+  MetadataItemLinks: {
+    item: MetadataItemLinks
+    enterprise: unknown
+    yaml: MetadataItemLinksYAML
+  }
+  MetadataCommands: {
+    item: MetadataCommands
+    enterprise: unknown
+    yaml: MetadataCommandsYAML
+  }
+  CommandInterface: {
+    item: CommandInterface
+    enterprise: unknown
+    yaml: CommandInterfaceYAML
+  }
+
+  //#endregion
+
+  //#region Single form elements
+
+  ContextMenu: {
+    item: ContextMenu
+    enterprise: unknown
+    yaml: ContextMenuYAML
+  }
+
+  ExtendedTooltip: {
+    item: ExtendedTooltip
+    enterprise: unknown
+    yaml: ExtendedTooltipYAML
+  }
+
+  SingleSearchControlAddition: {
+    item: SingleSearchControlAddition
+    enterprise: unknown
+    yaml: SingleSearchControlAdditionYAML
+  }
+
+  SingleSearchStringAddition: {
+    item: SingleSearchStringAddition
+    enterprise: unknown
+    yaml: SingleSearchStringAdditionYAML
+  }
+
+  ViewStatusAddition: {
+    item: ViewStatusAddition
+    enterprise: unknown
+    yaml: ViewStatusAdditionYAML
+  }
+
   //#endregion
 
   //#region ChildItems
@@ -158,9 +360,9 @@ export type PropertyTypeRegistry = {
   //#endregion
 }
 
-export type PropertyType = keyof PropertyTypeRegistry
+export type PropertyRuleType = keyof PropertyTypeRegistry
 
-export const PropertyType: Record<PropertyType, PropertyType> = {
+export const PropertyRuleTypeKeys = Object.keys({
   number: "number",
   string: "string",
   boolean: "boolean",
@@ -180,12 +382,38 @@ export const PropertyType: Record<PropertyType, PropertyType> = {
   StandardAttributeDescription: "StandardAttributeDescription",
   MetadataType: "MetadataType",
   MetadataTypeCollection: "MetadataTypeCollection",
+  AdditionalIndex: "AdditionalIndex",
+  CharacteristicsDescription: "CharacteristicsDescription",
+  ChoiceList: "ChoiceList",
+  ChoiceParameterLinks: "ChoiceParameterLinks",
+  ChoiceParameters: "ChoiceParameters",
+  FieldsList: "FieldsList",
+  FunctionalOptions: "FunctionalOptions",
+  IndexField: "IndexField",
+  MetadataAttribute: "MetadataAttribute",
+  MetadataCommandGroup: "MetadataCommandGroup",
+  MetadataField: "MetadataField",
+  MetadataItemLink: "MetadataItemLink",
+  MetadataTabularSection: "MetadataTabularSection",
+  MetadataValue: "MetadataValue",
+  MetadataValueCollection: "MetadataValueCollection",
+  Predefined: "Predefined",
+  TypeLink: "TypeLink",
+  UsePurposes: "UsePurposes",
   GroupChildItems: "GroupChildItems",
   CommandBarChildItems: "CommandBarChildItems",
   TableChildItems: "TableChildItems",
-} as const
-
-export type PropertyRuleType = keyof PropertyTypeRegistry
+  FunctionalOptionsProperty: "FunctionalOptionsProperty",
+  MetadataAttributes: "MetadataAttributes",
+  MetadataItemLinks: "MetadataItemLinks",
+  MetadataCommands: "MetadataCommands",
+  CommandInterface: "CommandInterface",
+  ContextMenu: "ContextMenu",
+  ExtendedTooltip: "ExtendedTooltip",
+  SingleSearchControlAddition: "SingleSearchControlAddition",
+  SingleSearchStringAddition: "SingleSearchStringAddition",
+  ViewStatusAddition: "ViewStatusAddition",
+} as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["item"]
 export type PropertyYoEnterprise<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["enterprise"]

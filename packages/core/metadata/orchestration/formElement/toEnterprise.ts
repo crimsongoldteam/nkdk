@@ -1,9 +1,9 @@
 import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { FormElementType } from "../metadataType/types"
-import { exportPropertiesToEnterprise } from "../properties/toEnterprise"
-import { ToEnterprise } from "../rules"
-import { getElementRule } from "./ruleFactory"
+import { getElementRule } from "../../metadataFactory/elements/ruleFactory"
+import { FormElementType } from "../../metadataFactory/metadataType/types"
+import { ToEnterprise } from "../../metadataFactory/rules"
+import { exportPropertiesToEnterprise } from "../property/toEnterprise"
 
 function pushElementToContext(params: {
   context: ConfigurationContext

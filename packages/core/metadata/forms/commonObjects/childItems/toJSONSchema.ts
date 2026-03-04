@@ -1,7 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExportToJSONSchemaFn } from "~/metadata/metadataFactory"
-import { exportElementToJSONSchema } from "~/metadata/metadataFactory/elements/toJSONSchema"
+import { exportElementToJSONSchema } from "~/metadata/orchestration/formElement/toJSONSchema"
 import { AllChildItem } from "./types"
 
 export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {

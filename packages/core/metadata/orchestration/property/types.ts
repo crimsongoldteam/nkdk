@@ -5,7 +5,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { EventsRules } from "../event"
 import { MetadataItemType } from "../metadataItem/registry"
-import { PropertyRuleType } from "./fn"
+import { PropertyRuleType } from "./registry"
 
 export interface MetadataItem {
   itemType: MetadataItemType
@@ -14,6 +14,8 @@ export interface MetadataItem {
 type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
 export interface BasePropertyRule {
+  type: PropertyRuleType
+
   /**
    * Название ключа в yaml
    */
@@ -109,10 +111,10 @@ export interface CleanPropertyRule extends BasePropertyRule {
   >
 }
 
-export interface CustomExportPropertyRule extends BasePropertyRule {
-  type?: never
-  exportToYAML: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
-}
+// export interface CustomExportPropertyRule extends BasePropertyRule {
+//   type?: never
+//   exportToYAML: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
+// }
 
 export type PropertyRule =
   | SystemEnumerationPropertyRule
@@ -120,7 +122,7 @@ export type PropertyRule =
   | I8nTextPropertyRule
   | FormattedI8nTextPropertyRule
   | CleanPropertyRule
-  | CustomExportPropertyRule
+  // | CustomExportPropertyRule
   | TableAdditionalSourcePropertyRule
   | StandardAttributeDescriptionPropertyRule
   | ChildItemsPropertyRule
@@ -128,7 +130,7 @@ export type PropertyRule =
   | DataPathPropertyRule
   | MetadataTypePropertyRule
 
-type PropertiesType<ExtraProperties extends string = never> = Partial<Record<string | ExtraProperties, PropertyRule>>
+type PropertiesType = Partial<Record<string, PropertyRule>>
 
 export interface ItemXML {
   [key: string]: any

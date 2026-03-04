@@ -1,7 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Events, EventsXML, EventXML } from "~/metadata/metadataFactory/events/types"
 import { MetadataItem, MetadataItemRule } from "../property/types"
+import { EventsXML, Events, EventXML } from "./types"
 
 export const exportEventsToXML = <T extends MetadataItem>(params: {
   context: ConfigurationContext

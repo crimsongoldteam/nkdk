@@ -2,7 +2,7 @@ import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { ElementRule } from "../../../metadataFactory/elements/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 export type { ElementRule }

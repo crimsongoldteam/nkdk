@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
 import { mockContext } from "~/tests/mockContext"
 import { importFormattedI8nTextFromYAML } from "./fromYAML"
+import { FormattedI8nTextPropertyRule } from "./types"
 
 const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
   type: "FormattedI8nText",
