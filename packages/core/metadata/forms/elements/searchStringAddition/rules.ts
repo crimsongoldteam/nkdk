@@ -86,7 +86,7 @@ export const SearchStringAdditionRules = {
 
 registerElementAsType({
   propertyType: "SearchStringAddition",
-  elementRule: SearchStringAdditionRules,
+  elementRule: SingleSearchStringAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
     if (!context.elementsTree) throw new Error("elementContext is not defined")
     const parent = getParentFromContext(context, CollectionFormElementType.Table)
