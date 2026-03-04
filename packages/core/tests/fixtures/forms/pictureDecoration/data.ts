@@ -15,6 +15,7 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
     items: { ru: "Заголовок декорации картинки" },
   },
   border: {
+    controlBorderType: "Single",
     width: 1,
   },
   borderColor: { type: "WebColor", value: "Black" },
@@ -23,7 +24,7 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   hyperlink: false,
   nonselectedPictureText: "Нет картинки",
   picture: {
-    ref: "Picture",
+    ref: "Print",
     type: "StandardPicture",
     loadTransparent: true,
   },
@@ -121,8 +122,12 @@ export const fullPictureDecorationEnterprise = {
   PictureSize: { Type: "SystemEnumeration", Value: "PictureSize.AutoSize" },
   Scale: 100,
   Zoomable: true,
-  Title: undefined,
-  Border: { Type: "Border", Value: "Border.Single" },
+  Title: "Заголовок декорации картинки",
+  Border: {
+    Type: "Border",
+    Value: "ControlBorderType.Single",
+    Width: 1,
+  },
   Picture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PictureDecorationEnterprise>
 
@@ -151,14 +156,13 @@ export const fullPictureDecorationPartialYAML: Required<
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",
   Гиперссылка: "Ложь",
-  Картинка: "Картинка",
+  Картинка: "Печать",
   Масштаб: 100,
   Масштабировать: "Истина",
   РазрешитьНачалоПеретаскивания: "Истина",
   РазрешитьПеретаскивание: "Истина",
   Рамка: {
-    Имя: undefined,
-    ТипРамки: undefined,
+    ТипРамки: "Одинарная",
     Ширина: 1,
   },
   ТекстНевыбраннойКартинки: "Нет картинки",

@@ -29,5 +29,5 @@ export type BorderYAML = Static<typeof BorderJSONSchema>
 export interface BorderEnterprise {
   Type: "Border"
   Width?: number
-  Value?: string
+  Value?: `ControlBorderType.${SE.ControlBorderType}`
 }

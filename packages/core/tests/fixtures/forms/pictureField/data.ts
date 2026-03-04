@@ -199,7 +199,7 @@ export const fullPictureFieldEnterprise = {
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.Single" },
   ValuesPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PictureFieldEnterprise>
 

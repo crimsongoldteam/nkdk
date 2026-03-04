@@ -171,7 +171,7 @@ export const fullPeriodFieldEnterprise = {
   Width: 300,
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.Single" },
 } satisfies Required<PeriodFieldEnterprise>
 
 export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
