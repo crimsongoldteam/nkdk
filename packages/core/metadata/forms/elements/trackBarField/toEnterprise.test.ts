@@ -8,7 +8,7 @@ describe("export TrackBarField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.TrackBarField,
+      itemType: "TrackBarField",
       value: fullTrackBarField,
     })
     expect(result).toEqual(fullTrackBarFieldEnterprise)

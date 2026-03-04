@@ -91,7 +91,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result = {
-//       itemType: CollectionFormElementType.PictureDecoration,
+//       itemType: "PictureDecoration",
 //       name: name || "",
 //       picture: picture,
 //       title: title ? { items: title.items, formatted: false } : undefined,
@@ -261,7 +261,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     return {
-//       itemType: CollectionFormElementType.RadioButtonField,
+//       itemType: "RadioButtonField",
 //       name: name || "",
 //       id: undefined,
 //       choiceList: choiceList,

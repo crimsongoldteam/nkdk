@@ -7,7 +7,7 @@ import {
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
-  itemType: CollectionFormElementType.RadioButtonField,
+  itemType: "RadioButtonField",
   name: "ПолеПереключателя",
   title: {
     items: { ru: "Поле переключателя" },
@@ -239,7 +239,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
 }
 
 export const minimalRadioButtonField: RadioButtonField = {
-  itemType: CollectionFormElementType.RadioButtonField,
+  itemType: "RadioButtonField",
   name: "ПолеПереключателя",
 }
 

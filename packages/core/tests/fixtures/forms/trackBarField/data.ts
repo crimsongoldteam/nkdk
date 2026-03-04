@@ -5,7 +5,7 @@ import {
 } from "~/metadata/forms/elements/trackBarField/types"
 
 export const fullTrackBarField: Required<TrackBarField> = {
-  itemType: CollectionFormElementType.TrackBarField,
+  itemType: "TrackBarField",
   name: "ПолеПолосыПрокрутки",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -247,7 +247,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
 delete (fullTrackBarFieldPartialYAML as any).Заголовок
 
 export const minimalTrackBarField: TrackBarField = {
-  itemType: CollectionFormElementType.TrackBarField,
+  itemType: "TrackBarField",
   name: "ПолеПолосыПрокрутки",
 }
 

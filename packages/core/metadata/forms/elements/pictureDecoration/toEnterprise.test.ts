@@ -12,7 +12,7 @@ describe("export PictureDecoration to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: CollectionFormElementType.PictureDecoration,
+      itemType: "PictureDecoration",
       value: fullPictureDecoration,
     })
     expect(result).toEqual(fullPictureDecorationEnterprise)

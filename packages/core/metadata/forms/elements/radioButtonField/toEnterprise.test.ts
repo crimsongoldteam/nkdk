@@ -8,7 +8,7 @@ describe("export RadioButtonField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.RadioButtonField,
+      itemType: "RadioButtonField",
       value: fullRadioButtonField,
     })
     expect(result).toEqual(fullRadioButtonFieldEnterprise)

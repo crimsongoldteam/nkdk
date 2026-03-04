@@ -8,7 +8,7 @@ describe("export ProgressBarField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: CollectionFormElementType.ProgressBarField,
+      itemType: "ProgressBarField",
       value: fullProgressBarField,
     })
     expect(result).toEqual(fullProgressBarFieldEnterprise)

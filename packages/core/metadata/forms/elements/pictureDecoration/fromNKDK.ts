@@ -15,7 +15,7 @@ export const importPictureDecorationFromNKDK = (params: {
   const picture = importPictureFromYAML(context, undefined, pictureValue)
 
   const result: PictureDecoration = {
-    itemType: CollectionFormElementType.PictureDecoration,
+    itemType: "PictureDecoration",
     name: importNameFromNKDK(source),
     picture: picture,
   }

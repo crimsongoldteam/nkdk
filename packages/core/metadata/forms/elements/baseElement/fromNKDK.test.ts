@@ -8,7 +8,7 @@ describe("import other field from structure", () => {
     const result = await testImportElementFromNKDK(mockContext, "?ПолеПереключателя %ИмяПоля")
 
     expect(result).toEqual({
-      itemType: CollectionFormElementType.RadioButtonField,
+      itemType: "RadioButtonField",
       name: "ИмяПоля",
     })
   })
