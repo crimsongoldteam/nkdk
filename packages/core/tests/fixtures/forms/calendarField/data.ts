@@ -152,13 +152,10 @@ export const fullCalendarFieldEnterprise = {
   },
   Width: 4,
   WidthInMonths: 2,
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.DoubleUnderline" },
 } satisfies Required<CalendarFieldEnterprise>
 
-export const fullCalendarFieldPartialYAML: Omit<
-  Required<CalendarFieldPartialYAML>,
-  "Заголовок" | "ЗапретитьИспользование"
-> = {
+export const fullCalendarFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -217,7 +214,7 @@ export const fullCalendarFieldPartialYAML: Omit<
     ПриАктивизацииДаты: "ПроцедураАктивацииДаты",
     ПриВыводеПериода: "ПроцедураВыводаПериода",
   },
-}
+} satisfies Omit<Required<CalendarFieldPartialYAML>, "Заголовок" | "ЗапретитьИспользование">
 
 export const minimalCalendarField: CalendarField = {
   itemType: CollectionFormElementType.CalendarField,
