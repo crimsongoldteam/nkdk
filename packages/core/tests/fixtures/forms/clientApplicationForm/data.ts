@@ -273,7 +273,7 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
   },
   РежимВыбора: "БыстрыйВыбор",
   // #endregion
-}
+} satisfies Required<ClientApplicationFormYAML>
 
 export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],

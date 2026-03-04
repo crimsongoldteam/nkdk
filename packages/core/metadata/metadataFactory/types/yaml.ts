@@ -1,13 +1,13 @@
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormElementType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { TypeRulesNamesNew, YAMLTypeByKey } from "./types"
+import { MetadataType } from "../metadataType/types"
 
 export type YAMLTypeByRule<
   Rule extends {
     properties: Record<string, PropertyRule>
-    itemType: FormElementType
+    itemType: MetadataType
     events?: Record<string, string>
   },
 > = PropertiesByRule<Rule> & UserVisibleByRule<Rule> & EventsByRule<Rule>

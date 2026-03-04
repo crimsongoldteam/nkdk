@@ -10,7 +10,7 @@ export const exportClientApplicationFormToYAML = (
   context: ConfigurationContext,
   data: ClientApplicationForm
 ): ClientApplicationFormYAML | undefined => {
-  const result = exportPropertiesToYAML({
+  const properties = exportPropertiesToYAML({
     context,
     data: data,
     rules: ClientApplicationFormRules,
@@ -23,7 +23,12 @@ export const exportClientApplicationFormToYAML = (
 
   const allElements = getAllElements(data)
   const childItemsPartial = exportChildItemsToPartialYAML(context, allElements)
-  const childItems = childItemsPartial ? { ПодчиненныеЭлементы: childItemsPartial } : {}
 
-  return { ...result, ...events, ...childItems }
+  const result: ClientApplicationFormYAML = {
+    ...properties,
+    ...events,
+    ...(childItemsPartial ? { Элементы: childItemsPartial } : {}),
+  }
+
+  return result
 }

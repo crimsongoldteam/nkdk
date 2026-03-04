@@ -152,7 +152,11 @@ export const fullCalendarFieldEnterprise = {
   },
   Width: 4,
   WidthInMonths: 2,
-  Border: { Type: "Border", Value: "ControlBorderType.DoubleUnderline" },
+  Border: {
+    Type: "Border",
+    Value: "ControlBorderType.DoubleUnderline",
+    Width: 1,
+  },
 } satisfies Required<CalendarFieldEnterprise>
 
 export const fullCalendarFieldPartialYAML = {

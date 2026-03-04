@@ -499,6 +499,10 @@ export const fullInputFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
   },
+  FooterPicture: {
+    Type: "Picture",
+    Value: "PictureLib.Print",
+  },
   FooterText: "Текст подвала",
   FooterTextColor: {
     Type: "Color",
@@ -508,6 +512,10 @@ export const fullInputFieldEnterprise = {
   HeaderHorizontalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
+  },
+  HeaderPicture: {
+    Type: "Picture",
+    Value: "PictureLib.Print",
   },
   Height: 100,
   HeightControlVariant: {
@@ -558,6 +566,10 @@ export const fullInputFieldEnterprise = {
     Value: "StyleFonts.NormalTextFont",
   },
   MultipleValuesHyperlink: true,
+  MultipleValuesPicture: {
+    Type: "Picture",
+    Value: "CommonPictures.ОбщаяКартинка",
+  },
   MultipleValuesTextColor: {
     Type: "Color",
     Value: "WebColors.Red",
@@ -637,6 +649,10 @@ export const fullInputFieldEnterprise = {
   },
   Width: 200,
   Wrap: true,
+  ChoiceButtonPicture: {
+    Type: "Picture",
+    Value: "PictureLib.Print",
+  },
 } satisfies InputFieldEnterprise
 
 export const minimalInputFieldEnterprise = {

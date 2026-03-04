@@ -58,6 +58,7 @@ export const fullButtonGroupEnterprise = {
       ElementType: "FormButton",
       Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
       Name: "Кнопка",
+      CommandName: "КомандаЗаглушка",
     },
   ],
   Representation: {

@@ -1,16 +1,17 @@
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { ChoiceParameters } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { MetadataItem } from "~/metadata/metadataFactory"
+import { YAMLTypeByRule } from "~/metadata/metadataFactory/types/yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { GroupChildItem, GroupChildItemsPartialYAML } from "../commonObjects/childItems/types"
-import { CommandInterface, CommandInterfaceYAML } from "../commonObjects/commandInterface/types"
-import { CommandSet, CommandSetYAML } from "../commonObjects/commandSet/types"
-import { FormAttribute, FormAttributesXML, FormAttributesYAML } from "../commonObjects/formAttribute/types"
-import { FormCommand, FormCommandsXML, FormCommandsYAML } from "../commonObjects/formCommand/types"
-import { FormParameters, FormParametersXML, FormParametersYAML } from "../commonObjects/formParameter/types"
-import { AutoCommandBar, AutoCommandBarYAML } from "../elements/autoCommandBar/types"
+import { GroupChildItem } from "../commonObjects/childItems/types"
+import { CommandInterface } from "../commonObjects/commandInterface/types"
+import { CommandSet } from "../commonObjects/commandSet/types"
+import { FormAttribute, FormAttributesXML } from "../commonObjects/formAttribute/types"
+import { FormCommand, FormCommandsXML } from "../commonObjects/formCommand/types"
+import { FormParameters, FormParametersXML } from "../commonObjects/formParameter/types"
+import { AutoCommandBar } from "../elements/autoCommandBar/types"
+import { ClientApplicationFormRules } from "./rules"
 
 export interface ClientApplicationForm extends MetadataItem {
   itemType: "ClientApplicationForm"
@@ -194,103 +195,105 @@ export interface ClientApplicationFormXML {
   [key: string]: any
 }
 
-export interface ClientApplicationFormYAML {
-  АвтоЗаголовок?: StringboolYAML
-  АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsYAML
-  АвтоНавигационнаяСсылка?: StringboolYAML
-  ВертикальнаяПрокрутка?: SE.VerticalFormScrollYAML
-  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignYAML
-  ВертикальныйИнтервал?: SE.FormItemSpacingYAML
-  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantYAML
-  Высота?: number
-  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationYAML
-  ГоризонтальныйИнтервал?: SE.FormItemSpacingYAML
-  Группировка?: SE.ChildFormItemsGroupYAML
-  Доступность?: StringboolYAML
-  Заголовок?: I8nTextYAML
-  ЗакрыватьПриВыборе?: StringboolYAML
-  ЗакрыватьПриЗакрытииВладельца?: StringboolYAML
-  ИспользуемыйСерверФормы?: SE.UsedServerYAML
-  ИнтерфейсКоманды?: CommandInterfaceYAML
-  КлючНазначенияИспользования?: string
-  КлючСохраненияПоложенияОкна?: string
-  КоманднаяПанель?: AutoCommandBarYAML
-  Масштаб?: number
-  МодальныйРежим?: StringboolYAML
-  Модифицированность?: StringboolYAML
-  // НавигационнаяСсылка?: string
-  РазрешитьИзменятьФорму?: StringboolYAML
-  ОтображатьЗаголовок?: StringboolYAML
-  ОтображатьКнопкуЗакрытия?: StringboolYAML
-  ОтображениеОбсуждений?: SE.FormConversationsRepresentationYAML
-  ПоведениеКлавишиEnter?: SE.EnterKeyBehaviorTypeYAML
-  ПоложениеКоманднойПанели?: SE.FormCommandBarLabelLocationYAML
-  ПроверятьЗаполнениеАвтоматически?: StringboolYAML
-  РежимОткрытияОкнаФормы?: SE.FormWindowOpeningModeYAML
-  СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceYAML
-  СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsYAML
-  СохраняемыеВНастройкахДанныеМодифицированы?: StringboolYAML
-  СоставКоманд?: CommandSetYAML
-  ТолькоПросмотр?: StringboolYAML
-  Ширина?: number
-  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthYAML
-  СохранятьНастройкиОкна?: StringboolYAML
-  Реквизиты?: FormAttributesYAML
-  Параметры?: FormParametersYAML
+export type ClientApplicationFormYAML = YAMLTypeByRule<typeof ClientApplicationFormRules>
 
-  //#region Catalog
-  ВыборДоступен?: StringboolYAML
-  ИспользованиеДляГруппИЭлементов?: SE.FoldersAndItemsUseYAML
-  ПараметрыВыбора?: ChoiceParametersYAML
-  РежимВыбора?: SE.ChoiceModeYAML
-  //#endregion
+// export interface ClientApplicationFormYAML {
+//   АвтоЗаголовок?: StringboolYAML
+//   АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsYAML
+//   АвтоНавигационнаяСсылка?: StringboolYAML
+//   ВертикальнаяПрокрутка?: SE.VerticalFormScrollYAML
+//   ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignYAML
+//   ВертикальныйИнтервал?: SE.FormItemSpacingYAML
+//   ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantYAML
+//   Высота?: number
+//   ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationYAML
+//   ГоризонтальныйИнтервал?: SE.FormItemSpacingYAML
+//   Группировка?: SE.ChildFormItemsGroupYAML
+//   Доступность?: StringboolYAML
+//   Заголовок?: I8nTextYAML
+//   ЗакрыватьПриВыборе?: StringboolYAML
+//   ЗакрыватьПриЗакрытииВладельца?: StringboolYAML
+//   ИспользуемыйСерверФормы?: SE.UsedServerYAML
+//   ИнтерфейсКоманды?: CommandInterfaceYAML
+//   КлючНазначенияИспользования?: string
+//   КлючСохраненияПоложенияОкна?: string
+//   КоманднаяПанель?: AutoCommandBarYAML
+//   Масштаб?: number
+//   МодальныйРежим?: StringboolYAML
+//   Модифицированность?: StringboolYAML
+//   // НавигационнаяСсылка?: string
+//   РазрешитьИзменятьФорму?: StringboolYAML
+//   ОтображатьЗаголовок?: StringboolYAML
+//   ОтображатьКнопкуЗакрытия?: StringboolYAML
+//   ОтображениеОбсуждений?: SE.FormConversationsRepresentationYAML
+//   ПоведениеКлавишиEnter?: SE.EnterKeyBehaviorTypeYAML
+//   ПоложениеКоманднойПанели?: SE.FormCommandBarLabelLocationYAML
+//   ПроверятьЗаполнениеАвтоматически?: StringboolYAML
+//   РежимОткрытияОкнаФормы?: SE.FormWindowOpeningModeYAML
+//   СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceYAML
+//   СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsYAML
+//   СохраняемыеВНастройкахДанныеМодифицированы?: StringboolYAML
+//   СоставКоманд?: CommandSetYAML
+//   ТолькоПросмотр?: StringboolYAML
+//   Ширина?: number
+//   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthYAML
+//   СохранятьНастройкиОкна?: StringboolYAML
+//   Реквизиты?: FormAttributesYAML
+//   Параметры?: FormParametersYAML
 
-  События?: {
-    АвтоПодборПользователейСистемыВзаимодействия?: string
-    ВнешнееСобытие?: string
-    ОбработкаАктивизации?: string
-    ОбработкаВыбора?: string
-    ОбработкаЗаписиНового?: string
-    ОбработкаНавигационнойСсылки?: string
-    ОбработкаОповещения?: string
-    ОбработкаПерехода?: string
-    ОбработкаПолученияНавигационнойСсылки?: string
-    ОбработкаПолученияСпискаНавигационныхСсылок?: string
-    ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия?: string
-    ОбработкаПроверкиЗаполненияНаСервере?: string
-    ОтключениеВнешнейКомпонентыПриОшибке?: string
-    ПередЗагрузкойДанныхИзНастроекНаСервере?: string
-    ПередЗакрытием?: string
-    ПередПереоткрытиемСДругогоСервера?: string
-    ПриВставкеИзБуфераОбмена?: string
-    ПриЗагрузкеДанныхИзНастроекНаСервере?: string
-    ПриЗакрытии?: string
-    ПриИзмененииДоступностиОсновногоСервера?: string
-    ПриИзмененииПараметровЭкрана?: string
-    ПриОткрытии?: string
-    ПриПереоткрытииСДругогоСервера?: string
-    ПриПовторномОткрытии?: string
-    ПриСозданииНаСервере?: string
-    ПриСохраненииДанныхВНастройкахНаСервере?: string
+//   //#region Catalog
+//   ВыборДоступен?: StringboolYAML
+//   ИспользованиеДляГруппИЭлементов?: SE.FoldersAndItemsUseYAML
+//   ПараметрыВыбора?: ChoiceParametersYAML
+//   РежимВыбора?: SE.ChoiceModeYAML
+//   //#endregion
 
-    // #region Catalog
-    ВыборЗначения?: string
-    ПередЗаписью?: string
-    ПередЗаписьюНаСервере?: string
-    ПослеЗаписи?: string
-    ПослеЗаписиНаСервере?: string
-    ПриЗаписиНаСервере?: string
-    ПриЧтенииНаСервере?: string
-    // #endregion
-  }
-  Команды?: FormCommandsYAML
-  Элементы?: GroupChildItemsPartialYAML
+//   События?: {
+//     АвтоПодборПользователейСистемыВзаимодействия?: string
+//     ВнешнееСобытие?: string
+//     ОбработкаАктивизации?: string
+//     ОбработкаВыбора?: string
+//     ОбработкаЗаписиНового?: string
+//     ОбработкаНавигационнойСсылки?: string
+//     ОбработкаОповещения?: string
+//     ОбработкаПерехода?: string
+//     ОбработкаПолученияНавигационнойСсылки?: string
+//     ОбработкаПолученияСпискаНавигационныхСсылок?: string
+//     ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия?: string
+//     ОбработкаПроверкиЗаполненияНаСервере?: string
+//     ОтключениеВнешнейКомпонентыПриОшибке?: string
+//     ПередЗагрузкойДанныхИзНастроекНаСервере?: string
+//     ПередЗакрытием?: string
+//     ПередПереоткрытиемСДругогоСервера?: string
+//     ПриВставкеИзБуфераОбмена?: string
+//     ПриЗагрузкеДанныхИзНастроекНаСервере?: string
+//     ПриЗакрытии?: string
+//     ПриИзмененииДоступностиОсновногоСервера?: string
+//     ПриИзмененииПараметровЭкрана?: string
+//     ПриОткрытии?: string
+//     ПриПереоткрытииСДругогоСервера?: string
+//     ПриПовторномОткрытии?: string
+//     ПриСозданииНаСервере?: string
+//     ПриСохраненииДанныхВНастройкахНаСервере?: string
 
-  Синоним?: I8nTextYAML
-  Комментарий?: string
-  ВключатьСправкуВСодержание?: StringboolYAML
-  НазначенияИспользования?: "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"
-}
+//     // #region Catalog
+//     ВыборЗначения?: string
+//     ПередЗаписью?: string
+//     ПередЗаписьюНаСервере?: string
+//     ПослеЗаписи?: string
+//     ПослеЗаписиНаСервере?: string
+//     ПриЗаписиНаСервере?: string
+//     ПриЧтенииНаСервере?: string
+//     // #endregion
+//   }
+//   Команды?: FormCommandsYAML
+//   Элементы?: GroupChildItemsPartialYAML
+
+//   Синоним?: I8nTextYAML
+//   Комментарий?: string
+//   ВключатьСправкуВСодержание?: StringboolYAML
+//   НазначенияИспользования?: "МобильноеПриложение" | "ПлатформаИМобильноеПриложение"
+// }
 
 export interface FormMetadataXML {
   _xmlns?: string

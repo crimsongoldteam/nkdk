@@ -68,7 +68,7 @@ export const fullCommandBarEnterprise = {
   Autofill: true,
   ChildItems: [
     {
-      CommandName: "ВыполнитьКоманда1",
+      CommandName: "КомандаЗаглушка",
       ElementType: "FormButton",
       Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
       Name: "Кнопка1",
@@ -76,7 +76,7 @@ export const fullCommandBarEnterprise = {
     {
       ChildItems: [
         {
-          CommandName: "ВыполнитьКоманда2",
+          CommandName: "КомандаЗаглушка",
           ElementType: "FormButton",
           Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
           Name: "Кнопка2",
@@ -90,7 +90,7 @@ export const fullCommandBarEnterprise = {
     {
       ChildItems: [
         {
-          CommandName: "ВыполнитьКоманда3",
+          CommandName: "КомандаЗаглушка",
           ElementType: "FormButton",
           Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
           Name: "Кнопка3",
