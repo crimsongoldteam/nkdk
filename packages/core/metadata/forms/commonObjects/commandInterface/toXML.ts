@@ -54,7 +54,7 @@ const exportCommandInterfaceItemToXML = (
   }
 
   if (item.visible) {
-    const visibleXML = exportUserVisibleToXML<CommandInterfaceItem>(
+    const visibleXML = exportUserVisibleToXML(
       context,
       { type: "UserVisible", yaml: "РазрешитьИспользование", yamlDeny: "ЗапретитьИспользование" },
       item.visible

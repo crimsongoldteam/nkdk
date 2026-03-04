@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
-    ChildItemsPropertyRule,
-    importElementFromPartialYAML,
-    importElementFromTypedYAML,
-    ImportFromYAMLFunctionNew,
-    MetadataItem,
+  ChildItemsPropertyRule,
+  importElementFromPartialYAML,
+  importElementFromTypedYAML,
+  ImportFromYAMLFunctionNew,
+  MetadataItem,
 } from "~/metadata/metadataFactory"
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
@@ -20,7 +20,7 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends M
 }): To[] => {
   const { rule, source } = params
 
-  const narrowRule = rule as ChildItemsPropertyRule<To>
+  const narrowRule = rule as ChildItemsPropertyRule
 
   if (narrowRule.fromPartialYAML) {
     return importChildItemsFromPartialYAML({

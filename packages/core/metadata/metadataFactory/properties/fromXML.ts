@@ -16,7 +16,7 @@ export const importPropertiesFromXML = <T extends MetadataItem>(params: {
 
   const result: T = {} as T
 
-  for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule][][]) {
+  for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     if (tags && (!currentRule.tag || !tags.includes(currentRule.tag))) continue
 
     const value =
