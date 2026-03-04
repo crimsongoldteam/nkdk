@@ -7,7 +7,7 @@ import { Font, FontXML, PrefixedFontsFromXML } from "./types"
 
 export const importFontFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: FontXML | undefined
 ): Font | undefined => {
   if (!xml) return undefined

@@ -6,7 +6,7 @@ import { I8nText, I8nTextYAML } from "./types"
 
 export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: I8nText | undefined
   name?: string
 }): I8nTextYAML | undefined => {
@@ -14,7 +14,7 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
 
   if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
 
-  const i8nRule = rule as I8nTextPropertyRule<any>
+  const i8nRule = rule as I8nTextPropertyRule
   const toTyped = context.exportToYAML?.toTyped
   const yamlPartialOthers = toTyped ? undefined : i8nRule.yamlPartialOthers
 

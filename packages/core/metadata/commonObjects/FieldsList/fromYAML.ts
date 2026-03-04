@@ -5,7 +5,7 @@ import { FieldsList, FieldsListYAML } from "./types"
 
 export const importFieldsListFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   enterprise: FieldsListYAML | undefined
 ): FieldsList | undefined => {
   if (!enterprise || enterprise.length === 0) return undefined

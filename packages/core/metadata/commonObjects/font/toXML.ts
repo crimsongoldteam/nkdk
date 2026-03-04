@@ -5,7 +5,7 @@ import { Font, FontXML, PrefixedFontsToXML } from "./types"
 
 export const exportFontToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   font: Font | undefined
 ): FontXML | undefined => {
   if (!font) return undefined

@@ -18,7 +18,7 @@ import { exportTypeDescriptionToYAML } from "../../commonObjects/typeDescription
 
 export const exportMetadataCommandsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: MetadataCommands | undefined
 ): MetadataCommandsYAML | undefined => {
   if (!data) return undefined

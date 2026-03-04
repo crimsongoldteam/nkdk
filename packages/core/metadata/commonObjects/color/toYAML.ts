@@ -7,7 +7,7 @@ import { Color } from "./types"
 
 export const exportColorToYAML = <T extends Color | undefined>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   color: T
 ): string | undefined => {
   if (!color) return undefined

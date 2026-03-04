@@ -20,7 +20,7 @@ export const isEmptyMetadataItem = <T extends MetadataItem>(params: {
   const { context, rule, element } = params
   if (element === undefined) return true
 
-  for (const [key, propertyRule] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+  for (const [key, propertyRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     if (key === "itemType") continue
 
     const value = element[key as keyof T]

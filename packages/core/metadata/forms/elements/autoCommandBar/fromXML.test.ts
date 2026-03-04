@@ -4,7 +4,7 @@ import { fullAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule = {
   type: "AutoCommandBar",
 }
 

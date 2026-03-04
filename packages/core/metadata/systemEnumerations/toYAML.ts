@@ -7,7 +7,7 @@ import { registerTypeRule } from "../metadataFactory/types/factory"
 /** @deprecated */
 export const exportSystemEnumerationToYAMLDeprecated = <T extends string>(
   _context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   value: string | undefined,
   enumeration?: Record<string, T>
 ): T | undefined => {
@@ -17,7 +17,7 @@ export const exportSystemEnumerationToYAMLDeprecated = <T extends string>(
     return enumeration[value] as T
   }
 
-  const systemEnumerationRule = rule as SystemEnumerationPropertyRule<any>
+  const systemEnumerationRule = rule as SystemEnumerationPropertyRule
 
   const enumerationToYAML = (SE as Record<string, Record<string, string>>)[systemEnumerationRule.typeSE + "ToYAML"]
   if (!enumerationToYAML) throw new Error(`Enumeration ${systemEnumerationRule.typeSE} not found`)
@@ -26,7 +26,7 @@ export const exportSystemEnumerationToYAMLDeprecated = <T extends string>(
 
 export const exportSystemEnumerationToYAML = <T extends string>(
   _context: ConfigurationContext,
-  rule: SystemEnumerationPropertyRule<any>,
+  rule: SystemEnumerationPropertyRule,
   value: string | undefined
 ): T | undefined => {
   if (!value) return undefined

@@ -6,7 +6,7 @@ import { AllChildItem } from "./types"
 
 export const exportChildItemsToXML = <From extends AllChildItem>(
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: From[] | undefined
 ): Record<From["itemType"], ElementXML>[] | undefined => {
   if (!data || data.length === 0) return undefined

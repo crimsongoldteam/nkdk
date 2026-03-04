@@ -4,21 +4,21 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/metadataFactory"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
-  FormAttribute,
-  FormAttributeAdditionalColumnYAML,
-  FormAttributeAdditionalColumns,
-  FormAttributeColumn,
-  FormAttributeColumnYAML,
-  FormAttributeColumns,
-  FormAttributeColumnsYAML,
-  FormAttributeYAML,
-  FormAttributes,
-  FormAttributesYAML,
+    FormAttribute,
+    FormAttributeAdditionalColumnYAML,
+    FormAttributeAdditionalColumns,
+    FormAttributeColumn,
+    FormAttributeColumnYAML,
+    FormAttributeColumns,
+    FormAttributeColumnsYAML,
+    FormAttributeYAML,
+    FormAttributes,
+    FormAttributesYAML,
 } from "./types"
 
 export const exportFormAttributesToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormAttributes | undefined
 ): FormAttributesYAML | undefined => {
   if (!data) return undefined
@@ -30,7 +30,7 @@ export const exportFormAttributesToYAML = (
 
 const exportFormAttributeToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormAttribute
 ): FormAttributeYAML | TypeDescriptionYAML => {
   const result = exportPropertiesToYAML({
@@ -62,7 +62,7 @@ const isAdditionalColumns = (columns: FormAttributeColumns): columns is FormAttr
 
 const exportFormAttributeColumnsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   columns: FormAttributeColumns
 ): FormAttributeColumnsYAML | undefined => {
   if (columns.length === 0) return undefined
@@ -76,7 +76,7 @@ const exportFormAttributeColumnsToYAML = (
 
 const exportColumnsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   columns: FormAttributeColumn[]
 ): FormAttributeColumnsYAML => {
   return Object.fromEntries(
@@ -86,7 +86,7 @@ const exportColumnsToYAML = (
 
 const exportFormAttributeColumnToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   column: FormAttributeColumn
 ): FormAttributeColumnYAML => {
   const result = exportPropertiesToYAML({
@@ -100,7 +100,7 @@ const exportFormAttributeColumnToYAML = (
 
 const exportAdditionalColumnsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   additionalColumns: FormAttributeAdditionalColumns[]
 ): FormAttributeAdditionalColumnYAML => {
   return Object.fromEntries(

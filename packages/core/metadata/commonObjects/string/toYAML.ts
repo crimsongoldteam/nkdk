@@ -4,7 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 
 export const exportStringToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   value: string | number | undefined
 ): string | undefined => {
   if (value === undefined) return undefined

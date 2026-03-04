@@ -17,7 +17,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: MetadataDocument | undefined
 ): MetadataDocumentYAML | undefined => {
   if (!data) return undefined

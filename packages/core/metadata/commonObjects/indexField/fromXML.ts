@@ -5,7 +5,7 @@ import { IndexField, IndexFields, IndexFieldsXML, IndexFieldXML } from "./types"
 
 export const importIndexFieldFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: IndexFieldXML | undefined
 ): IndexField | undefined => {
   if (!xml) return undefined
@@ -15,7 +15,7 @@ export const importIndexFieldFromXML = (
 
 export const importIndexFieldsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: IndexFieldsXML | undefined
 ): IndexFields | undefined => {
   if (!xml) return undefined

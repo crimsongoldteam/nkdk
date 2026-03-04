@@ -4,22 +4,19 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { EventsRules } from "../events"
 import { MetadataType } from "../metadataType/types"
-import { ToYAML } from "../rules"
 import { TypeRulesNames, TypeRulesOperations } from "../types/types"
 
 export interface MetadataItem {
   itemType: MetadataType
 }
 
-type YAMLKey<T extends MetadataItem | never> = Extract<keyof ToYAML<T>, string>
-
 type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
-interface BasePropertyRule<T extends MetadataItem | never = never, TagsType extends string = string> {
+interface BasePropertyRule {
   /**
    * Название ключа в yaml
    */
-  yaml?: YAMLKey<T>
+  yaml?: string
   /**
    * Название в xml, если не заполнено - будет использован ключ
    */
@@ -43,7 +40,7 @@ interface BasePropertyRule<T extends MetadataItem | never = never, TagsType exte
   /**
    * Теги, по которым будет выгружаться свойство
    */
-  tag?: TagsType
+  tag?: string
 
   /**
    * Если все поля пустые - это поле будет выгружено как значение
@@ -57,10 +54,7 @@ type I8nTextDefaultValueFunction = (params: {
   operation: TypeRulesOperations
 }) => I8nText
 
-export interface I8nTextPropertyRule<T extends MetadataItem | never = never> extends Omit<
-  BasePropertyRule<T>,
-  "defaultValue"
-> {
+export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValue"> {
   type: "I8nText"
   yamlPartialOthers?: true
   skipEmptyToXML?: true
@@ -72,54 +66,52 @@ export interface I8nTextPropertyRule<T extends MetadataItem | never = never> ext
   defaultValue?: I8nText | I8nTextDefaultValueFunction
 }
 
-export interface FormattedI8nTextPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
   type: "FormattedI8nText"
   yamlFormatted: string
   yamlPartialOthers?: true
   xmlWithDefaultLanguage?: true
 }
 
-export interface ChildItemsPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface ChildItemsPropertyRule extends BasePropertyRule {
   type: "ChildItems"
   defaultValue: []
   fromPartialYAML?: true
 }
 
-export interface SystemEnumerationPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface SystemEnumerationPropertyRule extends BasePropertyRule {
   type: "SystemEnumeration"
   typeSE: string
 }
 
-export interface UserVisiblePropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
-  yaml: YAMLKey<T>
-  yamlDeny: YAMLKey<T>
+  yaml: string
+  yamlDeny: string
 }
 
-export interface StandardAttributeDescriptionPropertyRule<
-  T extends MetadataItem | never = never,
-> extends BasePropertyRule<T> {
+export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescription"
   standartAttributeNames: StandartAttributeName[]
 }
 
-export interface TableAdditionalSourcePropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
   forSingleElement?: true
 }
 
-export interface TypeDescriptionPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
   addTypeDescriptionAttributeToXML?: true
 }
 
-export interface DataPathPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface DataPathPropertyRule extends BasePropertyRule {
   type: "DataPath"
   defaultType: string
 }
 
-export interface CleanPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     TypeRulesNames,
     | "SystemEnumeration"
@@ -134,26 +126,26 @@ export interface CleanPropertyRule<T extends MetadataItem | never = never> exten
   >
 }
 
-export interface CustomExportPropertyRule<T extends MetadataItem | never = never> extends BasePropertyRule<T> {
+export interface CustomExportPropertyRule extends BasePropertyRule {
   type?: never
-  exportToYAML: (context: ConfigurationContext, rule: PropertyRule<T>, data: any) => any
+  exportToYAML: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
 }
 
-export type PropertyRule<T extends MetadataItem | never = never> =
-  | SystemEnumerationPropertyRule<T>
-  | UserVisiblePropertyRule<T>
-  | I8nTextPropertyRule<T>
-  | FormattedI8nTextPropertyRule<T>
-  | CleanPropertyRule<T>
-  | CustomExportPropertyRule<T>
-  | TableAdditionalSourcePropertyRule<T>
-  | StandardAttributeDescriptionPropertyRule<T>
-  | ChildItemsPropertyRule<T>
-  | TypeDescriptionPropertyRule<T>
-  | DataPathPropertyRule<T>
+export type PropertyRule =
+  | SystemEnumerationPropertyRule
+  | UserVisiblePropertyRule
+  | I8nTextPropertyRule
+  | FormattedI8nTextPropertyRule
+  | CleanPropertyRule
+  | CustomExportPropertyRule
+  | TableAdditionalSourcePropertyRule
+  | StandardAttributeDescriptionPropertyRule
+  | ChildItemsPropertyRule
+  | TypeDescriptionPropertyRule
+  | DataPathPropertyRule
 
 type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
-  Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule<T>>
+  Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule>
 >
 
 export interface ItemXML {

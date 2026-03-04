@@ -10,7 +10,7 @@ export type XMLItem<From extends NamedElement> = Record<From["itemType"], Elemen
 
 export const importChildItemsFromXML = <From extends NamedElement>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   xml: XMLItem<From>[] | XMLItem<From> | undefined
 ): From[] => {
   if (!xml) return []

@@ -4,16 +4,16 @@ import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "../i8nText/toYA
 import { I8nTextYAML } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "./types"
 
-export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule<any>>(params: {
+export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyRule>(params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: FormattedI8nText | undefined
   name?: string
 }): { [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML } => {
   const { context, rule, value: text } = params
   if (!text) return {}
 
-  const formattedRule = rule as FormattedI8nTextPropertyRule<any>
+  const formattedRule = rule as FormattedI8nTextPropertyRule
 
   const filtredText: FormattedI8nText = formattedRule.yamlPartialOthers
     ? {
@@ -27,7 +27,7 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
   }
 }
 
-const exportToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
+const exportToYAML = <R extends FormattedI8nTextPropertyRule>(
   context: ConfigurationContext,
   rule: R,
   text: FormattedI8nText | undefined
@@ -52,7 +52,7 @@ const exportToYAML = <R extends FormattedI8nTextPropertyRule<any>>(
 
 export const exportFormattedI8nTextDefaultToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   title: FormattedI8nText | undefined
 ): FormattedI8nTextYAML | undefined => {
   return exportI8nTextDefaultToYAML(context, title)
@@ -61,7 +61,7 @@ export const exportFormattedI8nTextDefaultToYAML = (
 /** @deprecated */
 export const exportFormattedI8nTextToYAMLDeprecated = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   title: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey
@@ -85,7 +85,7 @@ export const exportFormattedI8nTextToYAMLDeprecated = <Key extends string, Forma
 /** @deprecated */
 export const exportFormattedI8nTextOtherToYAML = <Key extends string, FormattedKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   text: FormattedI8nText | undefined,
   key: Key,
   formattedKey: FormattedKey

@@ -1,15 +1,15 @@
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { StandardCommandsGroupFromYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
-import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 
 export const importCommandInterfaceFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandInterfaceYAML | undefined
 ): CommandInterface | undefined => {
   if (!data) return undefined

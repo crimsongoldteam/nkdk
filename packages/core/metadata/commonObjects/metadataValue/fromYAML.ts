@@ -6,16 +6,16 @@ import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
 import {
-  MetadataFixedArrayValueYAML,
-  MetadataFormChoiceListValue,
-  MetadataFormChoiceListValueYAML,
-  MetadataValue,
-  MetadataValueYAML,
+    MetadataFixedArrayValueYAML,
+    MetadataFormChoiceListValue,
+    MetadataFormChoiceListValueYAML,
+    MetadataValue,
+    MetadataValueYAML,
 } from "./types"
 
 export const importMetadataValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataValueYAML | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
@@ -60,7 +60,7 @@ const parseDateTime = (dateTime: string): string => {
 
 const importStringValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: string
 ): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
@@ -135,7 +135,7 @@ const importStringValueFromYAML = (
 
 const importFixedArrayValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueYAML
 ): MetadataValue => {
   return {
@@ -146,7 +146,7 @@ const importFixedArrayValueFromYAML = (
 
 export const importFormChoiceListValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueYAML
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
@@ -171,7 +171,7 @@ export const importFormChoiceListValueFromYAML = (
 
 export const importMetadataRefFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   value: string
 ): MetadataValue => {
   const convertedValue = importMetadataValueStringFromYAML(context, undefined, value)

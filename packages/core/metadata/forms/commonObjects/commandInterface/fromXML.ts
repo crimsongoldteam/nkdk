@@ -6,7 +6,7 @@ import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, Comman
 
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: CommandInterfaceXML | undefined
 ): CommandInterface | undefined => {
   if (!xml) return undefined

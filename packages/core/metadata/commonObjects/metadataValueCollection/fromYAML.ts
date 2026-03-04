@@ -6,7 +6,7 @@ import { MetadataValueCollection, MetadataValueCollectionYAML } from "./types"
 
 export const importMetadataValueCollectionFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataValueCollectionYAML | undefined
 ): MetadataValueCollection | undefined => {
   if (!data || data.length === 0) return undefined

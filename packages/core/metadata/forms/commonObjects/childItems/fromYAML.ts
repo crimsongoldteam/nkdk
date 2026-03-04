@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
-  ChildItemsPropertyRule,
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-  ImportFromYAMLFunctionNew,
-  MetadataItem,
+    ChildItemsPropertyRule,
+    importElementFromPartialYAML,
+    importElementFromTypedYAML,
+    ImportFromYAMLFunctionNew,
+    MetadataItem,
 } from "~/metadata/metadataFactory"
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
@@ -13,7 +13,7 @@ import { AllChildItem, AllChildItemsPartialYAML, TypedElement } from "./types"
 
 export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends MetadataItem>(params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   yaml?: unknown
   value?: ToYAML<To> | ToTypedYAML<To>[]
   source?: To[]
@@ -41,7 +41,7 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends M
 
 export const importChildItemsFromPartialYAML = <To extends AllChildItem>(params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   source?: To[]
 }): To[] => {
   const { context, source } = params
@@ -59,7 +59,7 @@ export const importChildItemsFromPartialYAML = <To extends AllChildItem>(params:
 
 const importChildItemsTypedFromYAML = <To extends TypedElement>(params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   yaml?: ToTypedYAML<To>
 }): To[] => {
   const { context, yaml } = params

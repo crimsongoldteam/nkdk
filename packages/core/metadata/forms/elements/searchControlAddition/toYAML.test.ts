@@ -9,9 +9,8 @@ import {
   minimalSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
+const rule: PropertyRule = {
   type: "SearchStringAddition",
   yaml: "УправлениеПоиском",
 }

@@ -1,10 +1,10 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/toYAML"
 import {
-  MetadataTabularSection,
-  MetadataTabularSectionYAML,
-  MetadataTabularSections,
-  MetadataTabularSectionsYAML,
+    MetadataTabularSection,
+    MetadataTabularSectionYAML,
+    MetadataTabularSections,
+    MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToYAML } from "~/metadata/commonObjects/standardAttributeDescription/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -16,7 +16,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSection | undefined
 ): MetadataTabularSectionYAML | undefined => {
   if (!data) return undefined
@@ -67,7 +67,7 @@ export const exportMetadataTabularSectionToYAML = (
 
 export const exportMetadataTabularSectionsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsYAML | undefined => {
   if (!data) return undefined

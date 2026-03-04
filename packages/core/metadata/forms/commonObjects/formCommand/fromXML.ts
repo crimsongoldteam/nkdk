@@ -45,7 +45,7 @@ function importCommandFromXML(context: ConfigurationContext, xml: FormCommandXML
 
 export function importCommandsFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: { Command: FormCommandsXML } | undefined
 ): FormCommands {
   if (!xml || !xml.Command) return []

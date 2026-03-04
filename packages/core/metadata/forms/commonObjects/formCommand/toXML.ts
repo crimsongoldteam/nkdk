@@ -9,7 +9,7 @@ import { FormCommand, FormCommandXML } from "./types"
 
 export const exportCommandsToXML = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: FormCommand[] | undefined
   metadataItem?: MetadataItem
 }): { Command: FormCommandXML[] } | undefined => {

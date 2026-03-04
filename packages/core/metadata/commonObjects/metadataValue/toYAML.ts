@@ -5,23 +5,23 @@ import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { exportMetadataValueStringToYAML as exportMetadataPathValueToYAML } from "../metadataPath/toYAML"
 import {
-  MetadataBooleanValue,
-  MetadataDateTimeValue,
-  MetadataDecimalValue,
-  MetadataFixedArrayValue,
-  MetadataFixedArrayValueYAML,
-  MetadataFormChoiceListValue,
-  MetadataFormChoiceListValueYAML,
-  MetadataObjectRefValue,
-  MetadataRefValue,
-  MetadataSimpleValue,
-  MetadataValue,
-  MetadataValueYAML,
+    MetadataBooleanValue,
+    MetadataDateTimeValue,
+    MetadataDecimalValue,
+    MetadataFixedArrayValue,
+    MetadataFixedArrayValueYAML,
+    MetadataFormChoiceListValue,
+    MetadataFormChoiceListValueYAML,
+    MetadataObjectRefValue,
+    MetadataRefValue,
+    MetadataSimpleValue,
+    MetadataValue,
+    MetadataValueYAML,
 } from "./types"
 
 export const exportMetadataValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataValue | undefined
 ): MetadataValueYAML | undefined => {
   if (!data) return undefined
@@ -57,7 +57,7 @@ const exportDateTimeValueToYAML = (data: MetadataDateTimeValue): MetadataValueYA
 
 const exportBooleanValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataBooleanValue
 ): MetadataValueYAML => {
   return exportBooleanToYAML(context, undefined, data.value)!
@@ -73,7 +73,7 @@ const exportObjectRefValueToYAML = (context: ConfigurationContext, data: Metadat
 
 const exportFixedArrayValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValue
 ): MetadataValueYAML => {
   return data.value.map((v) => exportMetadataValueToYAML(context, undefined, v)!) as MetadataFixedArrayValueYAML
@@ -81,7 +81,7 @@ const exportFixedArrayValueToYAML = (
 
 export const exportFormChoiceListValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueYAML => {
   const valueResult = exportMetadataValueToYAML(context, undefined, data.value)

@@ -6,7 +6,7 @@ import { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./typ
 
 export const exportTypeDescriptionToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionYAML | undefined => {
   if (!typeDescription) {

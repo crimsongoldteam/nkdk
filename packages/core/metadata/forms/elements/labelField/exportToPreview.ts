@@ -21,7 +21,7 @@
 
 // export const exportLabelFieldToEnterprise = (
 //   context: ConfigurationContext,
-//   _rule: PropertyRule<any>,
+//   _rule: PropertyRule,
 //   element: LabelField
 // ): LabelFieldEnterprise => {
 //   const result: LabelFieldEnterprise = {

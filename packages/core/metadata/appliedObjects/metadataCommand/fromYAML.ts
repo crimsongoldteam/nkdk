@@ -121,7 +121,7 @@ export const importMetadataCommandFromYAML = (
 
 export const importMetadataCommandsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: MetadataCommandsYAML | undefined
 ): MetadataCommands | undefined => {
   if (!data) return undefined

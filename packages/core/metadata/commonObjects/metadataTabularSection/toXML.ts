@@ -1,9 +1,9 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import {
-  MetadataTabularSection,
-  MetadataTabularSections,
-  MetadataTabularSectionsXML,
-  MetadataTabularSectionXML,
+    MetadataTabularSection,
+    MetadataTabularSections,
+    MetadataTabularSectionsXML,
+    MetadataTabularSectionXML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -17,7 +17,7 @@ import { getDefaults } from "./defaults"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
@@ -27,7 +27,7 @@ export const exportMetadataTabularSectionsToXML = (
 
 export const exportMetadataTabularSectionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)

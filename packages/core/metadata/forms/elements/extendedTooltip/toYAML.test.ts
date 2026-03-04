@@ -3,9 +3,8 @@ import { exportPropertyToYAML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { fullExtendedTooltip, fullExtendedTooltipYAML } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
+const rule: PropertyRule = {
   type: "ExtendedTooltip",
   yaml: "РасширеннаяПодсказка",
 }

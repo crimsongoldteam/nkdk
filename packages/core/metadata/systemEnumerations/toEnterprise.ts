@@ -5,7 +5,7 @@ import { SystemEnumerationEnterprise } from "./types"
 
 export const exportSystemEnumerationToEnterprise = (params: {
   context: ConfigurationContext
-  rule: SystemEnumerationPropertyRule<any>
+  rule: SystemEnumerationPropertyRule
   value: string | undefined
 }): SystemEnumerationEnterprise | undefined => {
   const { rule, value } = params

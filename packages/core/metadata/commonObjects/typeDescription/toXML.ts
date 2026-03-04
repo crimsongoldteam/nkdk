@@ -6,7 +6,7 @@ import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./t
 
 export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined

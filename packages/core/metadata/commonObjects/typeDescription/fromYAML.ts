@@ -4,17 +4,17 @@ import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { getTypeFromYAML } from "./helper"
 import {
-  PrimitiveTypeFromYAML,
-  TypeDescription,
-  TypeDescriptionDateQualifiers,
-  TypeDescriptionNumberQualifiers,
-  TypeDescriptionStringQualifiers,
-  TypeDescriptionYAML,
+    PrimitiveTypeFromYAML,
+    TypeDescription,
+    TypeDescriptionDateQualifiers,
+    TypeDescriptionNumberQualifiers,
+    TypeDescriptionStringQualifiers,
+    TypeDescriptionYAML,
 } from "./types"
 
 export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   value: TypeDescriptionYAML | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {

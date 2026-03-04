@@ -4,7 +4,7 @@ import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAdditio
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule = {
   type: "ViewStatusAddition",
 }
 

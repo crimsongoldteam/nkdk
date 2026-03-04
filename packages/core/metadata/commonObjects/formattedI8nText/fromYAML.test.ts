@@ -4,11 +4,11 @@ import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data
 import { mockContext } from "~/tests/mockContext"
 import { importFormattedI8nTextFromYAML } from "./fromYAML"
 
-const formattedI8nTextRule: FormattedI8nTextPropertyRule<any> = {
+const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
   type: "FormattedI8nText",
   yaml: "Title",
   yamlFormatted: "FormattedTitle",
-} as unknown as FormattedI8nTextPropertyRule<any>
+} as unknown as FormattedI8nTextPropertyRule
 
 describe("importFormattedI8nTextFromYAML", () => {
   describe("importFormattedI8nTextFromYAML", () => {

@@ -6,7 +6,7 @@ import { FormParameter, FormParameters, FormParametersYAML } from "./types"
 
 export const importFormParametersFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormParametersYAML | undefined
 ): FormParameters | undefined => {
   if (data === undefined) {

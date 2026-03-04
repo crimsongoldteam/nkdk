@@ -17,7 +17,7 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   let shortValue = undefined
   let canUseShortFormat: boolean = true
 
-  for (const [key, rule] of Object.entries(rules.properties) as [Extract<keyof T, string>, PropertyRule<T>][]) {
+  for (const [key, rule] of Object.entries(rules.properties) as [Extract<keyof T, string>, PropertyRule][]) {
     const value = data[key]
 
     const exportedValues = exportPropertyToYAML({
@@ -48,9 +48,9 @@ export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   return result as ToYAML<T>
 }
 
-export const exportPropertyToYAML = <T extends MetadataItem>(params: {
+export const exportPropertyToYAML = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<T>
+  rule: PropertyRule
   value: any
   name?: string
 }): Record<string, any> | undefined => {
@@ -87,11 +87,7 @@ export const exportPropertyToYAML = <T extends MetadataItem>(params: {
   return getExportToYAMLResult(rule, yamlKey, result)
 }
 
-const getExportToYAMLResult = (
-  rule: PropertyRule<any>,
-  yamlKey: string,
-  value: any
-): Record<string, any> | undefined => {
+const getExportToYAMLResult = (rule: PropertyRule, yamlKey: string, value: any): Record<string, any> | undefined => {
   if (rule.type == "UserVisible" || rule.type == "FormattedI8nText") {
     return value
   }

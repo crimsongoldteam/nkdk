@@ -11,9 +11,8 @@ import {
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
+const rule: PropertyRule = {
   type: "SearchStringAddition",
   yaml: "ОтображениеСтрокиПоиска",
 }

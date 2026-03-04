@@ -12,7 +12,7 @@ const contextWithExportToYAML = {
 describe("exportI8nTextToYAML", () => {
   describe("exportI8nTextToYAML", () => {
     it.each(i8nTextFixtures)("should export: $name", (fixture) => {
-      const rule: I8nTextPropertyRule<any> = { type: "I8nText" }
+      const rule: I8nTextPropertyRule = { type: "I8nText" }
 
       const result = exportI8nTextToYAML({ context: contextWithExportToYAML, rule, value: fixture.text })
       expect(result).toEqual(fixture.fullYAML)
@@ -21,7 +21,7 @@ describe("exportI8nTextToYAML", () => {
 
   describe("exportI8nTextOtherToYAML", () => {
     it.each(i8nTextFixtures)("should export other: $name", (fixture) => {
-      const rule: I8nTextPropertyRule<any> = { type: "I8nText", yamlPartialOthers: true }
+      const rule: I8nTextPropertyRule = { type: "I8nText", yamlPartialOthers: true }
 
       const result = exportI8nTextToYAML({ context: contextWithExportToYAML, rule, value: fixture.text })
       expect(result).toEqual(fixture.otherLanguagesYAML)

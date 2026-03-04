@@ -3,9 +3,8 @@ import { exportPropertyToYAML } from "~/metadata/metadataFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { fullViewStatusAddition, fullViewStatusAdditionYAML } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
+const rule: PropertyRule = {
   type: "ViewStatusAddition",
   yaml: "ОтображениеСостоянияПросмотра",
 }

@@ -9,7 +9,7 @@ import { UserVisibleYAML, type UserVisible } from "./types"
 /** @deprecated */
 export const importUserVisibleFromYAMLDeprecated = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   valueAllow: Record<string, StringboolYAML> | undefined,
   valueDeny: Record<string, StringboolYAML> | undefined
 ): UserVisible | undefined => {
@@ -38,7 +38,7 @@ export const importUserVisibleFromYAMLDeprecated = (
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: UserVisibleYAML | undefined
   source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined

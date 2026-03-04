@@ -4,7 +4,7 @@ import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule = {
   type: "ContextMenu",
 }
 

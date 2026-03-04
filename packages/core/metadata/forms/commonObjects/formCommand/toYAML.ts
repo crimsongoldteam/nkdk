@@ -10,7 +10,7 @@ import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./
 
 export const exportCommandsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: FormCommands | undefined
 ): FormCommandsYAML | undefined => {
   if (!data || data.length === 0) return undefined

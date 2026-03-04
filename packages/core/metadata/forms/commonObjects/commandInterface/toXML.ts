@@ -6,7 +6,7 @@ import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, Comman
 
 export const exportCommandInterfaceToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandInterface | undefined
 ): CommandInterfaceXML | undefined => {
   if (!data) return undefined

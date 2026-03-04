@@ -7,7 +7,7 @@ import { Border, BorderYAML } from "./types"
 
 export const importBorderFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: BorderYAML | undefined
 ): Border | undefined => {
   if (!data) return undefined

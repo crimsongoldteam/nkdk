@@ -5,7 +5,7 @@ import { CommandSet, CommandSetYAML } from "./types"
 
 export const exportCommandSetToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandSet | undefined
 ): CommandSetYAML | undefined => {
   if (!data || data.length === 0) return undefined

@@ -16,7 +16,7 @@ export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [
     keyof T extends string ? keyof T : never,
-    PropertyRule<T>,
+    PropertyRule,
   ][]) {
     if (ruleProp.toEnterprise === false) continue
 
@@ -39,7 +39,7 @@ export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
 
 export const exportPropertyToEnterprise = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any
 }): any | undefined => {
   const { context, rule, value } = params

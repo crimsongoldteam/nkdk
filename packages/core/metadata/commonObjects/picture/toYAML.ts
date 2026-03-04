@@ -8,7 +8,7 @@ import { type Picture, type PictureYAML, type PictureYAMLExtended } from "./type
 
 export function exportPictureToYAML(
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined
 ): PictureYAML | undefined {
   if (!picture) return undefined

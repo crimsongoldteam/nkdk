@@ -4,7 +4,7 @@ import { DynamicList, DynamicListYAML } from "./types"
 
 export const importDynamicListFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: DynamicListYAML | undefined
 ): DynamicList | undefined => {
   return data as DynamicList

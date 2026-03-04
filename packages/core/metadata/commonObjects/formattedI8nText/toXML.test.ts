@@ -20,7 +20,7 @@ describe("exportFormattedI8nTextToXML", () => {
   describe("exportFormattedI8nTextToXMLWithDefaultLanguage", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export: ${fixture.name}`, () => {
-        const rule: FormattedI8nTextPropertyRule<any> = {
+        const rule: FormattedI8nTextPropertyRule = {
           type: "FormattedI8nText",
           yamlFormatted: "ФорматированныйЗаголовок",
           xmlWithDefaultLanguage: true,

@@ -25,7 +25,9 @@ export type ElementTypeByRule<
   : never) &
   (Rule["events"] extends infer Events
     ? {
-        [K in keyof Events]?: string
+        events?: {
+          [K in keyof Events]?: string
+        }
       }
     : {}) & {
     name: string

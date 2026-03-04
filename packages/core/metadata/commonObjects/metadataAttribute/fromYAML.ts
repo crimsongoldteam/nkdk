@@ -1,9 +1,9 @@
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import {
-  MetadataAttribute,
-  MetadataAttributeYAML,
-  MetadataAttributes,
-  MetadataAttributesYAML,
+    MetadataAttribute,
+    MetadataAttributeYAML,
+    MetadataAttributes,
+    MetadataAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
 import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
@@ -15,8 +15,8 @@ import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
 import { registerTypeRule } from "~/metadata/metadataFactory/index.ts"
 import {
-  importSystemEnumerationFromYAML,
-  importSystemEnumerationFromYAMLDeprecated,
+    importSystemEnumerationFromYAML,
+    importSystemEnumerationFromYAMLDeprecated,
 } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML.ts"
@@ -26,7 +26,7 @@ import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributesYAML | undefined
 ): MetadataAttributes | undefined => {
   if (!data) return undefined
@@ -38,7 +38,7 @@ export const importMetadataAttributesFromYAML = (
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributeYAML,
   name: string
 ): MetadataAttribute => {

@@ -5,7 +5,7 @@ import { FunctionalOptions, FunctionalOptionsYAML } from "./types"
 
 export const exportFunctionalOptionsToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FunctionalOptions | undefined
 ): FunctionalOptionsYAML | undefined => {
   if (!data || data.length === 0) return undefined

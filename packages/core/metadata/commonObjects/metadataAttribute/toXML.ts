@@ -1,9 +1,9 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import {
-  MetadataAttribute,
-  MetadataAttributes,
-  MetadataAttributesXML,
-  MetadataAttributeXML,
+    MetadataAttribute,
+    MetadataAttributes,
+    MetadataAttributesXML,
+    MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { exportMetadataSimpleValueToXML, exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
@@ -18,7 +18,7 @@ import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defa
 
 export const exportMetadataAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -33,7 +33,7 @@ export const exportMetadataAttributesToXML = (
 
 export const exportMetadataTabularSectionAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -48,7 +48,7 @@ export const exportMetadataTabularSectionAttributesToXML = (
 
 const exportMetadataAttributeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttribute,
   defaults: Partial<MetadataAttribute>
 ): MetadataAttributeXML => {

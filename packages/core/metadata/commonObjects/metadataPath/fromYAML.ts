@@ -9,7 +9,7 @@ import { MetadataFieldsRulesFromYAML, MetadataValuesRulesFromYAML } from "./type
 
 export const importMetadataFieldStringFromYAML = (
   _context: Context,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
   return convertPath(MetadataFieldsRulesFromYAML, name)
@@ -17,7 +17,7 @@ export const importMetadataFieldStringFromYAML = (
 
 export const importMetadataValueStringFromYAML = (
   _context: Context,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
   const convertedPath = convertPath(MetadataValuesRulesFromYAML, name)

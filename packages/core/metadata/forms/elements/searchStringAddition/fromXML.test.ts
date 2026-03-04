@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { importElementFromXML, importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
 import {
-  fullSearchStringAddition,
-  fullSingleSearchStringAddition,
-  minimalSearchStringAddition,
+    fullSearchStringAddition,
+    fullSingleSearchStringAddition,
+    minimalSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule = {
   type: "SearchStringAddition",
 }
 

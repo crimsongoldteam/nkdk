@@ -6,7 +6,7 @@ import { MetadataField, MetadataFieldYAML, MetadataFields, MetadataFieldsYAML } 
 
 export const exportMetadataFieldsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFields | undefined
 ): MetadataFieldsYAML | undefined => {
   if (!data) return undefined
@@ -16,7 +16,7 @@ export const exportMetadataFieldsToYAML = (
 
 export const exportMetadataFieldToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataField | undefined
 ): MetadataFieldYAML | undefined => {
   if (!data) return undefined

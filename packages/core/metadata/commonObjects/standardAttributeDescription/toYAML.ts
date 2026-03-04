@@ -2,13 +2,13 @@ import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
 import {
-  StandardAttributeDescription,
-  StandardAttributeDescriptionYAML,
-  StandardAttributeDescriptions,
-  StandardAttributeDescriptionsYAML,
-  StandartAttributeName,
-  StandartAttributeNameToYAML,
-  StandartAttributeYAML,
+    StandardAttributeDescription,
+    StandardAttributeDescriptionYAML,
+    StandardAttributeDescriptions,
+    StandardAttributeDescriptionsYAML,
+    StandartAttributeName,
+    StandartAttributeNameToYAML,
+    StandartAttributeYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
 import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
@@ -26,7 +26,7 @@ export const exportStandartAttributeNameToYAML = (name: StandartAttributeName): 
 
 export const exportStandardAttributeDescriptionsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsYAML | undefined => {
   if (!data) return undefined
@@ -45,7 +45,7 @@ export const exportStandardAttributeDescriptionsToYAML = (
 
 const exportStandardAttributeDescriptionToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionYAML => {
   const result: StandardAttributeDescriptionYAML = {}

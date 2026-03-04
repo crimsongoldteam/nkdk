@@ -1,8 +1,8 @@
 import {
-  AdditionalIndex,
-  AdditionalIndexes,
-  AdditionalIndexesXML,
-  AdditionalIndexXML,
+    AdditionalIndex,
+    AdditionalIndexes,
+    AdditionalIndexesXML,
+    AdditionalIndexXML,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -11,7 +11,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportAdditionalIndexToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndex | undefined
 ): AdditionalIndexXML | undefined => {
   if (!data) return undefined
@@ -26,7 +26,7 @@ export const exportAdditionalIndexToXML = (
 
 export const exportAdditionalIndexesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesXML | undefined => {
   if (!data) return undefined

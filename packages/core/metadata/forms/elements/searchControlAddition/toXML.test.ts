@@ -12,7 +12,7 @@ import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule = {
   type: "SearchControlAddition",
 }
 

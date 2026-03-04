@@ -18,7 +18,7 @@ describe("exportFormattedI8nTextToYAML", () => {
             type: "FormattedI8nText",
             yaml: "Title",
             yamlFormatted: "FormattedTitle",
-          } as unknown as FormattedI8nTextPropertyRule<any>,
+          } as unknown as FormattedI8nTextPropertyRule,
           value: fixture.text,
         })
 

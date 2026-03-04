@@ -16,7 +16,7 @@ export const importClientApplicationFormFromYAML = (
 
   const autoCommandBar = importPropertyFromYAML({
     context: itemsContext,
-    rule: ClientApplicationFormRules.properties.autoCommandBar as PropertyRule<any>,
+    rule: ClientApplicationFormRules.properties.autoCommandBar as PropertyRule,
     value: data.КоманднаяПанель,
     sourceValue: source.autoCommandBar,
   })

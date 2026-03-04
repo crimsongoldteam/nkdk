@@ -33,7 +33,7 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
     return shortFormatResult
   }
 
-  for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+  for (const [key, curRule] of Object.entries(rules.properties) as [keyof T, PropertyRule][][]) {
     const yamlKey = curRule.yaml
     // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue
@@ -61,7 +61,7 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
 
 export const importPropertyFromYAML = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any
   yaml?: any
   sourceValue?: any
@@ -124,7 +124,7 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
     return undefined
   }
 
-  const shortFormatEntry = (Object.entries(rules.properties) as Array<[keyof T, PropertyRule<T>]>).find(
+  const shortFormatEntry = (Object.entries(rules.properties) as Array<[keyof T, PropertyRule][]>).find(
     ([, rule]) => rule.useAsShortValueYAML === true
   )
 

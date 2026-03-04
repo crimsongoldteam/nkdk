@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import {
-  fullExtendedTooltip,
-  fullExtendedTooltipYAML,
-  minimalExtendedTooltip,
-  minimalExtendedTooltipYAML,
+    fullExtendedTooltip,
+    fullExtendedTooltipYAML,
+    minimalExtendedTooltip,
+    minimalExtendedTooltipYAML,
 } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 
-const rule: PropertyRule<any> = { type: "ExtendedTooltip" }
+const rule: PropertyRule = { type: "ExtendedTooltip" }
 
 describe("importExtendedTooltipFromYAML", () => {
   it("should import all fields from YAML", () => {

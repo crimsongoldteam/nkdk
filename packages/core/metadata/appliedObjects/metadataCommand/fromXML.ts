@@ -14,7 +14,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataCommandsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined

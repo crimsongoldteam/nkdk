@@ -59,7 +59,7 @@ const exportMetadataCommandToXML = (
 
 export const exportMetadataCommandsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined

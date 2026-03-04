@@ -6,7 +6,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
 
 export const exportChoiceParameterLinksToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: ChoiceParameterLinks | undefined
 ): ChoiceParameterLinksYAML | undefined => {
   if (!data) return undefined

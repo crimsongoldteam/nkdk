@@ -6,14 +6,14 @@ import { I8nText, I8nTextYAML } from "./types"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: I8nTextYAML | undefined
   source?: I8nText | undefined
   name?: string
 }): I8nText | undefined => {
   const { context, rule, value, source, name } = params
   if (source === undefined && value === undefined) return undefined
-  const i8nRule = rule as I8nTextPropertyRule<any>
+  const i8nRule = rule as I8nTextPropertyRule
 
   const result: I8nText = {
     items: {},

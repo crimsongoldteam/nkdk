@@ -13,7 +13,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const importCharacteristicsDescriptionFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptionYAML | undefined
 ): CharacteristicsDescription | undefined => {
   if (!data) return undefined
@@ -69,7 +69,7 @@ export const importCharacteristicsDescriptionFromYAML = (
 
 export const importCharacteristicsDescriptionsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptionsYAML | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!data) return undefined

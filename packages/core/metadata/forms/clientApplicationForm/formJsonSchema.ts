@@ -58,7 +58,7 @@ const COMPLEX_TYPES = new Set([
   "UsePurposes",
 ])
 
-function propertyRuleToSchema(rule: PropertyRule<ClientApplicationForm>): TSchema {
+function propertyRuleToSchema(rule: PropertyRule): TSchema {
   if ("type" in rule) {
     switch (rule.type) {
       case "boolean":
@@ -101,7 +101,7 @@ export function buildClientApplicationFormJsonSchema(rules: ClientApplicationFor
   for (const [_propKey, rule] of Object.entries(rules.properties)) {
     const yamlKey = rule?.yaml
     if (!yamlKey) continue
-    properties[yamlKey] = propertyRuleToSchema(rule as PropertyRule<ClientApplicationForm>)
+    properties[yamlKey] = propertyRuleToSchema(rule as PropertyRule)
   }
 
   if (rules.events && Object.keys(rules.events).length > 0) {

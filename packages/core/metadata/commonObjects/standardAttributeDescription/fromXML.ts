@@ -1,9 +1,9 @@
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
 import {
-  StandardAttributeDescription,
-  StandardAttributeDescriptions,
-  StandardAttributeDescriptionsXML,
-  StandardAttributeDescriptionXML,
+    StandardAttributeDescription,
+    StandardAttributeDescriptions,
+    StandardAttributeDescriptionsXML,
+    StandardAttributeDescriptionXML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/fromXML"
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/fromXML"
@@ -19,7 +19,7 @@ import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
@@ -44,7 +44,7 @@ export const importStandardAttributeDescriptionsFromXML = (
 
 const importStandardAttributeDescriptionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: StandardAttributeDescriptionXML
 ): StandardAttributeDescription | undefined => {
   const result: StandardAttributeDescription = {

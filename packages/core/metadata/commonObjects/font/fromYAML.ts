@@ -8,7 +8,7 @@ import { Font, FontFullYAML, FontYAML } from "./types"
 
 export const importFontFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   yaml: FontYAML | undefined
 ): Font | undefined => {
   if (!yaml) return undefined

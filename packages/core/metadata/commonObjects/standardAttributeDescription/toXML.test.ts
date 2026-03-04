@@ -8,7 +8,7 @@ import { exportStandardAttributeDescriptionsToXML } from "./toXML"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {
   it("should export with default values when data is undefined", () => {
-    const rule: StandardAttributeDescriptionPropertyRule<any> = {
+    const rule: StandardAttributeDescriptionPropertyRule = {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName"],
     }
@@ -20,7 +20,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   })
 
   it("should export all parameters", () => {
-    const rule: StandardAttributeDescriptionPropertyRule<any> = {
+    const rule: StandardAttributeDescriptionPropertyRule = {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName"],
     }
@@ -34,7 +34,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
 
   it("should export XML with default values if only name is present", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
-    const rule: StandardAttributeDescriptionPropertyRule<any> = {
+    const rule: StandardAttributeDescriptionPropertyRule = {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName"],
     }
@@ -47,7 +47,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("should export with multiple values", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/multiple.xml")
 
-    const rule: StandardAttributeDescriptionPropertyRule<any> = {
+    const rule: StandardAttributeDescriptionPropertyRule = {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName", "Predefined"],
     }
@@ -60,7 +60,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("should export with default values", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
 
-    const rule: StandardAttributeDescriptionPropertyRule<any> = {
+    const rule: StandardAttributeDescriptionPropertyRule = {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName"],
     }

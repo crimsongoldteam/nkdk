@@ -6,7 +6,7 @@ import { ChoiceList, ChoiceListYAML } from "./types"
 
 export const importChoiceListFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: ChoiceListYAML | undefined
 ): ChoiceList | undefined => {
   if (!data) return undefined

@@ -4,21 +4,21 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/metadataFactory"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
-  FormAttribute,
-  FormAttributeAdditionalColumn,
-  FormAttributeAdditionalColumnYAML,
-  FormAttributeColumn,
-  FormAttributeColumnYAML,
-  FormAttributeColumns,
-  FormAttributeColumnsYAML,
-  FormAttributeYAML,
-  FormAttributes,
-  FormAttributesYAML,
+    FormAttribute,
+    FormAttributeAdditionalColumn,
+    FormAttributeAdditionalColumnYAML,
+    FormAttributeColumn,
+    FormAttributeColumnYAML,
+    FormAttributeColumns,
+    FormAttributeColumnsYAML,
+    FormAttributeYAML,
+    FormAttributes,
+    FormAttributesYAML,
 } from "./types"
 
 export const importFormAttributesFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormAttributesYAML | undefined
 ): FormAttributes | undefined => {
   if (!data) return undefined
@@ -91,7 +91,7 @@ const importFormAttributeColumnsFromYAML = (
 
 const importFormAttributeColumnFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormAttributeColumnYAML,
   name: string
 ): FormAttributeColumn => {

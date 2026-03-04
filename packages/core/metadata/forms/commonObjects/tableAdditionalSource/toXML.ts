@@ -10,10 +10,10 @@ import { TableAdditionalSourceXML } from "./types"
 
 const exportTableAdditionalSourceToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   value: string | undefined
 ): TableAdditionalSourceXML | undefined => {
-  const ruleNarrow = rule as TableAdditionalSourcePropertyRule<any>
+  const ruleNarrow = rule as TableAdditionalSourcePropertyRule
 
   if (!ruleNarrow.forSingleElement) {
     if (!value) {

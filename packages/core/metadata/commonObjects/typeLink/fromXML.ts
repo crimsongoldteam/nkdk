@@ -6,7 +6,7 @@ import { TypeLink, TypeLinkXML } from "./types"
 
 export const importTypeLinkFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: TypeLinkXML | undefined
 ): TypeLink | undefined => {
   if (!xml) return undefined

@@ -6,12 +6,12 @@ import { FormattedI8nText, FormattedI8nTextXML } from "./types"
 
 export const exportFormattedI8nTextToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   data: FormattedI8nText | undefined
 ): FormattedI8nTextXML | undefined => {
   if (!data) return undefined
 
-  const formattedRule = rule as FormattedI8nTextPropertyRule<any>
+  const formattedRule = rule as FormattedI8nTextPropertyRule
   if (formattedRule.xmlWithDefaultLanguage && isEmptyI8nText(context, data) && !data.formatted) {
     return undefined
   }

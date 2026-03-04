@@ -8,20 +8,20 @@ import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerType
 import { DynamicList } from "../dynamicList/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
-  FormAttribute,
-  FormAttributeAdditionalColumn,
-  FormAttributeAdditionalColumnXML,
-  FormAttributeColumn,
-  FormAttributeColumns,
-  FormAttributeColumnsXML,
-  FormAttributeColumnXML,
-  FormAttributes,
-  FormAttributeXML,
+    FormAttribute,
+    FormAttributeAdditionalColumn,
+    FormAttributeAdditionalColumnXML,
+    FormAttributeColumn,
+    FormAttributeColumns,
+    FormAttributeColumnsXML,
+    FormAttributeColumnXML,
+    FormAttributes,
+    FormAttributeXML,
 } from "./types"
 
 export const exportFormAttributesToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormAttributes | undefined
 ): { Attribute: ElementXML[] } | undefined => {
   if (!data || data.length === 0) return undefined
@@ -33,7 +33,7 @@ export const exportFormAttributesToXML = (
 
 const exportFormAttributeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: FormAttribute
 ): ElementXML => {
   const id = getElementId(context)
@@ -67,7 +67,7 @@ const exportFormAttributeToXML = (
 
 const exportFormAttributeSettingsToXML = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any> | undefined
+  rule: PropertyRule | undefined
   value: FormAttribute["settings"]
   metadataItem: FormAttribute
 }): FormAttributeXML["Settings"] => {
@@ -105,7 +105,7 @@ const exportFormAttributeSettingsToXML = (params: {
 
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   columns: FormAttributeColumns
 ): FormAttributeColumnsXML | undefined => {
   if (columns.length === 0) return undefined

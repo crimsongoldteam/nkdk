@@ -10,7 +10,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
  */
 const parseChoiceParameterLinksString = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   value: string
 ): ChoiceParameterLinks => {
   const result: ChoiceParameterLinks = []
@@ -86,7 +86,7 @@ const parseChoiceParameterLinksString = (
 
 export const importChoiceParameterLinksFromYAML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any> | undefined,
+  rule: PropertyRule | undefined,
   data: ChoiceParameterLinksYAML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined

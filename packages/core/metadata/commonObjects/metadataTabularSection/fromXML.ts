@@ -1,10 +1,10 @@
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/fromXML"
 import {
-  MetadataTabularSection,
-  MetadataTabularSections,
-  MetadataTabularSectionsXML,
-  MetadataTabularSectionXML,
+    MetadataTabularSection,
+    MetadataTabularSections,
+    MetadataTabularSectionsXML,
+    MetadataTabularSectionXML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/fromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -15,7 +15,7 @@ import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
@@ -29,7 +29,7 @@ export const importMetadataTabularSectionsFromXML = (
 
 const importMetadataTabularSectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
   const props = xml.Properties

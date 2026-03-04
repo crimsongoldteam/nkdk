@@ -9,7 +9,7 @@ import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, Comma
 
 export const exportCommandInterfaceToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandInterface | undefined
 ): CommandInterfaceYAML | undefined => {
   if (!data) return undefined

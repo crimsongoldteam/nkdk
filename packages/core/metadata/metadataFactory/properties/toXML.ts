@@ -14,7 +14,7 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
   const result: ItemXML = {}
 
-  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule][][]) {
     if (tag && (!ruleProp.tag || !tag.includes(ruleProp.tag))) continue
 
     const currentContext: ConfigurationContext = {
@@ -37,7 +37,7 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   return result
 }
 
-const setXMLValue = (key: string, xml: any, rule: PropertyRule<any>, value: any): any => {
+const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any => {
   if (value === undefined) return
 
   const xmlKey = rule.xml ?? capitalize(key)
@@ -60,7 +60,7 @@ const setXMLValue = (key: string, xml: any, rule: PropertyRule<any>, value: any)
 
 export const exportPropertyToXML = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any
   metadataItem?: any
 }): any | undefined => {

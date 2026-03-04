@@ -14,7 +14,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [
     keyof T extends string ? keyof T : never,
-    PropertyRule<T>,
+    PropertyRule,
   ][]) {
     if (ruleProp.fromEnterprise === false) continue
 
@@ -38,7 +38,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
 
 export const exportPropertyToJSONSchema = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any
 }): TSchema | undefined => {
   const { context, rule, value } = params

@@ -71,7 +71,7 @@ function exportToXML<T extends BaseElement>(params: {
     rule: rule,
   })
 
-  // for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule<T>][]) {
+  // for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule][]) {
   //   const value = element === undefined ? undefined : (element as any)[key]
 
   //   const xmlKey = ruleProp.xml ?? capitalize(key)

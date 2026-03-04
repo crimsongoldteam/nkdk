@@ -1,8 +1,8 @@
 import {
-  CharacteristicsDescription,
-  CharacteristicsDescriptionYAML,
-  CharacteristicsDescriptions,
-  CharacteristicsDescriptionsYAML,
+    CharacteristicsDescription,
+    CharacteristicsDescriptionYAML,
+    CharacteristicsDescriptions,
+    CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
@@ -13,7 +13,7 @@ import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 
 export const exportCharacteristicsDescriptionToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionYAML | undefined => {
   if (!data) return undefined
@@ -81,7 +81,7 @@ export const exportCharacteristicsDescriptionToYAML = (
 
 export const exportCharacteristicsDescriptionsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsYAML | undefined => {
   if (!data) return undefined

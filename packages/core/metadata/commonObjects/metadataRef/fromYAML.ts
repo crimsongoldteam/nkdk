@@ -6,7 +6,7 @@ import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItem
 
 export const importMetadataItemLinkFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataItemLinkYAML | undefined
 ): MetadataItemLink | undefined => {
   if (!data) return undefined
@@ -16,7 +16,7 @@ export const importMetadataItemLinkFromYAML = (
 
 export const importMetadataItemLinksFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataItemLinksYAML | undefined
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined

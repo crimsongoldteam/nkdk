@@ -4,7 +4,7 @@ import { TableAdditionalSourceXML } from "./types"
 
 const importTableAdditionalSourceFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: TableAdditionalSourceXML | undefined
 ): string | undefined => {
   if (!xml) return undefined

@@ -1,8 +1,8 @@
 import {
-  AdditionalIndex,
-  AdditionalIndexYAML,
-  AdditionalIndexes,
-  AdditionalIndexesYAML,
+    AdditionalIndex,
+    AdditionalIndexYAML,
+    AdditionalIndexes,
+    AdditionalIndexesYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToYAML } from "~/metadata/commonObjects/indexField/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -11,7 +11,7 @@ import { registerTypeRule } from "~/metadata/metadataFactory"
 
 export const exportAdditionalIndexToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndex | undefined
 ): AdditionalIndexYAML | undefined => {
   if (!data) return undefined
@@ -26,7 +26,7 @@ export const exportAdditionalIndexToYAML = (
 
 export const exportAdditionalIndexesToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesYAML | undefined => {
   if (!data) return undefined

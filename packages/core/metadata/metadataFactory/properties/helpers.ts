@@ -4,7 +4,7 @@ import { PropertyRule } from "./types"
 
 export const getValueOrDefault = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any
   name?: string
   operation: TypeRulesOperations

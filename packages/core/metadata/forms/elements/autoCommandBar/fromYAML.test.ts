@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import {
-  fullAutoCommandBar,
-  fullAutoExportCommandBarYAML,
-  minimalAutoCommandBar,
-  sourceAutoCommandBar,
+    fullAutoCommandBar,
+    fullAutoExportCommandBarYAML,
+    minimalAutoCommandBar,
+    sourceAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext } from "~/tests/mockContext"
 
-const rule: PropertyRule<any> = { type: "AutoCommandBar" }
+const rule: PropertyRule = { type: "AutoCommandBar" }
 
 const context = {
   ...mockContext,

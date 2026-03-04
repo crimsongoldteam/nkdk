@@ -55,7 +55,7 @@ const registerImportFromXML = <T extends BaseElement>(
   registerTypeRule(
     propertyType,
     "importFromXML",
-    (context: ConfigurationContext, _rule: PropertyRule<T>, xml: ElementXML): T | undefined => {
+    (context: ConfigurationContext, _rule: PropertyRule, xml: ElementXML): T | undefined => {
       return importSingleElementFromXML({
         context,
         itemType: itemType,
@@ -69,7 +69,7 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesName
   registerTypeRule(
     propertyType,
     "exportToYAML",
-    (context: ConfigurationContext, _rule: PropertyRule<T>, data: T | undefined): ToYAML<T> | undefined => {
+    (context: ConfigurationContext, _rule: PropertyRule, data: T | undefined): ToYAML<T> | undefined => {
       return exportElementToPartialYAML({ context, element: data })
     }
   )
@@ -82,7 +82,7 @@ const registerImportFromYAML = <T extends BaseElement>(
   registerTypeRule(
     propertyType,
     "importFromYAML",
-    (context: ConfigurationContext, _rule: PropertyRule<T>, yaml: ToYAML<T> | undefined, source?: T): T | undefined => {
+    (context: ConfigurationContext, _rule: PropertyRule, yaml: ToYAML<T> | undefined, source?: T): T | undefined => {
       return importSingleElementFromYAML({
         context,
         itemType: itemType,
@@ -105,7 +105,7 @@ const registerExportToXML = <T extends BaseElement>(params: {
   registerTypeRule(
     propertyType,
     "exportToXML",
-    (context: ConfigurationContext, _rule: PropertyRule<T>, value: T | undefined): ElementXML => {
+    (context: ConfigurationContext, _rule: PropertyRule, value: T | undefined): ElementXML => {
       const extraParams = toXMLFn(context, value)
 
       return exportSingleElementToXML({

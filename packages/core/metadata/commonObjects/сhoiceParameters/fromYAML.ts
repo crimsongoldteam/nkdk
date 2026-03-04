@@ -6,7 +6,7 @@ import { ChoiceParameters, ChoiceParametersYAML } from "./types"
 
 export const importChoiceParametersFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: ChoiceParametersYAML | undefined
 ): ChoiceParameters | undefined => {
   if (!data) return undefined

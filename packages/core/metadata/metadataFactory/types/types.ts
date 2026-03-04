@@ -66,28 +66,20 @@ export type TypeRulesNames =
   | "DataPath"
   | "CommandName"
 
-export type ExportToXMLFunction = (
-  context: ConfigurationContext,
-  rule: PropertyRule<any>,
-  value: any
-) => any | undefined
+export type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule, value: any) => any | undefined
 
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContext
-  rule: PropertyRule<T>
+  rule: PropertyRule
   metadataItem?: T
   value: any
 }) => any | undefined
 
-export type ImportFromXMLFunction = (
-  context: ConfigurationContext,
-  rule: PropertyRule<any>,
-  value: any
-) => any | undefined
+export type ImportFromXMLFunction = (context: ConfigurationContext, rule: PropertyRule, value: any) => any | undefined
 
-export type ImportFromYAMLFunctionNew = <T extends MetadataItem | never = never>(params: {
+export type ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<T>
+  rule: PropertyRule
   yaml?: any
   source?: any
   value: any
@@ -96,33 +88,33 @@ export type ImportFromYAMLFunctionNew = <T extends MetadataItem | never = never>
 
 export type ImportFromYAMLFunction = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   value: any | undefined,
   source?: any
 ) => any | undefined
 
 export type ExportToYAMLFunction = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   value: any | undefined
 ) => any | undefined
 
-export type ExportToYAMLFunctionNew = <T extends MetadataItem | never = never>(params: {
+export type ExportToYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<T>
+  rule: PropertyRule
   value: any
   name?: string
 }) => any | undefined
 
 export type ExportToEnterpriseFunction = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any | undefined
 }) => any | undefined
 
 export type ExportToJSONSchemaFn = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: any | undefined
 }) => TSchema | undefined
 

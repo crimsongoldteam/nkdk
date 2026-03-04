@@ -6,7 +6,7 @@ import { ChoiceParameters, ChoiceParametersXML } from "./types"
 
 export const exportChoiceParametersToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   parameters: ChoiceParameters | undefined
 ): ChoiceParametersXML | undefined => {
   if (!parameters || parameters.length === 0) return undefined

@@ -9,7 +9,7 @@ import {
 } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 
-const rule: PropertyRule<any> = { type: "ContextMenu" }
+const rule: PropertyRule = { type: "ContextMenu" }
 
 describe("importContextMenuFromYAML", () => {
   it("should import all fields from YAML", () => {

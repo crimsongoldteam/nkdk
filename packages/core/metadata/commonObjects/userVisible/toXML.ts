@@ -1,12 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { MetadataItem } from "~/metadata/metadataFactory"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
-export const exportUserVisibleToXML = <T extends MetadataItem>(
+export const exportUserVisibleToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<T> | undefined,
+  _rule: PropertyRule | undefined,
   userVisible: UserVisible | undefined
 ): UserVisibleXML | undefined => {
   if (!userVisible) return undefined

@@ -5,7 +5,7 @@ import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescr
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined

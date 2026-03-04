@@ -30,7 +30,7 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
     },
   }
 
-  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule][]) {
     const value = data[key]
 
     const exportedValues = exportPropertyToYAML({ context: currentContext, rule, value })
@@ -69,7 +69,7 @@ export function exportElementToYAML<T extends BaseElement>(params: {
 
   const result = {}
 
-  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule<T>][]) {
+  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule][]) {
     const value = data[key]
 
     const exportedValues = exportPropertyToYAML({ context, rule, value })
