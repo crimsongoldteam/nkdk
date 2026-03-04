@@ -1,10 +1,12 @@
 import { TSchema } from "@sinclair/typebox"
-import { BorderEnterprise } from "~/metadata/commonObjects/border/types"
-import { ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { PictureEnterprise } from "~/metadata/commonObjects/picture/types"
-import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
+import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
+import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { AllChildItemsEnterprise } from "~/metadata/forms/commonObjects/childItems/types"
+import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataItem, PropertyRule } from "../properties/types"
@@ -181,18 +183,20 @@ type TypesMap =
   | ["string", string, string]
   | ["boolean", boolean, boolean]
   | ["SystemEnumeration", unknown, SystemEnumerationEnterprise]
-  | ["Color", unknown, ColorEnterprise]
-  | ["TypeDescription", unknown, TypeDescriptionEnterprise]
-  | ["DataPath", unknown, string]
-  | ["I8nText", unknown, string]
-  | ["Font", unknown, FontEnterprise]
+  | ["Color", Color, ColorEnterprise]
+  | ["TypeDescription", TypeDescription, TypeDescriptionEnterprise]
+  | ["DataPath", DataPath, string]
+  | ["I8nText", I8nText, string]
+  | ["Font", Font, FontEnterprise]
   | ["ChildItems", unknown, AllChildItemsEnterprise]
-  | ["Picture", unknown, PictureEnterprise]
-  | ["Border", unknown, BorderEnterprise]
-  | ["CommandName", unknown, string]
+  | ["Picture", Picture, PictureEnterprise]
+  | ["Border", Border, BorderEnterprise]
+  | ["CommandName", string, string]
 
 export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
 
 export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
 
 export const TypesNames = TypesNamesList
+
+export type ElementTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[1]

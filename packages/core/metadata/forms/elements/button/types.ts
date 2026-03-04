@@ -5,12 +5,15 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElementPropsYAML, NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { ElementTypeByRule } from "~/metadata/metadataFactory/types/element"
 import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ButtonRules } from "./rules"
 
-export interface Button extends NamedElement {
+export type Button = ElementTypeByRule<typeof ButtonRules>
+
+export interface ButtonOld extends NamedElement {
   itemType: "Button"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean

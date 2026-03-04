@@ -1,5 +1,5 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from ".."
+import { FormElementType, MetadataItem, MetadataItemRule } from ".."
 import { ConfigurationContext } from "../../context/types"
 import { BaseElement } from "../../forms/elements/baseElement/types"
 import { EventXML } from "../events"
@@ -28,6 +28,22 @@ export interface ElementRule<T extends BaseElement, ExtraProperties extends stri
   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
 }
 
+export interface ElementRuleNew<ExtraProperties extends string = never> extends MetadataItemRule<
+  MetadataItem,
+  ExtraProperties
+> {
+  itemType: FormElementType
+  enterpriseField: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
+  enterpriseFieldType:
+    | `FormFieldType.${FormFieldType}`
+    | `FormButtonType.${FormButtonType}`
+    | `FormGroupType.${FormGroupType}`
+    | `FormDecorationType.${FormDecorationType}`
+    | "None"
+  alwaysExportToXML?: true
+
+  // registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
+}
 // #endregion
 
 // #region xml
