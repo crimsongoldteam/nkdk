@@ -1,9 +1,9 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { TypesNames } from "~/metadata/orchestration/property/registry"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 import { ToEnterprise } from "../rules"
 import { getTypeRule } from "../types/factory"
-import { TypesNames } from "../types/types"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
   context: ConfigurationContext

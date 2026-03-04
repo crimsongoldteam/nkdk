@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { I8nTextPropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "./toYAML"
+import { I8nTextPropertyRule } from "./types"
 
 const contextWithExportToYAML = {
   ...mockContext,

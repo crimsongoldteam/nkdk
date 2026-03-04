@@ -1,18 +1,19 @@
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
+import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
-import { EventsRules } from "../events"
-import { MetadataType } from "../metadataType/types"
-import { TypeRulesNames, TypeRulesOperations } from "../types/types"
+import { EventsRules } from "../event"
+import { MetadataItemType } from "../metadataItem/registry"
+import { PropertyRuleType } from "./fn"
 
 export interface MetadataItem {
-  itemType: MetadataType
+  itemType: MetadataItemType
 }
 
 type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
-interface BasePropertyRule {
+export interface BasePropertyRule {
   /**
    * Название ключа в yaml
    */
@@ -46,31 +47,6 @@ interface BasePropertyRule {
    * Если все поля пустые - это поле будет выгружено как значение
    */
   useAsShortValueYAML?: true
-}
-
-type I8nTextDefaultValueFunction = (params: {
-  context: ConfigurationContext
-  name?: string
-  operation: TypeRulesOperations
-}) => I8nText
-
-export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValue"> {
-  type: "I8nText"
-  yamlPartialOthers?: true
-  skipEmptyToXML?: true
-
-  /**
-   * Если значение поля приведенное к pascalCase равно имени элемента - поле не будет выгружено в yaml
-   */
-  excludeIfEqualNameYAML?: true
-  defaultValue?: I8nText | I8nTextDefaultValueFunction
-}
-
-export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
-  type: "FormattedI8nText"
-  yamlFormatted: string
-  yamlPartialOthers?: true
-  xmlWithDefaultLanguage?: true
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {
@@ -118,7 +94,7 @@ export interface MetadataTypePropertyRule extends BasePropertyRule {
 
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
-    TypeRulesNames,
+    PropertyRuleType,
     | "SystemEnumeration"
     | "I8nText"
     | "FormattedI8nText"
@@ -159,7 +135,7 @@ export interface ItemXML {
 }
 
 export interface MetadataItemRule extends MetadataItem {
-  itemType: MetadataType
+  itemType: MetadataItemType
   properties: PropertiesType
 
   events?: EventsRules

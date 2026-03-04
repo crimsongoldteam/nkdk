@@ -1,5 +1,5 @@
 import { FormElementType, SingleFormElementType } from "~/metadata/metadataFactory"
-import { MetadataItem } from "~/metadata/metadataFactory/properties/types"
+import { MetadataItem } from "~/metadata/orchestration/property/types"
 
 export type FormElementTypeAll = FormElementType | SingleFormElementType
 

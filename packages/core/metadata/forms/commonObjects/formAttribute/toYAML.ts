@@ -80,11 +80,11 @@ const exportColumnsToYAML = (
   columns: FormAttributeColumn[]
 ): FormAttributeColumnsYAML => {
   return Object.fromEntries(
-    columns.map((column) => [column.name, exportFormAttributeColumnToYAML(context, undefined, column)])
+    columns.map((column) => [column.name, exportFormAttributeColumnToYAMLInternal(context, undefined, column)])
   )
 }
 
-const exportFormAttributeColumnToYAML = (
+const exportFormAttributeColumnToYAMLInternal = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   column: FormAttributeColumn
@@ -96,6 +96,15 @@ const exportFormAttributeColumnToYAML = (
   })!
 
   return result
+}
+
+export const exportFormAttributeColumnToYAML = (
+  context: ConfigurationContext,
+  data: FormAttributeColumn | undefined
+): FormAttributeColumnYAML | undefined => {
+  if (!data) return undefined
+
+  return exportFormAttributeColumnToYAMLInternal(context, undefined, data)
 }
 
 const exportAdditionalColumnsToYAML = (

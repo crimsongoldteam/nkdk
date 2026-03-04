@@ -1,5 +1,5 @@
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
-import { MetadataItemRule } from "~/metadata/metadataFactory/properties/types"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const FormAttributeRules = {
   itemType: "FormAttribute",

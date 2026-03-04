@@ -1,3 +1,4 @@
+import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import {
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -9,10 +10,9 @@ import {
   ImportFromXMLFunction,
   ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
-  TypeRulesNames,
   TypeRulesOperations,
   createRegistryKey,
-} from "./types"
+} from "../../orchestration/property/fn"
 
 const typeRulesRegistry = new Map<
   string,
@@ -27,7 +27,7 @@ const typeRulesRegistry = new Map<
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
-  type: TypeRulesNames,
+  type: PropertyRuleType,
   operation: O,
   ruleFunction: NonNullable<ImportExportFunction<O>>
 ) => {
@@ -36,7 +36,7 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
 }
 
 export const getTypeRule = <O extends TypeRulesOperations>(
-  type: TypeRulesNames,
+  type: PropertyRuleType,
   operation: O
 ): O extends "importFromYAML"
   ? ImportFromYAMLFunction | ImportFromYAMLFunctionNew | undefined

@@ -1,7 +1,7 @@
 import type { TSchema } from "@sinclair/typebox"
 import { Type } from "@sinclair/typebox"
 import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
-import type { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   AutoSaveFormDataInSettingsFromYAML,
   ChildFormItemsGroupFromYAML,

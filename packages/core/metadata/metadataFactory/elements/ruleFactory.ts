@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { importSingleElementFromYAML, PropertyRule } from ".."
+import { PropertyRuleType } from "../../orchestration/property/fn"
 import { FormElementType } from "../metadataType/types"
 import { ToYAML } from "../rules"
 import { registerTypeRule } from "../types/factory"
-import { TypeRulesNames } from "../types/types"
 import { importSingleElementFromXML } from "./fromXML"
 import { exportSingleElementToXML } from "./toXML"
 import { exportElementToPartialYAML } from "./toYAML"
@@ -34,7 +34,7 @@ type ToXMLFn<T extends BaseElement> = (
 ) => { id: string; name: string }
 
 export const registerElementAsType = <T extends BaseElement>(params: {
-  propertyType: TypeRulesNames
+  propertyType: PropertyRuleType
   elementRule: ElementRule
   toXML: ToXMLFn<T>
 }): void => {
@@ -43,7 +43,7 @@ export const registerElementAsType = <T extends BaseElement>(params: {
   // if (!elementRule.registerAsType) return
 
   // for (const [propertyType, propertyRule] of Object.entries(elementRule.registerAsType) as [
-  //   TypeRulesNames,
+  //   PropertyRuleType,
   //   RegisterAsTypeRule,
   // ][]) {
 
@@ -55,7 +55,7 @@ export const registerElementAsType = <T extends BaseElement>(params: {
 // }
 
 const registerImportFromXML = <T extends BaseElement>(
-  propertyType: TypeRulesNames,
+  propertyType: PropertyRuleType,
   itemType: FormElementType,
   elementRule: ElementRule
 ): void => {
@@ -72,7 +72,7 @@ const registerImportFromXML = <T extends BaseElement>(
     }
   )
 }
-const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesNames): void => {
+const registerExportToYAML = <T extends BaseElement>(propertyType: PropertyRuleType): void => {
   registerTypeRule(
     propertyType,
     "exportToYAML",
@@ -83,7 +83,7 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: TypeRulesName
 }
 
 const registerImportFromYAML = <T extends BaseElement>(
-  propertyType: TypeRulesNames,
+  propertyType: PropertyRuleType,
   itemType: FormElementType
 ): void => {
   registerTypeRule(
@@ -101,7 +101,7 @@ const registerImportFromYAML = <T extends BaseElement>(
 }
 
 const registerExportToXML = <T extends BaseElement>(params: {
-  propertyType: TypeRulesNames
+  propertyType: PropertyRuleType
   toXML: ToXMLFn<T>
   elementRule: ElementRule
   itemType: FormElementType

@@ -28,6 +28,17 @@ export const importFormAttributesFromXML = (
   return attributes
 }
 
+export const importFormAttributeColumnFromXML = (
+  context: ConfigurationContext,
+  xml: FormAttributeColumnXML | undefined
+): FormAttributeColumn | undefined => {
+  if (!xml) return undefined
+
+  const columns = importColumnsFromXML(context, xml)
+
+  return columns[0]
+}
+
 const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {
   const properties = importPropertiesFromXML<FormAttribute>({
     context: context,

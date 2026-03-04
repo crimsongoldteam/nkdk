@@ -67,19 +67,3 @@ export type SingleFormElementType = IdentityMappingType<typeof SingleFormElement
 // #region AllFormElementType
 
 export type FormElementType = CollectionFormElementType | SingleFormElementType
-
-// #endregion
-
-export type MetadataType =
-  | FormElementType
-  | "FormAttribute"
-  | "ClientApplicationForm"
-  | "FormAttributeColumn"
-  | "CommandInterface"
-  | "CommandInterfaceItem"
-  | "FormCommand"
-  | "MetadataCatalog"
-  | "CatalogForm"
-  | "Configuration"
-
-// # region OtherElementElementType

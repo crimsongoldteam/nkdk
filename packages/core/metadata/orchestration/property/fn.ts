@@ -1,36 +1,8 @@
 import { TSchema } from "@sinclair/typebox"
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
-import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { DataPathYAML } from "~/metadata/commonObjects/metadataPath/types"
-import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import {
-  TypeDescription,
-  TypeDescriptionEnterprise,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import {
-  AllChildItemsEnterprise,
-  CommandBarChildItems,
-  CommandBarChildItemsEnterprise,
-  CommandBarChildItemsPartialYAML,
-  GroupChildItems,
-  GroupChildItemsEnterprise,
-  GroupChildItemsPartialYAML,
-  TableChildItems,
-  TableChildItemsEnterprise,
-  TableChildItemsPartialYAML,
-} from "~/metadata/forms/commonObjects/childItems/types"
-import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
-import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
-import { MetadataItem, PropertyRule } from "../properties/types"
+import { MetadataItem, PropertyRule } from "./types"
 
-export type TypeRulesNames =
+export type PropertyRuleType =
   | "AssociatedTable"
   | "AutoCommandBar"
   | "TableAutoCommandBar"
@@ -153,9 +125,9 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
-type TypeRuleKey = `${TypeRulesNames}:${TypeRulesOperations}`
+type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
-export const createRegistryKey = (type: TypeRulesNames, operation: TypeRulesOperations): TypeRuleKey => {
+export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
   return `${type}:${operation}`
 }
 
@@ -172,52 +144,3 @@ export type ImportExportFunction<O extends TypeRulesOperations> = O extends "imp
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
             : never
-
-const TypesNamesList = [
-  "number",
-  "string",
-  "boolean",
-  "SystemEnumeration",
-  "Color",
-  "TypeDescription",
-  "DataPath",
-  "I8nText",
-  "FormattedI8nText",
-  "Font",
-  "ChildItems",
-  "Picture",
-  "Border",
-  "CommandName",
-  "UserVisible",
-] as const
-
-// [name, Item, Enterprise, YAML]
-type TypesMap =
-  | ["number", number, number, number]
-  | ["string", string, string, string]
-  | ["boolean", boolean, boolean, StringboolYAML]
-  | ["SystemEnumeration", unknown, SystemEnumerationEnterprise, unknown]
-  | ["Color", Color, ColorEnterprise, ColorYAML]
-  | ["TypeDescription", TypeDescription, TypeDescriptionEnterprise, TypeDescriptionYAML]
-  | ["DataPath", DataPath, string, DataPathYAML]
-  | ["I8nText", I8nText, string, I8nTextYAML]
-  | ["FormattedI8nText", FormattedI8nText, string, FormattedI8nTextYAML]
-  | ["Font", Font, FontEnterprise, FontYAML]
-  | ["ChildItems", unknown, AllChildItemsEnterprise, unknown]
-  | ["Picture", Picture, PictureEnterprise, PictureYAML]
-  | ["Border", Border, BorderEnterprise, BorderYAML]
-  | ["CommandName", string, string, string]
-  | ["UserVisible", UserVisible, unknown, UserVisibleYAML]
-  | ["GroupChildItems", GroupChildItems, GroupChildItemsEnterprise, GroupChildItemsPartialYAML]
-  | ["CommandBarChildItems", CommandBarChildItems, CommandBarChildItemsEnterprise, CommandBarChildItemsPartialYAML]
-  | ["TableChildItems", TableChildItems, TableChildItemsEnterprise, TableChildItemsPartialYAML]
-
-export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
-
-export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any, any]>[2]
-
-export type YAMLTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any, any]>[3]
-
-export const TypesNames = TypesNamesList
-
-export type ElementTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any, any]>[1]

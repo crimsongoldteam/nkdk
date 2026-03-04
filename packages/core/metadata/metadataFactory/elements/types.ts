@@ -2,8 +2,8 @@ import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from
 import { FormElementType, MetadataItemRule } from ".."
 import { ConfigurationContext } from "../../context/types"
 import { BaseElement } from "../../forms/elements/baseElement/types"
+import { ExportToEnterpriseFunction } from "../../orchestration/property/fn"
 import { EventXML } from "../events"
-import { ExportToEnterpriseFunction } from "../types/types"
 import { ToNKDKResult } from "./toNKDKGenerator/types"
 
 // #region rules
@@ -22,7 +22,7 @@ export interface RegisterAsTypeRule<T extends BaseElement> {
 //     | "None"
 //   alwaysExportToXML?: true
 
-//   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<BaseElement>>>
+//   registerAsType?: Partial<Record<PropertyRuleType, RegisterAsTypeRule<BaseElement>>>
 // }
 
 export interface ElementRule extends MetadataItemRule {
@@ -36,7 +36,7 @@ export interface ElementRule extends MetadataItemRule {
     | "None"
   alwaysExportToXML?: true
 
-  // registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
+  // registerAsType?: Partial<Record<PropertyRuleType, RegisterAsTypeRule<T>>>
 }
 // #endregion
 

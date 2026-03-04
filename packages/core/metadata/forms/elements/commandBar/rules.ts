@@ -1,5 +1,5 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
 export type { ElementRule, PropertyRule }
 

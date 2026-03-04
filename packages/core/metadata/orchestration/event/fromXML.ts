@@ -1,5 +1,5 @@
 import { capitalize } from "~/helpers/capitalize"
-import { Events } from "~/metadata/metadataFactory/events/types"
+import { Events } from "./types"
 
 export const importEventsFromXML = <T extends { events?: Record<string, string> }>(
   rule: T,

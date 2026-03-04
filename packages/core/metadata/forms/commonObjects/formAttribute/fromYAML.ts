@@ -28,6 +28,16 @@ export const importFormAttributesFromYAML = (
   return results.length > 0 ? results : undefined
 }
 
+export const importFormAttributeColumnFromYAML = (
+  context: ConfigurationContext,
+  yaml: FormAttributeColumnYAML | undefined,
+  name: string
+): FormAttributeColumn | undefined => {
+  if (!yaml) return undefined
+
+  return importColumnFromYAML(context, undefined, yaml, name)
+}
+
 const importFormAttributeFromYAML = (
   context: ConfigurationContext,
   yaml: FormAttributeYAML | TypeDescriptionYAML,

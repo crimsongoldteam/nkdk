@@ -1,8 +1,7 @@
-import { PropertyRule } from "../properties/types"
-import { EnterpriseTypeByKey, TypeRulesNamesNew } from "./types"
+import { PropertyRuleType, PropertyYoEnterprise } from "~/metadata/orchestration/property/registry"
 
 export type EnterpriseType<
-  T extends { properties: Record<string, PropertyRule>; enterpriseField: string; enterpriseFieldType: string },
+  T extends { properties: Record<string, PropertyRuleType>; enterpriseField: string; enterpriseFieldType: string },
 > = T["properties"] extends infer Properties
   ? {
       [K in keyof Properties as Properties[K] extends { toEnterprise?: false }
@@ -10,8 +9,8 @@ export type EnterpriseType<
         : Capitalize<K extends string ? K : never>]?: Properties[K] extends {
         type: infer PropertyType
       }
-        ? PropertyType extends TypeRulesNamesNew
-          ? EnterpriseTypeByKey<PropertyType>
+        ? PropertyType extends PropertyRuleType
+          ? PropertyYoEnterprise<PropertyType>
           : unknown
         : never
     } & {

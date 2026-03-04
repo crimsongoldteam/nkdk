@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML, exportPropertyToYAML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   fullSearchControlAddition,
   fullSearchControlAdditionYAML,

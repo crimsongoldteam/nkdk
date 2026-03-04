@@ -1,15 +1,15 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
 import { ToYAML } from ".."
-import { MetadataType } from "../metadataType/types"
+import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "../../orchestration/property/fn"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 import { getTypeRule } from "../types/factory"
-import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "../types/types"
 import { getValueOrDefault } from "./helpers"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   yaml: ToYAML<T>
-  metadataType: MetadataType
+  metadataType: MetadataItemType
   rules: MetadataItemRule
   source?: T
   name?: string
@@ -113,7 +113,7 @@ export const importPropertyFromYAML = (params: {
 function handleShortFormatYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   yaml: ToYAML<T>
-  metadataType: MetadataType
+  metadataType: MetadataItemType
   rules: MetadataItemRule
   result: T
   name?: string

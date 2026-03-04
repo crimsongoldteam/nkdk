@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ExportToYAMLFunction, ExportToYAMLFunctionNew, PropertyRuleType } from "../../orchestration/property/fn"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 import { ToYAML } from "../rules"
 import { getTypeRule } from "../types/factory"
-import { ExportToYAMLFunction, ExportToYAMLFunctionNew, TypeRulesNames } from "../types/types"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
@@ -68,7 +68,7 @@ export const exportPropertyToYAML = (params: {
     return undefined
   }
 
-  const typeExportFn = getTypeRule(rule.type as TypeRulesNames, "exportToYAML")
+  const typeExportFn = getTypeRule(rule.type as PropertyRuleType, "exportToYAML")
 
   if (!typeExportFn) return getExportToYAMLResult(rule, yamlKey, value)
 

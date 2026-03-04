@@ -1,4 +1,4 @@
-import { MetadataItem, MetadataItemRule } from "../properties/types"
+import { MetadataItem, MetadataItemRule } from "../property/types"
 import { Events } from "./types"
 
 export const exportEventsToYAML = <T extends MetadataItem>(params: {

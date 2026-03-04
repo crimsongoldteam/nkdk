@@ -31,6 +31,17 @@ export const exportFormAttributesToXML = (
   return { Attribute: result }
 }
 
+export const exportFormAttributeColumnToXML = (
+  context: ConfigurationContext,
+  data: FormAttributeColumn | undefined
+): FormAttributeColumnXML | undefined => {
+  if (!data) return undefined
+
+  const columns = exportColumnsToXML(context, [data])
+
+  return columns?.Column?.[0]
+}
+
 const exportFormAttributeToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,

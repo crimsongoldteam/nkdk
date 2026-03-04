@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement as MetadataItem } from "~/metadata/forms/elements/baseElement/types"
+import { PropertyRule } from "../../orchestration/property/types"
 import { getValueOrDefault } from "../properties/helpers"
-import { PropertyRule } from "../properties/types"
 import { ElementRule } from "./types"
 
 const isEmptyValue = (v: unknown): boolean =>

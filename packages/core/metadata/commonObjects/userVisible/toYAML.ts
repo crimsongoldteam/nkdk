@@ -1,6 +1,6 @@
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleYAML, type UserVisible } from "./types"
 

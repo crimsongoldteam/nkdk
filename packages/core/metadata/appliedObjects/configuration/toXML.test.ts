@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { full, minimal } from "~/tests/fixtures/configuration/data"
 import { mockContext } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importConfigurationFromXML } from "./fromXML"
 import { exportConfigurationToXML } from "./toXML"
 

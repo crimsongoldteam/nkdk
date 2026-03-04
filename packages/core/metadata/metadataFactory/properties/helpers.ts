@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { TypeRulesOperations } from "../types/types"
-import { PropertyRule } from "./types"
+import { TypeRulesOperations } from "../../orchestration/property/fn"
+import { PropertyRule } from "../../orchestration/property/types"
 
 export const getValueOrDefault = (params: {
   context: ConfigurationContext
