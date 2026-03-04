@@ -106,6 +106,7 @@ const importColumnFromYAML = (
 
   const result: FormAttributeColumn = {
     ...properties,
+    itemType: "FormAttributeColumn",
     name,
   }
 

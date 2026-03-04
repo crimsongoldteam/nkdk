@@ -1,5 +1,4 @@
 import { FormAttributes, FormAttributesYAML } from "~/metadata/forms/commonObjects/formAttribute/types"
-import { fullDynamicList } from "../dynamicList/data"
 
 //#region FullFormAttributes
 
@@ -268,23 +267,23 @@ export const withEmptySettingsFormAttributeYAML: FormAttributesYAML = {
 //#endregion
 
 //#region WithDynamicList
-export const withDynamicListFormAttribute: FormAttributes = [
-  {
-    name: "ВыбранныеЗначения",
-    title: { items: { ru: "Выбранные значения" } },
-    type: { type: ["DynamicList"] },
-    settings: fullDynamicList,
-    itemType: "FormAttribute",
-    columns: [],
-  },
-]
+// export const withDynamicListFormAttribute: FormAttributes = [
+//   {
+//     name: "ВыбранныеЗначения",
+//     title: { items: { ru: "Выбранные значения" } },
+//     type: { type: ["DynamicList"] },
+//     settings: fullDynamicList,
+//     itemType: "FormAttribute",
+//     columns: [],
+//   },
+// ]
 
-export const withDynamicListFormAttributeYAML: FormAttributesYAML = {
-  ВыбранныеЗначения: {
-    Тип: "ДинамическийСписок",
-    ДинамическийСписок: fullDynamicList,
-  },
-}
+// export const withDynamicListFormAttributeYAML: FormAttributesYAML = {
+//   ВыбранныеЗначения: {
+//     Тип: "ДинамическийСписок",
+//     ДинамическийСписок: fullDynamicList,
+//   },
+// }
 //#endregion
 
 //#region TableWithColumns
