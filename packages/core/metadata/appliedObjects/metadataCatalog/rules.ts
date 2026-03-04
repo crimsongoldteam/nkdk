@@ -1,3 +1,4 @@
+import { MetadataItemRule } from "~/metadata/metadataFactory"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
 const catalogProperties = ["Catalog", "Properties"]
@@ -358,4 +359,4 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
     },
   },
-}
+} as const satisfies MetadataItemRule

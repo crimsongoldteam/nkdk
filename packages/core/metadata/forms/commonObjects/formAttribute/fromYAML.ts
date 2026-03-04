@@ -35,7 +35,7 @@ const importFormAttributeFromYAML = (
 ): FormAttribute => {
   const properties = importPropertiesFromYAML({
     context: context,
-    yaml: yaml as FormAttributeYAML,
+    yaml: yaml,
     metadataType: "FormAttribute",
     rules: FormAttributeRules,
     name,
@@ -47,6 +47,7 @@ const importFormAttributeFromYAML = (
     ...properties,
     columns,
     name,
+    itemType: "FormAttribute",
   }
 
   return result
