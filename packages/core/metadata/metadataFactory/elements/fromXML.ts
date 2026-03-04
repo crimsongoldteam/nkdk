@@ -10,7 +10,7 @@ import { ElementRule, ElementXML } from "./types"
 
 export const importSingleElementFromXML = <T extends BaseElement>(params: {
   context: ConfigurationContext
-  rule: ElementRule<T>
+  rule: ElementRule
   itemType: FormElementType
   xml: ElementXML
 }): T | undefined => {
@@ -55,7 +55,7 @@ export function importElementFromXML<T extends NamedElement>(params: {
 export function importFromXML<T extends BaseElement>(
   context: ConfigurationContext,
   xml: any,
-  rules: ElementRule<T>
+  rules: ElementRule
 ): Partial<T> | undefined {
   if (xml === undefined) return undefined
 

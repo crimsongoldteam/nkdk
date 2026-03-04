@@ -1,10 +1,10 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { InputField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const InputFieldRules = {
+  itemType: "InputField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.InputField",
   properties: {
@@ -309,6 +309,6 @@ export const InputFieldRules = {
     creating: "Создание",
     multipleValuesDelete: "УдалениеМножественныхЗначений",
   },
-} as const satisfies ElementRule<InputField>
+} as const satisfies ElementRule
 
-registerElementRule("InputField", InputFieldRules as ElementRule<InputField>)
+registerElementRule("InputField", InputFieldRules)

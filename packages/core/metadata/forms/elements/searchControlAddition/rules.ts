@@ -94,4 +94,7 @@ export const SearchControlAdditionRules = {
 } as const satisfies ElementRule<SearchControlAddition>
 
 registerElementRule("SearchControlAddition", SearchControlAdditionRules as ElementRule<SearchControlAddition>)
-registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules as ElementRule<SingleSearchControlAddition, "additionSource">)
+registerElementRule(
+  "SingleSearchControlAddition",
+  SingleSearchControlAdditionRules as ElementRule<SingleSearchControlAddition, "additionSource">
+)

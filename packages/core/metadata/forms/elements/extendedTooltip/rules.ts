@@ -4,10 +4,10 @@ import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFac
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getExtendedTooltipName } from "./helper"
-import { ExtendedTooltip } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ExtendedTooltipRules = {
+  itemType: "ExtendedTooltip",
   enterpriseFieldType: "None",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
@@ -76,6 +76,6 @@ export const ExtendedTooltipRules = {
       },
     },
   },
-} as const satisfies ElementRule<ExtendedTooltip>
+} as const satisfies ElementRule
 
-registerElementRule("ExtendedTooltip", ExtendedTooltipRules as ElementRule<ExtendedTooltip>)
+registerElementRule("ExtendedTooltip", ExtendedTooltipRules)

@@ -264,6 +264,6 @@ export const TableRules = {
     onCurrentParentChange: "ПриСменеТекущегоРодителя",
     dragCheck: "ПроверкаПеретаскивания",
   },
-} as const satisfies ElementRule<Table>
+} as const satisfies ElementRuleNew
 
-registerElementRule("Table", TableRules as ElementRule<Table>)
+registerElementRule("Table", TableRules)

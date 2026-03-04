@@ -1,10 +1,10 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { LabelField } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const LabelFieldRules = {
+  itemType: "LabelField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.LabelField",
   properties: {
@@ -139,6 +139,6 @@ export const LabelFieldRules = {
     click: "Нажатие",
     uRLProcessing: "ОбработкаНавигационнойСсылки",
   },
-} as const satisfies ElementRule<LabelField>
+} as const satisfies ElementRule
 
-registerElementRule("LabelField", LabelFieldRules as ElementRule<LabelField>)
+registerElementRule("LabelField", LabelFieldRules)

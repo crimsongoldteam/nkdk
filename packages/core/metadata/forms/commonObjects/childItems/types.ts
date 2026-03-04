@@ -117,7 +117,7 @@ export type GroupChildItem =
 
 export type GroupChildItems = GroupChildItem[]
 
-export type GroupChilItemPartialYAML = Record<string, ToYAML<GroupChildItem>>
+export type GroupChildItemsPartialYAML = Record<string, ToYAML<GroupChildItem>>
 
 export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem>[]
 
@@ -131,6 +131,8 @@ export type CommandBarChildItems = CommandBarChildItem[]
 export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem>>
 
 export type CommandBarChildItemsTypedYAML = Record<string, ToTypedYAML<Button | ButtonGroup | Popup>>
+
+export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem>[]
 
 // #endregion
 
@@ -164,6 +166,8 @@ export interface ChildItemsStructureResult {
 export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelField | PictureField
 
 export type TableChildItems = TableChildItem[]
+
+export type TableChildItemsEnterprise = ToEnterprise<TableChildItem>[]
 
 export type TableChildItemTypedYAML =
   | CheckBoxFieldTypedYAML

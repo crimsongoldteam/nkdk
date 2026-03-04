@@ -3,10 +3,10 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getContextMenuName } from "./helper"
-import { ContextMenu } from "./types"
 export type { ElementRule }
 
 export const ContextMenuRules = {
+  itemType: "ContextMenu",
   enterpriseFieldType: "FormGroupType.ContextMenu",
   properties: {
     displayImportance: {
@@ -34,6 +34,6 @@ export const ContextMenuRules = {
       },
     },
   },
-} as const satisfies ElementRule<ContextMenu>
+} as const satisfies ElementRule
 
-registerElementRule("ContextMenu", ContextMenuRules as ElementRule<ContextMenu>)
+registerElementRule("ContextMenu", ContextMenuRules)

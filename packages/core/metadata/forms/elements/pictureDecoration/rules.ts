@@ -1,10 +1,10 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { PictureDecoration } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const PictureDecorationRules = {
+  itemType: "PictureDecoration",
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "FormDecorationType.Picture",
   properties: {
@@ -92,6 +92,6 @@ export const PictureDecorationRules = {
     drag: "Перетаскивание",
     dragCheck: "ПроверкаПеретаскивания",
   },
-} as const satisfies ElementRule<PictureDecoration>
+} as const satisfies ElementRule
 
-registerElementRule("PictureDecoration", PictureDecorationRules as ElementRule<PictureDecoration>)
+registerElementRule("PictureDecoration", PictureDecorationRules)

@@ -14,7 +14,7 @@ const isValueEqualToDefault = (value: unknown, valueOrDefault: unknown): boolean
 
 export const isEmptyMetadataItem = <T extends MetadataItem>(params: {
   context: ConfigurationContext
-  rule: ElementRule<T>
+  rule: ElementRule
   element: T | undefined
 }): boolean => {
   const { context, rule, element } = params

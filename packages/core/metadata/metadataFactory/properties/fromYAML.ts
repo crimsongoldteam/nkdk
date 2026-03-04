@@ -10,7 +10,7 @@ export function importPropertiesFromYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   yaml: ToYAML<T>
   metadataType: MetadataType
-  rules: MetadataItemRule<T>
+  rules: MetadataItemRule
   source?: T
   name?: string
 }): T {
@@ -114,7 +114,7 @@ function handleShortFormatYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   yaml: ToYAML<T>
   metadataType: MetadataType
-  rules: MetadataItemRule<T>
+  rules: MetadataItemRule
   result: T
   name?: string
 }): T | undefined {

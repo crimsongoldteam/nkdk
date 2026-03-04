@@ -82,7 +82,7 @@ export const importElementFromPartialYAML = <T extends BaseElement>(params: {
 
 function importElementFromYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
-  rules: ElementRule<T>
+  rules: ElementRule
   itemType: FormElementType
   yaml: (ToYAML<T> & { События?: Record<string, string> }) | undefined
   source?: T

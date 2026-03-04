@@ -6,7 +6,7 @@ import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   metadataItem: T
-  rule: MetadataItemRule<T>
+  rule: MetadataItemRule
 }): TSchema => {
   const { context, metadataItem, rule } = params
 

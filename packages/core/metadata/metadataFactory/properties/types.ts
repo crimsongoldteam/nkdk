@@ -144,21 +144,14 @@ export type PropertyRule =
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule
 
-type PropertiesType<T extends MetadataItem, ExtraProperties extends string = never> = Partial<
-  Record<Exclude<keyof T, "itemType" | "name"> | ExtraProperties, PropertyRule>
->
+type PropertiesType<ExtraProperties extends string = never> = Partial<Record<string | ExtraProperties, PropertyRule>>
 
 export interface ItemXML {
   [key: string]: any
 }
 
-export interface MetadataItemRule<
-  T extends MetadataItem,
-  ExtraProperties extends string = never,
-  TagsType extends string = string,
-> {
-  tags?: TagsType[]
-  properties: PropertiesType<T, ExtraProperties>
+export interface MetadataItemRule extends MetadataItem {
+  properties: PropertiesType
 
-  events?: EventsRules<T>
+  events?: EventsRules
 }

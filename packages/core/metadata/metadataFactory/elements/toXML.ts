@@ -35,7 +35,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 export function exportSingleElementToXML<T extends BaseElement>(params: {
   context: ConfigurationContext
   element: T | undefined
-  rule: ElementRule<T>
+  rule: ElementRule
   id: string
   name: string
   itemType: FormElementType
@@ -47,7 +47,7 @@ function exportToXML<T extends BaseElement>(params: {
   context: ConfigurationContext
   itemType: FormElementType
   element: T | undefined
-  rule: ElementRule<T>
+  rule: ElementRule
   id: string
   name: string
 }): ElementXML {

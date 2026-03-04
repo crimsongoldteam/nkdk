@@ -12,7 +12,18 @@ import {
   TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { AllChildItemsEnterprise } from "~/metadata/forms/commonObjects/childItems/types"
+import {
+  AllChildItemsEnterprise,
+  CommandBarChildItems,
+  CommandBarChildItemsEnterprise,
+  CommandBarChildItemsPartialYAML,
+  GroupChildItems,
+  GroupChildItemsEnterprise,
+  GroupChildItemsPartialYAML,
+  TableChildItems,
+  TableChildItemsEnterprise,
+  TableChildItemsPartialYAML,
+} from "~/metadata/forms/commonObjects/childItems/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -178,6 +189,7 @@ const TypesNamesList = [
   "UserVisible",
 ] as const
 
+// [name, Item, Enterprise, YAML]
 type TypesMap =
   | ["number", number, number, number]
   | ["string", string, string, string]
@@ -193,6 +205,9 @@ type TypesMap =
   | ["Border", Border, BorderEnterprise, BorderYAML]
   | ["CommandName", string, string, string]
   | ["UserVisible", UserVisible, unknown, UserVisibleYAML]
+  | ["GroupChildItems", GroupChildItems, GroupChildItemsEnterprise, GroupChildItemsPartialYAML]
+  | ["CommandBarChildItems", CommandBarChildItems, CommandBarChildItemsEnterprise, CommandBarChildItemsPartialYAML]
+  | ["TableChildItems", TableChildItems, TableChildItemsEnterprise, TableChildItemsPartialYAML]
 
 export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
 

@@ -8,7 +8,7 @@ import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 export const exportPropertiesToEnterprise = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   metadataItem: T
-  rule: MetadataItemRule<T>
+  rule: MetadataItemRule
 }): ToEnterprise<T> => {
   const { context, metadataItem, rule } = params
 

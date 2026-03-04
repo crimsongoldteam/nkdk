@@ -5,7 +5,7 @@ import { MetadataItem, MetadataItemRule } from "../properties/types"
 
 export const exportEventsToXML = <T extends MetadataItem>(params: {
   context: ConfigurationContext
-  rule: MetadataItemRule<T>
+  rule: MetadataItemRule
   data: T | undefined
 }): { Events?: EventsXML } => {
   const { rule, data } = params

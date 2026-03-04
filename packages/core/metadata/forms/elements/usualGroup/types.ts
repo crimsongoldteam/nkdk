@@ -8,7 +8,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
   // GroupChildItemsEnterprise,
-  GroupChilItemPartialYAML,
+  GroupChildItemsPartialYAML,
 } from "../../commonObjects/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { UsualGroupRules } from "./rules"
@@ -107,7 +107,7 @@ export interface UsualGroupPartialYAML {
 
 export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
   Тип: "Группа"
-  ПодчиненныеЭлементы?: GroupChilItemPartialYAML
+  ПодчиненныеЭлементы?: GroupChildItemsPartialYAML
 }
 
 export type UsualGroupEnterprise = EnterpriseType<typeof UsualGroupRules>

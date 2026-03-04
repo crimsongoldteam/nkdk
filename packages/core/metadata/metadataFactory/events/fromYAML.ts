@@ -1,7 +1,7 @@
 import { MetadataItem, MetadataItemRule } from "../properties/types"
 
 export const importEventsFromYAML = <T extends MetadataItem>(params: {
-  rule: MetadataItemRule<T>
+  rule: MetadataItemRule
   yaml: { События?: Record<string, string> } | undefined
 }): { events?: Record<string, string> } => {
   const { rule, yaml } = params

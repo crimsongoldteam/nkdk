@@ -62,7 +62,7 @@ export function exportElementToPartialYAML<T extends BaseElement>(params: {
 export function exportElementToYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   data: T | undefined
-  rules: ElementRule<T>
+  rules: ElementRule
 }): ToYAML<T> | undefined {
   const { context, data, rules } = params
   if (data === undefined) return undefined

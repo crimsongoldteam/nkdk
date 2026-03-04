@@ -5,6 +5,6 @@ import { EventsRules } from "../events"
 export interface ClientApplicationFormRule<
   T extends ClientApplicationForm,
   ExtraProperties extends string = never,
-> extends MetadataItemRule<T, ExtraProperties> {
-  events: EventsRules<T>
+> extends MetadataItemRule{
+  events: EventsRules
 }

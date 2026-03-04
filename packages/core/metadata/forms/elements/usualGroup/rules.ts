@@ -1,10 +1,10 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
-import { UsualGroup } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const UsualGroupRules = {
+  itemType: "UsualGroup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.UsualGroup",
   properties: {
@@ -155,6 +155,6 @@ export const UsualGroupRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRule<UsualGroup>
+} as const satisfies ElementRule
 
-registerElementRule("UsualGroup", UsualGroupRules as ElementRule<UsualGroup>)
+registerElementRule("UsualGroup", UsualGroupRules)

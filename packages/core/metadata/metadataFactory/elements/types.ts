@@ -1,9 +1,9 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { FormElementType, MetadataItem, MetadataItemRule } from ".."
+import { FormElementType, MetadataItemRule } from ".."
 import { ConfigurationContext } from "../../context/types"
 import { BaseElement } from "../../forms/elements/baseElement/types"
 import { EventXML } from "../events"
-import { ExportToEnterpriseFunction, TypeRulesNames } from "../types/types"
+import { ExportToEnterpriseFunction } from "../types/types"
 import { ToNKDKResult } from "./toNKDKGenerator/types"
 
 // #region rules
@@ -12,26 +12,20 @@ export interface RegisterAsTypeRule<T extends BaseElement> {
   toXML: (context: ConfigurationContext, element: T | undefined) => { id: string; name: string }
 }
 
-export interface ElementRule<T extends BaseElement, ExtraProperties extends string = never> extends MetadataItemRule<
-  T,
-  ExtraProperties
-> {
-  enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
-  enterpriseFieldType:
-    | `FormFieldType.${FormFieldType}`
-    | `FormButtonType.${FormButtonType}`
-    | `FormGroupType.${FormGroupType}`
-    | `FormDecorationType.${FormDecorationType}`
-    | "None"
-  alwaysExportToXML?: true
+// export interface ElementRule extends MetadataItemRule {
+//   enterpriseField?: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
+//   enterpriseFieldType:
+//     | `FormFieldType.${FormFieldType}`
+//     | `FormButtonType.${FormButtonType}`
+//     | `FormGroupType.${FormGroupType}`
+//     | `FormDecorationType.${FormDecorationType}`
+//     | "None"
+//   alwaysExportToXML?: true
 
-  registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<T>>>
-}
+//   registerAsType?: Partial<Record<TypeRulesNames, RegisterAsTypeRule<BaseElement>>>
+// }
 
-export interface ElementRuleNew<ExtraProperties extends string = never> extends MetadataItemRule<
-  MetadataItem,
-  ExtraProperties
-> {
+export interface ElementRule extends MetadataItemRule {
   itemType: FormElementType
   enterpriseField: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   enterpriseFieldType:

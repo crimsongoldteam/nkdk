@@ -7,7 +7,7 @@ import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 export function exportPropertiesToYAML<T extends MetadataItem>(params: {
   context: ConfigurationContext
   data: T | undefined
-  rules: MetadataItemRule<T>
+  rules: MetadataItemRule
 }): ToYAML<T> | undefined {
   const { context, data, rules } = params
   if (data === undefined) return undefined

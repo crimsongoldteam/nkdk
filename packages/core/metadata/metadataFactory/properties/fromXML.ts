@@ -7,8 +7,8 @@ import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 export const importPropertiesFromXML = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   xml: any
-  rule: MetadataItemRule<T>
-  tags?: MetadataItemRule<T>["tags"]
+  rule: MetadataItemRule
+  tags?: string[]
 }): Omit<T, "itemType"> | undefined => {
   const { context, xml, rule, tags } = params
 
