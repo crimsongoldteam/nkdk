@@ -68,7 +68,7 @@ const exportFormAttributeToXML = (
 const exportFormAttributeSettingsToXML = (params: {
   context: ConfigurationContext
   rule: PropertyRule | undefined
-  value: FormAttribute["settings"]
+  value: FormAttribute["valueType"]
   metadataItem: FormAttribute
 }): FormAttributeXML["Settings"] => {
   const { context, value, metadataItem } = params
@@ -82,7 +82,7 @@ const exportFormAttributeSettingsToXML = (params: {
     value !== undefined && ("@attributes" in value || (isDynamicListValueType && !("type" in value)))
 
   if (isDynamicListSettings) {
-    const settingsCopy = { ...(value as DynamicList) }
+    const settingsCopy = { ...(value as unknown as DynamicList) }
     if ("@attributes" in settingsCopy) {
       delete settingsCopy["@attributes"]
     }

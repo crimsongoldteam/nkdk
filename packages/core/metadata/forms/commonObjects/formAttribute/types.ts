@@ -1,5 +1,5 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
+import { FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
@@ -14,32 +14,36 @@ import {
   UserViewYAML,
   UserVisible,
 } from "~/metadata/commonObjects/userVisible/types"
-import { DynamicList, DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
+import { ElementTypeByRule } from "~/metadata/metadataFactory/types/element"
 import { FillChecking, FillCheckingYAML } from "~/metadata/systemEnumerations/types"
+import { FormAttributeRules } from "./rules"
 
 export interface FormAttributeAdditionalColumn {
   table: string
   columns: FormAttributeColumn[]
 }
 
-export interface FormAttribute extends MetadataItem {
-  itemType: "FormAttribute"
-  name: string
-  title?: I8nText
-  type?: TypeDescription
-  columns: FormAttributeColumns
-  valueType?: TypeDescription
-  mainAttribute?: boolean
-  storedData?: boolean
-  view?: UserVisible
-  edit?: UserVisible
-  fillCheck?: FillChecking
-  settings?: TypeDescription | DynamicList
-  functionalOptions?: FunctionalOptions
-  fieldsList?: FieldsList
-  save?: FieldsList
-}
+export type FormAttribute = ElementTypeByRule<typeof FormAttributeRules>
+
+// export interface FormAttribute extends MetadataItem {
+//   itemType: "FormAttribute"
+//   name: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   columns: FormAttributeColumns
+//   valueType?: TypeDescription
+//   mainAttribute?: boolean
+//   storedData?: boolean
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   settings?: TypeDescription | DynamicList
+//   functionalOptions?: FunctionalOptions
+//   fieldsList?: FieldsList
+//   save?: FieldsList
+// }
 
 export interface FormAttributeColumn extends MetadataItem {
   itemType: "FormAttributeColumn"

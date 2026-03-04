@@ -4,6 +4,7 @@ import { ElementRule } from "../../../metadataFactory/elements/types"
 export type { ElementRule, PropertyRule }
 
 export const ColumnGroupRules = {
+  itemType: "ColumnGroup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ColumnGroup",
   properties: {

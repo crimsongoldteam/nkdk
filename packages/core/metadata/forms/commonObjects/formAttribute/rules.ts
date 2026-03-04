@@ -1,8 +1,8 @@
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { MetadataItemRule } from "~/metadata/metadataFactory/properties/types"
-import { FormAttribute, FormAttributeColumn } from "./types"
 
 export const FormAttributeRules = {
+  itemType: "FormAttribute",
   properties: {
     title: {
       yaml: "Заголовок",
@@ -83,6 +83,7 @@ export const FormAttributeRules = {
 } as const satisfies MetadataItemRule
 
 export const FormAttributeColumnRules = {
+  itemType: "FormAttributeColumn",
   properties: {
     title: {
       yaml: "Заголовок",

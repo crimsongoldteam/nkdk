@@ -1,13 +1,16 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
+import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../../metadataFactory/elements/types"
+import { BaseElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
 export type { ElementRule, PropertyRule }
 
 export const ExtendedTooltipRules = {
   itemType: "ExtendedTooltip",
+  enterpriseField: "FormDecoration",
   enterpriseFieldType: "None",
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
@@ -65,17 +68,28 @@ export const ExtendedTooltipRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-  registerAsType: {
-    ExtendedTooltip: {
-      toXML: (context, _element) => {
-        if (!context.elementsTree) throw new Error("elementContext is not defined")
-        const parent = getParentFromContext(context)
-        const id = getElementId(context)
-        const name = getExtendedTooltipName(parent)
-        return { id, name }
-      },
-    },
-  },
+  // registerAsType: {
+  //   ExtendedTooltip: {
+  //     toXML: (context, _element) => {
+  //       if (!context.elementsTree) throw new Error("elementContext is not defined")
+  //       const parent = getParentFromContext(context)
+  //       const id = getElementId(context)
+  //       const name = getExtendedTooltipName(parent)
+  //       return { id, name }
+  //     },
+  //   },
+  // },
 } as const satisfies ElementRule
+
+registerElementAsType({
+  propertyType: "ExtendedTooltip",
+  elementRule: ExtendedTooltipRules,
+  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+    const parent = getParentFromContext(context)
+    const id = getElementId(context)
+    const name = getExtendedTooltipName(parent)
+    return { id, name }
+  },
+})
 
 registerElementRule("ExtendedTooltip", ExtendedTooltipRules)

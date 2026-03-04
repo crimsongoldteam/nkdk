@@ -1,15 +1,17 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
+import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
 import { ElementRule } from "../../../metadataFactory/elements/types"
 import { getAutoCommandBarName } from "./helper"
-import { AutoCommandBar } from "nkdk-language"
 export type { ElementRule, PropertyRule }
 
 export const AutoCommandBarRules = {
+  itemType: "AutoCommandBar",
+  enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
     autofill: {
@@ -37,22 +39,42 @@ export const AutoCommandBarRules = {
       defaultValue: [],
     },
   },
-  registerAsType: {
-    AutoCommandBar: {
-      toXML: (_context: ConfigurationContext, _element: AutoCommandBar) => ({
-        id: "-1",
-        name: "ФормаКоманднаяПанель",
-      }),
-    },
-    TableAutoCommandBar: {
-      toXML: (context: ConfigurationContext, _element: AutoCommandBar) => {
-        const parentTable = getParentFromContext(context, CollectionFormElementType.Table)
-        const elementId = getElementId(context)
-        const elementName = getAutoCommandBarName(parentTable)
-        return { id: elementId, name: elementName }
-      },
-    },
-  } as any,
+  // registerAsType: {
+  //   AutoCommandBar: {
+  //     toXML: (_context: ConfigurationContext, _element: AutoCommandBar) => ({
+  //       id: "-1",
+  //       name: "ФормаКоманднаяПанель",
+  //     }),
+  //   },
+  //   TableAutoCommandBar: {
+  //     toXML: (context: ConfigurationContext, _element: AutoCommandBar) => {
+  //       const parentTable = getParentFromContext(context, CollectionFormElementType.Table)
+  //       const elementId = getElementId(context)
+  //       const elementName = getAutoCommandBarName(parentTable)
+  //       return { id: elementId, name: elementName }
+  //     },
+  //   },
+  // } as any,
 } as const satisfies ElementRule
+
+registerElementAsType({
+  propertyType: "AutoCommandBar",
+  elementRule: AutoCommandBarRules,
+  toXML: (_context: ConfigurationContext, _element: BaseElement | undefined) => ({
+    id: "-1",
+    name: "ФормаКоманднаяПанель",
+  }),
+})
+
+registerElementAsType({
+  propertyType: "TableAutoCommandBar",
+  elementRule: AutoCommandBarRules,
+  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+    const parentTable = getParentFromContext(context, CollectionFormElementType.Table)
+    const elementId = getElementId(context)
+    const elementName = getAutoCommandBarName(parentTable)
+    return { id: elementId, name: elementName }
+  },
+})
 
 registerElementRule("AutoCommandBar", AutoCommandBarRules)

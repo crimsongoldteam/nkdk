@@ -151,6 +151,7 @@ export interface ItemXML {
 }
 
 export interface MetadataItemRule extends MetadataItem {
+  itemType: MetadataType
   properties: PropertiesType
 
   events?: EventsRules

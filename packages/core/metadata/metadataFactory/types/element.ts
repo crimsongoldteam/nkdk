@@ -1,5 +1,5 @@
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormElementType } from "../metadataType/types"
+import { FormElementType, MetadataType } from "../metadataType/types"
 import { PropertyRule } from "../properties/types"
 import { ElementTypeByKey, TypeRulesNamesNew } from "./types"
 
@@ -9,7 +9,7 @@ type SETypeByName<Name extends string> = `${Name}ToYAML` extends keyof typeof SE
   : unknown
 
 export type ElementTypeByRule<
-  Rule extends { properties: Record<string, PropertyRule>; itemType: FormElementType; events?: Record<string, string> },
+  Rule extends { properties: Record<string, PropertyRule>; itemType: MetadataType; events?: Record<string, string> },
 > = (Rule["properties"] extends infer Properties
   ? {
       [K in keyof Properties]?: Properties[K] extends { type: "SystemEnumeration"; typeSE: infer TypeSE }
