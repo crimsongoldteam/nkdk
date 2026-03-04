@@ -111,6 +111,11 @@ export interface DataPathPropertyRule extends BasePropertyRule {
   defaultType: string
 }
 
+export interface MetadataTypePropertyRule extends BasePropertyRule {
+  type: "MetadataType" | "MetadataTypeCollection"
+  typeValue: string
+}
+
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     TypeRulesNames,
@@ -123,6 +128,8 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "ChildItems"
     | "TypeDescription"
     | "DataPath"
+    | "MetadataType"
+    | "MetadataTypeCollection"
   >
 }
 
@@ -143,6 +150,7 @@ export type PropertyRule =
   | ChildItemsPropertyRule
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule
+  | MetadataTypePropertyRule
 
 type PropertiesType<ExtraProperties extends string = never> = Partial<Record<string | ExtraProperties, PropertyRule>>
 

@@ -80,5 +80,6 @@ export type MetadataType =
   | "FormCommand"
   | "MetadataCatalog"
   | "CatalogForm"
+  | "Configuration"
 
 // # region OtherElementElementType
