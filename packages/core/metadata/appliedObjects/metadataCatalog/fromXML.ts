@@ -7,7 +7,7 @@ export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
   xml: MetadataCatalogXML
 ): MetadataCatalog => {
-  const result = importPropertiesFromXML({
+  const result = importPropertiesFromXML<MetadataCatalog>({
     context,
     xml: xml,
     rule: MetadataCatalogRules,

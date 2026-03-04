@@ -1,24 +1,19 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
-import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
+import { FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserEditKeysYAML,
   UserEditYAML,
   UserViewKeysYAML,
   UserViewYAML,
-  UserVisible,
 } from "~/metadata/commonObjects/userVisible/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
+import { ElementXML } from "~/metadata/metadataFactory"
 import { ElementTypeByRule } from "~/metadata/metadataFactory/types/element"
-import { FillChecking, FillCheckingYAML } from "~/metadata/systemEnumerations/types"
-import { FormAttributeRules } from "./rules"
+import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
+import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export interface FormAttributeAdditionalColumn {
   table: string
@@ -45,16 +40,17 @@ export type FormAttribute = ElementTypeByRule<typeof FormAttributeRules>
 //   save?: FieldsList
 // }
 
-export interface FormAttributeColumn extends MetadataItem {
-  itemType: "FormAttributeColumn"
-  name: string
-  title?: I8nText
-  type?: TypeDescription
-  view?: UserVisible
-  edit?: UserVisible
-  fillCheck?: FillChecking
-  functionalOptions?: FunctionalOptions
-}
+export type FormAttributeColumn = ElementTypeByRule<typeof FormAttributeColumnRules>
+// export interface FormAttributeColumn extends MetadataItem {
+//   itemType: "FormAttributeColumn"
+//   name: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   functionalOptions?: FunctionalOptions
+// }
 
 export interface FormAttributeAdditionalColumns {
   table: string

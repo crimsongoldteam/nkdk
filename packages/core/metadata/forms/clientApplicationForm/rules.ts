@@ -6,7 +6,7 @@ export type { ElementRule, PropertyRule }
 
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
-  tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
+  // tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
   properties: {
     // #region Form
     attributes: {

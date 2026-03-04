@@ -32,7 +32,7 @@ export function importElementFromTypedYAML<T extends NamedElement>(params: {
     yaml: yaml,
   })
 
-  const result: T = {
+  const result = {
     ...properties,
     ...events,
     itemType: itemType,

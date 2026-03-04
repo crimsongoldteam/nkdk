@@ -3,16 +3,16 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/metadataFactory"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
-    FormAttribute,
-    FormAttributeAdditionalColumns,
-    FormAttributeAdditionalColumnXML,
-    FormAttributeColumn,
-    FormAttributeColumns,
-    FormAttributeColumnsXML,
-    FormAttributeColumnXML,
-    FormAttributes,
-    FormAttributesXML,
-    FormAttributeXML,
+  FormAttribute,
+  FormAttributeAdditionalColumns,
+  FormAttributeAdditionalColumnXML,
+  FormAttributeColumn,
+  FormAttributeColumns,
+  FormAttributeColumnsXML,
+  FormAttributeColumnXML,
+  FormAttributes,
+  FormAttributesXML,
+  FormAttributeXML,
 } from "./types"
 
 export const importFormAttributesFromXML = (
@@ -29,7 +29,7 @@ export const importFormAttributesFromXML = (
 }
 
 const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {
-  const properties = importPropertiesFromXML({
+  const properties = importPropertiesFromXML<FormAttribute>({
     context: context,
     xml,
     rule: FormAttributeRules,

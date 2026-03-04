@@ -9,7 +9,7 @@ export const importClientApplicationFormFromXML = (
   xml: ClientApplicationFormXML,
   xmlMetadata: FormMetadataXML
 ): ClientApplicationForm => {
-  const formProperties = importPropertiesFromXML({
+  const formProperties = importPropertiesFromXML<ClientApplicationForm>({
     context,
     xml: xml,
     rule: ClientApplicationFormRules,
