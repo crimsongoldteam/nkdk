@@ -12,7 +12,7 @@ describe("importPdfDocumentFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
+      itemType: CollectionFormElementType.PdfDocumentField,
       yaml: fullPdfDocumentFieldPartialYAML,
       source: fullPdfDocumentField,
     })
@@ -23,7 +23,7 @@ describe("importPdfDocumentFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
+      itemType: CollectionFormElementType.PdfDocumentField,
       yaml: minimalPdfDocumentFieldPartialYAML,
       source: minimalPdfDocumentField,
     })

@@ -59,7 +59,7 @@ export const ExportToNKDKGeneratorFn: ExportToNKDKFnMap<GenerateChildItem> = {
   GeographicalSchemaField: exportOtherElementToNKDK,
   GraphicalSchemaField: exportOtherElementToNKDK,
   HTMLDocumentField: exportOtherElementToNKDK,
-  PDFDocumentField: exportOtherElementToNKDK,
+  PdfDocumentField: exportOtherElementToNKDK,
   PeriodField: exportOtherElementToNKDK,
   PictureDecoration: exportPictureDecorationToNKDK,
   PictureField: exportOtherElementToNKDK,

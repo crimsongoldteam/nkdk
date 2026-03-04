@@ -1,7 +1,7 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
+import { MetadataItemRule } from ".."
 import { EventXML } from "../event"
 import { MetadataItemType } from "../metadataItem/registry"
-import { MetadataItemRule } from ".."
 
 //#region FormElementType
 
@@ -25,7 +25,7 @@ export const FormElementTypeToYAML = {
   LabelField: "ПолеНадписи",
   Page: "Страница",
   Pages: "Страницы",
-  PDFDocumentField: "ПолеPDFДокумента",
+  PdfDocumentField: "ПолеPDFДокумента",
   PeriodField: "ПолеПериода",
   PictureDecoration: "Рисунок",
   PictureField: "ПолеРисунка",
@@ -41,7 +41,20 @@ export const FormElementTypeToYAML = {
   SearchStringAddition: "ОтображениеСтрокиПоиска",
 } as const
 
+export type FormElementTypeToYAMLType<T extends FormElementType> = (typeof FormElementTypeToYAML)[T]
+
+export type SingleFormElementType = Extract<
+  MetadataItemType,
+  | "SingleSearchControlAddition"
+  | "SingleSearchStringAddition"
+  | "ViewStatusAddition"
+  | "ContextMenu"
+  | "ExtendedTooltip"
+>
+
 export type FormElementType = Extract<MetadataItemType, keyof typeof FormElementTypeToYAML>
+
+export type ExtendedFormElementType = FormElementType | SingleFormElementType
 
 //#endregion
 

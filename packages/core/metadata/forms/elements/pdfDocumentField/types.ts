@@ -12,7 +12,7 @@ import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { PdfDocumentFieldRules } from "./rules"
 
 export interface PdfDocumentField {
-  itemType: "PDFDocumentField"
+  itemType: "PdfDocumentField"
   name: string
   autoCellHeight?: boolean
   cellHyperlink?: boolean

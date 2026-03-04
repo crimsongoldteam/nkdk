@@ -1,13 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ElementRule } from "../../orchestration/formElement/types"
-import { importPropertiesFromYAML } from "../../orchestration/property/fromYAML"
+import { isEmptyMetadataItem } from "../../metadataFactory/elements/helper"
+import { FormElementType } from "../../metadataFactory/metadataType/types"
+import { ToTypedYAML, ToYAML } from "../../metadataFactory/rules"
 import { importEventsFromYAML } from "../events"
 import { importFormElementTypeFromYAML } from "../metadataType/fromYAML"
-import { FormElementType } from "../metadataType/types"
-import { ToTypedYAML, ToYAML } from "../rules"
-import { isEmptyMetadataItem } from "./helper"
+import { importPropertiesFromYAML } from "../property/fromYAML"
 import { getElementRule } from "./ruleFactory"
+import { ElementRule } from "./types"
 
 export function importElementFromTypedYAML<T extends NamedElement>(params: {
   context: ConfigurationContext

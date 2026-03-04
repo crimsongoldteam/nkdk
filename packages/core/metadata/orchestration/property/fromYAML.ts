@@ -1,5 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemType, ToMetadataItem, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
+import {
+  MetadataItemType,
+  MetadataItemTypeToMdItem,
+  MetadataItemTypeToYAML,
+} from "~/metadata/orchestration/metadataItem/registry"
 import { getTypeRule } from "../formElement/factory"
 import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault } from "./helpers"
@@ -7,15 +11,15 @@ import { MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  yaml: ToYAML<Type>
+  yaml: MetadataItemTypeToYAML<Type>
   metadataType: Type
   rules: MetadataItemRule
-  source?: ToMetadataItem<Type>
+  source?: MetadataItemTypeToMdItem<Type>
   name?: string
-}): ToMetadataItem<Type> {
+}): MetadataItemTypeToMdItem<Type> {
   const { context, yaml, source, rules, metadataType, name } = params
 
-  const result: ToMetadataItem<Type> = {
+  const result: MetadataItemTypeToMdItem<Type> = {
     itemType: metadataType,
   }
 
@@ -111,12 +115,12 @@ export const importPropertyFromYAML = (params: {
 
 function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  yaml: ToYAML<Type>
+  yaml: MetadataItemTypeToYAML<Type>
   metadataType: Type
   rules: MetadataItemRule
-  result: ToMetadataItem<Type>
+  result: MetadataItemTypeToMdItem<Type>
   name?: string
-}): ToMetadataItem<Type> | undefined {
+}): MetadataItemTypeToMdItem<Type> | undefined {
   const { context, yaml, rules, result, name, metadataType } = params
 
   if (typeof yaml !== "string") {
@@ -143,7 +147,7 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
     name,
   })
 
-  const source: ToMetadataItem<Type> = {
+  const source: MetadataItemTypeToMdItem<Type> = {
     itemType: result.itemType,
     [propertyKey]: importedValue,
   }

@@ -4,8 +4,8 @@ import { ElementRule, ElementXML, FormElementType, PropertyRule } from "~/metada
 import { exportSingleElementToXML } from "~/metadata/orchestration/formElement/toXML"
 import { exportElementToPartialYAML } from "~/metadata/orchestration/formElement/toYAML"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { registerTypeRule } from "../../orchestration/formElement/factory"
-import { ToYAML } from "../rules"
+import { ToYAML } from "../../metadataFactory/rules"
+import { registerTypeRule } from "./factory"
 import { importSingleElementFromXML } from "./fromXML"
 import { importSingleElementFromYAML } from "./fromYAML"
 

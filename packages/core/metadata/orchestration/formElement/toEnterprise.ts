@@ -1,9 +1,9 @@
 import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { getElementRule } from "../../metadataFactory/elements/ruleFactory"
-import { FormElementType } from "../../metadataFactory/metadataType/types"
-import { ToEnterprise } from "../../metadataFactory/rules"
+import { MetadataItemTypeToEnterprise, MetadataItemTypeToMdItem } from ".."
 import { exportPropertiesToEnterprise } from "../property/toEnterprise"
+import { getElementRule } from "./ruleFactory"
+import { FormElementType } from "./types"
 
 function pushElementToContext(params: {
   context: ConfigurationContext
@@ -29,11 +29,11 @@ function pushElementToContext(params: {
   }
 }
 
-export const exportElementToEnterprise = <T extends NamedElement>(params: {
+export const exportElementToEnterprise = <Type extends FormElementType>(params: {
   context: ConfigurationContext
-  itemType: FormElementType
-  value: T
-}): ToEnterprise<T> => {
+  itemType: Type
+  value: MetadataItemTypeToMdItem<Type>
+}): MetadataItemTypeToEnterprise<Type> => {
   const { context, itemType, value: element } = params
 
   const currentContext = pushElementToContext({ context, itemType, element })
@@ -46,14 +46,12 @@ export const exportElementToEnterprise = <T extends NamedElement>(params: {
     rule: rules,
   })
 
-  const result = {
+  return {
     ...properties,
     ElementType: rules.enterpriseField,
     Name: element.name,
     ...(rules.enterpriseFieldType !== "None"
       ? { Type: { Type: "SystemEnumeration", Value: rules.enterpriseFieldType } }
       : {}),
-  } satisfies ToEnterprise<T>
-
-  return result
+  }
 }

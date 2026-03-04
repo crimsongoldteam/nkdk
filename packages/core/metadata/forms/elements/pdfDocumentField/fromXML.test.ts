@@ -8,7 +8,7 @@ describe("importPdfDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
+      itemType: CollectionFormElementType.PdfDocumentField,
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importPdfDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
+      itemType: CollectionFormElementType.PdfDocumentField,
       xml: xmlData.PdfDocumentField,
     })
 
@@ -32,7 +32,7 @@ describe("importPdfDocumentFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
+      itemType: CollectionFormElementType.PdfDocumentField,
       xml: xmlData.PdfDocumentField,
     })
 

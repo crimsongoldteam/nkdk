@@ -2,10 +2,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { getElementRule } from "../../metadataFactory/elements/ruleFactory"
 import { FormElementType } from "../../metadataFactory/metadataType/types"
 import { exportEventsToXML } from "../event"
 import { exportPropertiesToXML } from "../property/toXML"
+import { getElementRule } from "./ruleFactory"
 import { ElementRule, ElementXML } from "./types"
 
 export function exportElementToXML<T extends NamedElement>(params: {

@@ -1,7 +1,7 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementAsType, registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
+import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"

@@ -1,27 +1,32 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { TypedElement } from "~/metadata/forms/commonObjects/childItems/types"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportEventsToYAML } from "~/metadata/orchestration/event"
-import { getElementRule } from "../../metadataFactory/elements/ruleFactory"
-import { ToTypedYAML, ToYAML } from "../../metadataFactory/rules"
-import { exportFormElementTypeToYAML } from "../metadataItem/toYAML"
+import { MetadataItemTypeToMdItem, MetadataItemTypeToTypedYAML, MetadataItemTypeToYAML, TypedFormElement } from ".."
 import { exportPropertyToYAML } from "../property/toYAML"
 import { PropertyRule } from "../property/types"
-import { ElementRule } from "./types"
+import { getElementRule } from "./ruleFactory"
+import { ElementRule, FormElementType, FormElementTypeToYAML, FormElementTypeToYAMLType } from "./types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 
-export function exportElementToTypedYAML<T extends TypedElement>(params: {
+export const exportFormElementTypeToYAML = <T extends FormElementType>(
+  _context: ConfigurationContext,
+  itemType: T
+): FormElementTypeToYAMLType<T> => {
+  return FormElementTypeToYAML[itemType]
+}
+
+export function exportElementToTypedYAML<T extends TypedFormElement>(params: {
   context: ConfigurationContext
   element: T
-}): ToTypedYAML<T> {
+}): MetadataItemTypeToTypedYAML<T["itemType"]> {
   const { context, element: data } = params
 
   const rules = getElementRule(data.itemType)
 
   const type = exportFormElementTypeToYAML(context, data.itemType)
 
-  const result: ToTypedYAML<T> = {
+  const result: MetadataItemTypeToTypedYAML<T["itemType"]> = {
     Тип: type,
-  } as ToTypedYAML<T>
+  }
 
   const currentContext: ConfigurationContext = {
     ...context,
@@ -43,48 +48,51 @@ export function exportElementToTypedYAML<T extends TypedElement>(params: {
   const events = exportEventsToYAML({ rule: rules, data: data })
   Object.assign(result, events)
 
-  return result as ToTypedYAML<T>
+  return result
 }
 
 export function exportElementToPartialYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   element: T | undefined
-}): ToYAML<T> | undefined {
-  const { context, element: data } = params
-  if (data === undefined) return undefined
-  const itemType = data.itemType
+}): MetadataItemTypeToYAML<T["itemType"]> | undefined {
+  const { context, element: element } = params
+  if (element === undefined) return undefined
 
-  const rules = getElementRule(itemType)
+  const itemType = element.itemType
 
-  return exportElementToYAML({ context, data, rules })
+  const rule = getElementRule(itemType)
+
+  return exportElementToYAML({ context, element: element, rule: rule })
 }
 
-export function exportElementToYAML<T extends BaseElement>(params: {
+export function exportElementToYAML<Rule extends ElementRule>(params: {
   context: ConfigurationContext
-  data: T | undefined
-  rules: ElementRule
-}): ToYAML<T> | undefined {
-  const { context, data, rules } = params
-  if (data === undefined) return undefined
+  element: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+  rule: ElementRule
+}): MetadataItemTypeToYAML<Rule["itemType"]> | undefined {
+  const { context, element: element, rule: rule } = params
+  if (element === undefined) return undefined
 
-  const result = {}
+  type DataItem = MetadataItemTypeToMdItem<Rule["itemType"]>
 
-  for (const [key, rule] of Object.entries(rules.properties) as [keyof T, PropertyRule][]) {
-    const value = data[key]
+  const result: MetadataItemTypeToYAML<Rule["itemType"]> = {}
 
-    const exportedValues = exportPropertyToYAML({ context, rule, value })
+  for (const [key, propertyRule] of Object.entries(rule.properties)) {
+    const value = element[key as keyof DataItem]
+
+    const exportedValues = exportPropertyToYAML({ context, rule: propertyRule, value })
 
     if (exportedValues == undefined) continue
 
     Object.assign(result, exportedValues)
   }
 
-  const events = exportEventsToYAML({ rule: rules, data: data })
+  const events = exportEventsToYAML({ rule: rule, data: element })
   Object.assign(result, events)
 
   if (Object.keys(result).length === 0) {
     return undefined
   }
 
-  return result as ToYAML<T>
+  return result
 }
