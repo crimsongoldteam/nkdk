@@ -1,6 +1,6 @@
-import { MetadataItem, MetadataItemRule } from "~/metadata/metadataFactory"
+import { MetadataItemRule } from "~/metadata/metadataFactory"
 
-export const ConfigurationRules: MetadataItemRule<MetadataItem, "name"> = {
+export const ConfigurationRules = {
   properties: {
     additionalFullTextSearchDictionaries: {
       yaml: "ДополнительныеСловариПолнотекстовогоПоиска",
@@ -148,4 +148,4 @@ export const ConfigurationRules: MetadataItemRule<MetadataItem, "name"> = {
     vendorInformationAddress: { yaml: "АдресИнформацииОПоставщике", type: "string" },
     version: { yaml: "Версия", type: "string" },
   },
-}
+} as const satisfies MetadataItemRule

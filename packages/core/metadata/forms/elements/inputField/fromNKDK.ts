@@ -13,15 +13,14 @@ export const importInputFieldFromNKDK = (params: {
   source: NKDK.InputField
 }): InputField => {
   const { context, source } = params
+
+  const dataPath = importDataPathFromNKDK(source)
+
   const result: InputField = {
     itemType: CollectionFormElementType.InputField,
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
-  }
-
-  const dataPath = importDataPathFromNKDK(source)
-  if (dataPath) {
-    result.dataPath = dataPath
+    ...(dataPath ? { dataPath } : {}),
   }
 
   return result

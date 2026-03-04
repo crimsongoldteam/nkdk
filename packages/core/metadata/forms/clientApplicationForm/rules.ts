@@ -1,10 +1,11 @@
 import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule } from "../../metadataFactory/elements/types"
-import { ClientApplicationForm, FormRulesTags } from "./types"
+import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplicationForm> = {
+export const ClientApplicationFormRules = {
+  itemType: "ClientApplicationForm",
   tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
   properties: {
     // #region Form
@@ -336,4 +337,4 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     onReadAtServer: "ПриЧтенииНаСервере",
     // #endregion
   },
-} as const satisfies ClientApplicationFormRule<ClientApplicationForm>
+} as const satisfies ClientApplicationFormRule
