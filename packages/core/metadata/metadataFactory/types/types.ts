@@ -3,6 +3,7 @@ import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
+import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { DataPathYAML } from "~/metadata/commonObjects/metadataPath/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
@@ -181,6 +182,7 @@ const TypesNamesList = [
   "TypeDescription",
   "DataPath",
   "I8nText",
+  "FormattedI8nText",
   "Font",
   "ChildItems",
   "Picture",
@@ -199,6 +201,7 @@ type TypesMap =
   | ["TypeDescription", TypeDescription, TypeDescriptionEnterprise, TypeDescriptionYAML]
   | ["DataPath", DataPath, string, DataPathYAML]
   | ["I8nText", I8nText, string, I8nTextYAML]
+  | ["FormattedI8nText", FormattedI8nText, string, FormattedI8nTextYAML]
   | ["Font", Font, FontEnterprise, FontYAML]
   | ["ChildItems", unknown, AllChildItemsEnterprise, unknown]
   | ["Picture", Picture, PictureEnterprise, PictureYAML]

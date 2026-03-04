@@ -117,8 +117,8 @@ export const fullLabelDecorationEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemVerticalAlign.Top",
   },
-  Title: undefined,
-  Border: { Type: "Border", Value: "Border.Single" },
+  Title: "Заголовок формы",
+  Border: { Type: "Border", Value: "ControlBorderType.Indented", Width: 1 },
 } satisfies Required<LabelDecorationEnterprise>
 
 export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {

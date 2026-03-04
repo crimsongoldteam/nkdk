@@ -65,6 +65,7 @@ import "./font/toYAML"
 
 import "./formattedI8nText/fromXML"
 import "./formattedI8nText/fromYAML"
+import "./formattedI8nText/toEnterprise"
 import "./formattedI8nText/toJSONSchema"
 import "./formattedI8nText/toXML"
 import "./formattedI8nText/toYAML"
