@@ -2,7 +2,7 @@ import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/
 import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
-export const fullButton: Required<Button> = {
+export const fullButton = {
   itemType: CollectionFormElementType.Button,
   autoMaxHeight: false,
   autoMaxWidth: false,
@@ -80,7 +80,7 @@ export const fullButton: Required<Button> = {
   verticalStretch: true,
   visible: false,
   width: 10,
-}
+} satisfies Required<Button>
 
 export const fullButtonSource: Button = {
   itemType: CollectionFormElementType.Button,
@@ -88,7 +88,7 @@ export const fullButtonSource: Button = {
   title: { items: { ru: "Кнопка формы" } },
 }
 
-export const fullButtonPartialYAML: Required<Omit<ButtonPartialYAML, "Заголовок" | "ЗапретитьИспользование">> = {
+export const fullButtonPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   АктивизироватьПоУмолчанию: "Истина",
@@ -130,7 +130,7 @@ export const fullButtonPartialYAML: Required<Omit<ButtonPartialYAML, "Загол
   ЦветФона: "Красный",
   Ширина: 10,
   Шрифт: "КрупныйШрифтТекста",
-}
+} satisfies Required<Omit<ButtonPartialYAML, "Заголовок" | "ЗапретитьИспользование">>
 
 export const fullButtonTypedYAML: ButtonTypedYAML = {
   ...fullButtonPartialYAML,

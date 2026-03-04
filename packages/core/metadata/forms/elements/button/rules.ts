@@ -1,7 +1,6 @@
 import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
 import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
 import { ElementRule, ElementRuleNew } from "../../../metadataFactory/elements/types"
-import { ButtonOld } from "./types"
 export type { ElementRule, PropertyRule }
 
 export const ButtonRules = {
@@ -115,4 +114,4 @@ export const ButtonRules = {
   },
 } as const satisfies ElementRuleNew
 
-registerElementRule("Button", ButtonRules as ElementRule<ButtonOld>)
+registerElementRule("Button", ButtonRules)

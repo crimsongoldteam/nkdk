@@ -1,10 +1,17 @@
 import { TSchema } from "@sinclair/typebox"
-import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise } from "~/metadata/commonObjects/color/types"
-import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { DataPathYAML } from "~/metadata/commonObjects/metadataPath/types"
+import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionYAML,
+} from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { AllChildItemsEnterprise } from "~/metadata/forms/commonObjects/childItems/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
@@ -168,27 +175,31 @@ const TypesNamesList = [
   "Picture",
   "Border",
   "CommandName",
+  "UserVisible",
 ] as const
 
 type TypesMap =
-  | ["number", number, number]
-  | ["string", string, string]
-  | ["boolean", boolean, boolean]
-  | ["SystemEnumeration", unknown, SystemEnumerationEnterprise]
-  | ["Color", Color, ColorEnterprise]
-  | ["TypeDescription", TypeDescription, TypeDescriptionEnterprise]
-  | ["DataPath", DataPath, string]
-  | ["I8nText", I8nText, string]
-  | ["Font", Font, FontEnterprise]
-  | ["ChildItems", unknown, AllChildItemsEnterprise]
-  | ["Picture", Picture, PictureEnterprise]
-  | ["Border", Border, BorderEnterprise]
-  | ["CommandName", string, string]
+  | ["number", number, number, number]
+  | ["string", string, string, string]
+  | ["boolean", boolean, boolean, StringboolYAML]
+  | ["SystemEnumeration", unknown, SystemEnumerationEnterprise, unknown]
+  | ["Color", Color, ColorEnterprise, ColorYAML]
+  | ["TypeDescription", TypeDescription, TypeDescriptionEnterprise, TypeDescriptionYAML]
+  | ["DataPath", DataPath, string, DataPathYAML]
+  | ["I8nText", I8nText, string, I8nTextYAML]
+  | ["Font", Font, FontEnterprise, FontYAML]
+  | ["ChildItems", unknown, AllChildItemsEnterprise, unknown]
+  | ["Picture", Picture, PictureEnterprise, PictureYAML]
+  | ["Border", Border, BorderEnterprise, BorderYAML]
+  | ["CommandName", string, string, string]
+  | ["UserVisible", UserVisible, unknown, UserVisibleYAML]
 
 export type TypeRulesNamesNew = (typeof TypesNamesList)[number]
 
-export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[2]
+export type EnterpriseTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any, any]>[2]
+
+export type YAMLTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any, any]>[3]
 
 export const TypesNames = TypesNamesList
 
-export type ElementTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any]>[1]
+export type ElementTypeByKey<Key extends TypeRulesNamesNew> = Extract<TypesMap, [Key, any, any, any]>[1]
