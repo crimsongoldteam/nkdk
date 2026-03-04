@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertyToXML } from "~/metadata/metadataFactory"
+import { exportPropertyToXML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"

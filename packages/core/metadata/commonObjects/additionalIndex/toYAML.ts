@@ -1,13 +1,13 @@
 import {
-    AdditionalIndex,
-    AdditionalIndexYAML,
-    AdditionalIndexes,
-    AdditionalIndexesYAML,
+  AdditionalIndex,
+  AdditionalIndexYAML,
+  AdditionalIndexes,
+  AdditionalIndexesYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToYAML } from "~/metadata/commonObjects/indexField/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 export const exportAdditionalIndexToYAML = (
   context: ConfigurationContext,

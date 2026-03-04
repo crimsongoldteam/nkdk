@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { SingleFormElementType } from "~/metadata/metadataFactory"
 import { Button } from "../elements/button/types"
 import { ButtonGroup } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"

@@ -1,6 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn } from "~/metadata/metadataFactory"
+import { ExportToJSONSchemaFn } from "~/metadata/orchestration"
 import { exportElementToJSONSchema } from "~/metadata/orchestration/formElement/toJSONSchema"
 import { AllChildItem } from "./types"
 

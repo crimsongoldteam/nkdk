@@ -4,7 +4,7 @@ import { importPictureFromXML } from "~/metadata/commonObjects/picture/fromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/fromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
 
 function importCommandFromXML(context: ConfigurationContext, xml: FormCommandXML | undefined): FormCommand | undefined {

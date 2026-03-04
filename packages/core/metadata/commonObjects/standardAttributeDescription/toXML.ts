@@ -12,7 +12,7 @@ import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/toXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule, StandardAttributeDescriptionPropertyRule } from "~/metadata/metadataFactory"
+import { registerTypeRule, StandardAttributeDescriptionPropertyRule } from "~/metadata/orchestration"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/toXML"
 import { getDefaults } from "./defaults"
 

@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/metadataFactory"
+import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,

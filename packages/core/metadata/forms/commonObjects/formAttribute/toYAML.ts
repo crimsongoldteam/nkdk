@@ -1,7 +1,7 @@
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/metadataFactory"
+import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,

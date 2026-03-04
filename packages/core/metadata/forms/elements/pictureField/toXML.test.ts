@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/metadataFactory"
+import { exportElementToXML } from "~/metadata/orchestration"
 import { fullPictureField, minimalPictureField } from "~/tests/fixtures/forms/pictureField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"

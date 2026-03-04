@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
 import {
   ChildItemsPropertyRule,
   importElementFromPartialYAML,
   importElementFromTypedYAML,
   ImportFromYAMLFunctionNew,
   MetadataItem,
-} from "~/metadata/metadataFactory"
-import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
+} from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { AllChildItem, AllChildItemsPartialYAML, TypedElement } from "./types"

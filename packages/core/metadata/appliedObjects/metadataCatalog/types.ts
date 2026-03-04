@@ -40,7 +40,7 @@ import {
   MetadataValueCollectionXML,
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
-import { MetadataItem } from "~/metadata/metadataFactory"
+import { MetadataItem } from "~/metadata/orchestration"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 
 export const MetadataCatalogStandardAttributeNames: StandartAttributeName[] = [

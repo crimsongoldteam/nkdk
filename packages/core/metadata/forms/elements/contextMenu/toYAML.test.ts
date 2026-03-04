@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToYAML } from "~/metadata/metadataFactory"
+import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullContextMenu, fullContextMenuYAML } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"

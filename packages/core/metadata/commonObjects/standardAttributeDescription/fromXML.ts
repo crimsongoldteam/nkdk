@@ -1,9 +1,9 @@
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
 import {
-    StandardAttributeDescription,
-    StandardAttributeDescriptions,
-    StandardAttributeDescriptionsXML,
-    StandardAttributeDescriptionXML,
+  StandardAttributeDescription,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionXML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/fromXML"
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/fromXML"
@@ -11,7 +11,7 @@ import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сho
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/fromXML"

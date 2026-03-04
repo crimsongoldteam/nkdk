@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { TableAdditionalSourceXML } from "./types"
 
 const importTableAdditionalSourceFromXML = (

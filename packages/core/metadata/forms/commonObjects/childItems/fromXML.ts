@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importElementFromXML } from "~/metadata/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { importElementFromXML } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ElementXML } from "~/metadata/orchestration/formElement/types"
 import { NamedElement } from "../../elements/baseElement/types"

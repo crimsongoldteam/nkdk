@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/orchestration"
 import {
   fullCalendarField,
   fullCalendarFieldPartialYAML,

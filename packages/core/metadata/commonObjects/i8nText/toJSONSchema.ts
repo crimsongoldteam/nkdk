@@ -1,5 +1,5 @@
 import { TSchema } from "@sinclair/typebox"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
 import { I8nTextJSONSchema } from "./types"
 

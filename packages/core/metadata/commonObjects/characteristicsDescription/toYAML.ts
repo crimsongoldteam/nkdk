@@ -1,14 +1,14 @@
 import {
-    CharacteristicsDescription,
-    CharacteristicsDescriptionYAML,
-    CharacteristicsDescriptions,
-    CharacteristicsDescriptionsYAML,
+  CharacteristicsDescription,
+  CharacteristicsDescriptionYAML,
+  CharacteristicsDescriptions,
+  CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 
 export const exportCharacteristicsDescriptionToYAML = (

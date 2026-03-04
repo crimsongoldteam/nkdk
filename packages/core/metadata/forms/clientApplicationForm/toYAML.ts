@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
 import { exportEventsToYAML } from "~/metadata/metadataFactory/events"
+import { exportPropertiesToYAML } from "~/metadata/orchestration"
 import { exportChildItemsToPartialYAML } from "../commonObjects/childItems/toYAML"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationFormRules } from "./rules"

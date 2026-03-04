@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/metadataFactory"
+import { exportElementToXML } from "~/metadata/orchestration"
 import {
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,

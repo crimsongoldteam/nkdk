@@ -4,7 +4,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/metadataFactory"
+import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
 import { DynamicList } from "../dynamicList/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {

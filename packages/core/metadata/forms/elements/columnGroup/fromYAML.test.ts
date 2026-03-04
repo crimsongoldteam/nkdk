@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-} from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import {
   fullColumnGroup,
   fullColumnGroupPartialYAML,

@@ -1,4 +1,4 @@
-import { MetadataItemRule } from "~/metadata/metadataFactory"
+import { MetadataItemRule } from "~/metadata/orchestration"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
 const catalogProperties = ["Catalog", "Properties"]

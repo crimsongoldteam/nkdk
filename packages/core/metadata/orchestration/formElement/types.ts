@@ -59,6 +59,7 @@ export type SingleFormElementType = Extract<
   | "ViewStatusAddition"
   | "ContextMenu"
   | "ExtendedTooltip"
+  | "AutoCommandBar"
 >
 
 export type FormElementType = Extract<MetadataItemType, keyof typeof FormElementTypeToYAML>

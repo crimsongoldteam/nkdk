@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { StandardAttributeDescriptionPropertyRule } from "~/metadata/metadataFactory"
+import { StandardAttributeDescriptionPropertyRule } from "~/metadata/orchestration"
 import { all, minimal, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"

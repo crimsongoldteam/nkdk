@@ -1,5 +1,5 @@
 import { TSchema } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/metadataFactory"
+import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
 import { ChoiceParameterLinksJSONSchema } from "./types"
 
 export const exportChoiceParameterLinksToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

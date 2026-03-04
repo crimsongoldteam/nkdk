@@ -1,9 +1,6 @@
-import {
-  Configuration,
-  ConfigurationYAML,
-} from "~/metadata/appliedObjects/configuration/types"
+import { Configuration, ConfigurationYAML } from "~/metadata/appliedObjects/configuration/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
+import { importPropertiesFromYAML } from "~/metadata/orchestration"
 import { ConfigurationRules } from "./rules"
 
 export const importConfigurationFromYAML = (

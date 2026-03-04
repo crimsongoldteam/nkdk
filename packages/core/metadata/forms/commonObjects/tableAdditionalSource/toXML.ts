@@ -1,6 +1,6 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule, TableAdditionalSourcePropertyRule } from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule, TableAdditionalSourcePropertyRule } from "~/metadata/orchestration"
 import { TableAdditionalSourceXML } from "./types"
 
 const exportTableAdditionalSourceToXML = (

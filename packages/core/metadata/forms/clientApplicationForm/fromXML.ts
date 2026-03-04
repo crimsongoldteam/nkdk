@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertiesFromXML } from "~/metadata/metadataFactory"
 import { importEventsFromXML } from "~/metadata/metadataFactory/events"
+import { importPropertiesFromXML } from "~/metadata/orchestration"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 

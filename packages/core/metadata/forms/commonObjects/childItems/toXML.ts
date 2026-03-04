@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/metadataFactory"
+import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { mockContext } from "~/tests/mockContext"
 import { AllChildItem } from "./types"

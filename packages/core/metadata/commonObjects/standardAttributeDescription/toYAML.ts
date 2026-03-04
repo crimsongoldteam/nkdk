@@ -2,20 +2,20 @@ import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
 import {
-    StandardAttributeDescription,
-    StandardAttributeDescriptionYAML,
-    StandardAttributeDescriptions,
-    StandardAttributeDescriptionsYAML,
-    StandartAttributeName,
-    StandartAttributeNameToYAML,
-    StandartAttributeYAML,
+  StandardAttributeDescription,
+  StandardAttributeDescriptionYAML,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsYAML,
+  StandartAttributeName,
+  StandartAttributeNameToYAML,
+  StandartAttributeYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
 import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
 import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToYAML } from "../сhoiceParameters/toYAML"

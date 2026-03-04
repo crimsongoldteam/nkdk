@@ -1,16 +1,16 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/toYAML"
 import {
-    MetadataTabularSection,
-    MetadataTabularSectionYAML,
-    MetadataTabularSections,
-    MetadataTabularSectionsYAML,
+  MetadataTabularSection,
+  MetadataTabularSectionYAML,
+  MetadataTabularSections,
+  MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToYAML } from "~/metadata/commonObjects/standardAttributeDescription/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 

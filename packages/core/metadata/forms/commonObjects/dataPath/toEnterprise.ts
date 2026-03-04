@@ -1,6 +1,6 @@
 import { getCurrentTableFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { DataPathPropertyRule, PropertyRule } from "~/metadata/metadataFactory"
+import { DataPathPropertyRule, PropertyRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
 

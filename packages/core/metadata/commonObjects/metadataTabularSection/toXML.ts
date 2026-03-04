@@ -1,15 +1,15 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import {
-    MetadataTabularSection,
-    MetadataTabularSections,
-    MetadataTabularSectionsXML,
-    MetadataTabularSectionXML,
+  MetadataTabularSection,
+  MetadataTabularSections,
+  MetadataTabularSectionsXML,
+  MetadataTabularSectionXML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/toXML"
 import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/toXML"

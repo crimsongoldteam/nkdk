@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromXML, importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
+import { importElementFromXML, importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import {
-    fullSearchControlAddition,
-    fullSingleSearchControlAddition,
-    minimalSearchControlAddition,
+  fullSearchControlAddition,
+  fullSingleSearchControlAddition,
+  minimalSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

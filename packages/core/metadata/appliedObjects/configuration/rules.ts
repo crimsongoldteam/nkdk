@@ -1,4 +1,4 @@
-import { MetadataItemRule } from "~/metadata/metadataFactory"
+import { MetadataItemRule } from "~/metadata/orchestration"
 
 const NodeProperties = ["Configuration", "Properties"]
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
+import { exportElementToPartialYAML } from "~/metadata/orchestration"
 import { fullTable, fullTableYAML, minimalTable } from "~/tests/fixtures/forms/table/data"
 import { mockContext } from "~/tests/mockContext"
 

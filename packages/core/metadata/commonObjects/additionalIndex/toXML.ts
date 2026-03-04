@@ -1,13 +1,13 @@
 import {
-    AdditionalIndex,
-    AdditionalIndexes,
-    AdditionalIndexesXML,
-    AdditionalIndexXML,
+  AdditionalIndex,
+  AdditionalIndexes,
+  AdditionalIndexesXML,
+  AdditionalIndexXML,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 export const exportAdditionalIndexToXML = (
   context: ConfigurationContext,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/orchestration"
 import {
   fullPopup,
   fullPopupPartialYAML,

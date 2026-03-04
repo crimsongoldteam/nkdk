@@ -1,14 +1,14 @@
 import {
-    CharacteristicsDescription,
-    CharacteristicsDescriptions,
-    CharacteristicsDescriptionsXML,
-    CharacteristicsDescriptionXML,
+  CharacteristicsDescription,
+  CharacteristicsDescriptions,
+  CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionXML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 const exportFieldValue = (field: MetadataField | undefined): string => {
   if (!field) return "-1"

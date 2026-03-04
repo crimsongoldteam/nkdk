@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertyToXML, PropertyRule } from "~/metadata/metadataFactory"
+import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
 import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"

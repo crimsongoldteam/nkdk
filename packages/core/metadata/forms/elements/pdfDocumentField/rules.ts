@@ -4,7 +4,7 @@ import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const PdfDocumentFieldRules = {
-  itemType: "PdfDocumentField",
+  itemType: "PDFDocumentField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PDFDocumentField",
   properties: {

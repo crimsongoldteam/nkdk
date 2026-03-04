@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportChildItemsToXML } from "../../commonObjects/childItems/toXML"
 
 export type TableAdditionalSourceTypes = "SearchStringRepresentation" | "SearchControl" | "ViewStatusRepresentation"

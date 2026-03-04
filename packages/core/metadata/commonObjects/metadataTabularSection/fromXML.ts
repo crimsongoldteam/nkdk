@@ -1,16 +1,16 @@
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/fromXML"
 import {
-    MetadataTabularSection,
-    MetadataTabularSections,
-    MetadataTabularSectionsXML,
-    MetadataTabularSectionXML,
+  MetadataTabularSection,
+  MetadataTabularSections,
+  MetadataTabularSectionsXML,
+  MetadataTabularSectionXML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/fromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionsFromXML = (

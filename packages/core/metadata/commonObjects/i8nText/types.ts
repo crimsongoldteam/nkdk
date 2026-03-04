@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { TypeRulesOperations } from "~/metadata/metadataFactory"
+import { TypeRulesOperations } from "~/metadata/orchestration"
 import { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
 export interface I8nText {

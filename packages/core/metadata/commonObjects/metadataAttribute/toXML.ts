@@ -1,16 +1,16 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import {
-    MetadataAttribute,
-    MetadataAttributes,
-    MetadataAttributesXML,
-    MetadataAttributeXML,
+  MetadataAttribute,
+  MetadataAttributes,
+  MetadataAttributesXML,
+  MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { exportMetadataSimpleValueToXML, exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkToXML } from "../typeLink/toXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/toXML"

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule, ToEnterprise } from "~/metadata/metadataFactory"
+import { registerTypeRule, ToEnterprise } from "~/metadata/orchestration"
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { AllChildItem } from "./types"
 

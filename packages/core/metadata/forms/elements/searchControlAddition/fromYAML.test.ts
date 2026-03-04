@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
 import {
-    fullSearchControlAddition,
-    fullSearchControlAdditionYAML,
-    fullSingleSearchControlAddition,
-    minimalSearchControlAddition,
-    sourceSearchControlAddition,
+  fullSearchControlAddition,
+  fullSearchControlAdditionYAML,
+  fullSingleSearchControlAddition,
+  minimalSearchControlAddition,
+  sourceSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
 

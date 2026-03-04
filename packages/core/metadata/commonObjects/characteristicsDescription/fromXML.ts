@@ -1,14 +1,14 @@
 import {
-    CharacteristicsDescription,
-    CharacteristicsDescriptions,
-    CharacteristicsDescriptionsXML,
-    CharacteristicsDescriptionXML,
+  CharacteristicsDescription,
+  CharacteristicsDescriptions,
+  CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionXML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { MetadataField, MetadataFieldXML } from "~/metadata/commonObjects/metadataField/types"
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 const extractFieldValue = (field: MetadataFieldXML | string | number | undefined): MetadataField | undefined => {
   if (field === undefined) return undefined

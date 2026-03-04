@@ -1,3 +1,6 @@
+import { AutoCommandBar } from "nkdk-language"
+import { AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
+import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import {
@@ -252,7 +255,7 @@ export type MetadataItemTypeRegistry = {
     yaml: PagesPartialYAML
     enterprise: PagesEnterprise
   }
-  PdfDocumentField: {
+  PDFDocumentField: {
     metadata: PdfDocumentField
     yaml: PdfDocumentFieldPartialYAML
     enterprise: PdfDocumentFieldEnterprise
@@ -352,6 +355,17 @@ export type MetadataItemTypeRegistry = {
     yaml: SearchStringAdditionYAML
     enterprise: Record<string, unknown>
   }
+  ViewStatusAddition: {
+    metadata: ViewStatusAddition
+    yaml: ViewStatusAdditionYAML
+    enterprise: Record<string, unknown>
+  }
+  AutoCommandBar: {
+    metadata: AutoCommandBar
+    yaml: AutoCommandBarYAML
+    enterprise: Record<string, unknown>
+  }
+
   //#endregion
 
   //#region Form objects

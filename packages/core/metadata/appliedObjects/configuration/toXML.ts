@@ -1,10 +1,10 @@
 import {
   Configuration,
-  ConfigurationXML,
   ConfigurationPropertiesXML,
+  ConfigurationXML,
 } from "~/metadata/appliedObjects/configuration/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToXML } from "~/metadata/metadataFactory"
+import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { ConfigurationRules } from "./rules"
 

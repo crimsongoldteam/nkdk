@@ -9,7 +9,7 @@ import { importPictureFromXML } from "~/metadata/commonObjects/picture/fromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/fromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandsFromXML = (

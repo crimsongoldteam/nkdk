@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
+import { exportElementToPartialYAML } from "~/metadata/orchestration"
 import { fullUsualGroup, fullUsualGroupPartialYAML, minimalUsualGroup } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
 

@@ -1,6 +1,6 @@
 import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertiesFromXML } from "~/metadata/metadataFactory"
+import { importPropertiesFromXML } from "~/metadata/orchestration"
 import { MetadataCatalogRules } from "./rules"
 
 export const importMetadataCatalogFromXML = (

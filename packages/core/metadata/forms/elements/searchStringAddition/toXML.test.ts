@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToXML, exportPropertyToXML } from "~/metadata/metadataFactory"
+import { exportElementToXML, exportPropertyToXML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   fullSearchStringAddition,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/metadataFactory"
+import { exportElementToXML } from "~/metadata/orchestration"
 import { fullProgressBarField, minimalProgressBarField } from "~/tests/fixtures/forms/progressBarField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"

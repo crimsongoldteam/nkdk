@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
 import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { mockContext } from "~/tests/mockContext"
 import { PropertyRule } from "../../elements/calendarField/rules"

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
 import {
   fullContextMenu,
   fullContextMenuSource,
