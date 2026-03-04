@@ -8,7 +8,7 @@ import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
-import { ClientApplicationFormYAML, ClientApplicationForm } from "./types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
 describe("importClientApplicationFormFromYAML", () => {
   it("should import all fields from YAML", () => {
@@ -39,7 +39,7 @@ describe("importClientApplicationFormFromYAML", () => {
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      ПодчиненныеЭлементы: {
+      Элементы: {
         ГруппаКнопок1: {
           Доступность: "Ложь",
           ПодчиненныеЭлементы: {
@@ -115,7 +115,7 @@ describe("importClientApplicationFormFromYAML", () => {
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      ПодчиненныеЭлементы: {
+      Элементы: {
         ГруппаКнопок1: {
           Доступность: "Ложь",
           ПодчиненныеЭлементы: {

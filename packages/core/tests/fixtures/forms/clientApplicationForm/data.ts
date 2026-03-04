@@ -255,7 +255,7 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
     ПриЧтенииНаСервере: "ПриЧтенииНаСервере",
     // #endregion
   } satisfies Required<ClientApplicationFormYAML["События"]>,
-  ПодчиненныеЭлементы: {
+  Элементы: {
     ПолеВвода1: {
       Ширина: 10,
     },
