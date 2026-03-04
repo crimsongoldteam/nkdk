@@ -30,7 +30,7 @@ export const ConfigurationRules = {
     },
     briefInformation: {
       yaml: "КраткаяИнформация",
-      type: "string",
+      type: "I8nText",
       xmlParents: NodeProperties,
     },
     // clientApplicationInterface: { yaml: "ИнтерфейсКлиентскогоПриложения", type: "Неопределено" },
@@ -67,12 +67,12 @@ export const ConfigurationRules = {
     },
     configurationInformationAddress: {
       yaml: "АдресИнформацииОКонфигурации",
-      type: "string",
+      type: "I8nText",
       xmlParents: NodeProperties,
     },
     copyright: {
       yaml: "АвторскиеПрава",
-      type: "string",
+      type: "I8nText",
       xmlParents: NodeProperties,
     },
     databaseTablespacesUseMode: {
@@ -184,7 +184,7 @@ export const ConfigurationRules = {
     },
     detailedInformation: {
       yaml: "ПодробнаяИнформация",
-      type: "string",
+      type: "I8nText",
       xmlParents: NodeProperties,
     },
     dynamicListsUserSettingsStorage: {
@@ -290,7 +290,7 @@ export const ConfigurationRules = {
     },
     synonym: {
       yaml: "Синоним",
-      type: "string",
+      type: "I8nText",
       xmlParents: NodeProperties,
     },
     updateCatalogAddress: {
@@ -327,7 +327,7 @@ export const ConfigurationRules = {
     },
     vendorInformationAddress: {
       yaml: "АдресИнформацииОПоставщике",
-      type: "string",
+      type: "I8nText",
       xmlParents: NodeProperties,
     },
     version: {
