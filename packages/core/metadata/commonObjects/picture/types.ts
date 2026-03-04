@@ -45,7 +45,7 @@ export type PictureYAML = Static<typeof PictureJSONSchema>
 
 export interface PredifinedPictureEnterprise {
   Type: "Picture"
-  Value: string
+  Value?: `PictureLib.${SE.PictureLib}` | string
 }
 
 export interface AbsolutePictureEnterprise {
