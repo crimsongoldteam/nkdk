@@ -2,11 +2,11 @@ import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExportToJSONSchemaFn } from "~/metadata/orchestration"
 import { exportElementToJSONSchema } from "~/metadata/orchestration/formElement/toJSONSchema"
-import { AllChildItem } from "./types"
+import { ChildItem } from "./types"
 
 export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {
   context: ConfigurationContext
-  value: AllChildItem[] | undefined
+  value: ChildItem[] | undefined
 }): TSchema | undefined => {
   const { context, value: items } = params
 
@@ -16,9 +16,9 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {
   for (const item of items) {
     const resultItem = exportElementToJSONSchema({
       context,
-      itemType: item.itemType,
       value: item,
     })
+
     result[item.name] = Type.Optional(resultItem)
   }
   return Type.Object(result, { additionalProperties: false })

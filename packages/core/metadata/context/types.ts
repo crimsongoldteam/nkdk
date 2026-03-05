@@ -1,5 +1,5 @@
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
-import { AllChildItemsPartialYAML } from "../forms/commonObjects/childItems/types"
+import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ExtendedFormElementType } from "../orchestration"
 
 export type ContextElementToXML = { name: string; itemType: ExtendedFormElementType }
@@ -9,7 +9,7 @@ export interface ConfigurationContext {
   testMode?: boolean
   defaultLanguage: string
   context?: object
-  allElements?: AllChildItemsPartialYAML
+  allElements?: FormElementsYAML
   enterprise?: EnterpriseContext
 
   elementsTree?: Array<ContextElementToXML>

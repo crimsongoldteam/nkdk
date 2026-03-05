@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/configuration/data"
+import { full, fullYAML, minimalYAML } from "~/tests/fixtures/configuration/data"
 import { mockContext } from "~/tests/mockContext"
 import { importConfigurationFromYAML } from "./fromYAML"
 

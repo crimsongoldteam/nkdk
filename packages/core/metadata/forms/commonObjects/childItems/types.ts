@@ -40,41 +40,6 @@ import { ViewStatusAddition } from "../../elements/viewStatusAddition/types"
 
 // #region ChildItem
 
-// type ChildItem =
-//   | Button
-//   | ButtonGroup
-//   | CalendarField
-//   | ChartField
-//   | CheckBoxField
-//   | ColumnGroup
-//   | CommandBar
-//   | DendrogramField
-//   | FormattedDocumentField
-//   | GanttChartField
-//   | GeographicalSchemaField
-//   | GraphicalSchemaField
-//   | HTMLDocumentField
-//   | InputField
-//   | LabelDecoration
-//   | LabelField
-//   | Page
-//   | Pages
-//   | PDFDocumentField
-//   | PeriodField
-//   | PictureDecoration
-//   | PictureField
-//   | PlannerField
-//   | Popup
-//   | ProgressBarField
-//   | RadioButtonField
-//   | SpreadSheetDocumentField
-//   | Table
-//   | TextDocumentField
-//   | TrackBarField
-//   | UsualGroup
-//   | SearchStringAddition
-//   | SearchControlAddition
-
 // export type AllChildItems = ChildItem[]
 
 // export type AllChildItem = ChildItem
@@ -163,6 +128,7 @@ export type PagesChildItems = PagesChildItem[]
 
 export type PagesChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<PagesChildItem["itemType"]>>
 
+export type PagesChildItemsEnterprise = MetadataItemTypeToEnterprise<PagesChildItem["itemType"]>[]
 // #endregion
 
 // #region TableChildItem
@@ -188,6 +154,14 @@ export type TableChildItemsTypedYAML = Record<string, TableChildItemTypedYAML>
 export type TableChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<TableChildItem["itemType"]>>
 
 // #endregion
+
+export type ChildItem = GroupChildItem | CommandBarChildItem | TableChildItem | PagesChildItem
+
+export type AllChildItemsPartialYAML =
+  | GroupChildItemsPartialYAML
+  | CommandBarChildItemsPartialYAML
+  | TableChildItemsPartialYAML
+  | PagesChildItemsPartialYAML
 
 // #region TypedElement
 
@@ -215,6 +189,43 @@ export type TypedElementPartialYAML =
 // #region SingleElement
 
 export type SingleElement = AutoCommandBar | ContextMenu | ViewStatusAddition | ExtendedTooltip
+
+export type FormElementsYAML = Record<
+  string,
+  | Button
+  | ButtonGroup
+  | CalendarField
+  | ChartField
+  | CheckBoxField
+  | ColumnGroup
+  | CommandBar
+  | DendrogramField
+  | FormattedDocumentField
+  | GanttChartField
+  | GeographicalSchemaField
+  | GraphicalSchemaField
+  | HTMLDocumentField
+  | InputField
+  | LabelDecoration
+  | LabelField
+  | Page
+  | Pages
+  | PDFDocumentField
+  | PeriodField
+  | PictureDecoration
+  | PictureField
+  | PlannerField
+  | Popup
+  | ProgressBarField
+  | RadioButtonField
+  | SpreadSheetDocumentField
+  | Table
+  | TextDocumentField
+  | TrackBarField
+  | UsualGroup
+  | SearchStringAddition
+  | SearchControlAddition
+>
 
 // #endregion
 

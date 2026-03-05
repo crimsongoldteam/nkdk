@@ -31,10 +31,11 @@ function pushElementToContext(params: {
 
 export const exportElementToEnterprise = <Type extends FormElementType>(params: {
   context: ConfigurationContext
-  itemType: Type
+  // itemType: Type
   value: MetadataItemTypeToMdItem<Type>
 }): MetadataItemTypeToEnterprise<Type> => {
-  const { context, itemType, value: element } = params
+  const { context, value: element } = params
+  const itemType = element.itemType
 
   const currentContext = pushElementToContext({ context, itemType, element })
 

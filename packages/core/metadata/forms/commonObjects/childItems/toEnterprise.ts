@@ -1,22 +1,25 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule, ToEnterprise } from "~/metadata/orchestration"
+import { MetadataItemTypeToEnterprise, registerTypeRule } from "~/metadata/orchestration"
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { AllChildItem } from "./types"
+import { ChildItem } from "./types"
 
-export const exportChildItemsToEnterprise = <From extends AllChildItem>(params: {
+export const exportChildItemsToEnterprise = <From extends ChildItem>(params: {
   context: ConfigurationContext
   value: From[] | undefined
-}): ToEnterprise<From>[] | undefined => {
+}): MetadataItemTypeToEnterprise<From["itemType"]>[] | undefined => {
   const { context, value: items } = params
 
   if (!items || items.length === 0) return []
 
-  const result = [] as ToEnterprise<From>[]
+  const result = [] as MetadataItemTypeToEnterprise<From["itemType"]>[]
   for (const item of items) {
-    const resultItem = exportElementToEnterprise({ context, itemType: item.itemType, value: item })
+    const resultItem = exportElementToEnterprise({ context, value: item })
     result.push(resultItem)
   }
   return result
 }
 
-registerTypeRule("ChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+registerTypeRule("GroupChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+registerTypeRule("CommandBarChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+registerTypeRule("TableChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+registerTypeRule("PagesChildItems", "exportToEnterprise", exportChildItemsToEnterprise)

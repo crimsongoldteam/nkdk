@@ -53,7 +53,7 @@ export interface BasePropertyRule {
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {
-  type: "ChildItems"
+  type: "GroupChildItems" | "CommandBarChildItems" | "TableChildItems" | "PagesChildItems"
   defaultValue: []
   fromPartialYAML?: true
 }
@@ -99,11 +99,14 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "UserVisible"
     | "TableAdditionalSource"
     | "StandardAttributeDescription"
-    | "ChildItems"
     | "TypeDescription"
     | "DataPath"
     | "MetadataType"
     | "MetadataTypeCollection"
+    | "GroupChildItems"
+    | "CommandBarChildItems"
+    | "TableChildItems"
+    | "PagesChildItems"
   >
 }
 

@@ -1,3 +1,4 @@
+import { AutoCommandBar } from "nkdk-language"
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
@@ -61,12 +62,16 @@ import {
   GroupChildItems,
   GroupChildItemsEnterprise,
   GroupChildItemsPartialYAML,
+  PagesChildItems,
+  PagesChildItemsEnterprise,
+  PagesChildItemsPartialYAML,
   TableChildItems,
   TableChildItemsEnterprise,
   TableChildItemsPartialYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
+import { AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
 import {
@@ -335,6 +340,16 @@ export type PropertyTypeRegistry = {
     enterprise: unknown
     yaml: ViewStatusAdditionYAML
   }
+  AutoCommandBar: {
+    item: AutoCommandBar
+    enterprise: unknown
+    yaml: AutoCommandBarYAML
+  }
+  TableAutoCommandBar: {
+    item: AutoCommandBar
+    enterprise: unknown
+    yaml: AutoCommandBarYAML
+  }
 
   //#endregion
 
@@ -355,7 +370,11 @@ export type PropertyTypeRegistry = {
     enterprise: TableChildItemsEnterprise
     yaml: TableChildItemsPartialYAML
   }
-
+  PagesChildItems: {
+    item: PagesChildItems
+    enterprise: PagesChildItemsEnterprise
+    yaml: PagesChildItemsPartialYAML
+  }
   // ChildItems: {
   //   item: unknown
   //   enterprise: AllChildItemsEnterprise
@@ -408,6 +427,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   GroupChildItems: "GroupChildItems",
   CommandBarChildItems: "CommandBarChildItems",
   TableChildItems: "TableChildItems",
+  PagesChildItems: "PagesChildItems",
   FunctionalOptionsProperty: "FunctionalOptionsProperty",
   MetadataAttributes: "MetadataAttributes",
   MetadataItemLinks: "MetadataItemLinks",
@@ -419,10 +439,12 @@ export const PropertyRuleTypeKeys = Object.keys({
   SingleSearchStringAddition: "SingleSearchStringAddition",
   ViewStatusAddition: "ViewStatusAddition",
   AssociatedTable: "AssociatedTable",
+  AutoCommandBar: "AutoCommandBar",
+  TableAutoCommandBar: "TableAutoCommandBar",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["item"]
-export type PropertyYoEnterprise<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["enterprise"]
+export type PropertyToEnterprise<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["enterprise"]
 export type PropertyToYAML<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["yaml"]
 
 // export const TypesNames = PropertyType

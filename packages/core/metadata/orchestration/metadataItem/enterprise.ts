@@ -1,4 +1,4 @@
-import { PropertyRuleType, PropertyYoEnterprise } from "~/metadata/orchestration/property/registry"
+import { PropertyRuleType, PropertyToEnterprise } from "~/metadata/orchestration/property/registry"
 
 export type EnterpriseType<
   T extends { properties: Record<string, PropertyRuleType>; enterpriseField: string; enterpriseFieldType: string },
@@ -10,7 +10,7 @@ export type EnterpriseType<
         type: infer PropertyType
       }
         ? PropertyType extends PropertyRuleType
-          ? PropertyYoEnterprise<PropertyType>
+          ? PropertyToEnterprise<PropertyType>
           : unknown
         : never
     } & {
