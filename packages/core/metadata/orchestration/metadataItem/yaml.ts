@@ -2,16 +2,17 @@ import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
 import { PropertyRuleType, PropertyToYAML } from "~/metadata/orchestration/property/registry"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../property/types"
 
 export type YAMLTypeByRule<
   Rule extends {
-    properties: Record<string, PropertyRuleType>
+    properties: Record<string, PropertyRule>
     itemType: MetadataItemType
     events?: Record<string, string>
   },
 > = PropertiesByRule<Rule> & UserVisibleByRule<Rule> & EventsByRule<Rule>
 
-type PropertiesByRule<Rule extends { properties: Record<string, PropertyRuleType> }> =
+type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }> =
   Rule["properties"] extends infer Properties
     ? {
         [K in keyof Properties as Properties[K] extends { yaml: infer YAMLName }
@@ -37,7 +38,7 @@ type SETypeByName<Name extends string> = `${Name}FromYAML` extends keyof typeof 
   ? keyof (typeof SE)[`${Name}FromYAML`]
   : unknown
 
-type UserVisibleByRule<Rule extends { properties: Record<string, PropertyRuleType> }> = {
+type UserVisibleByRule<Rule extends { properties: Record<string, PropertyRule> }> = {
   [K in Rule["properties"][keyof Rule["properties"]] extends infer P
     ? P extends { type: "UserVisible"; yaml?: infer Y; yamlDeny?: infer YD }
       ? (Y extends string ? Y : never) | (YD extends string ? YD : never)

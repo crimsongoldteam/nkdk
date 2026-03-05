@@ -6,6 +6,7 @@ import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
+import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
@@ -135,3 +136,5 @@ export interface ChartFieldPartialYAML {
 }
 
 export type ChartFieldEnterprise = EnterpriseType<typeof ChartFieldRules>
+
+export type ChartFieldYAML = YAMLTypeByRule<typeof ChartFieldRules>

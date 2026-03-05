@@ -1,7 +1,8 @@
 import { PropertyRuleType, PropertyToEnterprise } from "~/metadata/orchestration/property/registry"
+import { PropertyRule } from "../property/types"
 
 export type EnterpriseType<
-  T extends { properties: Record<string, PropertyRuleType>; enterpriseField: string; enterpriseFieldType: string },
+  T extends { properties: Record<string, PropertyRule>; enterpriseField: string; enterpriseFieldType: string },
 > = T["properties"] extends infer Properties
   ? {
       [K in keyof Properties as Properties[K] extends { toEnterprise?: false }
