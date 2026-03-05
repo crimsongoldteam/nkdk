@@ -1,5 +1,4 @@
-import { AutoCommandBar } from "nkdk-language"
-import { AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
+import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"

@@ -47,7 +47,7 @@ const importFormAttributeFromYAML = (
     context: context,
     yaml: yaml as FormAttributeYAML,
     metadataType: "FormAttribute",
-    rules: FormAttributeRules,
+    metadataRule: FormAttributeRules,
     name,
   })
 
@@ -112,7 +112,7 @@ const importColumnFromYAML = (
     context: context,
     yaml: data,
     metadataType: "FormAttributeColumn",
-    rules: FormAttributeColumnRules,
+    metadataRule: FormAttributeColumnRules,
     name,
   })
 

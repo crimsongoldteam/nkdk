@@ -14,7 +14,7 @@ export const importConfigurationFromYAML = (
     context,
     metadataType: "Configuration",
     yaml: data,
-    rules: ConfigurationRules,
+    metadataRule: ConfigurationRules,
     name,
   })
 

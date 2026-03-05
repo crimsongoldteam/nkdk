@@ -25,7 +25,7 @@ export const importClientApplicationFormFromYAML = (
     context: itemsContext,
     yaml: data,
     metadataType: "ClientApplicationForm",
-    rules: ClientApplicationFormRules,
+    metadataRule: ClientApplicationFormRules,
     source: source,
   })
 

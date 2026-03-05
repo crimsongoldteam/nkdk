@@ -14,7 +14,7 @@ export const importMetadataCatalogFromYAML = (
     context,
     metadataType: "MetadataCatalog",
     yaml: data,
-    rules: MetadataCatalogRules,
+    metadataRule: MetadataCatalogRules,
     name,
   })
 

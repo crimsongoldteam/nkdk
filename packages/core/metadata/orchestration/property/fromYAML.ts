@@ -13,22 +13,21 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   context: ConfigurationContext
   yaml: MetadataItemTypeToYAML<Rule["itemType"]>
   // metadataType: Type
-  rules: Rule
+  metadataRule: Rule
   source?: MetadataItemTypeToMdItem<Rule["itemType"]>
   name?: string
 }): MetadataItemTypeToMdItem<Rule["itemType"]> {
-  const { context, yaml, source, rules, name } = params
-  const metadataType = rules.itemType
+  const { context, yaml, source, metadataRule: metadataRule, name } = params
+  const metadataType = metadataRule.itemType
 
-  const result: MetadataItemTypeToMdItem<Rule["itemType"]> = {
+  const result = {
     itemType: metadataType,
-  }
+  } as MetadataItemTypeToMdItem<Rule["itemType"]>
 
   const shortFormatResult = handleShortFormatYAML({
     context,
     yaml,
-    metadataType,
-    rules,
+    metadataRule,
     result,
     name,
   })
@@ -37,14 +36,17 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     return shortFormatResult
   }
 
-  for (const [key, curRule] of Object.entries(rules.properties)) {
-    const yamlKey = curRule.yaml
+  for (const [key, curRule] of Object.entries(metadataRule.properties) as [
+    keyof MetadataItemTypeToMdItem<Rule["itemType"]>,
+    PropertyRule,
+  ][]) {
+    const yamlKey = curRule.yaml as keyof MetadataItemTypeToYAML<Rule["itemType"]>
     // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue
 
     const sourceValue = source ? source[key] : undefined
 
-    const yamlValue = yaml && yamlKey ? (yaml as any)[yamlKey] : undefined
+    const yamlValue = yaml && yamlKey ? yaml[yamlKey] : undefined
 
     const importedValue = importPropertyFromYAML({
       context,
@@ -117,18 +119,17 @@ export const importPropertyFromYAML = (params: {
 function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
   yaml: MetadataItemTypeToYAML<Type>
-  metadataType: Type
-  rules: MetadataItemRule
+  metadataRule: MetadataItemRule
   result: MetadataItemTypeToMdItem<Type>
   name?: string
 }): MetadataItemTypeToMdItem<Type> | undefined {
-  const { context, yaml, rules, result, name, metadataType } = params
+  const { context, yaml, metadataRule: metadataRule, result, name } = params
 
   if (typeof yaml !== "string") {
     return undefined
   }
 
-  const shortFormatEntry = Object.entries(rules.properties).find(([, rule]) => rule.useAsShortValueYAML === true)
+  const shortFormatEntry = Object.entries(metadataRule.properties).find(([, rule]) => rule.useAsShortValueYAML === true)
 
   if (!shortFormatEntry) {
     return undefined
@@ -148,15 +149,14 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
     name,
   })
 
-  const source: MetadataItemTypeToMdItem<Type> = {
+  const source = {
     itemType: result.itemType,
     [propertyKey]: importedValue,
-  }
+  } as MetadataItemTypeToMdItem<Type>
 
   return importPropertiesFromYAML({
     context,
-    rules,
-    metadataType,
+    metadataRule: metadataRule,
     name,
     source: source,
     yaml: {},

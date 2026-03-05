@@ -52,6 +52,14 @@ export const FormElementTypeFromYAML = Object.fromEntries(
 
 export type FormElementTypeToYAMLType<T extends FormElementType> = (typeof FormElementTypeToYAML)[T]
 
+export type FormElementTypeFromYAMLType<D extends FormElementTypeToYAMLType<FormElementType>> = {
+  [K in FormElementType]: FormElementTypeToYAMLType<K> extends D
+    ? D extends FormElementTypeToYAMLType<K>
+      ? K
+      : never
+    : never
+}[FormElementType]
+
 export type SingleFormElementType = Extract<
   MetadataItemType,
   | "SingleSearchControlAddition"
