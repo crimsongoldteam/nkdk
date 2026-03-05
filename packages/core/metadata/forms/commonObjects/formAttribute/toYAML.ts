@@ -36,7 +36,7 @@ const exportFormAttributeToYAML = (
   const result = exportPropertiesToYAML({
     context,
     data: data,
-    rules: FormAttributeRules,
+    rule: FormAttributeRules,
   })!
 
   return result
@@ -92,7 +92,7 @@ const exportFormAttributeColumnToYAMLInternal = (
   const result = exportPropertiesToYAML({
     context,
     data: column,
-    rules: FormAttributeColumnRules,
+    rule: FormAttributeColumnRules,
   })!
 
   return result

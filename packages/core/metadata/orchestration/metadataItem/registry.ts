@@ -171,6 +171,7 @@ import {
 } from "../../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML } from "../../forms/elements/usualGroup/types"
 import { TypedFormElementType } from "../formElement/types"
+import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 
 export type MetadataItemTypeRegistry = {
   //#region Elements
@@ -402,6 +403,10 @@ export type MetadataItemTypeRegistry = {
   FormAttributeColumn: {
     metadata: FormAttributeColumn
     yaml: FormAttributeColumnYAML
+  }
+  FormCommand: {
+    metadata: FormCommand
+    yaml: FormCommandYAML
   }
 
   //#endregion
