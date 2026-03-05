@@ -127,12 +127,14 @@ import {
 } from "../../forms/elements/radioButtonField/types"
 import {
   SearchControlAddition,
+  SearchControlAdditionEnterprise,
   SearchControlAdditionYAML,
   SingleSearchControlAddition,
   SingleSearchControlAdditionYAML,
 } from "../../forms/elements/searchControlAddition/types"
 import {
   SearchStringAddition,
+  SearchStringAdditionEnterprise,
   SearchStringAdditionYAML,
   SingleSearchStringAddition,
   SingleSearchStringAdditionYAML,
@@ -325,7 +327,15 @@ export type MetadataItemTypeRegistry = {
   SearchControlAddition: {
     metadata: SearchControlAddition
     yaml: SearchControlAdditionYAML
+    enterprise: SearchControlAdditionEnterprise
   }
+
+  SearchStringAddition: {
+    metadata: SearchStringAddition
+    yaml: SearchStringAdditionYAML
+    enterprise: SearchStringAdditionEnterprise
+  }
+
   //#endregion
 
   //#region Single elements
@@ -345,10 +355,7 @@ export type MetadataItemTypeRegistry = {
     metadata: SingleSearchStringAddition
     yaml: SingleSearchStringAdditionYAML
   }
-  SearchStringAddition: {
-    metadata: SearchStringAddition
-    yaml: SearchStringAdditionYAML
-  }
+
   ViewStatusAddition: {
     metadata: ViewStatusAddition
     yaml: ViewStatusAdditionYAML

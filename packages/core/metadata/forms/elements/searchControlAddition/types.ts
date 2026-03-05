@@ -9,6 +9,8 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems, CommandBarChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
+import { SearchControlAdditionRules } from "./rules"
 
 export interface SearchControlAddition {
   itemType: "SearchControlAddition"
@@ -67,3 +69,5 @@ export interface SearchControlAdditionYAML {
 }
 
 export interface SingleSearchControlAdditionYAML extends Omit<SearchControlAdditionYAML, "Источник"> {}
+
+export type SearchControlAdditionEnterprise = EnterpriseType<typeof SearchControlAdditionRules>

@@ -8,7 +8,6 @@ describe("export CheckBoxField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "CheckBoxField",
       value: fullCheckBoxField,
     })
     expect(result).toEqual(fullCheckBoxFieldEnterprise)

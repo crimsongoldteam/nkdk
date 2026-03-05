@@ -15,7 +15,6 @@ describe("export ButtonGroup to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: "ButtonGroup",
       value: fullButtonGroup,
     })
     expect(result).toEqual(fullButtonGroupEnterprise)

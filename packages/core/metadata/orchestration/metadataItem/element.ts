@@ -1,6 +1,7 @@
 import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
 import { PropertyRuleType, PropertyToMetadata } from "~/metadata/orchestration/property/registry"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "../property/types"
 
 /** Тип системного перечисления по имени typeSE (обращение по имени через SE[`${name}ToYAML`]). */
 type SETypeByName<Name extends string> = `${Name}ToYAML` extends keyof typeof SE
@@ -9,7 +10,7 @@ type SETypeByName<Name extends string> = `${Name}ToYAML` extends keyof typeof SE
 
 export type ElementTypeByRule<
   Rule extends {
-    properties: Record<string, PropertyRuleType>
+    properties: Record<string, PropertyRule>
     itemType: MetadataItemType
     events?: Record<string, string>
   },

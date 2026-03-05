@@ -10,7 +10,7 @@ export const exportClientApplicationFormToJSONSchema = (params: {
   const { context, value: form } = params
   const childItems = exportChildItemsToJSONSchema({
     context,
-    rule: { type: "ChildItems", defaultValue: [] },
+    rule: { type: "GroupChildItems", defaultValue: [] },
     value: form.childItems,
   })
 
