@@ -1,4 +1,5 @@
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
+import { MetadataItemTypeToEnterprise, MetadataItemTypeToYAML } from "~/metadata/orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
@@ -39,48 +40,48 @@ import { ViewStatusAddition } from "../../elements/viewStatusAddition/types"
 
 // #region ChildItem
 
-type ChildItem =
-  | Button
-  | ButtonGroup
-  | CalendarField
-  | ChartField
-  | CheckBoxField
-  | ColumnGroup
-  | CommandBar
-  | DendrogramField
-  | FormattedDocumentField
-  | GanttChartField
-  | GeographicalSchemaField
-  | GraphicalSchemaField
-  | HTMLDocumentField
-  | InputField
-  | LabelDecoration
-  | LabelField
-  | Page
-  | Pages
-  | PDFDocumentField
-  | PeriodField
-  | PictureDecoration
-  | PictureField
-  | PlannerField
-  | Popup
-  | ProgressBarField
-  | RadioButtonField
-  | SpreadSheetDocumentField
-  | Table
-  | TextDocumentField
-  | TrackBarField
-  | UsualGroup
-  | SearchStringAddition
-  | SearchControlAddition
+// type ChildItem =
+//   | Button
+//   | ButtonGroup
+//   | CalendarField
+//   | ChartField
+//   | CheckBoxField
+//   | ColumnGroup
+//   | CommandBar
+//   | DendrogramField
+//   | FormattedDocumentField
+//   | GanttChartField
+//   | GeographicalSchemaField
+//   | GraphicalSchemaField
+//   | HTMLDocumentField
+//   | InputField
+//   | LabelDecoration
+//   | LabelField
+//   | Page
+//   | Pages
+//   | PDFDocumentField
+//   | PeriodField
+//   | PictureDecoration
+//   | PictureField
+//   | PlannerField
+//   | Popup
+//   | ProgressBarField
+//   | RadioButtonField
+//   | SpreadSheetDocumentField
+//   | Table
+//   | TextDocumentField
+//   | TrackBarField
+//   | UsualGroup
+//   | SearchStringAddition
+//   | SearchControlAddition
 
-export type AllChildItems = ChildItem[]
+// export type AllChildItems = ChildItem[]
 
-export type AllChildItem = ChildItem
+// export type AllChildItem = ChildItem
 
-export type AllChildItemsPartialYAML = Record<string, ToYAML<AllChildItem>>
+// export type AllChildItemsPartialYAML = Record<string, ToYAML<AllChildItem>>
 
-export type AllChildItemsEnterprise = ToEnterprise<AllChildItem>[]
+// export type AllChildItemsEnterprise = ToEnterprise<AllChildItem>[]
 // #endregion
 
 // #region ClientApplicationFormChildItem
@@ -116,9 +117,9 @@ export type GroupChildItem =
 
 export type GroupChildItems = GroupChildItem[]
 
-export type GroupChildItemsPartialYAML = Record<string, ToYAML<GroupChildItem>>
+export type GroupChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<GroupChildItem["itemType"]>>
 
-export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem>[]
+export type GroupChildItemsEnterprise = MetadataItemTypeToEnterprise<GroupChildItem["itemType"]>[]
 
 // #endregion
 
@@ -127,11 +128,14 @@ export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem>[]
 export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
 export type CommandBarChildItems = CommandBarChildItem[]
 
-export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem>>
+export type CommandBarChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<CommandBarChildItem["itemType"]>>
 
-export type CommandBarChildItemsTypedYAML = Record<string, ToTypedYAML<Button | ButtonGroup | Popup>>
+export type CommandBarChildItemsTypedYAML = Record<
+  string,
+  MetadataItemTypeToYAML<Button["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
+>
 
-export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem>[]
+export type CommandBarChildItemsEnterprise = MetadataItemTypeToEnterprise<CommandBarChildItem["itemType"]>[]
 
 // #endregion
 
@@ -140,9 +144,15 @@ export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem>[]
 export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
 export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
 
-export type CommandBarGroupChildItemsPartialYAML = Record<string, ToYAML<CommandBarGroupChildItem>>
+export type CommandBarGroupChildItemsPartialYAML = Record<
+  string,
+  MetadataItemTypeToYAML<CommandBarGroupChildItem["itemType"]>
+>
 
-export type CommandBarGroupChildItemsTypedYAML = Record<string, ToTypedYAML<CommandBarGroupChildItem>>
+export type CommandBarGroupChildItemsTypedYAML = Record<
+  string,
+  MetadataItemTypeToYAML<CommandBarGroupChildItem["itemType"]>
+>
 
 // #endregion
 
@@ -151,8 +161,7 @@ export type CommandBarGroupChildItemsTypedYAML = Record<string, ToTypedYAML<Comm
 export type PagesChildItem = Page
 export type PagesChildItems = PagesChildItem[]
 
-export type PagesChildItemsPartialYAML = Record<string, ToYAML<PagesChildItem>>
-// export type PagesChildItemsTypedYAML = Record<string, ToTypedYAMLType<PagesChildItem>>
+export type PagesChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<PagesChildItem["itemType"]>>
 
 // #endregion
 
@@ -166,7 +175,7 @@ export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelFie
 
 export type TableChildItems = TableChildItem[]
 
-export type TableChildItemsEnterprise = ToEnterprise<TableChildItem>[]
+export type TableChildItemsEnterprise = MetadataItemTypeToEnterprise<TableChildItem["itemType"]>[]
 
 export type TableChildItemTypedYAML =
   | CheckBoxFieldTypedYAML
@@ -176,7 +185,7 @@ export type TableChildItemTypedYAML =
 
 export type TableChildItemsTypedYAML = Record<string, TableChildItemTypedYAML>
 
-export type TableChildItemsPartialYAML = Record<string, ToYAML<TableChildItem>>
+export type TableChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<TableChildItem["itemType"]>>
 
 // #endregion
 

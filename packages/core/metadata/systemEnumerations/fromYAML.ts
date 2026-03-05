@@ -1,7 +1,6 @@
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
-import { SystemEnumerationPropertyRule } from "../orchestration"
 import { registerTypeRule } from "../orchestration/formElement/factory"
 
 /** @deprecated */
@@ -10,7 +9,7 @@ export const importSystemEnumerationFromYAMLDeprecated = <T extends string>(
   rule: PropertyRule,
   value: string | undefined
 ): T | undefined => {
-  const systemEnumerationRule = rule as SystemEnumerationPropertyRule
+  const systemEnumerationRule = rule as SE.SystemEnumerationPropertyRule
 
   if (!value) return undefined
 
@@ -26,7 +25,7 @@ export const importSystemEnumerationFromYAML = <T extends string>(params: {
   value: string | undefined
 }): T | undefined => {
   const { rule, value } = params
-  const systemEnumerationRule = rule as SystemEnumerationPropertyRule
+  const systemEnumerationRule = rule as SE.SystemEnumerationPropertyRule
 
   if (!value) return undefined
 

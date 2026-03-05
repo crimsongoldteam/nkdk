@@ -1,7 +1,6 @@
 import { ConfigurationContext } from "../context/types"
-import { SystemEnumerationPropertyRule } from "../metadataFactory"
-import { registerTypeRule } from "../orchestration/formElement/factory"
-import { SystemEnumerationEnterprise } from "./types"
+import { registerTypeRule } from "../orchestration"
+import { SystemEnumerationEnterprise, SystemEnumerationPropertyRule } from "./types"
 
 export const exportSystemEnumerationToEnterprise = (params: {
   context: ConfigurationContext

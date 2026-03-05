@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importMetadataValueFromXML } from "./fromXML"
-import { importMetadataValueFromXMLAsPrimitive } from "./fromXML.ts"
+import { importMetadataValueFromXML, importMetadataValueFromXMLAsPrimitive } from "./fromXML"
 import { MetadataSimpleValueXML, MetadataValue, MetadataValueXML } from "./types"
 
 describe("importMetadataValueFromXML", () => {

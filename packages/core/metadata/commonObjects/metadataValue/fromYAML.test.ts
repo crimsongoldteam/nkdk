@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importMetadataValueFromYAML } from "./fromYAML"
-import { MetadataValueYAML } from "./types"
-import { MetadataFixedArrayValueYAML, MetadataFormChoiceListValueYAML } from "./types.ts"
+import { MetadataFixedArrayValueYAML, MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
 
 describe("importMetadataValueFromYAML", () => {
   it("should import string value from YAML", () => {

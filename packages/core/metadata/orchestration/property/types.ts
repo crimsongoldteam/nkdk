@@ -3,6 +3,7 @@ import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
+import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { EventsRules } from "../event"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
@@ -55,11 +56,6 @@ export interface ChildItemsPropertyRule extends BasePropertyRule {
   type: "ChildItems"
   defaultValue: []
   fromPartialYAML?: true
-}
-
-export interface SystemEnumerationPropertyRule extends BasePropertyRule {
-  type: "SystemEnumeration"
-  typeSE: string
 }
 
 export interface UserVisiblePropertyRule extends BasePropertyRule {

@@ -30,8 +30,8 @@ import {
   MetadataItemLinkYAML,
 } from "~/metadata/commonObjects/metadataRef/types"
 import {
-  MetadataTabularSection,
-  MetadataTabularSectionYAML,
+  MetadataTabularSections,
+  MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
 import {
@@ -55,7 +55,6 @@ import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisib
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import {
-  AllChildItemsEnterprise,
   CommandBarChildItems,
   CommandBarChildItemsEnterprise,
   CommandBarChildItemsPartialYAML,
@@ -239,10 +238,10 @@ export type PropertyTypeRegistry = {
     enterprise: string
     yaml: MetadataItemLinkYAML
   }
-  MetadataTabularSection: {
-    item: MetadataTabularSection
+  MetadataTabularSections: {
+    item: MetadataTabularSections
     enterprise: unknown
-    yaml: MetadataTabularSectionYAML
+    yaml: MetadataTabularSectionsYAML
   }
   MetadataValue: {
     item: MetadataValue
@@ -357,11 +356,11 @@ export type PropertyTypeRegistry = {
     yaml: TableChildItemsPartialYAML
   }
 
-  ChildItems: {
-    item: unknown
-    enterprise: AllChildItemsEnterprise
-    yaml: unknown
-  }
+  // ChildItems: {
+  //   item: unknown
+  //   enterprise: AllChildItemsEnterprise
+  //   yaml: unknown
+  // }
 
   //#endregion
 }
@@ -379,7 +378,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",
   Font: "Font",
-  ChildItems: "ChildItems",
+  // ChildItems: "ChildItems",
   Picture: "Picture",
   Border: "Border",
   CommandName: "CommandName",
@@ -400,7 +399,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommandGroup: "MetadataCommandGroup",
   MetadataField: "MetadataField",
   MetadataItemLink: "MetadataItemLink",
-  MetadataTabularSection: "MetadataTabularSection",
+  MetadataTabularSections: "MetadataTabularSections",
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",

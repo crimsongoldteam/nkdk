@@ -1,18 +1,18 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory.ts"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportI8nTextToXML } from "../i8nText/toXML"
 import {
   MetadataFixedArrayValueXML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
+  MetadataPrimitiveValueType,
   MetadataSimpleValue,
   MetadataSimpleValueXML,
   MetadataValue,
   MetadataValueTypeToXML,
   MetadataValueXML,
 } from "./types"
-import { MetadataPrimitiveValueType } from "./types.ts"
 
 export const exportMetadataValueToXML = (
   context: ConfigurationContext,

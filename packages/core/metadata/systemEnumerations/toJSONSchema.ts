@@ -1,7 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { SystemEnumerationPropertyRule } from "~/metadata/orchestration/property/types"
 import * as SE from "./types"
+import { SystemEnumerationPropertyRule } from "./types"
 
 export const exportSystemEnumerationToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const rule = params.rule as SystemEnumerationPropertyRule
