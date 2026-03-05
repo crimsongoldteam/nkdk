@@ -8,7 +8,6 @@ import { MetadataItemRule, PropertyRule } from "./types"
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
   yaml: ToYAML<Rule["itemType"]> | undefined
-  // metadataType: Type
   metadataRule: Rule
   source?: ToMetadata<Rule["itemType"]>
   name?: string

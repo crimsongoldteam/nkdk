@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importEventsFromYAML } from "~/metadata/metadataFactory/events"
 import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
+import { importEventsFromYAML } from "~/metadata/orchestration/event"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 

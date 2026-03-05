@@ -46,7 +46,6 @@ const importFormAttributeFromYAML = (
   const properties = importPropertiesFromYAML({
     context: context,
     yaml: yaml as FormAttributeYAML,
-    metadataType: "FormAttribute",
     metadataRule: FormAttributeRules,
     name,
   })
@@ -111,7 +110,6 @@ const importColumnFromYAML = (
   const properties = importPropertiesFromYAML({
     context: context,
     yaml: data,
-    metadataType: "FormAttributeColumn",
     metadataRule: FormAttributeColumnRules,
     name,
   })

@@ -352,6 +352,12 @@ export type PropertyTypeRegistry = {
     yaml: FormAttributeColumnsYAML
   }
 
+  // FormAttributeSettings: {
+  //   item: FormAttributeSettings
+  //   enterprise: unknown
+  //   yaml: FormAttributeSettingsYAML
+  // }
+
   //#endregion
 
   //#region Single form elements

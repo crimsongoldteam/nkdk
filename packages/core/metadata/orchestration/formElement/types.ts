@@ -68,6 +68,8 @@ export type CollectableElementType = Extract<MetadataItemType, keyof typeof Coll
 
 export type ElementType = CollectableElementType | SingleElementType
 
+export type CollectableElement = ToMetadata<CollectableElementType>
+
 //#endregion
 
 //#region ElementRule

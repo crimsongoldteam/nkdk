@@ -1,11 +1,8 @@
-import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
-import { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ElementXML, exportPropertiesToXML, ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
-import { DynamicList } from "../dynamicList/types"
+import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -76,43 +73,43 @@ const exportFormAttributeToXML = (
   return sortObject(result)
 }
 
-const exportFormAttributeSettingsToXML = (params: {
-  context: ConfigurationContext
-  rule: PropertyRule | undefined
-  value: FormAttribute["valueType"]
-  metadataItem: FormAttribute
-}): FormAttributeXML["Settings"] => {
-  const { context, value, metadataItem } = params
+// const exportFormAttributeSettingsToXML = (params: {
+//   context: ConfigurationContext
+//   rule: PropertyRule | undefined
+//   value: FormAttribute["valueType"]
+//   metadataItem: FormAttribute
+// }): FormAttributeXML["Settings"] => {
+//   const { context, value, metadataItem } = params
 
-  const valueType = metadataItem.valueType
+//   const valueType = metadataItem.valueType
 
-  const isValueListType = valueType?.type.includes("ValueListType")
-  const isDynamicListValueType = valueType?.type.includes("DynamicList")
+//   const isValueListType = valueType?.type.includes("ValueListType")
+//   const isDynamicListValueType = valueType?.type.includes("DynamicList")
 
-  const isDynamicListSettings =
-    value !== undefined && ("@attributes" in value || (isDynamicListValueType && !("type" in value)))
+//   const isDynamicListSettings =
+//     value !== undefined && ("@attributes" in value || (isDynamicListValueType && !("type" in value)))
 
-  if (isDynamicListSettings) {
-    const settingsCopy = { ...(value as unknown as DynamicList) }
-    if ("@attributes" in settingsCopy) {
-      delete settingsCopy["@attributes"]
-    }
-    return {
-      "_xsi:type": "DynamicList",
-      ...settingsCopy,
-    }
-  } else {
-    const typeDescriptionSettings = exportTypeDescriptionToXML(context, undefined, value as TypeDescription | undefined)
-    if (typeDescriptionSettings || isValueListType) {
-      return {
-        "_xsi:type": "v8:TypeDescription",
-        ...typeDescriptionSettings,
-      }
-    }
-  }
+//   if (isDynamicListSettings) {
+//     const settingsCopy = { ...(value as unknown as DynamicList) }
+//     if ("@attributes" in settingsCopy) {
+//       delete settingsCopy["@attributes"]
+//     }
+//     return {
+//       "_xsi:type": "DynamicList",
+//       ...settingsCopy,
+//     }
+//   } else {
+//     const typeDescriptionSettings = exportTypeDescriptionToXML(context, undefined, value as TypeDescription | undefined)
+//     if (typeDescriptionSettings || isValueListType) {
+//       return {
+//         "_xsi:type": "v8:TypeDescription",
+//         ...typeDescriptionSettings,
+//       }
+//     }
+//   }
 
-  return undefined
-}
+//   return undefined
+// }
 
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContext,
@@ -175,4 +172,4 @@ const exportAdditionalColumnsToXML = (
 
 registerTypeRule("FormAttributes", "exportToXML", exportFormAttributesToXML)
 registerTypeRule("FormAttributeColumns", "exportToXML", exportFormAttributeColumnsToXML)
-registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML as ExportToXMLFunctionNew)
+// registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML)

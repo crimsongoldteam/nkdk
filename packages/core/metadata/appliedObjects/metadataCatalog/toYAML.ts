@@ -12,7 +12,7 @@ export const exportMetadataCatalogToYAML = (
   const result = exportPropertiesToYAML({
     context,
     data: data,
-    rules: MetadataCatalogRules,
+    rule: MetadataCatalogRules,
   })
 
   return result

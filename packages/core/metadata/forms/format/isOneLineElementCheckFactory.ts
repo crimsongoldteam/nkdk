@@ -1,4 +1,4 @@
-import { CollectableElementType } from "~/metadata/orchestration"
+import { CollectableElement, CollectableElementType } from "~/metadata/orchestration"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckIsOneLineElementFunction } from "./types"
 
@@ -14,7 +14,7 @@ export const registerIsOneLineElementCheck = <T extends NamedElement>(
   isOneLineElementCheckRegistry.set(type, check as CheckIsOneLineElementFunction<NamedElement>)
 }
 
-export const isOneLineElement = <T extends NamedElement>(element: T): boolean => {
+export const isOneLineElement = <T extends CollectableElement>(element: T): boolean => {
   const checkFunction = isOneLineElementCheckRegistry.get(element.itemType)
 
   if (!checkFunction) return false
