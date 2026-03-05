@@ -28,7 +28,7 @@ export const TableRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     changeRowOrder: { yaml: "ИзменятьПорядокСтрок", type: "boolean" },
     changeRowSet: { yaml: "ИзменятьСоставСтрок", type: "boolean" },
-    childItems: { type: "ChildItems", defaultValue: [], fromPartialYAML: true },
+    childItems: { type: "TableChildItems", defaultValue: [], fromPartialYAML: true },
     choiceMode: { yaml: "РежимВыбора", type: "boolean" },
     commandBarLocation: {
       yaml: "ПоложениеКоманднойПанели",
@@ -139,7 +139,7 @@ export const TableRules = {
       typeSE: "TableRowSelectionMode",
     },
     rowsPicture: { yaml: "КартинкаСтрок", type: "Picture" },
-    searchControl: { yaml: "УправлениеПоиском", type: "SearchControlAddition", xml: "SearchControlAddition" },
+    searchControl: { yaml: "УправлениеПоиском", type: "SingleSearchControlAddition", xml: "SearchControlAddition" },
     searchControlLocation: {
       yaml: "ПоложениеУправленияПоиском",
       type: "SystemEnumeration",
@@ -157,7 +157,7 @@ export const TableRules = {
     },
     searchStringRepresentation: {
       yaml: "ОтображениеСтрокиПоиска",
-      type: "SearchStringAddition",
+      type: "SingleSearchStringAddition",
       xml: "SearchStringAddition",
     },
     selectionMode: {

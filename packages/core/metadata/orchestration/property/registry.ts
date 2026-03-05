@@ -1,4 +1,3 @@
-import { AutoCommandBar } from "nkdk-language"
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
@@ -70,8 +69,12 @@ import {
   TableChildItemsPartialYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
+import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
-import { AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
+import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { FormAttributes, FormAttributesYAML } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
 import {
@@ -307,6 +310,30 @@ export type PropertyTypeRegistry = {
     yaml: string
   }
 
+  DynamicList: {
+    item: DynamicList
+    enterprise: unknown
+    yaml: DynamicListYAML
+  }
+
+  CommandSet: {
+    item: CommandSet
+    enterprise: unknown
+    yaml: CommandSetYAML
+  }
+
+  FormCommands: {
+    item: FormCommands
+    enterprise: unknown
+    yaml: FormCommandsYAML
+  }
+
+  FormAttributes: {
+    item: FormAttributes
+    enterprise: unknown
+    yaml: FormAttributesYAML
+  }
+
   //#endregion
 
   //#region Single form elements
@@ -441,6 +468,10 @@ export const PropertyRuleTypeKeys = Object.keys({
   AssociatedTable: "AssociatedTable",
   AutoCommandBar: "AutoCommandBar",
   TableAutoCommandBar: "TableAutoCommandBar",
+  DynamicList: "DynamicList",
+  CommandSet: "CommandSet",
+  FormCommands: "FormCommands",
+  FormAttributes: "FormAttributes",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["item"]

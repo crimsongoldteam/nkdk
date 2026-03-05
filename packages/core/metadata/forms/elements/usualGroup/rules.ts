@@ -15,7 +15,7 @@ export const UsualGroupRules = {
       typeSE: "UsualGroupBehavior",
     },
     childItems: {
-      type: "ChildItems",
+      type: "GroupChildItems",
       defaultValue: [],
       fromPartialYAML: true,
       toPartialYAML: false,

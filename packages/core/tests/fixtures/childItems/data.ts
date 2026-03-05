@@ -1,8 +1,8 @@
-import { AllChildItems, AllChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
+import { AllChildItemsPartialYAML, ChildItem } from "~/metadata/forms/commonObjects/childItems/types"
 
 export interface ChildItemsFixture {
   name: string
-  element?: AllChildItems
+  element?: ChildItem[]
   structure?: string[]
   xmlPath?: string
   typedYAML?: AllChildItemsPartialYAML

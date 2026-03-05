@@ -1,4 +1,4 @@
-import { FormElementType } from "../metadataFactory"
+import { FormElementType } from "../orchestration"
 import { ConfigurationContext, ContextElementToEnterprise, ContextElementToXML } from "./types"
 
 export const getParentFromContext = (

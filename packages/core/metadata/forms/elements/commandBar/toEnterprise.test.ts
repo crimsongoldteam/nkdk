@@ -15,7 +15,6 @@ describe("export CommandBar to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: "CommandBar",
       value: fullCommandBar,
     })
     expect(result).toEqual(fullCommandBarEnterprise)

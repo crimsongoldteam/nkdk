@@ -8,7 +8,6 @@ describe("export TextDocumentField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "TextDocumentField",
       value: fullTextDocumentField,
     })
     expect(result).toEqual(fullTextDocumentFieldEnterprise)

@@ -7,7 +7,6 @@ describe("export Table to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "Table",
       value: fullTable,
     })
     expect(result).toEqual(fullTableEnterprise)

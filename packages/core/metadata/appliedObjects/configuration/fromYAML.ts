@@ -12,7 +12,6 @@ export const importConfigurationFromYAML = (
 
   const result = importPropertiesFromYAML({
     context,
-    metadataType: "Configuration",
     yaml: data,
     metadataRule: ConfigurationRules,
     name,
