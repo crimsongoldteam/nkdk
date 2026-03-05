@@ -10,7 +10,7 @@ export const CommandBarRules = {
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
     childItems: {
-      type: "ChildItems",
+      type: "CommandBarChildItems",
       defaultValue: [],
       fromPartialYAML: true,
       toPartialYAML: false,

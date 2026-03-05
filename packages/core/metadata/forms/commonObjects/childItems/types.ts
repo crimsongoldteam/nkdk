@@ -1,9 +1,5 @@
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
-import {
-  MetadataItemTypeToEnterprise,
-  MetadataItemTypeToTypedYAML,
-  MetadataItemTypeToYAML,
-} from "~/metadata/orchestration"
+import { ToEnterprise, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
@@ -86,9 +82,9 @@ export type GroupChildItem =
 
 export type GroupChildItems = GroupChildItem[]
 
-export type GroupChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<GroupChildItem["itemType"]>>
+export type GroupChildItemsPartialYAML = Record<string, ToYAML<GroupChildItem["itemType"]>>
 
-export type GroupChildItemsEnterprise = MetadataItemTypeToEnterprise<GroupChildItem["itemType"]>[]
+export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem["itemType"]>[]
 
 // #endregion
 
@@ -97,14 +93,14 @@ export type GroupChildItemsEnterprise = MetadataItemTypeToEnterprise<GroupChildI
 export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
 export type CommandBarChildItems = CommandBarChildItem[]
 
-export type CommandBarChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<CommandBarChildItem["itemType"]>>
+export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem["itemType"]>>
 
 export type CommandBarChildItemsTypedYAML = Record<
   string,
-  MetadataItemTypeToYAML<Button["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
+  ToYAML<Button["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
 >
 
-export type CommandBarChildItemsEnterprise = MetadataItemTypeToEnterprise<CommandBarChildItem["itemType"]>[]
+export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem["itemType"]>[]
 
 // #endregion
 
@@ -113,15 +109,9 @@ export type CommandBarChildItemsEnterprise = MetadataItemTypeToEnterprise<Comman
 export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
 export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
 
-export type CommandBarGroupChildItemsPartialYAML = Record<
-  string,
-  MetadataItemTypeToYAML<CommandBarGroupChildItem["itemType"]>
->
+export type CommandBarGroupChildItemsPartialYAML = Record<string, ToYAML<CommandBarGroupChildItem["itemType"]>>
 
-export type CommandBarGroupChildItemsTypedYAML = Record<
-  string,
-  MetadataItemTypeToTypedYAML<CommandBarGroupChildItem["itemType"]>
->
+export type CommandBarGroupChildItemsTypedYAML = Record<string, ToTypedYAML<CommandBarGroupChildItem["itemType"]>>
 
 // #endregion
 
@@ -130,9 +120,9 @@ export type CommandBarGroupChildItemsTypedYAML = Record<
 export type PagesChildItem = Page
 export type PagesChildItems = PagesChildItem[]
 
-export type PagesChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<PagesChildItem["itemType"]>>
+export type PagesChildItemsPartialYAML = Record<string, ToYAML<PagesChildItem["itemType"]>>
 
-export type PagesChildItemsEnterprise = MetadataItemTypeToEnterprise<PagesChildItem["itemType"]>[]
+export type PagesChildItemsEnterprise = ToEnterprise<PagesChildItem["itemType"]>[]
 // #endregion
 
 // #region TableChildItem
@@ -145,7 +135,7 @@ export type TableChildItem = CheckBoxField | ColumnGroup | InputField | LabelFie
 
 export type TableChildItems = TableChildItem[]
 
-export type TableChildItemsEnterprise = MetadataItemTypeToEnterprise<TableChildItem["itemType"]>[]
+export type TableChildItemsEnterprise = ToEnterprise<TableChildItem["itemType"]>[]
 
 export type TableChildItemTypedYAML =
   | CheckBoxFieldTypedYAML
@@ -155,7 +145,7 @@ export type TableChildItemTypedYAML =
 
 export type TableChildItemsTypedYAML = Record<string, TableChildItemTypedYAML>
 
-export type TableChildItemsPartialYAML = Record<string, MetadataItemTypeToYAML<TableChildItem["itemType"]>>
+export type TableChildItemsPartialYAML = Record<string, ToYAML<TableChildItem["itemType"]>>
 
 // #endregion
 

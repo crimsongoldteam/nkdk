@@ -1,12 +1,12 @@
 import { capitalize } from "~/helpers/capitalize"
-import { MetadataItemRule, MetadataItemTypeToMdItem } from ".."
+import { MetadataItemRule, ToMetadata } from ".."
 import { ElementXML } from "../formElement/types"
 import { Events } from "./types"
 
 export const importEventsFromXML = <Rule extends MetadataItemRule>(
   metadataRule: Rule,
   xml: ElementXML | undefined
-): Extract<MetadataItemTypeToMdItem<Rule["itemType"]>, { events?: Events }> | {} => {
+): Extract<ToMetadata<Rule["itemType"]>, { events?: Events }> | {} => {
   if (!xml || !metadataRule.events || !("Events" in xml)) return {}
 
   const eventsXML = xml.Events

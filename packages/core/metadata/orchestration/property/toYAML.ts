@@ -1,14 +1,14 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemTypeToMdItem, MetadataItemTypeToYAML } from ".."
+import { ToMetadata, ToYAML } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { MetadataItemRule, PropertyRule } from "./types"
 
 export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
-  data: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+  data: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
-}): MetadataItemTypeToYAML<Rule["itemType"]> | undefined {
+}): ToYAML<Rule["itemType"]> | undefined {
   const { context, data, rule: rule } = params
   if (data === undefined) return undefined
 
@@ -18,7 +18,7 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   let canUseShortFormat: boolean = true
 
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
-    const value = data[key as keyof MetadataItemTypeToMdItem<Rule["itemType"]>]
+    const value = data[key as keyof ToMetadata<Rule["itemType"]>]
 
     const exportedValues = exportPropertyToYAML({
       context,

@@ -1,9 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  MetadataItemType,
-  MetadataItemTypeToMdItem,
-  MetadataItemTypeToYAML,
-} from "~/metadata/orchestration/metadataItem/registry"
+import { MetadataItemType, ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
 import { getTypeRule } from "../formElement/factory"
 import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault } from "./helpers"
@@ -11,18 +7,18 @@ import { MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
-  yaml: MetadataItemTypeToYAML<Rule["itemType"]> | undefined
+  yaml: ToYAML<Rule["itemType"]> | undefined
   // metadataType: Type
   metadataRule: Rule
-  source?: MetadataItemTypeToMdItem<Rule["itemType"]>
+  source?: ToMetadata<Rule["itemType"]>
   name?: string
-}): MetadataItemTypeToMdItem<Rule["itemType"]> {
+}): ToMetadata<Rule["itemType"]> {
   const { context, yaml, source, metadataRule: metadataRule, name } = params
   const metadataType = metadataRule.itemType
 
   const result = {
     itemType: metadataType,
-  } as MetadataItemTypeToMdItem<Rule["itemType"]>
+  } as ToMetadata<Rule["itemType"]>
 
   const shortFormatResult = handleShortFormatYAML({
     context,
@@ -37,10 +33,10 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   }
 
   for (const [key, curRule] of Object.entries(metadataRule.properties) as [
-    keyof MetadataItemTypeToMdItem<Rule["itemType"]>,
+    keyof ToMetadata<Rule["itemType"]>,
     PropertyRule,
   ][]) {
-    const yamlKey = curRule.yaml as keyof MetadataItemTypeToYAML<Rule["itemType"]>
+    const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>
     // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue
 
@@ -118,11 +114,11 @@ export const importPropertyFromYAML = (params: {
 
 function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  yaml: MetadataItemTypeToYAML<Type> | undefined
+  yaml: ToYAML<Type> | undefined
   metadataRule: MetadataItemRule
-  result: MetadataItemTypeToMdItem<Type>
+  result: ToMetadata<Type>
   name?: string
-}): MetadataItemTypeToMdItem<Type> | undefined {
+}): ToMetadata<Type> | undefined {
   const { context, yaml, metadataRule: metadataRule, result, name } = params
 
   if (typeof yaml !== "string") {
@@ -152,7 +148,7 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   const source = {
     itemType: result.itemType,
     [propertyKey]: importedValue,
-  } as MetadataItemTypeToMdItem<Type>
+  } as ToMetadata<Type>
 
   return importPropertiesFromYAML({
     context,

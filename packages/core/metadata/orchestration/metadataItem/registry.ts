@@ -413,13 +413,12 @@ export type MetadataItemTypeRegistry = {
 
 export type MetadataItemType = keyof MetadataItemTypeRegistry
 
-export type MetadataItemTypeToYAML<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["yaml"]
-export type MetadataItemTypeToMdItem<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["metadata"]
+export type ToYAML<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["yaml"]
+export type ToMetadata<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["metadata"]
 type MetadataItemTypeWithEnterprise = {
   [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { enterprise: unknown } ? K : never
 }[MetadataItemType]
 
-export type MetadataItemTypeToEnterprise<T extends MetadataItemTypeWithEnterprise> =
-  MetadataItemTypeRegistry[T]["enterprise"]
+export type ToEnterprise<T extends MetadataItemTypeWithEnterprise> = MetadataItemTypeRegistry[T]["enterprise"]
 
-export type MetadataItemTypeToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]
+export type ToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]

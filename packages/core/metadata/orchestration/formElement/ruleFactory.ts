@@ -4,10 +4,10 @@ import {
   ElementRule,
   ElementXML,
   ExtendedFormElementType,
-  MetadataItemTypeToMdItem,
-  MetadataItemTypeToYAML,
   PropertyRule,
   SingleFormElementType,
+  ToMetadata,
+  ToYAML,
 } from "~/metadata/orchestration"
 import { exportSingleElementToXML } from "~/metadata/orchestration/formElement/toXML"
 import { exportElementToPartialYAML } from "~/metadata/orchestration/formElement/toYAML"
@@ -42,7 +42,7 @@ type ToXMLFn<T extends BaseElement> = (
 export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleFormElementType }>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
-  toXML: ToXMLFn<MetadataItemTypeToMdItem<Rule["itemType"]>>
+  toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
 }): void => {
   const { propertyType, elementRule, toXML } = params
   const itemType = elementRule.itemType
@@ -57,11 +57,7 @@ const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyR
   registerTypeRule(
     propertyType,
     "importFromXML",
-    (
-      context: ConfigurationContext,
-      _rule: PropertyRule,
-      xml: ElementXML
-    ): MetadataItemTypeToMdItem<Rule["itemType"]> | undefined => {
+    (context: ConfigurationContext, _rule: PropertyRule, xml: ElementXML): ToMetadata<Rule["itemType"]> | undefined => {
       return importSingleElementFromXML({
         context,
         elementRule: elementRule,
@@ -77,8 +73,8 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: PropertyRuleT
     (
       context: ConfigurationContext,
       _rule: PropertyRule,
-      data: MetadataItemTypeToMdItem<T["itemType"]> | undefined
-    ): MetadataItemTypeToYAML<T["itemType"]> | undefined => {
+      data: ToMetadata<T["itemType"]> | undefined
+    ): ToYAML<T["itemType"]> | undefined => {
       return exportElementToPartialYAML({ context, element: data })
     }
   )
@@ -94,9 +90,9 @@ const registerImportFromYAML = <Type extends SingleFormElementType>(
     (
       context: ConfigurationContext,
       _rule: PropertyRule,
-      yaml: MetadataItemTypeToYAML<Type> | undefined,
-      source?: MetadataItemTypeToMdItem<Type>
-    ): MetadataItemTypeToMdItem<Type> | undefined => {
+      yaml: ToYAML<Type> | undefined,
+      source?: ToMetadata<Type>
+    ): ToMetadata<Type> | undefined => {
       return importSingleElementFromYAML({
         context,
         itemType: itemType,
@@ -109,7 +105,7 @@ const registerImportFromYAML = <Type extends SingleFormElementType>(
 
 const registerExportToXML = <Rule extends ElementRule>(params: {
   propertyType: PropertyRuleType
-  toXML: ToXMLFn<MetadataItemTypeToMdItem<Rule["itemType"]>>
+  toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
   elementRule: Rule
 }): void => {
   const { propertyType, toXML, elementRule } = params
@@ -120,7 +116,7 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
     (
       context: ConfigurationContext,
       _rule: PropertyRule,
-      value: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+      value: ToMetadata<Rule["itemType"]> | undefined
     ): ElementXML => {
       const extraParams = toXML(context, value)
 

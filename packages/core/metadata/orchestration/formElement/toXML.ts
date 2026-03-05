@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { MetadataItemTypeToMdItem } from ".."
+import { ToMetadata } from ".."
 import { exportEventsToXML } from "../event"
 import { exportPropertiesToXML } from "../property/toXML"
 import { getElementRule } from "./ruleFactory"
@@ -22,7 +22,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 
   return exportToXML({
     context,
-    element: element as MetadataItemTypeToMdItem<typeof rule.itemType>,
+    element: element as ToMetadata<typeof rule.itemType>,
     rule,
     id,
     name,
@@ -31,7 +31,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 
 export function exportSingleElementToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContext
-  element: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+  element: ToMetadata<Rule["itemType"]> | undefined
   rule: ElementRule
   id: string
   name: string
@@ -41,7 +41,7 @@ export function exportSingleElementToXML<Rule extends ElementRule>(params: {
 
 function exportToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContext
-  element: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+  element: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
   id: string
   name: string

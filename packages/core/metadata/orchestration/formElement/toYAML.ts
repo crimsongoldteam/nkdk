@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportEventsToYAML } from "~/metadata/orchestration/event"
-import { MetadataItemTypeToMdItem, MetadataItemTypeToTypedYAML, MetadataItemTypeToYAML, TypedFormElement } from ".."
+import { ToMetadata, ToTypedYAML, ToYAML, TypedFormElement } from ".."
 import { exportPropertyToYAML } from "../property/toYAML"
 import { PropertyRule } from "../property/types"
 import { getElementRule } from "./ruleFactory"
@@ -17,14 +17,14 @@ export const exportFormElementTypeToYAML = <T extends FormElementType>(
 export function exportElementToTypedYAML<T extends TypedFormElement>(params: {
   context: ConfigurationContext
   element: T
-}): MetadataItemTypeToTypedYAML<T["itemType"]> {
+}): ToTypedYAML<T["itemType"]> {
   const { context, element: data } = params
 
   const rules = getElementRule(data.itemType)
 
   const type = exportFormElementTypeToYAML(context, data.itemType)
 
-  const result: MetadataItemTypeToTypedYAML<T["itemType"]> = {
+  const result: ToTypedYAML<T["itemType"]> = {
     Тип: type,
   }
 
@@ -54,7 +54,7 @@ export function exportElementToTypedYAML<T extends TypedFormElement>(params: {
 export function exportElementToPartialYAML<T extends BaseElement>(params: {
   context: ConfigurationContext
   element: T | undefined
-}): MetadataItemTypeToYAML<T["itemType"]> | undefined {
+}): ToYAML<T["itemType"]> | undefined {
   const { context, element: element } = params
   if (element === undefined) return undefined
 
@@ -64,22 +64,22 @@ export function exportElementToPartialYAML<T extends BaseElement>(params: {
 
   return exportElementToYAML({
     context,
-    element: element as unknown as MetadataItemTypeToMdItem<T["itemType"]>,
+    element: element as unknown as ToMetadata<T["itemType"]>,
     rule,
   })
 }
 
 export function exportElementToYAML<Rule extends ElementRule>(params: {
   context: ConfigurationContext
-  element: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+  element: ToMetadata<Rule["itemType"]> | undefined
   rule: ElementRule
-}): MetadataItemTypeToYAML<Rule["itemType"]> | undefined {
+}): ToYAML<Rule["itemType"]> | undefined {
   const { context, element: element, rule: rule } = params
   if (element === undefined) return undefined
 
-  type DataItem = MetadataItemTypeToMdItem<Rule["itemType"]>
+  type DataItem = ToMetadata<Rule["itemType"]>
 
-  const result: MetadataItemTypeToYAML<Rule["itemType"]> = {}
+  const result: ToYAML<Rule["itemType"]> = {}
 
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
     const value = element[key as keyof DataItem]

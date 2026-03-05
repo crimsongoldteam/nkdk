@@ -4,9 +4,9 @@ import {
   importElementFromPartialYAML,
   importElementFromTypedYAML,
   ImportFromYAMLFunctionNew,
-  MetadataItemTypeToMdItem,
-  MetadataItemTypeToTypedYAML,
-  MetadataItemTypeToYAML,
+  ToMetadata,
+  ToTypedYAML,
+  ToYAML,
   TypedFormElementType,
 } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -17,8 +17,8 @@ import { ChildItem, FormElementsYAML, TypedElement } from "./types"
 export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends ChildItem>(params: {
   context: ConfigurationContext
   rule: PropertyRule
-  yaml?: MetadataItemTypeToYAML<To["itemType"]>[]
-  value?: MetadataItemTypeToYAML<To["itemType"]>[]
+  yaml?: ToYAML<To["itemType"]>[]
+  value?: ToYAML<To["itemType"]>[]
   source?: To[]
 }): To[] => {
   const { rule, source } = params
@@ -39,14 +39,14 @@ export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends C
   }
 
   type TypedItemType = Extract<To["itemType"], TypedFormElementType>
-  const typedYAML = value as unknown as MetadataItemTypeToTypedYAML<TypedItemType>
+  const typedYAML = value as unknown as ToTypedYAML<TypedItemType>
 
   if (source && source.length > 0) throw new Error("Source is not empty! Move child items to yaml")
 
   return importChildItemsTypedFromYAML({
     context: params.context,
     rule: params.rule,
-    yaml: typedYAML as MetadataItemTypeToTypedYAML<TypedElement["itemType"]>,
+    yaml: typedYAML as ToTypedYAML<TypedElement["itemType"]>,
   }) as To[]
 }
 
@@ -71,13 +71,13 @@ export const importChildItemsFromPartialYAML = <To extends ChildItem>(params: {
 const importChildItemsTypedFromYAML = <To extends TypedElement>(params: {
   context: ConfigurationContext
   rule: PropertyRule
-  yaml?: MetadataItemTypeToTypedYAML<To["itemType"]>
-}): MetadataItemTypeToMdItem<To["itemType"]>[] => {
+  yaml?: ToTypedYAML<To["itemType"]>
+}): ToMetadata<To["itemType"]>[] => {
   const { context, yaml } = params
 
   if (!yaml) return []
 
-  const result: MetadataItemTypeToMdItem<To["itemType"]>[] = []
+  const result: ToMetadata<To["itemType"]>[] = []
   for (const [name, item] of Object.entries(yaml)) {
     const resultItem = importElementFromTypedYAML({
       context: context,
@@ -94,7 +94,7 @@ const importChildItemProperties = <To extends ChildItem>(
   item: To,
   allElements: FormElementsYAML
 ): To => {
-  const propertiesYAML = allElements[item.name] as MetadataItemTypeToYAML<To["itemType"]>
+  const propertiesYAML = allElements[item.name] as ToYAML<To["itemType"]>
 
   const result = importElementFromPartialYAML({
     context: context,

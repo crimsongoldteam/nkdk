@@ -1,11 +1,6 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule, MetadataItemTypeToYAML } from ".."
-import {
-  MetadataItemType,
-  MetadataItemTypeRegistry,
-  MetadataItemTypeToMdItem,
-  MetadataItemTypeToTypedYAML,
-} from "../metadataItem/registry"
+import { MetadataItemRule, ToYAML } from ".."
+import { MetadataItemType, MetadataItemTypeRegistry, ToMetadata, ToTypedYAML } from "../metadataItem/registry"
 
 //#region FormElementType
 
@@ -108,13 +103,11 @@ export type TypedFormElementType = {
 }[MetadataItemType]
 
 export type TypedFormElementTypeYAML = {
-  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown }
-    ? MetadataItemTypeToYAML<K>
-    : never
+  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown } ? ToYAML<K> : never
 }[MetadataItemType]
 
-export type TypedFormElement = MetadataItemTypeToMdItem<TypedFormElementType>
+export type TypedFormElement = ToMetadata<TypedFormElementType>
 
-export type TypedFormElementYAML = MetadataItemTypeToTypedYAML<TypedFormElementType>
+export type TypedFormElementYAML = ToTypedYAML<TypedFormElementType>
 
 //#endregion

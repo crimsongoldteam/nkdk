@@ -1,6 +1,6 @@
 import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { MetadataItemTypeToEnterprise, MetadataItemTypeToMdItem } from ".."
+import { ToEnterprise, ToMetadata } from ".."
 import { exportPropertiesToEnterprise } from "../property/toEnterprise"
 import { getElementRule } from "./ruleFactory"
 import { FormElementType } from "./types"
@@ -31,9 +31,8 @@ function pushElementToContext(params: {
 
 export const exportElementToEnterprise = <Type extends FormElementType>(params: {
   context: ConfigurationContext
-  // itemType: Type
-  value: MetadataItemTypeToMdItem<Type>
-}): MetadataItemTypeToEnterprise<Type> => {
+  value: ToMetadata<Type>
+}): ToEnterprise<Type> => {
   const { context, value: element } = params
   const itemType = element.itemType
 

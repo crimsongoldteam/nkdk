@@ -9,8 +9,8 @@ export const ButtonGroupRules = {
   enterpriseFieldType: "FormGroupType.ButtonGroup",
   properties: {
     childItems: {
-      yaml: "ПодчиненныеЭлементы",
-      type: "ChildItems",
+      yaml: "Элементы",
+      type: "CommandBarChildItems",
       defaultValue: [],
     },
     extendedTooltip: {

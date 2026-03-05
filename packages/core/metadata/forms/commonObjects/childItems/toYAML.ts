@@ -1,10 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  exportElementToPartialYAML,
-  exportElementToTypedYAML,
-  MetadataItemTypeToTypedYAML,
-  MetadataItemTypeToYAML,
-} from "~/metadata/orchestration"
+import { exportElementToPartialYAML, exportElementToTypedYAML, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { mockContext } from "~/tests/mockContext"
 import { PropertyRule } from "../../elements/calendarField/rules"
@@ -14,10 +9,10 @@ export const exportChildItemsToTypedYAML = <From extends TypedElement>(
   _context: ConfigurationContext,
   _rule: PropertyRule,
   data: From[] | undefined
-): Record<string, MetadataItemTypeToTypedYAML<From["itemType"]>> | undefined => {
+): Record<string, ToTypedYAML<From["itemType"]>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Record<string, MetadataItemTypeToTypedYAML<From["itemType"]>> = {}
+  const result: Record<string, ToTypedYAML<From["itemType"]>> = {}
   for (const item of data) {
     const value = exportElementToTypedYAML({
       context: mockContext,
@@ -33,10 +28,10 @@ export const exportChildItemsToTypedYAML = <From extends TypedElement>(
 export const exportChildItemsToPartialYAML = <From extends ChildItem>(
   _context: ConfigurationContext,
   data: From[] | undefined
-): Record<string, MetadataItemTypeToYAML<From["itemType"]>> | undefined => {
+): Record<string, ToYAML<From["itemType"]>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Record<string, MetadataItemTypeToYAML<From["itemType"]>> = {}
+  const result: Record<string, ToYAML<From["itemType"]>> = {}
   for (const item of data) {
     const value = exportElementToPartialYAML({
       context: mockContext,
