@@ -74,7 +74,7 @@ export interface ColumnGroupPartialYAML {
   ФиксацияВТаблице?: SE.FixingInTableYAML
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorYAML
-  ПодчиненныеЭлементы?: TableChildItemsTypedYAML
+  Элементы?: TableChildItemsTypedYAML
 }
 
 export interface ColumnGroupTypedYAML extends ColumnGroupPartialYAML {

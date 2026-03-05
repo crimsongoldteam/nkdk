@@ -3,11 +3,11 @@ import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ToEnterprise, ToMetadata } from ".."
 import { exportPropertiesToEnterprise } from "../property/toEnterprise"
 import { getElementRule } from "./ruleFactory"
-import { FormElementType } from "./types"
+import { CollectableElementType } from "./types"
 
 function pushElementToContext(params: {
   context: ConfigurationContext
-  itemType: FormElementType
+  itemType: CollectableElementType
   element: NamedElement
 }): ConfigurationContext {
   const { context, itemType, element } = params
@@ -29,7 +29,7 @@ function pushElementToContext(params: {
   }
 }
 
-export const exportElementToEnterprise = <Type extends FormElementType>(params: {
+export const exportElementToEnterprise = <Type extends CollectableElementType>(params: {
   context: ConfigurationContext
   value: ToMetadata<Type>
 }): ToEnterprise<Type> => {
@@ -45,7 +45,6 @@ export const exportElementToEnterprise = <Type extends FormElementType>(params: 
     metadataItem: element,
     rule: rules,
   })
-
   return {
     ...properties,
     ElementType: rules.enterpriseField,
@@ -53,5 +52,5 @@ export const exportElementToEnterprise = <Type extends FormElementType>(params: 
     ...(rules.enterpriseFieldType !== "None"
       ? { Type: { Type: "SystemEnumeration", Value: rules.enterpriseFieldType } }
       : {}),
-  }
+  } as ToEnterprise<Type>
 }

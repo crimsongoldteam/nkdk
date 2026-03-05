@@ -71,7 +71,7 @@ export interface PopupPartialYAML {
   Фигура?: SE.ButtonShapeYAML
   ЦветРамки?: ColorYAML
   ЦветФона?: ColorYAML
-  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedYAML
+  Элементы?: CommandBarGroupChildItemsTypedYAML
 }
 
 export interface PopupTypedYAML extends PopupPartialYAML {

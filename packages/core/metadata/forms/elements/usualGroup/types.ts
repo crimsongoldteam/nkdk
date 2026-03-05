@@ -107,7 +107,7 @@ export interface UsualGroupPartialYAML {
 
 export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
   Тип: "Группа"
-  ПодчиненныеЭлементы?: GroupChildItemsPartialYAML
+  Элементы?: GroupChildItemsPartialYAML
 }
 
 export type UsualGroupEnterprise = EnterpriseType<typeof UsualGroupRules>

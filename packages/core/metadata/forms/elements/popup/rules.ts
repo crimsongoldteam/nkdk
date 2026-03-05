@@ -12,7 +12,7 @@ export const PopupRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     childItems: {
-      yaml: "ПодчиненныеЭлементы",
+      yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
     },

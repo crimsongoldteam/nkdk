@@ -1,9 +1,9 @@
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
-import { ExtendedFormElementType } from "../orchestration"
+import { ElementType } from "../orchestration"
 
-export type ContextElementToXML = { name: string; itemType: ExtendedFormElementType }
-export type ContextElementToEnterprise = { itemType: ExtendedFormElementType; dataPath: string | undefined }
+export type ContextElementToXML = { name: string; itemType: ElementType }
+export type ContextElementToEnterprise = { itemType: ElementType; dataPath: string | undefined }
 
 export interface ConfigurationContext {
   testMode?: boolean

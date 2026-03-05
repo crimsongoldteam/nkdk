@@ -12,7 +12,7 @@ export const fullCommandBarChildItemsAllYAML: CommandBarChildItemsPartialYAML = 
   } as ButtonPartialYAML,
   ГруппаКнопок: {
     Подсказка: "Подсказка для группы кнопок",
-    ПодчиненныеЭлементы: {
+    Элементы: {
       Кнопка2: {
         Тип: "Кнопка",
         ИмяКоманды: "ВыполнитьКоманда2",
@@ -21,7 +21,7 @@ export const fullCommandBarChildItemsAllYAML: CommandBarChildItemsPartialYAML = 
   },
   Подменю: {
     Подсказка: "Подсказка для подменю",
-    ПодчиненныеЭлементы: {
+    Элементы: {
       Кнопка3: {
         Тип: "Кнопка",
         ИмяКоманды: "ВыполнитьКоманда3",

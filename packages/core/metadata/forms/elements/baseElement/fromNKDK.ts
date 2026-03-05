@@ -1,6 +1,10 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementType, FormElementTypeToYAMLType, importFormElementTypeFromYAML } from "~/metadata/orchestration"
+import {
+  CollectableElementToYAML,
+  CollectableElementType,
+  importFormElementTypeFromYAML,
+} from "~/metadata/orchestration"
 import { importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { OtherElement, OtherElementElementType } from "../../commonObjects/childItems/types"
 import { SearchControlAddition } from "../searchControlAddition/types"
@@ -41,10 +45,10 @@ export const importOtherFieldFromNKDK = (params: {
 const importFromNKDK = <T extends NKDK.OtherField | NKDK.CommandAdditionField>(params: {
   context: ConfigurationContext
   source: T
-}): { itemType: FormElementType; name: string } => {
+}): { itemType: CollectableElementType; name: string } => {
   const { context, source } = params
 
-  const sourceType = source.type.slice(1) as FormElementTypeToYAMLType<FormElementType>
+  const sourceType = source.type.slice(1) as CollectableElementToYAML<CollectableElementType>
 
   const itemType = importFormElementTypeFromYAML(context, sourceType)
 

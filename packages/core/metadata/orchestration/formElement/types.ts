@@ -4,7 +4,7 @@ import { MetadataItemType, MetadataItemTypeRegistry, ToMetadata, ToTypedYAML } f
 
 //#region FormElementType
 
-export const FormElementTypeToYAML = {
+export const CollectableElementTypeToYAML = {
   Button: "Кнопка",
   ButtonGroup: "ГруппаКнопок",
   CalendarField: "ПолеКалендаря",
@@ -40,21 +40,21 @@ export const FormElementTypeToYAML = {
   SearchStringAddition: "ОтображениеСтрокиПоиска",
 } as const
 
-export const FormElementTypeFromYAML = Object.fromEntries(
-  Object.entries(FormElementTypeToYAML).map(([key, value]) => [value, key])
-) as Record<FormElementTypeToYAMLType<FormElementType>, FormElementType>
+export const CollectableElementTypeFromYAML = Object.fromEntries(
+  Object.entries(CollectableElementTypeToYAML).map(([key, value]) => [value, key])
+) as Record<CollectableElementToYAML<CollectableElementType>, CollectableElementType>
 
-export type FormElementTypeToYAMLType<T extends FormElementType> = (typeof FormElementTypeToYAML)[T]
+export type CollectableElementToYAML<T extends CollectableElementType> = (typeof CollectableElementTypeToYAML)[T]
 
-export type FormElementTypeFromYAMLType<D extends FormElementTypeToYAMLType<FormElementType>> = {
-  [K in FormElementType]: FormElementTypeToYAMLType<K> extends D
-    ? D extends FormElementTypeToYAMLType<K>
+export type CollectableElementFromYAML<D extends CollectableElementToYAML<CollectableElementType>> = {
+  [K in CollectableElementType]: CollectableElementToYAML<K> extends D
+    ? D extends CollectableElementToYAML<K>
       ? K
       : never
     : never
-}[FormElementType]
+}[CollectableElementType]
 
-export type SingleFormElementType = Extract<
+export type SingleElementType = Extract<
   MetadataItemType,
   | "SingleSearchControlAddition"
   | "SingleSearchStringAddition"
@@ -64,16 +64,16 @@ export type SingleFormElementType = Extract<
   | "AutoCommandBar"
 >
 
-export type FormElementType = Extract<MetadataItemType, keyof typeof FormElementTypeToYAML>
+export type CollectableElementType = Extract<MetadataItemType, keyof typeof CollectableElementTypeToYAML>
 
-export type ExtendedFormElementType = FormElementType | SingleFormElementType
+export type ElementType = CollectableElementType | SingleElementType
 
 //#endregion
 
 //#region ElementRule
 
 export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
-  itemType: ExtendedFormElementType
+  itemType: ElementType
   enterpriseField: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   enterpriseFieldType:
     | `FormFieldType.${FormFieldType}`

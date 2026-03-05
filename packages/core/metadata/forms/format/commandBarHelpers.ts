@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementType } from "~/metadata/orchestration"
+import { CollectableElementType } from "~/metadata/orchestration"
 import { wrapButtonContent } from "./helpers"
 
 export const exportCommandBarItemsToStructure = (
   context: ConfigurationContext,
-  childItems: { itemType: FormElementType }[]
+  childItems: { itemType: CollectableElementType }[]
 ): string[] => {
   return childItems.flatMap((item) => {
     const exportFunction = getElementOperationFunction("ExportToStructureContent", item.itemType)

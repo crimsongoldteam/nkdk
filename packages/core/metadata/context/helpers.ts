@@ -1,9 +1,9 @@
-import { FormElementType } from "../orchestration"
+import { CollectableElementType } from "../orchestration"
 import { ConfigurationContext, ContextElementToEnterprise, ContextElementToXML } from "./types"
 
 export const getParentFromContext = (
   context: ConfigurationContext,
-  itemType?: FormElementType
+  itemType?: CollectableElementType
 ): ContextElementToXML => {
   const elements = context.elementsTree
   if (!elements || elements.length === 0) throw new Error("Parent element not found in context")

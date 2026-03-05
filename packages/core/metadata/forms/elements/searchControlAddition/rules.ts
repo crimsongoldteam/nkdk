@@ -12,7 +12,7 @@ const commonProperties: MetadataItemRule["properties"] = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
-  childItems: { yaml: "ПодчиненныеЭлементы", type: "CommandBarChildItems", defaultValue: [] },
+  childItems: { yaml: "Элементы", type: "CommandBarChildItems", defaultValue: [] },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",

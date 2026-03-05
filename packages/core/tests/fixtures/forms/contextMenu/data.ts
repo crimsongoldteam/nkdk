@@ -21,7 +21,7 @@ export const fullContextMenu: ContextMenu = {
 export const fullContextMenuYAML: ContextMenuYAML = {
   ВажностьПриОтображении: "Высокая",
   Автозаполнение: "Истина",
-  ПодчиненныеЭлементы: {
+  Элементы: {
     Кнопка: {
       Тип: "Кнопка",
     },

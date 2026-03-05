@@ -8,7 +8,6 @@ import {
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { MetadataForEnterpriseType } from ".."
 import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import {
@@ -443,6 +442,6 @@ export type EnterpriseExportableMetadataType = {
   [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { enterprise: unknown } ? K : never
 }[MetadataItemType]
 
-export type ToEnterprise<T extends MetadataForEnterpriseType> = MetadataItemTypeRegistry[T]["enterprise"]
+export type ToEnterprise<T extends EnterpriseExportableMetadataType> = MetadataItemTypeRegistry[T]["enterprise"]
 
 export type ToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]

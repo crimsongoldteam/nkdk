@@ -5,20 +5,20 @@ import { importPropertiesFromYAML } from "../property/fromYAML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
 import {
+  CollectableElementFromYAML,
+  CollectableElementToYAML,
+  CollectableElementType,
+  CollectableElementTypeFromYAML,
   ElementRule,
-  ExtendedFormElementType,
-  FormElementType,
-  FormElementTypeFromYAML,
-  FormElementTypeFromYAMLType,
-  FormElementTypeToYAMLType,
-  SingleFormElementType,
+  ElementType,
+  SingleElementType,
 } from "./types"
 
-export const importFormElementTypeFromYAML = <D extends FormElementTypeToYAMLType<FormElementType>>(
+export const importFormElementTypeFromYAML = <D extends CollectableElementToYAML<CollectableElementType>>(
   _context: ConfigurationContext,
   data: D
-): FormElementTypeFromYAMLType<D> => {
-  return FormElementTypeFromYAML[data] as FormElementTypeFromYAMLType<D>
+): CollectableElementFromYAML<D> => {
+  return CollectableElementTypeFromYAML[data] as CollectableElementFromYAML<D>
 }
 
 export function importElementFromTypedYAML<T extends TypedFormElement>(params: {
@@ -53,7 +53,7 @@ export function importElementFromTypedYAML<T extends TypedFormElement>(params: {
   return result as T
 }
 
-export const importSingleElementFromYAML = <Type extends SingleFormElementType>(params: {
+export const importSingleElementFromYAML = <Type extends SingleElementType>(params: {
   context: ConfigurationContext
   itemType: Type
   yaml: ToYAML<Type> | undefined
@@ -70,7 +70,7 @@ export const importSingleElementFromYAML = <Type extends SingleFormElementType>(
   return element
 }
 
-export const importElementFromPartialYAML = <Type extends ExtendedFormElementType>(params: {
+export const importElementFromPartialYAML = <Type extends ElementType>(params: {
   context: ConfigurationContext
   itemType: Type
   yaml: ToYAML<Type> | undefined

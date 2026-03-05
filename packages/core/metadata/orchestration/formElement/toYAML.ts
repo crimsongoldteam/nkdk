@@ -5,13 +5,13 @@ import { ToMetadata, ToTypedYAML, ToYAML, TypedFormElement } from ".."
 import { exportPropertyToYAML } from "../property/toYAML"
 import { PropertyRule } from "../property/types"
 import { getElementRule } from "./ruleFactory"
-import { ElementRule, FormElementType, FormElementTypeToYAML, FormElementTypeToYAMLType } from "./types"
+import { CollectableElementToYAML, CollectableElementType, CollectableElementTypeToYAML, ElementRule } from "./types"
 
-export const exportFormElementTypeToYAML = <T extends FormElementType>(
+export const exportFormElementTypeToYAML = <T extends CollectableElementType>(
   _context: ConfigurationContext,
   itemType: T
-): FormElementTypeToYAMLType<T> => {
-  return FormElementTypeToYAML[itemType]
+): CollectableElementToYAML<T> => {
+  return CollectableElementTypeToYAML[itemType]
 }
 
 export function exportElementToTypedYAML<T extends TypedFormElement>(params: {

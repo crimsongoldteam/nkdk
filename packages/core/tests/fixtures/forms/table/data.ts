@@ -602,7 +602,7 @@ export const fullTableEnterprise = {
 
 export const fullTableChildItems: TableChildItemsPartialYAML = {
   ТаблицаГруппа1: {
-    ПодчиненныеЭлементы: {
+    Элементы: {
       ТаблицаПолеВвода: {
         Тип: "ПолеВвода",
         ПутьКДанным: "Таблица.ПолеВвода",

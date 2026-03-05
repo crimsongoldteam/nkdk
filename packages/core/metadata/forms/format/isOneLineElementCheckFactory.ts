@@ -1,11 +1,14 @@
-import { FormElementType } from "~/metadata/orchestration"
+import { CollectableElementType } from "~/metadata/orchestration"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckIsOneLineElementFunction } from "./types"
 
-const isOneLineElementCheckRegistry: Map<FormElementType, CheckIsOneLineElementFunction<NamedElement>> = new Map()
+const isOneLineElementCheckRegistry: Map<
+  CollectableElementType,
+  CheckIsOneLineElementFunction<NamedElement>
+> = new Map()
 
 export const registerIsOneLineElementCheck = <T extends NamedElement>(
-  type: FormElementType,
+  type: CollectableElementType,
   check: CheckIsOneLineElementFunction<T>
 ): void => {
   isOneLineElementCheckRegistry.set(type, check as CheckIsOneLineElementFunction<NamedElement>)

@@ -1,5 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ElementRule, ElementXML, FormElementType, importPropertiesFromXML, ToMetadata } from "~/metadata/orchestration"
+import {
+  CollectableElementType,
+  ElementRule,
+  ElementXML,
+  importPropertiesFromXML,
+  ToMetadata,
+} from "~/metadata/orchestration"
 import { importEventsFromXML } from "../event/fromXML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
@@ -26,7 +32,7 @@ export const importSingleElementFromXML = <Rule extends ElementRule>(params: {
   return result
 }
 
-export function importElementFromXML<Type extends FormElementType>(params: {
+export function importElementFromXML<Type extends CollectableElementType>(params: {
   context: ConfigurationContext
   itemType: Type
   xml: ElementXML | undefined

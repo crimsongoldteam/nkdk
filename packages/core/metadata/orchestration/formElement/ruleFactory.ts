@@ -2,10 +2,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   ElementRule,
+  ElementType,
   ElementXML,
-  ExtendedFormElementType,
   PropertyRule,
-  SingleFormElementType,
+  SingleElementType,
   ToMetadata,
   ToYAML,
 } from "~/metadata/orchestration"
@@ -24,7 +24,7 @@ export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemTyp
   return rule as Rule
 }
 
-export function registerElementRule(itemType: ExtendedFormElementType, elementRule: ElementRule): void {
+export function registerElementRule(itemType: ElementType, elementRule: ElementRule): void {
   elementRulesRegistry.set(itemType, elementRule)
 
   // registerAsTypeRegistry(itemType, elementRule)
@@ -39,7 +39,7 @@ type ToXMLFn<T extends BaseElement> = (
   element: T | undefined
 ) => { id: string; name: string }
 
-export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleFormElementType }>(params: {
+export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
@@ -80,7 +80,7 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: PropertyRuleT
   )
 }
 
-const registerImportFromYAML = <Type extends SingleFormElementType>(
+const registerImportFromYAML = <Type extends SingleElementType>(
   propertyType: PropertyRuleType,
   itemType: Type
 ): void => {
@@ -130,4 +130,4 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
   )
 }
 
-const elementRulesRegistry = new Map<ExtendedFormElementType, ElementRule>()
+const elementRulesRegistry = new Map<ElementType, ElementRule>()

@@ -1,7 +1,7 @@
-import { ExtendedFormElementType, MetadataItem } from "~/metadata/orchestration"
+import { ElementType, MetadataItem } from "~/metadata/orchestration"
 
 export interface BaseElement extends MetadataItem {
-  itemType: ExtendedFormElementType
+  itemType: ElementType
 }
 
 export interface NamedElement extends BaseElement {
