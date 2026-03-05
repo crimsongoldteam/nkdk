@@ -72,8 +72,14 @@ import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonO
 import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { FormAttributes, FormAttributesYAML } from "~/metadata/forms/commonObjects/formAttribute/types"
+import {
+  FormAttributeColumns,
+  FormAttributeColumnsYAML,
+  FormAttributes,
+  FormAttributesYAML,
+} from "~/metadata/forms/commonObjects/formAttribute/types"
 import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -334,6 +340,18 @@ export type PropertyTypeRegistry = {
     yaml: FormAttributesYAML
   }
 
+  FormParameters: {
+    item: FormParameters
+    enterprise: unknown
+    yaml: FormParametersYAML
+  }
+
+  FormAttributeColumns: {
+    item: FormAttributeColumns
+    enterprise: unknown
+    yaml: FormAttributeColumnsYAML
+  }
+
   //#endregion
 
   //#region Single form elements
@@ -472,6 +490,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   CommandSet: "CommandSet",
   FormCommands: "FormCommands",
   FormAttributes: "FormAttributes",
+  FormAttributeColumns: "FormAttributeColumns",
+  FormParameters: "FormParameters",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["item"]

@@ -8,7 +8,6 @@ describe("exportUsualGroupToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "UsualGroup",
       value: fullUsualGroup,
     })
     expect(result).toEqual(fullUsualGroupEnterprise)

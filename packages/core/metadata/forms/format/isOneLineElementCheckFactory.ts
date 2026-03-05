@@ -1,4 +1,4 @@
-import { FormElementType } from "~/metadata/metadataFactory/metadataType/types"
+import { FormElementType } from "~/metadata/orchestration"
 import { NamedElement } from "../elements/baseElement/types"
 import { CheckIsOneLineElementFunction } from "./types"
 

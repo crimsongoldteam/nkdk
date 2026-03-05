@@ -15,7 +15,6 @@ describe("export Pages to Enterprise", () => {
     }
     const result = exportElementToEnterprise({
       context,
-      itemType: "Pages",
       value: fullPages,
     })
     expect(result).toEqual(fullPagesEnterprise)

@@ -42,7 +42,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
     },
     childItems: {
-      type: "ChildItems",
+      type: "GroupChildItems",
       yaml: "Элементы",
       tag: FormRulesTags.Form,
       defaultValue: [],

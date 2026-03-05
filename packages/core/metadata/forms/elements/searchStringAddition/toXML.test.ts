@@ -13,7 +13,7 @@ import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 const rule: PropertyRule = {
-  type: "SearchStringAddition",
+  type: "SingleSearchStringAddition",
   yaml: "ОтображениеСтрокиПоиска",
 }
 

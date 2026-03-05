@@ -13,7 +13,7 @@ export const PopupRules = {
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     childItems: {
       yaml: "ПодчиненныеЭлементы",
-      type: "ChildItems",
+      type: "CommandBarChildItems",
       defaultValue: [],
     },
     displayImportance: {

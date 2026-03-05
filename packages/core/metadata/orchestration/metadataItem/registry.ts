@@ -325,7 +325,6 @@ export type MetadataItemTypeRegistry = {
   SearchControlAddition: {
     metadata: SearchControlAddition
     yaml: SearchControlAdditionYAML
-    enterprise: Record<string, unknown>
   }
   //#endregion
 
@@ -333,37 +332,30 @@ export type MetadataItemTypeRegistry = {
   ContextMenu: {
     metadata: ContextMenu
     yaml: ContextMenuYAML
-    enterprise: Record<string, unknown>
   }
   ExtendedTooltip: {
     metadata: ExtendedTooltip
     yaml: ExtendedTooltipYAML
-    enterprise: Record<string, unknown>
   }
   SingleSearchControlAddition: {
     metadata: SingleSearchControlAddition
     yaml: SingleSearchControlAdditionYAML
-    enterprise: Record<string, unknown>
   }
   SingleSearchStringAddition: {
     metadata: SingleSearchStringAddition
     yaml: SingleSearchStringAdditionYAML
-    enterprise: Record<string, unknown>
   }
   SearchStringAddition: {
     metadata: SearchStringAddition
     yaml: SearchStringAdditionYAML
-    enterprise: Record<string, unknown>
   }
   ViewStatusAddition: {
     metadata: ViewStatusAddition
     yaml: ViewStatusAdditionYAML
-    enterprise: Record<string, unknown>
   }
   AutoCommandBar: {
     metadata: AutoCommandBar
     yaml: AutoCommandBarYAML
-    enterprise: Record<string, unknown>
   }
 
   //#endregion
@@ -377,13 +369,12 @@ export type MetadataItemTypeRegistry = {
   FormAttribute: {
     metadata: FormAttribute
     yaml: FormAttributeYAML
-    enterprise: Record<string, unknown>
   }
   FormAttributeColumn: {
     metadata: FormAttributeColumn
     yaml: FormAttributeColumnYAML
-    enterprise: Record<string, unknown>
   }
+
   //#endregion
 
   //#region Common objects
@@ -391,12 +382,10 @@ export type MetadataItemTypeRegistry = {
   CommandInterface: {
     metadata: CommandInterface
     yaml: CommandInterfaceYAML
-    enterprise: Record<string, unknown>
   }
   CommandInterfaceItem: {
     metadata: CommandInterfaceItem
     yaml: CommandInterfaceItemYAML
-    enterprise: Record<string, unknown>
   }
 
   //#endregion
@@ -405,13 +394,11 @@ export type MetadataItemTypeRegistry = {
   Configuration: {
     metadata: Configuration
     yaml: ConfigurationYAML
-    enterprise: Record<string, unknown>
   }
 
   MetadataCatalog: {
     metadata: MetadataCatalog
     yaml: MetadataCatalogYAML
-    enterprise: Record<string, unknown>
   }
 
   //#endregion
@@ -421,6 +408,11 @@ export type MetadataItemType = keyof MetadataItemTypeRegistry
 
 export type MetadataItemTypeToYAML<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["yaml"]
 export type MetadataItemTypeToMdItem<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["metadata"]
-export type MetadataItemTypeToEnterprise<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["enterprise"]
+type MetadataItemTypeWithEnterprise = {
+  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { enterprise: unknown } ? K : never
+}[MetadataItemType]
+
+export type MetadataItemTypeToEnterprise<T extends MetadataItemTypeWithEnterprise> =
+  MetadataItemTypeRegistry[T]["enterprise"]
 
 export type MetadataItemTypeToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]

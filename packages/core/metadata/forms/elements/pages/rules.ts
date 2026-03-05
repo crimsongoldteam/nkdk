@@ -9,7 +9,7 @@ export const PagesRules = {
   enterpriseFieldType: "FormGroupType.Pages",
   properties: {
     childItems: {
-      type: "ChildItems",
+      type: "PagesChildItems",
       defaultValue: [],
       toPartialYAML: false,
       fromPartialYAML: true,

@@ -11,7 +11,7 @@ import {
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = {
-  type: "SearchStringAddition",
+  type: "SingleSearchStringAddition",
   yaml: "ОтображениеСтрокиПоиска",
 }
 describe("SearchStringAddition to YAML", () => {

@@ -12,7 +12,7 @@ export const exportConfigurationToYAML = (
   const result = exportPropertiesToYAML({
     context,
     data,
-    rules: ConfigurationRules,
+    rule: ConfigurationRules,
   })
 
   return result

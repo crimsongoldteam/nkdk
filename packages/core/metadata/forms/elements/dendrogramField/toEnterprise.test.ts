@@ -8,7 +8,6 @@ describe("export DendrogramField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "DendrogramField",
       value: fullDendrogramField,
     })
     expect(result).toEqual(fullDendrogramFieldEnterprise)

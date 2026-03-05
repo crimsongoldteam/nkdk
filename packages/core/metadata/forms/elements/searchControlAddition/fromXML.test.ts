@@ -9,7 +9,7 @@ import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
-  type: "SearchControlAddition",
+  type: "SingleSearchControlAddition",
 }
 
 describe("SearchControlAddition from XML", () => {

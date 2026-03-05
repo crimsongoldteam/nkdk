@@ -11,7 +11,6 @@ describe("export FormattedDocumentField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "FormattedDocumentField",
       value: fullFormattedDocumentField,
     })
     expect(result).toEqual(fullFormattedDocumentFieldEnterprise)

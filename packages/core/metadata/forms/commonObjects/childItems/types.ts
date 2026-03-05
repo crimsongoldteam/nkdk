@@ -1,5 +1,9 @@
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
-import { MetadataItemTypeToEnterprise, MetadataItemTypeToYAML } from "~/metadata/orchestration"
+import {
+  MetadataItemTypeToEnterprise,
+  MetadataItemTypeToTypedYAML,
+  MetadataItemTypeToYAML,
+} from "~/metadata/orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
@@ -116,7 +120,7 @@ export type CommandBarGroupChildItemsPartialYAML = Record<
 
 export type CommandBarGroupChildItemsTypedYAML = Record<
   string,
-  MetadataItemTypeToYAML<CommandBarGroupChildItem["itemType"]>
+  MetadataItemTypeToTypedYAML<CommandBarGroupChildItem["itemType"]>
 >
 
 // #endregion

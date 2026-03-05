@@ -12,7 +12,6 @@ export const importMetadataCatalogFromYAML = (
 
   const result = importPropertiesFromYAML({
     context,
-    metadataType: "MetadataCatalog",
     yaml: data,
     metadataRule: MetadataCatalogRules,
     name,

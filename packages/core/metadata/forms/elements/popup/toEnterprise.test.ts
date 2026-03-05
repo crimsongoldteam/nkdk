@@ -8,7 +8,6 @@ describe("export Popup to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "Popup",
       value: fullPopup,
     })
     expect(result).toEqual(fullPopupEnterprise)

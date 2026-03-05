@@ -84,7 +84,7 @@ export const SearchStringAdditionRules = {
 } as const satisfies ElementRule
 
 registerElementAsType({
-  propertyType: "SearchStringAddition",
+  propertyType: "SingleSearchStringAddition",
   elementRule: SingleSearchStringAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
     if (!context.elementsTree) throw new Error("elementContext is not defined")
@@ -96,4 +96,3 @@ registerElementAsType({
 })
 
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)
-registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

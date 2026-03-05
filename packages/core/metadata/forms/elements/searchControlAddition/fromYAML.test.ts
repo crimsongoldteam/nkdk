@@ -9,7 +9,7 @@ import {
 } from "~/tests/fixtures/forms/searchControlAddition/data"
 import { mockContext } from "~/tests/mockContext"
 
-const rule: PropertyRule = { type: "SearchControlAddition" }
+const rule: PropertyRule = { type: "SingleSearchControlAddition" }
 
 describe("SearchControlAddition from YAML", () => {
   describe("Partial", () => {

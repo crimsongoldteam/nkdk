@@ -11,7 +11,7 @@ export const PageRules = {
     backColor: { yaml: "ЦветФона", type: "Color" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     childItems: {
-      type: "PagesChildItems",
+      type: "GroupChildItems",
       defaultValue: [],
       toPartialYAML: false,
       fromPartialYAML: true,

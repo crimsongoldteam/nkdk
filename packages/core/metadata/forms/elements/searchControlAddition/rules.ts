@@ -12,7 +12,7 @@ const commonProperties: MetadataItemRule["properties"] = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
-  childItems: { yaml: "ПодчиненныеЭлементы", type: "ChildItems", defaultValue: [] },
+  childItems: { yaml: "ПодчиненныеЭлементы", type: "CommandBarChildItems", defaultValue: [] },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
@@ -87,7 +87,7 @@ export const SearchControlAdditionRules = {
 } as const satisfies ElementRule
 
 registerElementAsType({
-  propertyType: "SearchControlAddition",
+  propertyType: "SingleSearchControlAddition",
   elementRule: SingleSearchControlAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
     if (!context.elementsTree) throw new Error("elementContext is not defined")
@@ -99,4 +99,3 @@ registerElementAsType({
 })
 
 registerElementRule("SearchControlAddition", SearchControlAdditionRules)
-registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules)
