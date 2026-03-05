@@ -9,7 +9,7 @@ export const TableRules = {
   enterpriseFieldType: "None",
   properties: {
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
-    autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar" },
+    autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar", toEnterprise: false },
     autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean" },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
@@ -35,7 +35,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "FormItemCommandBarLabelLocation",
     },
-    commandSet: { yaml: "Команда", type: "CommandSet" },
+    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
@@ -139,7 +139,12 @@ export const TableRules = {
       typeSE: "TableRowSelectionMode",
     },
     rowsPicture: { yaml: "КартинкаСтрок", type: "Picture" },
-    searchControl: { yaml: "УправлениеПоиском", type: "SingleSearchControlAddition", xml: "SearchControlAddition" },
+    searchControl: {
+      yaml: "УправлениеПоиском",
+      type: "SingleSearchControlAddition",
+      xml: "SearchControlAddition",
+      toEnterprise: false,
+    },
     searchControlLocation: {
       yaml: "ПоложениеУправленияПоиском",
       type: "SystemEnumeration",
@@ -158,6 +163,7 @@ export const TableRules = {
     searchStringRepresentation: {
       yaml: "ОтображениеСтрокиПоиска",
       type: "SingleSearchStringAddition",
+      toEnterprise: false,
       xml: "SearchStringAddition",
     },
     selectionMode: {
@@ -216,6 +222,7 @@ export const TableRules = {
       yaml: "ОтображениеСостоянияПросмотра",
       type: "ViewStatusAddition",
       xml: "ViewStatusAddition",
+      toEnterprise: false,
     },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },

@@ -592,12 +592,7 @@ export const fullTableEnterprise = {
   AllowRootChoice: true,
   AllowGettingCurrentRowURL: true,
   UserSettingsGroup: "ГруппаПользовательскихНастроек",
-  AutoCommandBar: undefined,
-  CommandSet: undefined,
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  SearchControl: undefined,
-  SearchStringRepresentation: undefined,
-  ViewStatusRepresentation: undefined,
 } satisfies Required<TableEnterprise>
 
 export const fullTableChildItems: TableChildItemsPartialYAML = {

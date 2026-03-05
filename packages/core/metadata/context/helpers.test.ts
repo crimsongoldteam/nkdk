@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { getCurrentTableFromContext, getParentFromContext } from "./helpers"
-import { ConfigurationContext, EnterpriseContext } from "./types"
+import { ConfigurationContext, ContextElementToEnterprise, EnterpriseContext } from "./types"
 
 describe("getParentFromContext", () => {
   const createContext = (elementsTree: ConfigurationContext["elementsTree"]): ConfigurationContext => ({
@@ -120,7 +120,7 @@ describe("getCurrentTableFromContext", () => {
   })
 
   it("returns the table when it has following elements", () => {
-    const tableElement = { itemType: "Table", dataPath: "Таблица1" as const }
+    const tableElement: ContextElementToEnterprise = { itemType: "Table", dataPath: "Таблица1" }
     const context = createEnterpriseContext([
       { itemType: "UsualGroup", dataPath: undefined },
       tableElement,
@@ -134,7 +134,7 @@ describe("getCurrentTableFromContext", () => {
   })
 
   it("returns the table closest to the end (but not the last element)", () => {
-    const innerTable = { itemType: "Table", dataPath: "ВложеннаяТаблица" }
+    const innerTable: ContextElementToEnterprise = { itemType: "Table", dataPath: "ВложеннаяТаблица" }
     const context = createEnterpriseContext([
       { itemType: "Table", dataPath: "ВнешняяТаблица" },
       innerTable,
