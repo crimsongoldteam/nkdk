@@ -8,7 +8,6 @@ describe("export PeriodField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "PeriodField",
       value: fullPeriodField,
     })
     expect(result).toEqual(fullPeriodFieldEnterprise)

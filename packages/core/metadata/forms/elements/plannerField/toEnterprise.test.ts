@@ -8,7 +8,6 @@ describe("export PlannerField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "PlannerField",
       value: fullPlannerField,
     })
     expect(result).toEqual(fullPlannerFieldEnterprise)

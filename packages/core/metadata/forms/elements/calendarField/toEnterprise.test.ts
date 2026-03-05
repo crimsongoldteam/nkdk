@@ -8,7 +8,6 @@ describe("export CalendarField to Enterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportElementToEnterprise({
       context: mockContextToEnterprise,
-      itemType: "CalendarField",
       value: fullCalendarField,
     })
     expect(result).toEqual(fullCalendarFieldEnterprise)
