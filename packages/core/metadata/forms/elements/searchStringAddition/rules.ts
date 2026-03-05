@@ -96,3 +96,4 @@ registerElementAsType({
 })
 
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)
+registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

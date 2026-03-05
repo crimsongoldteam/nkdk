@@ -99,3 +99,4 @@ registerElementAsType({
 })
 
 registerElementRule("SearchControlAddition", SearchControlAdditionRules)
+registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules)

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { minimal } from "~/tests/fixtures/configuration/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importConfigurationFromXML } from "./fromXML"
