@@ -11,7 +11,7 @@ import { MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
-  yaml: MetadataItemTypeToYAML<Rule["itemType"]>
+  yaml: MetadataItemTypeToYAML<Rule["itemType"]> | undefined
   // metadataType: Type
   metadataRule: Rule
   source?: MetadataItemTypeToMdItem<Rule["itemType"]>
@@ -118,7 +118,7 @@ export const importPropertyFromYAML = (params: {
 
 function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
-  yaml: MetadataItemTypeToYAML<Type>
+  yaml: MetadataItemTypeToYAML<Type> | undefined
   metadataRule: MetadataItemRule
   result: MetadataItemTypeToMdItem<Type>
   name?: string

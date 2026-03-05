@@ -1,17 +1,22 @@
 import { capitalize } from "~/helpers/capitalize"
+import { MetadataItemRule, MetadataItemTypeToMdItem } from ".."
+import { ElementXML } from "../formElement/types"
 import { Events } from "./types"
 
-export const importEventsFromXML = <T extends { events?: Record<string, string> }>(
-  rule: T,
-  xml: any
-): { events?: Events } => {
-  if (!xml || !rule) return {}
-  if (!("Event" in xml)) return {}
+export const importEventsFromXML = <Rule extends MetadataItemRule>(
+  metadataRule: Rule,
+  xml: ElementXML | undefined
+): Extract<MetadataItemTypeToMdItem<Rule["itemType"]>, { events?: Events }> | {} => {
+  if (!xml || !metadataRule.events || !("Events" in xml)) return {}
 
-  const events = Array.isArray(xml.Event) ? xml.Event : [xml.Event]
+  const eventsXML = xml.Events
+
+  const eventRule = metadataRule.events
+
+  const events = Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
 
   const result: Events = {}
-  for (const key of Object.keys(rule.events ?? {})) {
+  for (const key of Object.keys(eventRule)) {
     const xmlKey = capitalize(key)
     const xmlEvent = events.find((e: { _name: string }) => e._name === xmlKey)
 

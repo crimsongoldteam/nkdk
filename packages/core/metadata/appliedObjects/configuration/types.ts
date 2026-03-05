@@ -1,7 +1,7 @@
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { PictureXML } from "~/metadata/commonObjects/picture/types"
-import { ElementTypeByRule } from "~/metadata/metadataFactory/types/element"
-import { YAMLTypeByRule } from "~/metadata/metadataFactory/types/yaml"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationRules } from "./rules"
 

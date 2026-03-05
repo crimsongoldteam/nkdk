@@ -1,3 +1,5 @@
+import { ElementXML } from "../formElement/types"
+
 export interface EventXML {
   _name: string
   "#text": string
@@ -5,6 +7,10 @@ export interface EventXML {
 
 export type EventsXML = {
   Event: EventXML[] | EventXML
+}
+
+export interface EventedXML extends ElementXML {
+  Events: EventXML[] | EventXML
 }
 
 export type Events = Record<string, string>

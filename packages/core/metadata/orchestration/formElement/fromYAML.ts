@@ -82,7 +82,7 @@ export const importElementFromPartialYAML = <Type extends ExtendedFormElementTyp
 
   const element = importElementFromYAML({
     context: context,
-    rules: rules,
+    elementRule: rules,
     yaml: yaml,
     source: source,
   })
@@ -92,33 +92,31 @@ export const importElementFromPartialYAML = <Type extends ExtendedFormElementTyp
 
 function importElementFromYAML<Rule extends ElementRule>(params: {
   context: ConfigurationContext
-  rules: ElementRule
+  elementRule: ElementRule
   yaml: MetadataItemTypeToYAML<Rule["itemType"]> | undefined
   source?: MetadataItemTypeToMdItem<Rule["itemType"]>
-}): MetadataItemTypeToMdItem<Rule["itemType"]> | undefined {
-  const { context, rules, yaml, source } = params
-  const itemType = rules.itemType
-  // if (yaml === undefined) return source
+}): MetadataItemTypeToMdItem<Rule["itemType"]> {
+  const { context, elementRule, yaml, source } = params
+  const itemType = elementRule.itemType
 
   const properties = importPropertiesFromYAML({
     context,
-    yaml: yaml,
-    metadataType: itemType,
-    metadataRule: rules,
+    yaml,
+    metadataRule: elementRule,
     source,
   })
 
   const events = importEventsFromYAML({
-    rule: rules,
-    yaml: yaml,
+    rule: elementRule,
+    yaml,
   })
 
-  const result: T = {
+  const result = {
     ...(source ? source : {}),
     ...properties,
     ...events,
     itemType: itemType,
-  }
+  } as MetadataItemTypeToMdItem<Rule["itemType"]>
 
   return result
 }

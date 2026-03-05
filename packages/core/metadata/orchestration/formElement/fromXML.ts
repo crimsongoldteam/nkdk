@@ -1,37 +1,33 @@
-import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { BaseElement, EventedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   ElementRule,
   ElementXML,
-  Events,
-  EventsXML,
   FormElementType,
   importPropertiesFromXML,
   MetadataItemTypeToMdItem,
-  SingleFormElementType,
 } from "~/metadata/orchestration"
+import { importEventsFromXML } from "../event/fromXML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
 
-export const importSingleElementFromXML = <Type extends SingleFormElementType>(params: {
+export const importSingleElementFromXML = <Rule extends ElementRule>(params: {
   context: ConfigurationContext
-  rule: ElementRule
-  itemType: Type
+  elementRule: ElementRule
   xml: ElementXML
-}): MetadataItemTypeToMdItem<Type> | undefined => {
-  const { context, rule, xml, itemType } = params
+}): MetadataItemTypeToMdItem<Rule["itemType"]> | undefined => {
+  const { context, elementRule, xml } = params
+  const itemType = elementRule.itemType
 
-  const props = importFromXML(context, xml, rule)
+  const props = importFromXML(context, xml, elementRule)
 
   if (props === undefined) return undefined
 
   const result = {
     itemType: itemType,
     ...(props ?? {}),
-  } as T
+  } as MetadataItemTypeToMdItem<Rule["itemType"]>
 
-  if (isEmptyMetadataItem({ context, rule, element: result })) return undefined
+  if (isEmptyMetadataItem({ context, rule: elementRule, element: result })) return undefined
 
   return result
 }
@@ -49,49 +45,28 @@ export function importElementFromXML<Type extends FormElementType>(params: {
 
   const props = importFromXML(context, xml, rules)
 
-  const result: MetadataItemTypeToMdItem<Type> = {
+  const result = {
     name: xml._name,
     itemType: itemType,
     ...props,
-  }
+  } as MetadataItemTypeToMdItem<Type>
 
   return result
 }
 
-export function importFromXML<T extends BaseElement>(
+export function importFromXML<Rule extends ElementRule>(
   context: ConfigurationContext,
-  xml: any,
-  rules: ElementRule
-): Partial<T> | undefined {
+  xml: ElementXML,
+  elementRule: Rule
+): Partial<MetadataItemTypeToMdItem<Rule["itemType"]>> | undefined {
   if (xml === undefined) return undefined
 
-  const properties = importPropertiesFromXML({ context, xml, rule: rules })
+  const properties = importPropertiesFromXML({ context, xml, rule: elementRule })
 
-  const events = importEventsFromXML(rules.events, (xml as any).Events)
+  const events = importEventsFromXML(elementRule, xml)
 
   return {
     ...properties,
     ...events,
-  } as Partial<T>
-}
-
-const importEventsFromXML = <T extends EventedElement>(
-  rulesEvents: T["events"],
-  xml: EventsXML | undefined
-): { events?: Events } => {
-  if (!xml || !rulesEvents) return {}
-
-  const events = Array.isArray(xml.Event) ? xml.Event : [xml.Event]
-
-  const result: Events = {}
-  for (const key of Object.keys(rulesEvents)) {
-    const xmlKey = capitalize(key)
-    const xmlEvent = events.find((e: { _name: string }) => e._name === xmlKey)
-
-    if (!xmlEvent) continue
-    const eventValue = xmlEvent["#text"]
-    result[key] = eventValue
-  }
-
-  return { events: result }
+  } as Partial<MetadataItemTypeToMdItem<Rule["itemType"]>>
 }

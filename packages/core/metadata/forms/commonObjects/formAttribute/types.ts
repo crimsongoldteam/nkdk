@@ -10,8 +10,8 @@ import {
   UserViewYAML,
 } from "~/metadata/commonObjects/userVisible/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { ElementTypeByRule } from "~/metadata/metadataFactory/types/element"
 import { ElementXML } from "~/metadata/orchestration"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 

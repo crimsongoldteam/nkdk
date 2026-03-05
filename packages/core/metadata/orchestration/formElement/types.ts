@@ -1,6 +1,5 @@
 import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule, MetadataItemTypeToYAML } from ".."
-import { EventXML } from "../event"
 import {
   MetadataItemType,
   MetadataItemTypeRegistry,
@@ -98,10 +97,6 @@ export interface ElementXML {
   _name: string
   _id: string
   [key: string]: any
-}
-
-export interface EventedXML extends ElementXML {
-  Events: EventXML[] | EventXML
 }
 
 //#endregion

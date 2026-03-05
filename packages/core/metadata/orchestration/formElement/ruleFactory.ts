@@ -4,7 +4,6 @@ import {
   ElementRule,
   ElementXML,
   ExtendedFormElementType,
-  FormElementType,
   MetadataItemTypeToMdItem,
   MetadataItemTypeToYAML,
   PropertyRule,
@@ -17,12 +16,12 @@ import { registerTypeRule } from "./factory"
 import { importSingleElementFromXML } from "./fromXML"
 import { importSingleElementFromYAML } from "./fromYAML"
 
-export const getElementRule = (itemType: ExtendedFormElementType): ElementRule => {
+export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
   const rule = elementRulesRegistry.get(itemType)
   if (!rule) {
     throw new Error(`Unknown element type: ${itemType}`)
   }
-  return rule
+  return rule as Rule
 }
 
 export function registerElementRule(itemType: ExtendedFormElementType, elementRule: ElementRule): void {
@@ -40,7 +39,7 @@ type ToXMLFn<T extends BaseElement> = (
   element: T | undefined
 ) => { id: string; name: string }
 
-export const registerElementAsType = <Rule extends ElementRule>(params: {
+export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleFormElementType }>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
   toXML: ToXMLFn<MetadataItemTypeToMdItem<Rule["itemType"]>>
@@ -48,26 +47,13 @@ export const registerElementAsType = <Rule extends ElementRule>(params: {
   const { propertyType, elementRule, toXML } = params
   const itemType = elementRule.itemType
 
-  type ElementType = MetadataItemTypeToMdItem<Rule["itemType"]>
-  // if (!elementRule.registerAsType) return
-
-  // for (const [propertyType, propertyRule] of Object.entries(elementRule.registerAsType) as [
-  //   PropertyRuleType,
-  //   RegisterAsTypeRule,
-  // ][]) {
-
-  registerImportFromXML<ElementType>(propertyType, itemType, elementRule)
-  registerExportToYAML<ElementType>(propertyType)
+  registerImportFromXML(propertyType, elementRule)
+  registerExportToYAML(propertyType)
   registerImportFromYAML(propertyType, itemType)
-  registerExportToXML<ElementType>({ propertyType, toXML, elementRule, itemType })
+  registerExportToXML({ propertyType, toXML, elementRule })
 }
-// }
 
-const registerImportFromXML = <Type extends SingleFormElementType>(
-  propertyType: PropertyRuleType,
-  itemType: Type,
-  elementRule: ElementRule
-): void => {
+const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyRuleType, elementRule: Rule): void => {
   registerTypeRule(
     propertyType,
     "importFromXML",
@@ -75,11 +61,10 @@ const registerImportFromXML = <Type extends SingleFormElementType>(
       context: ConfigurationContext,
       _rule: PropertyRule,
       xml: ElementXML
-    ): MetadataItemTypeToMdItem<Type> | undefined => {
+    ): MetadataItemTypeToMdItem<Rule["itemType"]> | undefined => {
       return importSingleElementFromXML({
         context,
-        itemType: itemType,
-        rule: elementRule,
+        elementRule: elementRule,
         xml,
       })
     }
@@ -89,7 +74,11 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: PropertyRuleT
   registerTypeRule(
     propertyType,
     "exportToYAML",
-    (context: ConfigurationContext, _rule: PropertyRule, data: T | undefined): ToYAML<T> | undefined => {
+    (
+      context: ConfigurationContext,
+      _rule: PropertyRule,
+      data: MetadataItemTypeToMdItem<T["itemType"]> | undefined
+    ): MetadataItemTypeToYAML<T["itemType"]> | undefined => {
       return exportElementToPartialYAML({ context, element: data })
     }
   )
@@ -118,25 +107,27 @@ const registerImportFromYAML = <Type extends SingleFormElementType>(
   )
 }
 
-const registerExportToXML = <T extends BaseElement>(params: {
+const registerExportToXML = <Rule extends ElementRule>(params: {
   propertyType: PropertyRuleType
-  toXML: ToXMLFn<T>
-  elementRule: ElementRule
-  itemType: FormElementType
+  toXML: ToXMLFn<MetadataItemTypeToMdItem<Rule["itemType"]>>
+  elementRule: Rule
 }): void => {
-  const { propertyType, toXML, elementRule, itemType } = params
+  const { propertyType, toXML, elementRule } = params
 
   registerTypeRule(
     propertyType,
     "exportToXML",
-    (context: ConfigurationContext, _rule: PropertyRule, value: T | undefined): ElementXML => {
+    (
+      context: ConfigurationContext,
+      _rule: PropertyRule,
+      value: MetadataItemTypeToMdItem<Rule["itemType"]> | undefined
+    ): ElementXML => {
       const extraParams = toXML(context, value)
 
       return exportSingleElementToXML({
         context,
         element: value,
         rule: elementRule,
-        itemType: itemType,
         ...extraParams,
       })
     }

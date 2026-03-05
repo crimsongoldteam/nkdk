@@ -9,12 +9,12 @@ import { TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { InputFieldRules } from "./rules"
-import { ElementTypeByRule } from "~/metadata/metadataFactory/types/element"
 
 export type InputField = ElementTypeByRule<typeof InputFieldRules>
 // export interface InputField {
