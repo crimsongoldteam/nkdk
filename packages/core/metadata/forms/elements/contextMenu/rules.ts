@@ -20,9 +20,9 @@ export const ContextMenuRules = {
     },
     autofill: { yaml: "Автозаполнение", xml: "Autofill", type: "boolean" },
     childItems: {
-      yaml: "ПодчиненныеЭлементы",
+      yaml: "Элементы",
       xml: "ChildItems",
-      type: "ChildItems",
+      type: "CommandBarChildItems",
       defaultValue: [],
     },
   },

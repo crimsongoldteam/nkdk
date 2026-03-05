@@ -8,7 +8,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
-import { SearchStringAdditionRules } from "./rules"
+import { SearchStringAdditionRules, SingleSearchStringAdditionRules } from "./rules"
 
 export interface SearchStringAddition extends NamedElement {
   itemType: "SearchStringAddition"
@@ -63,3 +63,5 @@ export interface SearchStringAdditionYAML {
 export interface SingleSearchStringAdditionYAML extends Omit<SearchStringAdditionYAML, "Источник"> {}
 
 export type SearchStringAdditionEnterprise = EnterpriseType<typeof SearchStringAdditionRules>
+
+export type SingleSearchStringAdditionEnterprise = EnterpriseType<typeof SingleSearchStringAdditionRules>

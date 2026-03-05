@@ -1,5 +1,14 @@
-import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
-import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import {
+  AutoCommandBar,
+  AutoCommandBarEnterprise,
+  AutoCommandBarYAML,
+} from "~/metadata/forms/elements/autoCommandBar/types"
+import {
+  ViewStatusAddition,
+  ViewStatusAdditionEnterprise,
+  ViewStatusAdditionYAML,
+} from "~/metadata/forms/elements/viewStatusAddition/types"
+import { MetadataForEnterpriseType } from ".."
 import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import {
@@ -45,13 +54,17 @@ import {
   ColumnGroupTypedYAML,
 } from "../../forms/elements/columnGroup/types"
 import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "../../forms/elements/commandBar/types"
-import { ContextMenu, ContextMenuYAML } from "../../forms/elements/contextMenu/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuYAML } from "../../forms/elements/contextMenu/types"
 import {
   DendrogramField,
   DendrogramFieldEnterprise,
   DendrogramFieldPartialYAML,
 } from "../../forms/elements/dendrogramField/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../../forms/elements/extendedTooltip/types"
+import {
+  ExtendedTooltip,
+  ExtendedTooltipEnterprise,
+  ExtendedTooltipYAML,
+} from "../../forms/elements/extendedTooltip/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldEnterprise,
@@ -130,6 +143,7 @@ import {
   SearchControlAdditionEnterprise,
   SearchControlAdditionYAML,
   SingleSearchControlAddition,
+  SingleSearchControlAdditionEnterprise,
   SingleSearchControlAdditionYAML,
 } from "../../forms/elements/searchControlAddition/types"
 import {
@@ -137,6 +151,7 @@ import {
   SearchStringAdditionEnterprise,
   SearchStringAdditionYAML,
   SingleSearchStringAddition,
+  SingleSearchStringAdditionEnterprise,
   SingleSearchStringAdditionYAML,
 } from "../../forms/elements/searchStringAddition/types"
 import {
@@ -342,27 +357,34 @@ export type MetadataItemTypeRegistry = {
   ContextMenu: {
     metadata: ContextMenu
     yaml: ContextMenuYAML
+    enterprise: ContextMenuEnterprise
   }
   ExtendedTooltip: {
     metadata: ExtendedTooltip
     yaml: ExtendedTooltipYAML
+    enterprise: ExtendedTooltipEnterprise
   }
   SingleSearchControlAddition: {
     metadata: SingleSearchControlAddition
     yaml: SingleSearchControlAdditionYAML
+    enterprise: SingleSearchControlAdditionEnterprise
   }
+
   SingleSearchStringAddition: {
     metadata: SingleSearchStringAddition
     yaml: SingleSearchStringAdditionYAML
+    enterprise: SingleSearchStringAdditionEnterprise
   }
 
   ViewStatusAddition: {
     metadata: ViewStatusAddition
     yaml: ViewStatusAdditionYAML
+    enterprise: ViewStatusAdditionEnterprise
   }
   AutoCommandBar: {
     metadata: AutoCommandBar
     yaml: AutoCommandBarYAML
+    enterprise: AutoCommandBarEnterprise
   }
 
   //#endregion
@@ -377,6 +399,7 @@ export type MetadataItemTypeRegistry = {
     metadata: FormAttribute
     yaml: FormAttributeYAML
   }
+
   FormAttributeColumn: {
     metadata: FormAttributeColumn
     yaml: FormAttributeColumnYAML
@@ -415,10 +438,11 @@ export type MetadataItemType = keyof MetadataItemTypeRegistry
 
 export type ToYAML<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["yaml"]
 export type ToMetadata<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["metadata"]
-type MetadataItemTypeWithEnterprise = {
+
+export type EnterpriseExportableMetadataType = {
   [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { enterprise: unknown } ? K : never
 }[MetadataItemType]
 
-export type ToEnterprise<T extends MetadataItemTypeWithEnterprise> = MetadataItemTypeRegistry[T]["enterprise"]
+export type ToEnterprise<T extends MetadataForEnterpriseType> = MetadataItemTypeRegistry[T]["enterprise"]
 
 export type ToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]

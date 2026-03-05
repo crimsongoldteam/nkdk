@@ -1,11 +1,11 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemType, ToEnterprise, ToMetadata } from ".."
+import { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { PropertyRuleTypeKeys } from "./registry"
 import { MetadataItemRule, PropertyRule } from "./types"
 
-export const exportPropertiesToEnterprise = <Type extends MetadataItemType>(params: {
+export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMetadataType>(params: {
   context: ConfigurationContext
   metadataItem: ToMetadata<Type>
   rule: MetadataItemRule & { itemType: Type }

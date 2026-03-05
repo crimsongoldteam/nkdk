@@ -60,7 +60,7 @@ export interface ButtonGroupPartialYAML {
   Ширина?: number
   ШрифтЗаголовка?: FontYAML
   ИсточникКоманд?: string
-  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedYAML
+  Элементы?: CommandBarGroupChildItemsTypedYAML
 }
 
 export interface ButtonGroupTypedYAML extends ButtonGroupPartialYAML {
