@@ -1,16 +1,13 @@
-import { CollectableElementType } from "../orchestration"
+import { ElementType } from "../orchestration"
 import { ConfigurationContext, ContextElementToEnterprise, ContextElementToXML } from "./types"
 
-export const getParentFromContext = (
-  context: ConfigurationContext,
-  itemType?: CollectableElementType
-): ContextElementToXML => {
+export const getParentFromContext = (context: ConfigurationContext, itemTypes?: ElementType[]): ContextElementToXML => {
   const elements = context.elementsTree
   if (!elements || elements.length === 0) throw new Error("Parent element not found in context")
 
   for (let i = elements.length - 1; i >= 0; i--) {
     const element = elements[i]
-    if (!itemType || element.itemType === itemType) {
+    if (!itemTypes || itemTypes.includes(element.itemType)) {
       return element
     }
   }

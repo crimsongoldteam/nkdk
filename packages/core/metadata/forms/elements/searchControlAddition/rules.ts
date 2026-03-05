@@ -91,7 +91,7 @@ registerElementAsType({
   elementRule: SingleSearchControlAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
     if (!context.elementsTree) throw new Error("elementContext is not defined")
-    const parent = getParentFromContext(context, "Table")
+    const parent = getParentFromContext(context, ["Table"])
     const id = getElementId(context)
     const name = getSearchControlAdditionName(parent)
     return { name, id }

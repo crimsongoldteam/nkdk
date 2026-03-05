@@ -88,7 +88,7 @@ registerElementAsType({
   elementRule: SingleSearchStringAdditionRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
     if (!context.elementsTree) throw new Error("elementContext is not defined")
-    const parent = getParentFromContext(context, "Table")
+    const parent = getParentFromContext(context, ["Table"])
     const id = getElementId(context)
     const name = getSearchStringAdditionName(parent)
     return { name, id }

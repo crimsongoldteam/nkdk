@@ -28,7 +28,7 @@ describe("getParentFromContext", () => {
       { itemType: "UsualGroup", name: "group2" },
     ])
 
-    const result = getParentFromContext(context, "UsualGroup")
+    const result = getParentFromContext(context, ["UsualGroup"])
 
     expect(result.name).toBe("group2")
   })
@@ -41,7 +41,7 @@ describe("getParentFromContext", () => {
       { itemType: "UsualGroup", name: "group2" },
     ])
 
-    const result = getParentFromContext(context, "UsualGroup")
+    const result = getParentFromContext(context, ["UsualGroup"])
 
     expect(result.name).toBe("group2")
   })
@@ -64,7 +64,7 @@ describe("getParentFromContext", () => {
       { itemType: "InputField", name: "field1" },
     ])
 
-    expect(() => getParentFromContext(context, "UsualGroup")).toThrow("Parent element not found in context")
+    expect(() => getParentFromContext(context, ["UsualGroup"])).toThrow("Parent element not found in context")
   })
 
   it("returns any type when itemType is not specified", () => {

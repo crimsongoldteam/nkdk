@@ -1,23 +1,17 @@
-<PdfDocumentField name="ПолеPDFДокумента" id="1" DisplayImportance="High">
-	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
-	<AutoCellHeight>true</AutoCellHeight>
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<BorderColor>web:Green</BorderColor>
-	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="2">
+<PDFDocumentField name="ПолеPDFДокумента" id="1" DisplayImportance="High">
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<BorderColor>web:Red</BorderColor>
+	<CommandSet>
+		<ExcludedCommand>ScaleUp</ExcludedCommand>
+	</CommandSet>
+	<ContextMenu name="ДокументКонтекстноеМеню" id="2">
 		<Autofill>false</Autofill>
 	</ContextMenu>
-	<CurrentPageNumber>1</CurrentPageNumber>
-	<DataPath>Объект.Реквизит</DataPath>
+	<DataPath>Документ</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EditMode>EnterOnInput</EditMode>
-	<Enabled>true</Enabled>
-	<Events>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="URLClick">ПроцедураНажатияНаНавигационнойСсылке</Event>
-	</Events>
-	<ExtendedTooltip name="ПолеPDFДокументаРасширеннаяПодсказка" id="3">
+	<Enabled>false</Enabled>
+	<ExtendedTooltip name="ДокументРасширеннаяПодсказка" id="3">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -25,83 +19,97 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
-	<FixingInTable>None</FixingInTable>
-	<FooterBackColor>web:White</FooterBackColor>
-	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
-	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-	<FooterPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</FooterPicture>
-	<FooterText>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Текст подвала</v8:content>
-		</v8:item>
-	</FooterText>
-	<FooterTextColor>web:Black</FooterTextColor>
+	<Events>
+		<Event name="OnChange">ДокументПриИзменении</Event>
+		<Event name="URLClick">ДокументНажатиеНаНавигационнойСсылке</Event>
+	</Events>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
-	<HeaderPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</HeaderPicture>
-	<Height>200</Height>
-	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalStretch>true</HorizontalStretch>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<Orientation>0</Orientation>
+	<GroupVerticalAlign>Center</GroupVerticalAlign>
+	<Height>11</Height>
+	<HorizontalStretch>false</HorizontalStretch>
+	<MaxHeight>2</MaxHeight>
+	<MaxWidth>1</MaxWidth>
+	<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
 	<Output>Enable</Output>
-	<ReadOnly>false</ReadOnly>
-	<Scale>100</Scale>
-	<Shortcut>Ctrl+S</Shortcut>
-	<ShowInFooter>true</ShowInFooter>
-	<ShowInHeader>true</ShowInHeader>
-	<SkipOnInput>false</SkipOnInput>
+	<ReadOnly>true</ReadOnly>
+	<Shortcut>Cmd+S</Shortcut>
+	<SkipOnInput>true</SkipOnInput>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Поле PDF документа</v8:content>
+			<v8:content>Заголовок документа</v8:content>
 		</v8:item>
 	</Title>
-	<TitleBackColor>web:Blue</TitleBackColor>
-	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleHeight>20</TitleHeight>
-	<TitleLocation>Left</TitleLocation>
-	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
+	<TitleHeight>3</TitleHeight>
+	<TitleLocation>Top</TitleLocation>
+	<TitleTextColor>web:Blue</TitleTextColor>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Подсказка</v8:content>
 		</v8:item>
 	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>InputField</Type>
-	<TypeRestriction>
-		<v8:Type>xs:string</v8:Type>
-		<v8:StringQualifiers>
-			<v8:Length>0</v8:Length>
-			<v8:AllowedLength>Variable</v8:AllowedLength>
-		</v8:StringQualifiers>
-	</TypeRestriction>
-	<UsedFileName>Документ.pdf</UsedFileName>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
-	<VerticalAlign>Top</VerticalAlign>
-	<VerticalStretch>true</VerticalStretch>
-	<ViewStatusLocation>Auto</ViewStatusLocation>
-	<Visible>true</Visible>
+	<VerticalStretch>false</VerticalStretch>
+	<ViewStatusAddition name="ДокументСостояниеПросмотра" id="4" DisplayImportance="VeryHigh">
+		<Enabled>false</Enabled>
+		<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+		<AdditionSource>
+			<Item>Документ</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Состояние просмотра</v8:content>
+			</v8:item>
+		</Title>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<Width>1</Width>
+		<AutoMaxWidth>false</AutoMaxWidth>
+		<MaxWidth>3</MaxWidth>
+		<HorizontalStretch>true</HorizontalStretch>
+		<HorizontalLocation>Center</HorizontalLocation>
+		<BackColor>web:Yellow</BackColor>
+		<ButtonColor>web:Green</ButtonColor>
+		<TextColor>web:Orange</TextColor>
+		<TitleTextColor>web:Orchid</TitleTextColor>
+		<BorderColor>web:IndianRed</BorderColor>
+		<Font ref="style:LargeTextFont" kind="StyleItem"/>
+		<TitleFont ref="style:ExtraLargeTextFont" kind="StyleItem"/>
+		<Border width="4">
+			<v8ui:style xsi:type="v8ui:ControlBorderType">Double</v8ui:style>
+		</Border>
+		<ContextMenu name="ДокументСостояниеПросмотраКонтекстноеМеню" id="5">
+			<Autofill>false</Autofill>
+		</ContextMenu>
+		<ExtendedTooltip name="ДокументСостояниеПросмотраРасширеннаяПодсказка" id="6">
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Расширенная подсказка состояния просмотра</v8:content>
+				</v8:item>
+			</Title>
+		</ExtendedTooltip>
+	</ViewStatusAddition>
+	<ViewStatusLocation>Top</ViewStatusLocation>
+	<Visible>false</Visible>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Предупреждение</v8:content>
+			<v8:content>Предупреждение при редактировании</v8:content>
 		</v8:item>
 	</WarningOnEdit>
-	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
-	<Width>300</Width>
-</PdfDocumentField>
+	<WarningOnEditRepresentation>Show</WarningOnEditRepresentation>
+	<Width>51</Width>
+</PDFDocumentField>

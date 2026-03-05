@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "~/metadata/orchestration"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
 import { fullViewStatusAddition, fullViewStatusAdditionYAML } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
-import { PropertyRule } from "./rules"
 
 const rule: PropertyRule = { type: "ViewStatusAddition" }
 

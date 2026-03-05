@@ -69,7 +69,7 @@ registerElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
   toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
-    const parentTable = getParentFromContext(context, "Table")
+    const parentTable = getParentFromContext(context, ["Table"])
     const elementId = getElementId(context)
     const elementName = getAutoCommandBarName(parentTable)
     return { id: elementId, name: elementName }
