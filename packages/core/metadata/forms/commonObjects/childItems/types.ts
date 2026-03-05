@@ -1,5 +1,5 @@
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
-import { ToEnterprise, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
+import { CollectableElement, ToEnterprise, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
@@ -184,42 +184,7 @@ export type TypedElementPartialYAML =
 
 export type SingleElement = AutoCommandBar | ContextMenu | ViewStatusAddition | ExtendedTooltip
 
-export type FormElementsYAML = Record<
-  string,
-  | Button
-  | ButtonGroup
-  | CalendarField
-  | ChartField
-  | CheckBoxField
-  | ColumnGroup
-  | CommandBar
-  | DendrogramField
-  | FormattedDocumentField
-  | GanttChartField
-  | GeographicalSchemaField
-  | GraphicalSchemaField
-  | HTMLDocumentField
-  | InputField
-  | LabelDecoration
-  | LabelField
-  | Page
-  | Pages
-  | PDFDocumentField
-  | PeriodField
-  | PictureDecoration
-  | PictureField
-  | PlannerField
-  | Popup
-  | ProgressBarField
-  | RadioButtonField
-  | SpreadSheetDocumentField
-  | Table
-  | TextDocumentField
-  | TrackBarField
-  | UsualGroup
-  | SearchStringAddition
-  | SearchControlAddition
->
+export type FormElementsYAML = Record<string, ToYAML<CollectableElement["itemType"]>>
 
 // #endregion
 

@@ -10,7 +10,11 @@ export const RadioButtonFieldRules = {
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    choiceList: { yaml: "СписокВыбора", type: "ChoiceList" },
+    choiceList: {
+      yaml: "СписокВыбора",
+      type: "ChoiceList",
+      toEnterprise: false,
+    },
     columnsCount: { yaml: "КоличествоКолонок", type: "number" },
     equalColumnsWidth: { yaml: "ОдинаковаяШиринаКолонок", type: "boolean" },
     font: { yaml: "Шрифт", type: "Font" },

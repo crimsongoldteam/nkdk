@@ -173,7 +173,6 @@ export const fullRadioButtonFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "WarningOnEditRepresentation.DontShow",
   },
-  ChoiceList: undefined,
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<RadioButtonFieldEnterprise>

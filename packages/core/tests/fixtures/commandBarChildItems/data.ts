@@ -1,11 +1,11 @@
 import {
   CommandBarChildItem,
-  CommandBarChildItemsPartialYAML,
   CommandBarChildItemsTypedYAML,
+  FormElementsYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
 
-export const fullCommandBarChildItemsAllYAML: CommandBarChildItemsPartialYAML = {
+export const fullCommandBarChildItemsAllYAML: FormElementsYAML = {
   Кнопка1: {
     Подсказка: "Подсказка для кнопки",
     ИмяКоманды: "ВыполнитьКоманда1",

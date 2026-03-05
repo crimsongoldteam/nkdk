@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importElementFromPartialYAML } from "~/metadata/orchestration"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import {
@@ -10,7 +11,7 @@ import {
 } from "~/tests/fixtures/forms/commandBar/data"
 import { mockContext } from "~/tests/mockContext"
 
-const context = {
+const context: ConfigurationContext = {
   ...mockContext,
   allElements: fullCommandBarChildItemsAllYAML,
 }
