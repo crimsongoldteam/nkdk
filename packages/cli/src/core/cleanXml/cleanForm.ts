@@ -57,7 +57,7 @@ const formContext: CleanContext = {
     "LabelField",
     "Page",
     "Pages",
-    "PdfDocumentField",
+    "PDFDocumentField",
     "PeriodField",
     "PictureDecoration",
     "PictureField",

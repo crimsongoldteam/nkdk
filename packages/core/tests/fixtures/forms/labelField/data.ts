@@ -5,7 +5,7 @@ import {
   LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
 
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {

@@ -5,7 +5,7 @@ import {
   CheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
 
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {

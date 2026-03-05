@@ -1,25 +1,25 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToXML } from "~/metadata/orchestration"
-import { fullPdfDocumentField, minimalPdfDocumentField } from "~/tests/fixtures/forms/pdfDocumentField/data"
+import { fullPDFDocumentField, minimalPDFDocumentField } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
-describe("exportPdfDocumentFieldToXML", () => {
+describe("exportPDFDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/pdfDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: fullPdfDocumentField })
+    const xmlData = exportElementToXML({ context: mockContext, element: fullPDFDocumentField })
 
-    const result = xmlExport({ PdfDocumentField: xmlData }, false)
+    const result = xmlExport({ PDFDocumentField: xmlData }, false)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/pdfDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: minimalPdfDocumentField })
+    const xmlData = exportElementToXML({ context: mockContext, element: minimalPDFDocumentField })
 
-    const result = xmlExport({ PdfDocumentField: xmlData }, false)
+    const result = xmlExport({ PDFDocumentField: xmlData }, false)
 
     expect(result).toEqual(expectedResult)
   })

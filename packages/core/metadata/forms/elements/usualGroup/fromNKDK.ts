@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 
-import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKDK"
 import { UsualGroup } from "./types"

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullPdfDocumentField, minimalPdfDocumentField } from "~/tests/fixtures/forms/pdfDocumentField/data"
+import { fullPDFDocumentField, minimalPDFDocumentField } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-describe("importPdfDocumentFieldFromXML", () => {
+describe("importPDFDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: "PdfDocumentField",
+      itemType: "PDFDocumentField",
       xml: undefined,
     })
 
@@ -16,26 +16,26 @@ describe("importPdfDocumentFieldFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ PdfDocumentField: ElementXML }>("forms/pdfDocumentField/full.xml")
+    const xmlData = readAndParseXMLFile<{ PDFDocumentField: ElementXML }>("forms/pdfDocumentField/full.xml")
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: "PdfDocumentField",
-      xml: xmlData.PdfDocumentField,
+      itemType: "PDFDocumentField",
+      xml: xmlData.PDFDocumentField,
     })
 
-    expect(result).toEqual(fullPdfDocumentField)
+    expect(result).toEqual(fullPDFDocumentField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ PdfDocumentField: ElementXML }>("forms/pdfDocumentField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ PDFDocumentField: ElementXML }>("forms/pdfDocumentField/minimal.xml")
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: "PdfDocumentField",
-      xml: xmlData.PdfDocumentField,
+      itemType: "PDFDocumentField",
+      xml: xmlData.PDFDocumentField,
     })
 
-    expect(result).toEqual(minimalPdfDocumentField)
+    expect(result).toEqual(minimalPDFDocumentField)
   })
 })

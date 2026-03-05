@@ -6,7 +6,7 @@ import {
   UsualGroupTypedYAML,
 } from "~/metadata/forms/elements/usualGroup/types"
 
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { minimalInputField, minimalInputFieldEnterprise } from "../inputField/data"
 
 export const fullUsualGroup: Required<UsualGroup> = {

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { addIndentation, joinLines } from "~/nkdk/helper"
 import {

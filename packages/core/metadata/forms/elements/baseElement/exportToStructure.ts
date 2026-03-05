@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { exportFormElementTypeToYAML } from "~/metadata/orchestration/formElement/toYAML"
 import { OtherElement } from "../../commonObjects/childItems/types"
 import { SearchControlAddition } from "../searchControlAddition/types"

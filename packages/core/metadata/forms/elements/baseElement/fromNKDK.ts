@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
 import { FormElementType, FormElementTypeToYAMLType, importFormElementTypeFromYAML } from "~/metadata/orchestration"
+import { importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { OtherElement, OtherElementElementType } from "../../commonObjects/childItems/types"
 import { SearchControlAddition } from "../searchControlAddition/types"
 import { SearchStringAddition } from "../searchStringAddition/types"

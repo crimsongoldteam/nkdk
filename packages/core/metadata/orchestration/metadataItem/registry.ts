@@ -97,9 +97,9 @@ import {
 import { Page, PageEnterprise, PagePartialYAML } from "../../forms/elements/page/types"
 import { Pages, PagesEnterprise, PagesPartialYAML } from "../../forms/elements/pages/types"
 import {
-  PdfDocumentField,
-  PdfDocumentFieldEnterprise,
-  PdfDocumentFieldPartialYAML,
+  PDFDocumentField,
+  PDFDocumentFieldEnterprise,
+  PDFDocumentFieldPartialYAML,
 } from "../../forms/elements/pdfDocumentField/types"
 import { PeriodField, PeriodFieldEnterprise, PeriodFieldPartialYAML } from "../../forms/elements/periodField/types"
 import {
@@ -256,9 +256,9 @@ export type MetadataItemTypeRegistry = {
     enterprise: PagesEnterprise
   }
   PDFDocumentField: {
-    metadata: PdfDocumentField
-    yaml: PdfDocumentFieldPartialYAML
-    enterprise: PdfDocumentFieldEnterprise
+    metadata: PDFDocumentField
+    yaml: PDFDocumentFieldPartialYAML
+    enterprise: PDFDocumentFieldEnterprise
   }
   PeriodField: {
     metadata: PeriodField

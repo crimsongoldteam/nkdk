@@ -1,7 +1,7 @@
 import { exportPictureToYAML } from "~/metadata/commonObjects/picture/toYAML"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { PictureDecoration } from "./types"
 

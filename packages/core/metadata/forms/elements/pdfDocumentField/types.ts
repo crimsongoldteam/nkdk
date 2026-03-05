@@ -9,9 +9,9 @@ import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
-import { PdfDocumentFieldRules } from "./rules"
+import { PDFDocumentFieldRules } from "./rules"
 
-export interface PdfDocumentField {
+export interface PDFDocumentField {
   itemType: "PDFDocumentField"
   name: string
   autoCellHeight?: boolean
@@ -78,7 +78,7 @@ export interface PdfDocumentField {
   }
 }
 
-export interface PdfDocumentFieldPartialYAML {
+export interface PDFDocumentFieldPartialYAML {
   АвтоМаксимальнаяВысота?: StringboolYAML
   АвтоМаксимальнаяШирина?: StringboolYAML
   Вывод?: SE.UseOutputYAML
@@ -144,4 +144,4 @@ export interface PdfDocumentFieldPartialYAML {
   ШрифтПодвала?: FontYAML
 }
 
-export type PdfDocumentFieldEnterprise = EnterpriseType<typeof PdfDocumentFieldRules>
+export type PDFDocumentFieldEnterprise = EnterpriseType<typeof PDFDocumentFieldRules>

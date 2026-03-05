@@ -4,7 +4,7 @@ import {
   LabelDecorationPartialYAML,
 } from "~/metadata/forms/elements/labelDecoration/types"
 
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {

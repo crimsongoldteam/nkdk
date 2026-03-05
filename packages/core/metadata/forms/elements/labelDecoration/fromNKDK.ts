@@ -4,7 +4,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import {
   importFormattedI8nTextFromNKDK,
   importNameFromNKDK,
-} from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+} from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { LabelDecoration } from "./types"
 
 export const importLabelDecorationFromNKDK = (params: {

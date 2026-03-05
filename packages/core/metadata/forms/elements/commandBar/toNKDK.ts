@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { CommandBarPrefix, CommandBarSeparator, CommandBarSuffix } from "~/nkdk/terminal"
 import { exportCommandBarChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
 import { formatElementName } from "../../format/helpers"

@@ -3,7 +3,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
-export const PdfDocumentFieldRules = {
+export const PDFDocumentFieldRules = {
   itemType: "PDFDocumentField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PDFDocumentField",
@@ -146,4 +146,4 @@ export const PdfDocumentFieldRules = {
   },
 } as const satisfies ElementRule
 
-registerElementRule("PdfDocumentField", PdfDocumentFieldRules)
+registerElementRule("PDFDocumentField", PDFDocumentFieldRules)

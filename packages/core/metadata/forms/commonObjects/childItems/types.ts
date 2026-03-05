@@ -20,7 +20,7 @@ import { LabelDecoration } from "../../elements/labelDecoration/types"
 import { LabelField, LabelFieldTypedYAML } from "../../elements/labelField/types"
 import { Page } from "../../elements/page/types"
 import { Pages } from "../../elements/pages/types"
-import { PdfDocumentField } from "../../elements/pdfDocumentField/types"
+import { PDFDocumentField } from "../../elements/pdfDocumentField/types"
 import { PeriodField } from "../../elements/periodField/types"
 import { PictureDecoration } from "../../elements/pictureDecoration/types"
 import { PictureField, PictureFieldTypedYAML } from "../../elements/pictureField/types"
@@ -58,7 +58,7 @@ type ChildItem =
   | LabelField
   | Page
   | Pages
-  | PdfDocumentField
+  | PDFDocumentField
   | PeriodField
   | PictureDecoration
   | PictureField
@@ -101,7 +101,7 @@ export type GroupChildItem =
   | LabelDecoration
   | LabelField
   | Pages
-  | PdfDocumentField
+  | PDFDocumentField
   | PeriodField
   | PictureDecoration
   | PictureField
@@ -220,7 +220,7 @@ export type OtherElement =
   | GeographicalSchemaField
   | GraphicalSchemaField
   | HTMLDocumentField
-  | PdfDocumentField
+  | PDFDocumentField
   | PeriodField
   | PlannerField
   | ProgressBarField

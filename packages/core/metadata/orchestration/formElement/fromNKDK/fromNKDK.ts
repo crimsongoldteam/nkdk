@@ -1,9 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  FromNKDKResult,
-  importFromNKDKFn,
-  NkdkChildItem,
-} from "~/metadata/metadataFactory/elements/fromNKDKFactory/types"
+import { FromNKDKResult, importFromNKDKFn, NkdkChildItem } from "~/metadata/orchestration/formElement/fromNKDK/types"
 
 export const importElementFromNKDK = <NkdkItem extends NkdkChildItem>(params: {
   context: ConfigurationContext

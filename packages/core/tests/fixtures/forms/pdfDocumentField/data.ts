@@ -1,12 +1,12 @@
 import {
-  PdfDocumentField,
-  PdfDocumentFieldEnterprise,
-  PdfDocumentFieldPartialYAML,
+  PDFDocumentField,
+  PDFDocumentFieldEnterprise,
+  PDFDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/pdfDocumentField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
+export const fullPDFDocumentField: RequiredFieldsElement<PDFDocumentField> = {
   itemType: "PDFDocumentField",
   name: "ПолеPDFДокумента",
   title: {
@@ -101,7 +101,7 @@ export const fullPdfDocumentField: RequiredFieldsElement<PdfDocumentField> = {
   },
 }
 
-export const fullPdfDocumentFieldEnterprise = {
+export const fullPDFDocumentFieldEnterprise = {
   ElementType: "FormField",
   Name: "ПолеPDFДокумента",
   Type: {
@@ -222,9 +222,9 @@ export const fullPdfDocumentFieldEnterprise = {
   Width: 300,
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Required<PdfDocumentFieldEnterprise>
+} satisfies Required<PDFDocumentFieldEnterprise>
 
-export const fullPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {
+export const fullPDFDocumentFieldPartialYAML: PDFDocumentFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -290,9 +290,9 @@ export const fullPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {
   },
 }
 
-export const minimalPdfDocumentField: PdfDocumentField = {
+export const minimalPDFDocumentField: PDFDocumentField = {
   itemType: "PDFDocumentField",
   name: "ПолеPDFДокумента",
 }
 
-export const minimalPdfDocumentFieldPartialYAML: PdfDocumentFieldPartialYAML = {}
+export const minimalPDFDocumentFieldPartialYAML: PDFDocumentFieldPartialYAML = {}

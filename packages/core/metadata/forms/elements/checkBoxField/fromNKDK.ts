@@ -5,7 +5,7 @@ import {
   importDataPathFromNKDK,
   importI8nTextFromNKDK,
   importNameFromNKDK,
-} from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+} from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CheckBoxField } from "./types"
 

@@ -4,7 +4,7 @@ import {
   importDataPathFromNKDK,
   importI8nTextFromNKDK,
   importNameFromNKDK,
-} from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+} from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { InputField } from "./types"
 
 export const importInputFieldFromNKDK = (params: {
