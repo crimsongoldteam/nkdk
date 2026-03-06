@@ -822,5 +822,49 @@
       ],
       "ИзменяемыеЭлементы": {}
     }
+  },
+  "УдалениеСвойстваЭлемента": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент",
+          "Title": "Заголовок элемента"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [],
+      "ДобавляемыеЭлементы": [],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {
+        "р_Элемент": {
+          "Title": null
+        }
+      }
+    }
   }
 }

@@ -7,7 +7,6 @@ export interface FormattedI8nText extends I8nText {
   items: Record<string, string>
 }
 
-/** Форматированный локализованный текст — в YAML совпадает с I8nText */
 export const FormattedI8nTextJSONSchema = I8nTextJSONSchema
 export type FormattedI8nTextYAML = I8nTextYAML
 
