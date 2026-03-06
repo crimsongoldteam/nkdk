@@ -995,5 +995,74 @@
       "ПеремещаемыеЭлементы": [],
       "ИзменяемыеЭлементы": {}
     }
+  },
+  "ПермещениеВКоманднуюПанель": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormButton",
+          "Name": "Кнопка",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormButtonType.UsualButton"
+          }
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ChildItems": [
+            {
+              "ElementType": "FormButton",
+              "Name": "Кнопка",
+              "Type": {
+                "Type": "SystemEnumeration",
+                "Value": "FormButtonType.UsualButton"
+              }
+            }
+          ],
+          "ElementType": "FormGroup",
+          "Name": "КоманднаяПанель",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.CommandBar"
+          }
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [
+        "Кнопка"
+      ],
+      "ДобавляемыеЭлементы": [
+        {
+          "ElementType": "FormGroup",
+          "Name": "КоманднаяПанель",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.CommandBar"
+          }
+        },
+        {
+          "ParentName": "КоманднаяПанель",
+          "ElementType": "FormButton",
+          "Name": "Кнопка",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormButtonType.UsualButton"
+          }
+        }
+      ],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {}
+    }
   }
 }
