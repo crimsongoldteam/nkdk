@@ -124,6 +124,22 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ГруппаПросмотрРасширеннаяПодсказка" id="5"/>
 		</UsualGroup>
+		<UsualGroup name="ГруппаЭталоны" id="28">
+			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Группа эталоны</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Группа эталоны</v8:content>
+				</v8:item>
+			</ToolTip>
+			<ExtendedTooltip name="ГруппаЭталоныРасширеннаяПодсказка" id="29"/>
+		</UsualGroup>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="HTMLДокумент" id="4">
