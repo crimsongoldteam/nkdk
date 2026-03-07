@@ -1,0 +1,17 @@
+{
+  "name": "nkdk",
+  "scopeName": "source.nkdk",
+  "fileTypes": [
+    "nkdk"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "name": "keyword.control.nkdk",
+      "match": ""
+    }
+  ],
+  "repository": {}
+}

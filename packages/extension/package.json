@@ -21,7 +21,6 @@
       {
         "id": "nkdk",
         "aliases": [
-          "nkdk",
           "nkdk"
         ],
         "extensions": [
@@ -48,11 +47,14 @@
       }
     ]
   },
+  "activationEvents": [
+    "onLanguage:nkdk"
+  ],
   "main": "./out/extension/main.cjs",
   "scripts": {
-    "clean": "shx rm -fr *.tsbuildinfo out syntaxes",
+    "clean": "shx rm -fr *.tsbuildinfo out",
     "vscode:prepublish": "npm run build",
-    "build:prepare": "shx mkdir -p ./syntaxes/ && shx cp -f ../language/syntaxes/nkdk.tmLanguage.json ./syntaxes/nkdk.tmLanguage.json",
+    "build:prepare": "",
     "build": "npm run build:prepare && tsc -b tsconfig.json && node esbuild.mjs",
     "build:clean": "npm run clean && npm run build",
     "watch": "npm run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\""
