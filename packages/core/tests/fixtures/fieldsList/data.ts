@@ -1,4 +1,4 @@
-import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldList/types"
+import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 
 export const fullFieldsList: FieldsList = ["Список.РеквизитДопУпорядочивания", "Список.Ссылка"]
 
