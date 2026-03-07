@@ -19,6 +19,7 @@ export const StandardAttributeDescriptionRules = {
       xml: "xr:ChoiceHistoryOnInput",
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
+      defaultValueXML: "Auto",
     },
     choiceParameterLinks: {
       yaml: "СвязиПараметровВыбора",
@@ -40,12 +41,14 @@ export const StandardAttributeDescriptionRules = {
       xml: "xr:CreateOnInput",
       type: "SystemEnumeration",
       typeSE: "CreateOnInput",
+      defaultValueXML: "Auto",
     },
     dataHistory: {
       yaml: "ИсторияДанных",
       xml: "xr:DataHistory",
       type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
+      defaultValueXML: "Use",
     },
     editFormat: {
       yaml: "ФорматРедактирования",
@@ -56,17 +59,20 @@ export const StandardAttributeDescriptionRules = {
       yaml: "РасширенноеРедактирование",
       xml: "xr:ExtendedEdit",
       type: "boolean",
+      defaultValueXML: false,
     },
     fillChecking: {
       yaml: "ПроверкаЗаполнения",
       xml: "xr:FillChecking",
       type: "SystemEnumeration",
       typeSE: "FillChecking",
+      defaultValueXML: "DontCheck",
     },
     fillFromFillingValue: {
       yaml: "ЗаполнятьИзДанныхЗаполнения",
       xml: "xr:FillFromFillingValue",
       type: "boolean",
+      defaultValueXML: false,
     },
     fillValue: {
       yaml: "ЗначениеЗаполнения",
@@ -83,6 +89,7 @@ export const StandardAttributeDescriptionRules = {
       xml: "xr:FullTextSearch",
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
+      defaultValueXML: "Use",
     },
     linkByType: {
       yaml: "СвязьПоТипу",
@@ -93,6 +100,7 @@ export const StandardAttributeDescriptionRules = {
       yaml: "ВыделятьОтрицательные",
       xml: "xr:MarkNegatives",
       type: "boolean",
+      defaultValueXML: false,
     },
     mask: {
       yaml: "Маска",
@@ -113,17 +121,20 @@ export const StandardAttributeDescriptionRules = {
       yaml: "МногострочныйРежим",
       xml: "xr:MultiLine",
       type: "boolean",
+      defaultValueXML: false,
     },
     passwordMode: {
       yaml: "РежимПароля",
       xml: "xr:PasswordMode",
       type: "boolean",
+      defaultValueXML: false,
     },
     quickChoice: {
       yaml: "БыстрыйВыбор",
       xml: "xr:QuickChoice",
       type: "SystemEnumeration",
       typeSE: "UseQuickChoice",
+      defaultValueXML: "Auto",
     },
     synonym: {
       yaml: "Синоним",
@@ -145,6 +156,7 @@ export const StandardAttributeDescriptionRules = {
       xml: "xr:TypeReductionMode",
       type: "SystemEnumeration",
       typeSE: "TypeReductionMode",
+      defaultValueXML: "TransformValues",
     },
   },
 } as const satisfies MetadataItemRule

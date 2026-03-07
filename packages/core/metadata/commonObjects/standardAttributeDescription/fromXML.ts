@@ -5,9 +5,7 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
-import { getDefaults } from "./defaults"
 import { StandardAttributeDescriptionRules } from "./rules"
 
 export const importStandardAttributeDescriptionsFromXML = (
@@ -33,13 +31,11 @@ export const importStandardAttributeDescriptionsFromXML = (
 
     if (!properties) continue
 
+    if (Object.keys(properties).length === 1 && properties.name !== undefined) continue
+
     const item: StandardAttributeDescription = { ...properties, itemType: "StandardAttributeDescription" as const }
-    const defaults = getDefaults(context, item)
-    const itemWithoutDefaults = removeDefaults(item, defaults)
 
-    if (Object.keys(itemWithoutDefaults).length === 1) continue
-
-    result.push(itemWithoutDefaults)
+    result.push(item)
   }
 
   if (result.length === 0) return undefined
