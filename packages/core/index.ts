@@ -29,6 +29,7 @@ export type {
 } from "./metadata/forms/clientApplicationForm/types"
 export { exportFormMetadataToXML, importChildItemsFromNKDK } from "./metadata/forms/index"
 export type { FormMetadataXML } from "./metadata/forms/index"
+export { syncConfigurationFromXML as importConfigurationFromDirectory } from "./sync/syncConfigurationFromXML"
 export { xmlExport } from "./xml/export/exporter"
 export { importContentFromXML } from "./xml/import/importer"
 export { exportToYAML } from "./yaml/export"
