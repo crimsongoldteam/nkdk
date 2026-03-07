@@ -1,33 +1,33 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/orchestration"
 import {
-  fullPdfDocumentField,
-  fullPdfDocumentFieldPartialYAML,
-  minimalPdfDocumentField,
-  minimalPdfDocumentFieldPartialYAML,
+  fullPDFDocumentField,
+  fullPDFDocumentFieldPartialYAML,
+  minimalPDFDocumentField,
+  minimalPDFDocumentFieldPartialYAML,
 } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("importPdfDocumentFieldFromYAML", () => {
+describe("importPDFDocumentFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
-      yaml: fullPdfDocumentFieldPartialYAML,
-      source: fullPdfDocumentField,
+      itemType: "PDFDocumentField",
+      yaml: fullPDFDocumentFieldPartialYAML,
+      source: fullPDFDocumentField,
     })
 
-    expect(result).toEqual(fullPdfDocumentField)
+    expect(result).toEqual(fullPDFDocumentField)
   })
 
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.PDFDocumentField,
-      yaml: minimalPdfDocumentFieldPartialYAML,
-      source: minimalPdfDocumentField,
+      itemType: "PDFDocumentField",
+      yaml: minimalPDFDocumentFieldPartialYAML,
+      source: minimalPDFDocumentField,
     })
 
-    expect(result).toEqual(minimalPdfDocumentField)
+    expect(result).toEqual(minimalPDFDocumentField)
   })
 })

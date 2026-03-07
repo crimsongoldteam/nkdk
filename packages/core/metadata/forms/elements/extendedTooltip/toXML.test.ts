@@ -1,14 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertyToXML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { exportPropertyToXML } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { ExtendedTooltip } from "./types"
 
-const rule: PropertyRule<ExtendedTooltip> = { type: "ExtendedTooltip" }
+const rule: PropertyRule = { type: "ExtendedTooltip" }
 
 describe("exportExtendedTooltipToXML", () => {
   it("should return default when data is undefined", () => {

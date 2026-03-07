@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromYAML } from "~/metadata/orchestration"
+import { importElementFromPartialYAML } from "~/metadata/orchestration/formElement/fromYAML"
 import {
   fullSearchStringAddition,
   fullSearchStringAdditionYAML,
@@ -8,8 +9,9 @@ import {
   sourceSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockContext } from "~/tests/mockContext"
+import { PropertyRule } from "./rules"
 
-const rule: PropertyRule<any> = { type: "SearchStringAddition" }
+const rule: PropertyRule = { type: "SingleSearchStringAddition" }
 
 describe("SearchStringAddition from YAML", () => {
   describe("Partial", () => {

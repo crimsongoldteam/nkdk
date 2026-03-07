@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullDendrogramField, minimalDendrogramField } from "~/tests/fixtures/forms/dendrogramField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importDendrogramFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.DendrogramField,
+      itemType: "DendrogramField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importDendrogramFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.DendrogramField,
+      itemType: "DendrogramField",
       xml: xmlData.DendrogramField,
     })
 
@@ -32,7 +32,7 @@ describe("importDendrogramFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.DendrogramField,
+      itemType: "DendrogramField",
       xml: xmlData.DendrogramField,
     })
 

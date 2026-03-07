@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
-import { exportPropertiesToXML } from "~/metadata/metadataFactory"
-import { exportEventsToXML } from "~/metadata/metadataFactory/events/toXML"
+import { exportPropertiesToXML } from "~/metadata/orchestration"
+import { exportEventsToXML } from "~/metadata/orchestration/event"
 import { PropertyRule } from "../elements/calendarField/rules"
 import { ClientApplicationFormRules } from "./rules"
-import { ClientApplicationForm, ClientApplicationFormXML, FormRulesTags, FormMetadataXML } from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
 export const exportClientApplicationFormToXML = (
   context: ConfigurationContext,
@@ -50,7 +50,7 @@ export const exportClientApplicationFormToXML = (
 
 export const exportFormMetadataToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: ClientApplicationForm,
   name: string
 ): FormMetadataXML => {

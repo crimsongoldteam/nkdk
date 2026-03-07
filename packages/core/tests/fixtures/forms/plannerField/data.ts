@@ -3,7 +3,7 @@ import {
   PlannerFieldEnterprise,
   PlannerFieldPartialYAML,
 } from "~/metadata/forms/elements/plannerField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
@@ -314,7 +314,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
 }
 
 export const minimalPlannerField: PlannerField = {
-  itemType: CollectionFormElementType.PlannerField,
+  itemType: "PlannerField",
   name: "ПолеПланировщика",
 }
 

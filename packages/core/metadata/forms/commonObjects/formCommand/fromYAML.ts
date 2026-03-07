@@ -1,13 +1,13 @@
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import { importPictureFromYAML } from "~/metadata/commonObjects/picture/fromYAML"
+import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
-import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 
 const importCommandFromYAML = (
   context: ConfigurationContext,
@@ -60,7 +60,7 @@ const importCommandFromYAML = (
 
 export const importCommandsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: FormCommandsYAML | undefined
 ): FormCommands => {
   if (!data) return []

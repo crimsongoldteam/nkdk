@@ -9,18 +9,18 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/fromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory/index.ts"
-import { importBooleanFromXML } from "../boolean/fromXML.ts"
-import { importI8nTextFromXML } from "../i8nText/fromXML.ts"
-import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/fromXML.ts"
-import { importChoiceParametersFromXML } from "../сhoiceParameters/fromXML.ts"
+import { registerTypeRule } from "~/metadata/orchestration/index"
+import { importBooleanFromXML } from "../boolean/fromXML"
+import { importI8nTextFromXML } from "../i8nText/fromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/fromXML"
+import { importChoiceParametersFromXML } from "../сhoiceParameters/fromXML"
 import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
@@ -32,7 +32,7 @@ export const importMetadataAttributesFromXML = (
 
 const importMetadataAttributeFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: MetadataAttributeXML
 ): MetadataAttribute => {
   const props = xml.Properties

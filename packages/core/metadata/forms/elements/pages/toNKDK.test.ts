@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { mockContext } from "~/tests/mockContext"
 import { exportPagesToNKDK } from "./toNKDK"
 import { Pages } from "./types"
@@ -8,15 +8,15 @@ describe("exportPagesToStructure", () => {
   it("should format pages", () => {
     const mockElement: Pages = {
       name: "Страницы",
-      itemType: CollectionFormElementType.Pages,
+      itemType: "Pages",
       childItems: [
         {
           name: "Страница1",
-          itemType: CollectionFormElementType.Page,
+          itemType: "Page",
           childItems: [
             {
               name: "Элемент1",
-              itemType: CollectionFormElementType.InputField,
+              itemType: "InputField",
             },
           ],
         },

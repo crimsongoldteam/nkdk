@@ -3,7 +3,7 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
@@ -60,7 +60,7 @@ export interface ButtonGroupPartialYAML {
   Ширина?: number
   ШрифтЗаголовка?: FontYAML
   ИсточникКоманд?: string
-  ПодчиненныеЭлементы?: CommandBarGroupChildItemsTypedYAML
+  Элементы?: CommandBarGroupChildItemsTypedYAML
 }
 
 export interface ButtonGroupTypedYAML extends ButtonGroupPartialYAML {

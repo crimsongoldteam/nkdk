@@ -1,7 +1,7 @@
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportUserVisibleToYAMLDeprecated } from "~/metadata/commonObjects/userVisible/toYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { StandardCommandsGroupToYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
@@ -9,7 +9,7 @@ import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, Comma
 
 export const exportCommandInterfaceToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandInterface | undefined
 ): CommandInterfaceYAML | undefined => {
   if (!data) return undefined

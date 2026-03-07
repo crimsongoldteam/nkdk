@@ -2,7 +2,7 @@ import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nTe
 import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItem } from "~/metadata/metadataFactory"
+import { MetadataItem } from "~/metadata/orchestration"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseYAML } from "~/metadata/systemEnumerations/types"
 
 export interface FormCommand extends MetadataItem {

@@ -1,12 +1,12 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/toXML"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 
 export const exportCommandInterfaceToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: CommandInterface | undefined
 ): CommandInterfaceXML | undefined => {
   if (!data) return undefined
@@ -54,7 +54,7 @@ const exportCommandInterfaceItemToXML = (
   }
 
   if (item.visible) {
-    const visibleXML = exportUserVisibleToXML<CommandInterfaceItem>(
+    const visibleXML = exportUserVisibleToXML(
       context,
       { type: "UserVisible", yaml: "РазрешитьИспользование", yamlDeny: "ЗапретитьИспользование" },
       item.visible

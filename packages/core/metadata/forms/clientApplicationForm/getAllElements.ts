@@ -1,9 +1,9 @@
-import { AllChildItem, AllChildItems } from "../commonObjects/childItems/types"
+import { ChildItem } from "../commonObjects/childItems/types"
 import { ClientApplicationForm } from "./types"
 
-export const getAllElements = (form: ClientApplicationForm): AllChildItems => {
-  const elements: AllChildItems = []
-  const queue: AllChildItems = []
+export const getAllElements = (form: ClientApplicationForm): ChildItem[] => {
+  const elements: ChildItem[] = []
+  const queue: ChildItem[] = []
 
   for (const childItem of form.childItems ?? []) {
     queue.push(childItem)
@@ -26,8 +26,8 @@ export const getAllElements = (form: ClientApplicationForm): AllChildItems => {
   return elements
 }
 
-const getChildItems = (element: AllChildItem): AllChildItems => {
-  const result: AllChildItems = []
+const getChildItems = (element: ChildItem): ChildItem[] => {
+  const result: ChildItem[] = []
 
   if ("childItems" in element && Array.isArray(element.childItems)) {
     result.push(...element.childItems)

@@ -1,11 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { Picture, PictureXML } from "./types"
 
 export const exportPictureToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined
 ): PictureXML | undefined => {
   if (!picture) return undefined

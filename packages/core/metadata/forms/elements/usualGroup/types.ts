@@ -3,12 +3,12 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   GroupChildItems,
   // GroupChildItemsEnterprise,
-  GroupChilItemPartialYAML,
+  GroupChildItemsPartialYAML,
 } from "../../commonObjects/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { UsualGroupRules } from "./rules"
@@ -107,7 +107,7 @@ export interface UsualGroupPartialYAML {
 
 export interface UsualGroupTypedYAML extends UsualGroupPartialYAML {
   Тип: "Группа"
-  ПодчиненныеЭлементы?: GroupChilItemPartialYAML
+  Элементы?: GroupChildItemsPartialYAML
 }
 
 export type UsualGroupEnterprise = EnterpriseType<typeof UsualGroupRules>

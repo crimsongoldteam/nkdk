@@ -1,18 +1,18 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
+import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
+import { BaseElement } from "../baseElement/types"
 import { getSearchControlAdditionName } from "./helper"
-import { SearchControlAddition, SingleSearchControlAddition } from "./types"
 export type { ElementRule, PropertyRule }
 
-const commonProperties: ElementRule<SearchControlAddition>["properties"] = {
+const commonProperties: MetadataItemRule["properties"] = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
-  childItems: { yaml: "ПодчиненныеЭлементы", type: "ChildItems", defaultValue: [] },
+  childItems: { yaml: "Элементы", type: "CommandBarChildItems", defaultValue: [] },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
@@ -58,6 +58,8 @@ const commonProperties: ElementRule<SearchControlAddition>["properties"] = {
 }
 
 export const SingleSearchControlAdditionRules = {
+  itemType: "SingleSearchControlAddition",
+  enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -67,21 +69,12 @@ export const SingleSearchControlAdditionRules = {
       forSingleElement: true,
     },
     ...commonProperties,
-  } as any,
-  registerAsType: {
-    SearchControlAddition: {
-      toXML: (context, _element) => {
-        if (!context.elementsTree) throw new Error("elementContext is not defined")
-        const parent = getParentFromContext(context, CollectionFormElementType.Table)
-        const id = getElementId(context)
-        const name = getSearchControlAdditionName(parent)
-        return { name, id }
-      },
-    },
   },
-} as const satisfies ElementRule<SingleSearchControlAddition, "additionSource">
+} as const satisfies ElementRule
 
 export const SearchControlAdditionRules = {
+  itemType: "SearchControlAddition",
+  enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -91,7 +84,19 @@ export const SearchControlAdditionRules = {
     },
     ...commonProperties,
   },
-} as const satisfies ElementRule<SearchControlAddition>
+} as const satisfies ElementRule
 
-registerElementRule("SearchControlAddition", SearchControlAdditionRules as ElementRule<SearchControlAddition>)
-registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules as ElementRule<SingleSearchControlAddition, "additionSource">)
+registerElementAsType({
+  propertyType: "SingleSearchControlAddition",
+  elementRule: SingleSearchControlAdditionRules,
+  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+    if (!context.elementsTree) throw new Error("elementContext is not defined")
+    const parent = getParentFromContext(context, ["Table"])
+    const id = getElementId(context)
+    const name = getSearchControlAdditionName(parent)
+    return { name, id }
+  },
+})
+
+registerElementRule("SearchControlAddition", SearchControlAdditionRules)
+registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullProgressBarField, minimalProgressBarField } from "~/tests/fixtures/forms/progressBarField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importProgressBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ProgressBarField,
+      itemType: "ProgressBarField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importProgressBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ProgressBarField,
+      itemType: "ProgressBarField",
       xml: xmlData.ProgressBarField,
     })
 
@@ -32,7 +32,7 @@ describe("importProgressBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ProgressBarField,
+      itemType: "ProgressBarField",
       xml: xmlData.ProgressBarField,
     })
 

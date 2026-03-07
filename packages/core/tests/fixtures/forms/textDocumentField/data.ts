@@ -3,11 +3,10 @@ import {
   TextDocumentFieldEnterprise,
   TextDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/textDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
-  itemType: CollectionFormElementType.TextDocumentField,
+  itemType: "TextDocumentField",
   name: "ПолеТекстовогоДокумента",
   title: {
     items: { ru: "Поле текстового документа" },
@@ -245,7 +244,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
 }
 
 export const minimalTextDocumentField: TextDocumentField = {
-  itemType: CollectionFormElementType.TextDocumentField,
+  itemType: "TextDocumentField",
   name: "ПолеТекстовогоДокумента",
 }
 

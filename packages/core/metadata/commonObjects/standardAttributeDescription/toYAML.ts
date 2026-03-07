@@ -15,7 +15,7 @@ import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
 import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToYAML } from "../сhoiceParameters/toYAML"
@@ -26,7 +26,7 @@ export const exportStandartAttributeNameToYAML = (name: StandartAttributeName): 
 
 export const exportStandardAttributeDescriptionsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsYAML | undefined => {
   if (!data) return undefined
@@ -45,7 +45,7 @@ export const exportStandardAttributeDescriptionsToYAML = (
 
 const exportStandardAttributeDescriptionToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionYAML => {
   const result: StandardAttributeDescriptionYAML = {}

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { FormattedI8nTextPropertyRule } from "~/metadata/metadataFactory"
 import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
 import { mockContext, mockContextToYAML, mockRule } from "~/tests/mockContext"
 import {
@@ -7,6 +6,7 @@ import {
   exportFormattedI8nTextOtherToYAML,
   exportFormattedI8nTextToYAML,
 } from "./toYAML"
+import { FormattedI8nTextPropertyRule } from "./types"
 
 describe("exportFormattedI8nTextToYAML", () => {
   describe("exportFormattedI8nTextToYAML", () => {
@@ -18,7 +18,7 @@ describe("exportFormattedI8nTextToYAML", () => {
             type: "FormattedI8nText",
             yaml: "Title",
             yamlFormatted: "FormattedTitle",
-          } as unknown as FormattedI8nTextPropertyRule<any>,
+          } as unknown as FormattedI8nTextPropertyRule,
           value: fixture.text,
         })
 

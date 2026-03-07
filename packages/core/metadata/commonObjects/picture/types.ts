@@ -1,5 +1,6 @@
+import { Static, Type } from "@sinclair/typebox"
 import * as SE from "../../systemEnumerations/types"
-import { StringboolYAML } from "../boolean/types"
+import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 
 export interface PictureXML {
   "xr:Ref"?: string
@@ -29,13 +30,22 @@ export interface PictureYAMLExtended {
   ПрозрачныйПиксель?: { x: number; y: number }
 }
 
-export type PictureYAML = PictureYAMLRef | PictureYAMLExtended
+export const PictureJSONSchema = Type.Union([
+  Type.String(),
+  Type.Object({
+    Ссылка: Type.Union([Type.String()]),
+    ПрозрачныйФон: Type.Optional(BooleanJSONSchema),
+    ПрозрачныйПиксель: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number() })),
+  }),
+])
+
+export type PictureYAML = Static<typeof PictureJSONSchema>
 
 // #region Enterprise
 
 export interface PredifinedPictureEnterprise {
   Type: "Picture"
-  Value: string
+  Value?: `PictureLib.${SE.PictureLib}` | string
 }
 
 export interface AbsolutePictureEnterprise {

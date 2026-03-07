@@ -6,6 +6,7 @@ import {
 import { EmptyFileSystem } from "langium"
 import { parseHelper } from "langium/test"
 import { createNkdkServices, type Form as NkdkForm } from "nkdk-language"
+import { getFormFromCache } from "src/documentCache.js"
 import * as vscode from "vscode"
 import type { SseServerHandle } from "./sseServer.js"
 
@@ -18,13 +19,15 @@ export function registerDocumentChangeHandler(sseServer: SseServerHandle | undef
   return vscode.workspace.onDidChangeTextDocument(async (e) => {
     const payload = await getPayload(e.document)
     if (!payload) {
-      throw new Error("Не удалось получить payload")
+      return
     }
     sseServer?.broadcast(payload)
   })
 }
 
 export async function getPayload(document: vscode.TextDocument): Promise<ClientApplicationFormEnterprise> {
+  if (document.languageId !== "yaml" && document.languageId !== "nkdk") return undefined
+
   const minimalContext: FormContext = {
     defaultLanguage: "ru",
     enterprise: {
@@ -33,13 +36,7 @@ export async function getPayload(document: vscode.TextDocument): Promise<ClientA
       elementsTree: [],
     },
   }
-  const nkdkString = document.getText()
-  const doc = await parseNkdk(nkdkString)
-  const nkdkAst = doc.parseResult?.value
-  if (doc.parseResult.parserErrors.length > 0 || !nkdkAst) {
-    throw new Error("Ошибка разбора NKDK")
-  }
-  const form = importClientApplicationFromFromNKDK({ context: minimalContext, value: nkdkAst })
+  const form = await getFormFromCache(document)
   if (!form) {
     throw new Error("Не удалось импортировать форму из NKDK")
   }

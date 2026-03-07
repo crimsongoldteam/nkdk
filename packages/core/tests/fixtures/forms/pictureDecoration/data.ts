@@ -3,18 +3,19 @@ import {
   PictureDecorationEnterprise,
   PictureDecorationPartialYAML,
 } from "~/metadata/forms/elements/pictureDecoration/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
-  itemType: CollectionFormElementType.PictureDecoration,
+  itemType: "PictureDecoration",
   name: "ДекорацияКартинки",
   title: {
     formatted: false,
     items: { ru: "Заголовок декорации картинки" },
   },
   border: {
+    controlBorderType: "Single",
     width: 1,
   },
   borderColor: { type: "WebColor", value: "Black" },
@@ -23,7 +24,7 @@ export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
   hyperlink: false,
   nonselectedPictureText: "Нет картинки",
   picture: {
-    ref: "Picture",
+    ref: "Print",
     type: "StandardPicture",
     loadTransparent: true,
   },
@@ -121,8 +122,12 @@ export const fullPictureDecorationEnterprise = {
   PictureSize: { Type: "SystemEnumeration", Value: "PictureSize.AutoSize" },
   Scale: 100,
   Zoomable: true,
-  Title: undefined,
-  Border: { Type: "Border", Value: "Border.Single" },
+  Title: "Заголовок декорации картинки",
+  Border: {
+    Type: "Border",
+    Value: "ControlBorderType.Single",
+    Width: 1,
+  },
   Picture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PictureDecorationEnterprise>
 
@@ -151,14 +156,13 @@ export const fullPictureDecorationPartialYAML: Required<
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",
   Гиперссылка: "Ложь",
-  Картинка: "Картинка",
+  Картинка: "Печать",
   Масштаб: 100,
   Масштабировать: "Истина",
   РазрешитьНачалоПеретаскивания: "Истина",
   РазрешитьПеретаскивание: "Истина",
   Рамка: {
-    Имя: undefined,
-    ТипРамки: undefined,
+    ТипРамки: "Одинарная",
     Ширина: 1,
   },
   ТекстНевыбраннойКартинки: "Нет картинки",
@@ -177,7 +181,7 @@ export const fullPictureDecorationPartialYAML: Required<
 }
 
 export const minimalPictureDecoration: PictureDecoration = {
-  itemType: CollectionFormElementType.PictureDecoration,
+  itemType: "PictureDecoration",
   name: "ДекорацияКартинки",
 }
 
@@ -192,7 +196,7 @@ export interface PictureDecorationStructureFixture {
 
 export const sourcePictureDecoration: PictureDecoration = {
   name: "ДекорацияКартинки",
-  itemType: CollectionFormElementType.PictureDecoration,
+  itemType: "PictureDecoration",
   title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
 }
 
@@ -201,7 +205,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
   //   name: "with title",
   //   element: {
   //     name: "ИмяПоля",
-  //     itemType: CollectionFormElementType.PictureDecoration,
+  //     itemType: "PictureDecoration",
   //     picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
   //     title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
   //   },
@@ -216,7 +220,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     element: {
       name: "ИмяПоля",
       picture: { type: "StandardPicture", ref: "Print", loadTransparent: true },
-      itemType: CollectionFormElementType.PictureDecoration,
+      itemType: "PictureDecoration",
     },
     structured: {
       strings: ["![Печать] %ИмяПоля"],
@@ -228,7 +232,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     element: {
       name: "ИмяПоля",
       picture: { type: "CommonPicture", ref: "Предупреждение32", loadTransparent: false },
-      itemType: CollectionFormElementType.PictureDecoration,
+      itemType: "PictureDecoration",
     },
     structured: {
       strings: ["![Предупреждение32] %ИмяПоля"],
@@ -239,7 +243,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     name: "without picture",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.PictureDecoration,
+      itemType: "PictureDecoration",
     },
     structured: {
       strings: ["!%ИмяПоля"],
@@ -250,7 +254,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
     name: "with absolute picture",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.PictureDecoration,
+      itemType: "PictureDecoration",
       picture: {
         type: "AbsolutePicture",
         ref: "Picture.png",

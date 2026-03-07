@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToYAML } from "../metadataField/toYAML"
 import { TypeLink, TypeLinkYAML } from "./types"
 
 export const exportTypeLinkToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: TypeLink | undefined
 ): TypeLinkYAML | undefined => {
   if (!data) return undefined

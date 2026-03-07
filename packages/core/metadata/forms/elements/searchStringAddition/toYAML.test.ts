@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML, exportPropertyToYAML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { exportElementToPartialYAML, exportPropertyToYAML } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   fullSearchStringAddition,
   fullSearchStringAdditionYAML,
@@ -9,10 +9,9 @@ import {
   minimalSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockContext } from "~/tests/mockContext"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
-  type: "SearchStringAddition",
+const rule: PropertyRule = {
+  type: "SingleSearchStringAddition",
   yaml: "ОтображениеСтрокиПоиска",
 }
 describe("SearchStringAddition to YAML", () => {

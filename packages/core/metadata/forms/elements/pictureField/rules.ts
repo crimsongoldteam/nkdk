@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { PictureField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const PictureFieldRules = {
+  itemType: "PictureField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PictureField",
   properties: {
@@ -154,6 +154,6 @@ export const PictureFieldRules = {
     drag: "Перетаскивание",
     dragCheck: "ПроверкаПеретаскивания",
   },
-} as const satisfies ElementRule<PictureField>
+} as const satisfies ElementRule
 
-registerElementRule("PictureField", PictureFieldRules as ElementRule<PictureField>)
+registerElementRule("PictureField", PictureFieldRules)

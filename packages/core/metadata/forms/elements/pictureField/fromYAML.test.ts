@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  CollectionFormElementType,
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-} from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import {
   fullPictureField,
   fullPictureFieldPartialYAML,
@@ -42,7 +38,7 @@ describe("importPictureFieldFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.PictureField,
+        itemType: "PictureField",
         yaml: fullPictureFieldPartialYAML,
         source: fullPictureField,
       })
@@ -53,7 +49,7 @@ describe("importPictureFieldFromYAML", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.PictureField,
+        itemType: "PictureField",
         yaml: minimalPictureFieldPartialYAML,
         source: minimalPictureField,
       })

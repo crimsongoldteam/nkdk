@@ -13,7 +13,7 @@ import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
 import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
@@ -22,7 +22,7 @@ import { exportChoiceParametersToYAML } from "../сhoiceParameters/toYAML"
 
 export const exportMetadataAttributesToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesYAML | undefined => {
   if (!data) return undefined
@@ -34,7 +34,7 @@ export const exportMetadataAttributesToYAML = (
 
 const exportMetadataAttributeToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttribute
 ): MetadataAttributeYAML => {
   const type = exportTypeDescriptionToYAML(context, undefined, data.type)!

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/orchestration"
 import {
   fullRadioButtonField,
   fullRadioButtonFieldPartialYAML,
@@ -12,7 +12,7 @@ describe("importRadioButtonFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.RadioButtonField,
+      itemType: "RadioButtonField",
       yaml: fullRadioButtonFieldPartialYAML,
       source: fullRadioButtonField,
     })
@@ -23,7 +23,7 @@ describe("importRadioButtonFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.RadioButtonField,
+      itemType: "RadioButtonField",
       yaml: minimalRadioButtonFieldPartialYAML,
       source: minimalRadioButtonField,
     })

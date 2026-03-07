@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullLabelField, minimalLabelField } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importLabelFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importLabelFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       xml: xmlData.LabelField,
     })
 
@@ -32,7 +32,7 @@ describe("importLabelFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       xml: xmlData.LabelField,
     })
 

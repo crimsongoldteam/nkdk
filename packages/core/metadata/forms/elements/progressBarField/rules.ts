@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { ProgressBarField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const ProgressBarFieldRules = {
+  itemType: "ProgressBarField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ProgressBarField",
   properties: {
@@ -142,6 +142,6 @@ export const ProgressBarFieldRules = {
   events: {
     onChange: "ПриИзменении",
   },
-} as const satisfies ElementRule<ProgressBarField>
+} as const satisfies ElementRule
 
-registerElementRule("ProgressBarField", ProgressBarFieldRules as ElementRule<ProgressBarField>)
+registerElementRule("ProgressBarField", ProgressBarFieldRules)

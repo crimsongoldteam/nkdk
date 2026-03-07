@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
-import { exportEventsToYAML } from "~/metadata/metadataFactory/events"
+import { exportPropertiesToYAML } from "~/metadata/orchestration"
+import { exportEventsToYAML } from "~/metadata/orchestration/event"
 import { exportChildItemsToPartialYAML } from "../commonObjects/childItems/toYAML"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationFormRules } from "./rules"
@@ -10,10 +10,10 @@ export const exportClientApplicationFormToYAML = (
   context: ConfigurationContext,
   data: ClientApplicationForm
 ): ClientApplicationFormYAML | undefined => {
-  const result = exportPropertiesToYAML({
+  const properties = exportPropertiesToYAML({
     context,
     data: data,
-    rules: ClientApplicationFormRules,
+    rule: ClientApplicationFormRules,
   })
 
   const events = exportEventsToYAML({
@@ -23,7 +23,12 @@ export const exportClientApplicationFormToYAML = (
 
   const allElements = getAllElements(data)
   const childItemsPartial = exportChildItemsToPartialYAML(context, allElements)
-  const childItems = childItemsPartial ? { ПодчиненныеЭлементы: childItemsPartial } : {}
 
-  return { ...result, ...events, ...childItems }
+  const result: ClientApplicationFormYAML = {
+    ...properties,
+    ...events,
+    ...(childItemsPartial ? { Элементы: childItemsPartial } : {}),
+  }
+
+  return result
 }

@@ -13,10 +13,10 @@ export default defineConfig({
     environment: "node",
     globals: true,
     watch: false,
-    setupFiles: [resolve(__dirname, "./tests/setupTests.ts")],
+    setupFiles: [resolve(__dirname, "./tests/setupTests")],
     alias: {
       "~": resolve(__dirname, "./"),
-      "nkdk-language": resolve(__dirname, "../language/src/index.ts"),
+      "nkdk-language": resolve(__dirname, "../language/src/index"),
     },
   },
 })

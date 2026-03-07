@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { Font, FontEnterprise } from "./types"
 
 export const exportFontToEnterprise = (params: { value: Font | undefined }): FontEnterprise | undefined => {

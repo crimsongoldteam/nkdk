@@ -7,26 +7,26 @@ import {
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
 import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
-import { importChoiceParametersFromYAML } from "~/metadata/commonObjects/сhoiceParameters/fromYAML.ts"
+import { importChoiceParametersFromYAML } from "~/metadata/commonObjects/сhoiceParameters/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules.ts"
-import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
-import { registerTypeRule } from "~/metadata/metadataFactory/index.ts"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import {
   importSystemEnumerationFromYAML,
   importSystemEnumerationFromYAMLDeprecated,
 } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importI8nTextFromYAML } from "../i8nText/fromYAML.ts"
-import { importMetadataValueFromYAML } from "../metadataValue/fromYAML.ts"
-import { importTypeLinkFromYAML } from "../typeLink/fromYAML.ts"
+import { importI8nTextFromYAML } from "../i8nText/fromYAML"
+import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
+import { importTypeLinkFromYAML } from "../typeLink/fromYAML"
 import { getDefaultsAttribute } from "./defaults"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 export const importMetadataAttributesFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributesYAML | undefined
 ): MetadataAttributes | undefined => {
   if (!data) return undefined
@@ -38,7 +38,7 @@ export const importMetadataAttributesFromYAML = (
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataAttributeYAML,
   name: string
 ): MetadataAttribute => {

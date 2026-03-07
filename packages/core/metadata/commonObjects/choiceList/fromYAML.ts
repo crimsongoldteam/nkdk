@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importFormChoiceListValueFromYAML } from "../metadataValue/fromYAML"
 import { ChoiceList, ChoiceListYAML } from "./types"
 
 export const importChoiceListFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: ChoiceListYAML | undefined
 ): ChoiceList | undefined => {
   if (!data) return undefined

@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataSimpleValueToXML } from "../metadataValue/toXML"
 import { TypeLink, TypeLinkXML } from "./types"
 
 export const exportTypeLinkToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   typeLink: TypeLink | undefined
 ): TypeLinkXML | undefined => {
   if (!typeLink) return undefined
@@ -19,7 +19,7 @@ export const exportTypeLinkToXML = (
 
 export const exportTypeLinkWithXSITypeToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   typeLink: TypeLink | undefined
 ): TypeLinkXML | undefined => {
   if (!typeLink) return undefined

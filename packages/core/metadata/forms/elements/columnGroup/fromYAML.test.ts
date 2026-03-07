@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  CollectionFormElementType,
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-} from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import {
   fullColumnGroup,
   fullColumnGroupPartialYAML,
@@ -41,7 +37,7 @@ describe("importColumnGroupFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.ColumnGroup,
+        itemType: "ColumnGroup",
         yaml: fullColumnGroupPartialYAML,
         source: fullColumnGroup,
       })

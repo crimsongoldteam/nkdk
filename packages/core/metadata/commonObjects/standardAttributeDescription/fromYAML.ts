@@ -14,7 +14,7 @@ import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сh
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChoiceParametersFromYAML } from "../сhoiceParameters/fromYAML"
@@ -22,7 +22,7 @@ import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptionsYAML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!data) return undefined
@@ -40,7 +40,7 @@ export const importStandardAttributeDescriptionsFromYAML = (
 
 const importStandardAttributeDescriptionFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: StandardAttributeDescriptionYAML,
   name: string
 ): StandardAttributeDescription => {

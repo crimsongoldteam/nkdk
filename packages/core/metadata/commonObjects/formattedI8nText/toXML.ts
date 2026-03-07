@@ -1,17 +1,17 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormattedI8nTextPropertyRule, PropertyRule, registerTypeRule } from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { isEmptyI8nText } from "../i8nText/helper"
 import { exportI8nTextToXML } from "../i8nText/toXML"
-import { FormattedI8nText, FormattedI8nTextXML } from "./types"
+import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextXML } from "./types"
 
 export const exportFormattedI8nTextToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   data: FormattedI8nText | undefined
 ): FormattedI8nTextXML | undefined => {
   if (!data) return undefined
 
-  const formattedRule = rule as FormattedI8nTextPropertyRule<any>
+  const formattedRule = rule as FormattedI8nTextPropertyRule
   if (formattedRule.xmlWithDefaultLanguage && isEmptyI8nText(context, data) && !data.formatted) {
     return undefined
   }

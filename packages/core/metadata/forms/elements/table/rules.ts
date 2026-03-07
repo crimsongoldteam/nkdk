@@ -1,15 +1,15 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { Table } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const TableRules = {
+  itemType: "Table",
   enterpriseField: "FormTable",
   enterpriseFieldType: "None",
   properties: {
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
-    autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar" },
+    autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar", toEnterprise: false },
     autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean" },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
@@ -28,14 +28,14 @@ export const TableRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     changeRowOrder: { yaml: "ИзменятьПорядокСтрок", type: "boolean" },
     changeRowSet: { yaml: "ИзменятьСоставСтрок", type: "boolean" },
-    childItems: { type: "ChildItems", defaultValue: [], fromPartialYAML: true },
+    childItems: { type: "TableChildItems", defaultValue: [], fromPartialYAML: true },
     choiceMode: { yaml: "РежимВыбора", type: "boolean" },
     commandBarLocation: {
       yaml: "ПоложениеКоманднойПанели",
       type: "SystemEnumeration",
       typeSE: "FormItemCommandBarLabelLocation",
     },
-    commandSet: { yaml: "Команда", type: "CommandSet" },
+    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
@@ -139,7 +139,12 @@ export const TableRules = {
       typeSE: "TableRowSelectionMode",
     },
     rowsPicture: { yaml: "КартинкаСтрок", type: "Picture" },
-    searchControl: { yaml: "УправлениеПоиском", type: "SearchControlAddition", xml: "SearchControlAddition" },
+    searchControl: {
+      yaml: "УправлениеПоиском",
+      type: "SingleSearchControlAddition",
+      xml: "SearchControlAddition",
+      toEnterprise: false,
+    },
     searchControlLocation: {
       yaml: "ПоложениеУправленияПоиском",
       type: "SystemEnumeration",
@@ -157,7 +162,8 @@ export const TableRules = {
     },
     searchStringRepresentation: {
       yaml: "ОтображениеСтрокиПоиска",
-      type: "SearchStringAddition",
+      type: "SingleSearchStringAddition",
+      toEnterprise: false,
       xml: "SearchStringAddition",
     },
     selectionMode: {
@@ -216,6 +222,7 @@ export const TableRules = {
       yaml: "ОтображениеСостоянияПросмотра",
       type: "ViewStatusAddition",
       xml: "ViewStatusAddition",
+      toEnterprise: false,
     },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
@@ -264,6 +271,6 @@ export const TableRules = {
     onCurrentParentChange: "ПриСменеТекущегоРодителя",
     dragCheck: "ПроверкаПеретаскивания",
   },
-} as const satisfies ElementRule<Table>
+} as const satisfies ElementRule
 
-registerElementRule("Table", TableRules as ElementRule<Table>)
+registerElementRule("Table", TableRules)

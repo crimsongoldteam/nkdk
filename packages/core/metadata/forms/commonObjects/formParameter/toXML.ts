@@ -1,12 +1,12 @@
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
 
 export const exportFormParametersToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   parameters: FormParameters | undefined
 ): { Parameter: FormParametersXML } | undefined => {
   if (parameters === undefined || parameters.length === 0) {
@@ -24,7 +24,7 @@ export const exportFormParametersToXML = (
 
 const exportFormParameterToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   parameter: FormParameter
 ): FormParameterXML => {
   const result: FormParameterXML = {

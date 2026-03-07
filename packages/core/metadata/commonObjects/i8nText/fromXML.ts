@@ -1,11 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   xml: I8nTextXML | undefined
 ): I8nText | undefined => {
   if (!xml) return undefined

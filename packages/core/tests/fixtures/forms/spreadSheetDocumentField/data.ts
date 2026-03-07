@@ -3,11 +3,11 @@ import {
   SpreadSheetDocumentFieldEnterprise,
   SpreadSheetDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {
-  itemType: CollectionFormElementType.SpreadSheetDocumentField,
+  itemType: "SpreadSheetDocumentField",
   name: "ПолеТабличногоДокумента",
   title: {
     items: { ru: "Поле табличного документа" },
@@ -372,7 +372,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
 }
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
-  itemType: CollectionFormElementType.SpreadSheetDocumentField,
+  itemType: "SpreadSheetDocumentField",
   name: "ПолеТабличногоДокумента",
 }
 

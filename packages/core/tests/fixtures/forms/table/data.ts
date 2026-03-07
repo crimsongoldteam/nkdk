@@ -1,8 +1,7 @@
 import { TableChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TableEnterprise, TablePartialYAML } from "~/metadata/forms/elements/table/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export interface TableFixture {
@@ -20,7 +19,7 @@ export interface TableFixtures {
 }
 
 export const sourceTable: Table = {
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   name: "Таблица",
   autoCommandBar: {
     itemType: "AutoCommandBar",
@@ -53,7 +52,7 @@ export const sourceTable: Table = {
 }
 
 export const fullTable: RequiredFieldsElement<Table> = {
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   name: "Таблица",
   allowGettingCurrentRowURL: true,
   allowRootChoice: true,
@@ -593,17 +592,12 @@ export const fullTableEnterprise = {
   AllowRootChoice: true,
   AllowGettingCurrentRowURL: true,
   UserSettingsGroup: "ГруппаПользовательскихНастроек",
-  AutoCommandBar: undefined,
-  CommandSet: undefined,
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  SearchControl: undefined,
-  SearchStringRepresentation: undefined,
-  ViewStatusRepresentation: undefined,
 } satisfies Required<TableEnterprise>
 
 export const fullTableChildItems: TableChildItemsPartialYAML = {
   ТаблицаГруппа1: {
-    ПодчиненныеЭлементы: {
+    Элементы: {
       ТаблицаПолеВвода: {
         Тип: "ПолеВвода",
         ПутьКДанным: "Таблица.ПолеВвода",
@@ -627,7 +621,7 @@ export const fullTableChildItems: TableChildItemsPartialYAML = {
 }
 
 export const minimalTable: Table = {
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   name: "Таблица",
   childItems: [],
 }
@@ -637,12 +631,12 @@ export const minimalTableYAML: TablePartialYAML = {}
 export const oneColumnTable: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
     } as InputField,
   ],
 }
@@ -650,19 +644,19 @@ export const oneColumnTable: Table = {
 export const twoColumnTable: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
       dataPath: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
     } as InputField,
     {
       name: "Колонка2",
       dataPath: "Колонка2",
       title: { items: { ru: "Колонка 2" } },
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
     } as InputField,
   ],
 }
@@ -670,7 +664,7 @@ export const twoColumnTable: Table = {
 export const tableWithAutoCommandBar: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   autoCommandBar: {
     itemType: "AutoCommandBar",
     autofill: true,
@@ -695,13 +689,13 @@ export const tableWithAutoCommandBar: Table = {
 export const inputColumnTable: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
       dataPath: "Колонка1",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
     } as InputField,
   ],
 }
@@ -709,7 +703,7 @@ export const inputColumnTable: Table = {
 export const checkboxColumnTable: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
@@ -723,7 +717,7 @@ export const checkboxColumnTable: Table = {
 export const labelColumnTable: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
@@ -736,7 +730,7 @@ export const labelColumnTable: Table = {
 export const pictureColumnTable: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
@@ -749,7 +743,7 @@ export const pictureColumnTable: Table = {
 export const tableWithHorizontalColumnGroup: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
@@ -763,7 +757,7 @@ export const tableWithHorizontalColumnGroup: Table = {
 export const tableWithVerticalColumnGroup: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",
@@ -777,7 +771,7 @@ export const tableWithVerticalColumnGroup: Table = {
 export const tableWithInCellColumnGroup: Table = {
   name: "Таблица1",
   dataPath: "Таблица1",
-  itemType: CollectionFormElementType.Table,
+  itemType: "Table",
   childItems: [
     {
       name: "Колонка1",

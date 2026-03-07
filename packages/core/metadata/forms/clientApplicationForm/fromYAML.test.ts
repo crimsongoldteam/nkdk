@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import {
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
@@ -8,13 +8,13 @@ import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
-import { ClientApplicationFormYAML, ClientApplicationForm } from "./types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
 describe("importClientApplicationFormFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importClientApplicationFormFromYAML(mockContext, fullClientApplicationFormYAML, {
       commands: [],
-      childItems: [{ name: "ПолеВвода1", itemType: CollectionFormElementType.InputField }],
+      childItems: [{ name: "ПолеВвода1", itemType: "InputField" }],
       itemType: "ClientApplicationForm",
       autoCommandBar: {
         itemType: "AutoCommandBar",
@@ -29,20 +29,20 @@ describe("importClientApplicationFormFromYAML", () => {
   it("should import from form command bar", () => {
     // const button: Button = {
     //   name: "Кнопка1",
-    //   itemType: CollectionFormElementType.Button,
+    //   itemType: "Button",
     // }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       childItems: [],
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      ПодчиненныеЭлементы: {
+      Элементы: {
         ГруппаКнопок1: {
           Доступность: "Ложь",
-          ПодчиненныеЭлементы: {
+          Элементы: {
             Кнопка1: {
               Тип: "Кнопка",
               ИмяКоманды: "Команда1",
@@ -72,12 +72,12 @@ describe("importClientApplicationFormFromYAML", () => {
         childItems: [
           {
             name: "ГруппаКнопок1",
-            itemType: CollectionFormElementType.ButtonGroup,
+            itemType: "ButtonGroup",
             enabled: false,
             childItems: [
               {
                 name: "Кнопка1",
-                itemType: CollectionFormElementType.Button,
+                itemType: "Button",
                 commandName: "Команда1",
               },
             ],
@@ -93,18 +93,18 @@ describe("importClientApplicationFormFromYAML", () => {
   it("should import from table command bar", () => {
     // const button: Button = {
     //   name: "Кнопка1",
-    //   itemType: CollectionFormElementType.Button,
+    //   itemType: "Button",
     // }
 
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       childItems: [],
     }
 
     const table: Table = {
       name: "Таблица1",
-      itemType: CollectionFormElementType.Table,
+      itemType: "Table",
       multipleChoice: false,
       autoCommandBar: {
         itemType: "AutoCommandBar",
@@ -115,10 +115,10 @@ describe("importClientApplicationFormFromYAML", () => {
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      ПодчиненныеЭлементы: {
+      Элементы: {
         ГруппаКнопок1: {
           Доступность: "Ложь",
-          ПодчиненныеЭлементы: {
+          Элементы: {
             Кнопка1: { Тип: "Кнопка", ИмяКоманды: "Команда1" },
           },
         } as ButtonGroupPartialYAML,
@@ -137,7 +137,7 @@ describe("importClientApplicationFormFromYAML", () => {
       childItems: [
         {
           name: "Таблица1",
-          itemType: CollectionFormElementType.Table,
+          itemType: "Table",
           multipleChoice: false,
           autoCommandBar: {
             itemType: "AutoCommandBar",
@@ -145,12 +145,12 @@ describe("importClientApplicationFormFromYAML", () => {
             childItems: [
               {
                 name: "ГруппаКнопок1",
-                itemType: CollectionFormElementType.ButtonGroup,
+                itemType: "ButtonGroup",
                 enabled: false,
                 childItems: [
                   {
                     name: "Кнопка1",
-                    itemType: CollectionFormElementType.Button,
+                    itemType: "Button",
                     commandName: "Команда1",
                   },
                 ],

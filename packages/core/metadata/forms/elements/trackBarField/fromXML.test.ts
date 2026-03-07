@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullTrackBarField, minimalTrackBarField } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importTrackBarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.TrackBarField,
+      itemType: "TrackBarField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importTrackBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.TrackBarField,
+      itemType: "TrackBarField",
       xml: xmlData.TrackBarField,
     })
 
@@ -32,7 +32,7 @@ describe("importTrackBarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.TrackBarField,
+      itemType: "TrackBarField",
       xml: xmlData.TrackBarField,
     })
 

@@ -3,11 +3,11 @@ import {
   GeographicalSchemaFieldEnterprise,
   GeographicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {
-  itemType: CollectionFormElementType.GeographicalSchemaField,
+  itemType: "GeographicalSchemaField",
   name: "ПолеГеографическойСхемы",
   title: {
     items: { ru: "Поле географической схемы" },
@@ -275,7 +275,7 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
 }
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
-  itemType: CollectionFormElementType.GeographicalSchemaField,
+  itemType: "GeographicalSchemaField",
   name: "ПолеГеографическойСхемы",
 }
 

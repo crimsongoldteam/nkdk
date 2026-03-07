@@ -11,7 +11,7 @@ import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сho
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import { importChoiceParametersFromXML } from "../сhoiceParameters/fromXML"
@@ -19,7 +19,7 @@ import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
@@ -44,7 +44,7 @@ export const importStandardAttributeDescriptionsFromXML = (
 
 const importStandardAttributeDescriptionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: StandardAttributeDescriptionXML
 ): StandardAttributeDescription | undefined => {
   const result: StandardAttributeDescription = {

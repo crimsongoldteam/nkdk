@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { PlannerField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const PlannerFieldRules = {
+  itemType: "PlannerField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PlannerField",
   properties: {
@@ -154,6 +154,6 @@ export const PlannerFieldRules = {
     dragCheck: "ПроверкаПеретаскивания",
     insideDragCheck: "ПроверкаПеретаскиванияВнутри",
   },
-} as const satisfies ElementRule<PlannerField>
+} as const satisfies ElementRule
 
-registerElementRule("PlannerField", PlannerFieldRules as ElementRule<PlannerField>)
+registerElementRule("PlannerField", PlannerFieldRules)

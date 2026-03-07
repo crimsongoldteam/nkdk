@@ -1,8 +1,8 @@
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
-import { MetadataItemRule } from "~/metadata/metadataFactory/properties/types"
-import { FormAttribute, FormAttributeColumn } from "./types"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
-export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
+export const FormAttributeRules = {
+  itemType: "FormAttribute",
   properties: {
     title: {
       yaml: "Заголовок",
@@ -80,9 +80,10 @@ export const FormAttributeRules: MetadataItemRule<FormAttribute> = {
       type: "FieldsList",
     },
   },
-}
+} as const satisfies MetadataItemRule
 
-export const FormAttributeColumnRules: MetadataItemRule<FormAttributeColumn> = {
+export const FormAttributeColumnRules = {
+  itemType: "FormAttributeColumn",
   properties: {
     title: {
       yaml: "Заголовок",
@@ -119,4 +120,4 @@ export const FormAttributeColumnRules: MetadataItemRule<FormAttributeColumn> = {
       type: "FunctionalOptionsProperty",
     },
   },
-} as const
+} as const satisfies MetadataItemRule

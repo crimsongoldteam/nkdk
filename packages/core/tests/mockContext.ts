@@ -1,5 +1,4 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { Table } from "~/metadata/forms/elements/table/types"
 import { ConfigurationContext } from "../metadata/context/types"
 
 export const mockContext: ConfigurationContext = {
@@ -27,7 +26,7 @@ export const mockContextToEnterprise: ConfigurationContext = {
   },
 }
 
-export const mockRule: PropertyRule<Table> = {
+export const mockRule: PropertyRule = {
   yaml: "Шапка",
   type: "string",
 }

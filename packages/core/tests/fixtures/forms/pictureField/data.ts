@@ -4,11 +4,11 @@ import {
   PictureFieldPartialYAML,
   PictureFieldTypedYAML,
 } from "~/metadata/forms/elements/pictureField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {
-  itemType: CollectionFormElementType.PictureField,
+  itemType: "PictureField",
   name: "ПолеКартинки",
   title: {
     items: { ru: "Поле картинки" },
@@ -199,7 +199,7 @@ export const fullPictureFieldEnterprise = {
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.Single" },
   ValuesPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<PictureFieldEnterprise>
 
@@ -284,7 +284,7 @@ export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {
 }
 
 export const minimalPictureField: PictureField = {
-  itemType: CollectionFormElementType.PictureField,
+  itemType: "PictureField",
   name: "ПолеКартинки",
 }
 

@@ -1,8 +1,8 @@
 import * as NKDK from "nkdk-language"
 import { importPictureFromYAML } from "~/metadata/commonObjects/picture/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+
+import { importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { PictureDecoration } from "./types"
 
 export const importPictureDecorationFromNKDK = (params: {
@@ -15,7 +15,7 @@ export const importPictureDecorationFromNKDK = (params: {
   const picture = importPictureFromYAML(context, undefined, pictureValue)
 
   const result: PictureDecoration = {
-    itemType: CollectionFormElementType.PictureDecoration,
+    itemType: "PictureDecoration",
     name: importNameFromNKDK(source),
     picture: picture,
   }

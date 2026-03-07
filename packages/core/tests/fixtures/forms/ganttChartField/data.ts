@@ -3,11 +3,11 @@ import {
   GanttChartFieldEnterprise,
   GanttChartFieldPartialYAML,
 } from "~/metadata/forms/elements/ganttChartField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
-  itemType: CollectionFormElementType.GanttChartField,
+  itemType: "GanttChartField",
   name: "ПолеДиаграммыГанта",
   title: {
     items: { ru: "Поле диаграммы Ганта" },
@@ -293,7 +293,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
 }
 
 export const minimalGanttChartField: GanttChartField = {
-  itemType: CollectionFormElementType.GanttChartField,
+  itemType: "GanttChartField",
   name: "ПолеДиаграммыГанта",
 }
 

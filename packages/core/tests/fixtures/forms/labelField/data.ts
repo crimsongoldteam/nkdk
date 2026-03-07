@@ -4,8 +4,8 @@ import {
   LabelFieldPartialYAML,
   LabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {
@@ -182,7 +182,7 @@ export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
 }
 
 export const minimalLabelField: LabelField = {
-  itemType: CollectionFormElementType.LabelField,
+  itemType: "LabelField",
   name: "ПолеНадписи",
 }
 
@@ -204,7 +204,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ПолеНадписи",
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       title: { items: { ru: "Поле надписи" } },
       dataPath: "ПолеНадписи",
     },
@@ -221,7 +221,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ПолеНадписи",
-      itemType: CollectionFormElementType.LabelField,
+      itemType: "LabelField",
       dataPath: "ПолеНадписи",
     },
     structured: {
@@ -243,7 +243,7 @@ export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
   AutoMaxHeight: true,
   AutoMaxWidth: true,
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.Single" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   Format: "Формат",

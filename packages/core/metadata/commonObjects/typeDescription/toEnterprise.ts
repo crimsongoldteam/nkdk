@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { TypeDescription, TypeDescriptionEnterprise, TypeDescriptionRules } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (params: {

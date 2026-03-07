@@ -1,5 +1,6 @@
+import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { StringboolYAML } from "../boolean/types"
+import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 
 export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFonts> = {
   "style:LargeTextFont": "LargeTextFont",
@@ -57,7 +58,21 @@ export interface FontFullYAML {
 
 export type FontCompactYAML = string
 
-export type FontYAML = FontFullYAML | FontCompactYAML
+export const FontJSONSchema = Type.Union([
+  Type.Object({
+    Вид: Type.Optional(Type.String()),
+    Имя: Type.Optional(Type.String()),
+    Масштаб: Type.Optional(Type.Number()),
+    Размер: Type.Optional(Type.Number()),
+    Наклонный: Type.Optional(BooleanJSONSchema),
+    Подчеркивание: Type.Optional(BooleanJSONSchema),
+    Полужирный: Type.Optional(BooleanJSONSchema),
+    Зачеркивание: Type.Optional(BooleanJSONSchema),
+  }),
+  Type.String(),
+])
+
+export type FontYAML = Static<typeof FontJSONSchema>
 
 export interface FontEnterprise {
   Type: "Font"

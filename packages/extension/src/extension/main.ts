@@ -1,17 +1,24 @@
 import * as path from "node:path"
 import * as vscode from "vscode"
+import type { BaseLanguageClient } from "vscode-languageclient"
 import type { LanguageClientOptions, ServerOptions } from "vscode-languageclient/node.js"
 import { LanguageClient, TransportKind } from "vscode-languageclient/node.js"
 import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
+import { activateYAML } from "./yaml/node/yamlClientMain.js"
 
-let client: LanguageClient
+const languageClients: BaseLanguageClient[] = []
 let sseServer: SseServerHandle | undefined
 
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  client = await startLanguageClient(context)
+  const nkdkClient = await startNKDKLanguageClient(context)
+  languageClients.push(nkdkClient)
+
+  const yamlClient = await activateYAML(context)
+  languageClients.push(yamlClient)
+
   const formPreviewDir = context.asAbsolutePath("formPreview")
   sseServer = startSseServer(formPreviewDir)
 
@@ -24,12 +31,11 @@ export async function deactivate(): Promise<void> {
     await sseServer.stop()
     sseServer = undefined
   }
-  if (client) {
-    return client.stop()
-  }
+  await Promise.all(languageClients.map((client) => client.stop()))
+  languageClients.length = 0
 }
 
-async function startLanguageClient(context: vscode.ExtensionContext): Promise<LanguageClient> {
+async function startNKDKLanguageClient(context: vscode.ExtensionContext): Promise<LanguageClient> {
   const serverModule = context.asAbsolutePath(path.join("out", "language", "main.cjs"))
   // The debug options for the server
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging.

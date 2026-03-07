@@ -14,7 +14,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataDocumentFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   xml: MetadataDocumentXML | undefined
 ): MetadataDocument | undefined => {
   if (!xml) return undefined

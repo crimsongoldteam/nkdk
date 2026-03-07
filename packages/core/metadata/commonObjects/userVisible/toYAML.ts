@@ -1,13 +1,13 @@
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleYAML, type UserVisible } from "./types"
 
 /** @deprecated */
 export const exportUserVisibleToYAMLDeprecated = <AllowKey extends string, DenyKey extends string>(
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   userVisible: UserVisible | undefined,
   keys: { allow: AllowKey; deny: DenyKey }
 ): Partial<Record<AllowKey | DenyKey, UserVisibleYAML>> | undefined => {
@@ -26,7 +26,7 @@ export const exportUserVisibleToYAMLDeprecated = <AllowKey extends string, DenyK
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
-  rule: UserVisiblePropertyRule<any>,
+  rule: UserVisiblePropertyRule,
   userVisible: UserVisible | undefined
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined

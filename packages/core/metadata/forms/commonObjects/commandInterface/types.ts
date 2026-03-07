@@ -1,6 +1,6 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItem } from "~/metadata/metadataFactory"
+import { MetadataItem } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 //#region inner

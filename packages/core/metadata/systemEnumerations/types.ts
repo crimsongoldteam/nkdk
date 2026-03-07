@@ -1,5 +1,7 @@
 // #region SystemEnumerations
 
+import { BasePropertyRule } from "../orchestration/property/types"
+
 export const DynamicListSearchStringViewModeToYAML = {
   Auto: "Авто",
   DontShow: "НеОтображать",
@@ -13010,3 +13012,7 @@ export const ButtonLocationInContextMenuFromYAML = {
 
 export type ButtonLocationInContextMenu = keyof typeof ButtonLocationInContextMenuToYAML
 export type ButtonLocationInContextMenuYAML = keyof typeof ButtonLocationInContextMenuFromYAML
+export interface SystemEnumerationPropertyRule extends BasePropertyRule {
+  type: "SystemEnumeration"
+  typeSE: string
+}

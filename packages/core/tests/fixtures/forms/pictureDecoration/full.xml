@@ -1,7 +1,9 @@
 <PictureDecoration name="ДекорацияКартинки" id="1" DisplayImportance="High">
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
-	<Border width="1"/>
+	<Border width="1">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+	</Border>
 	<BorderColor>web:Black</BorderColor>
 	<ContextMenu name="ДекорацияКартинкиКонтекстноеМеню" id="2">
 		<Autofill>false</Autofill>
@@ -35,7 +37,7 @@
 	<MaxWidth>400</MaxWidth>
 	<NonselectedPictureText>Нет картинки</NonselectedPictureText>
 	<Picture>
-		<xr:Ref>StdPicture.Picture</xr:Ref>
+		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</Picture>
 	<PictureSize>AutoSize</PictureSize>

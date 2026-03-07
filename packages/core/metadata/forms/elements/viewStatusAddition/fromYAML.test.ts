@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
 import { fullViewStatusAddition, fullViewStatusAdditionYAML } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
 
-const rule: PropertyRule<any> = { type: "ViewStatusAddition" }
+const rule: PropertyRule = { type: "ViewStatusAddition" }
 
 describe("importViewStatusAdditionFromYAML", () => {
   it("should import all fields from YAML", () => {

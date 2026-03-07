@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToYAML } from "~/metadata/metadataFactory"
+import { exportPropertiesToYAML } from "~/metadata/orchestration"
 import { MetadataCatalogRules } from "./rules"
 import { MetadataCatalog, MetadataCatalogYAML } from "./types"
 
@@ -12,7 +12,7 @@ export const exportMetadataCatalogToYAML = (
   const result = exportPropertiesToYAML({
     context,
     data: data,
-    rules: MetadataCatalogRules,
+    rule: MetadataCatalogRules,
   })
 
   return result

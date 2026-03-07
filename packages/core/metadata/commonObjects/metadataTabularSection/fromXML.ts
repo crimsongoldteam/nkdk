@@ -10,12 +10,12 @@ import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObj
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
@@ -29,7 +29,7 @@ export const importMetadataTabularSectionsFromXML = (
 
 const importMetadataTabularSectionFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
   const props = xml.Properties

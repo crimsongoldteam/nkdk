@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromXML, importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
+import { importElementFromXML, importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import {
   fullSearchStringAddition,
   fullSingleSearchStringAddition,
@@ -8,8 +8,8 @@ import {
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-const rule: PropertyRule<any> = {
-  type: "SearchStringAddition",
+const rule: PropertyRule = {
+  type: "SingleSearchStringAddition",
 }
 
 describe("SearchStringAddition from XML", () => {

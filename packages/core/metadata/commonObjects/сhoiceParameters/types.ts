@@ -1,4 +1,5 @@
-import { MetadataValue, MetadataValueXML, MetadataValueYAML } from "../metadataValue/types"
+import { Static, Type } from "@sinclair/typebox"
+import { MetadataValue, MetadataValueJSONSchema, MetadataValueXML } from "../metadataValue/types"
 
 //#region ChoiceParameter
 
@@ -28,6 +29,10 @@ export interface ChoiceParametersXML {
 
 export type ChoiceParameterYAML = string
 
-export type ChoiceParametersYAML = Record<string, MetadataValueYAML | undefined>
+export const ChoiceParametersJSONSchema = Type.Record(
+  Type.String(),
+  Type.Union([MetadataValueJSONSchema, Type.Undefined()])
+)
+export type ChoiceParametersYAML = Static<typeof ChoiceParametersJSONSchema>
 
 //#endregion

@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldStringToYAML as exportMetadataFieldToYAMLPath } from "../metadataPath/toYAML"
 import { MetadataField, MetadataFieldYAML, MetadataFields, MetadataFieldsYAML } from "./types"
 
 export const exportMetadataFieldsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFields | undefined
 ): MetadataFieldsYAML | undefined => {
   if (!data) return undefined
@@ -16,7 +16,7 @@ export const exportMetadataFieldsToYAML = (
 
 export const exportMetadataFieldToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataField | undefined
 ): MetadataFieldYAML | undefined => {
   if (!data) return undefined

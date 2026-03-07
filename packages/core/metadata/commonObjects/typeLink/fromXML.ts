@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
 import { TypeLink, TypeLinkXML } from "./types"
 
 export const importTypeLinkFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: TypeLinkXML | undefined
 ): TypeLink | undefined => {
   if (!xml) return undefined

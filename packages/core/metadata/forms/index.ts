@@ -3,8 +3,12 @@ export type { FormMetadataXML } from "./clientApplicationForm/types"
 
 export { importChildItemsFromNKDK } from "./commonObjects/childItems/fromNKDK"
 
-export { clearElementRulesRegistry, getElementRule, registerElementRule } from "../metadataFactory/elements/ruleFactory"
-export type { ElementRule } from "../metadataFactory/elements/types"
+export {
+  clearElementRulesRegistry,
+  getElementRule,
+  registerElementRule,
+} from "../orchestration/formElement/ruleFactory"
+export type { ElementRule } from "../orchestration/formElement/types"
 
 import "./elements"
 

@@ -1,13 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import {
   AutoCommandBarAutofillPrefix,
   AutoCommandBarPrefix,
   AutoCommandBarSeparator,
   AutoCommandBarSuffix,
 } from "~/nkdk/terminal"
-import { AutoCommandBar } from "./types"
 import { exportCommandBarChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
+import { AutoCommandBar } from "./types"
 
 export const exportAutoCommandBarToNKDK = (params: {
   context: ConfigurationContext

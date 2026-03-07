@@ -4,12 +4,12 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/toX
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { ExportToXMLFunctionNew, MetadataItem, registerTypeRule } from "~/metadata/metadataFactory"
+import { ExportToXMLFunctionNew, MetadataItem, registerTypeRule } from "~/metadata/orchestration"
 import { FormCommand, FormCommandXML } from "./types"
 
 export const exportCommandsToXML = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: FormCommand[] | undefined
   metadataItem?: MetadataItem
 }): { Command: FormCommandXML[] } | undefined => {

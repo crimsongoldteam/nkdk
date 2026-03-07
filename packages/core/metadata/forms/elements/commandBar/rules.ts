@@ -1,16 +1,16 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { CommandBar } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const CommandBarRules = {
+  itemType: "CommandBar",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
     autofill: { yaml: "Автозаполнение", type: "boolean" },
     childItems: {
-      type: "ChildItems",
+      type: "CommandBarChildItems",
       defaultValue: [],
       fromPartialYAML: true,
       toPartialYAML: false,
@@ -74,6 +74,6 @@ export const CommandBarRules = {
     width: { yaml: "Ширина", type: "number" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
   },
-} as const satisfies ElementRule<CommandBar>
+} as const satisfies ElementRule
 
-registerElementRule("CommandBar", CommandBarRules as ElementRule<CommandBar>)
+registerElementRule("CommandBar", CommandBarRules)

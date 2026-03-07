@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { ButtonGroupPrefix } from "~/nkdk/terminal"
 import { formatElementTitleAndName } from "../../format/helpers"
 import { ButtonGroup } from "./types"

@@ -8,7 +8,7 @@ import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 const exportFieldValue = (field: MetadataField | undefined): string => {
   if (!field) return "-1"
@@ -17,7 +17,7 @@ const exportFieldValue = (field: MetadataField | undefined): string => {
 
 export const exportCharacteristicsDescriptionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
@@ -89,7 +89,7 @@ export const exportCharacteristicsDescriptionToXML = (
 
 export const exportCharacteristicsDescriptionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsXML | undefined => {
   if (!data) return undefined

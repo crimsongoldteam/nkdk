@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
@@ -8,7 +8,7 @@ import { Picture, PictureYAML, PictureYAMLExtended } from "./types"
 
 export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined,
   yaml: PictureYAML | undefined
 ): Picture | undefined => {
@@ -32,7 +32,7 @@ export const importPictureCombinedFromYAML = (
 
 export const importPictureFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: PictureYAML | undefined
 ): Picture | undefined => {
   if (!data) return undefined

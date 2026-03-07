@@ -1,15 +1,14 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToYAML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { exportPropertyToYAML } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   fullAutoCommandBar,
   fullAutoExportCommandBarYAML,
   minimalAutoCommandBar,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext } from "~/tests/mockContext"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = { type: "AutoCommandBar", yaml: "КоманднаяПанель", toEnterprise: false }
+const rule: PropertyRule = { type: "AutoCommandBar", yaml: "КоманднаяПанель", toEnterprise: false }
 
 describe("exportAutoCommandBarToYAML", () => {
   it("should return undefined when data is undefined", () => {
@@ -23,7 +22,7 @@ describe("exportAutoCommandBarToYAML", () => {
   })
 
   it("should export all fields to YAML", () => {
-    const result = exportPropertyToYAML<Table>({
+    const result = exportPropertyToYAML({
       context: mockContext,
       rule: rule,
       value: fullAutoCommandBar,
@@ -33,7 +32,7 @@ describe("exportAutoCommandBarToYAML", () => {
   })
 
   it("should export minimal", () => {
-    const result = exportPropertyToYAML<Table>({
+    const result = exportPropertyToYAML({
       context: mockContext,
       rule: rule,
       value: minimalAutoCommandBar,

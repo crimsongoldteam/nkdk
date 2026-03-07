@@ -1,3 +1,5 @@
+import { Static, Type } from "@sinclair/typebox"
+
 export type TypeModifier = "complex" | "typeset" | "alwaysType"
 
 export interface TypeDescriptionRule {
@@ -528,7 +530,8 @@ export interface TypeDescription {
   dateQualifiers?: TypeDescriptionDateQualifiers
 }
 
-export type TypeDescriptionYAML = string | string[]
+export const TypeDescriptionJSONSchema = Type.Union([Type.String(), Type.Array(Type.String())])
+export type TypeDescriptionYAML = Static<typeof TypeDescriptionJSONSchema>
 
 //#region Enterprise
 

@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { SpreadSheetDocumentField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const SpreadSheetDocumentFieldRules = {
+  itemType: "SpreadSheetDocumentField",
   enterpriseFieldType: "FormFieldType.SpreadsheetDocumentField",
   enterpriseField: "FormField",
   properties: {
@@ -193,6 +193,6 @@ export const SpreadSheetDocumentFieldRules = {
     onChangeAreaContentEvent: "ПриИзмененииСодержимогоОбласти",
     dragCheck: "ПроверкаПеретаскивания",
   },
-} as const satisfies ElementRule<SpreadSheetDocumentField>
+} as const satisfies ElementRule
 
-registerElementRule("SpreadSheetDocumentField", SpreadSheetDocumentFieldRules as ElementRule<SpreadSheetDocumentField>)
+registerElementRule("SpreadSheetDocumentField", SpreadSheetDocumentFieldRules)

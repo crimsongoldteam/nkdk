@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML } from "~/metadata/metadataFactory"
+import { exportElementToPartialYAML } from "~/metadata/orchestration"
 import {
-  fullPdfDocumentField,
-  fullPdfDocumentFieldPartialYAML,
-  minimalPdfDocumentField,
+  fullPDFDocumentField,
+  fullPDFDocumentFieldPartialYAML,
+  minimalPDFDocumentField,
 } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockContext } from "~/tests/mockContext"
 
-describe("exportPdfDocumentFieldToYAML", () => {
+describe("exportPDFDocumentFieldToYAML", () => {
   describe("exportElementToPartialYAML", () => {
     it("should export all fields to YAML", () => {
-      const result = exportElementToPartialYAML({ context: mockContext, element: fullPdfDocumentField })
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullPDFDocumentField })
 
-      expect(result).toEqual(fullPdfDocumentFieldPartialYAML)
+      expect(result).toEqual(fullPDFDocumentFieldPartialYAML)
     })
 
     it("should export minimal", () => {
-      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPdfDocumentField })
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPDFDocumentField })
 
       expect(result).toBeUndefined()
     })

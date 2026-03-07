@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+
+import { importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKDK"
 import { CommandBar } from "./types"
 
@@ -14,7 +14,7 @@ export const importCommandBarFromNKDK = (params: {
   const childItems = importChildItemsFromNKDK({ context: params.context, value: source.childItems })
 
   const result: CommandBar = {
-    itemType: CollectionFormElementType.CommandBar,
+    itemType: "CommandBar",
     name: importNameFromNKDK(source),
     childItems: childItems,
   }

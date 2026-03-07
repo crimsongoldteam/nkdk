@@ -4,7 +4,7 @@ import {
   formatElementName,
   formatElementTitleAndName,
 } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { InputFieldSeparator } from "~/nkdk/terminal"
 import { InputField } from "./types"
 

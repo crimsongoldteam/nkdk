@@ -10,13 +10,13 @@ import { exportStandardAttributeDescriptionsToYAML } from "~/metadata/commonObje
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSection | undefined
 ): MetadataTabularSectionYAML | undefined => {
   if (!data) return undefined
@@ -67,7 +67,7 @@ export const exportMetadataTabularSectionToYAML = (
 
 export const exportMetadataTabularSectionsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsYAML | undefined => {
   if (!data) return undefined

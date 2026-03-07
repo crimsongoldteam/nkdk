@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, SingleFormElementType } from "~/metadata/metadataFactory"
 import { Button } from "../elements/button/types"
 import { ButtonGroup } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
@@ -13,13 +12,13 @@ describe("getAllElements", () => {
       childItems: [
         {
           name: "Группа",
-          itemType: CollectionFormElementType.UsualGroup,
+          itemType: "UsualGroup",
           group: "HorizontalIfPossible",
           showTitle: false,
           childItems: [
             {
               name: "ПолеВвода",
-              itemType: CollectionFormElementType.InputField,
+              itemType: "InputField",
             },
           ],
         },
@@ -41,11 +40,11 @@ describe("getAllElements", () => {
   it("should return elements from form auto command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
     }
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       childItems: [button],
     }
 
@@ -53,7 +52,7 @@ describe("getAllElements", () => {
       commands: [],
       childItems: [],
       autoCommandBar: {
-        itemType: SingleFormElementType.AutoCommandBar,
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },
@@ -70,18 +69,18 @@ describe("getAllElements", () => {
   it("should return elements from table auto command bar", () => {
     const button: Button = {
       name: "Кнопка1",
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
     }
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       childItems: [button],
     }
     const table: Table = {
       name: "Таблица1",
-      itemType: CollectionFormElementType.Table,
+      itemType: "Table",
       autoCommandBar: {
-        itemType: SingleFormElementType.AutoCommandBar,
+        itemType: "AutoCommandBar",
         autofill: false,
         childItems: [buttonGroup],
       },

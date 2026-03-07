@@ -1,16 +1,16 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { ButtonGroup } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const ButtonGroupRules = {
+  itemType: "ButtonGroup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ButtonGroup",
   properties: {
     childItems: {
-      yaml: "ПодчиненныеЭлементы",
-      type: "ChildItems",
+      yaml: "Элементы",
+      type: "CommandBarChildItems",
       defaultValue: [],
     },
     extendedTooltip: {
@@ -70,6 +70,6 @@ export const ButtonGroupRules = {
     width: { yaml: "Ширина", type: "number" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
   },
-} as const satisfies ElementRule<ButtonGroup>
+} as const satisfies ElementRule
 
-registerElementRule("ButtonGroup", ButtonGroupRules as ElementRule<ButtonGroup>)
+registerElementRule("ButtonGroup", ButtonGroupRules)

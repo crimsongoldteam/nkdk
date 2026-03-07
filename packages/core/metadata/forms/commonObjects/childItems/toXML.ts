@@ -1,12 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { mockContext } from "~/tests/mockContext"
-import { AllChildItem } from "./types"
+import { ChildItem } from "./types"
 
-export const exportChildItemsToXML = <From extends AllChildItem>(
+export const exportChildItemsToXML = <From extends ChildItem>(
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: From[] | undefined
 ): Record<From["itemType"], ElementXML>[] | undefined => {
   if (!data || data.length === 0) return undefined
@@ -23,4 +23,7 @@ export const exportChildItemsToXML = <From extends AllChildItem>(
   return result
 }
 
-registerTypeRule("ChildItems", "exportToXML", exportChildItemsToXML as any)
+registerTypeRule("GroupChildItems", "exportToXML", exportChildItemsToXML)
+registerTypeRule("CommandBarChildItems", "exportToXML", exportChildItemsToXML)
+registerTypeRule("TableChildItems", "exportToXML", exportChildItemsToXML)
+registerTypeRule("PagesChildItems", "exportToXML", exportChildItemsToXML)

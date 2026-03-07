@@ -1,19 +1,14 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  CollectionFormElementType,
-  PropertyRule,
-  registerTypeRule,
-  TableAdditionalSourcePropertyRule,
-} from "~/metadata/metadataFactory"
+import { PropertyRule, registerTypeRule, TableAdditionalSourcePropertyRule } from "~/metadata/orchestration"
 import { TableAdditionalSourceXML } from "./types"
 
 const exportTableAdditionalSourceToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   value: string | undefined
 ): TableAdditionalSourceXML | undefined => {
-  const ruleNarrow = rule as TableAdditionalSourcePropertyRule<any>
+  const ruleNarrow = rule as TableAdditionalSourcePropertyRule
 
   if (!ruleNarrow.forSingleElement) {
     if (!value) {
@@ -22,7 +17,7 @@ const exportTableAdditionalSourceToXML = (
     return { Item: value, Type: ruleNarrow.additionalSourceType }
   }
 
-  const parent = getParentFromContext(context, CollectionFormElementType.Table)
+  const parent = getParentFromContext(context, ["Table"])
 
   const parentName = parent.name
 

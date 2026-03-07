@@ -3,11 +3,11 @@ import {
   RadioButtonFieldEnterprise,
   RadioButtonFieldPartialYAML,
 } from "~/metadata/forms/elements/radioButtonField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
-  itemType: CollectionFormElementType.RadioButtonField,
+  itemType: "RadioButtonField",
   name: "ПолеПереключателя",
   title: {
     items: { ru: "Поле переключателя" },
@@ -173,7 +173,6 @@ export const fullRadioButtonFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "WarningOnEditRepresentation.DontShow",
   },
-  ChoiceList: undefined,
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<RadioButtonFieldEnterprise>
@@ -239,7 +238,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
 }
 
 export const minimalRadioButtonField: RadioButtonField = {
-  itemType: CollectionFormElementType.RadioButtonField,
+  itemType: "RadioButtonField",
   name: "ПолеПереключателя",
 }
 

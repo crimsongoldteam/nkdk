@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { LabelDecoration } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const LabelDecorationRules = {
+  itemType: "LabelDecoration",
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "FormDecorationType.Label",
   properties: {
@@ -90,6 +90,6 @@ export const LabelDecorationRules = {
     click: "Нажатие",
     uRLProcessing: "ОбработкаНавигационнойСсылки",
   },
-} as const satisfies ElementRule<LabelDecoration>
+} as const satisfies ElementRule
 
-registerElementRule("LabelDecoration", LabelDecorationRules as ElementRule<LabelDecoration>)
+registerElementRule("LabelDecoration", LabelDecorationRules)

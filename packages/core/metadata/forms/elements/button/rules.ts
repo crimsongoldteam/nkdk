@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { Button } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const ButtonRules = {
+  itemType: "Button",
   enterpriseField: "FormButton",
   enterpriseFieldType: "FormButtonType.UsualButton",
   properties: {
@@ -112,6 +112,6 @@ export const ButtonRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRule<Button>
+} as const satisfies ElementRule
 
-registerElementRule("Button", ButtonRules as ElementRule<Button>)
+registerElementRule("Button", ButtonRules)

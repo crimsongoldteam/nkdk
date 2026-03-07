@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+
+import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKDK"
 import { Pages } from "./types"
 
@@ -10,7 +10,7 @@ export const importPagesFromNKDK = (params: { context: ConfigurationContext; sou
 
   const childItems = importChildItemsFromNKDK({ context, value: source.childItems })
   const result: Pages = {
-    itemType: CollectionFormElementType.Pages,
+    itemType: "Pages",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
     childItems: childItems,

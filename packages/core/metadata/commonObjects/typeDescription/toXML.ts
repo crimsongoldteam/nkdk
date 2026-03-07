@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined

@@ -4,7 +4,7 @@ import {
   ExportToNKDKGeneratorFn,
   ExportToNKDKTableChildItemsGeneratorFn,
   ToNKDKResult,
-} from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+} from "~/metadata/orchestration/formElement/toNKDK/types"
 import { CommandBarChildItem, GenerateChildItem, TableChildItem } from "./types"
 
 export const exportChildItemsToNKDK = <From extends GenerateChildItem>(

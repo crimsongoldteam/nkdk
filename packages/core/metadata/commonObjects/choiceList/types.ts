@@ -1,5 +1,7 @@
+import { Type } from "@sinclair/typebox"
 import {
   MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueJSONSchema,
   MetadataFormChoiceListValueXML,
   MetadataFormChoiceListValueYAML,
 } from "../metadataValue/types"
@@ -25,6 +27,7 @@ export interface ChoiceListXML {
 
 //#region ChoiceListYAML
 
+export const ChoiceListJSONSchema = Type.Array(MetadataFormChoiceListValueJSONSchema)
 export type ChoiceListYAML = MetadataFormChoiceListValueYAML[]
 
 //#endregion

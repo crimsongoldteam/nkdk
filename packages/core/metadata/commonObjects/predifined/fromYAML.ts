@@ -4,7 +4,7 @@ import { Predefined, PredefinedItems, PredefinedItemsYAML, PredefinedYAML } from
 
 export const importPredefinedFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: PredefinedYAML | undefined,
   name: string
 ): Predefined | undefined => {
@@ -20,7 +20,7 @@ export const importPredefinedFromYAML = (
 
 export const importPredefinedItemsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: PredefinedItemsYAML | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined

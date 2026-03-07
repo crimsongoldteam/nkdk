@@ -1,8 +1,8 @@
 import * as NKDK from "nkdk-language"
 import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importDataPathFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+
+import { importDataPathFromNKDK, importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { LabelField } from "./types"
 
 export const importLabelFieldFromNKDK = (params: {
@@ -11,7 +11,7 @@ export const importLabelFieldFromNKDK = (params: {
 }): LabelField => {
   const { context, source } = params
   const result: LabelField = {
-    itemType: CollectionFormElementType.LabelField,
+    itemType: "LabelField",
     name: importNameFromNKDK(source),
     title: importI8nTextFromString({ context, value: source.title }),
   }

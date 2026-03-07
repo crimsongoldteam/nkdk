@@ -1,8 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
-import { importEventsFromYAML } from "~/metadata/metadataFactory/events"
+import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
+import { importEventsFromYAML } from "~/metadata/orchestration/event"
 import { ClientApplicationFormRules } from "./rules"
-import { ClientApplicationFormYAML, ClientApplicationForm } from "./types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
 export const importClientApplicationFormFromYAML = (
   context: ConfigurationContext,
@@ -11,12 +11,12 @@ export const importClientApplicationFormFromYAML = (
 ): ClientApplicationForm => {
   const itemsContext: ConfigurationContext = {
     ...context,
-    allElements: data.ПодчиненныеЭлементы,
+    allElements: data.Элементы,
   }
 
   const autoCommandBar = importPropertyFromYAML({
     context: itemsContext,
-    rule: ClientApplicationFormRules.properties.autoCommandBar as PropertyRule<any>,
+    rule: ClientApplicationFormRules.properties.autoCommandBar as PropertyRule,
     value: data.КоманднаяПанель,
     sourceValue: source.autoCommandBar,
   })
@@ -24,8 +24,7 @@ export const importClientApplicationFormFromYAML = (
   const properties = importPropertiesFromYAML({
     context: itemsContext,
     yaml: data,
-    metadataType: "ClientApplicationForm",
-    rules: ClientApplicationFormRules,
+    metadataRule: ClientApplicationFormRules,
     source: source,
   })
 

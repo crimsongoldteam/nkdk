@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/orchestration"
 import {
   fullPlannerField,
   fullPlannerFieldPartialYAML,
@@ -12,7 +12,7 @@ describe("importPlannerFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.PlannerField,
+      itemType: "PlannerField",
       yaml: fullPlannerFieldPartialYAML,
       source: fullPlannerField,
     })
@@ -23,7 +23,7 @@ describe("importPlannerFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.PlannerField,
+      itemType: "PlannerField",
       yaml: minimalPlannerFieldPartialYAML,
       source: minimalPlannerField,
     })

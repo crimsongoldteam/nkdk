@@ -1,15 +1,15 @@
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
-import { AllChildItemsPartialYAML } from "../forms/commonObjects/childItems/types"
-import { FormElementType } from "../metadataFactory"
+import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
+import { ElementType } from "../orchestration"
 
-export type ContextElementToXML = { name: string; itemType: FormElementType }
-export type ContextElementToEnterprise = { itemType: FormElementType; dataPath: string | undefined }
+export type ContextElementToXML = { name: string; itemType: ElementType }
+export type ContextElementToEnterprise = { itemType: ElementType; dataPath: string | undefined }
 
 export interface ConfigurationContext {
   testMode?: boolean
   defaultLanguage: string
   context?: object
-  allElements?: AllChildItemsPartialYAML
+  allElements?: FormElementsYAML
   enterprise?: EnterpriseContext
 
   elementsTree?: Array<ContextElementToXML>

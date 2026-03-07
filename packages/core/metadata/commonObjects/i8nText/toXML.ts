@@ -1,14 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { I8nTextPropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { isEmptyI8nText } from "./helper"
-import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
+import { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
 /** @deprecated */
 export const exportI8nTextToXMLWithDefaultLanguage = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
@@ -22,12 +21,12 @@ export const exportI8nTextToXMLWithDefaultLanguage = (
 
 export const exportI8nTextToXML = (
   context: ConfigurationContext,
-  rule: PropertyRule<any>,
+  rule: PropertyRule,
   data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
 
-  const narrowRule = rule as I8nTextPropertyRule<any>
+  const narrowRule = rule as I8nTextPropertyRule
 
   if (narrowRule.skipEmptyToXML && isEmptyI8nText(context, data)) {
     return undefined

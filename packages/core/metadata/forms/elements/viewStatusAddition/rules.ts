@@ -1,16 +1,14 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
+import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { ElementRule } from "../../../orchestration/formElement/types"
+import { BaseElement } from "../baseElement/types"
 import { getViewStatusAdditionName } from "./helper"
-import { ViewStatusAddition } from "./types"
-export type { ElementRule, PropertyRule }
-
-// В YAML этот элемент может быть только в свойствах, не может быть в структуре
 
 export const ViewStatusAdditionRules = {
+  itemType: "ViewStatusAddition",
+  enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
     additionSource: {
@@ -57,18 +55,17 @@ export const ViewStatusAdditionRules = {
       typeSE: "ToolTipRepresentation",
     },
   },
+} as const satisfies ElementRule
 
-  registerAsType: {
-    ViewStatusAddition: {
-      toXML: (context, _element) => {
-        if (!context.elementsTree) throw new Error("elementContext is not defined")
-        const parent = getParentFromContext(context, CollectionFormElementType.Table)
-        const id = getElementId(context)
-        const name = getViewStatusAdditionName(parent)
-        return { name, id }
-      },
-    },
+registerElementAsType({
+  propertyType: "ViewStatusAddition",
+  elementRule: ViewStatusAdditionRules,
+  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+    const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])
+    const id = getElementId(context)
+    const name = getViewStatusAdditionName(parent)
+    return { id, name }
   },
-} as const satisfies ElementRule<ViewStatusAddition, "additionSource">
+})
 
-registerElementRule("ViewStatusAddition", ViewStatusAdditionRules as ElementRule<ViewStatusAddition, "additionSource">)
+registerElementRule("ViewStatusAddition", ViewStatusAdditionRules)

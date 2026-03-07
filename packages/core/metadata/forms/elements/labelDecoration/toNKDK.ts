@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { LabelDecoration } from "./types"
 
 export const exportLabelDecorationToNKDK = (params: {

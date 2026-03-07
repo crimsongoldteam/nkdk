@@ -1,19 +1,18 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/metadataFactory"
-import { ToTypedYAML, ToYAML } from "~/metadata/metadataFactory/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { exportElementToPartialYAML, exportElementToTypedYAML, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { mockContext } from "~/tests/mockContext"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { AllChildItem, TypedElement } from "./types"
+import { ChildItem, TypedElement } from "./types"
 
 export const exportChildItemsToTypedYAML = <From extends TypedElement>(
   _context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: From[] | undefined
-): Record<string, ToTypedYAML<From>> | undefined => {
+): Record<string, ToTypedYAML<From["itemType"]>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Record<string, ToTypedYAML<From>> = {}
+  const result: Record<string, ToTypedYAML<From["itemType"]>> = {}
   for (const item of data) {
     const value = exportElementToTypedYAML({
       context: mockContext,
@@ -26,14 +25,13 @@ export const exportChildItemsToTypedYAML = <From extends TypedElement>(
   return result
 }
 
-export const exportChildItemsToPartialYAML = <From extends AllChildItem>(
+export const exportChildItemsToPartialYAML = <From extends ChildItem>(
   _context: ConfigurationContext,
-  // _rule: PropertyRule<any>,
   data: From[] | undefined
-): Record<string, ToYAML<From>> | undefined => {
+): Record<string, ToYAML<From["itemType"]>> | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Record<string, ToYAML<From>> = {}
+  const result: Record<string, ToYAML<From["itemType"]>> = {}
   for (const item of data) {
     const value = exportElementToPartialYAML({
       context: mockContext,
@@ -48,4 +46,7 @@ export const exportChildItemsToPartialYAML = <From extends AllChildItem>(
   return result
 }
 
-registerTypeRule("ChildItems", "exportToYAML", exportChildItemsToTypedYAML)
+registerTypeRule("TableChildItems", "exportToYAML", exportChildItemsToTypedYAML)
+registerTypeRule("GroupChildItems", "exportToYAML", exportChildItemsToTypedYAML)
+registerTypeRule("CommandBarChildItems", "exportToYAML", exportChildItemsToTypedYAML)
+registerTypeRule("PagesChildItems", "exportToYAML", exportChildItemsToTypedYAML)

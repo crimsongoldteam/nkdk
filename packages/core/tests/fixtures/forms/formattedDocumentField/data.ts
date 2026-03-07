@@ -3,11 +3,11 @@ import {
   FormattedDocumentFieldEnterprise,
   FormattedDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocumentField> = {
-  itemType: CollectionFormElementType.FormattedDocumentField,
+  itemType: "FormattedDocumentField",
   name: "ПолеФорматированногоДокумента",
   title: {
     items: { ru: "Поле форматированного документа" },
@@ -294,7 +294,7 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
 }
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {
-  itemType: CollectionFormElementType.FormattedDocumentField,
+  itemType: "FormattedDocumentField",
   name: "ПолеФорматированногоДокумента",
 }
 

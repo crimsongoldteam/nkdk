@@ -1,11 +1,12 @@
 import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../metadataFactory/elements/types"
-import { ClientApplicationForm, FormRulesTags } from "./types"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../orchestration/formElement/types"
+import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
-export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplicationForm> = {
-  tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
+export const ClientApplicationFormRules = {
+  itemType: "ClientApplicationForm",
+  // tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
   properties: {
     // #region Form
     attributes: {
@@ -41,8 +42,8 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
       tag: FormRulesTags.Form,
     },
     childItems: {
-      type: "ChildItems",
-      yaml: "ПодчиненныеЭлементы",
+      type: "GroupChildItems",
+      yaml: "Элементы",
       tag: FormRulesTags.Form,
       defaultValue: [],
       fromPartialYAML: true,
@@ -336,4 +337,4 @@ export const ClientApplicationFormRules: ClientApplicationFormRule<ClientApplica
     onReadAtServer: "ПриЧтенииНаСервере",
     // #endregion
   },
-}
+} as const satisfies ClientApplicationFormRule

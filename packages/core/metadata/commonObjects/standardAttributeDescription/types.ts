@@ -1,3 +1,4 @@
+import { Type } from "@sinclair/typebox"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValue, MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
@@ -135,4 +136,5 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
+export const StandardAttributeDescriptionsJSONSchema = Type.Record(Type.String(), Type.Any())
 export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>

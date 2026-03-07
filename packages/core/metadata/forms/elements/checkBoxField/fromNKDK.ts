@@ -1,11 +1,11 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import {
   importDataPathFromNKDK,
   importI8nTextFromNKDK,
   importNameFromNKDK,
-} from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+} from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CheckBoxField } from "./types"
 
@@ -102,7 +102,7 @@ const importFromNKDK = (params: {
   const title = importI8nTextFromNKDK(context, source.title)
 
   const result: CheckBoxField = {
-    itemType: CollectionFormElementType.CheckBoxField,
+    itemType: "CheckBoxField",
     name: importNameFromNKDK(source),
   }
 

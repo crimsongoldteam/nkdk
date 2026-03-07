@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToYAML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { exportPropertyToYAML } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullViewStatusAddition, fullViewStatusAdditionYAML } from "~/tests/fixtures/forms/viewStatusAddition/data"
 import { mockContext } from "~/tests/mockContext"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
+const rule: PropertyRule = {
   type: "ViewStatusAddition",
   yaml: "ОтображениеСостоянияПросмотра",
 }

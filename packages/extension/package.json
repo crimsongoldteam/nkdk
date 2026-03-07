@@ -22,6 +22,16 @@
           ".nkdk"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "yaml",
+        "aliases": [
+          "yaml"
+        ],
+        "extensions": [
+          ".yaml"
+        ],
+        "configuration": "./language-configuration-yaml.json"
       }
     ],
     "grammars": [
@@ -43,12 +53,16 @@
   },
   "dependencies": {
     "@nakidka/core": "workspace:*",
+    "fs-extra": "~11.2.0",
     "langium": "~4.2.0",
     "nkdk-language": "workspace:*",
+    "request-light": "^0.8.0",
     "vscode-languageclient": "~9.0.1",
-    "vscode-languageserver": "~9.0.1"
+    "vscode-languageserver": "~9.0.1",
+    "yaml-language-server": "next"
   },
   "devDependencies": {
+    "@types/fs-extra": "~11.0.4",
     "@types/vscode": "~1.67.0",
     "concurrently": "~8.2.1",
     "esbuild": "~0.25.5",

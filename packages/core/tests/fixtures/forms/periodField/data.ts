@@ -4,11 +4,11 @@ import {
   PeriodFieldPartialYAML,
   PeriodFieldTypedYAML,
 } from "~/metadata/forms/elements/periodField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
-  itemType: CollectionFormElementType.PeriodField,
+  itemType: "PeriodField",
   name: "ПолеПериода",
   title: {
     items: { ru: "Поле периода" },
@@ -171,7 +171,7 @@ export const fullPeriodFieldEnterprise = {
   Width: 300,
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.Single" },
 } satisfies Required<PeriodFieldEnterprise>
 
 export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
@@ -243,7 +243,7 @@ export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
 }
 
 export const minimalPeriodField: PeriodField = {
-  itemType: CollectionFormElementType.PeriodField,
+  itemType: "PeriodField",
   name: "ПолеПериода",
 }
 

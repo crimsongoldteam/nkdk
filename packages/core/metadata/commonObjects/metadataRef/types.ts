@@ -1,3 +1,5 @@
+import { Static, Type } from "@sinclair/typebox"
+
 export type MetadataItemLink = string
 
 export interface MetadataItemLinkXML {
@@ -9,4 +11,5 @@ export type MetadataItemLinkYAML = string
 
 export type MetadataItemLinks = MetadataItemLink[]
 export type MetadataItemLinksXML = MetadataItemLinkXML[]
-export type MetadataItemLinksYAML = MetadataItemLinkYAML[]
+export const MetadataItemLinksJSONSchema = Type.Array(Type.String())
+export type MetadataItemLinksYAML = Static<typeof MetadataItemLinksJSONSchema>

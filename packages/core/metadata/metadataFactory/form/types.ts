@@ -1,10 +1,5 @@
-import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import { MetadataItemRule } from ".."
-import { EventsRules } from "../events"
+import { EventsRules, MetadataItemRule } from "~/metadata/orchestration"
 
-export interface ClientApplicationFormRule<
-  T extends ClientApplicationForm,
-  ExtraProperties extends string = never,
-> extends MetadataItemRule<T, ExtraProperties> {
-  events: EventsRules<T>
+export interface ClientApplicationFormRule extends MetadataItemRule {
+  events?: EventsRules
 }

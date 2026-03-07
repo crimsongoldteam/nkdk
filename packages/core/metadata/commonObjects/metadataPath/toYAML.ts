@@ -9,7 +9,7 @@ import { MetadataFieldsRulesToYAML, MetadataValuesRulesToYAML } from "./types"
 
 export const exportMetadataFieldStringToYAML = (
   _context: Context,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
   return convertPath(MetadataFieldsRulesToYAML, name)
@@ -17,7 +17,7 @@ export const exportMetadataFieldStringToYAML = (
 
 export const exportMetadataValueStringToYAML = (
   _context: Context,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   name: string | undefined
 ): string | undefined => {
   if (!name) return undefined

@@ -8,7 +8,7 @@
 	<Height>19</Height>
 	<HorizontalStretch>false</HorizontalStretch>
 	<Picture>
-		<xr:Ref>StdPicture.ChartOfAccounts</xr:Ref>
+		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</Picture>
 	<ReadOnly>true</ReadOnly>

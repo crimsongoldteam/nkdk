@@ -3,10 +3,12 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { SearchStringAdditionRules, SingleSearchStringAdditionRules } from "./rules"
 
 export interface SearchStringAddition extends NamedElement {
   itemType: "SearchStringAddition"
@@ -59,3 +61,7 @@ export interface SearchStringAdditionYAML {
 }
 
 export interface SingleSearchStringAdditionYAML extends Omit<SearchStringAdditionYAML, "Источник"> {}
+
+export type SearchStringAdditionEnterprise = EnterpriseType<typeof SearchStringAdditionRules>
+
+export type SingleSearchStringAdditionEnterprise = EnterpriseType<typeof SingleSearchStringAdditionRules>

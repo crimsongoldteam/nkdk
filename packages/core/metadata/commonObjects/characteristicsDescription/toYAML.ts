@@ -8,12 +8,12 @@ import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataFiel
 import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 
 export const exportCharacteristicsDescriptionToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionYAML | undefined => {
   if (!data) return undefined
@@ -81,7 +81,7 @@ export const exportCharacteristicsDescriptionToYAML = (
 
 export const exportCharacteristicsDescriptionsToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsYAML | undefined => {
   if (!data) return undefined

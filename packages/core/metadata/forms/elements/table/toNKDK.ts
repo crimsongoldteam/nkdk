@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { TableColumnSeparator } from "~/nkdk/terminal"
 import { exportTableChildItemsToNKDK } from "../../commonObjects/childItems/toNKDK"
 import { exportAutoCommandBarToNKDK } from "../autoCommandBar/toNKDK"

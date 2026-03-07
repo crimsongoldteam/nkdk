@@ -4,7 +4,7 @@ import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { TableChildItems, TableChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { NamedElement } from "../baseElement/types"
@@ -74,7 +74,7 @@ export interface ColumnGroupPartialYAML {
   ФиксацияВТаблице?: SE.FixingInTableYAML
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorYAML
-  ПодчиненныеЭлементы?: TableChildItemsTypedYAML
+  Элементы?: TableChildItemsTypedYAML
 }
 
 export interface ColumnGroupTypedYAML extends ColumnGroupPartialYAML {

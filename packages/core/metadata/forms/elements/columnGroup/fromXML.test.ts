@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullColumnGroup, minimalColumnGroup } from "~/tests/fixtures/forms/columnGroup/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importColumnGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ColumnGroup,
+      itemType: "ColumnGroup",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importColumnGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ColumnGroup,
+      itemType: "ColumnGroup",
       xml: xmlData.ColumnGroup,
     })
 
@@ -32,7 +32,7 @@ describe("importColumnGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.ColumnGroup,
+      itemType: "ColumnGroup",
       xml: xmlData.ColumnGroup,
     })
 

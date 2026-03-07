@@ -1,6 +1,6 @@
 import { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertiesFromYAML } from "~/metadata/metadataFactory"
+import { importPropertiesFromYAML } from "~/metadata/orchestration"
 import { MetadataCatalogRules } from "./rules"
 
 export const importMetadataCatalogFromYAML = (
@@ -12,9 +12,8 @@ export const importMetadataCatalogFromYAML = (
 
   const result = importPropertiesFromYAML({
     context,
-    metadataType: "MetadataCatalog",
     yaml: data,
-    rules: MetadataCatalogRules,
+    metadataRule: MetadataCatalogRules,
     name,
   })
 

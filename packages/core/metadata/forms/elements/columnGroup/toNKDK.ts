@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { HorizontalColumnGroupPrefix, InCellColumnGroupPrefix, VerticalColumnGroupPrefix } from "~/nkdk/terminal"
 import { ColumnGroup } from "./types"

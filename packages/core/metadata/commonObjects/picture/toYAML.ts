@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
@@ -8,7 +8,7 @@ import { type Picture, type PictureYAML, type PictureYAMLExtended } from "./type
 
 export function exportPictureToYAML(
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   picture: Picture | undefined
 ): PictureYAML | undefined {
   if (!picture) return undefined

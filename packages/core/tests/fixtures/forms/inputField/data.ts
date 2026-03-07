@@ -4,12 +4,11 @@ import {
   InputFieldPartialYAML,
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {
-  itemType: CollectionFormElementType.InputField,
+  itemType: "InputField",
   name: "ПолеВвода",
   autoCellHeight: true,
   cellHyperlink: true,
@@ -358,7 +357,7 @@ export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
 }
 
 export const minimalInputField: InputField = {
-  itemType: CollectionFormElementType.InputField,
+  itemType: "InputField",
   name: "ПолеВвода",
 }
 
@@ -379,7 +378,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "with title",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       title: { items: { ru: "Поле" } },
       dataPath: "ИмяПоля",
     },
@@ -392,7 +391,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
     name: "without title",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       dataPath: "ИмяПоля",
     },
     structured: {
@@ -499,6 +498,10 @@ export const fullInputFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
   },
+  FooterPicture: {
+    Type: "Picture",
+    Value: "PictureLib.Print",
+  },
   FooterText: "Текст подвала",
   FooterTextColor: {
     Type: "Color",
@@ -508,6 +511,10 @@ export const fullInputFieldEnterprise = {
   HeaderHorizontalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
+  },
+  HeaderPicture: {
+    Type: "Picture",
+    Value: "PictureLib.Print",
   },
   Height: 100,
   HeightControlVariant: {
@@ -558,6 +565,10 @@ export const fullInputFieldEnterprise = {
     Value: "StyleFonts.NormalTextFont",
   },
   MultipleValuesHyperlink: true,
+  MultipleValuesPicture: {
+    Type: "Picture",
+    Value: "CommonPictures.ОбщаяКартинка",
+  },
   MultipleValuesTextColor: {
     Type: "Color",
     Value: "WebColors.Red",
@@ -637,6 +648,10 @@ export const fullInputFieldEnterprise = {
   },
   Width: 200,
   Wrap: true,
+  ChoiceButtonPicture: {
+    Type: "Picture",
+    Value: "PictureLib.Print",
+  },
 } satisfies InputFieldEnterprise
 
 export const minimalInputFieldEnterprise = {

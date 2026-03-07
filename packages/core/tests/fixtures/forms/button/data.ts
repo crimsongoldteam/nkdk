@@ -1,9 +1,9 @@
 import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
 
-export const fullButton: Required<Button> = {
-  itemType: CollectionFormElementType.Button,
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+
+export const fullButton = {
+  itemType: "Button",
   autoMaxHeight: false,
   autoMaxWidth: false,
   backColor: {
@@ -80,15 +80,15 @@ export const fullButton: Required<Button> = {
   verticalStretch: true,
   visible: false,
   width: 10,
-}
+} satisfies Required<Button>
 
 export const fullButtonSource: Button = {
-  itemType: CollectionFormElementType.Button,
+  itemType: "Button",
   name: "Кнопка",
   title: { items: { ru: "Кнопка формы" } },
 }
 
-export const fullButtonPartialYAML: Required<Omit<ButtonPartialYAML, "Заголовок" | "ЗапретитьИспользование">> = {
+export const fullButtonPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   АктивизироватьПоУмолчанию: "Истина",
@@ -130,7 +130,7 @@ export const fullButtonPartialYAML: Required<Omit<ButtonPartialYAML, "Загол
   ЦветФона: "Красный",
   Ширина: 10,
   Шрифт: "КрупныйШрифтТекста",
-}
+} satisfies Required<Omit<ButtonPartialYAML, "Заголовок" | "ЗапретитьИспользование">>
 
 export const fullButtonTypedYAML: ButtonTypedYAML = {
   ...fullButtonPartialYAML,
@@ -139,7 +139,7 @@ export const fullButtonTypedYAML: ButtonTypedYAML = {
 }
 
 export const minimalButton: Button = {
-  itemType: CollectionFormElementType.Button,
+  itemType: "Button",
   name: "ОбычнаяКнопка",
 }
 
@@ -204,7 +204,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "with title",
     element: {
       name: "Заголовок",
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
@@ -216,7 +216,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     name: "without title",
     element: {
       name: "Кнопка",
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       title: undefined,
     },
     structured: {

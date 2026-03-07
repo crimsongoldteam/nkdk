@@ -1,12 +1,12 @@
 import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { FormParameterYAML, FormParameters, FormParametersYAML } from "./types"
 
 export const exportFormParametersToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   parameters: FormParameters | undefined
 ): FormParametersYAML | undefined => {
   if (parameters === undefined || parameters.length === 0) {

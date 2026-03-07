@@ -1,3 +1,4 @@
+import { Static, Type } from "@sinclair/typebox"
 import { createMetadataTypesRules, createMetadataValuesRules, swapMetadataFieldsRulesKeys } from "./helper"
 
 const OtherTypeToYAML = {
@@ -261,3 +262,6 @@ export const MetadataTypesRulesFromYAML = swapMetadataFieldsRulesKeys(MetadataTy
 
 export const MetadataValuesRulesToYAML = createMetadataValuesRules(MetadataFieldsRulesToYAML)!
 export const MetadataValuesRulesFromYAML = swapMetadataFieldsRulesKeys(MetadataValuesRulesToYAML)!
+
+export const DataPathJSONSchema = Type.String()
+export type DataPathYAML = Static<typeof DataPathJSONSchema>

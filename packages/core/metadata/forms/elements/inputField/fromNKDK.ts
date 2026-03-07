@@ -1,11 +1,10 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 import {
   importDataPathFromNKDK,
   importI8nTextFromNKDK,
   importNameFromNKDK,
-} from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+} from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import { InputField } from "./types"
 
 export const importInputFieldFromNKDK = (params: {
@@ -13,15 +12,14 @@ export const importInputFieldFromNKDK = (params: {
   source: NKDK.InputField
 }): InputField => {
   const { context, source } = params
-  const result: InputField = {
-    itemType: CollectionFormElementType.InputField,
-    name: importNameFromNKDK(source),
-    title: importI8nTextFromNKDK(context, source.title),
-  }
 
   const dataPath = importDataPathFromNKDK(source)
-  if (dataPath) {
-    result.dataPath = dataPath
+
+  const result: InputField = {
+    itemType: "InputField",
+    name: importNameFromNKDK(source),
+    title: importI8nTextFromNKDK(context, source.title),
+    ...(dataPath ? { dataPath } : {}),
   }
 
   return result

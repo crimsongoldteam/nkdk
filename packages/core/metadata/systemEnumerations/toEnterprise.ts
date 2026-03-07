@@ -1,11 +1,10 @@
 import { ConfigurationContext } from "../context/types"
-import { SystemEnumerationPropertyRule } from "../metadataFactory"
-import { registerTypeRule } from "../metadataFactory/types/factory"
-import { SystemEnumerationEnterprise } from "./types"
+import { registerTypeRule } from "../orchestration"
+import { SystemEnumerationEnterprise, SystemEnumerationPropertyRule } from "./types"
 
 export const exportSystemEnumerationToEnterprise = (params: {
   context: ConfigurationContext
-  rule: SystemEnumerationPropertyRule<any>
+  rule: SystemEnumerationPropertyRule
   value: string | undefined
 }): SystemEnumerationEnterprise | undefined => {
   const { rule, value } = params

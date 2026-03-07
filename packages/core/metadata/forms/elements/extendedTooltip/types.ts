@@ -6,6 +6,8 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement } from "../baseElement/types"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
+import { ExtendedTooltipRules } from "./rules"
 
 export interface ExtendedTooltip extends BaseElement {
   itemType: "ExtendedTooltip"
@@ -60,4 +62,4 @@ export interface ExtendedTooltipYAML {
   Шрифт?: FontYAML
 }
 
-// export type ExtendedTooltipEnterprise = EnterpriseType<typeof ExtendedTooltipRules>
+export type ExtendedTooltipEnterprise = EnterpriseType<typeof ExtendedTooltipRules>

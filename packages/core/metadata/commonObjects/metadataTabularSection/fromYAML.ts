@@ -11,14 +11,14 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSectionYAML | undefined,
   name: string
 ): MetadataTabularSection | undefined => {
@@ -73,7 +73,7 @@ export const importMetadataTabularSectionFromYAML = (
 
 export const importMetadataTabularSectionsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
   if (!data) return undefined

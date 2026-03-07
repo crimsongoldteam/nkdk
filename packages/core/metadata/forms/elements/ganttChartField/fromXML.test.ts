@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullGanttChartField, minimalGanttChartField } from "~/tests/fixtures/forms/ganttChartField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importGanttChartFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.GanttChartField,
+      itemType: "GanttChartField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importGanttChartFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.GanttChartField,
+      itemType: "GanttChartField",
       xml: xmlData.GanttChartField,
     })
 
@@ -32,7 +32,7 @@ describe("importGanttChartFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.GanttChartField,
+      itemType: "GanttChartField",
       xml: xmlData.GanttChartField,
     })
 

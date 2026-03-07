@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { Popup } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const PopupRules = {
+  itemType: "Popup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Popup",
   properties: {
@@ -12,8 +12,8 @@ export const PopupRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     childItems: {
-      yaml: "ПодчиненныеЭлементы",
-      type: "ChildItems",
+      yaml: "Элементы",
+      type: "CommandBarChildItems",
       defaultValue: [],
     },
     displayImportance: {
@@ -67,6 +67,6 @@ export const PopupRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRule<Popup, "extendedTooltip">
+} as const satisfies ElementRule
 
-registerElementRule("Popup", PopupRules as ElementRule<Popup, "extendedTooltip">)
+registerElementRule("Popup", PopupRules)

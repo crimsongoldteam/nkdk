@@ -1,15 +1,15 @@
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ImportFromYAMLFunctionNew, UserVisiblePropertyRule } from "~/metadata/metadataFactory"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { ImportFromYAMLFunctionNew, UserVisiblePropertyRule } from "~/metadata/orchestration"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleYAML, type UserVisible } from "./types"
 
 /** @deprecated */
 export const importUserVisibleFromYAMLDeprecated = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   valueAllow: Record<string, StringboolYAML> | undefined,
   valueDeny: Record<string, StringboolYAML> | undefined
 ): UserVisible | undefined => {
@@ -38,7 +38,7 @@ export const importUserVisibleFromYAMLDeprecated = (
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
-  rule: PropertyRule<any>
+  rule: PropertyRule
   value: UserVisibleYAML | undefined
   source?: UserVisible | undefined
   yaml?: Record<string, any> | undefined

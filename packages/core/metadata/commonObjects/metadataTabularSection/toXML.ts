@@ -9,7 +9,7 @@ import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjec
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/toXML"
 import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/toXML"
@@ -17,7 +17,7 @@ import { getDefaults } from "./defaults"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
@@ -27,7 +27,7 @@ export const exportMetadataTabularSectionsToXML = (
 
 export const exportMetadataTabularSectionToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)

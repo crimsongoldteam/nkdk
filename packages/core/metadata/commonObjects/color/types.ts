@@ -1,3 +1,4 @@
+import { Static, Type } from "@sinclair/typebox"
 import { ColorType } from "~/metadata/systemEnumerations/types"
 
 export interface Color {
@@ -7,7 +8,9 @@ export interface Color {
 
 export type ColorXML = string
 
-export type ColorYAML = string
+export const ColorJSONSchema = Type.String()
+
+export type ColorYAML = Static<typeof ColorJSONSchema>
 
 export const ColorPrefixToType: Record<string, "StyleItem" | "WindowsColor" | "WebColor"> = {
   style: "StyleItem",

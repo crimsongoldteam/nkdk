@@ -3,12 +3,12 @@ import {
   LabelDecorationEnterprise,
   LabelDecorationPartialYAML,
 } from "~/metadata/forms/elements/labelDecoration/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
-  itemType: CollectionFormElementType.LabelDecoration,
+  itemType: "LabelDecoration",
   name: "Заголовок",
   title: {
     items: { ru: "Заголовок формы" },
@@ -117,8 +117,8 @@ export const fullLabelDecorationEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemVerticalAlign.Top",
   },
-  Title: undefined,
-  Border: { Type: "Border", Value: "Border.Single" },
+  Title: "Заголовок формы",
+  Border: { Type: "Border", Value: "ControlBorderType.Indented", Width: 1 },
 } satisfies Required<LabelDecorationEnterprise>
 
 export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {
@@ -166,7 +166,7 @@ export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {
 }
 
 export const minimalLabelDecoration: LabelDecoration = {
-  itemType: CollectionFormElementType.LabelDecoration,
+  itemType: "LabelDecoration",
   name: "Заголовок",
 }
 
@@ -187,7 +187,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     name: "with title",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.LabelDecoration,
+      itemType: "LabelDecoration",
       title: { items: { ru: "Заголовок" }, formatted: false },
     },
     structured: {
@@ -200,7 +200,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     element: {
       name: "ИмяПоля",
       title: { items: { ru: "" }, formatted: false },
-      itemType: CollectionFormElementType.LabelDecoration,
+      itemType: "LabelDecoration",
     },
     structured: {
       strings: ["%ИмяПоля"],
@@ -212,7 +212,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
     name: "with escaped title",
     element: {
       name: "ИмяПоля",
-      itemType: CollectionFormElementType.LabelDecoration,
+      itemType: "LabelDecoration",
       title: { items: { ru: 'Заголовок "формы"' }, formatted: false },
     },
     structured: {

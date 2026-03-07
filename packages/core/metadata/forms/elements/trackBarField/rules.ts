@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { TrackBarField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const TrackBarFieldRules = {
+  itemType: "TrackBarField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.TrackBarField",
   properties: {
@@ -143,6 +143,6 @@ export const TrackBarFieldRules = {
   events: {
     onChange: "ПриИзменении",
   },
-} as const satisfies ElementRule<TrackBarField>
+} as const satisfies ElementRule
 
-registerElementRule("TrackBarField", TrackBarFieldRules as ElementRule<TrackBarField>)
+registerElementRule("TrackBarField", TrackBarFieldRules)

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, PropertyRule } from "~/metadata/metadataFactory"
+import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
-const rule: PropertyRule<any> = {
+const rule: PropertyRule = {
   type: "ExtendedTooltip",
 }
 

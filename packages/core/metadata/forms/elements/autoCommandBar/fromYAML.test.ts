@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML, PropertyRule } from "~/metadata/metadataFactory"
+import type { FormElementsYAML } from "~/metadata/forms/commonObjects/childItems/types"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import {
   fullAutoCommandBar,
@@ -9,11 +10,11 @@ import {
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockContext } from "~/tests/mockContext"
 
-const rule: PropertyRule<any> = { type: "AutoCommandBar" }
+const rule: PropertyRule = { type: "AutoCommandBar" }
 
 const context = {
   ...mockContext,
-  allElements: fullCommandBarChildItemsAllYAML,
+  allElements: fullCommandBarChildItemsAllYAML as FormElementsYAML,
 }
 
 describe("importAutoCommandBarFromYAML", () => {

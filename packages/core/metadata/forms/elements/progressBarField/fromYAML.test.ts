@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, importElementFromPartialYAML } from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML } from "~/metadata/orchestration"
 import {
   fullProgressBarField,
   fullProgressBarFieldPartialYAML,
@@ -12,7 +12,7 @@ describe("importProgressBarFieldFromYAML", () => {
   it("should import all fields from YAML", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.ProgressBarField,
+      itemType: "ProgressBarField",
       yaml: fullProgressBarFieldPartialYAML,
       source: fullProgressBarField,
     })
@@ -23,7 +23,7 @@ describe("importProgressBarFieldFromYAML", () => {
   it("should import minimal", () => {
     const result = importElementFromPartialYAML({
       context: mockContext,
-      itemType: CollectionFormElementType.ProgressBarField,
+      itemType: "ProgressBarField",
       yaml: minimalProgressBarFieldPartialYAML,
       source: minimalProgressBarField,
     })

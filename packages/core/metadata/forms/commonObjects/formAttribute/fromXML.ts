@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/metadataFactory"
+import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -17,7 +17,7 @@ import {
 
 export const importFormAttributesFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: { Attribute: FormAttributesXML } | undefined
 ): FormAttributes | undefined => {
   if (!xml || !xml.Attribute) return undefined
@@ -28,8 +28,19 @@ export const importFormAttributesFromXML = (
   return attributes
 }
 
+export const importFormAttributeColumnFromXML = (
+  context: ConfigurationContext,
+  xml: FormAttributeColumnXML | undefined
+): FormAttributeColumn | undefined => {
+  if (!xml) return undefined
+
+  const columns = importColumnsFromXML(context, xml)
+
+  return columns[0]
+}
+
 const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {
-  const properties = importPropertiesFromXML({
+  const properties = importPropertiesFromXML<FormAttribute>({
     context: context,
     xml,
     rule: FormAttributeRules,
@@ -48,7 +59,7 @@ const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttr
 
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: FormAttributeColumnsXML | undefined
 ): FormAttributeColumns | undefined => {
   if (!xml) return undefined

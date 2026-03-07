@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { ChartField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const ChartFieldRules = {
+  itemType: "ChartField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ChartField",
   properties: {
@@ -131,6 +131,6 @@ export const ChartFieldRules = {
     detailProcessing: "ОбработкаРасшифровки",
     onActivate: "ПриАктивизации",
   },
-} as const satisfies ElementRule<ChartField>
+} as const satisfies ElementRule
 
-registerElementRule("ChartField", ChartFieldRules as ElementRule<ChartField>)
+registerElementRule("ChartField", ChartFieldRules)

@@ -9,11 +9,11 @@ import { importMetadataItemLinkFromYAML } from "~/metadata/commonObjects/metadat
 import { importMetadataValueFromYAML } from "~/metadata/commonObjects/metadataValue/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 export const importCharacteristicsDescriptionFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptionYAML | undefined
 ): CharacteristicsDescription | undefined => {
   if (!data) return undefined
@@ -69,7 +69,7 @@ export const importCharacteristicsDescriptionFromYAML = (
 
 export const importCharacteristicsDescriptionsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: CharacteristicsDescriptionsYAML | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!data) return undefined

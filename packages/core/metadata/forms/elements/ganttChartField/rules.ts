@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { GanttChartField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const GanttChartFieldRules = {
+  itemType: "GanttChartField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GanttChartField",
   properties: {
@@ -152,6 +152,6 @@ export const GanttChartFieldRules = {
     onActivateInterval: "ПриАктивизацииИнтервала",
     onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
   },
-} as const satisfies ElementRule<GanttChartField>
+} as const satisfies ElementRule
 
-registerElementRule("GanttChartField", GanttChartFieldRules as ElementRule<GanttChartField>)
+registerElementRule("GanttChartField", GanttChartFieldRules)

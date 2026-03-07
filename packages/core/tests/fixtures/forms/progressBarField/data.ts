@@ -3,11 +3,11 @@ import {
   ProgressBarFieldEnterprise,
   ProgressBarFieldPartialYAML,
 } from "~/metadata/forms/elements/progressBarField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
-  itemType: CollectionFormElementType.ProgressBarField,
+  itemType: "ProgressBarField",
   name: "ПолеИндикатора",
   title: {
     items: { ru: "Поле индикатора" },
@@ -243,7 +243,7 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
 }
 
 export const minimalProgressBarField: ProgressBarField = {
-  itemType: CollectionFormElementType.ProgressBarField,
+  itemType: "ProgressBarField",
   name: "ПолеИндикатора",
 }
 

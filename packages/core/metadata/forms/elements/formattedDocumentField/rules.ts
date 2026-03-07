@@ -1,10 +1,10 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { FormattedDocumentField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const FormattedDocumentFieldRules = {
+  itemType: "FormattedDocumentField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.FormattedDocumentField",
   properties: {
@@ -141,6 +141,6 @@ export const FormattedDocumentFieldRules = {
     beforePrint: "ПередПечатью",
     afterWrite: "ПослеЗаписи",
   },
-} as const satisfies ElementRule<FormattedDocumentField>
+} as const satisfies ElementRule
 
-registerElementRule("FormattedDocumentField", FormattedDocumentFieldRules as ElementRule<FormattedDocumentField>)
+registerElementRule("FormattedDocumentField", FormattedDocumentFieldRules)

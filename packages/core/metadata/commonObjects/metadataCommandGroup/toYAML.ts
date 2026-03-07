@@ -4,7 +4,7 @@ import { MetadataCommandGroup, MetadataCommandGroupYAML } from "./types"
 
 export const exportMetadataCommandGroupToYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataCommandGroup | undefined
 ): MetadataCommandGroupYAML | undefined => {
   if (!data) return undefined

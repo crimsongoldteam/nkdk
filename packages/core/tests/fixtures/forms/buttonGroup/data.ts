@@ -4,8 +4,8 @@ import {
   ButtonGroupPartialYAML,
   ButtonGroupTypedYAML,
 } from "~/metadata/forms/elements/buttonGroup/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
 export const fullButtonGroup: Required<ButtonGroup> = {
   itemType: "ButtonGroup",
@@ -34,7 +34,7 @@ export const fullButtonGroup: Required<ButtonGroup> = {
   name: "ГруппаКнопок",
   childItems: [
     {
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       name: "Кнопка",
     },
   ],
@@ -58,6 +58,7 @@ export const fullButtonGroupEnterprise = {
       ElementType: "FormButton",
       Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
       Name: "Кнопка",
+      CommandName: "КомандаЗаглушка",
     },
   ],
   Representation: {
@@ -92,7 +93,7 @@ export const fullButtonGroupEnterprise = {
 } satisfies Required<ButtonGroupEnterprise>
 
 export const fullButtonGroupSource: ButtonGroup = {
-  itemType: CollectionFormElementType.ButtonGroup,
+  itemType: "ButtonGroup",
   name: "ГруппаКнопок",
   title: { items: { ru: "Группа кнопок" } },
   childItems: [],
@@ -121,7 +122,7 @@ export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
   РасширеннаяПодсказка: {
     Заголовок: "ГруппаКнопокРасширеннаяПодсказка",
   },
-  ПодчиненныеЭлементы: {
+  Элементы: {
     Кнопка: {
       Тип: "Кнопка",
     },
@@ -153,7 +154,7 @@ export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
   РасширеннаяПодсказка: {
     Заголовок: "ГруппаКнопокРасширеннаяПодсказка",
   },
-  ПодчиненныеЭлементы: {
+  Элементы: {
     Кнопка: {
       Тип: "Кнопка",
     },
@@ -161,7 +162,7 @@ export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
 }
 
 export const minimalButtonGroup: ButtonGroup = {
-  itemType: CollectionFormElementType.ButtonGroup,
+  itemType: "ButtonGroup",
   name: "ГруппаКнопок",
   childItems: [],
 }
@@ -183,7 +184,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "with title",
     element: {
       name: "ГруппаКнопок",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       title: { items: { ru: "Группа кнопок" } },
       childItems: [],
     },
@@ -196,7 +197,7 @@ export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = 
     name: "without title",
     element: {
       name: "ГруппаКнопок",
-      itemType: CollectionFormElementType.ButtonGroup,
+      itemType: "ButtonGroup",
       title: undefined,
       childItems: [],
     },

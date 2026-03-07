@@ -47,7 +47,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: LabelField = {
-//       itemType: CollectionFormElementType.LabelField,
+//       itemType: "LabelField",
 //       name: name,
 //     }
 
@@ -91,7 +91,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result = {
-//       itemType: CollectionFormElementType.PictureDecoration,
+//       itemType: "PictureDecoration",
 //       name: name || "",
 //       picture: picture,
 //       title: title ? { items: title.items, formatted: false } : undefined,
@@ -117,7 +117,7 @@
 //     const modificators = this.addInputModifiers(modifiers)
 
 //     const result: InputField = {
-//       itemType: CollectionFormElementType.InputField,
+//       itemType: "InputField",
 //       name: name,
 //       ...modificators,
 //     }
@@ -174,7 +174,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: Button = {
-//       itemType: CollectionFormElementType.Button,
+//       itemType: "Button",
 //       name: name || "",
 //     }
 
@@ -194,7 +194,7 @@
 
 //     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 //     const result: CheckBoxField = {
-//       itemType: CollectionFormElementType.CheckBoxField,
+//       itemType: "CheckBoxField",
 //       name,
 //       headerHorizontalAlign: "Right",
 //     }
@@ -218,7 +218,7 @@
 //     const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 
 //     const result: any = {
-//       itemType: CollectionFormElementType.CheckBoxField,
+//       itemType: "CheckBoxField",
 //       name,
 //     }
 
@@ -261,7 +261,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     return {
-//       itemType: CollectionFormElementType.RadioButtonField,
+//       itemType: "RadioButtonField",
 //       name: name || "",
 //       id: undefined,
 //       choiceList: choiceList,
@@ -290,7 +290,7 @@
 //     const name = this.visit(ctx.properties as CstNode[], context) || "CommandBar"
 
 //     const result: CommandBar = {
-//       itemType: CollectionFormElementType.CommandBar,
+//       itemType: "CommandBar",
 //       name: name,
 //       childItems: filteredChildItems,
 //     }
@@ -308,7 +308,7 @@
 //     const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
 
 //     const result: AutoCommandBar = {
-//       itemType: SingleFormElementType.AutoCommandBar,
+//       itemType: "AutoCommandBar",
 //       autofill: autofill,
 //       childItems: filteredChildItems,
 //     }
@@ -341,7 +341,7 @@
 
 //     if (hashToken) {
 //       return {
-//         itemType: CollectionFormElementType.ButtonGroup,
+//         itemType: "ButtonGroup",
 //         name: name || "",
 //         title: title,
 //         childItems: [],
@@ -349,7 +349,7 @@
 //     }
 
 //     const result: Button = {
-//       itemType: CollectionFormElementType.Button,
+//       itemType: "Button",
 //       name: name || "",
 //       title: title,
 //     }
@@ -364,7 +364,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: ButtonGroup = {
-//       itemType: CollectionFormElementType.ButtonGroup,
+//       itemType: "ButtonGroup",
 //       name: name || "",
 //       title: title,
 //       childItems: [],
@@ -380,7 +380,7 @@
 //     const title = this.createTitle(titleText, context.defaultLanguage)
 
 //     const result: Popup = {
-//       itemType: CollectionFormElementType.Popup,
+//       itemType: "Popup",
 //       name: name || "",
 //       title: title,
 //       childItems: [],
@@ -402,7 +402,7 @@
 
 //     if (isSearchControl) {
 //       const result: SearchControlAddition = {
-//         itemType: CollectionFormElementType.SearchControlAddition,
+//         itemType: "SearchControlAddition",
 //         name: name || "",
 //         childItems: [],
 //       }
@@ -411,7 +411,7 @@
 
 //     if (isSearchString) {
 //       const result: SearchStringAddition = {
-//         itemType: CollectionFormElementType.SearchStringAddition,
+//         itemType: "SearchStringAddition",
 //         name: name || "",
 //       }
 //       return result
@@ -419,7 +419,7 @@
 
 //     // По умолчанию возвращаем SearchControlAddition
 //     const result: SearchControlAddition = {
-//       itemType: CollectionFormElementType.SearchControlAddition,
+//       itemType: "SearchControlAddition",
 //       name: name || "",
 //       childItems: [],
 //     }
@@ -467,7 +467,7 @@
 //         // Checkbox field: [ ] title {name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.CheckBoxField,
+//             itemType: "CheckBoxField",
 //             name: cell.properties,
 //             title: cell.title ? this.createTitle(cell.title, context.defaultLanguage) : undefined,
 //             checkBoxType: cell.checkBoxType,
@@ -477,7 +477,7 @@
 //         // Label field: ~{name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.LabelField,
+//             itemType: "LabelField",
 //             name: cell.properties,
 //           } as LabelField)
 //         }
@@ -485,7 +485,7 @@
 //         // Column group: #{name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.ColumnGroup,
+//             itemType: "ColumnGroup",
 //             name: cell.properties,
 //             childItems: [],
 //           } as ColumnGroup)
@@ -494,7 +494,7 @@
 //         // Picture field: @{name}
 //         if (cell.properties) {
 //           childItems.push({
-//             itemType: CollectionFormElementType.PictureField,
+//             itemType: "PictureField",
 //             name: cell.properties,
 //           } as PictureField)
 //         }
@@ -505,7 +505,7 @@
 //             // Если в ячейке есть и name, и properties, это колонка
 //             // properties - это имя колонки, name - это заголовок
 //             childItems.push({
-//               itemType: CollectionFormElementType.InputField,
+//               itemType: "InputField",
 //               name: cell.properties,
 //               title: this.createTitle(cell.name, context.defaultLanguage),
 //             } as InputField)
@@ -515,7 +515,7 @@
 //           } else {
 //             // Если в не последней ячейке есть только properties (без name), это колонка без заголовка
 //             childItems.push({
-//               itemType: CollectionFormElementType.InputField,
+//               itemType: "InputField",
 //               name: cell.properties,
 //             } as InputField)
 //           }
@@ -523,7 +523,7 @@
 //           // Если в ячейке есть только name (без properties), это колонка с именем = name
 //           if (!isLast) {
 //             childItems.push({
-//               itemType: CollectionFormElementType.InputField,
+//               itemType: "InputField",
 //               name: cell.name,
 //             } as InputField)
 //           }
@@ -533,7 +533,7 @@
 
 //     return {
 //       name: tableName || "",
-//       itemType: CollectionFormElementType.Table,
+//       itemType: "Table",
 //       childItems: childItems,
 //     } as Table
 //   }
@@ -654,7 +654,7 @@
 //     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
 //     const name = this.visit(ctx.properties as CstNode[], context) || titleText
 //     return {
-//       itemType: CollectionFormElementType.Pages,
+//       itemType: "Pages",
 //       name: name || titleText,
 //       title: this.createTitle(titleText, context.defaultLanguage),
 //       id: undefined,
@@ -666,7 +666,7 @@
 //     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
 //     const name = this.visit(ctx.properties as CstNode[], context) || titleText
 //     return {
-//       itemType: CollectionFormElementType.Page,
+//       itemType: "Page",
 //       name: name || titleText,
 //       title: this.createTitle(titleText, context.defaultLanguage),
 //       id: undefined,
@@ -684,7 +684,7 @@
 
 //     const result: UsualGroup = {
 //       name: name,
-//       itemType: CollectionFormElementType.UsualGroup,
+//       itemType: "UsualGroup",
 //       group: "Vertical",
 //       childItems: [],
 //     }
@@ -706,7 +706,7 @@
 
 //     const result: UsualGroup = {
 //       name: name,
-//       itemType: CollectionFormElementType.UsualGroup,
+//       itemType: "UsualGroup",
 //       childItems: [],
 //     }
 
@@ -731,7 +731,7 @@
 
 //     const result: UsualGroup = {
 //       name: name,
-//       itemType: CollectionFormElementType.UsualGroup,
+//       itemType: "UsualGroup",
 //       childItems: [],
 //     }
 

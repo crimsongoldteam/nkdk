@@ -1,16 +1,20 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { RadioButtonField } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const RadioButtonFieldRules = {
+  itemType: "RadioButtonField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    choiceList: { yaml: "СписокВыбора", type: "ChoiceList" },
+    choiceList: {
+      yaml: "СписокВыбора",
+      type: "ChoiceList",
+      toEnterprise: false,
+    },
     columnsCount: { yaml: "КоличествоКолонок", type: "number" },
     equalColumnsWidth: { yaml: "ОдинаковаяШиринаКолонок", type: "boolean" },
     font: { yaml: "Шрифт", type: "Font" },
@@ -134,6 +138,6 @@ export const RadioButtonFieldRules = {
   events: {
     onChange: "ПриИзменении",
   },
-} as const satisfies ElementRule<RadioButtonField>
+} as const satisfies ElementRule
 
-registerElementRule("RadioButtonField", RadioButtonFieldRules as ElementRule<RadioButtonField>)
+registerElementRule("RadioButtonField", RadioButtonFieldRules)

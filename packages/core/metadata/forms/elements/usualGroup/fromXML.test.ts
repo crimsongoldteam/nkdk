@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML } from "~/metadata/orchestration"
+import { importElementFromXML } from "~/metadata/orchestration/formElement/fromXML"
 import { fullUsualGroup, minimalUsualGroup } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +9,7 @@ describe("importUsualGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.UsualGroup,
+      itemType: "UsualGroup",
       xml: undefined,
     })
 
@@ -20,7 +21,7 @@ describe("importUsualGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.UsualGroup,
+      itemType: "UsualGroup",
       xml: xmlData.UsualGroup,
     })
 
@@ -32,7 +33,7 @@ describe("importUsualGroupFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.UsualGroup,
+      itemType: "UsualGroup",
       xml: xmlData.UsualGroup,
     })
 

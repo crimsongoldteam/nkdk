@@ -7,7 +7,7 @@ import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/t
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
-import { EnterpriseType } from "~/metadata/metadataFactory/types/enterprise"
+import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { GanttChartFieldRules } from "./rules"

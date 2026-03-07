@@ -97,11 +97,9 @@ import "./progressBarField/types"
 import "./radioButtonField/rules"
 import "./radioButtonField/types"
 
-import "./searchControlAddition/exportToStructure"
 import "./searchControlAddition/rules"
 import "./searchControlAddition/types"
 
-import "./searchStringAddition/exportToStructure"
 import "./searchStringAddition/rules"
 import "./searchStringAddition/types"
 

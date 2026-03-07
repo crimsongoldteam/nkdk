@@ -1,3 +1,4 @@
+import { Type } from "@sinclair/typebox"
 import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
@@ -66,4 +67,5 @@ export type MetadataTabularSections = MetadataTabularSection[]
 
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
+export const MetadataTabularSectionsJSONSchema = Type.Record(Type.String(), Type.Any())
 export type MetadataTabularSectionsYAML = Record<MetadataNameYAML, MetadataTabularSectionYAML>

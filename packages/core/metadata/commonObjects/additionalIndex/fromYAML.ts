@@ -7,11 +7,11 @@ import {
 import { importIndexFieldsFromYAML } from "~/metadata/commonObjects/indexField/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 
 export const importAdditionalIndexFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndexYAML | undefined
 ): AdditionalIndex | undefined => {
   if (!data) return undefined
@@ -26,7 +26,7 @@ export const importAdditionalIndexFromYAML = (
 
 export const importAdditionalIndexesFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   data: AdditionalIndexesYAML | undefined
 ): AdditionalIndexes | undefined => {
   if (!data) return undefined

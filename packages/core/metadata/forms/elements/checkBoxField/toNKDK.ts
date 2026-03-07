@@ -1,7 +1,7 @@
 import { exportTitleToNKDK } from "~/metadata/commonObjects/title/toNKDK"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { ToNKDKResult } from "~/metadata/metadataFactory/elements/toNKDKGenerator/types"
+import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { CheckBoxField } from "./types"
 
 export const exportCheckBoxFieldToNKDK = (params: {

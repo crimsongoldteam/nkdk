@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/metadataFactory/types/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { FunctionalOptions, FunctionalOptionsXML } from "./types"
 
 export const importFunctionalOptionsFromXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule<any> | undefined,
+  _rule: PropertyRule | undefined,
   xml: FunctionalOptionsXML | undefined
 ): FunctionalOptions | undefined => {
   if (!xml || !xml.Item) return undefined

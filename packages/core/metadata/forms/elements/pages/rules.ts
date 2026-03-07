@@ -1,15 +1,15 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { Pages } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const PagesRules = {
+  itemType: "Pages",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Pages",
   properties: {
     childItems: {
-      type: "ChildItems",
+      type: "PagesChildItems",
       defaultValue: [],
       toPartialYAML: false,
       fromPartialYAML: true,
@@ -79,6 +79,6 @@ export const PagesRules = {
   events: {
     onCurrentPageChange: "ПриСменеСтраницы",
   },
-} as const satisfies ElementRule<Pages>
+} as const satisfies ElementRule
 
-registerElementRule("Pages", PagesRules as ElementRule<Pages>)
+registerElementRule("Pages", PagesRules)

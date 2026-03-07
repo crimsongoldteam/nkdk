@@ -3,11 +3,11 @@ import {
   GraphicalSchemaFieldEnterprise,
   GraphicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
-  itemType: CollectionFormElementType.GraphicalSchemaField,
+  itemType: "GraphicalSchemaField",
   name: "ПолеГрафическойСхемы",
   title: {
     items: { ru: "Поле графической схемы" },
@@ -280,7 +280,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
 }
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
-  itemType: CollectionFormElementType.GraphicalSchemaField,
+  itemType: "GraphicalSchemaField",
   name: "ПолеГрафическойСхемы",
 }
 

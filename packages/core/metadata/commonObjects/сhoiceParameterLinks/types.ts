@@ -1,3 +1,4 @@
+import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 
@@ -30,6 +31,7 @@ export interface ChoiceParameterLinksXML {
 
 export type ChoiceParameterLinkYAML = string
 
-export type ChoiceParameterLinksYAML = string
+export const ChoiceParameterLinksJSONSchema = Type.String()
+export type ChoiceParameterLinksYAML = Static<typeof ChoiceParameterLinksJSONSchema>
 
 //#endregion

@@ -1,14 +1,14 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { ColumnGroup } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const ColumnGroupRules = {
+  itemType: "ColumnGroup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ColumnGroup",
   properties: {
-    childItems: { type: "ChildItems", defaultValue: [] },
+    childItems: { type: "TableChildItems", defaultValue: [] },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",
       type: "SystemEnumeration",
@@ -79,6 +79,6 @@ export const ColumnGroupRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRule<ColumnGroup>
+} as const satisfies ElementRule
 
-registerElementRule("ColumnGroup", ColumnGroupRules as ElementRule<ColumnGroup>)
+registerElementRule("ColumnGroup", ColumnGroupRules)

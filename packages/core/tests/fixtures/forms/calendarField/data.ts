@@ -3,11 +3,11 @@ import {
   CalendarFieldEnterprise,
   CalendarFieldPartialYAML,
 } from "~/metadata/forms/elements/calendarField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
-  itemType: CollectionFormElementType.CalendarField,
+  itemType: "CalendarField",
   name: "ПолеКалендаря",
   displayImportance: "High",
   autoCellHeight: true,
@@ -152,13 +152,14 @@ export const fullCalendarFieldEnterprise = {
   },
   Width: 4,
   WidthInMonths: 2,
-  Border: { Type: "Border", Value: "Border.Single" },
+  Border: {
+    Type: "Border",
+    Value: "ControlBorderType.DoubleUnderline",
+    Width: 1,
+  },
 } satisfies Required<CalendarFieldEnterprise>
 
-export const fullCalendarFieldPartialYAML: Omit<
-  Required<CalendarFieldPartialYAML>,
-  "Заголовок" | "ЗапретитьИспользование"
-> = {
+export const fullCalendarFieldPartialYAML = {
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -217,10 +218,10 @@ export const fullCalendarFieldPartialYAML: Omit<
     ПриАктивизацииДаты: "ПроцедураАктивацииДаты",
     ПриВыводеПериода: "ПроцедураВыводаПериода",
   },
-}
+} satisfies Omit<Required<CalendarFieldPartialYAML>, "Заголовок" | "ЗапретитьИспользование">
 
 export const minimalCalendarField: CalendarField = {
-  itemType: CollectionFormElementType.CalendarField,
+  itemType: "CalendarField",
   name: "ПолеКалендаря",
 }
 

@@ -13,7 +13,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { registerTypeRule } from "~/metadata/metadataFactory"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromYAML } from "../../commonObjects/metadataRef/fromYAML"
@@ -121,7 +121,7 @@ export const importMetadataCommandFromYAML = (
 
 export const importMetadataCommandsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule<any>,
+  _rule: PropertyRule,
   data: MetadataCommandsYAML | undefined
 ): MetadataCommands | undefined => {
   if (!data) return undefined

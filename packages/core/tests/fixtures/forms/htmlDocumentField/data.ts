@@ -3,11 +3,11 @@ import {
   HTMLDocumentFieldEnterprise,
   HTMLDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
+
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
-  itemType: CollectionFormElementType.HTMLDocumentField,
+  itemType: "HTMLDocumentField",
   name: "ПолеHTMLДокумента",
   title: {
     items: { ru: "Поле HTML документа" },
@@ -280,7 +280,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
 }
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
-  itemType: CollectionFormElementType.HTMLDocumentField,
+  itemType: "HTMLDocumentField",
   name: "ПолеHTMLДокумента",
 }
 

@@ -1,6 +1,12 @@
-import { MetadataField, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
+import { Static, Type } from "@sinclair/typebox"
+import { MetadataField, MetadataFieldJSONSchema, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
 import { MetadataItemLink, MetadataItemLinkYAML } from "~/metadata/commonObjects/metadataRef/types"
-import { MetadataValue, MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import {
+  MetadataValue,
+  MetadataValueJSONSchema,
+  MetadataValueXML,
+  MetadataValueYAML,
+} from "~/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
   characteristicTypes?: MetadataItemLink
@@ -55,4 +61,19 @@ export type CharacteristicsDescriptions = CharacteristicsDescription[]
 
 export type CharacteristicsDescriptionsXML = { "xr:Characteristic": CharacteristicsDescriptionXML[] }
 
-export type CharacteristicsDescriptionsYAML = CharacteristicsDescriptionYAML[]
+export const CharacteristicsDescriptionJSONSchema = Type.Object({
+  ВидыХарактеристик: Type.Optional(Type.String()),
+  ЗначениеОтбораВидов: Type.Optional(MetadataValueJSONSchema),
+  ЗначенияХарактеристик: Type.Optional(Type.String()),
+  ПолеВида: Type.Optional(MetadataFieldJSONSchema),
+  ПолеЗначения: Type.Optional(MetadataFieldJSONSchema),
+  ПолеИспользованияМножественныхЗначений: Type.Optional(MetadataFieldJSONSchema),
+  ПолеКлюча: Type.Optional(MetadataFieldJSONSchema),
+  ПолеКлючаМножественныхЗначений: Type.Optional(MetadataFieldJSONSchema),
+  ПолеОбъекта: Type.Optional(MetadataFieldJSONSchema),
+  ПолеОтбораВидов: Type.Optional(MetadataFieldJSONSchema),
+  ПолеПорядкаМножественныхЗначений: Type.Optional(MetadataFieldJSONSchema),
+  ПолеПутиКДанным: Type.Optional(MetadataFieldJSONSchema),
+})
+export const CharacteristicsDescriptionsJSONSchema = Type.Array(CharacteristicsDescriptionJSONSchema)
+export type CharacteristicsDescriptionsYAML = Static<typeof CharacteristicsDescriptionsJSONSchema>

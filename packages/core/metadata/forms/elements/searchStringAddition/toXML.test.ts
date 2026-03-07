@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToXML, exportPropertyToXML } from "~/metadata/metadataFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
+import { exportElementToXML, exportPropertyToXML } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   fullSearchStringAddition,
   fullSingleSearchStringAddition,
@@ -11,10 +11,9 @@ import {
 import { mockContext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { Table } from "../table/types"
 
-const rule: PropertyRule<Table> = {
-  type: "SearchStringAddition",
+const rule: PropertyRule = {
+  type: "SingleSearchStringAddition",
   yaml: "ОтображениеСтрокиПоиска",
 }
 

@@ -1,56 +1,56 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
-import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
+import { FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
+import { FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserEditKeysYAML,
   UserEditYAML,
   UserViewKeysYAML,
   UserViewYAML,
-  UserVisible,
 } from "~/metadata/commonObjects/userVisible/types"
-import { DynamicList, DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { ElementXML, MetadataItem } from "~/metadata/metadataFactory"
-import { FillChecking, FillCheckingYAML } from "~/metadata/systemEnumerations/types"
+import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { ElementXML } from "~/metadata/orchestration"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
+import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export interface FormAttributeAdditionalColumn {
   table: string
   columns: FormAttributeColumn[]
 }
 
-export interface FormAttribute extends MetadataItem {
-  itemType: "FormAttribute"
-  name: string
-  title?: I8nText
-  type?: TypeDescription
-  columns: FormAttributeColumns
-  valueType?: TypeDescription
-  mainAttribute?: boolean
-  storedData?: boolean
-  view?: UserVisible
-  edit?: UserVisible
-  fillCheck?: FillChecking
-  settings?: TypeDescription | DynamicList
-  functionalOptions?: FunctionalOptions
-  fieldsList?: FieldsList
-  save?: FieldsList
-}
+export type FormAttribute = ElementTypeByRule<typeof FormAttributeRules>
 
-export interface FormAttributeColumn extends MetadataItem {
-  itemType: "FormAttributeColumn"
-  name: string
-  title?: I8nText
-  type?: TypeDescription
-  view?: UserVisible
-  edit?: UserVisible
-  fillCheck?: FillChecking
-  functionalOptions?: FunctionalOptions
-}
+// export interface FormAttribute extends MetadataItem {
+//   itemType: "FormAttribute"
+//   name: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   columns: FormAttributeColumns
+//   valueType?: TypeDescription
+//   mainAttribute?: boolean
+//   storedData?: boolean
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   settings?: TypeDescription | DynamicList
+//   functionalOptions?: FunctionalOptions
+//   fieldsList?: FieldsList
+//   save?: FieldsList
+// }
+
+export type FormAttributeColumn = ElementTypeByRule<typeof FormAttributeColumnRules>
+// export interface FormAttributeColumn extends MetadataItem {
+//   itemType: "FormAttributeColumn"
+//   name: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   functionalOptions?: FunctionalOptions
+// }
 
 export interface FormAttributeAdditionalColumns {
   table: string

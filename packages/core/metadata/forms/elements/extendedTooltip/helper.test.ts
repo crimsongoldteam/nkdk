@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
+
 import { NamedElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
 
 describe("getExtendedTooltipName", () => {
   it("should generate extended tooltip name from parent element", () => {
     const parentElement: NamedElement = {
-      itemType: CollectionFormElementType.InputField,
+      itemType: "InputField",
       name: "КакойТоЭлемент",
     }
 
@@ -17,7 +17,7 @@ describe("getExtendedTooltipName", () => {
 
   it("should handle different parent element names", () => {
     const parentElement: NamedElement = {
-      itemType: CollectionFormElementType.Button,
+      itemType: "Button",
       name: "Кнопка",
     }
 

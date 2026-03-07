@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  CollectionFormElementType,
-  importElementFromPartialYAML,
-  importElementFromTypedYAML,
-} from "~/metadata/metadataFactory"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import {
   fullButtonGroup,
   fullButtonGroupPartialYAML,
@@ -43,7 +39,7 @@ describe("importButtonGroupFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.ButtonGroup,
+        itemType: "ButtonGroup",
         yaml: fullButtonGroupPartialYAML,
         source: fullButtonGroupSource,
       })
@@ -54,7 +50,7 @@ describe("importButtonGroupFromYAML", () => {
     it("should import minimal", () => {
       const result = importElementFromPartialYAML({
         context: mockContext,
-        itemType: CollectionFormElementType.ButtonGroup,
+        itemType: "ButtonGroup",
         yaml: minimalButtonGroupPartialYAML,
         source: minimalButtonGroup,
       })

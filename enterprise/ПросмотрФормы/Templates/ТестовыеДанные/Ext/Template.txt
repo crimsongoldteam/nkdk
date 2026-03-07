@@ -380,20 +380,17 @@
       "УдаляемыеЭлементы": [],
       "ДобавляемыеЭлементы": [
         {
-          "Name": "р_Элемент",
-          "ElementType": "FormField"
-        }
-      ],
-      "ПеремещаемыеЭлементы": [],
-      "ИзменяемыеЭлементы": {
-        "р_Элемент": {
+          "ElementType": "FormField",
           "Type": {
             "Type": "SystemEnumeration",
             "Value": "FormFieldType.InputField"
           },
+          "Name": "р_Элемент",
           "Title": "Заголовок элемента"
         }
-      }
+      ],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {}
     }
   },
   "ДобавлениеДочернегоЭлемента": {
@@ -445,21 +442,18 @@
       "УдаляемыеЭлементы": [],
       "ДобавляемыеЭлементы": [
         {
+          "ParentName": "р_Группа",
           "Name": "р_Элемент",
           "ElementType": "FormField",
-          "ParentName": "р_Группа"
-        }
-      ],
-      "ПеремещаемыеЭлементы": [],
-      "ИзменяемыеЭлементы": {
-        "р_Элемент": {
           "Type": {
             "Type": "SystemEnumeration",
             "Value": "FormFieldType.InputField"
           },
           "Title": "Заголовок элемента"
         }
-      }
+      ],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {}
     }
   },
   "ПеремещениеЭлементовНаОдномУровне": {
@@ -574,7 +568,12 @@
       "ДобавляемыеЭлементы": [
         {
           "Name": "р_Элемент2",
-          "ElementType": "FormField"
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 2"
         }
       ],
       "ПеремещаемыеЭлементы": [
@@ -583,15 +582,7 @@
           "Before": "р_Элемент1"
         }
       ],
-      "ИзменяемыеЭлементы": {
-        "р_Элемент2": {
-          "Type": {
-            "Type": "SystemEnumeration",
-            "Value": "FormFieldType.InputField"
-          },
-          "Title": "Заголовок 2"
-        }
-      }
+      "ИзменяемыеЭлементы": {}
     }
   },
   "ДобавлениеЭлементаПередУдаленнымЭлементом": {
@@ -671,7 +662,12 @@
       "ДобавляемыеЭлементы": [
         {
           "Name": "р_Элемент4",
-          "ElementType": "FormField"
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Title": "Заголовок 4"
         }
       ],
       "ПеремещаемыеЭлементы": [
@@ -680,15 +676,7 @@
           "Before": "р_Элемент3"
         }
       ],
-      "ИзменяемыеЭлементы": {
-        "р_Элемент4": {
-          "Type": {
-            "Type": "SystemEnumeration",
-            "Value": "FormFieldType.InputField"
-          },
-          "Title": "Заголовок 4"
-        }
-      }
+      "ИзменяемыеЭлементы": {}
     }
   },
   "ПеремещениеЭлементаИзГруппы": {
@@ -820,6 +808,260 @@
           "Parent": "р_Группа1"
         }
       ],
+      "ИзменяемыеЭлементы": {}
+    }
+  },
+  "УдалениеСвойстваЭлемента": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент",
+          "Title": "Заголовок элемента"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [],
+      "ДобавляемыеЭлементы": [],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {
+        "р_Элемент": {
+          "Title": null
+        }
+      }
+    }
+  },
+  "ИзменениеСвойстваЭлементаПутьКДанным": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент",
+          "DataPath": "ПутьКДанным"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент",
+          "DataPath": "НовыйПутьКДанным"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [
+        "р_Элемент"
+      ],
+      "ДобавляемыеЭлементы": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент",
+          "DataPath": "НовыйПутьКДанным"
+        }
+      ],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {}
+    }
+  },
+  "ИзменениеСвойстваЭлементаВид": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.InputField"
+          },
+          "Name": "р_Элемент"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.LabelField"
+          },
+          "Name": "р_Элемент"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [
+        "р_Элемент"
+      ],
+      "ДобавляемыеЭлементы": [
+        {
+          "ElementType": "FormField",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormFieldType.LabelField"
+          },
+          "Name": "р_Элемент"
+        }
+      ],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {}
+    }
+  },
+  "ИзменениеСвойстваЭлементаТип": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormField",
+          "Name": "р_Элемент"
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "UsualGroup",
+          "Name": "р_Элемент"
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [
+        "р_Элемент"
+      ],
+      "ДобавляемыеЭлементы": [
+        {
+          "ElementType": "UsualGroup",
+          "Name": "р_Элемент"
+        }
+      ],
+      "ПеремещаемыеЭлементы": [],
+      "ИзменяемыеЭлементы": {}
+    }
+  },
+  "ПермещениеВКоманднуюПанель": {
+    "before": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ElementType": "FormButton",
+          "Name": "Кнопка",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormButtonType.UsualButton"
+          }
+        }
+      ]
+    },
+    "after": {
+      "prefix": "р_",
+      "attributes": [],
+      "childItems": [
+        {
+          "ChildItems": [
+            {
+              "ElementType": "FormButton",
+              "Name": "Кнопка",
+              "Type": {
+                "Type": "SystemEnumeration",
+                "Value": "FormButtonType.UsualButton"
+              }
+            }
+          ],
+          "ElementType": "FormGroup",
+          "Name": "КоманднаяПанель",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.CommandBar"
+          }
+        }
+      ]
+    },
+    "expected": {
+      "УдаляемыеРеквизиты": [],
+      "ДобавляемыеРеквизиты": [],
+      "ИзменяемыеРеквизиты": [],
+      "УдаляемыеЭлементы": [
+        "Кнопка"
+      ],
+      "ДобавляемыеЭлементы": [
+        {
+          "ElementType": "FormGroup",
+          "Name": "КоманднаяПанель",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormGroupType.CommandBar"
+          }
+        },
+        {
+          "ParentName": "КоманднаяПанель",
+          "ElementType": "FormButton",
+          "Name": "Кнопка",
+          "Type": {
+            "Type": "SystemEnumeration",
+            "Value": "FormButtonType.UsualButton"
+          }
+        }
+      ],
+      "ПеремещаемыеЭлементы": [],
       "ИзменяемыеЭлементы": {}
     }
   }

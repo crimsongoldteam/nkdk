@@ -1,17 +1,17 @@
-import { registerElementRule } from "~/metadata/metadataFactory/elements/ruleFactory"
-import { PropertyRule } from "~/metadata/metadataFactory/properties/types"
-import { ElementRule } from "../../../metadataFactory/elements/types"
-import { Page } from "./types"
+import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
 export const PageRules = {
+  itemType: "Page",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Page",
   properties: {
     backColor: { yaml: "ЦветФона", type: "Color" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     childItems: {
-      type: "ChildItems",
+      type: "GroupChildItems",
       defaultValue: [],
       toPartialYAML: false,
       fromPartialYAML: true,
@@ -114,6 +114,6 @@ export const PageRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-} as const satisfies ElementRule<Page>
+} as const satisfies ElementRule
 
-registerElementRule("Page", PageRules as ElementRule<Page>)
+registerElementRule("Page", PageRules)

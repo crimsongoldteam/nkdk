@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CollectionFormElementType, ElementXML, importElementFromXML } from "~/metadata/metadataFactory"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullCalendarField, minimalCalendarField } from "~/tests/fixtures/forms/calendarField/data"
 import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -8,7 +8,7 @@ describe("importCalendarFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.CalendarField,
+      itemType: "CalendarField",
       xml: undefined,
     })
 
@@ -20,7 +20,7 @@ describe("importCalendarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.CalendarField,
+      itemType: "CalendarField",
       xml: xmlData.CalendarField,
     })
 
@@ -32,7 +32,7 @@ describe("importCalendarFieldFromXML", () => {
 
     const result = importElementFromXML({
       context: mockContext,
-      itemType: CollectionFormElementType.CalendarField,
+      itemType: "CalendarField",
       xml: xmlData.CalendarField,
     })
 

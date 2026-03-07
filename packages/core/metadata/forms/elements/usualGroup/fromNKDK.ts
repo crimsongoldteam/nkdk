@@ -1,7 +1,7 @@
 import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CollectionFormElementType } from "~/metadata/metadataFactory"
-import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/metadataFactory/elements/fromNKDKFactory/helpers"
+
+import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKDK"
 import { UsualGroup } from "./types"
@@ -23,7 +23,7 @@ export const importUsualGroupFromNKDK = (params: { context: ConfigurationContext
   const title = importI8nTextFromNKDK(context, source.title)
   const result: UsualGroup = {
     group: groupFromGroupText(groupText),
-    itemType: CollectionFormElementType.UsualGroup,
+    itemType: "UsualGroup",
     name: importNameFromNKDK(source),
     showTitle: source.title !== undefined,
     childItems: childItems,
