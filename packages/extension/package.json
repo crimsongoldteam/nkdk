@@ -47,9 +47,6 @@
       }
     ]
   },
-  "activationEvents": [
-    "onLanguage:nkdk"
-  ],
   "main": "./out/extension/main.cjs",
   "scripts": {
     "clean": "shx rm -fr *.tsbuildinfo out",
