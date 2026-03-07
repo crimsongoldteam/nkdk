@@ -2,6 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../metadata/context/types"
 
 export const mockContext: ConfigurationContext = {
+  version: "2.20",
   defaultLanguage: "ru",
   testMode: true,
   exportToYAML: { toTyped: false },

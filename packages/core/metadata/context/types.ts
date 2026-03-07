@@ -8,6 +8,7 @@ export type ContextElementToEnterprise = { itemType: ElementType; dataPath: stri
 export interface ConfigurationContext {
   testMode?: boolean
   defaultLanguage: string
+  version: string
   context?: object
   allElements?: FormElementsYAML
   enterprise?: EnterpriseContext
