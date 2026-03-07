@@ -2,6 +2,7 @@ import {
   ClientApplicationForm,
   ClientApplicationFormYAML,
   exportClientApplicationFormToJSONSchema,
+  exportMetadataCatalogToJSONSchema,
   importClientApplicationFormFromYAML,
   importClientApplicationFromFromNKDK,
   importFromYAML,
@@ -24,9 +25,19 @@ type NkdkDocumentCache = {
   schema: string
 }
 
-const SchemaMap = {
-  "schema://catalog.json": "schema://catalog.json",
+const getConfigurationContext = (): ConfigurationContext => {
+  return {
+    defaultLanguage: "ru",
+  }
 }
+
+const SchemaMap = {
+  "schema://catalog.json": JSON.stringify(
+    exportMetadataCatalogToJSONSchema({
+      context: getConfigurationContext(),
+    })
+  ),
+} as const
 
 const cache = new Map<string, NkdkDocumentCache>()
 
@@ -53,6 +64,9 @@ export const getJSONSchemaUri = (uri: string): string => {
 }
 
 export const getJSONSchema = async (schemaUri: string): Promise<string> => {
+  const schema = SchemaMap[schemaUri]
+  if (schema) return schema
+
   const canonicalUri = schemaUri.replace(/^schema:\/\//i, "").replace(/\.json$/i, "")
   const entry = await getOrCreateCacheByCanonicalUri({ canonicalUri })
 
@@ -177,14 +191,4 @@ const updateForm = (entry: NkdkDocumentCache): void => {
 
 const createEmptyClientApplicationForm = (): ClientApplicationForm => {
   return { itemType: "ClientApplicationForm", childItems: [], commands: [] }
-}
-
-const getConfigurationContext = (): ConfigurationContext => {
-  return {
-    defaultLanguage: "ru",
-  }
-}
-
-const getCatalogSchema = (): string => {
-  return `schema://catalog.json`
 }

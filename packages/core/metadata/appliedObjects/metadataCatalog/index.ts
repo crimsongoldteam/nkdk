@@ -1,5 +1,6 @@
 export * from "./fromXML"
 export * from "./fromYAML"
+export * from "./toJSONSchema"
 export * from "./toXML"
 export * from "./toYAML"
 export * from "./types"

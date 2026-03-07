@@ -1,4 +1,5 @@
 export {
+  exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToXML,
   exportMetadataCatalogToYAML,
   importMetadataCatalogFromXML,
