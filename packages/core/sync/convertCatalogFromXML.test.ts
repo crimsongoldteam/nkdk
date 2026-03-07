@@ -11,7 +11,7 @@ describe("convertCatalogFromXML", () => {
   const catalogName = "Контрагенты"
 
   it("should read catalog from XML and export to YAML file in output dir", async () => {
-    const spy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {})
+    const spy = vi.spyOn(fs, "writeFileSync")
     await convertCatalogFromXML({
       context: mockContextToYAML,
       inputDir: inputDir,
