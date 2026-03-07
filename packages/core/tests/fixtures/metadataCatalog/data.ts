@@ -37,6 +37,7 @@ export const full = {
   codeType: "Number",
   commands: [
     {
+      itemType: "MetadataCommand",
       group: "ActionsPanelCreate",
       name: "НовыйЭлемент",
       synonym: {

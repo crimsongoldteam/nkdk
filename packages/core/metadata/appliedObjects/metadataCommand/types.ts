@@ -1,29 +1,13 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
+import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataItemLink, MetadataItemLinkYAML } from "../../commonObjects/metadataRef/types"
+import { MetadataItemLinkYAML } from "../../commonObjects/metadataRef/types"
+import { MetadataCommandRules } from "./rules"
 
-export interface MetadataCommand {
-  commandParameterType?: TypeDescription
-  comment?: string
-  group: SE.StandardCommandsGroup | MetadataItemLink
-  modifiesData?: boolean
-  name: string
-  objectBelonging?: SE.ObjectBelonging
-  parameterUseMode?: SE.CommandParameterUseMode
-  picture?: Picture
-  representation?: SE.ButtonRepresentation
-  shortcut?: string
-  synonym: I8nText
-  toolTip?: I8nText
-  onMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
-}
+export type MetadataCommand = MetadataTypeByRule<typeof MetadataCommandRules>
 
 export interface MetadataCommandXML {
   _uuid: string

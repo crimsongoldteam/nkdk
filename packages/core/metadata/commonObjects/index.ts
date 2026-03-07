@@ -98,6 +98,7 @@ import "./metadataAttribute/toXML"
 import "./metadataAttribute/toYAML"
 
 import "./metadataCommandGroup/fromXML"
+import "./metadataCommandGroup/fromYAML"
 import "./metadataCommandGroup/toXML"
 import "./metadataCommandGroup/toYAML"
 

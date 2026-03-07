@@ -2,6 +2,7 @@ import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObject
 
 export const fullMetadataCommands: MetadataCommands = [
   {
+    itemType: "MetadataCommand",
     name: "Глоссарий",
     modifiesData: true,
     synonym: { items: { ru: "Глоссарий какой-то" } },
@@ -39,6 +40,7 @@ export const fullMetadataCommandsYAML: MetadataCommandsYAML = {
 
 export const minimalMetadataCommands: MetadataCommands = [
   {
+    itemType: "MetadataCommand",
     name: "Глоссарий",
     synonym: { items: { ru: "Глоссарий" } },
     group: "NavigationPanelOrdinary",
@@ -47,6 +49,7 @@ export const minimalMetadataCommands: MetadataCommands = [
 
 export const defaultMetadataCommands: MetadataCommands = [
   {
+    itemType: "MetadataCommand",
     name: "Глоссарий",
     synonym: { items: { ru: "Глоссарий" } },
     group: "NavigationPanelImportant",

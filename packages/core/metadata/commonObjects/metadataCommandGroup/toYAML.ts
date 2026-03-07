@@ -1,13 +1,26 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "./types"
 
 export const exportMetadataCommandGroupToYAML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataCommandGroup | undefined
 ): MetadataCommandGroupYAML | undefined => {
   if (!data) return undefined
 
-  return "TODO"
+  if (typeof data === "string" && data in SE.StandardCommandsGroupToYAML) {
+    return exportSystemEnumerationToYAMLDeprecated<SE.StandardCommandsGroupYAML>(
+      context,
+      { type: "SystemEnumeration", typeSE: "StandardCommandsGroup" },
+      data
+    )!
+  }
+
+  return exportMetadataItemLinkToYAML(context, undefined, data)
 }
+
+registerTypeRule("MetadataCommandGroup", "exportToYAML", exportMetadataCommandGroupToYAML)

@@ -11,15 +11,16 @@ import {
 // import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
-  StandardAttributeDescription,
-  StandardAttributeDescriptionYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
-import {
   MetadataTabularSection,
   MetadataTabularSectionYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
+import {
+  StandardAttributeDescription,
+  StandardAttributeDescriptionYAML,
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
+import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -457,6 +458,11 @@ export type MetadataItemTypeRegistry = {
   MetadataCatalog: {
     metadata: MetadataCatalog
     yaml: MetadataCatalogYAML
+  }
+
+  MetadataCommand: {
+    metadata: MetadataCommand
+    yaml: MetadataCommandYAML
   }
 
   //#endregion

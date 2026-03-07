@@ -23,9 +23,7 @@ describe("exportMetadataCommandToYAML", () => {
     const result = exportMetadataCommandsToYAML(mockContext, mockRule, minimalMetadataCommands)
 
     expect(result).toEqual({
-      Глоссарий: {
-        Группа: "ПанельНавигацииОбычное",
-      },
+      Глоссарий: "ПанельНавигацииОбычное",
     })
   })
 })
