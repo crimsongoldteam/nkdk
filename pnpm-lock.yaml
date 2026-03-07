@@ -255,7 +255,7 @@ importers:
         version: 9.0.1
       yaml-language-server:
         specifier: next
-        version: 1.22.1-fc5f874.0
+        version: 1.22.1-6c44058.0
     devDependencies:
       '@types/fs-extra':
         specifier: ~11.0.4
@@ -3538,8 +3538,8 @@ packages:
   yallist@4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
 
-  yaml-language-server@1.22.1-fc5f874.0:
-    resolution: {integrity: sha512-XbWKiaWd5M5NizocruvpT1M+P4JQCERtoFJ7RvE1dNu+CwuLQra0Odsg1LHNj0oQvqqpKU4+JsWd0m7ygUmsmA==}
+  yaml-language-server@1.22.1-6c44058.0:
+    resolution: {integrity: sha512-35qv05cBf6luCSmQtilYbUXqe2rHxt+SHuDHtDYEGcCI0nOhU8PY/bdjh2j03CCsn8gHovjMz0Wvf7wfLzs1kw==}
     hasBin: true
 
   yaml@2.7.1:
@@ -6824,7 +6824,7 @@ snapshots:
 
   yallist@4.0.0: {}
 
-  yaml-language-server@1.22.1-fc5f874.0:
+  yaml-language-server@1.22.1-6c44058.0:
     dependencies:
       '@vscode/l10n': 0.0.18
       ajv: 8.17.1
