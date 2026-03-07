@@ -7,10 +7,6 @@ const catalogChildObjects = ["Catalog", "ChildObjects"]
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   properties: {
-    name: {
-      type: "string",
-      xmlParents: catalogProperties,
-    },
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
@@ -116,12 +112,6 @@ export const MetadataCatalogRules = {
       typeSE: "CatalogCodeType",
       defaultValueXML: "String",
       xmlParents: catalogProperties,
-    },
-    commands: {
-      yaml: "Команды",
-      type: "MetadataCommands",
-      xmlParents: catalogChildObjects,
-      xml: "Command",
     },
     comment: {
       yaml: "Комментарий",
@@ -281,6 +271,10 @@ export const MetadataCatalogRules = {
       type: "I8nText",
       xmlParents: catalogProperties,
     },
+    name: {
+      type: "string",
+      xmlParents: catalogProperties,
+    },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
@@ -324,7 +318,7 @@ export const MetadataCatalogRules = {
     },
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescription",
+      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataCatalogStandardAttributeNames,
       xmlParents: catalogProperties,
     },
@@ -345,6 +339,12 @@ export const MetadataCatalogRules = {
       type: "MetadataTabularSections",
       xmlParents: catalogChildObjects,
       xml: "TabularSection",
+    },
+    commands: {
+      yaml: "Команды",
+      type: "MetadataCommands",
+      xmlParents: catalogChildObjects,
+      xml: "Command",
     },
     updateDataHistoryImmediatelyAfterWrite: {
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",

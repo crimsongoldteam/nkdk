@@ -47,5 +47,4 @@ export const importStandardAttributeDescriptionsFromXML = (
   return result
 }
 
-registerTypeRule("StandardAttributeDescription", "importFromXML", importStandardAttributeDescriptionsFromXML)
 registerTypeRule("StandardAttributeDescriptions", "importFromXML", importStandardAttributeDescriptionsFromXML)

@@ -28,7 +28,460 @@
     "Реквизиты": {
       "type": "object",
       "patternProperties": {
-        "^(.*)$": {}
+        "^(.*)$": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Тип": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "Синоним": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "Комментарий": {
+              "type": "string"
+            },
+            "Использование": {
+              "anyOf": [
+                {
+                  "const": "ДляГруппы",
+                  "type": "string"
+                },
+                {
+                  "const": "ДляГруппыИЭлемента",
+                  "type": "string"
+                },
+                {
+                  "const": "ДляЭлемента",
+                  "type": "string"
+                }
+              ]
+            },
+            "ПроверкаЗаполнения": {
+              "anyOf": [
+                {
+                  "const": "ВыдаватьОшибку",
+                  "type": "string"
+                },
+                {
+                  "const": "НеПроверять",
+                  "type": "string"
+                }
+              ]
+            },
+            "Формат": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "ФорматРедактирования": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "Подсказка": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "МинимальноеЗначение": {
+              "type": "number"
+            },
+            "МаксимальноеЗначение": {
+              "type": "number"
+            },
+            "Маска": {
+              "type": "string"
+            },
+            "МногострочныйРежим": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "РасширенноеРедактирование": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "РежимПароля": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "ВыделятьОтрицательные": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "ЗначениеЗаполнения": {
+              "$id": "T0",
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "required": ["Представление", "Значение"],
+                      "properties": {
+                        "Представление": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "patternProperties": {
+                                "^(.*)$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "Значение": {
+                          "$ref": "T0"
+                        }
+                      }
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              ]
+            },
+            "ЗаполнятьИзДанныхЗаполнения": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "Индексирование": {
+              "anyOf": [
+                {
+                  "const": "Индексировать",
+                  "type": "string"
+                },
+                {
+                  "const": "ИндексироватьСДопУпорядочиванием",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИндексировать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ПолнотекстовыйПоиск": {
+              "anyOf": [
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ИсторияДанных": {
+              "anyOf": [
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ПринадлежностьОбъекта": {
+              "anyOf": [
+                {
+                  "const": "Заимствованный",
+                  "type": "string"
+                },
+                {
+                  "const": "Собственный",
+                  "type": "string"
+                }
+              ]
+            },
+            "ФормаВыбора": {
+              "type": "string"
+            },
+            "ВыборГруппИЭлементов": {
+              "anyOf": [
+                {
+                  "const": "Группы",
+                  "type": "string"
+                },
+                {
+                  "const": "ГруппыИЭлементы",
+                  "type": "string"
+                },
+                {
+                  "const": "Элементы",
+                  "type": "string"
+                }
+              ]
+            },
+            "ИсторияВыбораПриВводе": {
+              "anyOf": [
+                {
+                  "const": "Авто",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "БыстрыйВыбор": {
+              "anyOf": [
+                {
+                  "const": "Авто",
+                  "type": "string"
+                },
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "СозданиеПриВводе": {
+              "anyOf": [
+                {
+                  "const": "Авто",
+                  "type": "string"
+                },
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ПараметрыВыбора": {
+              "type": "object",
+              "patternProperties": {
+                "^(.*)$": {
+                  "anyOf": [
+                    {
+                      "$id": "T0",
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": ["Представление", "Значение"],
+                              "properties": {
+                                "Представление": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "patternProperties": {
+                                        "^(.*)$": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "Значение": {
+                                  "$ref": "T0"
+                                }
+                              }
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "undefined"
+                    }
+                  ]
+                }
+              }
+            },
+            "СвязиПараметровВыбора": {
+              "type": "string"
+            },
+            "СвязьПоТипу": {
+              "type": "string"
+            },
+            "ИспользованиеХраненияВХранилищеДвоичныхДанных": {
+              "anyOf": [
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ПолеИспользованияХраненияВХранилищеДвоичныхДанных": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "Автонумерация": {
@@ -102,10 +555,7 @@
                 "anyOf": [
                   {
                     "type": "object",
-                    "required": [
-                      "Представление",
-                      "Значение"
-                    ],
+                    "required": ["Представление", "Значение"],
                     "properties": {
                       "Представление": {
                         "anyOf": [
@@ -231,6 +681,9 @@
         }
       ]
     },
+    "ДлинаКода": {
+      "type": "number"
+    },
     "СерииКодов": {
       "anyOf": [
         {
@@ -335,6 +788,9 @@
           "type": "string"
         }
       ]
+    },
+    "ДлинаНаименования": {
+      "type": "number"
     },
     "СпособРедактирования": {
       "anyOf": [
@@ -484,6 +940,9 @@
     "ВводПоСтроке": {
       "type": "string"
     },
+    "КоличествоУровней": {
+      "type": "number"
+    },
     "ОграничиватьКоличествоУровней": {
       "anyOf": [
         {
@@ -549,11 +1008,7 @@
       "patternProperties": {
         "^(.*)$": {
           "type": "object",
-          "required": [
-            "Код",
-            "Наименование",
-            "ЭтоГруппа"
-          ],
+          "required": ["Код", "Наименование", "ЭтоГруппа"],
           "properties": {
             "Код": {
               "anyOf": [
@@ -618,7 +1073,392 @@
     "СтандартныеРеквизиты": {
       "type": "object",
       "patternProperties": {
-        "^(.*)$": {}
+        "^(.*)$": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "ФормаВыбора": {
+              "type": "string"
+            },
+            "ИсторияВыбораПриВводе": {
+              "anyOf": [
+                {
+                  "const": "Авто",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "СвязиПараметровВыбора": {
+              "type": "string"
+            },
+            "ПараметрыВыбора": {
+              "type": "object",
+              "patternProperties": {
+                "^(.*)$": {
+                  "anyOf": [
+                    {
+                      "$id": "T0",
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": ["Представление", "Значение"],
+                              "properties": {
+                                "Представление": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "patternProperties": {
+                                        "^(.*)$": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "Значение": {
+                                  "$ref": "T0"
+                                }
+                              }
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "undefined"
+                    }
+                  ]
+                }
+              }
+            },
+            "Комментарий": {
+              "type": "string"
+            },
+            "СозданиеПриВводе": {
+              "anyOf": [
+                {
+                  "const": "Авто",
+                  "type": "string"
+                },
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ИсторияДанных": {
+              "anyOf": [
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "ФорматРедактирования": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "РасширенноеРедактирование": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "ПроверкаЗаполнения": {
+              "anyOf": [
+                {
+                  "const": "ВыдаватьОшибку",
+                  "type": "string"
+                },
+                {
+                  "const": "НеПроверять",
+                  "type": "string"
+                }
+              ]
+            },
+            "ЗаполнятьИзДанныхЗаполнения": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "ЗначениеЗаполнения": {
+              "$id": "T0",
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "required": ["Представление", "Значение"],
+                      "properties": {
+                        "Представление": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "patternProperties": {
+                                "^(.*)$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "Значение": {
+                          "$ref": "T0"
+                        }
+                      }
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              ]
+            },
+            "Формат": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "ПолнотекстовыйПоиск": {
+              "anyOf": [
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "СвязьПоТипу": {
+              "type": "string"
+            },
+            "ВыделятьОтрицательные": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "Маска": {
+              "type": "string"
+            },
+            "МаксимальноеЗначение": {
+              "type": "number"
+            },
+            "МинимальноеЗначение": {
+              "type": "number"
+            },
+            "МногострочныйРежим": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "РежимПароля": {
+              "anyOf": [
+                {
+                  "const": "Истина",
+                  "type": "string"
+                },
+                {
+                  "const": "Ложь",
+                  "type": "string"
+                }
+              ]
+            },
+            "БыстрыйВыбор": {
+              "anyOf": [
+                {
+                  "const": "Авто",
+                  "type": "string"
+                },
+                {
+                  "const": "Использовать",
+                  "type": "string"
+                },
+                {
+                  "const": "НеИспользовать",
+                  "type": "string"
+                }
+              ]
+            },
+            "Синоним": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "Подсказка": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "Тип": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "РежимСокращенияТипа": {
+              "anyOf": [
+                {
+                  "const": "Запрещать",
+                  "type": "string"
+                },
+                {
+                  "const": "ПреобразовыватьЗначения",
+                  "type": "string"
+                },
+                {
+                  "const": "УдалятьДанные",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "ИспользованиеПодчинения": {
@@ -655,7 +1495,938 @@
     "ТабличныеЧасти": {
       "type": "object",
       "patternProperties": {
-        "^(.*)$": {}
+        "^(.*)$": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Синоним": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "Комментарий": {
+              "type": "string"
+            },
+            "ПроверкаЗаполнения": {
+              "anyOf": [
+                {
+                  "const": "ВыдаватьОшибку",
+                  "type": "string"
+                },
+                {
+                  "const": "НеПроверять",
+                  "type": "string"
+                }
+              ]
+            },
+            "ДлинаНомераСтроки": {
+              "type": "number"
+            },
+            "ПринадлежностьОбъекта": {
+              "anyOf": [
+                {
+                  "const": "Заимствованный",
+                  "type": "string"
+                },
+                {
+                  "const": "Собственный",
+                  "type": "string"
+                }
+              ]
+            },
+            "СтандартныеРеквизиты": {
+              "type": "object",
+              "patternProperties": {
+                "^(.*)$": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "ФормаВыбора": {
+                      "type": "string"
+                    },
+                    "ИсторияВыбораПриВводе": {
+                      "anyOf": [
+                        {
+                          "const": "Авто",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "СвязиПараметровВыбора": {
+                      "type": "string"
+                    },
+                    "ПараметрыВыбора": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {
+                          "anyOf": [
+                            {
+                              "$id": "T0",
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "number"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "required": ["Представление", "Значение"],
+                                      "properties": {
+                                        "Представление": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "patternProperties": {
+                                                "^(.*)$": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "Значение": {
+                                          "$ref": "T0"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "undefined"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "Комментарий": {
+                      "type": "string"
+                    },
+                    "СозданиеПриВводе": {
+                      "anyOf": [
+                        {
+                          "const": "Авто",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ИсторияДанных": {
+                      "anyOf": [
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ФорматРедактирования": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "РасширенноеРедактирование": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ПроверкаЗаполнения": {
+                      "anyOf": [
+                        {
+                          "const": "ВыдаватьОшибку",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеПроверять",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ЗаполнятьИзДанныхЗаполнения": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ЗначениеЗаполнения": {
+                      "$id": "T0",
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": ["Представление", "Значение"],
+                              "properties": {
+                                "Представление": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "patternProperties": {
+                                        "^(.*)$": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "Значение": {
+                                  "$ref": "T0"
+                                }
+                              }
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "Формат": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "ПолнотекстовыйПоиск": {
+                      "anyOf": [
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "СвязьПоТипу": {
+                      "type": "string"
+                    },
+                    "ВыделятьОтрицательные": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Маска": {
+                      "type": "string"
+                    },
+                    "МаксимальноеЗначение": {
+                      "type": "number"
+                    },
+                    "МинимальноеЗначение": {
+                      "type": "number"
+                    },
+                    "МногострочныйРежим": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "РежимПароля": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "БыстрыйВыбор": {
+                      "anyOf": [
+                        {
+                          "const": "Авто",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Синоним": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "Подсказка": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "Тип": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    },
+                    "РежимСокращенияТипа": {
+                      "anyOf": [
+                        {
+                          "const": "Запрещать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "ПреобразовыватьЗначения",
+                          "type": "string"
+                        },
+                        {
+                          "const": "УдалятьДанные",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "Реквизиты": {
+              "type": "object",
+              "patternProperties": {
+                "^(.*)$": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "Тип": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    },
+                    "Синоним": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "Комментарий": {
+                      "type": "string"
+                    },
+                    "Использование": {
+                      "anyOf": [
+                        {
+                          "const": "ДляГруппы",
+                          "type": "string"
+                        },
+                        {
+                          "const": "ДляГруппыИЭлемента",
+                          "type": "string"
+                        },
+                        {
+                          "const": "ДляЭлемента",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ПроверкаЗаполнения": {
+                      "anyOf": [
+                        {
+                          "const": "ВыдаватьОшибку",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеПроверять",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Формат": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "ФорматРедактирования": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "Подсказка": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "МинимальноеЗначение": {
+                      "type": "number"
+                    },
+                    "МаксимальноеЗначение": {
+                      "type": "number"
+                    },
+                    "Маска": {
+                      "type": "string"
+                    },
+                    "МногострочныйРежим": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "РасширенноеРедактирование": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "РежимПароля": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ВыделятьОтрицательные": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ЗначениеЗаполнения": {
+                      "$id": "T0",
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": ["Представление", "Значение"],
+                              "properties": {
+                                "Представление": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "patternProperties": {
+                                        "^(.*)$": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "Значение": {
+                                  "$ref": "T0"
+                                }
+                              }
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "ЗаполнятьИзДанныхЗаполнения": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Индексирование": {
+                      "anyOf": [
+                        {
+                          "const": "Индексировать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "ИндексироватьСДопУпорядочиванием",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИндексировать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ПолнотекстовыйПоиск": {
+                      "anyOf": [
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ИсторияДанных": {
+                      "anyOf": [
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ПринадлежностьОбъекта": {
+                      "anyOf": [
+                        {
+                          "const": "Заимствованный",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Собственный",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ФормаВыбора": {
+                      "type": "string"
+                    },
+                    "ВыборГруппИЭлементов": {
+                      "anyOf": [
+                        {
+                          "const": "Группы",
+                          "type": "string"
+                        },
+                        {
+                          "const": "ГруппыИЭлементы",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Элементы",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ИсторияВыбораПриВводе": {
+                      "anyOf": [
+                        {
+                          "const": "Авто",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "БыстрыйВыбор": {
+                      "anyOf": [
+                        {
+                          "const": "Авто",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "СозданиеПриВводе": {
+                      "anyOf": [
+                        {
+                          "const": "Авто",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ПараметрыВыбора": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {
+                          "anyOf": [
+                            {
+                              "$id": "T0",
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "number"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "required": ["Представление", "Значение"],
+                                      "properties": {
+                                        "Представление": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "patternProperties": {
+                                                "^(.*)$": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "Значение": {
+                                          "$ref": "T0"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "undefined"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "СвязиПараметровВыбора": {
+                      "type": "string"
+                    },
+                    "СвязьПоТипу": {
+                      "type": "string"
+                    },
+                    "ИспользованиеХраненияВХранилищеДвоичныхДанных": {
+                      "anyOf": [
+                        {
+                          "const": "Использовать",
+                          "type": "string"
+                        },
+                        {
+                          "const": "НеИспользовать",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "ПолеИспользованияХраненияВХранилищеДвоичныхДанных": {
+                      "anyOf": [
+                        {
+                          "const": "Истина",
+                          "type": "string"
+                        },
+                        {
+                          "const": "Ложь",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "Подсказка": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "Использование": {
+              "anyOf": [
+                {
+                  "const": "ДляГруппы",
+                  "type": "string"
+                },
+                {
+                  "const": "ДляГруппыИЭлемента",
+                  "type": "string"
+                },
+                {
+                  "const": "ДляЭлемента",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "ОбновлятьИсториюДанныхСразуПослеЗаписи": {

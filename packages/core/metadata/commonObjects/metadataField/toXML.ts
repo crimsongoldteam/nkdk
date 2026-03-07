@@ -27,4 +27,13 @@ export const exportMetadataFieldsToXML = (
   }
 }
 
-registerTypeRule("MetadataField", "exportToXML", exportMetadataFieldToXML)
+const exportMetadataFieldOrFieldsToXML = (
+  context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  data: MetadataField | MetadataFields | undefined
+): string | MetadataFieldsXML | undefined => {
+  if (!data) return undefined
+  return Array.isArray(data) ? exportMetadataFieldsToXML(context, rule, data) : exportMetadataFieldToXML(context, rule, data)
+}
+
+registerTypeRule("MetadataField", "exportToXML", exportMetadataFieldOrFieldsToXML)
