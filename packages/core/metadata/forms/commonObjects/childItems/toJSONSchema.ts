@@ -1,6 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn } from "~/metadata/orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
 import { exportElementToJSONSchema } from "~/metadata/orchestration/formElement/toJSONSchema"
 import { ChildItem } from "./types"
 
@@ -24,4 +24,7 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {
   return Type.Object(result, { additionalProperties: false })
 }
 
-// registerTypeRule("ChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+registerTypeRule("GroupChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+registerTypeRule("CommandBarChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+registerTypeRule("TableChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+registerTypeRule("PagesChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
