@@ -69,6 +69,11 @@ export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRu
   standartAttributeNames: StandartAttributeName[]
 }
 
+export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
+  type: "StandardAttributeDescriptions"
+  standartAttributeNames: StandartAttributeName[]
+}
+
 export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
@@ -99,6 +104,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "UserVisible"
     | "TableAdditionalSource"
     | "StandardAttributeDescription"
+    | "StandardAttributeDescriptions"
     | "TypeDescription"
     | "DataPath"
     | "MetadataType"
@@ -124,6 +130,7 @@ export type PropertyRule =
   // | CustomExportPropertyRule
   | TableAdditionalSourcePropertyRule
   | StandardAttributeDescriptionPropertyRule
+  | StandardAttributeDescriptionsPropertyRule
   | ChildItemsPropertyRule
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule

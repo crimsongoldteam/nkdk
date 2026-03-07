@@ -81,6 +81,7 @@ export const full = {
   searchStringModeOnInputByString: "AnyPart",
   standardAttributes: [
     {
+      itemType: "StandardAttributeDescription",
       name: "Code",
       synonym: { items: { ru: "Поле код" } },
     },
@@ -89,6 +90,7 @@ export const full = {
   synonym: { items: { ru: "Контрагенты" } },
   tabularSections: [
     {
+      itemType: "MetadataTabularSection",
       attributes: [
         {
           itemType: "MetadataAttribute",

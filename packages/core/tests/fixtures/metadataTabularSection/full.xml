@@ -59,6 +59,7 @@
 				<DataHistory>Use</DataHistory>
 				<ExtendedEdit>false</ExtendedEdit>
 				<FillChecking>DontCheck</FillChecking>
+				<FillFromFillingValue>false</FillFromFillingValue>
 				<FullTextSearch>Use</FullTextSearch>
 				<Indexing>DontIndex</Indexing>
 				<MarkNegatives>false</MarkNegatives>
@@ -79,6 +80,7 @@
 						<v8:AllowedLength>Variable</v8:AllowedLength>
 					</v8:StringQualifiers>
 				</Type>
+				<Use>ForItem</Use>
 			</Properties>
 		</Attribute>
 	</ChildObjects>

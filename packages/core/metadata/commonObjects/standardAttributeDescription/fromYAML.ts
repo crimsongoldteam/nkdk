@@ -28,7 +28,7 @@ export const importStandardAttributeDescriptionsFromYAML = (
     })
 
     const { itemType: _itemType, ...rest } = withItemType as StandardAttributeDescription & { itemType: string }
-    const item: StandardAttributeDescription = { ...rest }
+    const item: StandardAttributeDescription = { ...rest, itemType: "StandardAttributeDescription" as const }
 
     const defaults = getDefaults(context, item)
     result.push(removeDefaults(item, defaults))
@@ -40,3 +40,4 @@ export const importStandardAttributeDescriptionsFromYAML = (
 }
 
 registerTypeRule("StandardAttributeDescription", "importFromYAML", importStandardAttributeDescriptionsFromYAML)
+registerTypeRule("StandardAttributeDescriptions", "importFromYAML", importStandardAttributeDescriptionsFromYAML)

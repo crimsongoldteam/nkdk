@@ -1,19 +1,18 @@
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
+import { MetadataAttributesXML } from "../metadataAttribute/types"
 import {
   MetadataTabularSection,
   MetadataTabularSections,
   MetadataTabularSectionsXML,
   MetadataTabularSectionXML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
-import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/toXML"
+} from "./types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/orchestration"
+import { mergeIgnoringUndefined, sortObject } from "~/metadata/helpers/compactObject"
+import { exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/toXML"
-import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/toXML"
 import { getDefaults } from "./defaults"
+import { MetadataTabularSectionRules } from "./rules"
 
 export const exportMetadataTabularSectionsToXML = (
   context: ConfigurationContext,
@@ -35,35 +34,11 @@ export const exportMetadataTabularSectionToXML = (
 
   const parentName = (context.context as { parentName?: string }).parentName ?? ""
 
-  const properties: MetadataTabularSectionXML["Properties"] = {} as MetadataTabularSectionXML["Properties"]
-
-  if (mergedData.comment !== undefined) {
-    properties.Comment = mergedData.comment
-  }
-
-  properties.FillChecking = mergedData.fillChecking
-
-  properties.LineNumberLength = mergedData.lineNumberLength
-
-  properties.Name = mergedData.name!
-  if (mergedData.objectBelonging !== undefined) {
-    properties.ObjectBelonging = mergedData.objectBelonging
-  }
-
-  properties.StandardAttributes = exportStandardAttributeDescriptionsToXML(
+  const exported = exportPropertiesToXML({
     context,
-    { type: "StandardAttributeDescription", standartAttributeNames: ["LineNumber"] },
-    mergedData.standardAttributes
-  )
-
-  if (mergedData.synonym !== undefined) {
-    properties.Synonym = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.synonym)
-  }
-  if (mergedData.toolTip !== undefined) {
-    properties.ToolTip = exportI8nTextToXML(context, { type: "I8nText" }, mergedData.toolTip)
-  }
-
-  properties.Use = mergedData.use
+    metadataItem: mergedData,
+    rule: MetadataTabularSectionRules,
+  }) as { Properties?: MetadataTabularSectionXML["Properties"]; ChildObjects?: { Attribute?: MetadataAttributesXML } }
 
   const result: MetadataTabularSectionXML = {
     _uuid: getUUID(context),
@@ -71,16 +46,15 @@ export const exportMetadataTabularSectionToXML = (
       { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
       { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
     ]),
-    Properties: properties,
+    Properties: sortObject(exported.Properties ?? ({} as MetadataTabularSectionXML["Properties"])),
   }
 
-  if (mergedData.attributes !== undefined) {
-    const attributes = exportMetadataTabularSectionAttributesToXML(context, undefined, mergedData.attributes)
-    if (attributes !== undefined) {
-      result.ChildObjects = {
-        Attribute: attributes,
-      }
-    }
+  const attributes = exported.ChildObjects?.Attribute
+  if (
+    attributes != null &&
+    (Array.isArray(attributes) ? attributes.length > 0 : true)
+  ) {
+    result.ChildObjects = { Attribute: attributes }
   }
 
   return result

@@ -43,6 +43,8 @@ import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predifined/
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import {
   TypeDescription,
@@ -181,6 +183,11 @@ export type PropertyTypeRegistry = {
     item: StandardAttributeDescription
     enterprise: unknown
     yaml: StandardAttributeDescriptionYAML
+  }
+  StandardAttributeDescriptions: {
+    item: StandardAttributeDescriptions
+    enterprise: unknown
+    yaml: StandardAttributeDescriptionsYAML
   }
   MetadataType: {
     item: MetadataType
@@ -455,6 +462,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   UserVisible: "UserVisible",
   TableAdditionalSource: "TableAdditionalSource",
   StandardAttributeDescription: "StandardAttributeDescription",
+  StandardAttributeDescriptions: "StandardAttributeDescriptions",
   MetadataType: "MetadataType",
   MetadataTypeCollection: "MetadataTypeCollection",
   AdditionalIndex: "AdditionalIndex",

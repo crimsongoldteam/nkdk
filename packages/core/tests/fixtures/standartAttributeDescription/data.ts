@@ -5,6 +5,7 @@ import {
 
 export const all: StandardAttributeDescriptions = [
   {
+    itemType: "StandardAttributeDescription",
     name: "PredefinedDataName",
     choiceForm: "ФормаВыбора",
     choiceHistoryOnInput: "DontUse",
@@ -93,6 +94,7 @@ export const allYAML: StandardAttributeDescriptionsYAML = {
 
 export const minimal: StandardAttributeDescriptions = [
   {
+    itemType: "StandardAttributeDescription",
     name: "PredefinedDataName",
   },
 ]
@@ -103,11 +105,13 @@ export const minimalYAML: StandardAttributeDescriptionsYAML = {
 
 export const multiple: StandardAttributeDescriptions = [
   {
+    itemType: "StandardAttributeDescription",
     fillChecking: "ShowError",
     name: "PredefinedDataName",
     synonym: { items: { ru: "Какой-то синоним" } },
   },
   {
+    itemType: "StandardAttributeDescription",
     name: "Predefined",
     synonym: { items: { ru: "Другой какой-то синоним" } },
   },

@@ -7,11 +7,11 @@ export const importEventsFromYAML = <Rule extends MetadataItemRule>(params: {
 }): { events?: Record<string, string> } => {
   const { rule, yaml } = params
 
-  if (!yaml || !("События" in yaml)) {
+  if (!yaml || typeof yaml !== "object" || !("События" in yaml)) {
     return {}
   }
 
-  const yamlEvents = yaml?.События
+  const yamlEvents = yaml.События
 
   if (!rule.events || !yamlEvents) {
     return {}

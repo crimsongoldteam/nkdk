@@ -2,6 +2,7 @@ import {
   StandardAttributeDescriptionYAML,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsYAML,
+  StandartAttributeName,
   StandartAttributeNameToYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -25,7 +26,7 @@ export const exportStandardAttributeDescriptionsToYAML = (
       rule: StandardAttributeDescriptionRules,
     })
 
-    const yamlKey = StandartAttributeNameToYAML[item.name]
+    const yamlKey = StandartAttributeNameToYAML[item.name as StandartAttributeName]
     result[yamlKey] = (yamlItem ?? {}) as StandardAttributeDescriptionYAML
   }
 
@@ -34,4 +35,4 @@ export const exportStandardAttributeDescriptionsToYAML = (
   return result
 }
 
-registerTypeRule("StandardAttributeDescription", "exportToYAML", exportStandardAttributeDescriptionsToYAML)
+registerTypeRule("StandardAttributeDescriptions", "exportToYAML", exportStandardAttributeDescriptionsToYAML)

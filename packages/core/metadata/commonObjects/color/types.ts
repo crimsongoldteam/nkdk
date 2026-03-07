@@ -1,5 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
-import { ColorType } from "~/metadata/systemEnumerations/types"
+import { ColorType, WebColorsFromYAML } from "~/metadata/systemEnumerations/types"
 
 export interface Color {
   type: ColorType
@@ -8,7 +8,10 @@ export interface Color {
 
 export type ColorXML = string
 
-export const ColorJSONSchema = Type.String()
+const webColors = Object.keys(WebColorsFromYAML).map((key) => Type.Literal(key))
+
+export const AbsoluteColorJSONSchema = Type.String({ pattern: "^#[0-9A-Fa-f]{6}$" })
+export const ColorJSONSchema = Type.Union([...webColors, AbsoluteColorJSONSchema])
 
 export type ColorYAML = Static<typeof ColorJSONSchema>
 

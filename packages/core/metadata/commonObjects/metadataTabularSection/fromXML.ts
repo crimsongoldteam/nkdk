@@ -1,17 +1,15 @@
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/fromXML"
 import {
   MetadataTabularSection,
   MetadataTabularSections,
   MetadataTabularSectionsXML,
   MetadataTabularSectionXML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
-import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/fromXML"
+} from "./types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { registerTypeRule } from "~/metadata/orchestration"
+import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
+import { MetadataTabularSectionRules } from "./rules"
 
 export const importMetadataTabularSectionsFromXML = (
   context: ConfigurationContext,
@@ -32,32 +30,24 @@ const importMetadataTabularSectionFromXML = (
   _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
-  const props = xml.Properties
+  const properties = importPropertiesFromXML<MetadataTabularSection>({
+    context,
+    xml,
+    rule: MetadataTabularSectionRules,
+  })
 
   const result: MetadataTabularSection = {
-    name: props.Name!,
-    synonym: importI8nTextFromXML(context, { type: "I8nText" }, props.Synonym)!,
-  }
-
-  if (xml.ChildObjects?.Attribute) {
-    result.attributes = importMetadataAttributesFromXML(context, undefined, xml.ChildObjects.Attribute)
-  }
-
-  if (props.Comment !== undefined) result.comment = props.Comment
-  if (props.FillChecking !== undefined) result.fillChecking = props.FillChecking
-  if (props.LineNumberLength !== undefined) result.lineNumberLength = props.LineNumberLength
-  // if (props.ObjectBelonging !== undefined) result.objectBelonging = props.ObjectBelonging
-
-  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, props.StandardAttributes)
-  if (standardAttributes) result.standardAttributes = standardAttributes
-
-  const toolTip = importI8nTextFromXML(context, { type: "I8nText" }, props.ToolTip)
-  if (toolTip !== undefined) result.toolTip = toolTip
-
-  if (props.Use !== undefined) result.use = props.Use
+    itemType: "MetadataTabularSection",
+    ...properties,
+  } as MetadataTabularSection
 
   const defaults = getDefaults(context, result)
-  return removeDefaults(result, defaults)
+  const cleaned = removeDefaults(result, defaults)
+  if (Array.isArray(cleaned.attributes) && cleaned.attributes.length === 0) {
+    const { attributes: _a, ...rest } = cleaned
+    return rest as MetadataTabularSection
+  }
+  return cleaned
 }
 
 registerTypeRule("MetadataTabularSections", "importFromXML", importMetadataTabularSectionsFromXML)

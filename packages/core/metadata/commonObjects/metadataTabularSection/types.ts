@@ -1,31 +1,16 @@
-import { Type } from "@sinclair/typebox"
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataAttributesXML, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
-  MetadataAttributes,
-  MetadataAttributesXML,
-  MetadataAttributesYAML,
-} from "~/metadata/commonObjects/metadataAttribute/types"
-import {
-  StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataTabularSectionRules } from "./rules"
 
-export interface MetadataTabularSection {
-  attributes?: MetadataAttributes
-  comment?: string
-  fillChecking?: SE.FillChecking
-  lineNumberLength?: number
-  name: string
-  objectBelonging?: SE.ObjectBelonging
-  standardAttributes?: StandardAttributeDescriptions
-  synonym: I8nText
-  toolTip?: I8nText
-  use?: SE.AttributeUse
-}
+export type MetadataTabularSection = MetadataTypeByRule<typeof MetadataTabularSectionRules>
 
 export type TabularSectionInternalInfoParamsXML = [
   { name: string; category: "TabularSection" },
@@ -67,5 +52,4 @@ export type MetadataTabularSections = MetadataTabularSection[]
 
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
-export const MetadataTabularSectionsJSONSchema = Type.Record(Type.String(), Type.Any())
 export type MetadataTabularSectionsYAML = Record<MetadataNameYAML, MetadataTabularSectionYAML>

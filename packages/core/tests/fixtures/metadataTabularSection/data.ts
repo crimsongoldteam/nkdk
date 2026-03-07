@@ -2,8 +2,10 @@ import { MetadataTabularSections } from "~/metadata/commonObjects/metadataTabula
 
 export const fullTabularSections: MetadataTabularSections = [
   {
+    itemType: "MetadataTabularSection",
     attributes: [
       {
+        itemType: "MetadataAttribute",
         name: "РеквизитТабличнойЧасти",
         synonym: {
           items: {
@@ -21,6 +23,7 @@ export const fullTabularSections: MetadataTabularSections = [
     name: "ДополнительныеРеквизиты",
     standardAttributes: [
       {
+        itemType: "StandardAttributeDescription",
         name: "LineNumber",
         synonym: {
           items: {
@@ -45,6 +48,7 @@ export const fullTabularSections: MetadataTabularSections = [
 
 export const minimalTabularSections: MetadataTabularSections = [
   {
+    itemType: "MetadataTabularSection",
     name: "ДополнительныеРеквизиты",
     synonym: {
       items: {

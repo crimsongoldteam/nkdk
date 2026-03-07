@@ -1,20 +1,13 @@
-import { Type } from "@sinclair/typebox"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValue, MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
-import {
-  ChoiceParameterLinks,
-  ChoiceParameterLinksXML,
-  ChoiceParameterLinksYAML,
-} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
+import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChoiceParameters, ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
+import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
+import { StandardAttributeDescriptionRules } from "./rules"
 
 export const StandartAttributeNameToYAML = {
   Owner: "Владелец",
@@ -43,35 +36,7 @@ export type StandartAttributeYAML = (typeof StandartAttributeNameToYAML)[keyof t
 
 // export const PredefinedNameToYAML
 
-export interface StandardAttributeDescription {
-  choiceForm?: string
-  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  choiceParameterLinks?: ChoiceParameterLinks
-  choiceParameters?: ChoiceParameters
-  comment?: string
-  createOnInput?: SE.CreateOnInput
-  dataHistory?: SE.DataHistoryUse
-  editFormat?: I8nText
-  extendedEdit?: boolean
-  fillChecking?: SE.FillChecking
-  fillFromFillingValue?: boolean
-  fillValue?: MetadataValue
-  format?: I8nText
-  fullTextSearch?: SE.UseFullTextSearch
-  linkByType?: TypeLink
-  markNegatives?: boolean
-  mask?: string
-  maxValue?: number
-  minValue?: number
-  multiLine?: boolean
-  name: StandartAttributeName
-  passwordMode?: boolean
-  quickChoice?: SE.UseQuickChoice
-  synonym?: I8nText
-  toolTip?: I8nText
-  type?: TypeDescription
-  typeReductionMode?: SE.TypeReductionMode
-}
+export type StandardAttributeDescription = MetadataTypeByRule<typeof StandardAttributeDescriptionRules>
 
 export interface StandardAttributeDescriptionXML {
   _name: StandartAttributeName
@@ -136,5 +101,4 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
-export const StandardAttributeDescriptionsJSONSchema = Type.Record(Type.String(), Type.Any())
 export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>

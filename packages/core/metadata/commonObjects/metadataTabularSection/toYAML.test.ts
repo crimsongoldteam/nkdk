@@ -6,6 +6,7 @@ import { MetadataTabularSection, MetadataTabularSectionYAML } from "./types"
 describe("exportMetadataTabularSectionToYAML", () => {
   it("should export metadata tabular section to enterprise", () => {
     const metadataTabularSection: MetadataTabularSection = {
+      itemType: "MetadataTabularSection",
       name: "Контакты",
       fillChecking: "DontCheck",
       synonym: { items: { ru: "Какие-то контакты" } },
@@ -22,6 +23,7 @@ describe("exportMetadataTabularSectionToYAML", () => {
 
   it("should export with synonym is same as name", () => {
     const metadataTabularSection: MetadataTabularSection = {
+      itemType: "MetadataTabularSection",
       name: "ИсторияКПП",
       fillChecking: "DontCheck",
       synonym: { items: { ru: "История КПП" } },

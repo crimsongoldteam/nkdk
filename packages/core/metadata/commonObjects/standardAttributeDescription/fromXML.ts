@@ -33,7 +33,7 @@ export const importStandardAttributeDescriptionsFromXML = (
 
     if (!properties) continue
 
-    const item: StandardAttributeDescription = { ...properties }
+    const item: StandardAttributeDescription = { ...properties, itemType: "StandardAttributeDescription" as const }
     const defaults = getDefaults(context, item)
     const itemWithoutDefaults = removeDefaults(item, defaults)
 
@@ -48,3 +48,4 @@ export const importStandardAttributeDescriptionsFromXML = (
 }
 
 registerTypeRule("StandardAttributeDescription", "importFromXML", importStandardAttributeDescriptionsFromXML)
+registerTypeRule("StandardAttributeDescriptions", "importFromXML", importStandardAttributeDescriptionsFromXML)

@@ -7,7 +7,12 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { exportPropertiesToXML, registerTypeRule, StandardAttributeDescriptionPropertyRule } from "~/metadata/orchestration"
+import {
+  exportPropertiesToXML,
+  registerTypeRule,
+  StandardAttributeDescriptionPropertyRule,
+  StandardAttributeDescriptionsPropertyRule,
+} from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 import { StandardAttributeDescriptionRules } from "./rules"
 
@@ -16,7 +21,7 @@ export const exportStandardAttributeDescriptionsToXML = (
   rule: PropertyRule,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsXML | undefined => {
-  const narrowRule = rule as StandardAttributeDescriptionPropertyRule
+  const narrowRule = rule as StandardAttributeDescriptionPropertyRule | StandardAttributeDescriptionsPropertyRule
   const extendedData = getExtendedStandardAttributeDescriptions(data ?? [], narrowRule.standartAttributeNames)
 
   return {
@@ -48,15 +53,15 @@ const getExtendedStandardAttributeDescriptions = (
 ): StandardAttributeDescriptions => {
   const dataMap = new Map<StandartAttributeName, StandardAttributeDescription>()
   for (const item of data) {
-    dataMap.set(item.name, item)
+    dataMap.set(item.name as StandartAttributeName, item)
   }
 
   const result: StandardAttributeDescriptions = []
   for (const name of standartAttributeNames) {
     const existingItem = dataMap.get(name)
-    result.push(existingItem ?? { name })
+    result.push(existingItem ?? { name, itemType: "StandardAttributeDescription" as const })
   }
   return result
 }
 
-registerTypeRule("StandardAttributeDescription", "exportToXML", exportStandardAttributeDescriptionsToXML)
+registerTypeRule("StandardAttributeDescriptions", "exportToXML", exportStandardAttributeDescriptionsToXML)

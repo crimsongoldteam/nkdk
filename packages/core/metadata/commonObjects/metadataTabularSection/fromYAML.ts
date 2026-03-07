@@ -1,20 +1,15 @@
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
-import { importMetadataAttributesFromYAML } from "~/metadata/commonObjects/metadataAttribute/fromYAML"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { removeDefaults } from "~/metadata/helpers/compactObject"
+import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { getDefaults } from "./defaults"
+import { MetadataTabularSectionRules } from "./rules"
 import {
   MetadataTabularSection,
   MetadataTabularSectionYAML,
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
-import { importStandardAttributeDescriptionsFromYAML } from "~/metadata/commonObjects/standardAttributeDescription/fromYAML"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { registerTypeRule } from "~/metadata/orchestration"
-import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { getDefaults } from "./defaults"
+} from "./types"
 
 export const importMetadataTabularSectionFromYAML = (
   context: ConfigurationContext,
@@ -24,48 +19,14 @@ export const importMetadataTabularSectionFromYAML = (
 ): MetadataTabularSection | undefined => {
   if (!data) return undefined
 
-  const result: MetadataTabularSection = {
+  const result = importPropertiesFromYAML({
+    context,
+    yaml: data,
+    metadataRule: MetadataTabularSectionRules,
     name,
-    synonym: addDefaultLanguageNameToSynonym(
-      context,
-      importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Синоним }),
-      name
-    ),
-  }
+  }) as MetadataTabularSection
 
-  if (data.Комментарий !== undefined) result.comment = data.Комментарий
-
-  const fillChecking = importSystemEnumerationFromYAMLDeprecated<SE.FillChecking>(
-    context,
-    { type: "SystemEnumeration", typeSE: "FillChecking" },
-    data.ПроверкаЗаполнения
-  )
-  if (fillChecking !== undefined) result.fillChecking = fillChecking
-
-  if (data.ДлинаНомераСтроки !== undefined) result.lineNumberLength = data.ДлинаНомераСтроки
-
-  const use = importSystemEnumerationFromYAMLDeprecated<SE.AttributeUse>(
-    context,
-    { type: "SystemEnumeration", typeSE: "AttributeUse" },
-    data.Использование
-  )
-  if (use !== undefined) result.use = use
-
-  // const objectBelonging = importSystemEnumerationFromYAML(
-  //   context,
-  //   data.ПринадлежностьОбъекта,
-  //   SE.ObjectBelongingFromYAML
-  // )
-  // if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
-
-  const toolTip = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Подсказка })
-  if (toolTip !== undefined) result.toolTip = toolTip
-
-  const standardAttributes = importStandardAttributeDescriptionsFromYAML(context, undefined, data.СтандартныеРеквизиты)
-  if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
-
-  const attributes = importMetadataAttributesFromYAML(context, undefined, data.Реквизиты)
-  if (attributes !== undefined) result.attributes = attributes
+  result.name = name
 
   const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)
