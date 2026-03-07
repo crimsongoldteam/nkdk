@@ -63,5 +63,10 @@
     "uuid": "^13.0.0",
     "whatwg-fetch": "^3.6.20",
     "yaml": "^2.8.2"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "fast-xml-builder@1.0.0": "patches/fast-xml-builder@1.0.0.patch"
+    }
   }
 }

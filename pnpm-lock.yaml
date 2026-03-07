@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  fast-xml-builder@1.0.0:
+    hash: mesyrai2xrfitpq2r3agm6aqxi
+    path: patches/fast-xml-builder@1.0.0.patch
+
 importers:
 
   .:
@@ -157,8 +162,8 @@ importers:
         specifier: ^14.0.2
         version: 14.0.3
       fast-xml-parser:
-        specifier: ^5.3.3
-        version: 5.3.3
+        specifier: ^5.4.2
+        version: 5.4.2
       langium:
         specifier: ~4.2.0
         version: 4.2.1
@@ -197,8 +202,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       fast-xml-parser:
-        specifier: ^5.3.3
-        version: 5.3.3
+        specifier: ^5.4.2
+        version: 5.4.2
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -2253,10 +2258,6 @@ packages:
   fast-xml-builder@1.0.0:
     resolution: {integrity: sha512-fpZuDogrAgnyt9oDDz+5DBz0zgPdPZz6D4IR7iESxRXElrlGTRkHJ9eEt+SACRJwT0FNFrt71DFQIUFBJfX/uQ==}
 
-  fast-xml-parser@5.3.3:
-    resolution: {integrity: sha512-2O3dkPAAC6JavuMm8+4+pgTk+5hoAs+CjZ+sWcQLkX9+/tHRuTkQh/Oaifr8qDmZ8iEHb771Ea6G8CdwkrgvYA==}
-    hasBin: true
-
   fast-xml-parser@5.4.2:
     resolution: {integrity: sha512-pw/6pIl4k0CSpElPEJhDppLzaixDEuWui2CUQQBH/ECDf7+y6YwA4Gf7Tyb0Rfe4DIMuZipYj4AEL0nACKglvQ==}
     hasBin: true
@@ -3032,9 +3033,6 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
-
-  strnum@2.1.2:
-    resolution: {integrity: sha512-l63NF9y/cLROq/yqKXSLtcMeeyOfnSQlfMSlzFt/K73oIaD8DGaQWd7Z34X9GPiKqP5rbSh84Hl4bOlLcjiSrQ==}
 
   strnum@2.2.0:
     resolution: {integrity: sha512-Y7Bj8XyJxnPAORMZj/xltsfo55uOiyHcU2tnAVzHUnSJR/KsEX+9RoDeXEnsXtl/CX4fAcrt64gZ13aGaWPeBg==}
@@ -5585,15 +5583,11 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fast-xml-builder@1.0.0: {}
-
-  fast-xml-parser@5.3.3:
-    dependencies:
-      strnum: 2.1.2
+  fast-xml-builder@1.0.0(patch_hash=mesyrai2xrfitpq2r3agm6aqxi): {}
 
   fast-xml-parser@5.4.2:
     dependencies:
-      fast-xml-builder: 1.0.0
+      fast-xml-builder: 1.0.0(patch_hash=mesyrai2xrfitpq2r3agm6aqxi)
       strnum: 2.2.0
 
   fastq@1.20.1:
@@ -6343,8 +6337,6 @@ snapshots:
   strip-json-comments@2.0.1: {}
 
   strip-json-comments@3.1.1: {}
-
-  strnum@2.1.2: {}
 
   strnum@2.2.0: {}
 
