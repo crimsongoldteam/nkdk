@@ -123,5 +123,5 @@ import "./usualGroup/types"
 import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
 
-import "../clientApplicationForm/exportToStructure"
+import "../clientApplicationForm/toNKDK"
 import "./baseElement/exportToStructure"

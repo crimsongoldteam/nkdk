@@ -4,7 +4,7 @@ import { exportChildItemsToNKDK } from "../commonObjects/childItems/toNKDK"
 import { exportAutoCommandBarToNKDK } from "../elements/autoCommandBar/toNKDK"
 import { ClientApplicationForm } from "./types"
 
-export const exportClientApplicationFormToStructure = (
+export const exportClientApplicationFormToNKDK = (
   context: ConfigurationContext,
   element: ClientApplicationForm
 ): ToNKDKResult => {
