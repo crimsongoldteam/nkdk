@@ -21,9 +21,7 @@ export const importStandardAttributeDescriptionsFromXML = (
   const result: StandardAttributeDescriptions = []
 
   for (const xmlItem of items) {
-    const properties = importPropertiesFromXML<
-      StandardAttributeDescription & { itemType: "StandardAttributeDescription" }
-    >({
+    const properties = importPropertiesFromXML<StandardAttributeDescription>({
       context,
       xml: xmlItem,
       rule: StandardAttributeDescriptionRules,
