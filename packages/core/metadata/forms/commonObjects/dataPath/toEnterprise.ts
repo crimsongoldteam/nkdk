@@ -72,9 +72,8 @@ export const exportDataPathToEnterprise = (params: {
 
   // Добавляем parentPath только для табличных данных
   if (tableDataPath) {
-    attribute.parentPath = existingTableAttribute
-      ? existingTableAttribute[1].parentPath
-      : preview.prefix + tableDataPath
+    if (!existingTableAttribute || !existingTableAttribute[1].name) throw new Error("Table data path not found")
+    attribute.parentPath = existingTableAttribute[1].name
   }
 
   preview.attributes[dataPath.toLowerCase()] = attribute
