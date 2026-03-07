@@ -1,17 +1,22 @@
 import fs from "fs"
 import { join } from "path"
-import { describe, expect, it, vi } from "vitest"
-import { readCatalogYAML } from "~/tests/fixtures/sync/readCatalog/data"
+import { beforeEach, describe, expect, it } from "vitest"
+import { readCatalogYAML } from "~/tests/fixtures/sync/syncCatalog/data"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { convertCatalogFromXML } from "./convertCatalogFromXML"
 
 describe("convertCatalogFromXML", () => {
-  const inputDir = join(process.cwd(), "tests/fixtures/sync/readCatalog/Catalogs")
-  const outputDir = join(process.cwd(), "tests/fixtures/sync/out/Справочник")
+  const inputDir = join(process.cwd(), "tests/fixtures/sync/syncCatalog/xml/Catalogs")
+  const outputDir = join(process.cwd(), "tests/fixtures/sync/syncCatalog/out")
   const catalogName = "Контрагенты"
 
+  beforeEach(() => {
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true })
+    }
+  })
+
   it("should read catalog from XML and export to YAML file in output dir", async () => {
-    const spy = vi.spyOn(fs, "writeFileSync")
     await convertCatalogFromXML({
       context: mockContextToYAML,
       inputDir: inputDir,
@@ -19,6 +24,6 @@ describe("convertCatalogFromXML", () => {
       outputDir: outputDir,
     })
 
-    expect(spy).toHaveBeenCalledWith(join(outputDir, catalogName, "Свойства.yaml"), readCatalogYAML, "utf-8")
+    expect(fs.readFileSync(join(outputDir, catalogName, "Свойства.yaml"), "utf-8")).toBe(readCatalogYAML)
   })
 })

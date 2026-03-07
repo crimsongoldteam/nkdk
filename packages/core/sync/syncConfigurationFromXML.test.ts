@@ -1,13 +1,13 @@
 import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/importConfiguration/data"
+import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { syncConfigurationFromXML } from "./syncConfigurationFromXML"
 
 describe("sync configuration from xml", () => {
-  const inputDir = join(process.cwd(), "tests/fixtures/sync/importConfiguration/input")
-  const outputDir = join(process.cwd(), "tests/fixtures/sync/importConfiguration/out")
+  const inputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")
+  const outputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/out")
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -28,13 +28,10 @@ describe("sync configuration from xml", () => {
     const formYamlPath = join(outputDir, "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml")
     const formNkdkPath = join(outputDir, "Контрагенты", "Формы", "ФормаЭлемента", "Форма.nkdk")
 
-    expect(fs.existsSync(catalogYamlPath)).toBe(true)
     expect(fs.readFileSync(catalogYamlPath, "utf-8")).toBe(readCatalogYAML)
 
-    expect(fs.existsSync(formYamlPath)).toBe(true)
     expect(fs.readFileSync(formYamlPath, "utf-8")).toBe(readFormYAML)
 
-    expect(fs.existsSync(formNkdkPath)).toBe(true)
     expect(fs.readFileSync(formNkdkPath, "utf-8")).toBe(readFormNKDK)
   })
 })
