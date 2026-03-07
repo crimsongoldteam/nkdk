@@ -8,7 +8,8 @@ import {
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
+// import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
+import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import {
   ClientApplicationForm,
@@ -171,7 +172,6 @@ import {
 } from "../../forms/elements/trackBarField/types"
 import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML } from "../../forms/elements/usualGroup/types"
 import { TypedFormElementType } from "../formElement/types"
-import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 
 export type MetadataItemTypeRegistry = {
   //#region Elements
@@ -425,10 +425,10 @@ export type MetadataItemTypeRegistry = {
   //#endregion
 
   //#region Applied objects
-  Configuration: {
-    metadata: Configuration
-    yaml: ConfigurationYAML
-  }
+  // Configuration: {
+  //   metadata: Configuration
+  //   yaml: ConfigurationYAML
+  // }
 
   MetadataCatalog: {
     metadata: MetadataCatalog
