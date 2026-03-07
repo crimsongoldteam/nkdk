@@ -5,6 +5,7 @@ import { ConfigurationContext, ContextElementToEnterprise, EnterpriseContext } f
 describe("getParentFromContext", () => {
   const createContext = (elementsTree: ConfigurationContext["elementsTree"]): ConfigurationContext => ({
     defaultLanguage: "ru",
+    version: "2.20",
     elementsTree,
   })
 
@@ -82,6 +83,7 @@ describe("getParentFromContext", () => {
 describe("getCurrentTableFromContext", () => {
   const createEnterpriseContext = (elementsTree: EnterpriseContext["elementsTree"]): ConfigurationContext => ({
     defaultLanguage: "ru",
+    version: "2.20",
     enterprise: {
       prefix: "",
       attributes: {},
@@ -90,7 +92,7 @@ describe("getCurrentTableFromContext", () => {
   })
 
   it("throws when enterprise is not defined", () => {
-    const context: ConfigurationContext = { defaultLanguage: "ru" }
+    const context: ConfigurationContext = { defaultLanguage: "ru", version: "2.20" }
 
     expect(() => getCurrentTableFromContext(context)).toThrow("Enterprise context is not defined")
   })
@@ -103,6 +105,7 @@ describe("getCurrentTableFromContext", () => {
 
   it("returns undefined when elementsTree is undefined", () => {
     const context: ConfigurationContext = {
+      version: "2.20",
       defaultLanguage: "ru",
       enterprise: { prefix: "", attributes: {}, elementsTree: undefined! },
     }

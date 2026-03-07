@@ -23,6 +23,7 @@ vi.mock("uuid", () => ({
 }))
 
 const configurationContext: ConfigurationContext = {
+  version: "2.20",
   defaultLanguage: "ru",
   exportToYAML: { toTyped: false },
 }

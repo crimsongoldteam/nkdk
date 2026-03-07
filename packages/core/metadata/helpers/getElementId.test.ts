@@ -5,6 +5,7 @@ import { getElementId } from "./getElementId"
 describe("getElementId", () => {
   it("should increment counter in normal mode", () => {
     const context: ConfigurationContext = {
+      version: "2.20",
       defaultLanguage: "ru",
     }
 
