@@ -197,3 +197,5 @@ import "./characteristicsDescription/fromXML"
 import "./characteristicsDescription/fromYAML"
 import "./characteristicsDescription/toXML"
 import "./characteristicsDescription/toYAML"
+
+import "./number/toJSONSchema"
