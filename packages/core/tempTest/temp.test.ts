@@ -2,9 +2,9 @@ import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/fromXML"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { exportClientApplicationFormToNKDK } from "~/metadata/forms/clientApplicationForm/toNKDK"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import {
@@ -74,7 +74,7 @@ describe("DO test", () => {
     )
     const yamlObject = exportClientApplicationFormToYAML(configurationContext, form)
     const yaml = exportToYAML(yamlObject)
-    const structuredObject = exportClientApplicationFormToStructure(configurationContext, form)
+    const structuredObject = exportClientApplicationFormToNKDK(configurationContext, form)
     const strings = structuredObject.strings.join("\n")
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
     writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
