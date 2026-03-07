@@ -3,9 +3,9 @@ import { join } from "path"
 import { describe, expect, it, vi } from "vitest"
 import { readCatalogYAML } from "~/tests/fixtures/sync/readCatalog/data"
 import { mockContextToYAML } from "~/tests/mockContext"
-import { convertCatalogFromXML } from "./convertCatalog"
+import { convertCatalogFromXML } from "./convertCatalogFromXML"
 
-describe("readCatalog", () => {
+describe("convertCatalogFromXML", () => {
   const inputDir = join(process.cwd(), "tests/fixtures/sync/readCatalog/Catalogs")
   const outputDir = join(process.cwd(), "tests/fixtures/sync/out/Справочник")
   const catalogName = "Контрагенты"
