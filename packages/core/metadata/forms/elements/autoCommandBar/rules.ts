@@ -38,22 +38,6 @@ export const AutoCommandBarRules = {
       defaultValue: [],
     },
   },
-  // registerAsType: {
-  //   AutoCommandBar: {
-  //     toXML: (_context: ConfigurationContext, _element: AutoCommandBar) => ({
-  //       id: "-1",
-  //       name: "ФормаКоманднаяПанель",
-  //     }),
-  //   },
-  //   TableAutoCommandBar: {
-  //     toXML: (context: ConfigurationContext, _element: AutoCommandBar) => {
-  //       const parentTable = getParentFromContext(context, "Table")
-  //       const elementId = getElementId(context)
-  //       const elementName = getAutoCommandBarName(parentTable)
-  //       return { id: elementId, name: elementName }
-  //     },
-  //   },
-  // } as any,
 } as const satisfies ElementRule
 
 registerElementAsType({

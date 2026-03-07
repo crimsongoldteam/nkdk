@@ -17,7 +17,7 @@ const exportTableAdditionalSourceToXML = (
     return { Item: value, Type: ruleNarrow.additionalSourceType }
   }
 
-  const parent = getParentFromContext(context, ["Table"])
+  const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])
 
   const parentName = parent.name
 
