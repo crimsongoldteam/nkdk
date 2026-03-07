@@ -132,7 +132,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableRowInputMode",
     },
-    rowPictureDataPath: { yaml: "ПутьКДаннымКартинкиСтроки", type: "DataPath", defaultType: "string" },
+    rowPictureDataPath: { yaml: "ПутьКДаннымКартинкиСтроки", type: "DataPath", defaultType: "Picture" },
     rowSelectionMode: {
       yaml: "РежимВыделенияСтроки",
       type: "SystemEnumeration",
