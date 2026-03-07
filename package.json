@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Веб-приложение для расширения VS Code Nakidka",
   "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "type-check": "tsc --noEmit",

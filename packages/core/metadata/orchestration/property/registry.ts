@@ -8,7 +8,7 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
+import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
 import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"

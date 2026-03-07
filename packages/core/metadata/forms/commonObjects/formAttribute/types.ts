@@ -1,5 +1,5 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
+import { FieldsListYAML } from "~/metadata/commonObjects/fieldList/types"
 import { FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"

@@ -1,2 +1,0 @@
-1. реализуй exportToXML, importFromXML, exportFromEnterprise, importFromEnterprise
-2. для каждого их этих файлов сделай тесты по фикстурам
