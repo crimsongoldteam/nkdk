@@ -65,7 +65,7 @@ export const getJSONSchemaUri = (uri: string): string => {
 
 export const getJSONSchema = async (schemaUri: string): Promise<string> => {
   const schema = SchemaMap[schemaUri]
-  if (schema) return schema
+  if (schema !== undefined) return schema
 
   const canonicalUri = schemaUri.replace(/^schema:\/\//i, "").replace(/\.json$/i, "")
   const entry = await getOrCreateCacheByCanonicalUri({ canonicalUri })
@@ -74,8 +74,9 @@ export const getJSONSchema = async (schemaUri: string): Promise<string> => {
 }
 
 const isFormUri = (uri: string): boolean => {
-  if (uri.endsWith(".nkdk")) return true
-  if (uri.endsWith(".yaml")) return uri.includes("/Формы/")
+  const decoded = decodeURI(uri)
+  if (decoded.endsWith(".nkdk")) return true
+  if (decoded.endsWith(".yaml")) return decoded.includes("/Формы/")
   return false
 }
 
