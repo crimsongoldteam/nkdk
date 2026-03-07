@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertyToXML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
@@ -11,9 +11,13 @@ const rule: PropertyRule = { type: "ExtendedTooltip" }
 
 describe("exportExtendedTooltipToXML", () => {
   it("should return default when data is undefined", () => {
-    const context: ConfigurationContext = {
-      ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
+    const context: ConfigurationContextWithExportToXML = {
+      ...mockContextToXML(),
+      exportToXML: {
+        itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
+        configDumpInfo: new Map(),
+        version: "2.20",
+      },
     }
     const expectedResult = readXMLFileAsString("forms/extendedTooltip/defaults.xml")
 
@@ -29,9 +33,13 @@ describe("exportExtendedTooltipToXML", () => {
   })
 
   it("should return all fields to XML", () => {
-    const context: ConfigurationContext = {
-      ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
+    const context: ConfigurationContextWithExportToXML = {
+      ...mockContextToXML(),
+      exportToXML: {
+        itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
+        configDumpInfo: new Map(),
+        version: "2.20",
+      },
     }
     const expectedResult = readXMLFileAsString("forms/extendedTooltip/full.xml").trimEnd()
 

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToXML } from "~/metadata/orchestration"
 import { fullLabelField, minimalLabelField } from "~/tests/fixtures/forms/labelField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportLabelFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/labelField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: fullLabelField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullLabelField })
 
     const result = xmlExport({ LabelField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportLabelFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/labelField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: minimalLabelField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalLabelField })
 
     const result = xmlExport({ LabelField: xmlData }, false)
 

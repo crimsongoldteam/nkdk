@@ -5,7 +5,7 @@ import {
   StandardAttributeDescriptionXML,
   StandartAttributeName,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import {
   exportPropertiesToXML,
@@ -17,7 +17,7 @@ import { getDefaults } from "./defaults"
 import { StandardAttributeDescriptionRules } from "./rules"
 
 export const exportStandardAttributeDescriptionsToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsXML | undefined => {
@@ -32,7 +32,7 @@ export const exportStandardAttributeDescriptionsToXML = (
 }
 
 const exportStandardAttributeDescriptionToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionXML => {
   const defaults = getDefaults(context, data)

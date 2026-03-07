@@ -1,5 +1,5 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -31,7 +31,7 @@ export const ContextMenuRules = {
 registerElementAsType({
   propertyType: "ContextMenu",
   elementRule: ContextMenuRules,
-  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
     const parent = getParentFromContext(context)
     const id = getElementId(context)
     const name = getContextMenuName(parent)

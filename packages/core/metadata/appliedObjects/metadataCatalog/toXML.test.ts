@@ -1,16 +1,17 @@
 import { describe, expect, it, vi } from "vitest"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportMetadataCatalogToXML, MetadataCatalogContext } from "./toXML"
+import { exportMetadataCatalogToXML } from "./toXML"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
 }))
 
-const mockMetadataCatalogContext: MetadataCatalogContext = {
-  ...mockContext,
+const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
+  ...mockContextToXML(),
   context: {
     forms: [],
     templates: [],

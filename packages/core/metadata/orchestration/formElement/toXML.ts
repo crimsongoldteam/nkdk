@@ -1,4 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { getChildContextToXML } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
@@ -9,7 +10,7 @@ import { getElementRule } from "./ruleFactory"
 import { ElementRule, ElementXML } from "./types"
 
 export function exportElementToXML<T extends NamedElement>(params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   element: T
 }): ElementXML | undefined {
   const { element, context } = params
@@ -30,7 +31,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 }
 
 export function exportSingleElementToXML<Rule extends ElementRule>(params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
   rule: ElementRule
   id: string
@@ -40,7 +41,7 @@ export function exportSingleElementToXML<Rule extends ElementRule>(params: {
 }
 
 function exportToXML<Rule extends ElementRule>(params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
   id: string
@@ -49,17 +50,12 @@ function exportToXML<Rule extends ElementRule>(params: {
   const { context, element, rule, id, name } = params
   const itemType = rule.itemType
 
-  const elementsTree: ConfigurationContext["elementsTree"] = []
-  if (context.elementsTree !== undefined) {
-    elementsTree.push(...context.elementsTree)
-  }
-
-  elementsTree.push({ name: name, itemType: itemType })
-
-  const currentContext: ConfigurationContext = {
-    ...context,
-    elementsTree: elementsTree,
-  }
+  const currentContext: ConfigurationContextWithExportToXML = getChildContextToXML({
+    context,
+    itemType,
+    path: "",
+    name,
+  })
 
   const properties = exportPropertiesToXML({
     context: currentContext,

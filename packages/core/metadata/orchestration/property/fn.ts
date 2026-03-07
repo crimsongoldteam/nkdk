@@ -1,9 +1,13 @@
 import { TSchema } from "@sinclair/typebox"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
 import { PropertyRuleType } from "./registry"
 import { MetadataItem, PropertyRule } from "./types"
 
-export type ExportToXMLFunction = (context: ConfigurationContext, rule: PropertyRule, value: any) => any | undefined
+export type ExportToXMLFunction = (
+  context: ConfigurationContextWithExportToXML,
+  rule: PropertyRule,
+  value: any
+) => any | undefined
 
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContext

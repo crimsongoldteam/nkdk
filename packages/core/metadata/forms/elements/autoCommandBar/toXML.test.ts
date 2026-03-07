@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertyToXML } from "~/metadata/orchestration"
 import { fullAutoCommandBar, minimalAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext, mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { AutoCommandBar } from "./types"
@@ -62,10 +62,16 @@ describe("exportAutoCommandBarToXML", () => {
 })
 
 const exportToXML = (value: AutoCommandBar | undefined, type: "AutoCommandBar" | "TableAutoCommandBar"): string => {
-  const context: ConfigurationContext =
+  const context: ConfigurationContextWithExportToXML =
     type === "AutoCommandBar"
-      ? mockContext
-      : { ...mockContext, elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }] }
+      ? mockContextToXML()
+      : {
+          ...mockContext,
+          exportToXML: {
+            ...mockContextToXML().exportToXML,
+            itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
+          },
+        }
 
   const xmlData = exportPropertyToXML({
     context: context,

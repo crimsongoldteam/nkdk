@@ -1,28 +1,34 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  ConfigDumpInfoConfigVersionMap,
-  ConfigDumpInfoIdMap,
-  ConfigDumpInfoMetadataInnerXML,
-  ConfigDumpInfoMetadataXML,
-  ConfigDumpInfoXML,
-} from "./types"
+import { ConfigDumpInfo, ConfigDumpInfoMetadataInnerXML, ConfigDumpInfoMetadataXML, ConfigDumpInfoXML } from "./types"
 
 export const exportConfigDumpInfoToXML = (params: {
   context: ConfigurationContext
-  idMap: ConfigDumpInfoIdMap
-  configVersionMap: ConfigDumpInfoConfigVersionMap
+  idMap: ConfigDumpInfo
 }): ConfigDumpInfoXML => {
-  const { context, idMap, configVersionMap } = params
+  const { context, idMap } = params
 
   if (!context.version) {
     throw new Error("Version is required")
   }
 
-  const rootMetadata = buildMetadataNodes("", idMap, configVersionMap)
+  const rootMetadata: ConfigDumpInfoMetadataXML[] = []
+  for (const [name, { id, children, configVersion }] of idMap.entries()) {
+    const innerMetadata: ConfigDumpInfoMetadataInnerXML[] = []
+    for (const [name, id] of children.entries()) {
+      innerMetadata.push({ _name: name, _id: id })
+    }
+    rootMetadata.push({
+      _name: name,
+      _id: id,
+      _configVersion: configVersion,
+      ...(innerMetadata.length > 0 ? { Metadata: innerMetadata } : {}),
+    })
+  }
+
   return {
     ...getRootAttributes(context),
     ConfigVersions: {
-      Metadata: rootMetadata.length === 1 ? rootMetadata[0] : rootMetadata,
+      Metadata: rootMetadata,
     },
   }
 }
@@ -36,28 +42,4 @@ const getRootAttributes = (context: ConfigurationContext): Omit<ConfigDumpInfoXM
     _format: "Hierarchical",
     _version: context.version,
   }
-}
-
-function buildInnerMetadataNodes(parentKey: string, idMap: ConfigDumpInfoIdMap): ConfigDumpInfoMetadataInnerXML[] {
-  const children = idMap.get(parentKey)
-  if (children === undefined || children.size === 0) return []
-  return [...children].map(([name, id]) => ({ _name: name, _id: id }))
-}
-
-function buildMetadataNodes(
-  parentKey: string,
-  idMap: ConfigDumpInfoIdMap,
-  configVersionMap: ConfigDumpInfoConfigVersionMap
-): ConfigDumpInfoMetadataXML[] {
-  const children = idMap.get(parentKey)
-  if (children === undefined || children.size === 0) return []
-
-  return [...children].map(([name, id]) => {
-    const configVersion = configVersionMap.get(name)
-    if (configVersion === undefined) throw new Error("Config version is required")
-    const nested = buildInnerMetadataNodes(name, idMap)
-    const node: ConfigDumpInfoMetadataXML = { _name: name, _id: id, _configVersion: configVersion }
-    if (nested.length > 0) node.Metadata = nested
-    return node
-  })
 }

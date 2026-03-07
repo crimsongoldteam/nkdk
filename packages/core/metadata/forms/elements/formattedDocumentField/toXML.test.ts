@@ -4,14 +4,14 @@ import {
   fullFormattedDocumentField,
   minimalFormattedDocumentField,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportFormattedDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/formattedDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: fullFormattedDocumentField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullFormattedDocumentField })
 
     const result = xmlExport({ FormattedDocumentField: xmlData }, false)
 
@@ -20,7 +20,7 @@ describe("exportFormattedDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/formattedDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: minimalFormattedDocumentField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalFormattedDocumentField })
 
     const result = xmlExport({ FormattedDocumentField: xmlData }, false)
 

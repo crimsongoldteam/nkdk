@@ -1,11 +1,10 @@
-import { ConfigurationContext } from "~/metadata/context/types"
 import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { mockContext } from "~/tests/mockContext"
 import { ChildItem } from "./types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 
 export const exportChildItemsToXML = <From extends ChildItem>(
-  _context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
   data: From[] | undefined
 ): Record<From["itemType"], ElementXML>[] | undefined => {
@@ -13,7 +12,7 @@ export const exportChildItemsToXML = <From extends ChildItem>(
 
   const result = data.map((item) => {
     const value = exportElementToXML({
-      context: mockContext,
+      context: context,
       element: item,
     })!
 

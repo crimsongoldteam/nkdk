@@ -1,19 +1,35 @@
 import { describe, expect, it } from "vitest"
 import { getCurrentTableFromContext, getParentFromContext } from "./helpers"
-import { ConfigurationContext, ContextElementToEnterprise, EnterpriseContext } from "./types"
+import {
+  ConfigurationContext,
+  ConfigurationContextWithExportToXML,
+  ContextElementToEnterprise,
+  EnterpriseContext,
+} from "./types"
 
 describe("getParentFromContext", () => {
-  const createContext = (elementsTree: ConfigurationContext["elementsTree"]): ConfigurationContext => ({
+  const createContext = (
+    itemsTree: ConfigurationContextWithExportToXML["exportToXML"]["itemsTree"]
+  ): ConfigurationContextWithExportToXML => ({
     defaultLanguage: "ru",
     version: "2.20",
-    elementsTree,
+    exportToXML: {
+      itemsTree,
+      configDumpInfo: new Map(),
+      version: "2.20",
+      context: {
+        forms: [],
+        templates: [],
+        parentName: "",
+      },
+    },
   })
 
   it("returns the last element when no type filter is specified", () => {
     const context = createContext([
-      { itemType: "LabelDecoration", name: "form1" },
-      { itemType: "UsualGroup", name: "group1" },
-      { itemType: "InputField", name: "field1" },
+      { itemType: "LabelDecoration", name: "form1", path: "" },
+      { itemType: "UsualGroup", name: "group1", path: "" },
+      { itemType: "InputField", name: "field1", path: "" },
     ])
 
     const result = getParentFromContext(context)
@@ -23,10 +39,10 @@ describe("getParentFromContext", () => {
 
   it("returns the last element of the specified type", () => {
     const context = createContext([
-      { itemType: "LabelDecoration", name: "form1" },
-      { itemType: "UsualGroup", name: "group1" },
-      { itemType: "InputField", name: "field1" },
-      { itemType: "UsualGroup", name: "group2" },
+      { itemType: "LabelDecoration", name: "form1", path: "" },
+      { itemType: "UsualGroup", name: "group1", path: "" },
+      { itemType: "InputField", name: "field1", path: "" },
+      { itemType: "UsualGroup", name: "group2", path: "" },
     ])
 
     const result = getParentFromContext(context, ["UsualGroup"])
@@ -36,10 +52,10 @@ describe("getParentFromContext", () => {
 
   it("searches from end to start", () => {
     const context = createContext([
-      { itemType: "LabelDecoration", name: "form1" },
-      { itemType: "UsualGroup", name: "group1" },
-      { itemType: "InputField", name: "field1" },
-      { itemType: "UsualGroup", name: "group2" },
+      { itemType: "LabelDecoration", name: "form1", path: "" },
+      { itemType: "UsualGroup", name: "group1", path: "" },
+      { itemType: "InputField", name: "field1", path: "" },
+      { itemType: "UsualGroup", name: "group2", path: "" },
     ])
 
     const result = getParentFromContext(context, ["UsualGroup"])
@@ -53,16 +69,10 @@ describe("getParentFromContext", () => {
     expect(() => getParentFromContext(context)).toThrow("Parent element not found in context")
   })
 
-  it("throws when elementsTree is undefined", () => {
-    const context = createContext(undefined)
-
-    expect(() => getParentFromContext(context)).toThrow("Parent element not found in context")
-  })
-
   it("throws when no element of the specified type is found", () => {
     const context = createContext([
-      { itemType: "LabelDecoration", name: "form1" },
-      { itemType: "InputField", name: "field1" },
+      { itemType: "LabelDecoration", name: "form1", path: "" },
+      { itemType: "InputField", name: "field1", path: "" },
     ])
 
     expect(() => getParentFromContext(context, ["UsualGroup"])).toThrow("Parent element not found in context")
@@ -70,8 +80,8 @@ describe("getParentFromContext", () => {
 
   it("returns any type when itemType is not specified", () => {
     const context = createContext([
-      { itemType: "LabelDecoration", name: "form1" },
-      { itemType: "UsualGroup", name: "group1" },
+      { itemType: "LabelDecoration", name: "form1", path: "" },
+      { itemType: "UsualGroup", name: "group1", path: "" },
     ])
 
     const result = getParentFromContext(context)

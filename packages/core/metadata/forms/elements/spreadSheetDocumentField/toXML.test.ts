@@ -4,14 +4,14 @@ import {
   fullSpreadSheetDocumentField,
   minimalSpreadSheetDocumentField,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportSpreadSheetDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/spreadSheetDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: fullSpreadSheetDocumentField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullSpreadSheetDocumentField })
 
     const result = xmlExport({ SpreadSheetDocumentField: xmlData }, false)
 
@@ -20,7 +20,7 @@ describe("exportSpreadSheetDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/spreadSheetDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: minimalSpreadSheetDocumentField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalSpreadSheetDocumentField })
 
     const result = xmlExport({ SpreadSheetDocumentField: xmlData }, false)
 

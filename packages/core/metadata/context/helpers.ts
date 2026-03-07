@@ -1,8 +1,41 @@
-import { ElementType } from "../orchestration"
-import { ConfigurationContext, ContextElementToEnterprise, ContextElementToXML } from "./types"
+import { MetadataItemType } from "../orchestration"
+import {
+  ConfigurationContext,
+  ConfigurationContextWithExportToXML,
+  ContextElementToEnterprise,
+  ContextElementToXML,
+} from "./types"
 
-export const getParentFromContext = (context: ConfigurationContext, itemTypes?: ElementType[]): ContextElementToXML => {
-  const elements = context.elementsTree
+export const getChildContextToXML = (params: {
+  context: ConfigurationContextWithExportToXML
+  itemType: MetadataItemType
+  path: string
+  name: string
+}): ConfigurationContextWithExportToXML => {
+  const { context, itemType, path, name } = params
+  const elements = context.exportToXML.itemsTree
+
+  return {
+    ...params.context,
+    exportToXML: {
+      ...params.context.exportToXML,
+      itemsTree: [
+        ...elements,
+        {
+          name: name,
+          itemType: itemType,
+          path: path,
+        },
+      ],
+    },
+  }
+}
+
+export const getParentFromContext = (
+  context: ConfigurationContextWithExportToXML,
+  itemTypes?: MetadataItemType[]
+): ContextElementToXML => {
+  const elements = context.exportToXML.itemsTree
   if (!elements || elements.length === 0) throw new Error("Parent element not found in context")
 
   for (let i = elements.length - 1; i >= 0; i--) {

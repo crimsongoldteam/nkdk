@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportElementToXML, exportPropertyToXML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
@@ -17,13 +17,17 @@ const rule: PropertyRule = {
   yaml: "ОтображениеСтрокиПоиска",
 }
 
-let context: ConfigurationContext
+let context: ConfigurationContextWithExportToXML
 
 describe("SearchStringAddition to XML", () => {
   beforeEach(() => {
     context = {
       ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
+      exportToXML: {
+        itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
+        configDumpInfo: new Map(),
+        version: "2.20",
+      },
     }
   })
   describe("Partial", () => {

@@ -1,3 +1,4 @@
+import { receiveUUID } from "~/metadata/appliedObjects/configDumpInfo/getUUID"
 import {
   MetadataAttribute,
   MetadataAttributes,
@@ -5,31 +6,30 @@ import {
   MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { getChildContextToXML, getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { getUUID } from "../../helpers/uuid"
 import { exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
 import { MetadataAttributeRules } from "./rules"
 
 export const exportMetadataAttributesToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
 
   const result = data.map(
-    (value: MetadataAttribute) =>
-      exportMetadataAttributeToXML(context, value, getDefaultsAttribute(context, value))!
+    (value: MetadataAttribute) => exportMetadataAttributeToXML(context, value, getDefaultsAttribute(context, value))!
   )
 
   return result
 }
 
 export const exportMetadataTabularSectionAttributesToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
@@ -44,14 +44,23 @@ export const exportMetadataTabularSectionAttributesToXML = (
 }
 
 const exportMetadataAttributeToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   data: MetadataAttribute,
   defaults: Partial<MetadataAttribute>
 ): MetadataAttributeXML => {
   const mergedData = { ...defaults, ...data }
 
-  const propertiesFlat = exportPropertiesToXML({
+  const parentPath = getParentFromContext(context, ["MetadataCatalog", "MetadataTabularSection"]).path
+  const path = `${parentPath}.Attribute.${data.name}`
+  const currentContext = getChildContextToXML({
     context,
+    itemType: "MetadataAttribute",
+    path: path,
+    name: data.name,
+  })
+
+  const propertiesFlat = exportPropertiesToXML({
+    context: currentContext,
     metadataItem: mergedData,
     rule: MetadataAttributeRules,
   })
@@ -65,7 +74,7 @@ const exportMetadataAttributeToXML = (
   if (maxValue !== undefined) Properties.MaxValue = maxValue
 
   const result: MetadataAttributeXML = {
-    _uuid: getUUID(context),
+    _uuid: receiveUUID({ context: currentContext, parentPath: parentPath, path: path }),
     Properties: sortObject(Properties),
   }
 

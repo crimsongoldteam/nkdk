@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertyToXML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
@@ -11,9 +11,18 @@ const rule: PropertyRule = { type: "ViewStatusAddition" }
 
 describe("exportViewStatusAdditionToXML", () => {
   it("should return default when data is undefined", () => {
-    const context: ConfigurationContext = {
+    const context: ConfigurationContextWithExportToXML = {
       ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
+      exportToXML: {
+        itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
+        configDumpInfo: new Map(),
+        version: "2.20",
+        context: {
+          forms: [],
+          templates: [],
+          parentName: "",
+        },
+      },
     }
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/minimal.xml")
 
@@ -29,9 +38,18 @@ describe("exportViewStatusAdditionToXML", () => {
   })
 
   it("should return all fields to XML", () => {
-    const context: ConfigurationContext = {
+    const context: ConfigurationContextWithExportToXML = {
       ...mockContext,
-      elementsTree: [{ name: "КакойТоЭлемент", itemType: "Table" }],
+      exportToXML: {
+        itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
+        configDumpInfo: new Map(),
+        version: "2.20",
+        context: {
+          forms: [],
+          templates: [],
+          parentName: "",
+        },
+      },
     }
     const expectedResult = readXMLFileAsString("forms/viewStatusAddition/full.xml").trimEnd()
 

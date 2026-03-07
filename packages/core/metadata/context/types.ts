@@ -1,8 +1,13 @@
+import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
-import { ElementType } from "../orchestration"
+import { ElementType, MetadataItemType } from "../orchestration"
 
-export type ContextElementToXML = { name: string; itemType: ElementType }
+export type ContextElementToXML = {
+  name: string
+  itemType: MetadataItemType
+  path: string
+}
 export type ContextElementToEnterprise = { itemType: ElementType; dataPath: string | undefined }
 
 export interface ConfigurationContext {
@@ -13,10 +18,27 @@ export interface ConfigurationContext {
   allElements?: FormElementsYAML
   enterprise?: EnterpriseContext
 
-  elementsTree?: Array<ContextElementToXML>
+  // elementsTree?: Array<ContextElementToXML>
 
   exportToYAML?: FormExportToYAMLContext
   // formAttributeImportFromYAML?: FormAttributeImportFromYAMLContext
+  exportToXML?: ToXMLConfigurationContext
+}
+
+export type ToXMLConfigurationContext = {
+  readonly configDumpInfo: ConfigDumpInfo
+  readonly version: string
+  readonly itemsTree: ContextElementToXML[]
+  context?: {
+    forms: string[]
+    templates: string[]
+    parentName: string
+  }
+}
+
+/** Контекст с обязательным exportToXML для функций экспорта в XML */
+export type ConfigurationContextWithExportToXML = ConfigurationContext & {
+  exportToXML: ToXMLConfigurationContext
 }
 
 export interface FormExportToYAMLContext {

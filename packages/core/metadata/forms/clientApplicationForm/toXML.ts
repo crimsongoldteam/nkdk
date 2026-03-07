@@ -1,6 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { receiveUUID } from "~/metadata/appliedObjects/configDumpInfo/getUUID"
+import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { exportEventsToXML } from "~/metadata/orchestration/event"
 import { PropertyRule } from "../elements/calendarField/rules"
@@ -8,7 +9,7 @@ import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
 export const exportClientApplicationFormToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
@@ -49,7 +50,7 @@ export const exportClientApplicationFormToXML = (
 }
 
 export const exportFormMetadataToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: ClientApplicationForm,
   name: string
@@ -60,6 +61,10 @@ export const exportFormMetadataToXML = (
     rule: ClientApplicationFormRules,
     tag: [FormRulesTags.Metadata],
   })
+
+  const parentPath = getParentFromContext(context, ["MetadataCatalog"]).path
+  const path = `${parentPath}.Form.${name}`
+  const uuid = receiveUUID({ context, parentPath, path })
 
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",
@@ -81,7 +86,7 @@ export const exportFormMetadataToXML = (
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.20",
     Form: {
-      _uuid: getUUID(context),
+      _uuid: uuid,
       Properties: sortObject({
         FormType: "Managed",
         Name: name,

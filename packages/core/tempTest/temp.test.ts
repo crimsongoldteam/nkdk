@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/fromXML"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToNKDK } from "~/metadata/forms/clientApplicationForm/toNKDK"
@@ -22,10 +22,15 @@ vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
 }))
 
-const configurationContext: ConfigurationContext = {
+const configurationContext: ConfigurationContextWithExportToXML = {
   version: "2.20",
   defaultLanguage: "ru",
   exportToYAML: { toTyped: false },
+  exportToXML: {
+    itemsTree: [],
+    configDumpInfo: new Map(),
+    version: "2.20",
+  },
 }
 
 // const mockMetadataCatalogContext = {

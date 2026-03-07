@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToXML } from "~/metadata/orchestration"
 import { fullTextDocumentField, minimalTextDocumentField } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportTextDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/textDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: fullTextDocumentField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullTextDocumentField })
 
     const result = xmlExport({ TextDocumentField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportTextDocumentFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/textDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: minimalTextDocumentField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalTextDocumentField })
 
     const result = xmlExport({ TextDocumentField: xmlData }, false)
 

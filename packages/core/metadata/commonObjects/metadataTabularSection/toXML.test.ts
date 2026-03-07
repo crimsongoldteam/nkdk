@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { fullTabularSections, minimalTabularSections } from "~/tests/fixtures/metadataTabularSection/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataTabularSectionsToXML } from "./toXML"
@@ -10,9 +10,10 @@ vi.mock("uuid", () => ({
 }))
 
 const mockContextWithParent = {
-  ...mockContext,
-  context: {
-    parentName: "Контрагенты",
+  ...mockContextToXML(),
+  exportToXML: {
+    ...mockContextToXML().exportToXML,
+    itemsTree: [{ name: "Контрагенты", itemType: "MetadataCatalog", path: "Catalog.Контрагенты" }],
   },
 }
 

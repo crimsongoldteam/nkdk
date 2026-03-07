@@ -1,5 +1,11 @@
-export type ConfigDumpInfoIdMap = Map<string, Map<string, string>>
-export type ConfigDumpInfoConfigVersionMap = Map<string, string>
+export type ConfigDumpInfo = Map<
+  string,
+  {
+    children: Map<string, string>
+    id: string
+    configVersion: string
+  }
+>
 
 //#region XML
 

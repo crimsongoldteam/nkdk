@@ -1,21 +1,22 @@
+import { receiveUUID } from "~/metadata/appliedObjects/configDumpInfo/getUUID"
+import { getChildContextToXML, getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { mergeIgnoringUndefined, sortObject } from "~/metadata/helpers/compactObject"
+import { exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
+import { exportInternalInfoToXML } from "../internalInfo/toXML"
 import { MetadataAttributesXML } from "../metadataAttribute/types"
+import { getDefaults } from "./defaults"
+import { MetadataTabularSectionRules } from "./rules"
 import {
   MetadataTabularSection,
   MetadataTabularSections,
   MetadataTabularSectionsXML,
   MetadataTabularSectionXML,
 } from "./types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { mergeIgnoringUndefined, sortObject } from "~/metadata/helpers/compactObject"
-import { exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
-import { getUUID } from "../../helpers/uuid"
-import { exportInternalInfoToXML } from "../internalInfo/toXML"
-import { getDefaults } from "./defaults"
-import { MetadataTabularSectionRules } from "./rules"
 
 export const exportMetadataTabularSectionsToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
@@ -25,23 +26,34 @@ export const exportMetadataTabularSectionsToXML = (
 }
 
 export const exportMetadataTabularSectionToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)
   const mergedData = mergeIgnoringUndefined(data, defaults)
 
-  const parentName = (context.context as { parentName?: string }).parentName ?? ""
+  const parent = getParentFromContext(context, ["MetadataCatalog"])
+  const parentPath = parent.path
+  const parentName = parent.name
+
+  const path = `${parentPath}.TabularSection.${mergedData.name}`
+
+  const currentContext = getChildContextToXML({
+    context,
+    itemType: "MetadataTabularSection",
+    path: path,
+    name: mergedData.name,
+  })
 
   const exported = exportPropertiesToXML({
-    context,
+    context: currentContext,
     metadataItem: mergedData,
     rule: MetadataTabularSectionRules,
   }) as { Properties?: MetadataTabularSectionXML["Properties"]; ChildObjects?: { Attribute?: MetadataAttributesXML } }
 
   const result: MetadataTabularSectionXML = {
-    _uuid: getUUID(context),
+    _uuid: receiveUUID({ context: currentContext, parentPath: parentPath, path: path }),
     InternalInfo: exportInternalInfoToXML(context, [
       { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
       { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
@@ -50,10 +62,7 @@ export const exportMetadataTabularSectionToXML = (
   }
 
   const attributes = exported.ChildObjects?.Attribute
-  if (
-    attributes != null &&
-    (Array.isArray(attributes) ? attributes.length > 0 : true)
-  ) {
+  if (attributes != null && (Array.isArray(attributes) ? attributes.length > 0 : true)) {
     result.ChildObjects = { Attribute: attributes }
   }
 

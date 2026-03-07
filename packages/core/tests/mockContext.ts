@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext } from "../metadata/context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../metadata/context/types"
 
 export const mockContext: ConfigurationContext = {
   version: "2.20",
@@ -25,6 +25,17 @@ export const mockContextToEnterprise: ConfigurationContext = {
     attributes: {},
     elementsTree: [],
   },
+}
+
+export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
+  return {
+    ...mockContext,
+    exportToXML: {
+      itemsTree: [],
+      configDumpInfo: new Map(),
+      version: "2.20",
+    },
+  }
 }
 
 export const mockRule: PropertyRule = {

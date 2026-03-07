@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToXML } from "~/metadata/orchestration"
 import { fullCheckBoxField, minimalCheckBoxField } from "~/tests/fixtures/forms/checkBoxField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportCheckBoxFieldToXML", () => {
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/checkBoxField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: fullCheckBoxField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullCheckBoxField })
 
     const result = xmlExport({ CheckBoxField: xmlData }, false)
 
@@ -17,7 +17,7 @@ describe("exportCheckBoxFieldToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/checkBoxField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContext, element: minimalCheckBoxField })
+    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalCheckBoxField })
 
     const result = xmlExport({ CheckBoxField: xmlData }, false)
 

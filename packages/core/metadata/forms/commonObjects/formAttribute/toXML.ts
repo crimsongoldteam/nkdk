@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getElementId } from "~/metadata/helpers/getElementId"
@@ -17,7 +17,7 @@ import {
 } from "./types"
 
 export const exportFormAttributesToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: FormAttributes | undefined
 ): { Attribute: ElementXML[] } | undefined => {
@@ -29,7 +29,7 @@ export const exportFormAttributesToXML = (
 }
 
 export const exportFormAttributeColumnToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   data: FormAttributeColumn | undefined
 ): FormAttributeColumnXML | undefined => {
   if (!data) return undefined
@@ -40,7 +40,7 @@ export const exportFormAttributeColumnToXML = (
 }
 
 const exportFormAttributeToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   data: FormAttribute
 ): ElementXML => {
@@ -112,7 +112,7 @@ const exportFormAttributeToXML = (
 // }
 
 const exportFormAttributeColumnsToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
   columns: FormAttributeColumns
 ): FormAttributeColumnsXML | undefined => {
@@ -128,7 +128,7 @@ const exportFormAttributeColumnsToXML = (
 }
 
 const exportColumnsToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   columns: FormAttributeColumn[]
 ): { Column: FormAttributeColumnXML[] } | undefined => {
   const result = columns.map((column) => {
@@ -153,7 +153,7 @@ const exportColumnsToXML = (
 }
 
 const exportAdditionalColumnsToXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   additionalColumns: FormAttributeAdditionalColumn[]
 ): { AdditionalColumns: FormAttributeAdditionalColumnXML[] } | undefined => {
   const result: FormAttributeAdditionalColumnXML[] = additionalColumns.map((additionalColumn) => {

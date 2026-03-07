@@ -1,40 +1,28 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ConfigDumpInfoConfigVersionMap, ConfigDumpInfoIdMap, ConfigDumpInfoXML } from "./types"
+import { ConfigDumpInfo, ConfigDumpInfoXML } from "./types"
 
 export const importConfigDumpInfoFromXML = (params: {
   context: ConfigurationContext
   xml: ConfigDumpInfoXML
-}): { idMap: ConfigDumpInfoIdMap; configVersionMap: ConfigDumpInfoConfigVersionMap } => {
+}): ConfigDumpInfo => {
   const { xml } = params
-  const idMap: ConfigDumpInfoIdMap = new Map()
-  const configVersionMap: ConfigDumpInfoConfigVersionMap = new Map()
+  const idMap: ConfigDumpInfo = new Map()
 
   const rootList = toList(xml.ConfigVersions?.Metadata)
   for (const root of rootList) {
-    const rootInner = ensureMap(idMap, "") as Map<string, string>
-    rootInner.set(root._name, root._id)
-    if (root._configVersion !== undefined) {
-      configVersionMap.set(root._name, root._configVersion)
-    }
+    const rootInner = { children: new Map<string, string>(), id: root._id, configVersion: root._configVersion }
+
+    idMap.set(root._name, rootInner)
+
     const children = toList(root.Metadata)
     for (const child of children) {
-      const childInner = ensureMap(idMap, root._name) as Map<string, string>
-      childInner.set(child._name, child._id)
+      rootInner.children.set(child._name, child._id)
     }
   }
-  return { idMap, configVersionMap }
+  return idMap
 }
 
 function toList<T>(v: T | T[] | undefined): T[] {
   if (v === undefined) return []
   return Array.isArray(v) ? v : [v]
-}
-
-function ensureMap<K, V>(map: Map<K, V>, key: K): V {
-  let inner = map.get(key)
-  if (inner === undefined) {
-    inner = new Map() as V
-    map.set(key, inner)
-  }
-  return inner
 }

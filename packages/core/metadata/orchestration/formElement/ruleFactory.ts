@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   ElementRule,
@@ -35,7 +35,7 @@ export const clearElementRulesRegistry = (): void => {
 }
 
 type ToXMLFn<T extends BaseElement> = (
-  context: ConfigurationContext,
+  context: ConfigurationContextWithExportToXML,
   element: T | undefined
 ) => { id: string; name: string }
 
@@ -114,7 +114,7 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
     propertyType,
     "exportToXML",
     (
-      context: ConfigurationContext,
+      context: ConfigurationContextWithExportToXML,
       _rule: PropertyRule,
       value: ToMetadata<Rule["itemType"]> | undefined
     ): ElementXML => {

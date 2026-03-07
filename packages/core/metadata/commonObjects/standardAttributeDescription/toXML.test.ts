@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { StandardAttributeDescriptionPropertyRule } from "~/metadata/orchestration"
 import { all, minimal, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportStandardAttributeDescriptionsToXML } from "./toXML"
@@ -14,7 +14,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     }
     const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
 
-    const result = exportStandardAttributeDescriptionsToXML(mockContext, rule, undefined)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, undefined)
     const xmlString = xmlExport({ StandardAttributes: result }, false)
     expect(xmlString).toEqual(expectedXml)
   })
@@ -26,7 +26,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     }
     const expectedXml = readXMLFileAsString("standartAttributeDescription/all.xml")
 
-    const result = exportStandardAttributeDescriptionsToXML(mockContext, rule, all)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, all)
     const xmlString = xmlExport({ StandardAttributes: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -38,7 +38,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName"],
     }
-    const result = exportStandardAttributeDescriptionsToXML(mockContext, rule, minimal)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, minimal)
 
     const xmlString = xmlExport({ StandardAttributes: result }, false)
     expect(xmlString).toEqual(expectedXml)
@@ -51,7 +51,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName", "Predefined"],
     }
-    const result = exportStandardAttributeDescriptionsToXML(mockContext, rule, multiple)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, multiple)
     const xmlString = xmlExport({ StandardAttributes: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -64,7 +64,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       type: "StandardAttributeDescription",
       standartAttributeNames: ["PredefinedDataName"],
     }
-    const result = exportStandardAttributeDescriptionsToXML(mockContext, rule, undefined)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, undefined)
     const xmlString = xmlExport({ StandardAttributes: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

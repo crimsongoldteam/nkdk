@@ -2,7 +2,7 @@ import { getParentFromContext } from "~/metadata/context/helpers"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../../context/types"
 import { getElementId } from "../../../helpers/getElementId"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { getAutoCommandBarName } from "./helper"
@@ -52,7 +52,7 @@ registerElementAsType({
 registerElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
-  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
     const parentTable = getParentFromContext(context, ["Table"])
     const elementId = getElementId(context)
     const elementName = getAutoCommandBarName(parentTable)

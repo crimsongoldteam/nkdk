@@ -3,20 +3,13 @@ import {
   MetadataCatalog,
   MetadataCatalogXML,
 } from "~/metadata/appliedObjects/metadataCatalog/types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/toXML"
-import { getUUID } from "../../helpers/uuid"
+import { getChildContextToXML } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
+import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/toXML"
+import { receiveUUID } from "../configDumpInfo/getUUID"
 import { getDefaults } from "./defaults"
 import { MetadataCatalogRules } from "./rules"
-
-export interface MetadataCatalogContext extends ConfigurationContext {
-  context: {
-    forms: string[]
-    templates: string[]
-    parentName: string
-  }
-}
 
 const ROOT_XML_ATTRS: Omit<MetadataCatalogXML, "Catalog"> = {
   _xmlns: "http://v8.1c.ru/8.3/MDClasses",
@@ -40,10 +33,18 @@ const ROOT_XML_ATTRS: Omit<MetadataCatalogXML, "Catalog"> = {
 }
 
 export const exportMetadataCatalogToXML = (
-  context: MetadataCatalogContext,
+  context: ConfigurationContextWithExportToXML,
   data: MetadataCatalog | undefined
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined
+
+  const parentPath = "Catalog.${data.name}"
+  const currentContext = getChildContextToXML({
+    context,
+    itemType: "MetadataCatalog",
+    path: parentPath,
+    name: data.name,
+  })
 
   const defaults = getDefaults(data, context)
   const mergedData = { ...defaults, ...data, itemType: "MetadataCatalog" as const }
@@ -57,22 +58,22 @@ export const exportMetadataCatalogToXML = (
   ])
 
   const flat = exportPropertiesToXML({
-    context,
+    context: currentContext,
     metadataItem: mergedData,
     rule: MetadataCatalogRules,
   })
 
   const catalogFromRules = flat.Catalog as MetadataCatalogXML["Catalog"]
   const childObjects = { ...catalogFromRules.ChildObjects }
-  const forms = getFormsFromContext(context)
-  const templates = getTemplatesFromContext(context)
+  const forms = getFormsFromContext(currentContext)
+  const templates = getTemplatesFromContext(currentContext)
   if (forms) childObjects.Form = forms
   if (templates) childObjects.Template = templates
 
   const result: MetadataCatalogXML = {
     ...ROOT_XML_ATTRS,
     Catalog: {
-      _uuid: getUUID(context),
+      _uuid: receiveUUID({ context: currentContext, parentPath: parentPath }),
       InternalInfo: internalInfo,
       Properties: catalogFromRules.Properties,
       ...(Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),
@@ -82,12 +83,12 @@ export const exportMetadataCatalogToXML = (
   return result
 }
 
-const getFormsFromContext = (context: MetadataCatalogContext): string[] | undefined => {
-  if (!context.context) throw new Error("Context is not defined")
-  return context.context.forms.length > 0 ? context.context.forms : undefined
+const getFormsFromContext = (context: ConfigurationContextWithExportToXML): string[] | undefined => {
+  const ctx = context.exportToXML.context
+  return ctx && ctx.forms.length > 0 ? ctx.forms : undefined
 }
 
-const getTemplatesFromContext = (context: MetadataCatalogContext): string[] | undefined => {
-  if (!context.context) throw new Error("Context is not defined")
-  return context.context.templates.length > 0 ? context.context.templates : undefined
+const getTemplatesFromContext = (context: ConfigurationContextWithExportToXML): string[] | undefined => {
+  const ctx = context.exportToXML.context
+  return ctx && ctx.templates.length > 0 ? ctx.templates : undefined
 }

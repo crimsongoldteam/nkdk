@@ -1,10 +1,10 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getViewStatusAdditionName } from "./helper"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 
 export const ViewStatusAdditionRules = {
   itemType: "ViewStatusAddition",
@@ -60,7 +60,7 @@ export const ViewStatusAdditionRules = {
 registerElementAsType({
   propertyType: "ViewStatusAddition",
   elementRule: ViewStatusAdditionRules,
-  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
     const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])
     const id = getElementId(context)
     const name = getViewStatusAdditionName(parent)

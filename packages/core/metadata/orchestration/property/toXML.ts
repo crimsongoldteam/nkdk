@@ -1,11 +1,11 @@
 import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
 import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <T extends MetadataItem>(params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   metadataItem: T | undefined
   rule: MetadataItemRule
   tag?: string[]
@@ -17,9 +17,9 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     if (tag && (!ruleProp.tag || !tag.includes(ruleProp.tag))) continue
 
-    const currentContext: ConfigurationContext = {
+    const currentContext: ConfigurationContextWithExportToXML = {
       ...context,
-      elementsTree: context.elementsTree ? [...context.elementsTree] : undefined,
+      exportToXML: { ...context.exportToXML },
     }
 
     const value = metadataItem === undefined ? undefined : (metadataItem as any)[key]
@@ -59,7 +59,7 @@ const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any
 }
 
 export const exportPropertyToXML = (params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: any
   metadataItem?: any

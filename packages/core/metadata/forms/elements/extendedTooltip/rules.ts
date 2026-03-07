@@ -1,11 +1,11 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 export type { ElementRule, PropertyRule }
 
 export const ExtendedTooltipRules = {
@@ -84,7 +84,7 @@ export const ExtendedTooltipRules = {
 registerElementAsType({
   propertyType: "ExtendedTooltip",
   elementRule: ExtendedTooltipRules,
-  toXML: (context: ConfigurationContext, _element: BaseElement | undefined) => {
+  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
     const parent = getParentFromContext(context)
     const id = getElementId(context)
     const name = getExtendedTooltipName(parent)
