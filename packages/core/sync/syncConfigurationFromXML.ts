@@ -21,12 +21,16 @@ export const syncConfigurationFromXML = async (params: {
 
   for (const entry of xmlFiles) {
     const name = basename(entry.name, ".xml")
-    await convertCatalogFromXML({
-      context,
-      inputDir: catalogsPath,
-      name,
-      outputDir,
-    })
+    try {
+      await convertCatalogFromXML({
+        context,
+        inputDir: catalogsPath,
+        name,
+        outputDir,
+      })
+    } catch (err) {
+      console.error(`Ошибка импорта каталога "${name}":`, err)
+    }
 
     const formsDir = join(catalogsPath, name, "Forms")
     if (!fs.existsSync(formsDir)) {
@@ -38,12 +42,16 @@ export const syncConfigurationFromXML = async (params: {
 
     for (const formEntry of formXmlFiles) {
       const formName = basename(formEntry.name, ".xml")
-      await convertFormFromXML({
-        context,
-        inputDir: formsDir,
-        formName,
-        outputDir: join(outputDir, name),
-      })
+      try {
+        await convertFormFromXML({
+          context,
+          inputDir: formsDir,
+          formName,
+          outputDir: join(outputDir, name),
+        })
+      } catch (err) {
+        console.error(`Ошибка импорта формы "${name}/${formName}":`, err)
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/importConfiguration/data"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { syncConfigurationFromXML } from "./syncConfigurationFromXML"
@@ -8,6 +8,12 @@ import { syncConfigurationFromXML } from "./syncConfigurationFromXML"
 describe("sync configuration from xml", () => {
   const inputDir = join(process.cwd(), "tests/fixtures/sync/importConfiguration/input")
   const outputDir = join(process.cwd(), "tests/fixtures/sync/importConfiguration/out")
+
+  beforeEach(() => {
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true })
+    }
+  })
 
   it("should produce catalog and form YAML/nkdk in output dir", async () => {
     fs.mkdirSync(outputDir, { recursive: true })

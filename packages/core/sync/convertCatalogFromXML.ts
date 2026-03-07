@@ -30,7 +30,7 @@ export const convertCatalogFromXML = async (params: {
   fs.writeFileSync(outputFilePath, result, "utf-8")
 }
 
-export const readCatalogFromXML = (params: { context: ConfigurationContext; xml: string }): string | undefined => {
+const readCatalogFromXML = (params: { context: ConfigurationContext; xml: string }): string | undefined => {
   const { context, xml } = params
 
   const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xml)

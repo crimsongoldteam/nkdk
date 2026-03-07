@@ -7,6 +7,7 @@ import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
 import { activateYAML } from "./yaml/node/yamlClientMain.js"
+import { syncConfigurationFromXML } from "@nakidka/core"
 
 const languageClients: BaseLanguageClient[] = []
 let sseServer: SseServerHandle | undefined
@@ -23,6 +24,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   sseServer = startSseServer(formPreviewDir)
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
+  context.subscriptions.push(
+    vscode.commands.registerCommand("nkdk.importConfigurationFromXml", () => runImportConfigurationFromXml())
+  )
 }
 
 // This function is called when the extension is deactivated.
@@ -62,4 +66,36 @@ async function startNKDKLanguageClient(context: vscode.ExtensionContext): Promis
   // Start the client. This will also launch the server
   await client.start()
   return client
+}
+
+async function runImportConfigurationFromXml(): Promise<void> {
+  const selected = await vscode.window.showOpenDialog({
+    canSelectFolders: true,
+    canSelectMany: false,
+    title: "Выберите каталог с конфигурацией (должна быть подпапка Catalogs)",
+  })
+  if (!selected?.length) {
+    return
+  }
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]
+  if (!workspaceFolder) {
+    await vscode.window.showErrorMessage("Откройте папку проекта (workspace) для импорта конфигурации.")
+    return
+  }
+  const inputDir = selected[0].fsPath
+  const outputDir = workspaceFolder.uri.fsPath
+  const context = { defaultLanguage: "ru", exportToYAML: { toTyped: false } }
+  try {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Импорт конфигурации...",
+      },
+      () => syncConfigurationFromXML({ context, inputDir, outputDir })
+    )
+    await vscode.window.showInformationMessage("Конфигурация импортирована.")
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    await vscode.window.showErrorMessage(`Ошибка импорта конфигурации: ${message}`)
+  }
 }

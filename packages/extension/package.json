@@ -11,6 +11,12 @@
     "Programming Languages"
   ],
   "contributes": {
+    "commands": [
+      {
+        "command": "nkdk.importConfigurationFromXml",
+        "title": "nkdk: Импорт конфигурации из XML"
+      }
+    ],
     "languages": [
       {
         "id": "nkdk",
