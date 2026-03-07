@@ -13,7 +13,7 @@ import { mockContext, mockRule } from "~/tests/mockContext"
 import { importMetadataAttributesFromYAML } from "./fromYAML"
 
 describe("importMetadataAttributeFromYAML", () => {
-  it("shouldreturn undefined when data is undefined", () => {
+  it("should return undefined when data is undefined", () => {
     const result = importMetadataAttributesFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })

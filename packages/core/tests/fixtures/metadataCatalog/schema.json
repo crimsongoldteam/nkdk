@@ -1,0 +1,686 @@
+{
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "ДополнительныеИндексы": {
+      "type": "object",
+      "properties": {
+        "ДополнительныеПоля": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Имя": {
+          "type": "string"
+        },
+        "ИндексируемыеПоля": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Таблица": {
+          "type": "string"
+        }
+      }
+    },
+    "Реквизиты": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "Автонумерация": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "ДополнительнаяФормаДляВыбора": {
+      "type": "string"
+    },
+    "ДополнительнаяФормаДляВыбораГруппы": {
+      "type": "string"
+    },
+    "ДополнительнаяФормаГруппы": {
+      "type": "string"
+    },
+    "ДополнительнаяФормаСписка": {
+      "type": "string"
+    },
+    "ДополнительнаяФормаОбъекта": {
+      "type": "string"
+    },
+    "ВводитсяНаОсновании": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Характеристики": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ВидыХарактеристик": {
+            "type": "string"
+          },
+          "ЗначениеОтбораВидов": {
+            "$id": "T0",
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                }
+              },
+              {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "Представление",
+                      "Значение"
+                    ],
+                    "properties": {
+                      "Представление": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "object",
+                            "patternProperties": {
+                              "^(.*)$": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "Значение": {
+                        "$ref": "T0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          },
+          "ЗначенияХарактеристик": {
+            "type": "string"
+          },
+          "ПолеВида": {
+            "type": "string"
+          },
+          "ПолеЗначения": {
+            "type": "string"
+          },
+          "ПолеИспользованияМножественныхЗначений": {
+            "type": "string"
+          },
+          "ПолеКлюча": {
+            "type": "string"
+          },
+          "ПолеКлючаМножественныхЗначений": {
+            "type": "string"
+          },
+          "ПолеОбъекта": {
+            "type": "string"
+          },
+          "ПолеОтбораВидов": {
+            "type": "string"
+          },
+          "ПолеПорядкаМножественныхЗначений": {
+            "type": "string"
+          },
+          "ПолеПутиКДанным": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "КонтрольУникальности": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "РежимПолученияДанныхВыбораПриВводеПоСтроке": {
+      "anyOf": [
+        {
+          "const": "Непосредственно",
+          "type": "string"
+        },
+        {
+          "const": "Фоновый",
+          "type": "string"
+        }
+      ]
+    },
+    "ИсторияВыбораПриВводе": {
+      "anyOf": [
+        {
+          "const": "Авто",
+          "type": "string"
+        },
+        {
+          "const": "НеИспользовать",
+          "type": "string"
+        }
+      ]
+    },
+    "СпособВыбора": {
+      "anyOf": [
+        {
+          "const": "БыстрыйВыбор",
+          "type": "string"
+        },
+        {
+          "const": "ИзФормы",
+          "type": "string"
+        },
+        {
+          "const": "ОбоимиСпособами",
+          "type": "string"
+        }
+      ]
+    },
+    "ДопустимаяДлинаКода": {
+      "anyOf": [
+        {
+          "const": "Переменная",
+          "type": "string"
+        },
+        {
+          "const": "Фиксированная",
+          "type": "string"
+        }
+      ]
+    },
+    "СерииКодов": {
+      "anyOf": [
+        {
+          "const": "ВоВсемСправочнике",
+          "type": "string"
+        },
+        {
+          "const": "ВПределахПодчинения",
+          "type": "string"
+        },
+        {
+          "const": "ВПределахПодчиненияВладельцу",
+          "type": "string"
+        }
+      ]
+    },
+    "ТипКода": {
+      "anyOf": [
+        {
+          "const": "Строка",
+          "type": "string"
+        },
+        {
+          "const": "Число",
+          "type": "string"
+        }
+      ]
+    },
+    "Комментарий": {
+      "type": "string"
+    },
+    "СозданиеПриВводе": {
+      "anyOf": [
+        {
+          "const": "Авто",
+          "type": "string"
+        },
+        {
+          "const": "Использовать",
+          "type": "string"
+        },
+        {
+          "const": "НеИспользовать",
+          "type": "string"
+        }
+      ]
+    },
+    "ИсторияДанных": {
+      "anyOf": [
+        {
+          "const": "Использовать",
+          "type": "string"
+        },
+        {
+          "const": "НеИспользовать",
+          "type": "string"
+        }
+      ]
+    },
+    "РежимУправленияБлокировкойДанных": {
+      "anyOf": [
+        {
+          "const": "Автоматический",
+          "type": "string"
+        },
+        {
+          "const": "АвтоматическийИУправляемый",
+          "type": "string"
+        },
+        {
+          "const": "Управляемый",
+          "type": "string"
+        }
+      ]
+    },
+    "ПоляБлокировкиДанных": {
+      "type": "string"
+    },
+    "ОсновнаяФормаДляВыбора": {
+      "type": "string"
+    },
+    "ОсновнаяФормаДляВыбораГруппы": {
+      "type": "string"
+    },
+    "ОсновнаяФормаГруппы": {
+      "type": "string"
+    },
+    "ОсновнаяФормаСписка": {
+      "type": "string"
+    },
+    "ОсновнаяФормаОбъекта": {
+      "type": "string"
+    },
+    "ОсновноеПредставление": {
+      "anyOf": [
+        {
+          "const": "ВВидеКода",
+          "type": "string"
+        },
+        {
+          "const": "ВВидеНаименования",
+          "type": "string"
+        }
+      ]
+    },
+    "СпособРедактирования": {
+      "anyOf": [
+        {
+          "const": "ВДиалоге",
+          "type": "string"
+        },
+        {
+          "const": "ВСписке",
+          "type": "string"
+        },
+        {
+          "const": "ОбоимиСпособами",
+          "type": "string"
+        }
+      ]
+    },
+    "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "Пояснение": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "РасширенноеПредставлениеСписка": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "РасширенноеПредставлениеОбъекта": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ГруппыСверху": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "ПолнотекстовыйПоиск": {
+      "anyOf": [
+        {
+          "const": "Использовать",
+          "type": "string"
+        },
+        {
+          "const": "НеИспользовать",
+          "type": "string"
+        }
+      ]
+    },
+    "ПолнотекстовыйПоискПриВводеПоСтроке": {
+      "anyOf": [
+        {
+          "const": "Использовать",
+          "type": "string"
+        },
+        {
+          "const": "НеИспользовать",
+          "type": "string"
+        }
+      ]
+    },
+    "Иерархический": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "ВидИерархии": {
+      "anyOf": [
+        {
+          "const": "ИерархияГруппИЭлементов",
+          "type": "string"
+        },
+        {
+          "const": "ИерархияЭлементов",
+          "type": "string"
+        }
+      ]
+    },
+    "ВключатьСправкуВСодержание": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "ВводПоСтроке": {
+      "type": "string"
+    },
+    "ОграничиватьКоличествоУровней": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "ПредставлениеСписка": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ПринадлежностьОбъекта": {
+      "anyOf": [
+        {
+          "const": "Заимствованный",
+          "type": "string"
+        },
+        {
+          "const": "Собственный",
+          "type": "string"
+        }
+      ]
+    },
+    "ПредставлениеОбъекта": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "Владельцы": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Предопределенные": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "type": "object",
+          "required": [
+            "Код",
+            "Наименование",
+            "ЭтоГруппа"
+          ],
+          "properties": {
+            "Код": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "Наименование": {
+              "type": "string"
+            },
+            "ЭтоГруппа": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "ОбновлениеПредопределенныхДанных": {
+      "anyOf": [
+        {
+          "const": "Авто",
+          "type": "string"
+        },
+        {
+          "const": "НеОбновлятьАвтоматически",
+          "type": "string"
+        },
+        {
+          "const": "ОбновлятьАвтоматически",
+          "type": "string"
+        }
+      ]
+    },
+    "БыстрыйВыбор": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "СпособПоискаСтрокиПриВводеПоСтроке": {
+      "anyOf": [
+        {
+          "const": "ЛюбаяЧасть",
+          "type": "string"
+        },
+        {
+          "const": "Начало",
+          "type": "string"
+        }
+      ]
+    },
+    "СтандартныеРеквизиты": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "ИспользованиеПодчинения": {
+      "anyOf": [
+        {
+          "const": "Группам",
+          "type": "string"
+        },
+        {
+          "const": "ГруппамИЭлементам",
+          "type": "string"
+        },
+        {
+          "const": "Элементам",
+          "type": "string"
+        }
+      ]
+    },
+    "Синоним": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ТабличныеЧасти": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "ОбновлятьИсториюДанныхСразуПослеЗаписи": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    },
+    "ИспользоватьСтандартныеКоманды": {
+      "anyOf": [
+        {
+          "const": "Истина",
+          "type": "string"
+        },
+        {
+          "const": "Ложь",
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

@@ -1,9 +1,9 @@
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
-import { PDFDocumentFieldRules } from "./rules"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { PDFDocumentFieldRules } from "./rules"
 
-export type PDFDocumentField = ElementTypeByRule<typeof PDFDocumentFieldRules>
+export type PDFDocumentField = MetadataTypeByRule<typeof PDFDocumentFieldRules>
 
 export type PDFDocumentFieldPartialYAML = YAMLTypeByRule<typeof PDFDocumentFieldRules>
 

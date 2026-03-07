@@ -5,8 +5,8 @@ import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
-  metadataItem: T
   rule: MetadataItemRule
+  metadataItem?: T
 }): TSchema => {
   const { context, metadataItem, rule } = params
 
@@ -21,7 +21,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
     const yamlKey = ruleProp.yaml
     if (!yamlKey) continue
 
-    const value = metadataItem[key]
+    const value = metadataItem ? metadataItem[key] : undefined
 
     const exportedValue = exportPropertyToJSONSchema({
       context,

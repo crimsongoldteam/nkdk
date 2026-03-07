@@ -9,6 +9,7 @@ import {
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
 // import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
+import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import {
@@ -420,6 +421,11 @@ export type MetadataItemTypeRegistry = {
   CommandInterfaceItem: {
     metadata: CommandInterfaceItem
     yaml: CommandInterfaceItemYAML
+  }
+
+  MetadataAttribute: {
+    metadata: MetadataAttribute
+    yaml: MetadataAttributeYAML
   }
 
   //#endregion

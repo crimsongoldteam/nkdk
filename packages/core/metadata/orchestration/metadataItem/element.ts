@@ -8,7 +8,7 @@ type SETypeByName<Name extends string> = `${Name}ToYAML` extends keyof typeof SE
   ? keyof (typeof SE)[`${Name}ToYAML`]
   : unknown
 
-export type ElementTypeByRule<
+export type MetadataTypeByRule<
   Rule extends {
     properties: Record<string, PropertyRule>
     itemType: MetadataItemType

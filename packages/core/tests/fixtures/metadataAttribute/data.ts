@@ -3,6 +3,7 @@ import { MetadataAttributes, MetadataAttributesYAML } from "~/metadata/commonObj
 //#region FullMetadataAttributes
 export const fullMetadataAttributes: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     binaryDataStorageLocationUse: "Use",
     binaryDataStorageLocationUseField: true,
     choiceFoldersAndItems: "Folders",
@@ -96,6 +97,7 @@ export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
 //#region Minimal
 export const minimalMetadataAttributes: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
     synonym: { items: { ru: "" } },
@@ -110,11 +112,13 @@ export const minimalMetadataAttributesYAML: MetadataAttributesYAML = {
 //#region Multiple
 export const multipleMetadataAttributes: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит1",
     synonym: { items: { ru: "N1" } },
     type: { type: ["string"] },
   },
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит2",
     synonym: { items: { ru: "N2" } },
     type: { type: ["string"] },
@@ -125,6 +129,7 @@ export const multipleMetadataAttributes: MetadataAttributes = [
 //#region Short
 export const shortMetadataAttribute: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
     synonym: { items: { ru: "Тестовый реквизит" } },
@@ -139,12 +144,14 @@ export const shortMetadataAttributeYAML: MetadataAttributesYAML = {
 //#region SkipSynonym
 export const skipSynonymFromMetadataAttribute: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит1",
     type: { type: ["string"] },
     comment: "Комментарий к реквизиту",
     synonym: { items: { ru: "Тестовый реквизит 1" } },
   },
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит2",
     type: { type: ["string"] },
     quickChoice: "DontUse",
@@ -161,6 +168,7 @@ export const skipSynonymFromMetadataAttributeYAML: MetadataAttributesYAML = {
 //#region ShortMultilanguage
 export const shortMultilanguageMetadataAttribute: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
     synonym: { items: { ru: "Тестовый реквизит", en: "Test attribute" } },
@@ -175,6 +183,7 @@ export const shortMultilanguageMetadataAttributeYAML: MetadataAttributesYAML = {
 //#region WithMinValue
 export const withMinValueMetadataAttribute: MetadataAttributes = [
   {
+    itemType: "MetadataAttribute",
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
     synonym: { items: { ru: "Тестовый реквизит" } },

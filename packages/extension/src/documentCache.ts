@@ -24,18 +24,11 @@ type NkdkDocumentCache = {
   schema: string
 }
 
+const SchemaMap = {
+  "schema://catalog.json": "schema://catalog.json",
+}
+
 const cache = new Map<string, NkdkDocumentCache>()
-
-// export async function getOrCreateCache(document: TextDocument): Promise<NkdkDocumentCache> {
-//   const uri = document.uri.toString()
-//   const canonicalUri = getCanonicalUri(uri)
-
-//   const isYAML = isYAMLDocument(document)
-//   const documentYAML = isYAML ? document : undefined
-//   const documentNKDK = isYAML ? undefined : document
-
-//   return getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
-// }
 
 export const getCanonicalUri = (uri: string): string => {
   return uri.replace(/\.(yaml|nkdk)$/i, "")
@@ -54,6 +47,7 @@ export const getFormFromCache = async (document: TextDocument): Promise<ClientAp
 }
 
 export const getJSONSchemaUri = (uri: string): string => {
+  if (!isFormUri(uri)) return `schema://catalog.json`
   const canonicalUri = getCanonicalUri(uri)
   return `schema://${canonicalUri}.json`
 }
@@ -65,7 +59,13 @@ export const getJSONSchema = async (schemaUri: string): Promise<string> => {
   return entry.schema
 }
 
-export const getOrCreateCacheByCanonicalUri = async (params: {
+const isFormUri = (uri: string): boolean => {
+  if (uri.endsWith(".nkdk")) return true
+  if (uri.endsWith(".yaml")) return uri.includes("/Формы/")
+  return false
+}
+
+const getOrCreateCacheByCanonicalUri = async (params: {
   canonicalUri: string
   documentNKDK?: TextDocument
   documentYAML?: TextDocument
@@ -183,4 +183,8 @@ const getConfigurationContext = (): ConfigurationContext => {
   return {
     defaultLanguage: "ru",
   }
+}
+
+const getCatalogSchema = (): string => {
+  return `schema://catalog.json`
 }

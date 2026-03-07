@@ -2,7 +2,7 @@ import { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/
 
 //#region MetadataCatalog
 
-export const full: MetadataCatalog = {
+export const full = {
   autonumbering: false,
   auxiliaryChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбора",
   auxiliaryFolderChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбораГруппы",
@@ -91,6 +91,7 @@ export const full: MetadataCatalog = {
     {
       attributes: [
         {
+          itemType: "MetadataAttribute",
           name: "РеквизитТабличнойЧасти",
           synonym: {
             items: {
@@ -114,6 +115,7 @@ export const full: MetadataCatalog = {
   useStandardCommands: false,
   attributes: [
     {
+      itemType: "MetadataAttribute",
       name: "РеквизитОбъекта",
       synonym: { items: { ru: "Реквизит объекта" } },
       type: {
@@ -122,7 +124,7 @@ export const full: MetadataCatalog = {
     },
   ],
   itemType: "MetadataCatalog",
-}
+} satisfies MetadataCatalog
 
 export const minimal: MetadataCatalog = {
   name: "Контрагенты",
@@ -134,6 +136,7 @@ export const withAttributesCatalog: MetadataCatalog = {
   synonym: { items: { ru: "Контрагенты" } },
   attributes: [
     {
+      itemType: "MetadataAttribute",
       name: "РеквизитОбъекта",
       synonym: { items: { ru: "Реквизит объекта" } },
       type: {

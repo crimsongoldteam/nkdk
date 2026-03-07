@@ -1,61 +1,21 @@
 import { Type } from "@sinclair/typebox"
 import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataSimpleValueXML,
-  MetadataValue,
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
-import {
-  ChoiceParameterLinks,
-  ChoiceParameterLinksXML,
-  ChoiceParameterLinksYAML,
-} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
+import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataNameYAML } from "../metadataName/types"
-import { ChoiceParameters, ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
+import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
+import { MetadataAttributeRules } from "./rules"
 
-export interface MetadataAttribute {
-  binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
-  binaryDataStorageLocationUseField?: boolean
-  choiceFoldersAndItems?: SE.FoldersAndItemsUse
-  choiceForm?: string
-  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  choiceParameterLinks?: ChoiceParameterLinks
-  choiceParameters?: ChoiceParameters
-  comment?: string
-  createOnInput?: SE.CreateOnInput
-  dataHistory?: SE.DataHistoryUse
-  editFormat?: I8nText
-  extendedEdit?: boolean
-  fillChecking?: SE.FillChecking
-  fillFromFillingValue?: boolean
-  fillValue?: MetadataValue
-  format?: I8nText
-  fullTextSearch?: SE.UseFullTextSearch
-  indexing?: SE.Indexing
-  linkByType?: TypeLink
-  markNegatives?: boolean
-  mask?: string
-  maxValue?: number
-  minValue?: number
-  multiLine?: boolean
-  name: string
-  objectBelonging?: SE.ObjectBelonging
-  passwordMode?: boolean
-  quickChoice?: SE.UseQuickChoice
-  synonym: I8nText
-  toolTip?: I8nText
-  type: TypeDescription
-  use?: SE.AttributeUse
-}
+export type MetadataAttribute = MetadataTypeByRule<typeof MetadataAttributeRules>
 
 export interface MetadataAttributeXML {
   _uuid: string
