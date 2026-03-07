@@ -21,7 +21,12 @@ import {
   MetadataAttributeYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "~/metadata/commonObjects/metadataCommandGroup/types"
-import { MetadataField, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
+import {
+  MetadataField,
+  MetadataFields,
+  MetadataFieldsYAML,
+  MetadataFieldYAML,
+} from "~/metadata/commonObjects/metadataField/types"
 import { DataPathYAML, MetadataType, MetadataTypeYAML } from "~/metadata/commonObjects/metadataPath/types"
 import {
   MetadataItemLink,
@@ -42,9 +47,9 @@ import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObject
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predifined/types"
 import {
   StandardAttributeDescription,
-  StandardAttributeDescriptionYAML,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsYAML,
+  StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import {
   TypeDescription,
@@ -253,6 +258,11 @@ export type PropertyTypeRegistry = {
     item: MetadataField
     enterprise: string
     yaml: MetadataFieldYAML
+  }
+  MetadataFields: {
+    item: MetadataFields
+    enterprise: string
+    yaml: MetadataFieldsYAML
   }
   MetadataItemLink: {
     item: MetadataItemLink
@@ -476,6 +486,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataAttribute: "MetadataAttribute",
   MetadataCommandGroup: "MetadataCommandGroup",
   MetadataField: "MetadataField",
+  MetadataFields: "MetadataFields",
   MetadataItemLink: "MetadataItemLink",
   MetadataTabularSections: "MetadataTabularSections",
   MetadataValue: "MetadataValue",

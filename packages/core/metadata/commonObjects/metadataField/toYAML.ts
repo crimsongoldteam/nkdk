@@ -25,3 +25,4 @@ export const exportMetadataFieldToYAML = (
 }
 
 registerTypeRule("MetadataField", "exportToYAML", exportMetadataFieldsToYAML)
+registerTypeRule("MetadataFields", "exportToYAML", exportMetadataFieldsToYAML)

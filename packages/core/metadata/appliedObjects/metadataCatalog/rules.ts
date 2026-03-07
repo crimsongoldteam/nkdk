@@ -141,7 +141,7 @@ export const MetadataCatalogRules = {
     },
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataField",
+      type: "MetadataFields",
       xmlParents: catalogProperties,
     },
     defaultChoiceForm: {
@@ -251,7 +251,7 @@ export const MetadataCatalogRules = {
     },
     inputByString: {
       yaml: "ВводПоСтроке",
-      type: "MetadataField",
+      type: "MetadataFields",
       xmlParents: catalogProperties,
     },
     levelCount: {

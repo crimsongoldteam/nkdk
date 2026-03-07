@@ -25,3 +25,4 @@ export const importMetadataFieldFromYAML = (
 }
 
 registerTypeRule("MetadataField", "importFromYAML", importMetadataFieldsFromYAML)
+registerTypeRule("MetadataFields", "importFromYAML", importMetadataFieldsFromYAML)
