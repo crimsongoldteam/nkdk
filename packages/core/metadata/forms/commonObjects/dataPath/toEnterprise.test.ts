@@ -7,12 +7,19 @@ import { exportDataPathToEnterprise } from "./toEnterprise"
 describe("DataPath to Enterprise", () => {
   it.each(getAttributeNameFixtures)(
     "should $name",
-    ({ attributes, tableDataPath, dataPath, expectedDataPath, expectedAttributes }: GetAttributeNameFixture) => {
+    ({
+      attributes,
+      tableDataPath,
+      tableOrginalDataPath,
+      dataPath,
+      expectedDataPath,
+      expectedAttributes,
+    }: GetAttributeNameFixture) => {
       const elementsTree: ContextElementToEnterprise[] = []
       if (tableDataPath) {
-        elementsTree.push({ itemType: "Table", dataPath: tableDataPath })
+        elementsTree.push({ itemType: "Table", originalDataPath: tableOrginalDataPath!, dataPath: tableDataPath })
       }
-      elementsTree.push({ itemType: "InputField", dataPath: dataPath })
+      elementsTree.push({ itemType: "InputField", originalDataPath: dataPath!, dataPath: dataPath! })
 
       const context = {
         ...mockContext,

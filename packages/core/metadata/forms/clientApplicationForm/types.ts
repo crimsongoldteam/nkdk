@@ -337,7 +337,7 @@ export type EnterpriseAttributes = EnterpriseAttribute[]
 
 export interface EnterpriseAttributeMapItem {
   name: string
-  parentPath?: string
+  table?: string
   title?: string
   type: TypeDescriptionEnterprise
   childItems?: EnterpriseAttributesMap

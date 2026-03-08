@@ -8,7 +8,11 @@ export type ContextElementToXML = {
   itemType: MetadataItemType
   path: string
 }
-export type ContextElementToEnterprise = { itemType: ElementType; dataPath: string | undefined }
+export type ContextElementToEnterprise = {
+  itemType: ElementType
+  originalDataPath: string
+  dataPath: string | undefined
+}
 
 export interface ConfigurationContext {
   testMode?: boolean

@@ -28,7 +28,7 @@ const getAttributesFromMap = (map: EnterpriseAttributesMap): EnterpriseAttribute
     const item = map[key]
     const attribute: EnterpriseAttribute = {
       Name: item.name,
-      Path: item.parentPath,
+      Path: item.table,
       Title: item.title,
       Type: item.type,
     }

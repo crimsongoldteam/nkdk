@@ -1,5 +1,5 @@
 import { getCurrentTableFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
 import { DataPathPropertyRule, PropertyRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
@@ -9,76 +9,68 @@ export const exportDataPathToEnterprise = (params: {
   rule: PropertyRule
   value?: string
 }): string | undefined => {
-  const { context, rule, value: dataPath } = params
-  //TODO нет пути
-  if (!dataPath) return undefined
+  const { context, rule, value } = params
+
+  if (!value) return undefined
 
   const dataPathRule = rule as DataPathPropertyRule
 
-  const preview = context.enterprise!
-
-  const nameWithoutDot = dataPath.replace(/\./g, "")
-  const title = dataPath.split(".").pop() ?? dataPath
-
-  // Формируем имя атрибута
-  let name: string
-  let attributeDataPath: string
-  let existingTableAttribute: [string, EnterpriseAttributeMapItem] | undefined
+  const enterprise = context.enterprise!
 
   const parentTable = getCurrentTableFromContext(context)
 
-  const tableDataPath = parentTable !== undefined ? parentTable.dataPath : undefined
+  const title = value.split(".").pop() ?? value
 
-  if (tableDataPath) {
-    // Для табличных данных ищем существующий атрибут по tableDataPath
-    const tableDataPathLower = tableDataPath.toLowerCase()
-    existingTableAttribute = Object.entries(preview.attributes).find(
-      ([key]) => key.toLowerCase() === tableDataPathLower
-    )
+  const attributeName = getAttributeName({ context, value, parentTable })
 
-    if (existingTableAttribute) {
-      // Используем dataPath существующего атрибута таблицы
-      name = title
-      attributeDataPath = existingTableAttribute[1].parentPath + "." + name
-    } else {
-      // Для табличных данных имя атрибута - это только последняя часть dataPath
-      name = title
-      attributeDataPath = preview.prefix + tableDataPath + "." + name
-    }
-  } else {
-    name = preview.prefix + nameWithoutDot
-    attributeDataPath = name
-  }
-
-  // Если имя уже используется (case-insensitive), добавляем суффикс
-  const existingNames = Object.values(preview.attributes).map((attr) => attr.name.toLowerCase())
-  let counter = 1
-  while (existingNames.includes(name.toLowerCase())) {
-    if (tableDataPath) {
-      name = title + counter
-      attributeDataPath = preview.prefix + tableDataPath + "." + name
-    } else {
-      name = preview.prefix + nameWithoutDot + counter
-      attributeDataPath = name
-    }
-    counter++
-  }
+  const dataPath = parentTable ? `${parentTable.dataPath}.${attributeName}` : attributeName
 
   const attribute: EnterpriseAttributeMapItem = {
-    name: name,
+    name: attributeName,
     title: title,
     type: { Type: [dataPathRule.defaultType] },
+    ...(parentTable ? { table: parentTable.dataPath } : {}),
   }
 
-  // Добавляем parentPath только для табличных данных
-  if (tableDataPath) {
-    if (!existingTableAttribute || !existingTableAttribute[1].name) throw new Error("Table data path not found")
-    attribute.parentPath = existingTableAttribute[1].name
+  enterprise.attributes[value.toLowerCase()] = attribute
+
+  return dataPath
+}
+
+const getAttributeName = (params: {
+  context: ConfigurationContext
+  value: string
+  parentTable: ContextElementToEnterprise | undefined
+}): string => {
+  const { context, value, parentTable } = params
+  const prefix = context.enterprise!.prefix
+  const withoutTable = parentTable ? value.slice(parentTable.originalDataPath.length + 1) : value
+
+  const withoutDot = withoutTable.replace(/\./g, "")
+
+  const withPrefix = (parentTable ? "" : prefix) + withoutDot
+
+  const result = withPrefix + getAttributeNumberSuffix(context, withPrefix, parentTable?.dataPath)
+
+  return result
+}
+
+const getAttributeNumberSuffix = (
+  context: ConfigurationContext,
+  attributeName: string,
+  parentPath: string | undefined
+): string => {
+  const enterprise = context.enterprise!
+  const existingNames = Object.values(enterprise.attributes)
+    .filter((attr) => (attr.table ?? undefined) === parentPath)
+    .map((attr) => attr.name.toLowerCase())
+  const base = attributeName.toLowerCase()
+  if (!existingNames.includes(base)) return ""
+  let counter = 1
+  while (existingNames.includes(base + counter)) {
+    counter++
   }
-
-  preview.attributes[dataPath.toLowerCase()] = attribute
-
-  return attributeDataPath
+  return String(counter)
 }
 
 registerTypeRule("DataPath", "exportToEnterprise", exportDataPathToEnterprise)

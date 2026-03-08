@@ -5,6 +5,8 @@ export interface GetAttributeNameFixture {
   attributes: EnterpriseAttributesMap
   dataPath: string | undefined
   tableDataPath?: string | undefined
+  tableOrginalDataPath?: string | undefined
+
   expectedDataPath: string | undefined
   expectedAttributes: EnterpriseAttributesMap
 }
@@ -33,7 +35,7 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
       "obj.ecttest": {
         name: "p_ObjectTest1",
         title: "Test title",
-        parentPath: "p_ObjectTest1",
+        // table: "p_ObjectTest1",
         type: { Type: ["string"] },
       },
     },
@@ -44,7 +46,7 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
       "obj.ecttest": {
         name: "p_ObjectTest1",
         title: "Test title",
-        parentPath: "p_ObjectTest1",
+        // table: "p_ObjectTest1",
         type: { Type: ["string"] },
       },
       "object.test": { name: "p_ObjectTest2", title: "Test", type: { Type: ["string"] } },
@@ -53,27 +55,29 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
   {
     name: "return dataPath for table",
     attributes: {},
-    tableDataPath: "Table",
+    tableDataPath: "p_Table",
+    tableOrginalDataPath: "table",
     dataPath: "Table.Test",
     expectedDataPath: "p_Table.Test",
     expectedAttributes: {
-      "table.test": { name: "Test", title: "Test", parentPath: "p_Table", type: { Type: ["string"] } },
+      "table.test": { name: "Test", title: "Test", table: "p_Table", type: { Type: ["string"] } },
     },
   },
   {
     name: "return dataPath for object table",
     attributes: {
-      "object.table": { name: "p_ObjectTable1", parentPath: "p_ObjectTable1", type: { Type: ["Table"] } },
+      "object.table": { name: "p_ObjectTable1", type: { Type: ["Table"] } },
     },
-    tableDataPath: "Object.Table",
+    tableDataPath: "p_ObjectTable1",
+    tableOrginalDataPath: "Object.Table",
     dataPath: "Object.Table.Test",
     expectedDataPath: "p_ObjectTable1.Test",
     expectedAttributes: {
-      "object.table": { name: "p_ObjectTable1", parentPath: "p_ObjectTable1", type: { Type: ["Table"] } },
+      "object.table": { name: "p_ObjectTable1", type: { Type: ["Table"] } },
       "object.table.test": {
         name: "Test",
         title: "Test",
-        parentPath: "p_ObjectTable1",
+        table: "p_ObjectTable1",
         type: { Type: ["string"] },
       },
     },
