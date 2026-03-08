@@ -23,7 +23,7 @@ export const exportDataPathToEnterprise = (params: {
 
   const attributeName = getAttributeName({ context, value, parentTable })
 
-  const dataPath = parentTable ? `${parentTable.dataPath}.${attributeName}` : attributeName
+  const dataPath = parentTable ? `${parentTable.dataPathEnterprise}.${attributeName}` : attributeName
 
   const attribute: EnterpriseAttributeMapItem = {
     name: attributeName,
@@ -44,7 +44,7 @@ const getAttributeName = (params: {
 }): string => {
   const { context, value, parentTable } = params
   const prefix = context.enterprise!.prefix
-  const withoutTable = parentTable ? value.slice(parentTable.originalDataPath.length + 1) : value
+  const withoutTable = parentTable ? value.slice(parentTable.dataPath!.length + 1) : value
 
   const withoutDot = withoutTable.replace(/\./g, "")
 

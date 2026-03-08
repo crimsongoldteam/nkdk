@@ -15,9 +15,10 @@ export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMe
   const result = {} as ToEnterprise<Type>
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [keyof ToMetadata<Type> & string, PropertyRule][]) {
+    if (key == "dataPath") continue
     if (ruleProp.toEnterprise === false) continue
 
-    if (ruleProp.type == null || !PropertyRuleTypeKeys.includes(ruleProp.type)) continue
+    if (!PropertyRuleTypeKeys.includes(ruleProp.type)) continue
     const value = metadataItem[key]
 
     const exportedValue = exportPropertyToEnterprise({

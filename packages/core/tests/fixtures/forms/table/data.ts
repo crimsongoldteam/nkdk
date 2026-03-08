@@ -524,7 +524,7 @@ export const fullTableEnterprise = {
     Type: "SystemEnumeration",
     Value: "TableRowInputMode.AfterCurrentRow",
   },
-  RowPictureDataPath: "prefix_ТаблицаКартинка",
+  RowPictureDataPath: "prefix_Таблица.Картинка1",
   RowSelectionMode: {
     Type: "SystemEnumeration",
     Value: "TableRowSelectionMode.Row",

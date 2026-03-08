@@ -17,9 +17,9 @@ describe("DataPath to Enterprise", () => {
     }: GetAttributeNameFixture) => {
       const elementsTree: ContextElementToEnterprise[] = []
       if (tableDataPath) {
-        elementsTree.push({ itemType: "Table", originalDataPath: tableOrginalDataPath!, dataPath: tableDataPath })
+        elementsTree.push({ itemType: "Table", dataPath: tableOrginalDataPath!, dataPathEnterprise: tableDataPath })
       }
-      elementsTree.push({ itemType: "InputField", originalDataPath: dataPath!, dataPath: dataPath! })
+      elementsTree.push({ itemType: "InputField", dataPath: dataPath!, dataPathEnterprise: dataPath! })
 
       const context = {
         ...mockContext,

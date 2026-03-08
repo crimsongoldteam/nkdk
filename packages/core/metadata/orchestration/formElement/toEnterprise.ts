@@ -1,24 +1,40 @@
 import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { exportDataPathToEnterprise } from "~/metadata/forms/commonObjects/dataPath/toEnterprise"
 import { ToEnterprise, ToMetadata } from ".."
 import { exportPropertiesToEnterprise } from "../property/toEnterprise"
 import { getElementRule } from "./ruleFactory"
 import { CollectableElementType } from "./types"
 
-function pushElementToContext(params: {
+function pushElementToContextToEnterprise(params: {
   context: ConfigurationContext
   itemType: CollectableElementType
-  element: NamedElement
+  dataPath: string
+  dataPathEnterprise: string
+}): ConfigurationContext
+function pushElementToContextToEnterprise(params: {
+  context: ConfigurationContext
+  itemType: CollectableElementType
+  dataPath: undefined
+  dataPathEnterprise: undefined
+}): ConfigurationContext
+function pushElementToContextToEnterprise(params: {
+  context: ConfigurationContext
+  itemType: CollectableElementType
+  dataPath: string | undefined
+  dataPathEnterprise: string | undefined
 }): ConfigurationContext {
-  const { context, itemType, element } = params
+  const { context, itemType, dataPathEnterprise, dataPath } = params
 
   const elementsTree: ContextElementToEnterprise[] = []
   if (context.enterprise?.elementsTree !== undefined) {
     elementsTree.push(...context.enterprise.elementsTree)
   }
 
-  const dataPath: string | undefined = "dataPath" in element ? (element.dataPath as string) : undefined
-  elementsTree.push({ itemType: itemType, dataPath: dataPath })
+  elementsTree.push(
+    dataPath !== undefined && dataPathEnterprise !== undefined
+      ? { itemType, dataPath, dataPathEnterprise }
+      : { itemType, dataPath: undefined, dataPathEnterprise: undefined }
+  )
 
   return {
     ...context,
@@ -36,9 +52,29 @@ export const exportElementToEnterprise = <Type extends CollectableElementType>(p
   const { context, value: element } = params
   const itemType = element.itemType
 
-  const currentContext = pushElementToContext({ context, itemType, element })
-
   const rules = getElementRule(itemType)
+
+  let dataPathEnterprise: string | undefined = undefined
+  let dataPath: string | undefined = undefined
+  if ("dataPath" in element) {
+    dataPath = element.dataPath
+    const dataPathRule = rules.properties.dataPath
+    dataPathEnterprise = exportDataPathToEnterprise({
+      context: context,
+      rule: dataPathRule,
+      value: dataPath,
+    })
+  }
+
+  const currentContext =
+    dataPath !== undefined && dataPathEnterprise !== undefined
+      ? pushElementToContextToEnterprise({ context, itemType, dataPath, dataPathEnterprise })
+      : pushElementToContextToEnterprise({
+          context,
+          itemType,
+          dataPath: undefined,
+          dataPathEnterprise: undefined,
+        })
 
   const properties = exportPropertiesToEnterprise({
     context: currentContext,
@@ -46,6 +82,7 @@ export const exportElementToEnterprise = <Type extends CollectableElementType>(p
     rule: rules,
   })
   return {
+    ...(dataPathEnterprise ? { DataPath: dataPathEnterprise } : {}),
     ...properties,
     ElementType: rules.enterpriseField,
     Name: element.name,

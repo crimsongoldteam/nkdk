@@ -28,6 +28,7 @@ export const TableRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     changeRowOrder: { yaml: "ИзменятьПорядокСтрок", type: "boolean" },
     changeRowSet: { yaml: "ИзменятьСоставСтрок", type: "boolean" },
+    childItems: { type: "TableChildItems", defaultValue: [], fromPartialYAML: true },
     choiceMode: { yaml: "РежимВыбора", type: "boolean" },
     commandBarLocation: {
       yaml: "ПоложениеКоманднойПанели",
@@ -243,7 +244,6 @@ export const TableRules = {
     allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean" },
     allowGettingCurrentRowURL: { yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки", type: "boolean" },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
-    childItems: { type: "TableChildItems", defaultValue: [], fromPartialYAML: true },
   } as const,
   events: {
     selection: "Выбор",

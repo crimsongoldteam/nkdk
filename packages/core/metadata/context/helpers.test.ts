@@ -125,45 +125,53 @@ describe("getCurrentTableFromContext", () => {
 
   it("returns undefined when table is the last element", () => {
     const context = createEnterpriseContext([
-      { itemType: "UsualGroup", dataPath: undefined },
-      { itemType: "Table", dataPath: "Таблица1" },
+      { itemType: "UsualGroup", dataPath: undefined, dataPathEnterprise: undefined },
+      { itemType: "Table", dataPath: "Таблица1", dataPathEnterprise: "Таблица1" },
     ])
 
     expect(getCurrentTableFromContext(context)).toBeUndefined()
   })
 
   it("returns the table when it has following elements", () => {
-    const tableElement: ContextElementToEnterprise = { itemType: "Table", dataPath: "Таблица1" }
+    const tableElement: ContextElementToEnterprise = {
+      itemType: "Table",
+      dataPath: "Таблица1",
+      dataPathEnterprise: "Таблица1",
+    }
     const context = createEnterpriseContext([
-      { itemType: "UsualGroup", dataPath: undefined },
+      { itemType: "UsualGroup", dataPath: undefined, dataPathEnterprise: undefined },
       tableElement,
-      { itemType: "ColumnGroup", dataPath: "ГруппаКолонок1" },
+      { itemType: "ColumnGroup", dataPath: undefined, dataPathEnterprise: undefined },
     ])
 
     const result = getCurrentTableFromContext(context)
 
     expect(result).toBe(tableElement)
-    expect(result?.dataPath).toBe("Таблица1")
+    expect(result?.dataPathEnterprise).toBe("Таблица1")
   })
 
   it("returns the table closest to the end (but not the last element)", () => {
-    const innerTable: ContextElementToEnterprise = { itemType: "Table", dataPath: "ВложеннаяТаблица" }
+    const innerTable: ContextElementToEnterprise = {
+      itemType: "Table",
+      dataPath: "ВложеннаяТаблица",
+      dataPathEnterprise: "ВложеннаяТаблица",
+    }
     const context = createEnterpriseContext([
-      { itemType: "Table", dataPath: "ВнешняяТаблица" },
+      { itemType: "Table", dataPath: "ВнешняяТаблица", dataPathEnterprise: "ВнешняяТаблица" },
       innerTable,
-      { itemType: "ColumnGroup", dataPath: "ГруппаКолонок" },
+      { itemType: "ColumnGroup", dataPath: "ГруппаКолонок", dataPathEnterprise: "ГруппаКолонок" },
     ])
 
     const result = getCurrentTableFromContext(context)
 
     expect(result).toBe(innerTable)
-    expect(result?.dataPath).toBe("ВложеннаяТаблица")
+    expect(result?.dataPathEnterprise).toBe("ВложеннаяТаблица")
   })
 
   it("returns undefined when no table is in the tree", () => {
     const context = createEnterpriseContext([
-      { itemType: "UsualGroup", dataPath: undefined },
-      { itemType: "InputField", dataPath: "Поле1" },
+      { itemType: "UsualGroup", dataPath: undefined, dataPathEnterprise: undefined },
+      { itemType: "InputField", dataPath: "Поле1", dataPathEnterprise: "Поле1" },
     ])
 
     expect(getCurrentTableFromContext(context)).toBeUndefined()
