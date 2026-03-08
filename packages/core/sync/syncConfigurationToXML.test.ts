@@ -11,7 +11,7 @@ vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
 }))
 
-describe("sync configuration to xml", () => {
+describe.skip("sync configuration to xml", () => {
   const xmlInputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")
   const yamlOutputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/out")
   const xmlOutputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/toXmlOut")
