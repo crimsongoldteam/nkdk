@@ -99,13 +99,13 @@ export const fullPagePartialYAML: PagePartialYAML = {
 
 export const fullPageEnterprise = {
   ElementType: "FormGroup",
-  Name: "Страница",
+  Name: "prefix_Страница",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.Page" },
   BackColor: { Type: "Color", Value: "WebColors.White" },
   ChildItems: [
     {
       ElementType: "FormField",
-      Name: "ПолеВвода",
+      Name: "prefix_ПолеВвода",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
     },
   ],

@@ -149,7 +149,7 @@ export const fullUsualGroupEnterprise = {
   HorizontalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
   HorizontalStretch: true,
   ItemsAndTitlesAlign: { Type: "SystemEnumeration", Value: "ItemsAndTitlesAlignVariant.ItemsLeftTitlesLeft" },
-  Name: "ОбычнаяГруппа",
+  Name: "prefix_ОбычнаяГруппа",
   ReadOnly: true,
   Representation: { Type: "SystemEnumeration", Value: "UsualGroupRepresentation.NormalSeparation" },
   ShowLeftMargin: false,

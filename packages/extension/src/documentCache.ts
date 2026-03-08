@@ -19,6 +19,7 @@ const parseNkdk = parseHelper<NkdkForm>(nkdkServices.Nkdk)
 type NkdkDocumentCache = {
   versionNkdk: number
   versionYaml: number
+  formPrefix: string
   formNkdk: ClientApplicationForm
   yaml: ClientApplicationFormYAML
   form: ClientApplicationForm
@@ -42,11 +43,23 @@ const SchemaMap = {
 
 const cache = new Map<string, NkdkDocumentCache>()
 
+const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+const randomFormPrefix = (): string => {
+  let s = "p"
+  for (let i = 0; i < 5; i++) {
+    s += CHARS[Math.floor(Math.random() * CHARS.length)]
+  }
+  return s + "_"
+}
+
 export const getCanonicalUri = (uri: string): string => {
   return uri.replace(/\.(yaml|nkdk)$/i, "")
 }
 
-export const getFormFromCache = async (document: TextDocument): Promise<ClientApplicationForm> => {
+export const getFormFromCache = async (
+  document: TextDocument
+): Promise<{ form: ClientApplicationForm; prefix: string }> => {
   const uri = document.uri.toString()
   const canonicalUri = getCanonicalUri(uri)
 
@@ -55,7 +68,7 @@ export const getFormFromCache = async (document: TextDocument): Promise<ClientAp
   const documentNKDK = isYAML ? undefined : document
 
   const entry = await getOrCreateCacheByCanonicalUri({ canonicalUri, documentYAML, documentNKDK })
-  return entry.form
+  return { form: entry.form, prefix: entry.formPrefix }
 }
 
 export const getJSONSchemaUri = (uri: string): string => {
@@ -94,6 +107,7 @@ const getOrCreateCacheByCanonicalUri = async (params: {
     entry = {
       versionNkdk: -1,
       versionYaml: -1,
+      formPrefix: randomFormPrefix(),
       formNkdk: createEmptyClientApplicationForm(),
       yaml: {},
       form: createEmptyClientApplicationForm(),
@@ -112,15 +126,15 @@ const getOrCreateCacheByCanonicalUri = async (params: {
   const isYAMLChanged = docYAMLVersion > entry.versionYaml
 
   if (isNKDKChanged) {
-    updateNkdkCache(entry, docNKDK)
+    await updateNkdkCache(entry, docNKDK)
   }
 
   if (isYAMLChanged) {
-    updateYamlCache(entry, docYAML)
+    await updateYamlCache(entry, docYAML)
   }
 
   if (isNKDKChanged || isYAMLChanged) {
-    updateForm(entry)
+    await updateForm(entry)
   }
 
   return entry
@@ -166,27 +180,30 @@ const updateNkdkCache = async (entry: NkdkDocumentCache, document: TextDocument)
 
   entry.formNkdk = formNkdk
 
-  updateJSONSchema(entry)
+  await updateJSONSchema(entry)
 }
 
-const updateJSONSchema = (entry: NkdkDocumentCache): void => {
-  const schema = exportClientApplicationFormToJSONSchema({ context: getConfigurationContext(), value: entry.formNkdk })
+const updateJSONSchema = async (entry: NkdkDocumentCache): Promise<void> => {
+  const schema = exportClientApplicationFormToJSONSchema({
+    context: getConfigurationContext(),
+    value: entry.formNkdk,
+  })
   entry.schema = JSON.stringify(schema)
 }
 
-function updateYamlCache(entry: NkdkDocumentCache, document: TextDocument): void {
+const updateYamlCache = async (entry: NkdkDocumentCache, document: TextDocument): Promise<void> => {
   if (document.version === entry.versionYaml) return
 
   entry.versionYaml = document.version
 
   const yamlString = document.getText()
 
-  const yaml = importFromYAML(yamlString)
+  const yaml = await importFromYAML(yamlString)
 
   entry.yaml = yaml
 }
 
-const updateForm = (entry: NkdkDocumentCache): void => {
+const updateForm = async (entry: NkdkDocumentCache): Promise<void> => {
   const context: ConfigurationContext = getConfigurationContext()
   entry.form = importClientApplicationFormFromYAML(context, entry.yaml, entry.formNkdk)
 }

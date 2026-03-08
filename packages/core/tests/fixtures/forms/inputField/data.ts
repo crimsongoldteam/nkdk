@@ -573,7 +573,7 @@ export const fullInputFieldEnterprise = {
     Type: "Color",
     Value: "WebColors.Red",
   },
-  Name: "ПолеВвода",
+  Name: "prefix_ПолеВвода",
   OnScreenKeyboardReturnKeyText: {
     Type: "SystemEnumeration",
     Value: "OnScreenKeyboardReturnKeyText.Done",
@@ -656,6 +656,6 @@ export const fullInputFieldEnterprise = {
 
 export const minimalInputFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеВвода",
+  Name: "prefix_ПолеВвода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
 } satisfies InputFieldEnterprise

@@ -51,13 +51,13 @@ export const fullButtonGroup: Required<ButtonGroup> = {
 
 export const fullButtonGroupEnterprise = {
   ElementType: "FormGroup",
-  Name: "ГруппаКнопок",
+  Name: "prefix_ГруппаКнопок",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.ButtonGroup" },
   ChildItems: [
     {
       ElementType: "FormButton",
       Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
-      Name: "Кнопка",
+      Name: "prefix_Кнопка",
       CommandName: "КомандаЗаглушка",
     },
   ],

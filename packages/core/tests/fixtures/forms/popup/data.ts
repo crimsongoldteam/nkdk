@@ -63,7 +63,7 @@ export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
 
 export const fullPopupEnterprise = {
   ElementType: "FormGroup",
-  Name: "Подменю",
+  Name: "prefix_Подменю",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.Popup" },
   BackColor: { Type: "Color", Value: "WebColors.CornFlowerBlue" },
   BorderColor: { Type: "Color", Value: "WebColors.Aquamarine" },

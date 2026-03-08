@@ -98,6 +98,7 @@ describe("getCurrentTableFromContext", () => {
       prefix: "",
       attributes: {},
       elementsTree,
+      allElementsNames: [],
     },
   })
 
@@ -117,7 +118,7 @@ describe("getCurrentTableFromContext", () => {
     const context: ConfigurationContext = {
       version: "2.20",
       defaultLanguage: "ru",
-      enterprise: { prefix: "", attributes: {}, elementsTree: undefined! },
+      enterprise: { prefix: "", attributes: {}, elementsTree: undefined!, allElementsNames: [] },
     }
 
     expect(getCurrentTableFromContext(context)).toBeUndefined()

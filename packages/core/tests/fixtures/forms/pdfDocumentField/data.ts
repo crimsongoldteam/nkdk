@@ -105,7 +105,7 @@ export const fullPDFDocumentField = {
 
 export const fullPDFDocumentFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеPDFДокумента",
+  Name: "prefix_ПолеPDFДокумента",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.PDFDocumentField",

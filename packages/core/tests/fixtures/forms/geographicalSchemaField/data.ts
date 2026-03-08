@@ -99,7 +99,7 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
 
 export const fullGeographicalSchemaFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеГеографическойСхемы",
+  Name: "prefix_ПолеГеографическойСхемы",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.GeographicalSchemaField",

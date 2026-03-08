@@ -99,7 +99,7 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
 
 export const fullProgressBarFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеИндикатора",
+  Name: "prefix_ПолеИндикатора",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ProgressBarField" },
   AutoCellHeight: true,
   CellHyperlink: true,

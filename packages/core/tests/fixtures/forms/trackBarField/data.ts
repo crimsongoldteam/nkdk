@@ -98,7 +98,7 @@ export const fullTrackBarField: Required<TrackBarField> = {
 
 export const fullTrackBarFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеПолосыПрокрутки",
+  Name: "prefix_ПолеПолосыПрокрутки",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.TrackBarField" },
   AutoCellHeight: true,
   CellHyperlink: true,

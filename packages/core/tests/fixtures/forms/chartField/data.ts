@@ -93,7 +93,7 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
 
 export const fullChartFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеДиаграммы",
+  Name: "prefix_ПолеДиаграммы",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ChartField" },
   AutoMaxHeight: true,
   AutoMaxWidth: true,

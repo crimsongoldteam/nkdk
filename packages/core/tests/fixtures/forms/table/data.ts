@@ -403,7 +403,7 @@ export const fullTableYAML: TablePartialYAML = {
 
 export const fullTableEnterprise = {
   ElementType: "FormTable",
-  Name: "Таблица",
+  Name: "prefix_Таблица",
   AutoAddIncomplete: true,
   AutoInsertNewRow: true,
   AutoMarkIncomplete: true,
@@ -425,14 +425,14 @@ export const fullTableEnterprise = {
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
-      Name: "ТаблицаВвод",
+      Name: "prefix_ТаблицаВвод",
     },
     {
       DataPath: "prefix_Таблица.Надпись",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
-      Name: "ТаблицаНадпись",
+      Name: "prefix_ТаблицаНадпись",
     },
     {
       CheckBoxType: { Type: "SystemEnumeration", Value: "CheckBoxType.Auto" },
@@ -441,14 +441,14 @@ export const fullTableEnterprise = {
       Title: "Поле флажка",
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.CheckBoxField" },
-      Name: "ТаблицаФлажок",
+      Name: "prefix_ТаблицаФлажок",
     },
     {
       DataPath: "prefix_Таблица.Картинка",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
-      Name: "ТаблицаКартинка",
+      Name: "prefix_ТаблицаКартинка",
     },
   ],
   ChoiceMode: true,

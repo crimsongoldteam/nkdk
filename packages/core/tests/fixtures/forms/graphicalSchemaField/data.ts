@@ -101,7 +101,7 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
 
 export const fullGraphicalSchemaFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеГрафическойСхемы",
+  Name: "prefix_ПолеГрафическойСхемы",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.GraphicalSchemaField",

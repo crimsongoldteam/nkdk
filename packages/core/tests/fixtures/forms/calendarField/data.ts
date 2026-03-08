@@ -88,7 +88,7 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
 
 export const fullCalendarFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеКалендаря",
+  Name: "prefix_ПолеКалендаря",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.CalendarField" },
   AutoCellHeight: true,
   AutoMaxHeight: false,

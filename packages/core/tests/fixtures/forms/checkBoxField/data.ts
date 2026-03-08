@@ -377,7 +377,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
 
 export const fullCheckBoxFieldEnterprise = {
   ElementType: "FormField",
-  Name: "Флажок",
+  Name: "prefix_Флажок",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.CheckBoxField" },
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },

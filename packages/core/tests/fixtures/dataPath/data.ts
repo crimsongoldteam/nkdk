@@ -63,7 +63,7 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
       "table.test": {
         name: "Test",
         title: "Test",
-        table: "Table",
+        path: "p_Table",
         type: { Type: ["string"] },
       },
     },
@@ -82,7 +82,7 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
       "object.table.test": {
         name: "Test",
         title: "Test",
-        table: "Object.Table",
+        path: "p_ObjectTable1",
         type: { Type: ["string"] },
       },
     },

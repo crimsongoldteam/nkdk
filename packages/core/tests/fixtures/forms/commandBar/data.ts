@@ -63,7 +63,7 @@ export const fullCommandBar: Required<CommandBar> = {
 
 export const fullCommandBarEnterprise = {
   ElementType: "FormGroup",
-  Name: "КоманднаяПанель",
+  Name: "prefix_КоманднаяПанель",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.CommandBar" },
   Autofill: true,
   ChildItems: [
@@ -71,7 +71,7 @@ export const fullCommandBarEnterprise = {
       CommandName: "КомандаЗаглушка",
       ElementType: "FormButton",
       Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
-      Name: "Кнопка1",
+      Name: "prefix_Кнопка1",
     },
     {
       ChildItems: [
@@ -79,13 +79,13 @@ export const fullCommandBarEnterprise = {
           CommandName: "КомандаЗаглушка",
           ElementType: "FormButton",
           Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
-          Name: "Кнопка2",
+          Name: "prefix_Кнопка2",
         },
       ],
       ToolTip: "Подсказка для группы кнопок",
       ElementType: "FormGroup",
       Type: { Type: "SystemEnumeration", Value: "FormGroupType.ButtonGroup" },
-      Name: "ГруппаКнопок",
+      Name: "prefix_ГруппаКнопок",
     },
     {
       ChildItems: [
@@ -93,13 +93,13 @@ export const fullCommandBarEnterprise = {
           CommandName: "КомандаЗаглушка",
           ElementType: "FormButton",
           Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
-          Name: "Кнопка3",
+          Name: "prefix_Кнопка3",
         },
       ],
       ToolTip: "Подсказка для подменю",
       ElementType: "FormGroup",
       Type: { Type: "SystemEnumeration", Value: "FormGroupType.Popup" },
-      Name: "Подменю",
+      Name: "prefix_Подменю",
     },
   ],
   DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },

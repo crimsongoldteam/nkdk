@@ -69,7 +69,7 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
 
 export const fullLabelDecorationEnterprise = {
   ElementType: "FormDecoration",
-  Name: "Заголовок",
+  Name: "prefix_Заголовок",
   Type: { Type: "SystemEnumeration", Value: "FormDecorationType.Label" },
   AutoMaxHeight: true,
   AutoMaxWidth: true,

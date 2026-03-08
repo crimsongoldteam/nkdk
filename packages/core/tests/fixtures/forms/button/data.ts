@@ -152,7 +152,7 @@ export const minimalButtonTypedYAML: ButtonTypedYAML = {
 
 export const fullButtonEnterprise: Required<ButtonEnterprise> = {
   ElementType: "FormButton",
-  Name: "ОбычнаяКнопка",
+  Name: "prefix_ОбычнаяКнопка",
   AutoMaxHeight: false,
   AutoMaxWidth: false,
   BackColor: { Type: "Color", Value: "WebColors.Red" },

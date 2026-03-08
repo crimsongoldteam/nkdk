@@ -39,7 +39,7 @@ export const fullPages: Pages = {
 
 export const fullPagesEnterprise = {
   ElementType: "FormGroup",
-  Name: "Страницы",
+  Name: "prefix_Страницы",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.Pages" },
   ChildItems: [],
   CurrentPagesState: {

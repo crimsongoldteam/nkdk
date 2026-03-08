@@ -102,7 +102,7 @@ export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocument
 
 export const fullFormattedDocumentFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеФорматированногоДокумента",
+  Name: "prefix_ПолеФорматированногоДокумента",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.FormattedDocumentField",

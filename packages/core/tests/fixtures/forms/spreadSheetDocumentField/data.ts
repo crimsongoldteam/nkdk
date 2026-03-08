@@ -126,7 +126,7 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
 
 export const fullSpreadSheetDocumentFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеТабличногоДокумента",
+  Name: "prefix_ПолеТабличногоДокумента",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.SpreadsheetDocumentField",

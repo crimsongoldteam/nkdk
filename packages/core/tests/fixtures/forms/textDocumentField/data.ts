@@ -101,7 +101,7 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
 
 export const fullTextDocumentFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеТекстовогоДокумента",
+  Name: "prefix_ПолеТекстовогоДокумента",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.TextDocumentField" },
   AutoCellHeight: true,
   CellHyperlink: true,

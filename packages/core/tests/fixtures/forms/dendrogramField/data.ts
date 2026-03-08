@@ -94,7 +94,7 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
 
 export const fullDendrogramFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеДендрограммы",
+  Name: "prefix_ПолеДендрограммы",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.DendrogramField",

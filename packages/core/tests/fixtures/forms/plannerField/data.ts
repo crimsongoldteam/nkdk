@@ -120,7 +120,7 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
 
 export const fullPlannerFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеПланировщика",
+  Name: "prefix_ПолеПланировщика",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.PlannerField",

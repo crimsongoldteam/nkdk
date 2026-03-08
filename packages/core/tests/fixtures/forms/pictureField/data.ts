@@ -118,7 +118,7 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
 
 export const fullPictureFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеКартинки",
+  Name: "prefix_ПолеКартинки",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
   AutoCellHeight: true,
   CellHyperlink: true,

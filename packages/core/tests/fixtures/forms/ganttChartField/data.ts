@@ -105,7 +105,7 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
 
 export const fullGanttChartFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеДиаграммыГанта",
+  Name: "prefix_ПолеДиаграммыГанта",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.GanttChartField",

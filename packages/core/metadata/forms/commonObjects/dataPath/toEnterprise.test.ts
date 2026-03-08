@@ -27,6 +27,7 @@ describe("DataPath to Enterprise", () => {
           attributes: attributes,
           prefix: "p_",
           elementsTree: elementsTree,
+          allElementsNames: [],
         },
       } satisfies ConfigurationContext
       const result = exportDataPathToEnterprise({

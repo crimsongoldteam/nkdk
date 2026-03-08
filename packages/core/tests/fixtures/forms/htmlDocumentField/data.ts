@@ -101,7 +101,7 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
 
 export const fullHtmlDocumentFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеHTMLДокумента",
+  Name: "prefix_ПолеHTMLДокумента",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.HTMLDocumentField",

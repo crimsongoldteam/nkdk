@@ -24,6 +24,7 @@ export const mockContextToEnterprise: ConfigurationContext = {
     prefix: "prefix_",
     attributes: {},
     elementsTree: [],
+    allElementsNames: [],
   },
 }
 

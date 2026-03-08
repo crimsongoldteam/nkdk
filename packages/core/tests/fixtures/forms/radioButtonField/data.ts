@@ -103,7 +103,7 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
 
 export const fullRadioButtonFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеПереключателя",
+  Name: "prefix_ПолеПереключателя",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.RadioButtonField" },
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },

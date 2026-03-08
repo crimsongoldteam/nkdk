@@ -102,7 +102,7 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
 
 export const fullPeriodFieldEnterprise = {
   ElementType: "FormField",
-  Name: "ПолеПериода",
+  Name: "prefix_ПолеПериода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.PeriodField" },
   AutoCellHeight: true,
   CellHyperlink: true,

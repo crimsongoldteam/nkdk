@@ -29,7 +29,7 @@ export const exportDataPathToEnterprise = (params: {
     name: attributeName,
     title: title,
     type: { Type: [dataPathRule.defaultType] },
-    ...(parentTable ? { table: parentTable.dataPath } : {}),
+    ...(parentTable ? { path: parentTable.dataPathEnterprise } : {}),
   }
 
   enterprise.attributes[value.toLowerCase()] = attribute
@@ -50,7 +50,7 @@ const getAttributeName = (params: {
 
   const withPrefix = (parentTable ? "" : prefix) + withoutDot
 
-  const result = withPrefix + getAttributeNumberSuffix(context, withPrefix, parentTable?.dataPath)
+  const result = withPrefix + getAttributeNumberSuffix(context, withPrefix, parentTable?.dataPathEnterprise)
 
   return result
 }
@@ -58,11 +58,11 @@ const getAttributeName = (params: {
 const getAttributeNumberSuffix = (
   context: ConfigurationContext,
   attributeName: string,
-  parentPath: string | undefined
+  parentPathEnterprise: string | undefined
 ): string => {
   const enterprise = context.enterprise!
   const existingNames = Object.values(enterprise.attributes)
-    .filter((attr) => (attr.table ?? undefined) === parentPath)
+    .filter((attr) => (attr.path ?? undefined) === parentPathEnterprise)
     .map((attr) => attr.name.toLowerCase())
   const base = attributeName.toLowerCase()
   if (!existingNames.includes(base)) return ""

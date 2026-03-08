@@ -59,4 +59,5 @@ export interface EnterpriseContext {
   prefix: string
   attributes: Record<string, EnterpriseAttributeMapItem>
   elementsTree: Array<ContextElementToEnterprise>
+  allElementsNames: string[]
 }
