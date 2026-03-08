@@ -42,13 +42,7 @@ const ESC: Record<string, string> = { n: "\n", t: "\t", r: "\r", "\\": "\\", '"'
 const unescapeText = (content: string | undefined): string | undefined => {
   if (content === undefined) return undefined
 
-  let s = content
-  if (content.length >= 2) {
-    const q = content[0]
-    if ((q === '"' || q === "'") && content[content.length - 1] === q) s = content.slice(1, -1)
-  }
-  s = s.replace(/""|''/g, (m) => m[0])
-  return s.replace(
+  let s = content.replace(
     ESC_RE,
     (_, p1) =>
       ESC[p1] ??
@@ -58,4 +52,9 @@ const unescapeText = (content: string | undefined): string | undefined => {
           ? String.fromCharCode(parseInt(p1.slice(1), 16))
           : "\\" + p1)
   )
+  if (s.length >= 2) {
+    const q = s[0]
+    if ((q === '"' || q === "'") && s[s.length - 1] === q) s = s.slice(1, -1)
+  }
+  return s.replace(/""|''/g, (m) => m[0])
 }

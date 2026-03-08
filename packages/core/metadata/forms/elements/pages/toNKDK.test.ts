@@ -23,9 +23,9 @@ describe("exportPagesToStructure", () => {
       ],
     }
 
-    const expectedResult = `//%Страницы
-  /%Страница1
-    %Элемент1: `
+    const expectedResult = `//Страницы
+  /Страница1
+    Элемент1: `
 
     const result = exportPagesToNKDK({ context: mockContext, element: mockElement })
 

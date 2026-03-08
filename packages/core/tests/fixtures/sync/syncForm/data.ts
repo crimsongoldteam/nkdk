@@ -1,4 +1,4 @@
-export const readFormNKDK = "%ПолеВвода1: "
+export const readFormNKDK = "ПолеВвода1: "
 
 export const readFormYAML = `Синоним: Это форма контрагента
 НазначенияИспользования: ПлатформаИМобильноеПриложение

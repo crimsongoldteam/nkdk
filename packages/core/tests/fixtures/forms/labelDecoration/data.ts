@@ -191,7 +191,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       title: { items: { ru: "Заголовок" }, formatted: false },
     },
     structured: {
-      strings: ["Заголовок %ИмяПоля"],
+      strings: ['"Заголовок" ИмяПоля'],
       toOneLineGroup: true,
     },
   },
@@ -203,7 +203,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       itemType: "LabelDecoration",
     },
     structured: {
-      strings: ["%ИмяПоля"],
+      strings: ["ИмяПоля"],
       toOneLineGroup: true,
     },
   },
@@ -216,7 +216,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       title: { items: { ru: 'Заголовок "формы"' }, formatted: false },
     },
     structured: {
-      strings: ['"Заголовок ""формы""" %ИмяПоля'],
+      strings: ['\'Заголовок "формы"\' ИмяПоля'],
       toOneLineGroup: true,
     },
   },

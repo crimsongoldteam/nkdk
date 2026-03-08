@@ -215,7 +215,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: ["=%Группа %Элемент1: ; %Элемент2:"],
+      strings: ["=Группа Элемент1: ; Элемент2:"],
       toOneLineGroup: false,
     },
   },
@@ -241,7 +241,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: ["=Заголовок группы %Группа %Элемент1: ; %Элемент2:"],
+      strings: ['="Заголовок группы" Группа Элемент1: ; Элемент2:'],
       toOneLineGroup: false,
     },
   },
@@ -267,7 +267,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: [`="" %Группа %Элемент1: ; %Элемент2:`],
+      strings: ['="" Группа Элемент1: ; Элемент2:'],
       toOneLineGroup: false,
     },
   },
@@ -301,10 +301,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [
-        `=%Группа
-  +%ВертикальнаяГруппа1
-    %Элемент1: 
-  %Элемент2: `,
+        `=Группа
+  +ВертикальнаяГруппа1
+    Элемент1: 
+  Элемент2: `,
       ],
       toOneLineGroup: false,
     },
@@ -339,10 +339,10 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [
-        `-%Группа
-  +%ВертикальнаяГруппа1
-    %Элемент1: 
-  %Элемент2: `,
+        `-Группа
+  +ВертикальнаяГруппа1
+    Элемент1: 
+  Элемент2: `,
       ],
       toOneLineGroup: false,
     },
@@ -368,7 +368,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: [`-%Группа %Элемент1: ; %Элемент2:`],
+      strings: ["-Группа Элемент1: ; Элемент2:"],
       toOneLineGroup: false,
     },
   },
@@ -394,7 +394,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: [`-Заголовок группы %Группа %Элемент1: ; %Элемент2:`],
+      strings: ['-"Заголовок группы" Группа Элемент1: ; Элемент2:'],
       toOneLineGroup: false,
     },
   },
@@ -420,7 +420,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       ],
     },
     structured: {
-      strings: [`-"" %Группа %Элемент1: ; %Элемент2:`],
+      strings: ['-"" Группа Элемент1: ; Элемент2:'],
       toOneLineGroup: false,
     },
   },
@@ -447,9 +447,9 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
     structured: {
       strings: [
-        `+Заголовок группы %Группа
-  %Элемент1: 
-  %Элемент2: `,
+        `+"Заголовок группы" Группа
+  Элемент1: 
+  Элемент2: `,
       ],
       toOneLineGroup: false,
     },
@@ -464,7 +464,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       showTitle: false,
     },
     structured: {
-      strings: [`=%Группа`],
+      strings: ["=Группа"],
       toOneLineGroup: false,
     },
   },
@@ -478,7 +478,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       showTitle: false,
     },
     structured: {
-      strings: [`+%Группа`],
+      strings: ["+Группа"],
       toOneLineGroup: false,
     },
   },
@@ -492,7 +492,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       showTitle: false,
     },
     structured: {
-      strings: [`-%Группа`],
+      strings: ["-Группа"],
       toOneLineGroup: false,
     },
   },

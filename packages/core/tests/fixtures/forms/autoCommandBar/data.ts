@@ -68,7 +68,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<... | Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
+      strings: ['<<... | "Номер 1" Кнопка1 | "Номер 2" Кнопка2>>'],
       toOneLineGroup: false,
     },
   },
@@ -91,7 +91,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<Номер 1 %Кнопка1 | Номер 2 %Кнопка2>>"],
+      strings: ['<<"Номер 1" Кнопка1 | "Номер 2" Кнопка2>>'],
       toOneLineGroup: false,
     },
   },
@@ -144,7 +144,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<Кнопка Номер 1 %Кнопка1 | Кнопка Номер 2 %Кнопка2 | Кнопка Номер 3 %Кнопка3>>"],
+      strings: ['<<"Кнопка Номер 1" Кнопка1 | "Кнопка Номер 2" Кнопка2 | "Кнопка Номер 3" Кнопка3>>'],
       toOneLineGroup: false,
     },
   },
@@ -164,7 +164,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<-Группа кнопок %ГруппаКнопок1>>"],
+      strings: ['<<-"Группа кнопок" ГруппаКнопок1>>'],
       toOneLineGroup: false,
     },
   },
@@ -184,7 +184,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<+Выпадающее меню %Меню>>"],
+      strings: ['<<+"Выпадающее меню" Меню>>'],
       toOneLineGroup: false,
     },
   },
@@ -202,7 +202,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<?УправлениеПоиском %Дополнение>>"],
+      strings: ["<<?УправлениеПоиском Дополнение>>"],
       toOneLineGroup: false,
     },
   },
@@ -219,7 +219,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       ],
     },
     structured: {
-      strings: ["<<?ОтображениеСтрокиПоиска %Дополнение>>"],
+      strings: ["<<?ОтображениеСтрокиПоиска Дополнение>>"],
       toOneLineGroup: false,
     },
   },

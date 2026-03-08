@@ -211,7 +211,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
   //   },
 
   //   structured: {
-  //     strings: ["![Печать] Заголовок декорации картинки %ИмяПоля"],
+  //     strings: ['![Печать] "Заголовок декорации картинки" ИмяПоля'],
   //     haveSimpleHorizontalGroup: false,
   //   },
   // },
@@ -223,7 +223,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       itemType: "PictureDecoration",
     },
     structured: {
-      strings: ["![Печать] %ИмяПоля"],
+      strings: ["![Печать] ИмяПоля"],
       toOneLineGroup: true,
     },
   },
@@ -235,7 +235,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       itemType: "PictureDecoration",
     },
     structured: {
-      strings: ["![Предупреждение32] %ИмяПоля"],
+      strings: ["![Предупреждение32] ИмяПоля"],
       toOneLineGroup: true,
     },
   },
@@ -246,7 +246,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       itemType: "PictureDecoration",
     },
     structured: {
-      strings: ["!%ИмяПоля"],
+      strings: ["!ИмяПоля"],
       toOneLineGroup: true,
     },
   },
@@ -262,7 +262,7 @@ export const pictureDecorationStructureFixturesTable: PictureDecorationStructure
       },
     },
     structured: {
-      strings: ["!%ИмяПоля"],
+      strings: ["!ИмяПоля"],
       toOneLineGroup: true,
     },
     skipImport: true,

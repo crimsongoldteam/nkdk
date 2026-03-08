@@ -11,7 +11,7 @@ describe("formatOtherElement", () => {
       name: "ИмяПоля",
     }
 
-    const expectedResult = ["?ПолеВвода %ИмяПоля"]
+    const expectedResult = ["?ПолеВвода ИмяПоля"]
 
     const result = exportOtherElementToNKDK({ context: mockContext, element: element as OtherElement })
 

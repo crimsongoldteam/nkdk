@@ -3,7 +3,7 @@ import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 
 export const formatElementName = (element: { name: string }) => {
-  return "%" + element.name
+  return element.name
 }
 
 export const formatDefaultLanguageText = (
@@ -41,38 +41,30 @@ export const wrapButtonContent = (content: string): string => {
 }
 
 /**
- * Экранирует текст в двойные кавычки, если он содержит специальные символы.
- * Если текст содержит двойные кавычки, они удваиваются.
- * Переносы строк, табуляция и другие специальные символы заменяются на \n, \t и т.д.
- *
- * Специальные символы из лексера: ', %, #, ;, |, <, >, {, }, [, ], (, ), ,, :, ~, =, +, /, &, ?, _, -
+ * Всегда экранирует текст в кавычки.
+ * Если в тексте есть двойные кавычки, но нет одинарных — оборачивает в одинарные кавычки.
+ * Иначе — в двойные (двойные кавычки в тексте удваиваются).
+ * Переносы строк, табуляция и т.д. заменяются на \n, \t и т.д.
  *
  * @param text - текст для экранирования
- * @returns экранированный текст в двойных кавычках или исходный текст
+ * @returns экранированный текст в кавычках
  */
 export const escapeText = (text: string | undefined): string | undefined => {
   if (!text) return undefined
 
-  // Специальные символы из лексера, которые требуют экранирования
-  // Добавляем переносы строк, табуляцию, возврат каретки и обратный слэш
-  const specialChars = /['%#;"|<>{}[\]():~=+\/&?_\-\n\t\r\\]/
+  const hasDouble = text.includes('"')
+  const hasSingle = text.includes("'")
+  const useSingleQuotes = hasDouble && !hasSingle
 
-  // Проверяем, содержит ли текст специальные символы или двойные кавычки
-  const needsEscaping = specialChars.test(text) || text.includes('"')
+  // Важно: сначала заменяем обратный слэш, чтобы не заэкранировать слэши в \n, \t и т.д.
+  const escapeCommon = (s: string) =>
+    s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\t/g, "\\t").replace(/\r/g, "\\r")
 
-  if (!needsEscaping) {
-    return text
+  if (useSingleQuotes) {
+    const escaped = escapeCommon(text).replace(/'/g, "\\'")
+    return `'${escaped}'`
   }
 
-  // Заменяем специальные символы на их escape-последовательности
-  // Важно: сначала заменяем обратный слэш, чтобы не заэкранировать слэши в \n, \t и т.д.
-  const escapedText = text
-    .replace(/\\/g, "\\\\")
-    .replace(/\n/g, "\\n")
-    .replace(/\t/g, "\\t")
-    .replace(/\r/g, "\\r")
-    .replace(/"/g, '""')
-
-  // Оборачиваем в двойные кавычки
-  return `"${escapedText}"`
+  const escaped = escapeCommon(text).replace(/"/g, '""')
+  return `"${escaped}"`
 }

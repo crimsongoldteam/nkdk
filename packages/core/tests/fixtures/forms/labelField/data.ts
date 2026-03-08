@@ -209,11 +209,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       dataPath: "ПолеНадписи",
     },
     structured: {
-      strings: ["~Поле надписи: %ПолеНадписи"],
+      strings: ['~"Поле надписи": ПолеНадписи'],
       toOneLineGroup: true,
     },
     content: {
-      strings: ["~Поле надписи %ПолеНадписи"],
+      strings: ['~"Поле надписи" ПолеНадписи'],
       toOneLineGroup: true,
     },
   },
@@ -225,11 +225,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
       dataPath: "ПолеНадписи",
     },
     structured: {
-      strings: ["~%ПолеНадписи: "],
+      strings: ["~ПолеНадписи: "],
       toOneLineGroup: true,
     },
     content: {
-      strings: ["~%ПолеНадписи"],
+      strings: ["~ПолеНадписи"],
       toOneLineGroup: true,
     },
   },

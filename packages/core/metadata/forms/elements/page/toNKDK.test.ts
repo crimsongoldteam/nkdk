@@ -18,8 +18,8 @@ describe("exportPageToStructure", () => {
       ],
     }
 
-    const expectedResult = `/%Страница1
-  %Элемент1: `
+    const expectedResult = `/Страница1
+  Элемент1: `
 
     const result = exportPageToNKDK({ context: mockContext, element: mockElement })
     expect(result.strings.join("\n")).toEqual(expectedResult)

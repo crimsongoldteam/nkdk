@@ -208,7 +208,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
-      strings: ["<Заголовок %Заголовок>"],
+      strings: ['<"Заголовок" Заголовок>'],
       toOneLineGroup: true,
     },
   },
@@ -220,7 +220,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       title: undefined,
     },
     structured: {
-      strings: ["<%Кнопка>"],
+      strings: ["<Кнопка>"],
       toOneLineGroup: true,
     },
   },

@@ -787,7 +787,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with input field",
     table: inputColumnTable,
     nkdk: {
-      strings: ["| Колонка 1 %Колонка1 | %Таблица1"],
+      strings: ['| "Колонка 1" Колонка1 | Таблица1'],
       toOneLineGroup: false,
     },
   },
@@ -795,7 +795,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with checkbox field",
     table: checkboxColumnTable,
     nkdk: {
-      strings: ["| [ ] Флажок %Колонка1 | %Таблица1"],
+      strings: ['| [ ] "Флажок" Колонка1 | Таблица1'],
       toOneLineGroup: false,
     },
   },
@@ -803,7 +803,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with label field",
     table: labelColumnTable,
     nkdk: {
-      strings: ["| ~%Колонка1 | %Таблица1"],
+      strings: ["| ~Колонка1 | Таблица1"],
       toOneLineGroup: false,
     },
   },
@@ -811,7 +811,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with picture field",
     table: pictureColumnTable,
     nkdk: {
-      strings: ["| !%Колонка1 | %Таблица1"],
+      strings: ["| !Колонка1 | Таблица1"],
       toOneLineGroup: false,
     },
   },
@@ -819,7 +819,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with horizontal group",
     table: tableWithHorizontalColumnGroup,
     nkdk: {
-      strings: ["| -%Колонка1 | %Таблица1"],
+      strings: ["| -Колонка1 | Таблица1"],
       toOneLineGroup: false,
     },
   },
@@ -827,7 +827,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with vertical group",
     table: tableWithVerticalColumnGroup,
     nkdk: {
-      strings: ["| +%Колонка1 | %Таблица1"],
+      strings: ["| +Колонка1 | Таблица1"],
       toOneLineGroup: false,
     },
   },
@@ -835,7 +835,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with in cell group",
     table: tableWithInCellColumnGroup,
     nkdk: {
-      strings: ["| =%Колонка1 | %Таблица1"],
+      strings: ["| =Колонка1 | Таблица1"],
       toOneLineGroup: false,
     },
   },
@@ -843,7 +843,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "two-column table",
     table: twoColumnTable,
     nkdk: {
-      strings: ["| Колонка 1 %Колонка1 | Колонка 2 %Колонка2 | %Таблица1"],
+      strings: ['| "Колонка 1" Колонка1 | "Колонка 2" Колонка2 | Таблица1'],
       toOneLineGroup: false,
     },
   },
@@ -851,12 +851,12 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
     nkdk: {
-      strings: ["<<...>>", "<<... | Кнопка 1 %КнопкаТаблицы>>", "| Колонка таблицы 1 %Колонка1 | %Таблица1"],
+      strings: ['<<...>>', '<<... | "Кнопка 1" КнопкаТаблицы>>', '| "Колонка таблицы 1" Колонка1 | Таблица1'],
       toOneLineGroup: false,
     },
     // Добавлена командная панель формы, которая не будет экспортироваться
     nkdkExport: {
-      strings: ["<<... | Кнопка 1 %КнопкаТаблицы>>", "| Колонка таблицы 1 %Колонка1 | %Таблица1"],
+      strings: ['<<... | "Кнопка 1" КнопкаТаблицы>>', '| "Колонка таблицы 1" Колонка1 | Таблица1'],
       toOneLineGroup: false,
     },
   },

@@ -383,7 +383,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       dataPath: "ИмяПоля",
     },
     structured: {
-      strings: ["Поле: %ИмяПоля"],
+      strings: ['"Поле": ИмяПоля'],
       toOneLineGroup: true,
     },
   },
@@ -395,7 +395,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       dataPath: "ИмяПоля",
     },
     structured: {
-      strings: ["%ИмяПоля: "],
+      strings: ["ИмяПоля: "],
       toOneLineGroup: true,
     },
   },
