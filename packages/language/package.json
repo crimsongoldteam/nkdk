@@ -28,7 +28,7 @@
     },
     "scripts": {
         "clean": "shx rm -fr *.tsbuildinfo out",
-        "build": "echo 'No build step'",
+        "build": "tsc -p tsconfig.build.json",
         "build:clean": "npm run clean && npm run build",
         "langium:generate": "langium generate",
         "langium:watch": "langium generate --watch",

@@ -55,7 +55,7 @@
   "scripts": {
     "clean": "shx rm -fr *.tsbuildinfo ./out",
     "vscode:prepublish": "pnpm run build",
-    "build": "tsc -b tsconfig.json && node esbuild.mjs && pnpm run copy-l10n",
+    "build": "pnpm --filter nkdk-language run build && tsc -b tsconfig.json && node esbuild.mjs && pnpm run copy-l10n",
     "build:clean": "pnpm run clean && pnpm run build",
     "copy-l10n": "cp -r node_modules/yaml-language-server/l10n out/extension/l10n",
     "watch": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\"",
