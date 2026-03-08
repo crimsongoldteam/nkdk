@@ -10,7 +10,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region Attributes
   {
     name: "form attribute",
-    input: `%РеквизитОбъекта:`,
+    input: `РеквизитОбъекта:`,
     expected: {
       $type: "InputField",
       isMainAttribute: false,
@@ -20,7 +20,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "main attribute",
-    input: `%%РеквизитОбъекта:`,
+    input: `.РеквизитОбъекта:`,
     expected: {
       $type: "InputField",
       isMainAttribute: true,
@@ -30,17 +30,17 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "form attribute with dots",
-    input: `%Объект.Реквизит:`,
+    input: `.Объект.Реквизит:`,
     expected: {
       $type: "InputField",
-      isMainAttribute: false,
+      isMainAttribute: true,
       dataPath: ["Объект", "Реквизит"],
       $container: undefined,
     },
   },
   {
     name: "form attribute different from data path",
-    input: `%ИмяЭлементаФормы(Объект.Реквизит):`,
+    input: `ИмяЭлементаФормы(Объект.Реквизит):`,
     expected: {
       $type: "InputField",
       isMainAttribute: false,
@@ -51,7 +51,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "main attribute different from data path",
-    input: `%%ИмяЭлементаФормы(Объект.Реквизит):`,
+    input: `.ИмяЭлементаФормы(Объект.Реквизит):`,
     expected: {
       $type: "InputField",
       isMainAttribute: true,
@@ -64,7 +64,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region LabelDecoration
   {
     name: "label decoration",
-    input: `%РеквизитФормы`,
+    input: `РеквизитФормы`,
     expected: {
       $type: "LabelDecoration",
       isMainAttribute: false,
@@ -74,10 +74,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "label decoration with title",
-    input: `Заголовок %РеквизитФормы`,
+    input: `"Заголовок" РеквизитФормы`,
     expected: {
       $type: "LabelDecoration",
-      title: "Заголовок",
+      title: '"Заголовок"',
       isMainAttribute: false,
       elementName: "РеквизитФормы",
       $container: undefined,
@@ -85,7 +85,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "label decoration main attribute",
-    input: `%%РеквизитОбъекта`,
+    input: `.РеквизитОбъекта`,
     expected: {
       $type: "LabelDecoration",
       isMainAttribute: true,
@@ -98,7 +98,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region InputField
   {
     name: "input field",
-    input: `%Реквизит:`,
+    input: `Реквизит:`,
     expected: {
       $type: "InputField",
       isMainAttribute: false,
@@ -108,10 +108,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "input field with title",
-    input: `Подпись: %Реквизит`,
+    input: `"Подпись": Реквизит`,
     expected: {
       $type: "InputField",
-      title: "Подпись",
+      title: '"Подпись"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -119,10 +119,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "input field with data path",
-    input: `%Реквизит.Формы:`,
+    input: `.Реквизит.Формы:`,
     expected: {
       $type: "InputField",
-      isMainAttribute: false,
+      isMainAttribute: true,
       dataPath: ["Реквизит", "Формы"],
       $container: undefined,
     },
@@ -132,7 +132,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region LabelField
   {
     name: "label field",
-    input: `~%Надпись:`,
+    input: `~Надпись:`,
     expected: {
       $type: "LabelField",
       isMainAttribute: false,
@@ -142,10 +142,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "label field with title",
-    input: `~Текст: %Реквизит`,
+    input: `~"Текст": Реквизит`,
     expected: {
       $type: "LabelField",
-      title: "Текст",
+      title: '"Текст"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -156,7 +156,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region PictureField
   {
     name: "picture field",
-    input: `!%Картинка:`,
+    input: `!Картинка:`,
     expected: {
       $type: "PictureField",
       isMainAttribute: false,
@@ -166,10 +166,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "picture field with title",
-    input: `!Изображение: %Реквизит`,
+    input: `!"Изображение": Реквизит`,
     expected: {
       $type: "PictureField",
-      title: "Изображение",
+      title: '"Изображение"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -180,7 +180,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region PictureDecoration
   {
     name: "picture decoration",
-    input: `!%Декорация`,
+    input: `!Декорация`,
     expected: {
       $type: "PictureDecoration",
       isMainAttribute: false,
@@ -190,7 +190,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "picture decoration with picture",
-    input: `![Иконка] %Имя`,
+    input: `![Иконка] Имя`,
     expected: {
       $type: "PictureDecoration",
       picture: "[Иконка]",
@@ -204,7 +204,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CheckBoxField
   {
     name: "checkbox field",
-    input: `%Флаг[]`,
+    input: `Флаг[]`,
     expected: {
       $type: "CheckBoxField",
       isMainAttribute: false,
@@ -214,10 +214,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "checkbox field with title",
-    input: `Включить [] %Реквизит`,
+    input: `"Включить" [] Реквизит`,
     expected: {
       $type: "CheckBoxField",
-      title: "Включить",
+      title: '"Включить"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -228,10 +228,10 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CheckBoxFieldRightTitled
   {
     name: "checkbox right titled",
-    input: `[] Подпись %Флаг`,
+    input: `[] "Подпись" Флаг`,
     expected: {
       $type: "CheckBoxFieldRightTitled",
-      title: "Подпись",
+      title: '"Подпись"',
       isMainAttribute: false,
       dataPath: ["Флаг"],
       $container: undefined,
@@ -242,7 +242,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CheckBoxFieldSwitch
   {
     name: "checkbox switch",
-    input: `%Переключатель[|]`,
+    input: `Переключатель[|]`,
     expected: {
       $type: "CheckBoxFieldSwitch",
       isMainAttribute: false,
@@ -252,10 +252,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "checkbox switch with title",
-    input: `Режим [|] %Реквизит`,
+    input: `"Режим" [|] Реквизит`,
     expected: {
       $type: "CheckBoxFieldSwitch",
-      title: "Режим",
+      title: '"Режим"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -266,10 +266,10 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CheckBoxFieldSwitchRightTitled
   {
     name: "checkbox switch right titled",
-    input: `[|] Подпись %Реквизит`,
+    input: `[|] "Подпись" Реквизит`,
     expected: {
       $type: "CheckBoxFieldSwitchRightTitled",
-      title: "Подпись",
+      title: '"Подпись"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -280,7 +280,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CheckBoxFieldTumbler
   {
     name: "checkbox tumbler",
-    input: `%Реквизит<|>`,
+    input: `Реквизит<|>`,
     expected: {
       $type: "CheckBoxFieldTumbler",
       isMainAttribute: false,
@@ -290,10 +290,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "checkbox tumbler with title",
-    input: `Опция <|> %Реквизит`,
+    input: `"Опция" <|> Реквизит`,
     expected: {
       $type: "CheckBoxFieldTumbler",
-      title: "Опция",
+      title: '"Опция"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -304,10 +304,10 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CheckBoxFieldTumblerRightTitled
   {
     name: "checkbox tumbler right titled",
-    input: `<|> Подпись %Реквизит`,
+    input: `<|> "Подпись" Реквизит`,
     expected: {
       $type: "CheckBoxFieldTumblerRightTitled",
-      title: "Подпись",
+      title: '"Подпись"',
       isMainAttribute: false,
       dataPath: ["Реквизит"],
       $container: undefined,
@@ -318,7 +318,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region Button
   {
     name: "button",
-    input: `<%Действие>`,
+    input: `<Действие>`,
     expected: {
       $type: "Button",
       isMainAttribute: false,
@@ -328,10 +328,10 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "button with title",
-    input: `<Сохранить %Команда>`,
+    input: `<"Сохранить" Команда>`,
     expected: {
       $type: "Button",
-      title: "Сохранить",
+      title: '"Сохранить"',
       isMainAttribute: false,
       elementName: "Команда",
       $container: undefined,
@@ -342,7 +342,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region CommandBar
   {
     name: "command bar empty",
-    input: `<> %Панель`,
+    input: `<> Панель`,
     expected: {
       $type: "CommandBar",
       isMainAttribute: false,
@@ -353,7 +353,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "command bar with button",
-    input: `<Кнопка %Команда> %Панель`,
+    input: `<"Кнопка" Команда> Панель`,
     expected: {
       $type: "CommandBar",
       isMainAttribute: false,
@@ -362,7 +362,7 @@ export const parsingFixtures: ParsingFixture[] = [
       childItems: [
         {
           $type: "CommandBarButton",
-          title: "Кнопка",
+          title: '"Кнопка"',
           isMainAttribute: false,
           elementName: "Команда",
           $container: undefined,
@@ -372,7 +372,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "command bar with group",
-    input: `<- Группа %ИмяГруппы> %Панель`,
+    input: `<- "Группа" ИмяГруппы> Панель`,
     expected: {
       $type: "CommandBar",
       isMainAttribute: false,
@@ -381,7 +381,7 @@ export const parsingFixtures: ParsingFixture[] = [
       childItems: [
         {
           $type: "CommandGroup",
-          title: "Группа",
+          title: '"Группа"',
           isMainAttribute: false,
           elementName: "ИмяГруппы",
           $container: undefined,
@@ -391,7 +391,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "command bar with popup",
-    input: `<+ Выпадающий %Меню> %Панель`,
+    input: `<+ "Выпадающий" Меню> Панель`,
     expected: {
       $type: "CommandBar",
       isMainAttribute: false,
@@ -400,7 +400,7 @@ export const parsingFixtures: ParsingFixture[] = [
       childItems: [
         {
           $type: "Popup",
-          title: "Выпадающий",
+          title: '"Выпадающий"',
           isMainAttribute: false,
           elementName: "Меню",
           $container: undefined,
@@ -414,7 +414,7 @@ export const parsingFixtures: ParsingFixture[] = [
   {
     name: "form with auto command bar and child",
     input: `<<>>
-%Реквизит:`,
+Реквизит:`,
     expected: {
       $type: "InputField",
       isMainAttribute: false,
@@ -427,7 +427,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region Group
   {
     name: "group one-line horizontal",
-    input: `-%Группа %Поле:`,
+    input: `-Группа Поле:`,
     expected: {
       $type: "Group",
       group: "-",
@@ -446,11 +446,11 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group one-line with title",
-    input: `- ПодписьГруппы %Группа %Реквизит:`,
+    input: `- "ПодписьГруппы" Группа Реквизит:`,
     expected: {
       $type: "Group",
       group: "-",
-      title: "ПодписьГруппы",
+      title: '"ПодписьГруппы"',
       isMainAttribute: false,
       elementName: "Группа",
       $container: undefined,
@@ -466,7 +466,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group one-line several fields",
-    input: `- %Группа %А: ; ~%Надпись: ; <%Действие>`,
+    input: `- Группа А: ; ~Надпись: ; <Действие>`,
     expected: {
       $type: "Group",
       group: "-",
@@ -498,9 +498,9 @@ export const parsingFixtures: ParsingFixture[] = [
   {
     name: "group with indented block",
     input: `
-+%Вертикальная
-  %Поле:
-  %Декорация`,
++Вертикальная
+  Поле:
+  Декорация`,
     expected: {
       $type: "Group",
       group: "+",
@@ -526,8 +526,8 @@ export const parsingFixtures: ParsingFixture[] = [
   {
     name: "group horizontal with indented block",
     input: `
-- %Блок
-  %Реквизит:`,
+- Блок
+  Реквизит:`,
     expected: {
       $type: "Group",
       group: "-",
@@ -546,7 +546,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group one-line absolute",
-    input: `= %Группа %Реквизит:`,
+    input: `= Группа Реквизит:`,
     expected: {
       $type: "Group",
       group: "=",
@@ -568,7 +568,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region Table
   {
     name: "table empty",
-    input: `|| %ТабличныйДокумент`,
+    input: `|| ТабличныйДокумент`,
     expected: {
       $type: "Table",
       isMainAttribute: false,
@@ -579,7 +579,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "table with input field",
-    input: `| Подпись %Реквизит | %ТабличныйДокумент`,
+    input: `| "Подпись" Реквизит | ТабличныйДокумент`,
     expected: {
       $type: "Table",
       isMainAttribute: false,
@@ -588,7 +588,7 @@ export const parsingFixtures: ParsingFixture[] = [
       childItems: [
         {
           $type: "TableInputField",
-          title: "Подпись",
+          title: '"Подпись"',
           isMainAttribute: false,
           dataPath: ["Реквизит"],
           $container: undefined,
@@ -598,7 +598,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "table with horizontal group",
-    input: `|- Группа %Имя | %Документ`,
+    input: `|-"Группа" Имя | Документ`,
     expected: {
       $type: "Table",
       isMainAttribute: false,
@@ -607,7 +607,7 @@ export const parsingFixtures: ParsingFixture[] = [
       childItems: [
         {
           $type: "TableHorizontalGroup",
-          title: "Группа",
+          title: '"Группа"',
           isMainAttribute: false,
           elementName: "Имя",
           $container: undefined,
@@ -622,9 +622,9 @@ export const parsingFixtures: ParsingFixture[] = [
     name: "pages",
     // отступы (пробелы) при использовании парсера заменяются на INDENT/DEDENT (*Ё / *ё)
     input: `
-// %Страницы
-  / %Страница
-    %Декорация`,
+// Страницы
+  / Страница
+    Декорация`,
     expected: {
       $type: "Pages",
       isMainAttribute: false,
@@ -653,7 +653,7 @@ export const parsingFixtures: ParsingFixture[] = [
   // #region OtherField
   {
     name: "other field",
-    input: `?ПолеПериода %Реквизит`,
+    input: `?ПолеПериода Реквизит`,
     expected: {
       $type: "OtherField",
       type: "?ПолеПериода",

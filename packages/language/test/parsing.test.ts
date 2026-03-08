@@ -1,35 +1,24 @@
-import { EmptyFileSystem, type LangiumDocument } from "langium"
-import { clearDocuments, parseHelper } from "langium/test"
-import type { Form } from "nkdk-language"
-import { createNkdkServices } from "nkdk-language"
-import { afterEach, beforeAll, describe, expect, it } from "vitest"
+import { EmptyFileSystem } from "langium"
+import { parseHelper } from "langium/test"
+// import type { Form } from "nkdk-language"
+// import { createNkdkServices } from "nkdk-language"
+import { describe, expect, it } from "vitest"
+import { createNkdkServices, Form } from "../src"
 import { parsingFixtures } from "./parsing.fixtures"
-
-let services: ReturnType<typeof createNkdkServices>
-let parse: ReturnType<typeof parseHelper<Form>>
-let document: LangiumDocument<Form> | undefined
 
 const excludedKeys = ["$container", "$cstNode", "$containerProperty", "$containerIndex"]
 
-describe("Parsing nkdk language", () => {
-  beforeAll(async () => {
-    services = createNkdkServices(EmptyFileSystem)
-    parse = parseHelper<Form>(services.Nkdk)
-
-    // activate the following if your linking test requires elements from a built-in library, for example
-    // await services.shared.workspace.WorkspaceManager.initializeWorkspace([]);
-  })
-
-  afterEach(async () => {
-    document && clearDocuments(services.shared, [document])
-  })
-
+describe("Parsing nkdk language", async () => {
   it.sequential.each(parsingFixtures)("parse $name $input", async ({ input, expected }) => {
-    document = await parse(input)
+    const services = createNkdkServices(EmptyFileSystem)
+    const parse = parseHelper<Form>(services.Nkdk)
+    const document = await parse(input)
 
     const parseResult = document.parseResult
 
     expect(parseResult.parserErrors).toHaveLength(0)
+
+    expect(parseResult.value?.childItems).toHaveLength(1)
 
     const element = parseResult.value?.childItems?.[0]
     const cleanedElement = cleanElement(element)

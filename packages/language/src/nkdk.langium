@@ -10,14 +10,9 @@ terminal ABSGROUP: /\=/;
 
 terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*[\t ]*\]/;
 
-/** Несколько слов с пробелами (для заголовка без кавычек). Минимум два слова — не конфликтует с NAME. */
-terminal UNQUOTED_TITLE: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*[\t ]+[a-zA-Zа-яА-ЯёЁ0-9_]+([\t ]*[a-zA-Zа-яА-ЯёЁ0-9_]*)*/;
-
-/** Идентификатор (имя поля и т.д.). Одно слово — не конфликтует с QUOTED_TEXT и UNQUOTED_TITLE. */
 terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*/;
 
-/** Заголовок в кавычках: в двойных "" экранирует ", в одинарных '' экранирует '. */
-terminal QUOTED_TEXT: /"(?:[^"]|"")*"|'(?:[^']|'')*'/;
+terminal TEXT: /"(?:[^"]|"")*"|'(?:[^']|'')*'/;
 
 terminal SEARCHFIELD: /\?(УправлениеПоиском|ОтображениеСтрокиПоиска)/;
 
@@ -36,13 +31,10 @@ fragment DataPath:
   dataPath+=NAME ('.' dataPath+=NAME)*;
 
 fragment Name:
-    '%'(isMainAttribute?='%')? elementName=NAME;
+    (isMainAttribute?='.')? elementName=NAME;
 
 fragment NameAndDataPath:
-    '%'(isMainAttribute?='%')? ((elementName=NAME '(' DataPath ')') | DataPath);
-
-/** Заголовок: в кавычках, несколько слов без кавычек или одно слово (NAME). */
-TEXT returns string: QUOTED_TEXT | UNQUOTED_TITLE | NAME;
+    (isMainAttribute?='.')? ((elementName=NAME '(' DataPath ')') | DataPath);
 
 fragment Titled:
     (title=TEXT)?;
