@@ -1,5 +1,6 @@
 import { v4 } from "uuid"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { UUID_TEST } from "~/metadata/helpers/uuid"
 
 export const receiveUUID = (params: {
   context: ConfigurationContextWithExportToXML
@@ -7,6 +8,10 @@ export const receiveUUID = (params: {
   path?: string
 }): string => {
   const { context, parentPath, path } = params
+
+  if (context.testMode) {
+    return UUID_TEST
+  }
   const configDumpInfo = context.exportToXML.configDumpInfo
 
   let parentInfo = configDumpInfo.get(parentPath)

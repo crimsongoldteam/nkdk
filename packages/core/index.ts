@@ -5,7 +5,6 @@ export {
   importMetadataCatalogFromXML,
   importMetadataCatalogFromYAML,
   type MetadataCatalog,
-  type MetadataCatalogContext,
   type MetadataCatalogXML,
   type MetadataCatalogYAML,
 } from "./metadata/appliedObjects/metadataCatalog/index"

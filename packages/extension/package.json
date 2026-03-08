@@ -5,7 +5,7 @@
   "displayName": "nkdk-test",
   "type": "module",
   "engines": {
-    "vscode": "^1.67.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Programming Languages"
@@ -54,7 +54,8 @@
     "build:prepare": "",
     "build": "npm run build:prepare && tsc -b tsconfig.json && node esbuild.mjs",
     "build:clean": "npm run clean && npm run build",
-    "watch": "npm run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\""
+    "watch": "npm run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\"",
+    "package": "npm run build && npx --yes @vscode/vsce package"
   },
   "dependencies": {
     "@nakidka/core": "workspace:*",
@@ -68,6 +69,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "~11.0.4",
+    "@vscode/vsce": "~3.7.1",
     "@types/vscode": "~1.67.0",
     "concurrently": "~8.2.1",
     "esbuild": "~0.25.5",

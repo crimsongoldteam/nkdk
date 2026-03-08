@@ -190,8 +190,5 @@
 			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
 			<UseStandardCommands>true</UseStandardCommands>
 		</Properties>
-		<ChildObjects>
-			<Form>ФормаЭлемента</Form>
-		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

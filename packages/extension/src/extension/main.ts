@@ -1,3 +1,4 @@
+import { syncConfigurationFromXML } from "@nakidka/core"
 import * as path from "node:path"
 import * as vscode from "vscode"
 import type { BaseLanguageClient } from "vscode-languageclient"
@@ -7,7 +8,6 @@ import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
 import { activateYAML } from "./yaml/node/yamlClientMain.js"
-import { syncConfigurationFromXML } from "@nakidka/core"
 
 const languageClients: BaseLanguageClient[] = []
 let sseServer: SseServerHandle | undefined
@@ -84,7 +84,7 @@ async function runImportConfigurationFromXml(): Promise<void> {
   }
   const inputDir = selected[0].fsPath
   const outputDir = workspaceFolder.uri.fsPath
-  const context = { defaultLanguage: "ru", exportToYAML: { toTyped: false } }
+  const context = { defaultLanguage: "ru", version: "2.20", exportToYAML: { toTyped: false } }
   try {
     await vscode.window.withProgress(
       {

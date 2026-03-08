@@ -4,12 +4,9 @@ import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataTabularSectionsToXML } from "./toXML"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 
-vi.mock("uuid", () => ({
-  v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
-}))
-
-const mockContextWithParent = {
+const mockContextWithParent: ConfigurationContextWithExportToXML = {
   ...mockContextToXML(),
   exportToXML: {
     ...mockContextToXML().exportToXML,
@@ -18,6 +15,10 @@ const mockContextWithParent = {
 }
 
 describe("exportMetadataTabularSectionsToXML", () => {
+  vi.mock("uuid", () => ({
+    v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
+  }))
+
   it("should export all possible properties", () => {
     const expectedXml = readXMLFileAsString("metadataTabularSection/full.xml")
 

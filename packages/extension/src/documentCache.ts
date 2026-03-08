@@ -28,6 +28,7 @@ type NkdkDocumentCache = {
 const getConfigurationContext = (): ConfigurationContext => {
   return {
     defaultLanguage: "ru",
+    version: "2.20",
   }
 }
 

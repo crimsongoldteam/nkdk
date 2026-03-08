@@ -35,6 +35,7 @@ export async function getPayload(document: vscode.TextDocument): Promise<ClientA
       attributes: {},
       elementsTree: [],
     },
+    version: "2.20",
   }
   const form = await getFormFromCache(document)
   if (!form) {
