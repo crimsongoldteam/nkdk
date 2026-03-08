@@ -98,6 +98,9 @@ export function startClient(
       fileEvents: [workspace.createFileSystemWatcher("**/*.yaml")],
     },
     revealOutputChannelOn: RevealOutputChannelOn.Never,
+    initializationOptions: {
+      l10nPath: context.asAbsolutePath("out/extension/l10n"),
+    },
   }
 
   client = newLanguageClient("yaml", lsName, clientOptions)
