@@ -272,9 +272,6 @@ importers:
       esbuild:
         specifier: ~0.25.5
         version: 0.25.12
-      esbuild-plugins-node-modules-polyfill:
-        specifier: ^1.8.1
-        version: 1.8.1(esbuild@0.25.12)
       shx:
         specifier: ~0.3.4
         version: 0.3.4
@@ -1070,9 +1067,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@jspm/core@2.1.0':
-    resolution: {integrity: sha512-3sRl+pkyFY/kLmHl0cgHiFp2xEqErA8N3ECjMs7serSUBmoJ70lBa0PG5t0IM6WJgdZNyyI0R8YFfi5wM8+mzg==}
 
   '@microsoft/api-extractor-model@7.33.4':
     resolution: {integrity: sha512-u1LTaNTikZAQ9uK6KG1Ms7nvNedsnODnspq/gH2dcyETWvH4hVNGNDvRAEutH66kAmxA4/necElqGNs1FggC8w==}
@@ -2524,12 +2518,6 @@ packages:
     resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
     engines: {node: '>= 0.4'}
 
-  esbuild-plugins-node-modules-polyfill@1.8.1:
-    resolution: {integrity: sha512-7vxzmyTFDhYUNhjlciMPmp32eUafNIHiXvo8ZD22PzccnxMoGpPnsYn17gSBoFZgpRYNdCJcAWsQ60YVKgKg3A==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      esbuild: '>=0.14.0 <=0.27.x'
-
   esbuild@0.25.12:
     resolution: {integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==}
     engines: {node: '>=18'}
@@ -3482,10 +3470,6 @@ packages:
 
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
-
-  resolve.exports@2.0.3:
-    resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
-    engines: {node: '>=10'}
 
   resolve@1.22.11:
     resolution: {integrity: sha512-RfqAvLnMl313r7c9oclB1HhUEAezcpLjz95wFH4LVuhk9JF/r22qmVP9AMmOU4vMX7Q8pN8jwNg/CSpdFnMjTQ==}
@@ -4962,8 +4946,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@jspm/core@2.1.0': {}
 
   '@microsoft/api-extractor-model@7.33.4(@types/node@24.12.0)':
     dependencies:
@@ -6689,13 +6671,6 @@ snapshots:
       has-tostringtag: 1.0.2
       hasown: 2.0.2
 
-  esbuild-plugins-node-modules-polyfill@1.8.1(esbuild@0.25.12):
-    dependencies:
-      '@jspm/core': 2.1.0
-      esbuild: 0.25.12
-      local-pkg: 1.1.2
-      resolve.exports: 2.0.3
-
   esbuild@0.25.12:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.25.12
@@ -7736,8 +7711,6 @@ snapshots:
   resize-observer-polyfill@1.5.1: {}
 
   resolve-pkg-maps@1.0.0: {}
-
-  resolve.exports@2.0.3: {}
 
   resolve@1.22.11:
     dependencies:

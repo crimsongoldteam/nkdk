@@ -1,9 +1,9 @@
 {
-  "name": "vscode-nkdk-test",
-  "description": "The extension specific package",
+  "name": "nkdk",
+  "description": "The extension for 1C:Enterprise configuration in YAML format",
+  "publisher": "nikita-zherebtsov",
   "version": "0.0.1",
-  "displayName": "nkdk-test",
-  "type": "module",
+  "displayName": "nkdk",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -47,15 +47,15 @@
       }
     ]
   },
-  "main": "./out/extension/main.cjs",
+  "main": "./out/extension/extension.cjs",
   "repository": {
     "type": "git",
     "url": "https://github.com/crimsongoldteam/nkdk"
   },
   "scripts": {
-    "clean": "shx rm -fr *.tsbuildinfo out",
+    "clean": "shx rm -fr *.tsbuildinfo ./out/extension",
     "vscode:prepublish": "pnpm run build",
-    "build:prepare": "",
+    "build:prepare": "true",
     "build": "pnpm run build:prepare && tsc -b tsconfig.json && node esbuild.mjs",
     "build:clean": "pnpm run clean && pnpm run build",
     "watch": "pnpm run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\"",
