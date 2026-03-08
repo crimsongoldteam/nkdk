@@ -11,3 +11,4 @@ out/
 # syntaxes/
 *.tsbuildinfo
 *.vsix
+.vsix-pack/
