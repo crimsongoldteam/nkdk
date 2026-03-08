@@ -9,8 +9,8 @@ describe("DataPath to Enterprise", () => {
     "should $name",
     ({
       attributes,
-      tableDataPath,
-      tableOrginalDataPath,
+      tableDataPathEnterprise: tableDataPath,
+      tableDataPath: tableOrginalDataPath,
       dataPath,
       expectedDataPath,
       expectedAttributes,

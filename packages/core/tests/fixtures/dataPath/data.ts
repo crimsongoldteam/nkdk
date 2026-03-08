@@ -4,8 +4,8 @@ export interface GetAttributeNameFixture {
   name: string
   attributes: EnterpriseAttributesMap
   dataPath: string | undefined
+  tableDataPathEnterprise?: string | undefined
   tableDataPath?: string | undefined
-  tableOrginalDataPath?: string | undefined
 
   expectedDataPath: string | undefined
   expectedAttributes: EnterpriseAttributesMap
@@ -55,12 +55,17 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
   {
     name: "return dataPath for table",
     attributes: {},
-    tableDataPath: "p_Table",
-    tableOrginalDataPath: "table",
+    tableDataPathEnterprise: "p_Table",
+    tableDataPath: "Table",
     dataPath: "Table.Test",
     expectedDataPath: "p_Table.Test",
     expectedAttributes: {
-      "table.test": { name: "Test", title: "Test", table: "p_Table", type: { Type: ["string"] } },
+      "table.test": {
+        name: "Test",
+        title: "Test",
+        table: "Table",
+        type: { Type: ["string"] },
+      },
     },
   },
   {
@@ -68,8 +73,8 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
     attributes: {
       "object.table": { name: "p_ObjectTable1", type: { Type: ["Table"] } },
     },
-    tableDataPath: "p_ObjectTable1",
-    tableOrginalDataPath: "Object.Table",
+    tableDataPathEnterprise: "p_ObjectTable1",
+    tableDataPath: "Object.Table",
     dataPath: "Object.Table.Test",
     expectedDataPath: "p_ObjectTable1.Test",
     expectedAttributes: {
@@ -77,7 +82,7 @@ export const getAttributeNameFixtures: GetAttributeNameFixture[] = [
       "object.table.test": {
         name: "Test",
         title: "Test",
-        table: "p_ObjectTable1",
+        table: "Object.Table",
         type: { Type: ["string"] },
       },
     },

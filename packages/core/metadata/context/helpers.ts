@@ -36,7 +36,7 @@ export const getParentFromContext = (
   itemTypes?: MetadataItemType[]
 ): ContextElementToXML => {
   const elements = context.exportToXML.itemsTree
-  if (!elements || elements.length === 0) throw new Error("Parent element not found in context")
+  if (!elements || elements.length === 0) return { itemType: "MetadataCatalog", name: "", path: "" }
 
   for (let i = elements.length - 1; i >= 0; i--) {
     const element = elements[i]
@@ -45,7 +45,7 @@ export const getParentFromContext = (
     }
   }
 
-  throw new Error("Parent element not found in context")
+  return { itemType: "MetadataCatalog", name: "", path: "" }
 }
 
 /** Возвращает таблицу, ближайшую к концу массива. Если таблица — последний элемент, возвращает undefined. */
@@ -59,8 +59,13 @@ export const getCurrentTableFromContext = (context: ConfigurationContext): Conte
 
   for (let i = elements.length - 1; i >= 0; i--) {
     const element = elements[i]
-    return element
+
+    if (element.itemType === "Table") {
+      return element
+    }
   }
+
+  return undefined
 }
 
 export const getCurrentElementFromContext = (context: ConfigurationContext): ContextElementToEnterprise | undefined => {
