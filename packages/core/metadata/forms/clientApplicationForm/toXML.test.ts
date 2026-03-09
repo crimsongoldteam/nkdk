@@ -7,14 +7,32 @@ import {
   minimalClientApplicationFormReference,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
+import { importClientApplicationFormFromXML } from "./fromXML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
+import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 
 describe("exportToXML", () => {
   describe("exportClientApplicationFormToXML", () => {
     it("should export all fields to XML", () => {
       const expectedResult = readXMLFileAsString("forms/clientApplicationForm/full.xml")
+
+      const referenceForm = readAndParseXMLFile<{ Form: ClientApplicationFormXML }>(
+        "forms/clientApplicationForm/full.xml"
+      )
+
+      const referenceMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
+        "forms/clientApplicationForm/fullMetadata.xml"
+      )
+
+      const clientApplicationFormReference = importClientApplicationFormFromXML({
+        context: mockContextToXML(),
+        xml: referenceForm.Form,
+        xmlMetadata: referenceMetadata.MetaDataObject,
+        forReference: true,
+      })
+
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: fullClientApplicationForm,

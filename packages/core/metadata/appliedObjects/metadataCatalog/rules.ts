@@ -56,7 +56,7 @@ export const MetadataCatalogRules = {
     },
     characteristics: {
       yaml: "Характеристики",
-      type: "CharacteristicsDescription",
+      type: "CharacteristicsDescriptions",
       xmlParents: catalogProperties,
     },
     checkUnique: {
@@ -274,6 +274,7 @@ export const MetadataCatalogRules = {
     name: {
       type: "string",
       xmlParents: catalogProperties,
+      required: true,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",

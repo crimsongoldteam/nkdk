@@ -10,6 +10,7 @@ export const InputFieldRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     allowInputEmptyMultipleValues: {

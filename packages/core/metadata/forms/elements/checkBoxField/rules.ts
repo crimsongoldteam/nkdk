@@ -10,6 +10,7 @@ export const CheckBoxFieldRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     backColor: { yaml: "ЦветФона", type: "Color" },

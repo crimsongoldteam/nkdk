@@ -1,31 +1,28 @@
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
-import { getElementId } from "~/metadata/helpers/getElementId"
-import { ToMetadata } from ".."
+import { ToMetadata, ToReference } from ".."
 import { exportEventsToXML } from "../event"
 import { exportPropertiesToXML } from "../property/toXML"
 import { getElementRule } from "./ruleFactory"
-import { ElementRule, ElementXML } from "./types"
+import { ElementRule, ElementXMLWithoutId } from "./types"
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContextWithExportToXML
   element: T
-}): ElementXML | undefined {
+  referenceElement?: ToReference<T["itemType"]>
+}): ElementXMLWithoutId | undefined {
   const { element, context } = params
 
   if (element === undefined) return undefined
 
   const name = element.name
-  const id = getElementId(context)
   const rule = getElementRule(element.itemType)
 
   return exportToXML({
     context,
     element: element as ToMetadata<typeof rule.itemType>,
     rule,
-    id,
     name,
   })
 }
@@ -33,21 +30,21 @@ export function exportElementToXML<T extends NamedElement>(params: {
 export function exportSingleElementToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
+  referenceElement?: ToReference<Rule["itemType"]>
   rule: ElementRule
-  id: string
   name: string
-}): ElementXML {
+}): ElementXMLWithoutId {
   return exportToXML(params)
 }
 
 function exportToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
+  referenceElement?: ToReference<Rule["itemType"]>
   rule: Rule
-  id: string
   name: string
-}): ElementXML {
-  const { context, element, rule, id, name } = params
+}): ElementXMLWithoutId {
+  const { context, element, referenceElement, rule, name } = params
   const itemType = rule.itemType
 
   const currentContext: ConfigurationContextWithExportToXML = getChildContextToXML({
@@ -69,14 +66,19 @@ function exportToXML<Rule extends ElementRule>(params: {
     data: element,
   })
 
-  const result: ElementXML = {
+  const result: ElementXMLWithoutId = {
     _name: name,
-    _id: id,
     ...properties,
     ...eventsResult,
   }
 
-  return sortObject(result)
+  context.exportToXML?.context?.elementsMap.push({
+    element,
+    referenceElement: referenceElement,
+    xmlElement: result,
+  })
+
+  return result
 }
 
 // Moved to ../events/mapEventsToXML.ts

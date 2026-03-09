@@ -6,6 +6,7 @@ export const FormCommandRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     title: {

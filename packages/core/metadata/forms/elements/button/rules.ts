@@ -10,6 +10,7 @@ export const ButtonRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },

@@ -3,8 +3,8 @@ import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/a
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import {
-  CharacteristicsDescription,
-  CharacteristicsDescriptionYAML,
+  CharacteristicsDescriptions,
+  CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
@@ -176,7 +176,7 @@ export type PropertyTypeRegistry = {
   }
   UserVisible: {
     item: UserVisible
-    enterprise: unknown
+
     yaml: UserVisibleYAML
   }
   TableAdditionalSource: {
@@ -186,12 +186,12 @@ export type PropertyTypeRegistry = {
   }
   StandardAttributeDescription: {
     item: StandardAttributeDescription
-    enterprise: unknown
+
     yaml: StandardAttributeDescriptionYAML
   }
   StandardAttributeDescriptions: {
     item: StandardAttributeDescriptions
-    enterprise: unknown
+
     yaml: StandardAttributeDescriptionsYAML
   }
   MetadataType: {
@@ -206,17 +206,16 @@ export type PropertyTypeRegistry = {
   }
   AdditionalIndex: {
     item: AdditionalIndex
-    enterprise: unknown
+
     yaml: AdditionalIndexYAML
   }
-  CharacteristicsDescription: {
-    item: CharacteristicsDescription
-    enterprise: unknown
-    yaml: CharacteristicsDescriptionYAML
+  CharacteristicsDescriptions: {
+    item: CharacteristicsDescriptions
+    yaml: CharacteristicsDescriptionsYAML
   }
   ChoiceList: {
     item: ChoiceList
-    enterprise: unknown
+
     yaml: ChoiceListYAML
   }
   ChoiceParameterLinks: {
@@ -226,7 +225,7 @@ export type PropertyTypeRegistry = {
   }
   ChoiceParameters: {
     item: ChoiceParameters
-    enterprise: unknown
+
     yaml: ChoiceParametersYAML
   }
   FieldsList: {
@@ -246,7 +245,7 @@ export type PropertyTypeRegistry = {
   }
   MetadataAttribute: {
     item: MetadataAttribute
-    enterprise: unknown
+
     yaml: MetadataAttributeYAML
   }
   MetadataCommandGroup: {
@@ -271,12 +270,12 @@ export type PropertyTypeRegistry = {
   }
   MetadataTabularSections: {
     item: MetadataTabularSections
-    enterprise: unknown
+
     yaml: MetadataTabularSectionsYAML
   }
   MetadataValue: {
     item: MetadataValue
-    enterprise: unknown
+
     yaml: MetadataValueYAML
   }
   MetadataValueCollection: {
@@ -286,12 +285,10 @@ export type PropertyTypeRegistry = {
   }
   Predefined: {
     item: Predefined
-    enterprise: unknown
     yaml: PredefinedYAML
   }
   TypeLink: {
     item: TypeLink
-    enterprise: unknown
     yaml: TypeLinkYAML
   }
   UsePurposes: {
@@ -308,64 +305,53 @@ export type PropertyTypeRegistry = {
 
   MetadataAttributes: {
     item: MetadataAttributes
-    enterprise: unknown
     yaml: MetadataAttributesYAML
   }
   MetadataItemLinks: {
     item: MetadataItemLinks
-    enterprise: unknown
     yaml: MetadataItemLinksYAML
   }
   MetadataCommands: {
     item: MetadataCommands
-    enterprise: unknown
     yaml: MetadataCommandsYAML
   }
   CommandInterface: {
     item: CommandInterface
-    enterprise: unknown
     yaml: CommandInterfaceYAML
   }
 
   AssociatedTable: {
     item: string
-    enterprise: unknown
     yaml: string
   }
 
   DynamicList: {
     item: DynamicList
-    enterprise: unknown
     yaml: DynamicListYAML
   }
 
   CommandSet: {
     item: CommandSet
-    enterprise: unknown
     yaml: CommandSetYAML
   }
 
   FormCommands: {
     item: FormCommands
-    enterprise: unknown
     yaml: FormCommandsYAML
   }
 
   FormAttributes: {
     item: FormAttributes
-    enterprise: unknown
     yaml: FormAttributesYAML
   }
 
   FormParameters: {
     item: FormParameters
-    enterprise: unknown
     yaml: FormParametersYAML
   }
 
   FormAttributeColumns: {
     item: FormAttributeColumns
-    enterprise: unknown
     yaml: FormAttributeColumnsYAML
   }
 
@@ -381,41 +367,34 @@ export type PropertyTypeRegistry = {
 
   ContextMenu: {
     item: ContextMenu
-    enterprise: unknown
     yaml: ContextMenuYAML
   }
 
   ExtendedTooltip: {
     item: ExtendedTooltip
-    enterprise: unknown
     yaml: ExtendedTooltipYAML
   }
 
   SingleSearchControlAddition: {
     item: SingleSearchControlAddition
-    enterprise: unknown
     yaml: SingleSearchControlAdditionYAML
   }
 
   SingleSearchStringAddition: {
     item: SingleSearchStringAddition
-    enterprise: unknown
     yaml: SingleSearchStringAdditionYAML
   }
 
   ViewStatusAddition: {
     item: ViewStatusAddition
-    enterprise: unknown
     yaml: ViewStatusAdditionYAML
   }
   AutoCommandBar: {
     item: AutoCommandBar
-    enterprise: unknown
     yaml: AutoCommandBarYAML
   }
   TableAutoCommandBar: {
     item: AutoCommandBar
-    enterprise: unknown
     yaml: AutoCommandBarYAML
   }
 
@@ -476,7 +455,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataType: "MetadataType",
   MetadataTypeCollection: "MetadataTypeCollection",
   AdditionalIndex: "AdditionalIndex",
-  CharacteristicsDescription: "CharacteristicsDescription",
+  CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   ChoiceParameterLinks: "ChoiceParameterLinks",
   ChoiceParameters: "ChoiceParameters",
@@ -519,8 +498,22 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormParameters: "FormParameters",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
-export type PropertyToMetadata<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["item"]
-export type PropertyToEnterprise<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["enterprise"]
-export type PropertyToYAML<Key extends PropertyRuleType> = PropertyTypeRegistry[Key]["yaml"]
+export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType
+  ? "item" extends keyof PropertyTypeRegistry[Key]
+    ? PropertyTypeRegistry[Key]["item"]
+    : undefined
+  : never
+
+export type PropertyToEnterprise<Key extends PropertyRuleType> = Key extends PropertyRuleType
+  ? "enterprise" extends keyof PropertyTypeRegistry[Key]
+    ? PropertyTypeRegistry[Key]["enterprise"]
+    : undefined
+  : never
+
+export type PropertyToYAML<Key extends PropertyRuleType> = Key extends PropertyRuleType
+  ? "yaml" extends keyof PropertyTypeRegistry[Key]
+    ? PropertyTypeRegistry[Key]["yaml"]
+    : undefined
+  : never
 
 // export const TypesNames = PropertyType

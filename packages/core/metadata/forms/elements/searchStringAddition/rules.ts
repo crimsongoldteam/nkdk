@@ -76,6 +76,7 @@ export const SearchStringAdditionRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     additionSource: {

@@ -10,6 +10,7 @@ export const TableRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },

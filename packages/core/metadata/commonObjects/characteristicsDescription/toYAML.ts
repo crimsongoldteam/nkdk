@@ -91,4 +91,4 @@ export const exportCharacteristicsDescriptionsToYAML = (
   )
 }
 
-registerTypeRule("CharacteristicsDescription", "exportToYAML", exportCharacteristicsDescriptionsToYAML)
+registerTypeRule("CharacteristicsDescriptions", "exportToYAML", exportCharacteristicsDescriptionsToYAML)

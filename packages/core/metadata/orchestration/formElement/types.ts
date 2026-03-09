@@ -90,11 +90,11 @@ export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
 
 //#region ElementXML
 
-export interface ElementXML {
+export interface ElementXMLWithoutId {
   _name: string
-  _id: string
   [key: string]: any
 }
+export type ElementXML = ElementXMLWithoutId & { _id: string }
 
 //#endregion
 

@@ -4,6 +4,7 @@ import {
   ElementRule,
   ElementType,
   ElementXML,
+  ElementXMLWithoutId,
   PropertyRule,
   SingleElementType,
   ToMetadata,
@@ -37,7 +38,7 @@ export const clearElementRulesRegistry = (): void => {
 type ToXMLFn<T extends BaseElement> = (
   context: ConfigurationContextWithExportToXML,
   element: T | undefined
-) => { id: string; name: string }
+) => { id?: string; name: string }
 
 export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
   propertyType: PropertyRuleType
@@ -62,7 +63,8 @@ const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyR
         context,
         elementRule: elementRule,
         xml,
-      })
+        forReference: false,
+      }) as ToMetadata<Rule["itemType"]> | undefined
     }
   )
 }
@@ -117,7 +119,7 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
       context: ConfigurationContextWithExportToXML,
       _rule: PropertyRule,
       value: ToMetadata<Rule["itemType"]> | undefined
-    ): ElementXML => {
+    ): ElementXMLWithoutId => {
       const extraParams = toXML(context, value)
 
       return exportSingleElementToXML({

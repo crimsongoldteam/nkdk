@@ -38,7 +38,7 @@ const importMetadataCommandFromXML = (
     }
   }
 
-  const properties = importPropertiesFromXML<MetadataCommand & { itemType: "MetadataCommand" }>({
+  const properties = importPropertiesFromXML({
     context,
     xml: props,
     rule: MetadataCommandRules,

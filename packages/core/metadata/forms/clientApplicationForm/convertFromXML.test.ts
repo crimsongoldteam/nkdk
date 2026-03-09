@@ -3,9 +3,9 @@ import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncForm/data"
 import { mockContextToYAML } from "~/tests/mockContext"
-import { convertFormFromXML } from "./convertFormFromXML"
+import { convertFormFromXML } from "./convertFromXML"
 
-describe("readForm", () => {
+describe("import from XML string", () => {
   const inputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/xml/Forms")
   const outputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/out")
   const formName = "ФормаЭлемента"

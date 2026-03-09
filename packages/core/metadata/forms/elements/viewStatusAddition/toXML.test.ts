@@ -21,6 +21,7 @@ describe("exportViewStatusAdditionToXML", () => {
           forms: [],
           templates: [],
           parentName: "",
+          elementsMap: [],
         },
       },
     }
@@ -48,6 +49,7 @@ describe("exportViewStatusAdditionToXML", () => {
           forms: [],
           templates: [],
           parentName: "",
+          elementsMap: [],
         },
       },
     }

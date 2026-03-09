@@ -81,4 +81,4 @@ export const importCharacteristicsDescriptionsFromYAML = (
     .filter((item): item is CharacteristicsDescription => item !== undefined)
 }
 
-registerTypeRule("CharacteristicsDescription", "importFromYAML", importCharacteristicsDescriptionsFromYAML)
+registerTypeRule("CharacteristicsDescriptions", "importFromYAML", importCharacteristicsDescriptionsFromYAML)

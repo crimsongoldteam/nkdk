@@ -5,7 +5,7 @@ import { FormCommandRules } from "./rules"
 import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
 
 const importCommandFromXML = (context: ConfigurationContext, xml: FormCommandXML): FormCommand => {
-  const properties = importPropertiesFromXML<FormCommand>({
+  const properties = importPropertiesFromXML({
     context,
     xml,
     rule: FormCommandRules,

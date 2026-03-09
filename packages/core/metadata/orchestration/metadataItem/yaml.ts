@@ -46,7 +46,7 @@ type UserVisibleByRule<Rule extends { properties: Record<string, PropertyRule> }
     : never]?: UserVisibleYAML
 }
 
-export type EventsByRule<Rule extends { events?: Record<string, string> }> = "events" extends keyof Rule
+type EventsByRule<Rule extends { events?: Record<string, string> }> = "events" extends keyof Rule
   ? Rule["events"] extends infer Events
     ? { События?: { [K in Extract<Events[keyof Events], string>]?: string } }
     : {}

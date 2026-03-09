@@ -35,6 +35,12 @@ export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
       itemsTree: [],
       configDumpInfo: new Map(),
       version: "2.20",
+      context: {
+        elementsMap: [],
+        forms: [],
+        templates: [],
+        parentName: "",
+      },
     },
   }
 }

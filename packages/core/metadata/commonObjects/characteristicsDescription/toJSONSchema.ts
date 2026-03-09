@@ -2,8 +2,8 @@ import { TSchema } from "@sinclair/typebox"
 import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
 import { CharacteristicsDescriptionsJSONSchema } from "./types"
 
-export const exportCharacteristicsDescriptionToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
+export const exportCharacteristicsDescriptionsToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
   return CharacteristicsDescriptionsJSONSchema
 }
 
-registerTypeRule("CharacteristicsDescription", "exportToJSONSchema", exportCharacteristicsDescriptionToJSONSchema)
+registerTypeRule("CharacteristicsDescriptions", "exportToJSONSchema", exportCharacteristicsDescriptionsToJSONSchema)

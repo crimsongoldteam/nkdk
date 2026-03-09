@@ -14,7 +14,11 @@ describe("importClientApplicationFormFromXML", () => {
     const xmlMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
       "forms/clientApplicationForm/fullMetadata.xml"
     )
-    const result = importClientApplicationFormFromXML(mockContext, xmlForm.Form, xmlMetadata.MetaDataObject)
+    const result = importClientApplicationFormFromXML({
+      context: mockContext,
+      xml: xmlForm.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
 
     expect(result).toEqual(fullClientApplicationForm)
   })
@@ -24,7 +28,11 @@ describe("importClientApplicationFormFromXML", () => {
     const xmlMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
       "forms/clientApplicationForm/minimalMetadata.xml"
     )
-    const result = importClientApplicationFormFromXML(mockContext, xmlData.Form, xmlMetadata.MetaDataObject)
+    const result = importClientApplicationFormFromXML({
+      context: mockContext,
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
 
     expect(result).toEqual(minimalClientApplicationForm)
   })

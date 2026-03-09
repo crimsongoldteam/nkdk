@@ -26,6 +26,7 @@ export const importChildItemsFromXML = <
       context: context,
       itemType: itemType,
       xml: xmlValue,
+      forReference: false,
     })!
   }) as From[]
 }

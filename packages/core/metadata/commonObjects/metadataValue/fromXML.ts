@@ -1,5 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
@@ -216,6 +217,13 @@ export const importAssociatedTableFromXML = (
   return importMetadataValueFromXMLAsPrimitive(context, rule, data, "string")
 }
 
-registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXML)
+const importMetadataValueFromXMLForRule: ImportFromXMLFunction = (
+  context,
+  rule,
+  value,
+  _forReference
+) => importMetadataValueFromXML(context, rule, value)
+
+registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXMLForRule)
 
 registerTypeRule("AssociatedTable", "importFromXML", importAssociatedTableFromXML)

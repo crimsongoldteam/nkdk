@@ -39,7 +39,7 @@ const importMetadataAttributeFromXML = (
     }
   }
 
-  const properties = importPropertiesFromXML<MetadataAttribute>({
+  const properties = importPropertiesFromXML({
     context,
     xml: props,
     rule: MetadataAttributeRules,

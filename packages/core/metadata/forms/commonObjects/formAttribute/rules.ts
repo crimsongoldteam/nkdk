@@ -6,6 +6,7 @@ export const FormAttributeRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     title: {
@@ -91,6 +92,7 @@ export const FormAttributeColumnRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     title: {

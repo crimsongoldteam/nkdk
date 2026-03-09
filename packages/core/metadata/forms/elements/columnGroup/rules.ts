@@ -10,6 +10,7 @@ export const ColumnGroupRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     childItems: { type: "TableChildItems", defaultValue: [] },

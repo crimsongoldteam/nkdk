@@ -1,20 +1,38 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ToMetadata, ToReference } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { getValueOrDefault } from "./helpers"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import { MetadataItemRule, PropertyRule } from "./types"
 
-export const importPropertiesFromXML = <T extends MetadataItem>(params: {
+export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
   xml: any
-  rule: MetadataItemRule
+  rule: Rule
   tags?: string[]
-}): Omit<T, "itemType"> | undefined => {
-  const { context, xml, rule, tags } = params
+}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined
+export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
+  context: ConfigurationContext
+  xml: any
+  rule: Rule
+  tags?: string[]
+  forReference: true
+}): Omit<ToReference<Rule["itemType"]>, "itemType"> | undefined
+export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
+  context: ConfigurationContext
+  xml: any
+  rule: Rule
+  tags?: string[]
+  forReference?: true
+}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | Omit<ToReference<Rule["itemType"]>, "itemType"> | undefined {
+  const { context, xml, rule, tags, forReference } = params
 
   if (!xml) return undefined
 
-  const result: T = {} as T
+  const result = {} as
+    | Omit<ToMetadata<Rule["itemType"]>, "itemType">
+    | Omit<ToReference<Rule["itemType"]>, "itemType">
+    | undefined
 
   for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     if (tags && (!currentRule.tag || !tags.includes(currentRule.tag))) continue
@@ -26,6 +44,7 @@ export const importPropertiesFromXML = <T extends MetadataItem>(params: {
             rule: currentRule,
             value: getXMLValue(key, xml, currentRule),
             name: key,
+            forReference,
           })
         : undefined
 
@@ -65,8 +84,9 @@ export const importPropertyFromXML = (params: {
   rule: PropertyRule
   value: any
   name?: string
+  forReference?: boolean
 }): any => {
-  const { context, rule, value, name } = params
+  const { context, rule, value, name, forReference } = params
 
   const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
@@ -74,7 +94,7 @@ export const importPropertyFromXML = (params: {
     return getValueOrDefault({ context, rule, value, name, operation: "importFromXML" })
   }
 
-  const result = typeImportFn(context, rule, value)
+  const result = typeImportFn(context, rule, value, forReference)
 
   return getValueOrDefault({ context, rule, value: result, name, operation: "importFromXML" })
 }

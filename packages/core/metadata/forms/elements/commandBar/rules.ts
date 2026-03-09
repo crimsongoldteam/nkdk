@@ -10,6 +10,7 @@ export const CommandBarRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     autofill: { yaml: "Автозаполнение", type: "boolean" },

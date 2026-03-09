@@ -10,6 +10,7 @@ export const PDFDocumentFieldRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     displayImportance: {

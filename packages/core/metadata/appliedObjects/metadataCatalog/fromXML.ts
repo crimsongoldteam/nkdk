@@ -7,11 +7,13 @@ export const importMetadataCatalogFromXML = (
   context: ConfigurationContext,
   xml: MetadataCatalogXML
 ): MetadataCatalog => {
-  const result = importPropertiesFromXML<MetadataCatalog>({
+  const result = importPropertiesFromXML({
     context,
     xml: xml,
     rule: MetadataCatalogRules,
-  })!
+  })
+
+  if (!result) throw new Error("Failed to import MetadataCatalog from XML")
 
   return {
     ...result,

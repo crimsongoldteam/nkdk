@@ -10,6 +10,7 @@ export const ButtonGroupRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     childItems: {

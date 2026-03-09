@@ -1,7 +1,7 @@
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
-import { ElementType, MetadataItemType } from "../orchestration"
+import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata, ToReference } from "../orchestration"
 
 export type ContextElementToXML = {
   name: string
@@ -31,6 +31,11 @@ export interface ConfigurationContext {
   exportToXML?: ToXMLConfigurationContext
 }
 
+type ToXMLContextElement<Type extends ElementType> = {
+  element: ToMetadata<Type> | undefined
+  referenceElement?: ToReference<Type>
+  xmlElement: ElementXMLWithoutId
+}
 export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
   readonly version: string
@@ -39,6 +44,7 @@ export type ToXMLConfigurationContext = {
     forms: string[]
     templates: string[]
     parentName: string
+    elementsMap: ToXMLContextElement<ElementType>[]
   }
 }
 

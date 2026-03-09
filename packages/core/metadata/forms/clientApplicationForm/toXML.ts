@@ -30,6 +30,8 @@ export const exportClientApplicationFormToXML = (params: {
 
   const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data: form })
 
+  setIdsToElements(context)
+
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
@@ -54,6 +56,26 @@ export const exportClientApplicationFormToXML = (params: {
   }
 
   return result
+}
+
+const setIdsToElements = (context: ConfigurationContextWithExportToXML): void => {
+  const elementsMap = context.exportToXML?.context?.elementsMap ?? []
+  const occupiedIds = new Set<string>()
+
+  for (const element of elementsMap) {
+    if (element.referenceElement?.id) {
+      occupiedIds.add(element.referenceElement.id)
+    }
+  }
+
+  for (const element of elementsMap) {
+    let counter = 1
+    while (occupiedIds.has(counter.toString())) {
+      counter++
+    }
+    element.xmlElement._id = counter.toString()
+    occupiedIds.add(element.xmlElement._id)
+  }
 }
 
 export const exportFormMetadataToXML = (params: {

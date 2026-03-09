@@ -40,7 +40,7 @@ export const importFormAttributeColumnFromXML = (
 }
 
 const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {
-  const properties = importPropertiesFromXML<FormAttribute>({
+  const properties = importPropertiesFromXML({
     context: context,
     xml,
     rule: FormAttributeRules,

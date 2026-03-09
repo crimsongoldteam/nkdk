@@ -89,4 +89,4 @@ export const importCharacteristicsDescriptionsFromXML = (
   )
 }
 
-registerTypeRule("CharacteristicsDescription", "importFromXML", importCharacteristicsDescriptionsFromXML)
+registerTypeRule("CharacteristicsDescriptions", "importFromXML", importCharacteristicsDescriptionsFromXML)

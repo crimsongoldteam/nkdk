@@ -1,11 +1,11 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getSearchControlAdditionName } from "./helper"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 export type { ElementRule, PropertyRule }
 
 const commonProperties: MetadataItemRule["properties"] = {
@@ -79,6 +79,7 @@ export const SearchControlAdditionRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     additionSource: {

@@ -1,39 +1,24 @@
 import fs from "fs"
+import { EmptyFileSystem } from "langium"
+import { parseHelper } from "langium/test"
+import { createNkdkServices } from "nkdk-language"
 import { join } from "path"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
-import type { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
+import type { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
-import { parseFormFromXML } from "../metadata/forms/clientApplicationForm/convertFromXML"
-import { parseFormFromNkdKString } from "../metadata/forms/clientApplicationForm/parseFormFromNkdK"
-
-export type ParseFormFromNkdK = (
-  context: ConfigurationContext,
-  nkdkString: string
-) => Promise<import("~/metadata/forms/clientApplicationForm/types").ClientApplicationForm | undefined>
+import { parseFormFromXML } from "./convertFromXML"
+import { importClientApplicationFromFromNKDK } from "./fromNKDK"
 
 export const convertFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
   inputDir: string
   formName: string
   outputDir: string
-  parseNkdK?: ParseFormFromNkdK
-  /** Директория с референсной формой в формате XML (как в convertFormFromXML: formName.xml и formName/Ext/Form.xml) */
-  referenceFormInputDir?: string
-  /** Имя референсной формы. Если задано вместе с referenceFormInputDir — референсная форма читается из XML */
-  referenceFormName?: string
 }): Promise<void> => {
-  const {
-    context,
-    inputDir,
-    formName,
-    outputDir,
-    parseNkdK = parseFormFromNkdKString,
-    referenceFormInputDir,
-    referenceFormName,
-  } = params
+  const { context, inputDir, formName, outputDir } = params
 
   const formsDir = join(inputDir, "Формы")
   const formDir = join(formsDir, formName)
@@ -44,22 +29,14 @@ export const convertFormToXML = async (params: {
   const nkdkContent = fs.readFileSync(nkdkPath, "utf-8")
 
   const yamlObj = importFromYAML<ClientApplicationFormYAML>(yamlContent)
-  const formFromNkdk = await parseNkdK(context, nkdkContent)
+  const formFromNkdk = await parseFormFromNkdKString(context, nkdkContent)
   if (!formFromNkdk) {
     throw new Error(`Failed to parse NKDK for form "${formName}"`)
   }
 
-  const form: import("~/metadata/forms/clientApplicationForm/types").ClientApplicationForm = {
-    ...importClientApplicationFormFromYAML(context, yamlObj, formFromNkdk),
-    childItems: formFromNkdk.childItems,
-    commands: formFromNkdk.commands ?? [],
-  }
+  const form = importClientApplicationFormFromYAML(context, yamlObj, formFromNkdk)
 
-  type ClientApplicationFormRef = import("~/metadata/forms/clientApplicationForm/types").ClientApplicationFormReference
-  type ClientApplicationFormMetadataRef =
-    import("~/metadata/forms/clientApplicationForm/types").ClientApplicationFormMetadataReference
-
-  let referenceForm: ClientApplicationFormRef | undefined
+  const referenceForm: ClientApplicationFormRef | undefined
   if (referenceFormInputDir != null && referenceFormName != null) {
     const metadataPath = join(referenceFormInputDir, `${referenceFormName}.xml`)
     const formPath = join(referenceFormInputDir, referenceFormName, "Ext", "Form.xml")
@@ -91,4 +68,29 @@ export const convertFormToXML = async (params: {
 
   fs.writeFileSync(formMetadataPath, xmlExport({ MetaDataObject: metadataXml }), "utf-8")
   fs.writeFileSync(formXmlPath, xmlExport({ Form: formXml }), "utf-8")
+}
+
+let parseHelperCached: ReturnType<typeof parseHelper<NkdkForm>> | null = null
+
+function getNkdKParse(): ReturnType<typeof parseHelper<NkdkForm>> {
+  if (!parseHelperCached) {
+    const services = createNkdkServices(EmptyFileSystem)
+    parseHelperCached = parseHelper<NkdkForm>(services.Nkdk)
+  }
+  return parseHelperCached
+}
+
+export const parseFormFromNkdKString = async (
+  context: ConfigurationContext,
+  nkdkString: string
+): Promise<ClientApplicationForm | undefined> => {
+  const nkdkParse = getNkdKParse()
+  const result = await nkdkParse(nkdkString)
+  if (!result || result.parseResult.parserErrors.length > 0) {
+    return undefined
+  }
+  return importClientApplicationFromFromNKDK({
+    context,
+    value: result.parseResult.value,
+  })
 }

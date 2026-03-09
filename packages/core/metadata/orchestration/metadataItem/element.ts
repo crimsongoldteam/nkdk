@@ -56,7 +56,7 @@ export type MetadataTypeByRule<
 > = (Rule["properties"] extends infer Properties
   ? Properties extends Record<string, PropertyRule>
     ? {
-        /** Обязательные поля (required: true в правиле) */
+        /** Обязательные поля */
         -readonly [K in FilteredKeys<Properties, Tag> as Properties[K] extends {
           required: true
         }
@@ -73,7 +73,6 @@ export type MetadataTypeByRule<
     : never
   : never) &
   EventsByRule<Rule, Tag> & {
-    // name: string
     itemType: Rule["itemType"]
   }
 

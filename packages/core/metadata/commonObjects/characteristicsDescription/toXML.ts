@@ -101,4 +101,4 @@ export const exportCharacteristicsDescriptionsToXML = (
   }
 }
 
-registerTypeRule("CharacteristicsDescription", "exportToXML", exportCharacteristicsDescriptionsToXML)
+registerTypeRule("CharacteristicsDescriptions", "exportToXML", exportCharacteristicsDescriptionsToXML)

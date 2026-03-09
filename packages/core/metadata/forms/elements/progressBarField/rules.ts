@@ -10,6 +10,7 @@ export const ProgressBarFieldRules = {
   properties: {
     name: {
       type: "string",
+      xml: "_name",
       required: true,
     },
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
