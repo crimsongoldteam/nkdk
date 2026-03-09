@@ -8,6 +8,10 @@ export const GanttChartFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GanttChartField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     height: { yaml: "Высота", type: "number" },

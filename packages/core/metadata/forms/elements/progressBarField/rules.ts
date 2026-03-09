@@ -8,6 +8,10 @@ export const ProgressBarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ProgressBarField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },

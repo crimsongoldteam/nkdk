@@ -8,6 +8,10 @@ export const PlannerFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PlannerField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },

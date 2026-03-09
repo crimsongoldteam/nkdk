@@ -8,6 +8,10 @@ export const RadioButtonFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     choiceList: {

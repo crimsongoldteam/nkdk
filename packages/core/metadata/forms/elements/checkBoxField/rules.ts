@@ -8,6 +8,10 @@ export const CheckBoxFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     checkBoxType: {

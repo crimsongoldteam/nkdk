@@ -17,6 +17,8 @@ type DefaultValueFunction = (params: { context: ConfigurationContext; name?: str
 export interface BasePropertyRule {
   type: PropertyRuleType
 
+  required?: true
+
   /**
    * Название ключа в yaml
    */
@@ -147,4 +149,5 @@ export interface MetadataItemRule extends MetadataItem {
   properties: PropertiesType
 
   events?: EventsRules
+  eventsTag?: string
 }

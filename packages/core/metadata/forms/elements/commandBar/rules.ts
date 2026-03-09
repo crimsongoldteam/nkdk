@@ -8,6 +8,10 @@ export const CommandBarRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autofill: { yaml: "Автозаполнение", type: "boolean" },
     childItems: {
       type: "CommandBarChildItems",

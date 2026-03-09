@@ -90,7 +90,11 @@ describe("DO test", () => {
     const importedYaml = importFromYAML<ClientApplicationFormYAML>(yaml)
     const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, sourceForm!)
 
-    const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
+    const newXMLData = exportClientApplicationFormToXML({
+      context: configurationContext,
+      form: newForm,
+      referenceForm: newForm,
+    })
     const newXML = xmlExport({ Form: newXMLData })
     writeFileSync(join(__dirname, "After/Form.xml"), newXML, "utf-8")
 

@@ -8,6 +8,10 @@ export const ButtonGroupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ButtonGroup",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",

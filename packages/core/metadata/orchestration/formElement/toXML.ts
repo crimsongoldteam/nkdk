@@ -59,7 +59,7 @@ function exportToXML<Rule extends ElementRule>(params: {
 
   const properties = exportPropertiesToXML({
     context: currentContext,
-    metadataItem: element,
+    metadata: element,
     rule: rule,
   })
 

@@ -48,7 +48,7 @@ const exportFormAttributeToXML = (
 
   const properties = exportPropertiesToXML({
     context,
-    metadataItem: data,
+    metadata: data,
     rule: FormAttributeRules,
   })
 
@@ -136,7 +136,7 @@ const exportColumnsToXML = (
 
     const properties = exportPropertiesToXML({
       context,
-      metadataItem: column,
+      metadata: column,
       rule: FormAttributeColumnRules,
     })
 

@@ -1,119 +1,122 @@
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { ChoiceParameters } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { MetadataItem } from "~/metadata/orchestration"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { GroupChildItem } from "../commonObjects/childItems/types"
-import { CommandInterface } from "../commonObjects/commandInterface/types"
-import { CommandSet } from "../commonObjects/commandSet/types"
-import { FormAttribute, FormAttributesXML } from "../commonObjects/formAttribute/types"
-import { FormCommand, FormCommandsXML } from "../commonObjects/formCommand/types"
-import { FormParameters, FormParametersXML } from "../commonObjects/formParameter/types"
-import { AutoCommandBar } from "../elements/autoCommandBar/types"
+import { FormAttributesXML } from "../commonObjects/formAttribute/types"
+import { FormCommandsXML } from "../commonObjects/formCommand/types"
+import { FormParametersXML } from "../commonObjects/formParameter/types"
 import { ClientApplicationFormRules } from "./rules"
 
-export interface ClientApplicationForm extends MetadataItem {
-  itemType: "ClientApplicationForm"
-  //#region ClientApplicationForm
-  attributes?: FormAttribute[]
-  autoCommandBar?: AutoCommandBar
-  autoFillCheck?: boolean
-  autoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
-  autoTitle?: boolean
-  autoURL?: boolean
-  childItems: GroupChildItem[]
-  commandInterface?: CommandInterface
-  parameters?: FormParameters
-  childItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  childItemsVerticalAlign?: SE.ItemVerticalAlign
-  closeOnChoice?: boolean
-  closeOnOwnerClose?: boolean
-  collapseItemsByImportance?: SE.CollapseFormItemsByImportance
-  customizable?: boolean
-  commandBarLocation?: SE.FormCommandBarLabelLocation
-  commandSet?: CommandSet
-  commands: FormCommand[]
-  conversationsRepresentation?: SE.FormConversationsRepresentation
-  enabled?: boolean
-  enterKeyBehavior?: SE.EnterKeyBehaviorType
-  formWindowOpeningMode?: SE.FormWindowOpeningMode
-  group?: SE.ChildFormItemsGroup
-  height?: number
-  horizontalSpacing?: SE.FormItemSpacing
-  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
-  modalMode?: boolean
-  modified?: boolean
-  purposeUseKey?: string
-  readOnly?: boolean
-  saveDataInSettings?: SE.SaveFormDataInSettings
-  savedInSettingsDataModified?: boolean
-  scale?: number
-  showCloseButton?: boolean
-  showTitle?: boolean
-  slaveItemsWidth?: SE.ChildFormItemsWidth
-  title?: I8nText
-  usedFormServer?: SE.UsedServer
-  verticalScroll?: SE.VerticalFormScroll
-  verticalSpacing?: SE.FormItemSpacing
-  width?: number
-  windowOptionsKey?: string
-  saveWindowSettings?: boolean
-  //#endregion
+export type ClientApplicationForm = MetadataTypeByRule<typeof ClientApplicationFormRules>
 
-  //#region FormMetadata
-  synonym?: I8nText
-  comment?: string
-  includeHelpInContents?: boolean
-  usePurposes?: ("PlatformApplication" | "MobilePlatformApplication")[]
-  //#endregion
-
-  //#region Catalog
-  choiceAvailable?: boolean
-  useForFoldersAndItems?: SE.FoldersAndItemsUse
-  choiceParameters?: ChoiceParameters
-  choiceMode?: SE.ChoiceMode
-  //#endregion
-
-  events?: {
-    collaborationSystemUsersAutoComplete?: string
-    externalEvent?: string
-    activationProcessing?: string
-    choiceProcessing?: string
-    newWriteProcessing?: string
-    uRLProcessing?: string
-    notificationProcessing?: string
-    navigationProcessing?: string
-    uRLGetProcessing?: string
-    uRLListGetProcessing?: string
-    collaborationSystemUsersChoiceFormGetProcessing?: string
-    fillCheckProcessingAtServer?: string
-    addInDetachmentOnError?: string
-    beforeLoadDataFromSettingsAtServer?: string
-    beforeClose?: string
-    beforeReopenFromOtherServer?: string
-    onPasteFromClipboard?: string
-    onLoadDataFromSettingsAtServer?: string
-    onClose?: string
-    onMainServerAvailabilityChange?: string
-    onChangeDisplaySettings?: string
-    onOpen?: string
-    onReopenFromOtherServer?: string
-    onReopen?: string
-    onCreateAtServer?: string
-    onSaveDataInSettingsAtServer?: string
-
-    // #region Catalog
-    valueChoice?: string
-    beforeWrite?: string
-    beforeWriteAtServer?: string
-    afterWrite?: string
-    afterWriteAtServer?: string
-    onWriteAtServer?: string
-    onReadAtServer?: string
-    // #endregion
-  }
+export type ClientApplicationFormReference = MetadataTypeByRule<typeof ClientApplicationFormRules, "Form"> & {
+  uuid: string
 }
+export type ClientApplicationFormMetadataReference = MetadataTypeByRule<
+  typeof ClientApplicationFormRules,
+  "Metadata"
+> & { uuid: string }
+
+// export interface ClientApplicationForm extends MetadataItem {
+//   itemType: "ClientApplicationForm"
+//   //#region ClientApplicationForm
+//   attributes?: FormAttribute[]
+//   autoCommandBar?: AutoCommandBar
+//   autoFillCheck?: boolean
+//   autoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
+//   autoTitle?: boolean
+//   autoURL?: boolean
+//   childItems: GroupChildItem[]
+//   commandInterface?: CommandInterface
+//   parameters?: FormParameters
+//   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
+//   childItemsVerticalAlign?: SE.ItemVerticalAlign
+//   closeOnChoice?: boolean
+//   closeOnOwnerClose?: boolean
+//   collapseItemsByImportance?: SE.CollapseFormItemsByImportance
+//   customizable?: boolean
+//   commandBarLocation?: SE.FormCommandBarLabelLocation
+//   commandSet?: CommandSet
+//   commands: FormCommand[]
+//   conversationsRepresentation?: SE.FormConversationsRepresentation
+//   enabled?: boolean
+//   enterKeyBehavior?: SE.EnterKeyBehaviorType
+//   formWindowOpeningMode?: SE.FormWindowOpeningMode
+//   group?: SE.ChildFormItemsGroup
+//   height?: number
+//   horizontalSpacing?: SE.FormItemSpacing
+//   itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+//   modalMode?: boolean
+//   modified?: boolean
+//   purposeUseKey?: string
+//   readOnly?: boolean
+//   saveDataInSettings?: SE.SaveFormDataInSettings
+//   savedInSettingsDataModified?: boolean
+//   scale?: number
+//   showCloseButton?: boolean
+//   showTitle?: boolean
+//   slaveItemsWidth?: SE.ChildFormItemsWidth
+//   title?: I8nText
+//   usedFormServer?: SE.UsedServer
+//   verticalScroll?: SE.VerticalFormScroll
+//   verticalSpacing?: SE.FormItemSpacing
+//   width?: number
+//   windowOptionsKey?: string
+//   saveWindowSettings?: boolean
+//   //#endregion
+
+//   //#region FormMetadata
+//   synonym?: I8nText
+//   comment?: string
+//   includeHelpInContents?: boolean
+//   usePurposes?: ("PlatformApplication" | "MobilePlatformApplication")[]
+//   //#endregion
+
+//   //#region Catalog
+//   choiceAvailable?: boolean
+//   useForFoldersAndItems?: SE.FoldersAndItemsUse
+//   choiceParameters?: ChoiceParameters
+//   choiceMode?: SE.ChoiceMode
+//   //#endregion
+
+//   events?: {
+//     collaborationSystemUsersAutoComplete?: string
+//     externalEvent?: string
+//     activationProcessing?: string
+//     choiceProcessing?: string
+//     newWriteProcessing?: string
+//     uRLProcessing?: string
+//     notificationProcessing?: string
+//     navigationProcessing?: string
+//     uRLGetProcessing?: string
+//     uRLListGetProcessing?: string
+//     collaborationSystemUsersChoiceFormGetProcessing?: string
+//     fillCheckProcessingAtServer?: string
+//     addInDetachmentOnError?: string
+//     beforeLoadDataFromSettingsAtServer?: string
+//     beforeClose?: string
+//     beforeReopenFromOtherServer?: string
+//     onPasteFromClipboard?: string
+//     onLoadDataFromSettingsAtServer?: string
+//     onClose?: string
+//     onMainServerAvailabilityChange?: string
+//     onChangeDisplaySettings?: string
+//     onOpen?: string
+//     onReopenFromOtherServer?: string
+//     onReopen?: string
+//     onCreateAtServer?: string
+//     onSaveDataInSettingsAtServer?: string
+
+//     // #region Catalog
+//     valueChoice?: string
+//     beforeWrite?: string
+//     beforeWriteAtServer?: string
+//     afterWrite?: string
+//     afterWriteAtServer?: string
+//     onWriteAtServer?: string
+//     onReadAtServer?: string
+//     // #endregion
+//   }
+// }
 
 export interface ClientApplicationFormXML {
   _xmlns?: string

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
 import { importFormFromNKDK } from "~/tests/fromNKDK"
 import { mockContextToXML, mockContextToYAML } from "~/tests/mockContext"
-import { syncConfigurationFromXML } from "./syncConfigurationFromXML"
+import { syncConfigurationFromXML } from "./convertConfigurationFromXML"
 import { syncConfigurationToXML } from "./syncConfigurationToXML"
 
 vi.mock("uuid", () => ({

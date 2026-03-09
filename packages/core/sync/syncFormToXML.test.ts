@@ -5,7 +5,7 @@ import { readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncForm/data"
 import { importFormFromNKDK } from "~/tests/fromNKDK"
 import { mockContextToXML, mockContextToYAML } from "~/tests/mockContext"
 import { convertFormFromXML } from "./convertFormFromXML"
-import { convertFormToXML } from "./convertFormToXML"
+import { convertFormToXML } from "./syncFormToXML"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),

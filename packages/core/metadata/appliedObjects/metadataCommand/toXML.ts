@@ -18,7 +18,7 @@ const exportMetadataCommandToXML = (
 
   const propertiesFlat = exportPropertiesToXML({
     context,
-    metadataItem: mergedData,
+    metadata: mergedData,
     rule: MetadataCommandRules,
   })
 

@@ -48,7 +48,7 @@ export const exportMetadataTabularSectionToXML = (
 
   const exported = exportPropertiesToXML({
     context: currentContext,
-    metadataItem: mergedData,
+    metadata: mergedData,
     rule: MetadataTabularSectionRules,
   }) as { Properties?: MetadataTabularSectionXML["Properties"]; ChildObjects?: { Attribute?: MetadataAttributesXML } }
 

@@ -1,27 +1,28 @@
-import { receiveUUID } from "~/metadata/appliedObjects/configDumpInfo/getUUID"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
+import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { exportEventsToXML } from "~/metadata/orchestration/event"
-import { PropertyRule } from "../elements/calendarField/rules"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
-export const exportClientApplicationFormToXML = (
-  context: ConfigurationContextWithExportToXML,
-  data: ClientApplicationForm | undefined
-): ClientApplicationFormXML | undefined => {
-  if (!data) return undefined
+export const exportClientApplicationFormToXML = (params: {
+  context: ConfigurationContextWithExportToXML
+  form: ClientApplicationForm
+  referenceForm: ClientApplicationForm | undefined
+}): ClientApplicationFormXML => {
+  const { context, form, referenceForm } = params
 
   const properties = exportPropertiesToXML({
     context,
-    metadataItem: data,
+    metadata: form,
+    referenceMetadata: referenceForm,
     rule: ClientApplicationFormRules,
     tag: [FormRulesTags.Form],
   })
 
-  const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data })
+  const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data: form })
 
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
@@ -49,22 +50,25 @@ export const exportClientApplicationFormToXML = (
   return sortObject(result)
 }
 
-export const exportFormMetadataToXML = (
-  context: ConfigurationContextWithExportToXML,
-  _rule: PropertyRule | undefined,
-  data: ClientApplicationForm,
+export const exportFormMetadataToXML = (params: {
+  context: ConfigurationContextWithExportToXML
+  form: ClientApplicationForm
+  referenceForm: ClientApplicationForm | undefined
   name: string
-): FormMetadataXML => {
+}): FormMetadataXML => {
+  const { context, form, referenceForm, name } = params
+
   const properties = exportPropertiesToXML({
     context,
-    metadataItem: data,
+    metadata: form,
     rule: ClientApplicationFormRules,
     tag: [FormRulesTags.Metadata],
   })
 
   const parentPath = getParentFromContext(context, ["MetadataCatalog"]).path
   const path = `${parentPath}.Form.${name}`
-  const uuid = receiveUUID({ context, parentPath, path })
+  // const uuid = receiveUUID({ context, parentPath, path })
+  const uuid = referenceForm?.uuid ?? getUUID(context)
 
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",

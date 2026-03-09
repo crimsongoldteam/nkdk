@@ -8,6 +8,10 @@ export const DendrogramFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.DendrogramField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     height: { yaml: "Высота", type: "number" },

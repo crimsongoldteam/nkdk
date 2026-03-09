@@ -42,7 +42,7 @@ export const convertFormToXML = async (params: {
     commands: formFromNkdk.commands ?? [],
   }
 
-  const formXml = exportClientApplicationFormToXML(context, form)
+  const formXml = exportClientApplicationFormToXML({ context, form: form, referenceForm: form })
   const metadataXml = exportFormMetadataToXML(context, undefined, form, formName)
 
   if (!formXml) {

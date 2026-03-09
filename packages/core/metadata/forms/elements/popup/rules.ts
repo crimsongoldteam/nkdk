@@ -8,6 +8,10 @@ export const PopupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Popup",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },

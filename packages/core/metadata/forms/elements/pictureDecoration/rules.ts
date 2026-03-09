@@ -8,6 +8,10 @@ export const PictureDecorationRules = {
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "FormDecorationType.Picture",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },

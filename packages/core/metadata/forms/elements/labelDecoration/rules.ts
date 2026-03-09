@@ -8,6 +8,10 @@ export const LabelDecorationRules = {
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "FormDecorationType.Label",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },

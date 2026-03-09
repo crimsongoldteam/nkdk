@@ -6,7 +6,6 @@ export type { ElementRule, PropertyRule }
 
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
-  // tags: [FormRulesTags.Form, FormRulesTags.Metadata] as const,
   properties: {
     // #region Form
     attributes: {
@@ -48,6 +47,7 @@ export const ClientApplicationFormRules = {
       defaultValue: [],
       fromPartialYAML: true,
       toPartialYAML: false,
+      required: true,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
@@ -299,6 +299,7 @@ export const ClientApplicationFormRules = {
     },
     // #endregion
   },
+  eventsTag: FormRulesTags.Form,
   events: {
     collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",
     externalEvent: "ВнешнееСобытие",

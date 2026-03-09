@@ -6,11 +6,12 @@ import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   context: ConfigurationContextWithExportToXML
-  metadataItem: T | undefined
+  metadata: T | undefined
+  referenceMetadata?: T
   rule: MetadataItemRule
   tag?: string[]
 }): ItemXML => {
-  const { context, metadataItem, rule, tag: tag } = params
+  const { context, metadata: metadata, referenceMetadata, rule, tag: tag } = params
 
   const result: ItemXML = {}
 
@@ -22,13 +23,13 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
       exportToXML: { ...context.exportToXML },
     }
 
-    const value = metadataItem === undefined ? undefined : (metadataItem as any)[key]
+    const value = metadata === undefined ? undefined : (metadata as any)[key]
 
     const exportedValue = exportPropertyToXML({
       context: currentContext,
       rule: ruleProp,
       value,
-      metadataItem,
+      metadataItem: metadata,
     })
 
     setXMLValue(key, result, ruleProp, exportedValue)

@@ -8,6 +8,10 @@ export const TrackBarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.TrackBarField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },

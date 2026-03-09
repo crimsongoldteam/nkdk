@@ -4,6 +4,10 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     title: {
       yaml: "Заголовок",
       type: "I8nText",
@@ -85,6 +89,10 @@ export const FormAttributeRules = {
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     title: {
       yaml: "Заголовок",
       type: "I8nText",

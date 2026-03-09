@@ -8,6 +8,10 @@ export const ColumnGroupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ColumnGroup",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     childItems: { type: "TableChildItems", defaultValue: [] },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",

@@ -8,6 +8,10 @@ export const TableRules = {
   enterpriseField: "FormTable",
   enterpriseFieldType: "None",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
     autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar", toEnterprise: false },
     autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean" },

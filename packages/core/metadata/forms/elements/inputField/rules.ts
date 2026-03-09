@@ -8,6 +8,10 @@ export const InputFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.InputField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     allowInputEmptyMultipleValues: {
       yaml: "РазрешитьВводПустыхМножественныхЗначений",
       type: "boolean",

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { readCatalogYAML } from "~/tests/fixtures/sync/syncCatalog/data"
 import { mockContextToXML } from "~/tests/mockContext"
 import { convertCatalogFromXML } from "./convertCatalogFromXML"
-import { convertCatalogToXML } from "./convertCatalogToXML"
+import { convertCatalogToXML } from "./syncCatalogToXML"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),

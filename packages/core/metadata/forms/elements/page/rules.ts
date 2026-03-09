@@ -8,6 +8,10 @@ export const PageRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Page",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     childItems: {

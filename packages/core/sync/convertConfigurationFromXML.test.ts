@@ -3,7 +3,7 @@ import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
 import { mockContextToYAML } from "~/tests/mockContext"
-import { syncConfigurationFromXML } from "./syncConfigurationFromXML"
+import { syncConfigurationFromXML } from "./convertConfigurationFromXML"
 
 describe("sync configuration from xml", () => {
   const inputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")

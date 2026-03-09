@@ -8,6 +8,10 @@ export const CalendarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CalendarField",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },

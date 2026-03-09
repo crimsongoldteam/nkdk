@@ -59,7 +59,7 @@ export const exportMetadataCatalogToXML = (
 
   const flat = exportPropertiesToXML({
     context: currentContext,
-    metadataItem: mergedData,
+    metadata: mergedData,
     rule: MetadataCatalogRules,
   })
 

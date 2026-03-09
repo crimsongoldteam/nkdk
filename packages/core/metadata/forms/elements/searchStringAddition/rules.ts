@@ -74,6 +74,10 @@ export const SearchStringAdditionRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     additionSource: {
       yaml: "Источник",
       type: "TableAdditionalSource",

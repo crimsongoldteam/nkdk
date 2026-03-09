@@ -8,6 +8,10 @@ export const ButtonRules = {
   enterpriseField: "FormButton",
   enterpriseFieldType: "FormButtonType.UsualButton",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },

@@ -40,7 +40,7 @@ const exportStandardAttributeDescriptionToXML = (
 
   const flat = exportPropertiesToXML({
     context,
-    metadataItem: { ...mergedData, itemType: "StandardAttributeDescription" as const },
+    metadata: { ...mergedData, itemType: "StandardAttributeDescription" as const },
     rule: StandardAttributeDescriptionRules,
   })
 

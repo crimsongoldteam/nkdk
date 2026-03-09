@@ -8,6 +8,10 @@ export const UsualGroupRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.UsualGroup",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     backColor: { yaml: "ЦветФона", type: "Color" },
     behavior: {
       yaml: "Поведение",

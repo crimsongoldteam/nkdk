@@ -8,6 +8,10 @@ export const PagesRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Pages",
   properties: {
+    name: {
+      type: "string",
+      required: true,
+    },
     childItems: {
       type: "PagesChildItems",
       defaultValue: [],
