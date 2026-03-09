@@ -16,7 +16,8 @@ export const importInternalInfoFromXML = (
 
   const result: InternalInfo = {}
   for (const item of items) {
-    result[item._name] = {
+    const name = item._name.split(".")[0]
+    result[name] = {
       typeId: item["xr:TypeId"],
       valueId: item["xr:ValueId"],
     }

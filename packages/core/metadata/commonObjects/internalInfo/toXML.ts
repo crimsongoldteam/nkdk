@@ -1,20 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
-import {
-  InternalInfo,
-  InternalInfoItemsXML,
-  InternalInfoParam,
-  InternalInfoRootXML,
-} from "./types"
+import { InternalInfo, InternalInfoItemsXML, InternalInfoParam, InternalInfoRootXML } from "./types"
 
-export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params: {
-  context: ConfigurationContext
-  rule: PropertyRule
-  data: InternalInfo | undefined
-  referenceMetadata: InternalInfo | undefined
-}): InternalInfoRootXML => {
-  const { context, rule, data, referenceMetadata } = params
+export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML => {
+  const { context, rule, referenceMetadata, metadataItem } = params
+
+  const reference = referenceMetadata as InternalInfo | undefined
 
   const itemsRule = (rule as any).items as { name: string; category: string }[] | undefined
   if (!itemsRule || itemsRule.length === 0) {
@@ -24,16 +16,15 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params: {
   const generated = itemsRule.map((item) => {
     const name = item.name
 
-    const fromData = data?.[name]
-    const fromReference = referenceMetadata?.[name]
+    const fromReference = reference?.[name]
 
-    const source = fromData ?? fromReference
+    const typeId = fromReference?.typeId ?? getUUID(context)
+    const valueId = fromReference?.valueId ?? getUUID(context)
 
-    const typeId = source?.typeId ?? getUUID(context)
-    const valueId = source?.valueId ?? getUUID(context)
+    const fullName = `${item.name}.${(metadataItem as { name?: string })?.name ?? ""}`
 
     return {
-      _name: item.name,
+      _name: fullName,
       _category: item.category,
       "xr:TypeId": typeId,
       "xr:ValueId": valueId,

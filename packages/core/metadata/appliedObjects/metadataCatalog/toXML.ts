@@ -1,13 +1,8 @@
-import {
-  CatalogInternalInfoParamsXML,
-  MetadataCatalog,
-  MetadataCatalogXML,
-} from "~/metadata/appliedObjects/metadataCatalog/types"
+import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
-import { exportInternalInfoToXMLOld } from "../../commonObjects/internalInfo/toXML"
 import { MetadataCatalogRules } from "./rules"
 
 const ROOT_XML_ATTRS: Omit<MetadataCatalogXML, "Catalog"> = {
@@ -50,13 +45,13 @@ export const exportMetadataCatalogToXML = (params: {
   // const defaults = getDefaults(data, context)
   // const mergedData = { ...defaults, ...data, itemType: "MetadataCatalog" as const }
 
-  const internalInfo = exportInternalInfoToXMLOld<CatalogInternalInfoParamsXML>(context, [
-    { name: `CatalogObject.${data.name}`, category: "Object" },
-    { name: `CatalogRef.${data.name}`, category: "Ref" },
-    { name: `CatalogSelection.${data.name}`, category: "Selection" },
-    { name: `CatalogList.${data.name}`, category: "List" },
-    { name: `CatalogManager.${data.name}`, category: "Manager" },
-  ])
+  // const internalInfo = exportInternalInfoToXMLOld<CatalogInternalInfoParamsXML>(context, [
+  //   { name: `CatalogObject.${data.name}`, category: "Object" },
+  //   { name: `CatalogRef.${data.name}`, category: "Ref" },
+  //   { name: `CatalogSelection.${data.name}`, category: "Selection" },
+  //   { name: `CatalogList.${data.name}`, category: "List" },
+  //   { name: `CatalogManager.${data.name}`, category: "Manager" },
+  // ])
 
   const flat = exportPropertiesToXML({
     context: currentContext,
@@ -76,7 +71,8 @@ export const exportMetadataCatalogToXML = (params: {
     ...ROOT_XML_ATTRS,
     Catalog: {
       _uuid: referenceData?.uuid ?? getUUID(currentContext),
-      InternalInfo: internalInfo,
+
+      InternalInfo: catalogFromRules.InternalInfo,
       Properties: catalogFromRules.Properties,
       ...(Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),
     },
