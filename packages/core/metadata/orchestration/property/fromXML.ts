@@ -48,7 +48,6 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
       operation: "importFromXML",
     })
 
-    // Для референса берем все значения
     if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
   }

@@ -1,7 +1,6 @@
 import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
 import { importFormFromNKDK } from "~/tests/fromNKDK"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { syncConfigurationFromXML } from "./convertFromXML"

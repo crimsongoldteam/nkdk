@@ -15,6 +15,7 @@ export const AutoCommandBarRules = {
     name: {
       type: "string",
       xml: "_name",
+      fromXML: false,
     },
     autofill: {
       yaml: "Автозаполнение",
