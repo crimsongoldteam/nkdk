@@ -1,6 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { exportEventsToJSONSchema } from "../event/toJSONSchema"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 
@@ -19,9 +20,12 @@ export const exportElementToJSONSchema = <T extends NamedElement>(params: {
     rule: rules,
   })
 
+  const events = exportEventsToJSONSchema({ rule: rules })
+
   const result = Type.Object(
     {
       ...properties,
+      ...events,
     },
     { additionalProperties: false }
   )

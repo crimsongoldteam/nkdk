@@ -1,5 +1,6 @@
 export { importEventsFromXML } from "./fromXML"
 export { importEventsFromYAML } from "./fromYAML"
+export { exportEventsToJSONSchema } from "./toJSONSchema"
 export { exportEventsToXML } from "./toXML"
 export { exportEventsToYAML } from "./toYAML"
 export * from "./types"

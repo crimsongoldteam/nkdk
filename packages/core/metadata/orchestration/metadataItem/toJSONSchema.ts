@@ -1,5 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportEventsToJSONSchema } from "../event/toJSONSchema"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
 import { MetadataItem, MetadataItemRule } from "../property/types"
 
@@ -16,9 +17,12 @@ export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
     rule,
   })
 
+  const events = exportEventsToJSONSchema({ rule })
+
   const result = Type.Object(
     {
       ...properties,
+      ...events,
     },
     { additionalProperties: false }
   )
