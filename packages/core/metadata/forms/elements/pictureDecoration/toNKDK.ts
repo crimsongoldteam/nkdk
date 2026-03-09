@@ -2,7 +2,7 @@ import { exportPictureToYAML } from "~/metadata/commonObjects/picture/toYAML"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
-import { formatElementTitleAndName } from "../../format/helpers"
+import { formatElementName } from "../../format/helpers"
 import { PictureDecoration } from "./types"
 
 export const exportPictureDecorationToNKDK = (params: {
@@ -15,7 +15,7 @@ export const exportPictureDecorationToNKDK = (params: {
   const pictureString = typeof picture === "string" ? picture : ""
 
   const result: ToNKDKResult = {
-    strings: ["!" + (pictureString ? "[" + pictureString + "] " : "") + formatElementTitleAndName(context, element)],
+    strings: ["!" + (pictureString ? "[" + pictureString + "] " : "") + formatElementName(element)],
     toOneLineGroup: true,
   }
 

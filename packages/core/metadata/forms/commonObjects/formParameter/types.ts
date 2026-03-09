@@ -1,7 +1,8 @@
+import { Static, Type } from "@sinclair/typebox"
 import {
   TypeDescription,
+  TypeDescriptionJSONSchema,
   TypeDescriptionXML,
-  TypeDescriptionYAML,
 } from "~/metadata/commonObjects/typeDescription/types"
 
 export interface FormParameter {
@@ -20,9 +21,13 @@ export interface FormParameterXML {
 
 export type FormParametersXML = FormParameterXML | FormParameterXML[]
 
-export interface FormParameterYAML {
-  Тип: TypeDescriptionYAML
-  Ключевой?: boolean
-}
+export const FormParameterJSONSchema = Type.Object({
+  Тип: TypeDescriptionJSONSchema,
+  Ключевой: Type.Optional(Type.Boolean()),
+})
 
-export type FormParametersYAML = Record<string, FormParameterYAML>
+export type FormParameterYAML = Static<typeof FormParameterJSONSchema>
+
+export const FormParametersJSONSchema = Type.Record(Type.String(), FormParameterJSONSchema)
+
+export type FormParametersYAML = Static<typeof FormParametersJSONSchema>

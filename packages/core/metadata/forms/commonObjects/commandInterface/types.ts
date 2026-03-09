@@ -1,5 +1,6 @@
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { Static, Type } from "@sinclair/typebox"
+import { BooleanJSONSchema } from "~/metadata/commonObjects/boolean/types"
+import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItem } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -19,6 +20,8 @@ export interface CommandInterfaceItem extends MetadataItem {
   defaultVisible: boolean
   visible?: UserVisible
 }
+
+type CommandInterfaceItems = CommandInterfaceItem[]
 
 //#endregion
 
@@ -46,22 +49,25 @@ export interface CommandInterfaceItemXML {
 
 //#region enterprise
 
-type CommandInterfaceItems = CommandInterfaceItem[]
+const standardCommandsGroupsYAML = Object.keys(SE.StandardCommandsGroupFromYAML) as SE.StandardCommandsGroupYAML[]
+const standardCommandsGroups = standardCommandsGroupsYAML.map((key) => Type.Literal(key))
 
-export interface CommandInterfaceYAML {
-  ПанельНавигации?: CommandInterfaceItemsYAML
-  КоманднаяПанель?: CommandInterfaceItemsYAML
-}
+export const CommandInterfaceItemJSONSchema = Type.Object({
+  Команда: Type.String(),
+  Тип: Type.Optional(Type.String()),
+  ГруппаКоманд: Type.Optional(Type.Union(standardCommandsGroups)),
+  Автовидимость: BooleanJSONSchema,
+  РазрешитьИспользование: Type.Optional(UserVisibleJSONSchema),
+  ЗапретитьИспользование: Type.Optional(UserVisibleJSONSchema),
+})
 
-export interface CommandInterfaceItemYAML {
-  Команда: string
-  Тип?: string
-  ГруппаКоманд?: SE.StandardCommandsGroupYAML
-  Автовидимость: StringboolYAML
-  РазрешитьИспользование?: UserVisibleYAML
-  ЗапретитьИспользование?: UserVisibleYAML
-}
+export const CommandInterfaceJSONSchema = Type.Object({
+  ПанельНавигации: Type.Optional(Type.Array(CommandInterfaceItemJSONSchema)),
+  КоманднаяПанель: Type.Optional(Type.Array(CommandInterfaceItemJSONSchema)),
+})
 
-type CommandInterfaceItemsYAML = CommandInterfaceItemYAML[]
+export type CommandInterfaceYAML = Static<typeof CommandInterfaceJSONSchema>
+
+export type CommandInterfaceItemYAML = Static<typeof CommandInterfaceItemJSONSchema>
 
 //#endregion

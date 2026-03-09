@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { PictureFieldPrefix } from "~/nkdk/terminal"
+import { formatElementNameWithDataPath } from "../../format/helpers"
 import { PictureField } from "./types"
 
 export const exportPictureFieldContentToNKDK = (params: {
@@ -9,7 +9,7 @@ export const exportPictureFieldContentToNKDK = (params: {
   element: PictureField
 }): ToNKDKResult => {
   const { context, element } = params
-  const resultString = PictureFieldPrefix + formatElementTitleAndName(context, element)
+  const resultString = PictureFieldPrefix + formatElementNameWithDataPath({ context, element })
 
   return {
     strings: [resultString],

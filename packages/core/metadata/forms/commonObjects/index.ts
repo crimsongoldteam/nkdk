@@ -3,26 +3,31 @@ import "./tableAdditionalSource/toXML"
 
 import "./commandSet/fromXML"
 import "./commandSet/fromYAML"
+import "./commandSet/toJSONSchema"
 import "./commandSet/toXML"
 import "./commandSet/toYAML"
 
 import "./commandInterface/fromXML"
 import "./commandInterface/fromYAML"
+import "./commandInterface/toJSONSchema"
 import "./commandInterface/toXML"
 import "./commandInterface/toYAML"
 
 import "./formCommand/fromXML"
 import "./formCommand/fromYAML"
+import "./formCommand/toJSONSchema"
 import "./formCommand/toXML"
 import "./formCommand/toYAML"
 
 import "./formParameter/fromXML"
 import "./formParameter/fromYAML"
+import "./formParameter/toJSONSchema"
 import "./formParameter/toXML"
 import "./formParameter/toYAML"
 
 import "./formAttribute/fromXML"
 import "./formAttribute/fromYAML"
+import "./formAttribute/toJSONSchema"
 import "./formAttribute/toXML"
 import "./formAttribute/toYAML"
 
