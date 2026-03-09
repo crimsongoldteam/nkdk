@@ -22,3 +22,7 @@ export const readXMLFileAsString = (filePath: string): string => {
   const fullPath = join(process.cwd(), "/tests/fixtures", filePath)
   return readFileSync(fullPath, "utf-8")
 }
+
+export const getXMLFixturePath = (filePath: string): string => {
+  return join(process.cwd(), "/tests/fixtures", filePath)
+}

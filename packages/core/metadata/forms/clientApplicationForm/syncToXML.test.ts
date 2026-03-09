@@ -1,62 +1,38 @@
 import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncForm/data"
-import { importFormFromNKDK } from "~/tests/fromNKDK"
-import { mockContextToXML, mockContextToYAML } from "~/tests/mockContext"
-import { convertFormToXML } from "./syncToXML"
-import { convertFormFromXML } from "./convertFromXML"
+import { mockContextToXML } from "~/tests/mockContext"
+import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { syncFormToXML } from "./syncToXML"
 
 describe("sync ClientApplicationForm to XML", () => {
-  const xmlInputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/xml/Forms")
-  const yamlOutputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/out")
-  const xmlOutputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/toXmlOut")
-  const roundtripYamlDir = join(process.cwd(), "tests/fixtures/sync/syncForm/roundtripOut")
+  const inputDir = getXMLFixturePath("sync/syncForm/nkdk")
+  const referenceDir = getXMLFixturePath("sync/syncForm/xml/Forms")
+  const outputDir = getXMLFixturePath("sync/syncForm/out")
   const formName = "ФормаЭлемента"
 
   beforeEach(() => {
-    for (const dir of [yamlOutputDir, xmlOutputDir, roundtripYamlDir]) {
-      if (fs.existsSync(dir)) {
-        fs.rmSync(dir, { recursive: true })
-      }
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true })
     }
   })
 
   it("should read form from YAML/nkdk and export to XML files in output dir", async () => {
-    await convertFormFromXML({
-      context: mockContextToYAML,
-      inputDir: xmlInputDir,
-      formName,
-      outputDir: yamlOutputDir,
-    })
-
-    expect(fs.readFileSync(join(yamlOutputDir, "Формы", formName, "Форма.yaml"), "utf-8")).toBe(readFormYAML)
-    expect(fs.readFileSync(join(yamlOutputDir, "Формы", formName, "Форма.nkdk"), "utf-8")).toBe(readFormNKDK)
-
-    await convertFormToXML({
+    await syncFormToXML({
       context: mockContextToXML(),
-      inputDir: yamlOutputDir,
+      inputDir: inputDir,
+      outputDir: outputDir,
+      referenceDir: referenceDir,
       formName,
-      outputDir: xmlOutputDir,
-      parseNkdK: importFormFromNKDK,
     })
 
-    const metadataPath = join(xmlOutputDir, "Forms", `${formName}.xml`)
-    const formXmlPath = join(xmlOutputDir, "Forms", formName, "Ext", "Form.xml")
-    expect(fs.existsSync(metadataPath)).toBe(true)
-    expect(fs.existsSync(formXmlPath)).toBe(true)
+    const expectedFormXML = readXMLFileAsString(join("sync/syncForm/xml/Forms", formName, "Ext", "Form.xml"))
+    const expectedMetadataXML = readXMLFileAsString(join("sync/syncForm/xml/Forms", "ФормаЭлемента.xml"))
 
-    await convertFormFromXML({
-      context: mockContextToYAML,
-      inputDir: join(xmlOutputDir, "Forms"),
-      formName,
-      outputDir: roundtripYamlDir,
-    })
+    const resultFormXML = fs.readFileSync(join(outputDir, "Forms", formName, "Ext", "Form.xml"), "utf-8")
+    const resultMetadataXML = fs.readFileSync(join(outputDir, "Forms", "ФормаЭлемента.xml"), "utf-8")
 
-    const roundtripYaml = fs.readFileSync(join(roundtripYamlDir, "Формы", formName, "Форма.yaml"), "utf-8")
-    const roundtripNkdk = fs.readFileSync(join(roundtripYamlDir, "Формы", formName, "Форма.nkdk"), "utf-8")
-    expect(roundtripYaml).toContain("Синоним: Это форма контрагента")
-    expect(roundtripYaml).toContain("ПолеВвода1")
-    expect(roundtripNkdk).toBe(readFormNKDK)
+    expect(resultFormXML).toBe(expectedFormXML)
+    expect(resultMetadataXML).toBe(expectedMetadataXML)
   })
 })
