@@ -8,6 +8,7 @@ import { importIndexFieldsFromXML } from "~/metadata/commonObjects/indexField/fr
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration"
+
 export const importAdditionalIndexFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,

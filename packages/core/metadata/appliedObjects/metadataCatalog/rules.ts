@@ -1,12 +1,31 @@
 import { MetadataItemRule } from "~/metadata/orchestration"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
+const catalogBaseProperties = ["Catalog"]
+
 const catalogProperties = ["Catalog", "Properties"]
 const catalogChildObjects = ["Catalog", "ChildObjects"]
 
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   properties: {
+    internalInfo: {
+      type: "InternalInfo",
+      xmlParents: catalogBaseProperties,
+      items: [
+        { name: "CatalogObject", category: "Object" },
+        { name: "CatalogRef", category: "Ref" },
+        { name: "CatalogSelection", category: "Selection" },
+        { name: "CatalogList", category: "List" },
+        { name: "CatalogManager", category: "Manager" },
+      ],
+    },
+    uuid: {
+      type: "string",
+      xml: "_uuid",
+      forReferenceOnly: true,
+      xmlParents: catalogBaseProperties,
+    },
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",

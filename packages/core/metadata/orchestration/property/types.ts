@@ -52,6 +52,11 @@ export interface BasePropertyRule {
    * Если все поля пустые - это поле будет выгружено как значение
    */
   useAsShortValueYAML?: true
+
+  /**
+   * Если true, то свойство будет пропущено при импорте из XML
+   */
+  forReferenceOnly?: true
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {
@@ -97,6 +102,11 @@ export interface MetadataTypePropertyRule extends BasePropertyRule {
   typeValue: string
 }
 
+export interface InternalInfoPropertyRule extends BasePropertyRule {
+  type: "InternalInfo"
+  items: Array<{ name: string; category: string }>
+}
+
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     PropertyRuleType,
@@ -111,6 +121,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "DataPath"
     | "MetadataType"
     | "MetadataTypeCollection"
+    | "InternalInfo"
     | "GroupChildItems"
     | "CommandBarChildItems"
     | "TableChildItems"
@@ -133,6 +144,7 @@ export type PropertyRule =
   | TableAdditionalSourcePropertyRule
   | StandardAttributeDescriptionPropertyRule
   | StandardAttributeDescriptionsPropertyRule
+  | InternalInfoPropertyRule
   | ChildItemsPropertyRule
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule

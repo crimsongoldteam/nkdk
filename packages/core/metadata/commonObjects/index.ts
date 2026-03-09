@@ -200,3 +200,6 @@ import "./characteristicsDescription/toXML"
 import "./characteristicsDescription/toYAML"
 
 import "./number/toJSONSchema"
+
+import "./internalInfo/fromXML"
+import "./internalInfo/toXML"

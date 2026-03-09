@@ -14,6 +14,7 @@ import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects
 import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { IndexField, IndexFieldYAML } from "~/metadata/commonObjects/indexField/types"
+import { InternalInfo } from "~/metadata/commonObjects/internalInfo/types"
 import {
   MetadataAttribute,
   MetadataAttributes,
@@ -319,7 +320,9 @@ export type PropertyTypeRegistry = {
     item: CommandInterface
     yaml: CommandInterfaceYAML
   }
-
+  InternalInfo: {
+    item: InternalInfo
+  }
   AssociatedTable: {
     item: string
     yaml: string
@@ -496,6 +499,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributes: "FormAttributes",
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
+  InternalInfo: "InternalInfo",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

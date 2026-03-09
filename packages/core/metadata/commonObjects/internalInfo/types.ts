@@ -1,5 +1,12 @@
 import { Static, Type } from "@sinclair/typebox"
 
+export type InternalInfoItem = {
+  typeId: string
+  valueId: string
+}
+
+export type InternalInfo = Record<string, InternalInfoItem>
+
 export interface InternalInfoParam {
   name: string
   category: string
@@ -10,6 +17,11 @@ export interface InternalInfoXML {
   _category: string
   "xr:TypeId": string
   "xr:ValueId": string
+}
+
+/** Корневой XML-элемент InternalInfo при чтении (содержит массив xr:GeneratedType) */
+export interface InternalInfoRootXML {
+  "xr:GeneratedType"?: InternalInfoXML[]
 }
 
 export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {

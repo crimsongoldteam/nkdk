@@ -4,7 +4,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { mergeIgnoringUndefined, sortObject } from "~/metadata/helpers/compactObject"
 import { exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
-import { exportInternalInfoToXML } from "../internalInfo/toXML"
+import { exportInternalInfoToXMLOld } from "../internalInfo/toXML"
 import { MetadataAttributesXML } from "../metadataAttribute/types"
 import { getDefaults } from "./defaults"
 import { MetadataTabularSectionRules } from "./rules"
@@ -54,7 +54,7 @@ export const exportMetadataTabularSectionToXML = (
 
   const result: MetadataTabularSectionXML = {
     _uuid: receiveUUID({ context: currentContext, parentPath: parentPath, path: path }),
-    InternalInfo: exportInternalInfoToXML(context, [
+    InternalInfo: exportInternalInfoToXMLOld(context, [
       { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
       { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
     ]),

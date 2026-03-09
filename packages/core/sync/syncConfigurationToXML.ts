@@ -4,7 +4,7 @@ import { importConfigDumpInfoFromXML } from "~/metadata/appliedObjects/configDum
 import { ConfigDumpInfo, ConfigDumpInfoXML } from "~/metadata/appliedObjects/configDumpInfo/types"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import importContentFromXML from "~/xml/import/importer"
-import { convertCatalogToXML } from "./syncCatalogToXML"
+import { convertCatalogToXML } from "../metadata/appliedObjects/metadataCatalog/syncToXML"
 import { type ParseFormFromNkdK } from "./syncFormToXML"
 
 export const syncConfigurationToXML = async (params: {

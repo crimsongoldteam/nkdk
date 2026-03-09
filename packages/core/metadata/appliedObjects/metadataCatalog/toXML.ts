@@ -5,10 +5,9 @@ import {
 } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
-import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/toXML"
-import { receiveUUID } from "../configDumpInfo/getUUID"
-import { getDefaults } from "./defaults"
+import { exportInternalInfoToXMLOld } from "../../commonObjects/internalInfo/toXML"
 import { MetadataCatalogRules } from "./rules"
 
 const ROOT_XML_ATTRS: Omit<MetadataCatalogXML, "Catalog"> = {
@@ -32,10 +31,12 @@ const ROOT_XML_ATTRS: Omit<MetadataCatalogXML, "Catalog"> = {
   _version: "2.20",
 }
 
-export const exportMetadataCatalogToXML = (
-  context: ConfigurationContextWithExportToXML,
+export const exportMetadataCatalogToXML = (params: {
+  context: ConfigurationContextWithExportToXML
   data: MetadataCatalog | undefined
-): MetadataCatalogXML | undefined => {
+  referenceData: MetadataCatalog | undefined
+}): MetadataCatalogXML | undefined => {
+  const { context, data, referenceData } = params
   if (!data) return undefined
 
   const parentPath = "Catalog.${data.name}"
@@ -46,21 +47,22 @@ export const exportMetadataCatalogToXML = (
     name: data.name,
   })
 
-  const defaults = getDefaults(data, context)
-  const mergedData = { ...defaults, ...data, itemType: "MetadataCatalog" as const }
+  // const defaults = getDefaults(data, context)
+  // const mergedData = { ...defaults, ...data, itemType: "MetadataCatalog" as const }
 
-  const internalInfo = exportInternalInfoToXML<CatalogInternalInfoParamsXML>(context, [
-    { name: `CatalogObject.${mergedData.name}`, category: "Object" },
-    { name: `CatalogRef.${mergedData.name}`, category: "Ref" },
-    { name: `CatalogSelection.${mergedData.name}`, category: "Selection" },
-    { name: `CatalogList.${mergedData.name}`, category: "List" },
-    { name: `CatalogManager.${mergedData.name}`, category: "Manager" },
+  const internalInfo = exportInternalInfoToXMLOld<CatalogInternalInfoParamsXML>(context, [
+    { name: `CatalogObject.${data.name}`, category: "Object" },
+    { name: `CatalogRef.${data.name}`, category: "Ref" },
+    { name: `CatalogSelection.${data.name}`, category: "Selection" },
+    { name: `CatalogList.${data.name}`, category: "List" },
+    { name: `CatalogManager.${data.name}`, category: "Manager" },
   ])
 
   const flat = exportPropertiesToXML({
     context: currentContext,
-    metadata: mergedData,
+    metadata: data,
     rule: MetadataCatalogRules,
+    referenceMetadata: referenceData,
   })
 
   const catalogFromRules = flat.Catalog as MetadataCatalogXML["Catalog"]
@@ -73,7 +75,7 @@ export const exportMetadataCatalogToXML = (
   const result: MetadataCatalogXML = {
     ...ROOT_XML_ATTRS,
     Catalog: {
-      _uuid: receiveUUID({ context: currentContext, parentPath: parentPath }),
+      _uuid: referenceData?.uuid ?? getUUID(currentContext),
       InternalInfo: internalInfo,
       Properties: catalogFromRules.Properties,
       ...(Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),
