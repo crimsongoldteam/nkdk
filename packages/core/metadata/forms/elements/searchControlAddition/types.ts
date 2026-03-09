@@ -5,12 +5,15 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems, CommandBarChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { SearchControlAdditionRules, SingleSearchControlAdditionRules } from "./rules"
+
+export type SearchControlAdditionReference = ElementReferenceTypeByRule<typeof SearchControlAdditionRules>
 
 export interface SearchControlAddition {
   itemType: "SearchControlAddition"
@@ -37,6 +40,8 @@ export interface SearchControlAddition {
   visible?: boolean
   childItems: CommandBarChildItems
 }
+
+export type SingleSearchControlAdditionReference = ElementReferenceTypeByRule<typeof SingleSearchControlAdditionRules>
 
 export interface SingleSearchControlAddition
   extends Omit<SearchControlAddition, "name" | "additionSource" | "itemType">, BaseElement {

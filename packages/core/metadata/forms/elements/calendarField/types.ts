@@ -1,9 +1,11 @@
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ElementReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { CalendarFieldRules } from "./rules"
 
 export type CalendarField = MetadataTypeByRule<typeof CalendarFieldRules>
+
+export type CalendarFieldReference = ElementReferenceTypeByRule<typeof CalendarFieldRules>
 
 export type CalendarFieldPartialYAML = YAMLTypeByRule<typeof CalendarFieldRules>
 

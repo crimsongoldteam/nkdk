@@ -1,5 +1,5 @@
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { FormAttributesXML } from "../commonObjects/formAttribute/types"
 import { FormCommandsXML } from "../commonObjects/formCommand/types"
@@ -11,10 +11,10 @@ export type ClientApplicationForm = MetadataTypeByRule<typeof ClientApplicationF
 export type ClientApplicationFormReference = MetadataTypeByRule<typeof ClientApplicationFormRules, "Form"> & {
   uuid: string
 }
-export type ClientApplicationFormMetadataReference = MetadataTypeByRule<
+export type ClientApplicationFormMetadataReference = MetadataReferenceTypeByRule<
   typeof ClientApplicationFormRules,
   "Metadata"
-> & { uuid: string }
+>
 
 // export interface ClientApplicationForm extends MetadataItem {
 //   itemType: "ClientApplicationForm"

@@ -7,11 +7,14 @@ import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { PeriodFieldRules } from "./rules"
+
+export type PeriodFieldReference = ElementReferenceTypeByRule<typeof PeriodFieldRules>
 
 export interface PeriodField extends NamedElement {
   itemType: "PeriodField"

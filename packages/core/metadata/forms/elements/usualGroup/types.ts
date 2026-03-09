@@ -3,6 +3,7 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
@@ -12,6 +13,8 @@ import {
 } from "../../commonObjects/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { UsualGroupRules } from "./rules"
+
+export type UsualGroupReference = ElementReferenceTypeByRule<typeof UsualGroupRules>
 
 export interface UsualGroup {
   itemType: "UsualGroup"

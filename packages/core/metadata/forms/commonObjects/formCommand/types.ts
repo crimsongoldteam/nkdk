@@ -3,7 +3,10 @@ import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/t
 import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItem } from "~/metadata/orchestration"
+import { MetadataReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseYAML } from "~/metadata/systemEnumerations/types"
+
+export type FormCommandReference = MetadataReferenceTypeByRule<typeof FormCommandRules>
 
 export interface FormCommand extends MetadataItem {
   itemType: "FormCommand"

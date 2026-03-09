@@ -1,10 +1,13 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { CommandBarChildItems } from "../../commonObjects/childItems/types"
 import { BaseElement } from "../baseElement/types"
 import { AutoCommandBarRules } from "./rules"
+
+export type AutoCommandBarReference = ElementReferenceTypeByRule<typeof AutoCommandBarRules>
 
 export interface AutoCommandBar extends BaseElement {
   itemType: "AutoCommandBar"

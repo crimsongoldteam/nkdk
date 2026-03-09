@@ -5,12 +5,19 @@ import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { exportEventsToXML } from "~/metadata/orchestration/event"
 import { ClientApplicationFormRules } from "./rules"
-import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
+import {
+  ClientApplicationForm,
+  ClientApplicationFormMetadataReference,
+  ClientApplicationFormReference,
+  ClientApplicationFormXML,
+  FormMetadataXML,
+  FormRulesTags,
+} from "./types"
 
 export const exportClientApplicationFormToXML = (params: {
   context: ConfigurationContextWithExportToXML
   form: ClientApplicationForm
-  referenceForm: ClientApplicationForm | undefined
+  referenceForm: ClientApplicationFormReference | undefined
 }): ClientApplicationFormXML => {
   const { context, form, referenceForm } = params
 
@@ -53,7 +60,7 @@ export const exportClientApplicationFormToXML = (params: {
 export const exportFormMetadataToXML = (params: {
   context: ConfigurationContextWithExportToXML
   form: ClientApplicationForm
-  referenceForm: ClientApplicationForm | undefined
+  referenceForm: ClientApplicationFormMetadataReference | undefined
   name: string
 }): FormMetadataXML => {
   const { context, form, referenceForm, name } = params

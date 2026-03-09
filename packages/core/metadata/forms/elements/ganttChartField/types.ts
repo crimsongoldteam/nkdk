@@ -7,10 +7,13 @@ import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/t
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { GanttChartFieldRules } from "./rules"
+
+export type GanttChartFieldReference = ElementReferenceTypeByRule<typeof GanttChartFieldRules>
 
 export interface GanttChartField extends NamedElement {
   itemType: "GanttChartField"

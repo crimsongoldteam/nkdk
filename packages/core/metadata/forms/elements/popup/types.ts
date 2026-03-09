@@ -4,11 +4,14 @@ import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { PopupRules } from "./rules"
+
+export type PopupReference = ElementReferenceTypeByRule<typeof PopupRules>
 
 export interface Popup {
   itemType: "Popup"

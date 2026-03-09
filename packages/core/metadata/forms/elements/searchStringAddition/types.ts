@@ -3,12 +3,15 @@ import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { SearchStringAdditionRules, SingleSearchStringAdditionRules } from "./rules"
+
+export type SearchStringAdditionReference = ElementReferenceTypeByRule<typeof SearchStringAdditionRules>
 
 export interface SearchStringAddition extends NamedElement {
   itemType: "SearchStringAddition"
@@ -32,6 +35,8 @@ export interface SearchStringAddition extends NamedElement {
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
 }
+
+export type SingleSearchStringAdditionReference = ElementReferenceTypeByRule<typeof SingleSearchStringAdditionRules>
 
 export interface SingleSearchStringAddition
   extends Omit<SearchStringAddition, "name" | "additionSource" | "itemType">, BaseElement {

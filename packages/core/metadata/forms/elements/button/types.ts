@@ -1,10 +1,11 @@
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ElementReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { ButtonRules } from "./rules"
 
 export type Button = MetadataTypeByRule<typeof ButtonRules>
 
+export type ButtonReference = ElementReferenceTypeByRule<typeof ButtonRules>
 // export interface ButtonOld extends NamedElement {
 //   itemType: "Button"
 //   autoMaxHeight?: boolean

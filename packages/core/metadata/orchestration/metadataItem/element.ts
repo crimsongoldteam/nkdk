@@ -41,11 +41,7 @@ type PropertyValueByRule<P extends PropertyRule> = P extends {
 
 /** Ключи свойств, отфильтрованные по Tag (все ключи при Tag === undefined) */
 type FilteredKeys<Properties, Tag extends string | undefined> = {
-  [K in keyof Properties]: [Tag] extends [undefined]
-    ? K
-    : Properties[K] extends { tag: Tag }
-      ? K
-      : never
+  [K in keyof Properties]: [Tag] extends [undefined] ? K : Properties[K] extends { tag: Tag } ? K : never
 }[keyof Properties] &
   keyof Properties
 
@@ -80,3 +76,23 @@ export type MetadataTypeByRule<
     // name: string
     itemType: Rule["itemType"]
   }
+
+export type MetadataReferenceTypeByRule<
+  Rule extends {
+    properties: Record<string, PropertyRule>
+    itemType: MetadataItemType
+    events?: Record<string, string>
+    eventsTag?: string
+  },
+  Tag extends string | undefined = undefined,
+> = MetadataTypeByRule<Rule, Tag> & { uuid: string }
+
+export type ElementReferenceTypeByRule<
+  Rule extends {
+    properties: Record<string, PropertyRule>
+    itemType: MetadataItemType
+    events?: Record<string, string>
+    eventsTag?: string
+  },
+  Tag extends string | undefined = undefined,
+> = MetadataTypeByRule<Rule, Tag> & { id: string }

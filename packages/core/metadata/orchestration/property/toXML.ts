@@ -1,5 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { ToReference } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
 import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
@@ -7,7 +8,7 @@ import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   context: ConfigurationContextWithExportToXML
   metadata: T | undefined
-  referenceMetadata?: T
+  referenceMetadata?: ToReference<T["itemType"]>
   rule: MetadataItemRule
   tag?: string[]
 }): ItemXML => {
@@ -15,7 +16,10 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
   const result: ItemXML = {}
 
-  for (const [key, ruleProp] of Object.entries(rule.properties) as [string, PropertyRule][]) {
+  const orderedKeys = getOrderedKeys({ rule, referenceMetadata })
+
+  for (const key of orderedKeys) {
+    const ruleProp = rule.properties[key]
     if (tag && (!ruleProp.tag || !tag.includes(ruleProp.tag))) continue
 
     const currentContext: ConfigurationContextWithExportToXML = {
@@ -36,6 +40,24 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   }
 
   return result
+}
+
+const getOrderedKeys = <Rule extends MetadataItemRule>(params: {
+  rule: Rule
+  referenceMetadata?: ToReference<Rule["itemType"]>
+}): string[] => {
+  const { rule, referenceMetadata } = params
+  const propertyKeys = Object.keys(rule.properties)
+
+  if (referenceMetadata == null) {
+    return [...propertyKeys].sort()
+  }
+
+  const keysFromReference = Object.keys(referenceMetadata as object)
+  const referenceSet = new Set(keysFromReference)
+  const remainingKeys = propertyKeys.filter((key) => !referenceSet.has(key)).sort()
+
+  return [...keysFromReference, ...remainingKeys]
 }
 
 const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any => {

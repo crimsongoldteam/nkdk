@@ -4,12 +4,15 @@ import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { TableChildItems, TableChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ColumnGroupRules } from "./rules"
+
+export type ColumnGroupReference = ElementReferenceTypeByRule<typeof ColumnGroupRules>
 
 export interface ColumnGroup extends NamedElement {
   itemType: "ColumnGroup"

@@ -6,11 +6,14 @@ import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { PictureDecorationRules } from "./rules"
+
+export type PictureDecorationReference = ElementReferenceTypeByRule<typeof PictureDecorationRules>
 
 export interface PictureDecoration {
   itemType: "PictureDecoration"

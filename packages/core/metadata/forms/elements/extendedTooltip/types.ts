@@ -6,8 +6,11 @@ import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BaseElement } from "../baseElement/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import { ExtendedTooltipRules } from "./rules"
+
+export type ExtendedTooltipReference = ElementReferenceTypeByRule<typeof ExtendedTooltipRules>
 
 export interface ExtendedTooltip extends BaseElement {
   itemType: "ExtendedTooltip"

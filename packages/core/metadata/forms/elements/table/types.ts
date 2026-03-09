@@ -7,6 +7,7 @@ import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/comma
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 
 import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { TableChildItems } from "../../commonObjects/childItems/types"
@@ -16,6 +17,8 @@ import { SingleSearchControlAddition, SingleSearchControlAdditionYAML } from "..
 import { SearchStringAdditionYAML, SingleSearchStringAddition } from "../searchStringAddition/types"
 import { ViewStatusAddition, ViewStatusAdditionYAML } from "../viewStatusAddition/types"
 import { TableRules } from "./rules"
+
+export type TableReference = ElementReferenceTypeByRule<typeof TableRules>
 
 export interface Table {
   itemType: "Table"
