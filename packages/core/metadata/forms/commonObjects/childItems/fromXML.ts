@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importElementFromXML } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ElementXML } from "~/metadata/orchestration/formElement/types"
@@ -11,7 +11,7 @@ export type XMLItem<From extends NamedElement> = Record<From["itemType"], Elemen
 export const importChildItemsFromXML = <
   From extends GroupChildItem | CommandBarChildItem | TableChildItem | PagesChildItem,
 >(
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: XMLItem<From>[] | XMLItem<From> | undefined
 ): From[] => {

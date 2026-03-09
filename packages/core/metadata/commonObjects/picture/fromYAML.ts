@@ -48,11 +48,11 @@ export const importPictureFromYAML = (
   } else {
     ref = data
     // First check if it's a standard picture to determine default loadTransparent
-    const isStandard = tryImportStandardPicture(context, ref as string) !== undefined
+    const isStandard = tryimportStandardPicture(context, ref as string) !== undefined
     loadTransparent = isStandard ? true : false
   }
 
-  const standardPicture = tryImportStandardPicture(context, ref as string)
+  const standardPicture = tryimportStandardPicture(context, ref as string)
   if (standardPicture) {
     return createPicture(standardPicture, "StandardPicture", loadTransparent, transparentPixel)
   }
@@ -73,7 +73,7 @@ function isPictureYAMLExtended(data: PictureYAML): data is PictureYAMLExtended {
   return typeof data !== "string"
 }
 
-function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
+function tryimportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
   if (ref in SE.PictureLibFromYAML) {
     return importSystemEnumerationFromYAMLDeprecated<SE.PictureLib>(
       context,

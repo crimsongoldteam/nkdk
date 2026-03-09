@@ -1,10 +1,10 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getViewStatusAdditionName } from "./helper"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 
 export const ViewStatusAdditionRules = {
   itemType: "ViewStatusAddition",

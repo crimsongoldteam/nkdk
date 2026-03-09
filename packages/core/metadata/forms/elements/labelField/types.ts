@@ -1,89 +1,19 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Border, BorderYAML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { BorderYAML } from "~/metadata/commonObjects/border/types"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { LabelFieldRules } from "./rules"
 
-export type LabelFieldReference = ElementReferenceTypeByRule<typeof LabelFieldRules>
-
-export interface LabelField {
-  itemType: "LabelField"
-  name: string
-  autoCellHeight?: boolean
-  cellHyperlink?: boolean
-  contextMenu?: ContextMenu
-  dataPath?: string
-  defaultItem?: boolean
-  displayImportance?: SE.DisplayImportance
-  editMode?: SE.ColumnEditMode
-  enabled?: boolean
-  extendedTooltip?: ExtendedTooltip
-  fixingInTable?: SE.FixingInTable
-  footerBackColor?: Color
-  footerDataPath?: string
-  footerFont?: Font
-  footerHorizontalAlign?: SE.ItemHorizontalLocation
-  footerPicture?: Picture
-  footerText?: I8nText
-  footerTextColor?: Color
-  headerHorizontalAlign?: SE.ItemHorizontalLocation
-  headerPicture?: Picture
-  horizontalAlign?: SE.ItemHorizontalLocation
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  readOnly?: boolean
-  shortcut?: string
-  showInFooter?: boolean
-  showInHeader?: boolean
-  skipOnInput?: boolean
-  table?: string
-  title?: I8nText
-  titleBackColor?: Color
-  titleFont?: Font
-  titleHeight?: number
-  titleLocation?: SE.FormItemTitleLocation
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormFieldType
-  typeRestriction?: TypeDescription
-  userVisible?: UserVisible
-  verticalAlign?: SE.ItemVerticalAlign
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  visible?: boolean
-  warningOnEdit?: I8nText
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  autoMaxHeight?: boolean
-  autoMaxWidth?: boolean
-  backColor?: Color
-  border?: Border
-  borderColor?: Color
-  font?: Font
-  format?: I8nText
-  height?: number
-  horizontalStretch?: boolean
-  hyperlink?: boolean
-  markNegatives?: boolean
-  maxHeight?: number
-  maxWidth?: number
-  passwordMode?: boolean
-  textColor?: Color
-  verticalStretch?: boolean
-  width?: number
-  events?: {
-    onChange?: string
-    click?: string
-    uRLProcessing?: string
-  }
-}
+export type LabelField = ElementTypeByRule<typeof LabelFieldRules>
 
 export interface LabelFieldPartialYAML {
   АвтоВысотаЯчейки?: StringboolYAML

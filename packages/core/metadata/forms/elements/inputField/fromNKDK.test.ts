@@ -3,7 +3,7 @@ import {
   inputFieldStructureFixturesTable,
   type InputFieldStructureFixture,
 } from "~/tests/fixtures/forms/inputField/data"
-import { testImportElementFromNKDK } from "~/tests/fromNKDK"
+import { testimportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importInputFieldFromStructure", () => {
@@ -11,7 +11,7 @@ describe("importInputFieldFromStructure", () => {
     "should import input field $name",
     async (row: InputFieldStructureFixture) => {
       const { element: input, structured } = row
-      const result = await testImportElementFromNKDK(mockContext, structured.strings.join("\n"))
+      const result = await testimportElementFromNKDK(mockContext, structured.strings.join("\n"))
 
       expect(result).toEqual(input)
     }

@@ -196,7 +196,7 @@ export const InputFieldRules = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "string" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "string", toPartialYAML: false },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {

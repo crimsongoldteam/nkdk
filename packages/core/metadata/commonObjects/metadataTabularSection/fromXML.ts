@@ -1,4 +1,3 @@
-import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
@@ -10,9 +9,10 @@ import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionXML,
 } from "./types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importMetadataTabularSectionsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
@@ -26,7 +26,7 @@ export const importMetadataTabularSectionsFromXML = (
 }
 
 const importMetadataTabularSectionFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {

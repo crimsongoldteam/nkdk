@@ -5,7 +5,7 @@ import {
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
@@ -18,7 +18,7 @@ describe("SearchStringAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/full.xml")
 
       const result = importElementFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         itemType: "SearchStringAddition",
         xml: xmlData.SearchStringAddition,
       })
@@ -30,7 +30,7 @@ describe("SearchStringAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/minimal.xml")
 
       const result = importElementFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         itemType: "SearchStringAddition",
         xml: xmlData.SearchStringAddition,
       })
@@ -44,7 +44,7 @@ describe("SearchStringAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/fullSingle.xml")
 
       const result = importPropertyFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         rule: rule,
         value: xmlData.SearchStringAddition,
       })
@@ -56,7 +56,7 @@ describe("SearchStringAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/minimalSingle.xml")
 
       const result = importPropertyFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         rule: rule,
         value: xmlData.SearchStringAddition,
       })

@@ -17,7 +17,7 @@ export const sourceSearchControlAddition: SearchControlAddition = {
   childItems: [],
 }
 
-export const fullSingleSearchControlAddition: Required<SingleSearchControlAddition> = {
+export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
   itemType: "SingleSearchControlAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
@@ -138,7 +138,7 @@ export const fullSearchControlAdditionYAML: SearchControlAdditionYAML = {
   Источник: "РодительскийЭлемент",
 }
 
-export const fullSearchControlAddition: Required<SearchControlAddition> = {
+export const fullSearchControlAddition: SearchControlAddition = {
   ...fullSingleSearchControlAddition,
   itemType: "SearchControlAddition",
   additionSource: "РодительскийЭлемент",

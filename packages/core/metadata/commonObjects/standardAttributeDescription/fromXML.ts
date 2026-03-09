@@ -3,13 +3,13 @@ import {
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { StandardAttributeDescriptionRules } from "./rules"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importStandardAttributeDescriptionsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {

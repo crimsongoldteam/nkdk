@@ -7,7 +7,7 @@ import {
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
-export const fullButtonGroup: Required<ButtonGroup> = {
+export const fullButtonGroup: ButtonGroup = {
   itemType: "ButtonGroup",
   enableContentChange: true,
   enabled: true,

@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { all, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importStandardAttributeDescriptionsFromXML } from "./fromXML"
 import { StandardAttributeDescriptionsXML } from "./types"
 
 describe("importStandardAttributeDescriptionsFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importStandardAttributeDescriptionsFromXML(mockContext, mockRule, undefined)
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
@@ -16,7 +16,7 @@ describe("importStandardAttributeDescriptionsFromXML", () => {
       "standartAttributeDescription/all.xml"
     )
 
-    const result = importStandardAttributeDescriptionsFromXML(mockContext, mockRule, xml.StandardAttributes)
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toEqual(all)
   })
 
@@ -25,7 +25,7 @@ describe("importStandardAttributeDescriptionsFromXML", () => {
       "standartAttributeDescription/minimal.xml"
     )
 
-    const result = importStandardAttributeDescriptionsFromXML(mockContext, mockRule, xml.StandardAttributes)
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toBeUndefined()
   })
 
@@ -34,7 +34,7 @@ describe("importStandardAttributeDescriptionsFromXML", () => {
       "standartAttributeDescription/default.xml"
     )
 
-    const result = importStandardAttributeDescriptionsFromXML(mockContext, mockRule, xml.StandardAttributes)
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toBeUndefined()
   })
 
@@ -43,7 +43,7 @@ describe("importStandardAttributeDescriptionsFromXML", () => {
       "standartAttributeDescription/multiple.xml"
     )
 
-    const result = importStandardAttributeDescriptionsFromXML(mockContext, mockRule, xml.StandardAttributes)
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toEqual(multiple)
   })
 })

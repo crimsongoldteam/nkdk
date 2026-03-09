@@ -18,10 +18,7 @@ export const exportCommandsToXML = (
   return { Command: result }
 }
 
-const exportCommandToXML = (
-  context: ConfigurationContextWithExportToXML,
-  data: FormCommand
-): FormCommandXML => {
+const exportCommandToXML = (context: ConfigurationContextWithExportToXML, data: FormCommand): FormCommandXML => {
   const id = getElementId(context)
 
   const properties = exportPropertiesToXML({

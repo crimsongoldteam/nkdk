@@ -1,6 +1,6 @@
 import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
 
-export const fullViewStatusAddition: Required<ViewStatusAddition> = {
+export const fullViewStatusAddition: ViewStatusAddition = {
   itemType: "ViewStatusAddition",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },

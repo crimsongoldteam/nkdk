@@ -62,8 +62,7 @@ export const MetadataCommandRules = {
       xml: "Synonym",
       type: "I8nText",
       excludeIfEqualNameYAML: true,
-      defaultValue: ({ context, name }) =>
-        addDefaultLanguageNameToSynonym(context, undefined, name ?? ""),
+      defaultValue: ({ context, name }) => addDefaultLanguageNameToSynonym(context, undefined, name ?? ""),
     },
     toolTip: {
       yaml: "Подсказка",

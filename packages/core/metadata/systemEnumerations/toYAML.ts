@@ -1,8 +1,8 @@
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
-import { registerTypeRule } from "../orchestration/formElement/factory"
 import { ExportToYAMLFunction } from "../orchestration"
+import { registerTypeRule } from "../orchestration/formElement/factory"
 
 /** @deprecated */
 export const exportSystemEnumerationToYAMLDeprecated = <T extends string>(

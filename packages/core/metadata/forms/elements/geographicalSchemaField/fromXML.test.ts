@@ -4,13 +4,13 @@ import {
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importGeographicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "GeographicalSchemaField",
       xml: undefined,
     })
@@ -24,7 +24,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
     )
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "GeographicalSchemaField",
       xml: xmlData.GeographicalSchemaField,
     })
@@ -38,7 +38,7 @@ describe("importGeographicalSchemaFieldFromXML", () => {
     )
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "GeographicalSchemaField",
       xml: xmlData.GeographicalSchemaField,
     })

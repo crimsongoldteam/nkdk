@@ -36,5 +36,14 @@ export function unescapeText(content: string): string {
     if ((q === '"' || q === "'") && content[content.length - 1] === q) s = content.slice(1, -1)
   }
   s = s.replace(/""|''/g, (m) => m[0])
-  return s.replace(ESC_RE, (_, p1) => ESC[p1] ?? (p1[0] === "u" ? String.fromCharCode(parseInt(p1.slice(1), 16)) : p1[0] === "x" ? String.fromCharCode(parseInt(p1.slice(1), 16)) : "\\" + p1))
+  return s.replace(
+    ESC_RE,
+    (_, p1) =>
+      ESC[p1] ??
+      (p1[0] === "u"
+        ? String.fromCharCode(parseInt(p1.slice(1), 16))
+        : p1[0] === "x"
+          ? String.fromCharCode(parseInt(p1.slice(1), 16))
+          : "\\" + p1)
+  )
 }

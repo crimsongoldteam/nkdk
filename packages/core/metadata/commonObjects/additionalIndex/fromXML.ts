@@ -5,11 +5,11 @@ import {
   AdditionalIndexXML,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { importIndexFieldsFromXML } from "~/metadata/commonObjects/indexField/fromXML"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration"
 export const importAdditionalIndexFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: AdditionalIndexXML | undefined
 ): AdditionalIndex | undefined => {
@@ -31,7 +31,7 @@ export const importAdditionalIndexFromXML = (
 }
 
 export const importAdditionalIndexesFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: AdditionalIndexesXML | undefined
 ): AdditionalIndexes | undefined => {

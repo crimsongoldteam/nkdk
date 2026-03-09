@@ -1,14 +1,14 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ToReference } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
+import { getOrderedKeysToXML } from "./helpers"
 import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   context: ConfigurationContextWithExportToXML
   metadata: T | undefined
-  referenceMetadata?: ToReference<T["itemType"]>
+  referenceMetadata?: T | undefined
   rule: MetadataItemRule
   tag?: string[]
 }): ItemXML => {
@@ -16,7 +16,7 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
   const result: ItemXML = {}
 
-  const orderedKeys = getOrderedKeys({ rule, referenceMetadata, tag })
+  const orderedKeys = getOrderedKeysToXML({ rule, tag, referenceMetadata })
 
   for (const key of orderedKeys) {
     if (key === "events") continue
@@ -41,28 +41,6 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
   }
 
   return result
-}
-
-const getOrderedKeys = <Rule extends MetadataItemRule>(params: {
-  rule: Rule
-  referenceMetadata: ToReference<Rule["itemType"]> | undefined
-  tag?: string[]
-}): string[] => {
-  const { rule, referenceMetadata, tag } = params
-  const propertyKeys = Object.keys(rule.properties).filter((key) => {
-    const ruleProp = rule.properties[key]
-    return tag === undefined || (ruleProp.tag !== undefined && tag.includes(ruleProp.tag))
-  })
-
-  if (referenceMetadata === undefined) {
-    return [...propertyKeys].sort()
-  }
-
-  const keysFromReference = Object.keys(referenceMetadata as object).filter((key) => propertyKeys.includes(key))
-  const referenceSet = new Set(keysFromReference)
-  const remainingKeys = propertyKeys.filter((key) => !referenceSet.has(key)).sort()
-
-  return [...keysFromReference, ...remainingKeys]
 }
 
 const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any => {

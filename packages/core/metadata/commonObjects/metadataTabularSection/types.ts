@@ -4,15 +4,13 @@ import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { MetadataTabularSectionRules } from "./rules"
 
 export type MetadataTabularSection = MetadataTypeByRule<typeof MetadataTabularSectionRules>
-
-export type MetadataTabularSectionReference = MetadataReferenceTypeByRule<typeof MetadataTabularSectionRules>
 
 export type TabularSectionInternalInfoParamsXML = [
   { name: string; category: "TabularSection" },

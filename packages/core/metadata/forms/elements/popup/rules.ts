@@ -20,6 +20,7 @@ export const PopupRules = {
       yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
+      required: true,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

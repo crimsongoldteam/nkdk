@@ -2,7 +2,7 @@ import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { readCatalogYAML } from "~/tests/fixtures/sync/syncCatalog/data"
-import { mockContextToYAML } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { convertCatalogFromXML } from "./convertCatalogFromXML"
 
 describe("convertCatalogFromXML", () => {
@@ -18,7 +18,7 @@ describe("convertCatalogFromXML", () => {
 
   it("should read catalog from XML and export to YAML file in output dir", async () => {
     await convertCatalogFromXML({
-      context: mockContextToYAML,
+      context: mockContextFromXML(),
       inputDir: inputDir,
       name: catalogName,
       outputDir: outputDir,

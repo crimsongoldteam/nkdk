@@ -1,67 +1,19 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
-  GroupChildItems,
   // GroupChildItemsEnterprise,
   GroupChildItemsPartialYAML,
 } from "../../commonObjects/childItems/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { UsualGroupRules } from "./rules"
 
-export type UsualGroupReference = ElementReferenceTypeByRule<typeof UsualGroupRules>
-
-export interface UsualGroup {
-  itemType: "UsualGroup"
-  name: string
-  enableContentChange?: boolean
-  enabled?: boolean
-  height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  shortcut?: string
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  userVisible?: UserVisible
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
-  table?: string
-  backColor?: Color
-  behavior?: SE.UsualGroupBehavior
-  childItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  childItemsVerticalAlign?: SE.ItemVerticalAlign
-  collapsedRepresentationTitle?: I8nText
-  collapsed?: boolean
-  controlRepresentation?: SE.UsualGroupControlRepresentation
-  currentRowUse?: SE.CurrentRowUse
-  displayImportance?: SE.DisplayImportance
-  extendedTooltip?: ExtendedTooltip
-  format?: I8nText
-  group: SE.ChildFormItemsGroup
-  hiddenRepresentationTitleBackColor?: Color
-  horizontalSpacing?: SE.FormItemSpacing
-  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
-  representation?: SE.UsualGroupRepresentation
-  showLeftMargin?: boolean
-  showTitle: boolean
-  // slaveItemsWidth?: SE.ChildFormItemsWidth // depricated in 8.3.7
-  throughAlign?: SE.ThroughAlign
-  titleDataPath?: string
-  united?: boolean
-  verticalSpacing?: SE.FormItemSpacing
-  childItems: GroupChildItems
-}
+export type UsualGroup = ElementTypeByRule<typeof UsualGroupRules>
 
 export interface UsualGroupPartialYAML {
   Таблица?: string

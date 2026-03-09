@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullButton, minimalButton } from "~/tests/fixtures/forms/button/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importButtonFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Button",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importButtonFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Button: any }>("forms/button/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Button",
       xml: xmlData.Button,
     })
@@ -31,7 +31,7 @@ describe("importButtonFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Button: ElementXML }>("forms/button/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Button",
       xml: xmlData.Button,
     })

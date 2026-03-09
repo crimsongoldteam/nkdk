@@ -1,11 +1,9 @@
-import { ElementReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { CalendarFieldRules } from "./rules"
 
-export type CalendarField = MetadataTypeByRule<typeof CalendarFieldRules>
-
-export type CalendarFieldReference = ElementReferenceTypeByRule<typeof CalendarFieldRules>
+export type CalendarField = ElementTypeByRule<typeof CalendarFieldRules>
 
 export type CalendarFieldPartialYAML = YAMLTypeByRule<typeof CalendarFieldRules>
 
@@ -39,7 +37,7 @@ export type CalendarFieldEnterprise = EnterpriseType<typeof CalendarFieldRules>
 //   contextMenu?: ContextMenu
 //   dataPath?: string
 //   defaultItem?: boolean
-//   displayImportance?: SE.DisplayImportance
+//   displayImportance?: SE.displayImportance
 //   enabled?: boolean
 //   extendedTooltip?: ExtendedTooltip
 //   horizontalAlignInGroup?: SE.ItemHorizontalLocation

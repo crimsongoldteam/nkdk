@@ -6,7 +6,7 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { MetadataField, MetadataFieldXML } from "~/metadata/commonObjects/metadataField/types"
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration"
 
@@ -26,7 +26,7 @@ const extractFieldValue = (field: MetadataFieldXML | string | number | undefined
 }
 
 export const importCharacteristicsDescriptionFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: CharacteristicsDescriptionXML | undefined
 ): CharacteristicsDescription | undefined => {
@@ -75,7 +75,7 @@ export const importCharacteristicsDescriptionFromXML = (
 }
 
 export const importCharacteristicsDescriptionsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: CharacteristicsDescriptionsXML | undefined
 ): CharacteristicsDescriptions | undefined => {

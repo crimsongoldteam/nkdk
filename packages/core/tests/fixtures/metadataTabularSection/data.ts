@@ -50,6 +50,7 @@ export const minimalTabularSections: MetadataTabularSections = [
   {
     itemType: "MetadataTabularSection",
     name: "ДополнительныеРеквизиты",
+    attributes: [],
     synonym: {
       items: {
         ru: "Дополнительные реквизиты",

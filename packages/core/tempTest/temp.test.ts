@@ -85,7 +85,7 @@ describe("DO test", () => {
     // })
     // it("should import metadata catalog from XML", () => {
     //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
-    //   const xmlData = importMetadataCatalogFromXML(mockContext, mockRule, importedXml.MetaDataObject)
+    //   const xmlData = importMetadataCatalogFromXML(mockContextFromXML(), mockRule, importedXml.MetaDataObject)
     //   const exportedYAML = exportMetadataCatalogToYAML(mockContext, mockRule, xmlData)
     //   const yamlString = exportToYAML(exportedYAML!)
     //   writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")

@@ -4,19 +4,12 @@ import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { exportEventsToXML } from "~/metadata/orchestration/event"
 import { ClientApplicationFormRules } from "./rules"
-import {
-  ClientApplicationForm,
-  ClientApplicationFormMetadataReference,
-  ClientApplicationFormReference,
-  ClientApplicationFormXML,
-  FormMetadataXML,
-  FormRulesTags,
-} from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
 export const exportClientApplicationFormToXML = (params: {
   context: ConfigurationContextWithExportToXML
   form: ClientApplicationForm
-  referenceForm: ClientApplicationFormReference | undefined
+  referenceForm: ClientApplicationForm | undefined
 }): ClientApplicationFormXML => {
   const { context, form, referenceForm } = params
 
@@ -63,8 +56,9 @@ const setIdsToElements = (context: ConfigurationContextWithExportToXML): void =>
   const occupiedIds = new Set<string>()
 
   for (const element of elementsMap) {
-    if (element.referenceElement?.id) {
-      occupiedIds.add(element.referenceElement.id)
+    const reference: any = element.referenceElement
+    if (reference && typeof reference.id === "string") {
+      occupiedIds.add(reference.id)
     }
   }
 
@@ -81,7 +75,7 @@ const setIdsToElements = (context: ConfigurationContextWithExportToXML): void =>
 export const exportFormMetadataToXML = (params: {
   context: ConfigurationContextWithExportToXML
   form: ClientApplicationForm
-  referenceForm: ClientApplicationFormMetadataReference | undefined
+  referenceForm: ClientApplicationForm | undefined
   name: string
 }): FormMetadataXML => {
   const { context, form, referenceForm, name } = params
@@ -94,9 +88,6 @@ export const exportFormMetadataToXML = (params: {
     tag: [FormRulesTags.Metadata],
   })
 
-  // const parentPath = getParentFromContext(context, ["MetadataCatalog"]).path
-  // const path = `${parentPath}.Form.${name}`
-  // const uuid = receiveUUID({ context, parentPath, path })
   const uuid = referenceForm?.uuid ?? getUUID(context)
 
   const result = {

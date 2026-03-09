@@ -1,9 +1,4 @@
-import {
-  ClientApplicationForm,
-  ClientApplicationFormMetadataReference,
-  ClientApplicationFormReference,
-  ClientApplicationFormYAML,
-} from "~/metadata/forms/clientApplicationForm/types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 
 const fullCommandInterface: CommandInterface = {
@@ -19,7 +14,7 @@ const fullCommandInterface: CommandInterface = {
   itemType: "CommandInterface",
 }
 
-export const fullClientApplicationForm: Required<ClientApplicationForm> = {
+export const fullClientApplicationForm: Omit<Required<ClientApplicationForm>, "uuid"> = {
   parameters: [
     {
       name: "Параметр1",
@@ -154,7 +149,7 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   itemType: "ClientApplicationForm",
 }
 
-export const clientApplicationFormReference: ClientApplicationFormReference = {
+export const clientApplicationFormReference: ClientApplicationForm = {
   ...fullClientApplicationForm,
   uuid: "11111111-1111-4111-8111-111111111111",
 }
@@ -290,12 +285,12 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   itemType: "ClientApplicationForm",
 }
 
-export const minimalClientApplicationFormReference: ClientApplicationFormReference = {
+export const minimalClientApplicationFormReference: ClientApplicationForm = {
   ...minimalClientApplicationForm,
   uuid: "11111111-1111-4111-8111-111111111111",
 }
 
-export const minimalClientApplicationFormMetadataReference: ClientApplicationFormMetadataReference = {
+export const minimalClientApplicationFormMetadataReference: ClientApplicationForm & { uuid: string } = {
   ...minimalClientApplicationForm,
   uuid: "11111111-1111-4111-8111-111111111111",
 }

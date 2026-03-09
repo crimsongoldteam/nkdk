@@ -17,6 +17,7 @@ export const ButtonGroupRules = {
       yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
+      required: true,
     },
     extendedTooltip: {
       yaml: "РасширеннаяПодсказка",

@@ -38,21 +38,21 @@ import { importUsualGroupFromNKDK } from "~/metadata/forms/elements/usualGroup/f
 
 export type NkdkChildItem = NKDK.ChildItem | NKDK.CommandBarChildItem | NKDK.TableField | NKDK.Page
 
-export type ImportFromNKDKFnMap = {
+export type importFromNKDKFnMap = {
   [Item in NkdkChildItem as Item extends { $type: infer AstType } ? AstType : never]: (params: {
     context: ConfigurationContext
     source: Item
   }) => BaseElement
 }
 
-type ImportFromNKDKFn = typeof importFromNKDKFn
-type ImportFromNKDKResultMap = {
-  [K in keyof ImportFromNKDKFn]: ReturnType<ImportFromNKDKFn[K]>
+type importFromNKDKFn = typeof importFromNKDKFn
+type importFromNKDKResultMap = {
+  [K in keyof importFromNKDKFn]: ReturnType<importFromNKDKFn[K]>
 }
 export type FromNKDKResult<NkdkItem extends NkdkChildItem> = NkdkItem extends {
-  $type: infer AstType extends keyof ImportFromNKDKFn
+  $type: infer AstType extends keyof importFromNKDKFn
 }
-  ? ImportFromNKDKResultMap[AstType]
+  ? importFromNKDKResultMap[AstType]
   : never
 
 export const importFromNKDKFn = {
@@ -86,4 +86,4 @@ export const importFromNKDKFn = {
   TableLabelField: importTableLabelFieldFromNKDK,
   TablePictureField: importTablePictureFieldFromNKDK,
   TableVerticalGroup: importTableVerticalGroupFromNKDK,
-} satisfies Required<ImportFromNKDKFnMap>
+} satisfies Required<importFromNKDKFnMap>

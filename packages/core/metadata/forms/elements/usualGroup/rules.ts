@@ -24,6 +24,7 @@ export const UsualGroupRules = {
       defaultValue: [],
       fromPartialYAML: true,
       toPartialYAML: false,
+      required: true,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
@@ -69,6 +70,7 @@ export const UsualGroupRules = {
       toPartialYAML: false,
       defaultValue: "HorizontalIfPossible",
       defaultValueXML: "HorizontalIfPossible",
+      required: true,
     },
     height: { yaml: "Высота", type: "number" },
     hiddenRepresentationTitleBackColor: {

@@ -1,5 +1,5 @@
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
-import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { FormAttributesXML } from "../commonObjects/formAttribute/types"
 import { FormCommandsXML } from "../commonObjects/formCommand/types"
@@ -7,13 +7,6 @@ import { FormParametersXML } from "../commonObjects/formParameter/types"
 import { ClientApplicationFormRules } from "./rules"
 
 export type ClientApplicationForm = MetadataTypeByRule<typeof ClientApplicationFormRules>
-
-export type ClientApplicationFormReference = MetadataReferenceTypeByRule<typeof ClientApplicationFormRules, "Form">
-
-export type ClientApplicationFormMetadataReference = MetadataReferenceTypeByRule<
-  typeof ClientApplicationFormRules,
-  "Metadata"
->
 
 // export interface ClientApplicationForm extends MetadataItem {
 //   itemType: "ClientApplicationForm"
@@ -31,7 +24,7 @@ export type ClientApplicationFormMetadataReference = MetadataReferenceTypeByRule
 //   childItemsVerticalAlign?: SE.ItemVerticalAlign
 //   closeOnChoice?: boolean
 //   closeOnOwnerClose?: boolean
-//   collapseItemsByImportance?: SE.CollapseFormItemsByImportance
+//   collapseItemsByimportance?: SE.CollapseFormItemsByimportance
 //   customizable?: boolean
 //   commandBarLocation?: SE.FormCommandBarLabelLocation
 //   commandSet?: CommandSet
@@ -144,7 +137,7 @@ export interface ClientApplicationFormXML {
   // ChildItemsVerticalAlign?: SE.ItemVerticalAlign
   // CloseOnChoice?: boolean
   // CloseOnOwnerClose?: boolean
-  // CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  // CollapseItemsByimportance?: SE.CollapseFormItemsByimportance
   // CommandBarLocation?: SE.FormCommandBarLabelLocation
   // CommandInterface?: CommandInterfaceXML
   // ConversationsRepresentation?: SE.FormConversationsRepresentation
@@ -232,7 +225,7 @@ export type ClientApplicationFormYAML = YAMLTypeByRule<typeof ClientApplicationF
 //   ПоложениеКоманднойПанели?: SE.FormCommandBarLabelLocationYAML
 //   ПроверятьЗаполнениеАвтоматически?: StringboolYAML
 //   РежимОткрытияОкнаФормы?: SE.FormWindowOpeningModeYAML
-//   СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceYAML
+//   СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByimportanceYAML
 //   СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsYAML
 //   СохраняемыеВНастройкахДанныеМодифицированы?: StringboolYAML
 //   СоставКоманд?: CommandSetYAML

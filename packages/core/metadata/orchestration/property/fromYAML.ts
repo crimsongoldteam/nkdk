@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemType, ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
 import { getTypeRule } from "../formElement/factory"
-import { ImportFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
+import { importFromYAMLFunction, importFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault } from "./helpers"
 import { MetadataItemRule, PropertyRule } from "./types"
 
@@ -70,9 +70,9 @@ export const importPropertyFromYAML = (params: {
 }): any => {
   const { context, rule, value, sourceValue, yaml, name } = params
 
-  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromYAML") : undefined
+  const typeimportFn = rule.type ? getTypeRule(rule.type, "importFromYAML") : undefined
 
-  if (!typeImportFn) {
+  if (!typeimportFn) {
     return getValueOrDefault({
       context,
       rule,
@@ -82,8 +82,8 @@ export const importPropertyFromYAML = (params: {
     })
   }
 
-  if (typeImportFn.length === 1) {
-    const importedValue = (typeImportFn as ImportFromYAMLFunctionNew)({
+  if (typeimportFn.length === 1) {
+    const importedValue = (typeimportFn as importFromYAMLFunctionNew)({
       context,
       rule,
       value,
@@ -100,7 +100,7 @@ export const importPropertyFromYAML = (params: {
     })
   }
 
-  const result = (typeImportFn as ImportFromYAMLFunction)(context, rule, value, sourceValue)
+  const result = (typeimportFn as importFromYAMLFunction)(context, rule, value, sourceValue)
 
   return getValueOrDefault({
     context,

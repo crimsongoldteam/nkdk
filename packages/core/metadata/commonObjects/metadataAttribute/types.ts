@@ -9,15 +9,13 @@ import {
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
 import { MetadataAttributeRules } from "./rules"
 
 export type MetadataAttribute = MetadataTypeByRule<typeof MetadataAttributeRules>
-
-export type MetadataAttributeReference = MetadataReferenceTypeByRule<typeof MetadataAttributeRules>
 
 export interface MetadataAttributeXML {
   _uuid: string

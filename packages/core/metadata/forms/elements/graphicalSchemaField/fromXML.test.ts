@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullGraphicalSchemaField, minimalGraphicalSchemaField } from "~/tests/fixtures/forms/graphicalSchemaField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importGraphicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "GraphicalSchemaField",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ GraphicalSchemaField: ElementXML }>("forms/graphicalSchemaField/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "GraphicalSchemaField",
       xml: xmlData.GraphicalSchemaField,
     })
@@ -31,7 +31,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ GraphicalSchemaField: ElementXML }>("forms/graphicalSchemaField/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "GraphicalSchemaField",
       xml: xmlData.GraphicalSchemaField,
     })

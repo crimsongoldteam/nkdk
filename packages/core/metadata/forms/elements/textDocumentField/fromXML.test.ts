@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullTextDocumentField, minimalTextDocumentField } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importTextDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "TextDocumentField",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importTextDocumentFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ TextDocumentField: ElementXML }>("forms/textDocumentField/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "TextDocumentField",
       xml: xmlData.TextDocumentField,
     })
@@ -31,7 +31,7 @@ describe("importTextDocumentFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ TextDocumentField: ElementXML }>("forms/textDocumentField/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "TextDocumentField",
       xml: xmlData.TextDocumentField,
     })

@@ -35,6 +35,7 @@ export const AutoCommandBarRules = {
       type: "CommandBarChildItems",
       toPartialYAML: false,
       fromPartialYAML: true,
+      required: true,
       defaultValue: [],
     },
   },

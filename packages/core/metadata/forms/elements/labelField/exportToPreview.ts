@@ -84,9 +84,9 @@
 //     context,
 //     undefined,
 //     element.displayImportance,
-//     "DisplayImportance"
+//     "displayImportance"
 //   )
-//   if (displayImportance !== undefined) result.DisplayImportance = displayImportance
+//   if (displayImportance !== undefined) result.displayImportance = displayImportance
 
 //   const editMode = exportSystemEnumerationDeprecatedToEnterprise(context, undefined, element.editMode, "ColumnEditMode")
 //   if (editMode !== undefined) result.EditMode = editMode

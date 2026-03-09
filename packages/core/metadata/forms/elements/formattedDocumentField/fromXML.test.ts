@@ -4,13 +4,13 @@ import {
   fullFormattedDocumentField,
   minimalFormattedDocumentField,
 } from "~/tests/fixtures/forms/formattedDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importFormattedDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "FormattedDocumentField",
       xml: undefined,
     })
@@ -22,7 +22,7 @@ describe("importFormattedDocumentFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ FormattedDocumentField: ElementXML }>("forms/formattedDocumentField/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "FormattedDocumentField",
       xml: xmlData.FormattedDocumentField,
     })
@@ -36,7 +36,7 @@ describe("importFormattedDocumentFieldFromXML", () => {
     )
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "FormattedDocumentField",
       xml: xmlData.FormattedDocumentField,
     })

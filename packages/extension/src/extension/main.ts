@@ -25,7 +25,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
   context.subscriptions.push(
-    vscode.commands.registerCommand("nkdk.importConfigurationFromXml", () => runImportConfigurationFromXml())
+    vscode.commands.registerCommand("nkdk.importConfigurationFromXml", () => runimportConfigurationFromXml())
   )
 }
 
@@ -68,7 +68,7 @@ async function startNKDKLanguageClient(context: vscode.ExtensionContext): Promis
   return client
 }
 
-async function runImportConfigurationFromXml(): Promise<void> {
+async function runimportConfigurationFromXml(): Promise<void> {
   const selected = await vscode.window.showOpenDialog({
     canSelectFolders: true,
     canSelectMany: false,

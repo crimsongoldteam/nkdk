@@ -6,6 +6,24 @@ export const formatElementName = (element: { name: string }) => {
   return element.name
 }
 
+export const formatElementNameWithDataPath = (params: {
+  context: ConfigurationContext
+  element: { name: string; dataPath?: string | undefined }
+}) => {
+  const { element } = params
+  const dataPath = element.dataPath ?? ""
+
+  const dataPathWithoutDots = dataPath.replace(/\./g, "")
+
+  if (dataPathWithoutDots === element.name) {
+    return element.name
+  }
+
+  const result = `${element.name}(${dataPath})`
+
+  return result
+}
+
 export const formatDefaultLanguageText = (
   context: ConfigurationContext,
   text: I8nText | undefined
@@ -19,16 +37,19 @@ export const formatDefaultLanguageText = (
 export const formatElementTitleAndName = (
   context: ConfigurationContext,
   element: { title?: I8nText; name: string },
-  alwaysShowTitle: boolean = false
+  alwaysShowTitle: boolean = false,
+  withDataPath: boolean = false
 ) => {
   let titleText = formatDefaultLanguageText(context, element.title!)
   if (alwaysShowTitle && !titleText) {
     titleText = '""'
   }
 
-  if (!titleText) return formatElementName(element)
+  const namePart = withDataPath ? formatElementNameWithDataPath({ context, element }) : formatElementName(element)
 
-  const result = `${titleText} ${formatElementName(element)}`
+  if (!titleText) return namePart
+
+  const result = `${titleText} ${namePart}`
   return result.trim()
 }
 

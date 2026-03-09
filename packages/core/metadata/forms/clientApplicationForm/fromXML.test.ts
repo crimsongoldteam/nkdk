@@ -3,10 +3,10 @@ import {
   fullClientApplicationForm,
   minimalClientApplicationForm,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
-import { mockContext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
+import { mockContextFromXML } from "~/tests/mockContext"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import all fields from XML", () => {
@@ -15,7 +15,7 @@ describe("importClientApplicationFormFromXML", () => {
       "forms/clientApplicationForm/fullMetadata.xml"
     )
     const result = importClientApplicationFormFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       xml: xmlForm.Form,
       xmlMetadata: xmlMetadata.MetaDataObject,
     })
@@ -29,7 +29,7 @@ describe("importClientApplicationFormFromXML", () => {
       "forms/clientApplicationForm/minimalMetadata.xml"
     )
     const result = importClientApplicationFormFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       xml: xmlData.Form,
       xmlMetadata: xmlMetadata.MetaDataObject,
     })

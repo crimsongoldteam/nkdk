@@ -1,58 +1,16 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { GroupChildItems } from "../../commonObjects/childItems/types"
-import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { PageRules } from "./rules"
 
-export type PageReference = ElementReferenceTypeByRule<typeof PageRules>
-
-export interface Page extends NamedElement {
-  itemType: "Page"
-  backColor?: Color
-  extendedTooltip?: ExtendedTooltip
-  childItemsHorizontalAlign?: SE.ItemHorizontalLocation
-  childItemsVerticalAlign?: SE.ItemVerticalAlign
-  displayImportance?: SE.DisplayImportance
-  format?: I8nText
-  group?: SE.ChildFormItemsGroup
-  horizontalSpacing?: SE.FormItemSpacing
-  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
-  picture?: Picture
-  scrollOnCompress?: boolean
-  showTitle?: boolean
-  slaveItemsWidth?: SE.ChildFormItemsWidth
-  titleDataPath?: string
-  verticalAlign?: SE.ItemVerticalAlign
-  verticalScrollOnReduceSize?: boolean
-  verticalSpacing?: SE.FormItemSpacing
-  enableContentChange?: boolean
-  enabled?: boolean
-  height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  shortcut?: string
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
-  userVisible?: UserVisible
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
-  childItems: GroupChildItems
-}
+export type Page = ElementTypeByRule<typeof PageRules>
 
 export interface PagePartialYAML {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML

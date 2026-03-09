@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { labelFieldStructureFixturesTable } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
-import { exportLabelFieldToNKDK, exportLabelFieldContentToNKDK } from "./toNKDK"
+import { exportLabelFieldContentToNKDK, exportLabelFieldToNKDK } from "./toNKDK"
 
 describe("exportLabelFieldToStructure", () => {
   describe("exportLabelFieldToStructure", () => {

@@ -3,7 +3,11 @@ import { EmptyFileSystem } from "langium"
 import { parseHelper } from "langium/test"
 import { createNkdkServices, type Form as NkdkForm } from "nkdk-language"
 import { join } from "path"
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import {
+  ConfigurationContext,
+  ConfigurationContextFromXML,
+  ConfigurationContextWithExportToXML,
+} from "~/metadata/context/types"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import type {
@@ -37,7 +41,18 @@ export const syncFormToXML = async (params: {
 
   const form = importClientApplicationFormFromYAML(context, yamlObj, formFromNkdk)
 
-  const referenceForm = readFormFromXML({ context, inputDir: referenceDir, formName, forReference: true })
+  const contextFromXML: ConfigurationContextFromXML = {
+    fromXML: {
+      forReference: true,
+    },
+    defaultLanguage: context.defaultLanguage,
+    version: "2.20",
+  }
+  const referenceForm = readFormFromXML({
+    context: contextFromXML,
+    inputDir: referenceDir,
+    formName,
+  })
 
   const formXML = exportClientApplicationFormToXML({ context, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({

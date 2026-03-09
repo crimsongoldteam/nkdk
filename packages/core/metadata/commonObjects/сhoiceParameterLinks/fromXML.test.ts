@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest"
 import { multipleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/multiple"
 import { singleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/single"
 import { withStringDataPathChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChoiceParameterLinksFromXML } from "./fromXML"
 import { ChoiceParameterLinksXML } from "./types"
 
 describe("importChoiceParameterLinksFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParameterLinksFromXML(mockContext, mockRule, undefined)
+    const result = importChoiceParameterLinksFromXML(mockContextFromXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -20,7 +20,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     )
     const expectedResult = singleChoiceParameterLinks
 
-    const result = importChoiceParameterLinksFromXML(mockContext, mockRule, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
@@ -31,7 +31,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     )
     const expectedResult = multipleChoiceParameterLinks
 
-    const result = importChoiceParameterLinksFromXML(mockContext, mockRule, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
@@ -42,7 +42,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     )
     const expectedResult = withStringDataPathChoiceParameterLinks
 
-    const result = importChoiceParameterLinksFromXML(mockContext, mockRule, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })

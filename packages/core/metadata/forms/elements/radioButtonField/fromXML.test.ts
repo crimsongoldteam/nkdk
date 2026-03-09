@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullRadioButtonField, minimalRadioButtonField } from "~/tests/fixtures/forms/radioButtonField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importRadioButtonFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "RadioButtonField",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importRadioButtonFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ RadioButtonField: ElementXML }>("forms/radioButtonField/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "RadioButtonField",
       xml: xmlData.RadioButtonField,
     })
@@ -31,7 +31,7 @@ describe("importRadioButtonFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ RadioButtonField: ElementXML }>("forms/radioButtonField/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "RadioButtonField",
       xml: xmlData.RadioButtonField,
     })

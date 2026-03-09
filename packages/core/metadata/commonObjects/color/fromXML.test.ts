@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { colorTestCases } from "~/tests/fixtures/color/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importColorFromXML } from "./fromXML"
 import { ColorXML } from "./types"
@@ -10,14 +10,14 @@ describe("importColorFromXML", () => {
     "should import $name from XML",
     ({ fixture, color }) => {
       const xmlData = readAndParseXMLFile<{ Color: ColorXML }>(fixture!)
-      const result = importColorFromXML(mockContext, mockRule, xmlData.Color)
+      const result = importColorFromXML(mockContextFromXML(), mockRule, xmlData.Color)
 
       expect(result).toEqual(color)
     }
   )
 
   it("should return undefined for undefined input", () => {
-    const result = importColorFromXML(mockContext, mockRule, undefined)
+    const result = importColorFromXML(mockContextFromXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })

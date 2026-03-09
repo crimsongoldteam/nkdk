@@ -1,47 +1,15 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { PagesChildItems } from "../../commonObjects/childItems/types"
-import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { PagesRules } from "./rules"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 
-export type PagesReference = ElementReferenceTypeByRule<typeof PagesRules>
-
-export interface Pages extends NamedElement {
-  itemType: "Pages"
-  currentPagesState?: SE.FormPagesState
-  currentRowUse?: SE.CurrentRowUse
-  pagesRepresentation?: SE.FormPagesRepresentation
-  enableContentChange?: boolean
-  enabled?: boolean
-  extendedTooltip?: ExtendedTooltip
-  height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  shortcut?: string
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
-  userVisible?: UserVisible
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
-  events?: {
-    onCurrentPageChange?: string
-  }
-  childItems: PagesChildItems
-}
+export type Pages = ElementTypeByRule<typeof PagesRules>
 
 export interface PagesPartialYAML {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML

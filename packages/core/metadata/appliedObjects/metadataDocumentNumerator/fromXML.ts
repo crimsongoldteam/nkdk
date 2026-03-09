@@ -3,10 +3,10 @@ import {
   MetadataDocumentNumeratorXML,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importMetadataDocumentNumeratorFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: MetadataDocumentNumeratorXML | undefined
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined

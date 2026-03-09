@@ -4,14 +4,14 @@ import {
   MetadataCommandsXML,
   MetadataCommandXML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importPropertiesFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 import { MetadataCommandRules } from "./rules"
 
 export const importMetadataCommandsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
@@ -23,7 +23,7 @@ export const importMetadataCommandsFromXML = (
 }
 
 const importMetadataCommandFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
   if (!xml) return undefined

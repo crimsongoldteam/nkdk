@@ -13,12 +13,12 @@ export type ExportToStructureContentFn = <From extends BaseElement>(
   data: From
 ) => ToNKDKResult
 
-export type ImportFromNKDKFn = <To extends BaseElement>(params: { context: ConfigurationContext; source: any }) => To
+export type importFromNKDKFn = <To extends BaseElement>(params: { context: ConfigurationContext; source: any }) => To
 type fnPairs =
   | ["ExportToStructure", ExportToStructureFn]
   | ["ExportToStructureContent", ExportToStructureContentFn]
   | ["ExportToEnterprise", ExportToEnterpriseFunction]
-  | ["ImportFromNKDK", ImportFromNKDKFn]
+  | ["importFromNKDK", importFromNKDKFn]
 
 export type ItemOperationType = fnPairs extends infer T ? (T extends [infer Op, any] ? Op : never) : never
 

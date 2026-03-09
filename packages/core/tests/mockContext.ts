@@ -1,5 +1,9 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../metadata/context/types"
+import {
+  ConfigurationContext,
+  ConfigurationContextFromXML,
+  ConfigurationContextWithExportToXML,
+} from "../metadata/context/types"
 
 export const mockContext: ConfigurationContext = {
   version: "2.20",
@@ -41,6 +45,16 @@ export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
         templates: [],
         parentName: "",
       },
+    },
+  }
+}
+
+export const mockContextFromXML = (params?: { forReference?: boolean }): ConfigurationContextFromXML => {
+  const forReference = params?.forReference ?? false
+  return {
+    ...mockContext,
+    fromXML: {
+      forReference: forReference,
     },
   }
 }

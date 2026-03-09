@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullCommandBar, minimalCommandBar } from "~/tests/fixtures/forms/commandBar/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importCommandBarFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "CommandBar",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importCommandBarFromXML", () => {
     const xmlData = readAndParseXMLFile<{ CommandBar: ElementXML }>("forms/commandBar/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "CommandBar",
       xml: xmlData.CommandBar,
     })
@@ -31,7 +31,7 @@ describe("importCommandBarFromXML", () => {
     const xmlData = readAndParseXMLFile<{ CommandBar: ElementXML }>("forms/commandBar/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "CommandBar",
       xml: xmlData.CommandBar,
     })

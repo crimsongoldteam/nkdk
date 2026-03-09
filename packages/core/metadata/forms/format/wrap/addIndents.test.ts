@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest"
-import { addIndents } from "./addIndents"
+import { describe, expect, it } from "vitest"
 import { IFormatterParams } from "../types"
+import { addIndents } from "./addIndents"
 
 describe("addIndents", () => {
   it("should format lines with first line unchanged when isFirst is true", () => {
@@ -36,11 +36,7 @@ describe("addIndents", () => {
 
     const result = addIndents(lines, params)
 
-    expect(result).toEqual([
-      "# Short              ",
-      "  Very long line here",
-      "  Medium             ",
-    ])
+    expect(result).toEqual(["# Short              ", "  Very long line here", "  Medium             "])
   })
 
   it("should handle empty lines array", () => {

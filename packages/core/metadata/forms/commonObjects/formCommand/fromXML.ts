@@ -1,10 +1,10 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormCommandRules } from "./rules"
 import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
 
-const importCommandFromXML = (context: ConfigurationContext, xml: FormCommandXML): FormCommand => {
+const importCommandFromXML = (context: ConfigurationContextFromXML, xml: FormCommandXML): FormCommand => {
   const properties = importPropertiesFromXML({
     context,
     xml,
@@ -19,7 +19,7 @@ const importCommandFromXML = (context: ConfigurationContext, xml: FormCommandXML
 }
 
 export const importCommandsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: { Command: FormCommandsXML } | undefined
 ): FormCommands => {

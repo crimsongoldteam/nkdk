@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullCheckBoxField, minimalCheckBoxField } from "~/tests/fixtures/forms/checkBoxField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importCheckBoxFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "CheckBoxField",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importCheckBoxFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "CheckBoxField",
       xml: xmlData.CheckBoxField,
     })
@@ -31,7 +31,7 @@ describe("importCheckBoxFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "CheckBoxField",
       xml: xmlData.CheckBoxField,
     })

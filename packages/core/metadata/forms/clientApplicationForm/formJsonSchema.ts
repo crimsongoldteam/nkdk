@@ -28,7 +28,7 @@ const SE_YAML_VALUES: Record<string, readonly string[]> = {
   AutoSaveFormDataInSettings: Object.keys(AutoSaveFormDataInSettingsFromYAML) as string[],
   ItemHorizontalLocation: Object.keys(ItemHorizontalLocationFromYAML) as string[],
   ItemVerticalAlign: Object.keys(ItemVerticalAlignFromYAML) as string[],
-  CollapseFormItemsByImportance: Object.keys(CollapseFormItemsByImportanceFromYAML) as string[],
+  CollapseFormItemsByimportance: Object.keys(CollapseFormItemsByImportanceFromYAML) as string[],
   FormCommandBarLabelLocation: Object.keys(FormCommandBarLabelLocationFromYAML) as string[],
   FormConversationsRepresentation: Object.keys(FormConversationsRepresentationFromYAML) as string[],
   EnterKeyBehaviorType: Object.keys(EnterKeyBehaviorTypeFromYAML) as string[],

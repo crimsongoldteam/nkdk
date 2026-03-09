@@ -1,5 +1,5 @@
 import { IFormatterParams, WrapInGroupStrategy } from "../types"
-import { addIndents as addIndents } from "./addIndents"
+import { addIndents } from "./addIndents"
 
 export const formatCommonWrapping = (lines: string[], params: IFormatterParams): string[] => {
   if (params.wrapInGroup === WrapInGroupStrategy.None) {

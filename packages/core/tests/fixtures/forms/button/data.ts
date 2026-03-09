@@ -80,7 +80,7 @@ export const fullButton = {
   verticalStretch: true,
   visible: false,
   width: 10,
-} satisfies Required<Button>
+} satisfies Button
 
 export const fullButtonSource: Button = {
   itemType: "Button",

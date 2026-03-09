@@ -1,35 +1,35 @@
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import {
+  createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
   ExportToXMLFunction,
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
-  ImportExportFunction,
-  ImportFromXMLFunction,
-  ImportFromYAMLFunction,
-  ImportFromYAMLFunctionNew,
+  importExportFunction,
+  importFromXMLFunction,
+  importFromYAMLFunction,
+  importFromYAMLFunctionNew,
   TypeRulesOperations,
-  createRegistryKey,
 } from "../property/fn"
 
 const typeRulesRegistry = new Map<
   string,
-  | ImportFromYAMLFunction
+  | importFromYAMLFunction
   | ExportToYAMLFunction
-  | ImportFromXMLFunction
+  | importFromXMLFunction
   | ExportToXMLFunction
   | ExportToEnterpriseFunction
   | ExportToXMLFunctionNew
-  | ImportFromYAMLFunctionNew
+  | importFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
   operation: O,
-  ruleFunction: NonNullable<ImportExportFunction<O>>
+  ruleFunction: NonNullable<importExportFunction<O>>
 ) => {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
@@ -39,13 +39,13 @@ export const getTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
   operation: O
 ): O extends "importFromYAML"
-  ? ImportFromYAMLFunction | ImportFromYAMLFunctionNew | undefined
+  ? importFromYAMLFunction | importFromYAMLFunctionNew | undefined
   : O extends "exportToYAML"
     ? ExportToYAMLFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
-        ? ImportFromXMLFunction | undefined
+        ? importFromXMLFunction | undefined
         : O extends "exportToEnterprise"
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"

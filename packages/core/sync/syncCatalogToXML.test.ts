@@ -2,7 +2,7 @@ import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { readCatalogYAML } from "~/tests/fixtures/sync/syncCatalog/data"
-import { mockContextToXML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { convertCatalogFromXML } from "./convertCatalogFromXML"
 import { convertCatalogToXML } from "./syncCatalogToXML"
 
@@ -27,7 +27,7 @@ describe("convertCatalogToXML", () => {
 
   it("should read catalog from YAML and export to XML file in output dir", async () => {
     await convertCatalogFromXML({
-      context: mockContextToXML(),
+      context: mockContextFromXML(),
       inputDir: xmlInputDir,
       name: catalogName,
       outputDir: yamlOutputDir,
@@ -46,7 +46,7 @@ describe("convertCatalogToXML", () => {
     expect(fs.existsSync(catalogXmlPath)).toBe(true)
 
     await convertCatalogFromXML({
-      context: mockContextToXML(),
+      context: mockContextFromXML(),
       inputDir: join(xmlOutputDir, "Catalogs"),
       name: catalogName,
       outputDir: roundtripYamlDir,

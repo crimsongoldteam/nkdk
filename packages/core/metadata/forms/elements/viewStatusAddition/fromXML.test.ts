@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ describe("importViewStatusAdditionFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ViewStatusAddition: any }>("forms/viewStatusAddition/full.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.ViewStatusAddition,
     })
@@ -25,7 +25,7 @@ describe("importViewStatusAdditionFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ViewStatusAddition: any }>("forms/viewStatusAddition/minimal.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.ViewStatusAddition,
     })

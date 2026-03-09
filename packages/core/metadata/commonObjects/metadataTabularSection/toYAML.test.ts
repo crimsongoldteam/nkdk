@@ -10,6 +10,7 @@ describe("exportMetadataTabularSectionToYAML", () => {
       name: "Контакты",
       fillChecking: "DontCheck",
       synonym: { items: { ru: "Какие-то контакты" } },
+      attributes: [],
     }
 
     const expectedResult: MetadataTabularSectionYAML = {
@@ -27,6 +28,7 @@ describe("exportMetadataTabularSectionToYAML", () => {
       name: "ИсторияКПП",
       fillChecking: "DontCheck",
       synonym: { items: { ru: "История КПП" } },
+      attributes: [],
     }
 
     const expectedResult: MetadataTabularSectionYAML = {

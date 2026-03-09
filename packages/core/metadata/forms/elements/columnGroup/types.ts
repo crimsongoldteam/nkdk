@@ -1,51 +1,17 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { TableChildItems, TableChildItemsTypedYAML } from "../../commonObjects/childItems/types"
-import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { TableChildItemsTypedYAML } from "../../commonObjects/childItems/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ColumnGroupRules } from "./rules"
 
-export type ColumnGroupReference = ElementReferenceTypeByRule<typeof ColumnGroupRules>
-
-export interface ColumnGroup extends NamedElement {
-  itemType: "ColumnGroup"
-  fixingInTable?: SE.FixingInTable
-  group: SE.ColumnsGroup
-  headerDataPath?: string
-  headerFormat?: string
-  headerHorizontalAlign?: SE.ItemHorizontalLocation
-  headerPicture?: Picture
-  showInHeader?: boolean
-  showTitle?: boolean
-  titleBackColor?: Color
-  userVisible?: UserVisible
-  enableContentChange?: boolean
-  enabled?: boolean
-  height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  shortcut?: string
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
-  extendedTooltip?: ExtendedTooltip
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
-  childItems: TableChildItems
-}
+export type ColumnGroup = ElementTypeByRule<typeof ColumnGroupRules>
 
 export interface ColumnGroupPartialYAML {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML

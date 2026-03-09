@@ -27,7 +27,7 @@ describe("importPictureFromYAML", () => {
   //     expect(result).toBeUndefined()
   //   })
 
-  //   it.each(pictureTestCases.filter((tc) => tc.fixture && tc.enterpriseImport !== false))(
+  //   it.each(pictureTestCases.filter((tc) => tc.fixture && tc.enterpriseimport !== false))(
   //     "should import $name from YAML",
   //     ({ pictureYAML, picture }) => {
   //       const result = importPictureCombinedFromYAML(mockContext, mockRule,  pictureYAML)

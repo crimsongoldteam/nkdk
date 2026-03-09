@@ -1,7 +1,7 @@
 import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
 import { PropertyRuleType, PropertyToMetadata } from "~/metadata/orchestration/property/registry"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { PropertyRule } from "../property/types"
+import { MetadataItemRule, PropertyRule } from "../property/types"
 
 /** Тип системного перечисления по имени typeSE (обращение по имени через SE[`${name}ToYAML`]). */
 type SETypeByName<Name extends string> = `${Name}ToYAML` extends keyof typeof SE
@@ -45,7 +45,7 @@ type FilteredKeys<Properties, Tag extends string | undefined> = {
 }[keyof Properties] &
   keyof Properties
 
-export type MetadataTypeByRule<
+type CommonMetadataTypeByRule<
   Rule extends {
     properties: Record<string, PropertyRule>
     itemType: MetadataItemType
@@ -76,7 +76,7 @@ export type MetadataTypeByRule<
     itemType: Rule["itemType"]
   }
 
-export type MetadataReferenceTypeByRule<
+export type MetadataTypeByRule<
   Rule extends {
     properties: Record<string, PropertyRule>
     itemType: MetadataItemType
@@ -84,14 +84,26 @@ export type MetadataReferenceTypeByRule<
     eventsTag?: string
   },
   Tag extends string | undefined = undefined,
-> = MetadataTypeByRule<Rule, Tag> & { uuid: string }
+> = CommonMetadataTypeByRule<Rule, Tag> & { uuid?: string }
 
-export type ElementReferenceTypeByRule<
-  Rule extends {
-    properties: Record<string, PropertyRule>
-    itemType: MetadataItemType
-    events?: Record<string, string>
-    eventsTag?: string
-  },
-  Tag extends string | undefined = undefined,
-> = MetadataTypeByRule<Rule, Tag> & { id: string }
+export type ElementTypeByRule<Rule extends MetadataItemRule> = CommonMetadataTypeByRule<Rule> & { id?: string }
+
+// export type MetadataReferenceTypeByRule<
+//   Rule extends {
+//     properties: Record<string, PropertyRule>
+//     itemType: MetadataItemType
+//     events?: Record<string, string>
+//     eventsTag?: string
+//   },
+//   Tag extends string | undefined = undefined,
+// > = MetadataTypeByRule<Rule, Tag> & { uuid: string }
+
+// export type ElementReferenceTypeByRule<
+//   Rule extends {
+//     properties: Record<string, PropertyRule>
+//     itemType: MetadataItemType
+//     events?: Record<string, string>
+//     eventsTag?: string
+//   },
+//   Tag extends string | undefined = undefined,
+// > = MetadataTypeByRule<Rule, Tag> & { id: string }

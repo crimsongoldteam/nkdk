@@ -5,15 +5,15 @@ import {
   MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/fromXML"
-import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaultsAttribute } from "./defaults"
 import { MetadataAttributeRules } from "./rules"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importMetadataAttributesFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
@@ -26,7 +26,7 @@ export const importMetadataAttributesFromXML = (
 }
 
 const importMetadataAttributeFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: MetadataAttributeXML
 ): MetadataAttribute => {
   const props = xml.Properties

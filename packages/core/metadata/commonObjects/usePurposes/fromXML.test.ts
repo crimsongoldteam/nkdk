@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "../../../tests/mockContext"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importUsePurposesFromXML } from "./fromXML"
 import { UsePurposesXML } from "./types"
 
 describe("importUsePurposesFromXML", () => {
   it("should return undefined when xml is undefined", () => {
-    const result = importUsePurposesFromXML(mockContext, mockRule, undefined)
+    const result = importUsePurposesFromXML(mockContextFromXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -18,7 +18,7 @@ describe("importUsePurposesFromXML", () => {
       },
     }
 
-    const result = importUsePurposesFromXML(mockContext, mockRule, xml)
+    const result = importUsePurposesFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual(["PlatformApplication"])
   })
@@ -37,7 +37,7 @@ describe("importUsePurposesFromXML", () => {
       ],
     }
 
-    const result = importUsePurposesFromXML(mockContext, mockRule, xml)
+    const result = importUsePurposesFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual(["PlatformApplication", "MobilePlatformApplication"])
   })
@@ -47,7 +47,7 @@ describe("importUsePurposesFromXML", () => {
       "v8:Value": undefined as any,
     }
 
-    const result = importUsePurposesFromXML(mockContext, mockRule, xml)
+    const result = importUsePurposesFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toBeUndefined()
   })

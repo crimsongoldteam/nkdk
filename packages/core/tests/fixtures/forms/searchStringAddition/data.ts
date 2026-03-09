@@ -14,7 +14,7 @@ export const sourceSearchStringAddition: SearchStringAddition = {
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
-export const fullSingleSearchStringAddition: Required<SingleSearchStringAddition> = {
+export const fullSingleSearchStringAddition: SingleSearchStringAddition = {
   itemType: "SingleSearchStringAddition",
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
@@ -74,7 +74,7 @@ export const fullSearchStringAdditionYAML: SearchStringAdditionYAML = {
   Источник: "КакойТоЭлемент",
 }
 
-export const fullSearchStringAddition: Required<SearchStringAddition> = {
+export const fullSearchStringAddition: SearchStringAddition = {
   ...fullSingleSearchStringAddition,
   itemType: "SearchStringAddition",
   additionSource: "КакойТоЭлемент",

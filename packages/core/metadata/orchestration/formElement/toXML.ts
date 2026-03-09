@@ -1,7 +1,7 @@
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToMetadata, ToReference } from ".."
+import { ToMetadata } from ".."
 import { exportEventsToXML } from "../event"
 import { exportPropertiesToXML } from "../property/toXML"
 import { getElementRule } from "./ruleFactory"
@@ -10,7 +10,7 @@ import { ElementRule, ElementXMLWithoutId } from "./types"
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContextWithExportToXML
   element: T
-  referenceElement?: ToReference<T["itemType"]>
+  referenceElement?: T
 }): ElementXMLWithoutId | undefined {
   const { element, context } = params
 
@@ -30,7 +30,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 export function exportSingleElementToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
-  referenceElement?: ToReference<Rule["itemType"]>
+  referenceElement?: Rule["itemType"]
   rule: ElementRule
   name: string
 }): ElementXMLWithoutId {
@@ -40,7 +40,7 @@ export function exportSingleElementToXML<Rule extends ElementRule>(params: {
 function exportToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
-  referenceElement?: ToReference<Rule["itemType"]>
+  referenceElement?: Rule["itemType"]
   rule: Rule
   name: string
 }): ElementXMLWithoutId {

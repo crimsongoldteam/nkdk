@@ -1,44 +1,17 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
-import { NamedElement } from "../baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ButtonGroupRules } from "./rules"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 
-export type ButtonGroupReference = ElementReferenceTypeByRule<typeof ButtonGroupRules>
-
-export interface ButtonGroup extends NamedElement {
-  itemType: "ButtonGroup"
-  extendedTooltip?: ExtendedTooltip
-  representation?: SE.ButtonGroupRepresentation
-  enableContentChange?: boolean
-  enabled?: boolean
-  height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  shortcut?: string
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
-  userVisible?: UserVisible
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
-  commandSource?: string
-  childItems: CommandBarGroupChildItems
-}
+export type ButtonGroup = ElementTypeByRule<typeof ButtonGroupRules>
 
 export interface ButtonGroupPartialYAML {
   РасширеннаяПодсказка?: ExtendedTooltipYAML

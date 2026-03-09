@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import { FormattedI8nText, FormattedI8nTextXML } from "./types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importFormattedI8nTextFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   rule: PropertyRule,
   xml: FormattedI8nTextXML | undefined
 ): FormattedI8nText | undefined => {

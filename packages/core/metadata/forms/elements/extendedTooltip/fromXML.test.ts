@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ describe("importExtendedTooltipFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ExtendedTooltip: any }>("forms/extendedTooltip/full.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.ExtendedTooltip,
     })
@@ -25,7 +25,7 @@ describe("importExtendedTooltipFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ExtendedTooltip: any }>("forms/extendedTooltip/defaults.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.ExtendedTooltip,
     })

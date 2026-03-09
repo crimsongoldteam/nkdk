@@ -7,9 +7,10 @@ import {
 } from "~/metadata/forms/elements/usualGroup/types"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { RequiredFieldsElement } from "~/tests/types"
 import { minimalInputField, minimalInputFieldEnterprise } from "../inputField/data"
 
-export const fullUsualGroup: Required<UsualGroup> = {
+export const fullUsualGroup: RequiredFieldsElement<UsualGroup> = {
   itemType: "UsualGroup",
   name: "ОбычнаяГруппа",
   enableContentChange: true,

@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullPopup, minimalPopup } from "~/tests/fixtures/forms/popup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importPopupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Popup",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importPopupFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Popup: ElementXML }>("forms/popup/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Popup",
       xml: xmlData.Popup,
     })
@@ -31,7 +31,7 @@ describe("importPopupFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Popup: ElementXML }>("forms/popup/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Popup",
       xml: xmlData.Popup,
     })

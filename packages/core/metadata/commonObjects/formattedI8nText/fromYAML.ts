@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ImportFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { importFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextYAML } from "./types"
 
-export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
+export const importFormattedI8nTextFromYAML: importFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: FormattedI8nTextYAML | undefined

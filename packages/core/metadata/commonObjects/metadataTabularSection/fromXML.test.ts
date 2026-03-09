@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fullTabularSections, minimalTabularSections } from "~/tests/fixtures/metadataTabularSection/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataTabularSectionsFromXML } from "./fromXML"
 import { MetadataTabularSectionXML } from "./types"
@@ -11,7 +11,7 @@ describe("importMetadataTabularSectionFromXML", () => {
       "metadataTabularSection/full.xml"
     )
 
-    const result = importMetadataTabularSectionsFromXML(mockContext, mockRule, xmlData.TabularSection)
+    const result = importMetadataTabularSectionsFromXML(mockContextFromXML(), mockRule, xmlData.TabularSection)
     expect(result).toEqual(fullTabularSections)
   })
 
@@ -20,7 +20,7 @@ describe("importMetadataTabularSectionFromXML", () => {
       "metadataTabularSection/minimal.xml"
     )
 
-    const result = importMetadataTabularSectionsFromXML(mockContext, mockRule, xmlData.TabularSection)
+    const result = importMetadataTabularSectionsFromXML(mockContextFromXML(), mockRule, xmlData.TabularSection)
     expect(result).toEqual(minimalTabularSections)
   })
 
@@ -29,7 +29,7 @@ describe("importMetadataTabularSectionFromXML", () => {
       "metadataTabularSection/defaults.xml"
     )
 
-    const result = importMetadataTabularSectionsFromXML(mockContext, mockRule, xmlData.TabularSection)
+    const result = importMetadataTabularSectionsFromXML(mockContextFromXML(), mockRule, xmlData.TabularSection)
     expect(result).toEqual(minimalTabularSections)
   })
 })

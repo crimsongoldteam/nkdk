@@ -1,6 +1,6 @@
 import { FormCommand, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 
-export const fullFormCommands: Required<FormCommand>[] = [
+export const fullFormCommands: Omit<Required<FormCommand>, "uuid">[] = [
   {
     itemType: "FormCommand",
     name: "СоставКомплектаПодобратьФайлы",

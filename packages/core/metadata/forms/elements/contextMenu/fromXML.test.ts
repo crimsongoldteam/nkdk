@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ describe("importContextMenuFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ContextMenu: any }>("forms/contextMenu/full.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.ContextMenu,
     })
@@ -25,7 +25,7 @@ describe("importContextMenuFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ContextMenu: any }>("forms/contextMenu/minimal.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.ContextMenu,
     })

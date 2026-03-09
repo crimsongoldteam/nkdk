@@ -1,41 +1,27 @@
 import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ToMetadata, ToReference } from ".."
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
-import { getValueOrDefault } from "./helpers"
-import { MetadataItemRule, PropertyRule } from "./types"
+import { getOrderedKeysFromXML, getValueOrDefault } from "./helpers"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
-  context: ConfigurationContext
+  context: ConfigurationContextFromXML
   xml: any
   rule: Rule
   tags?: string[]
-}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined
-export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
-  context: ConfigurationContext
-  xml: any
-  rule: Rule
-  tags?: string[]
-  forReference: true
-}): Omit<ToReference<Rule["itemType"]>, "itemType"> | undefined
-export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
-  context: ConfigurationContext
-  xml: any
-  rule: Rule
-  tags?: string[]
-  forReference?: true
-}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | Omit<ToReference<Rule["itemType"]>, "itemType"> | undefined {
-  const { context, xml, rule, tags, forReference } = params
+}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined {
+  const { context, xml, rule, tags } = params
+
+  const forReference = context.fromXML.forReference
 
   if (!xml) return undefined
 
-  const result = {} as
-    | Omit<ToMetadata<Rule["itemType"]>, "itemType">
-    | Omit<ToReference<Rule["itemType"]>, "itemType">
-    | undefined
+  const result = {} as Omit<ToMetadata<Rule["itemType"]>, "itemType">
 
-  for (const [key, currentRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
-    if (tags && (!currentRule.tag || !tags.includes(currentRule.tag))) continue
+  const orderedKeys = getOrderedKeysFromXML({ rule, xml, tags })
+
+  for (const key of orderedKeys) {
+    const currentRule = rule.properties[key]
 
     const value =
       currentRule.fromXML !== false
@@ -44,7 +30,6 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
             rule: currentRule,
             value: getXMLValue(key, xml, currentRule),
             name: key,
-            forReference,
           })
         : undefined
 
@@ -58,7 +43,8 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
       operation: "importFromXML",
     })
 
-    if (valueOrDefault === undefined) continue
+    // Для референса берем все значения
+    if (valueOrDefault === undefined && !forReference) continue
     ;(result as any)[key] = valueOrDefault
   }
 
@@ -80,21 +66,20 @@ const getXMLValue = (key: string, xml: any, rule: PropertyRule): any => {
 }
 
 export const importPropertyFromXML = (params: {
-  context: ConfigurationContext
+  context: ConfigurationContextFromXML
   rule: PropertyRule
   value: any
   name?: string
-  forReference?: boolean
 }): any => {
-  const { context, rule, value, name, forReference } = params
+  const { context, rule, value, name } = params
 
-  const typeImportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
+  const typeimportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
-  if (!typeImportFn) {
+  if (!typeimportFn) {
     return getValueOrDefault({ context, rule, value, name, operation: "importFromXML" })
   }
 
-  const result = typeImportFn(context, rule, value, forReference)
+  const result = typeimportFn(context, rule, value)
 
   return getValueOrDefault({ context, rule, value: result, name, operation: "importFromXML" })
 }

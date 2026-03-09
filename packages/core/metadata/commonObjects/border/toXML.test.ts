@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importBorderFromXML } from "./fromXML"
@@ -46,7 +46,7 @@ describe("exportBorderToXML", () => {
     const originalXml = `<Border ref="style:ControlBorder"/>`
 
     const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(mockContext, mockRule, xml.Border)
+    const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
     const exported = exportBorderToXML(mockContext, mockRule, imported)
     const resultXml = xmlExport({ Border: exported }, false)
 
@@ -59,7 +59,7 @@ describe("exportBorderToXML", () => {
 </Border>`
 
     const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(mockContext, mockRule, xml.Border)
+    const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
     const exported = exportBorderToXML(mockContext, mockRule, imported)
     const resultXml = xmlExport({ Border: exported }, false)
 

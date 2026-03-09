@@ -1,6 +1,7 @@
 import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPopup: Required<Omit<Popup, "extendedTooltip">> = {
+export const fullPopup: RequiredFieldsElement<Omit<Popup, "extendedTooltip">> = {
   backColor: {
     type: "WebColor",
     value: "CornFlowerBlue",

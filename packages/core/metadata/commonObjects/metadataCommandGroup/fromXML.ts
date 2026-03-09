@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "../../context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
 import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
 export const importMetadataCommandGroupFromXML = (

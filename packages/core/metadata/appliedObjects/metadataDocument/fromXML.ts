@@ -9,11 +9,11 @@ import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataFi
 import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/fromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/fromXML"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
 export const importMetadataDocumentFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: MetadataDocumentXML | undefined
 ): MetadataDocument | undefined => {

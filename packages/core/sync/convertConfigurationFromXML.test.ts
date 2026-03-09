@@ -2,8 +2,8 @@ import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
-import { mockContextToYAML } from "~/tests/mockContext"
 import { syncConfigurationFromXML } from "./convertConfigurationFromXML"
+import { mockContextFromXML } from "~/tests/mockContext"
 
 describe("sync configuration from xml", () => {
   const inputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")
@@ -19,7 +19,7 @@ describe("sync configuration from xml", () => {
     fs.mkdirSync(outputDir, { recursive: true })
 
     await syncConfigurationFromXML({
-      context: mockContextToYAML,
+      context: mockContextFromXML(),
       inputDir,
       outputDir,
     })

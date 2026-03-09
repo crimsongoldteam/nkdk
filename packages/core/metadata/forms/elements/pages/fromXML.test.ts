@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullPages, minimalPages } from "~/tests/fixtures/forms/pages/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importPagesFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Pages",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importPagesFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Pages: ElementXML }>("forms/pages/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Pages",
       xml: xmlData.Pages,
     })
@@ -31,7 +31,7 @@ describe("importPagesFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Pages: ElementXML }>("forms/pages/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "Pages",
       xml: xmlData.Pages,
     })

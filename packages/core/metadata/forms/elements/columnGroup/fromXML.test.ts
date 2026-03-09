@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullColumnGroup, minimalColumnGroup } from "~/tests/fixtures/forms/columnGroup/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importColumnGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "ColumnGroup",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importColumnGroupFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ColumnGroup: ElementXML }>("forms/columnGroup/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "ColumnGroup",
       xml: xmlData.ColumnGroup,
     })
@@ -31,7 +31,7 @@ describe("importColumnGroupFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ColumnGroup: ElementXML }>("forms/columnGroup/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "ColumnGroup",
       xml: xmlData.ColumnGroup,
     })

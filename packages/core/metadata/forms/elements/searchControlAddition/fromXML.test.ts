@@ -5,7 +5,7 @@ import {
   fullSingleSearchControlAddition,
   minimalSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
@@ -18,7 +18,7 @@ describe("SearchControlAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/full.xml")
 
       const result = importElementFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         itemType: "SearchControlAddition",
         xml: xmlData.SearchControlAddition,
       })
@@ -30,7 +30,7 @@ describe("SearchControlAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/minimal.xml")
 
       const result = importElementFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         itemType: "SearchControlAddition",
         xml: xmlData.SearchControlAddition,
       })
@@ -44,7 +44,7 @@ describe("SearchControlAddition from XML", () => {
       const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/fullSingle.xml")
 
       const result = importPropertyFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         rule: rule,
         value: xmlData.SearchControlAddition,
       })
@@ -58,7 +58,7 @@ describe("SearchControlAddition from XML", () => {
       )
 
       const result = importPropertyFromXML({
-        context: mockContext,
+        context: mockContextFromXML(),
         rule: rule,
         value: xmlData.SearchControlAddition,
       })

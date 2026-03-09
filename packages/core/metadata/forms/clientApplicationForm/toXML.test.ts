@@ -6,7 +6,7 @@ import {
   minimalClientApplicationFormMetadataReference,
   minimalClientApplicationFormReference,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
-import { mockContextToXML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { importClientApplicationFormFromXML } from "./fromXML"
@@ -27,10 +27,9 @@ describe("exportToXML", () => {
       )
 
       const clientApplicationFormReference = importClientApplicationFormFromXML({
-        context: mockContextToXML(),
+        context: mockContextFromXML({ forReference: true }),
         xml: referenceForm.Form,
         xmlMetadata: referenceMetadata.MetaDataObject,
-        forReference: true,
       })
 
       const xmlData = exportClientApplicationFormToXML({

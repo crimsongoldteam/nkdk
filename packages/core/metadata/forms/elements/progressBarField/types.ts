@@ -1,83 +1,18 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { TypeDescription, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ContextMenu, ContextMenuYAML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "../extendedTooltip/types"
+import { ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ProgressBarFieldRules } from "./rules"
 
-export type ProgressBarFieldReference = ElementReferenceTypeByRule<typeof ProgressBarFieldRules>
-
-export interface ProgressBarField {
-  itemType: "ProgressBarField"
-  name: string
-  autoCellHeight?: boolean
-  cellHyperlink?: boolean
-  contextMenu?: ContextMenu
-  dataPath?: string
-  defaultItem?: boolean
-  displayImportance?: SE.DisplayImportance
-  editMode?: SE.ColumnEditMode
-  enabled?: boolean
-  extendedTooltip?: ExtendedTooltip
-  fixingInTable?: SE.FixingInTable
-  footerBackColor?: Color
-  footerDataPath?: string
-  footerFont?: Font
-  footerHorizontalAlign?: SE.ItemHorizontalLocation
-  footerPicture?: Picture
-  footerText?: I8nText
-  footerTextColor?: Color
-  headerHorizontalAlign?: SE.ItemHorizontalLocation
-  headerPicture?: Picture
-  horizontalAlign?: SE.ItemHorizontalLocation
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  readOnly?: boolean
-  shortcut?: string
-  showInFooter?: boolean
-  showInHeader?: boolean
-  skipOnInput?: boolean
-  table?: string
-  title?: I8nText
-  titleBackColor?: Color
-  titleFont?: Font
-  titleHeight?: number
-  titleLocation?: SE.FormItemTitleLocation
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormFieldType
-  typeRestriction?: TypeDescription
-  verticalAlign?: SE.ItemVerticalAlign
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  visible?: boolean
-  warningOnEdit?: I8nText
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  autoMaxHeight?: boolean
-  autoMaxWidth?: boolean
-  borderColor?: Color
-  height?: number
-  horizontalStretch?: boolean
-  maxHeight?: number
-  maxValue?: number
-  maxWidth?: number
-  minValue?: number
-  orientation?: SE.FormItemOrientation
-  representation?: SE.ProgressBarSmoothingMode
-  showPercent?: boolean
-  userVisible?: UserVisible
-  verticalStretch?: boolean
-  width?: number
-  events?: {
-    onChange?: string
-  }
-}
+export type ProgressBarField = ElementTypeByRule<typeof ProgressBarFieldRules>
 
 export interface ProgressBarFieldPartialYAML {
   АвтоМаксимальнаяВысота?: StringboolYAML

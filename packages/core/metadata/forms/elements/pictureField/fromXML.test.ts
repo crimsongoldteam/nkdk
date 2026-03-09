@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { fullPictureField, minimalPictureField } from "~/tests/fixtures/forms/pictureField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importPictureFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "PictureField",
       xml: undefined,
     })
@@ -19,7 +19,7 @@ describe("importPictureFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ PictureField: ElementXML }>("forms/pictureField/full.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "PictureField",
       xml: xmlData.PictureField,
     })
@@ -31,7 +31,7 @@ describe("importPictureFieldFromXML", () => {
     const xmlData = readAndParseXMLFile<{ PictureField: ElementXML }>("forms/pictureField/minimal.xml")
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "PictureField",
       xml: xmlData.PictureField,
     })

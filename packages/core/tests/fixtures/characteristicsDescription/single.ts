@@ -14,4 +14,3 @@ export const singleCharacteristic: CharacteristicsDescriptions = [
     valueField: "InformationRegister.ДополнительныеСведения.Resource.Значение",
   },
 ]
-

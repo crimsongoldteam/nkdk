@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataValueFromXML, importMetadataValueFromXMLAsPrimitive } from "./fromXML"
 import { MetadataSimpleValueXML, MetadataValue, MetadataValueXML } from "./types"
@@ -8,7 +8,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import string value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/string.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "string",
@@ -19,7 +19,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import boolean value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/boolean.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "boolean",
@@ -30,7 +30,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import decimal value from XML as number", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/decimal.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "decimal",
@@ -41,7 +41,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import decimal zero value from XML as number", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/decimalZero.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "decimal",
@@ -51,7 +51,7 @@ describe("importMetadataValueFromXML", () => {
 
   it("should import dateTime value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/dateTime.xml")
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "dateTime",
@@ -62,7 +62,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import enum (DesignTimeRef) value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/enum.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "ref",
@@ -73,7 +73,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import catalog (DesignTimeRef) value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/catalog.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "ref",
@@ -84,7 +84,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import empty ref value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/emptyRef.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toBeUndefined()
   })
@@ -92,7 +92,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import fixedArray value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/fixedArray.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "fixedArray",
@@ -112,7 +112,7 @@ describe("importMetadataValueFromXML", () => {
   it("should import FormChoiceListDesTimeValue from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/formChoiceListDesTimeValue.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual({
       type: "formChoiceListDesTimeValue",
@@ -136,7 +136,7 @@ describe("importMetadataValueFromXML", () => {
       value: "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения",
     }
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toEqual(expectedResult)
   })
@@ -144,7 +144,7 @@ describe("importMetadataValueFromXML", () => {
   // it("should return string for app:ApplicationUsePurpose type", () => {
   //   const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/appUsePurpose.xml")
 
-  //   const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+  //   const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
   //   expect(result).toEqual({
   //     type: "ApplicationUsePurpose",
@@ -153,7 +153,7 @@ describe("importMetadataValueFromXML", () => {
   // })
 
   it("should return undefined for undefined input", () => {
-    const result = importMetadataValueFromXML(mockContext, mockRule, undefined)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -161,7 +161,7 @@ describe("importMetadataValueFromXML", () => {
   it("should return undefined for empty string input", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/emptyString.xml")
 
-    const result = importMetadataValueFromXML(mockContext, mockRule, xmlData.Value)
+    const result = importMetadataValueFromXML(mockContextFromXML(), mockRule, xmlData.Value)
 
     expect(result).toBeUndefined()
   })
@@ -171,7 +171,7 @@ describe("importMetadataSimpleValueFromXML", () => {
   it("should import string value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataSimpleValueXML }>("metadataValue/numberAsString.xml")
 
-    const result = importMetadataValueFromXMLAsPrimitive(mockContext, mockRule, xmlData.Value, "decimal")
+    const result = importMetadataValueFromXMLAsPrimitive(mockContextFromXML(), mockRule, xmlData.Value, "decimal")
 
     expect(result).toEqual(11)
   })

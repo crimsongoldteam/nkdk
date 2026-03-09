@@ -8,7 +8,7 @@ import { BaseElement } from "../baseElement/types"
 import { getSearchStringAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
-const commonProperties: MetadataItemRule["properties"] = {
+const commonProperties = {
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
   font: { yaml: "Шрифт", type: "Font" },
@@ -52,7 +52,7 @@ const commonProperties: MetadataItemRule["properties"] = {
     typeSE: "ItemVerticalAlign",
   },
   visible: { yaml: "Видимость", type: "boolean" },
-}
+} as const satisfies MetadataItemRule["properties"]
 
 export const SingleSearchStringAdditionRules = {
   itemType: "SingleSearchStringAddition",

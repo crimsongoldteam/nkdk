@@ -19,6 +19,7 @@ export const CommandBarRules = {
       defaultValue: [],
       fromPartialYAML: true,
       toPartialYAML: false,
+      required: true,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

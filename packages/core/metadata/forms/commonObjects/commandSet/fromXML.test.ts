@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { multipleCommandSet, singleCommandSet } from "~/tests/fixtures/forms/commandSet/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandSetFromXML } from "./fromXML"
 import { CommandSetXML } from "./types"
 
 describe("importCommandSetFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importCommandSetFromXML(mockContext, mockRule, undefined)
+    const result = importCommandSetFromXML(mockContextFromXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -15,7 +15,7 @@ describe("importCommandSetFromXML", () => {
   it("should import single command set", () => {
     const xmlData = readAndParseXMLFile<{ CommandSet: CommandSetXML }>("forms/commandSet/single.xml")
 
-    const result = importCommandSetFromXML(mockContext, mockRule, xmlData.CommandSet)
+    const result = importCommandSetFromXML(mockContextFromXML(), mockRule, xmlData.CommandSet)
 
     expect(result).toEqual(singleCommandSet)
   })
@@ -23,7 +23,7 @@ describe("importCommandSetFromXML", () => {
   it("should import multiple command sets", () => {
     const xmlData = readAndParseXMLFile<{ CommandSet: CommandSetXML }>("forms/commandSet/multiple.xml")
 
-    const result = importCommandSetFromXML(mockContext, mockRule, xmlData.CommandSet)
+    const result = importCommandSetFromXML(mockContextFromXML(), mockRule, xmlData.CommandSet)
 
     expect(result).toEqual(multipleCommandSet)
   })

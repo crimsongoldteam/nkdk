@@ -29,8 +29,8 @@ describe("sync ClientApplicationForm to XML", () => {
     const expectedFormXML = readXMLFileAsString(join("sync/syncForm/xml/Forms", formName, "Ext", "Form.xml"))
     const expectedMetadataXML = readXMLFileAsString(join("sync/syncForm/xml/Forms", "ФормаЭлемента.xml"))
 
-    const resultFormXML = fs.readFileSync(join(outputDir, "Forms", formName, "Ext", "Form.xml"), "utf-8")
-    const resultMetadataXML = fs.readFileSync(join(outputDir, "Forms", "ФормаЭлемента.xml"), "utf-8")
+    const resultFormXML = readXMLFileAsString(join("sync/syncForm/out", "Forms", formName, "Ext", "Form.xml"))
+    const resultMetadataXML = readXMLFileAsString(join("sync/syncForm/out", "Forms", "ФормаЭлемента.xml"))
 
     expect(resultFormXML).toBe(expectedFormXML)
     expect(resultMetadataXML).toBe(expectedMetadataXML)

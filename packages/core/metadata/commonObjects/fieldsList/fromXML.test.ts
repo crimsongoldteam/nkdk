@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { fullFieldsList } from "~/tests/fixtures/fieldsList/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importFieldsListFromXML } from "./fromXML"
 import { FieldsListXML } from "./types"
 
 describe("importFieldsListFromXML", () => {
   it("should return undefined when xml is undefined", () => {
-    const result = importFieldsListFromXML(mockContext, mockRule, undefined)
+    const result = importFieldsListFromXML(mockContextFromXML(), mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
     const xml = readAndParseXMLFile<{ UseAlways: FieldsListXML }>("fieldsList/full.xml")
 
-    const result = importFieldsListFromXML(mockContext, mockRule, xml.UseAlways)
+    const result = importFieldsListFromXML(mockContextFromXML(), mockRule, xml.UseAlways)
 
     expect(result).toEqual(fullFieldsList)
   })

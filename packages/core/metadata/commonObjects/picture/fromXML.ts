@@ -1,11 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { Picture, PictureXML } from "./types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importPictureFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: PictureXML | undefined
 ): Picture | undefined => {

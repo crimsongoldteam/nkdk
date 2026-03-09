@@ -69,6 +69,7 @@ export const FormAttributeRules = {
       type: "FormAttributeColumns",
       fromYAML: false,
       defaultValue: [],
+      required: true,
     },
 
     functionalOptions: {

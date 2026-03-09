@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { fullAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ describe("importAutoCommandBarFromXML", () => {
     const xmlData = readAndParseXMLFile<{ AutoCommandBar: any }>("forms/autoCommandBar/fullForm.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.AutoCommandBar,
     })
@@ -25,7 +25,7 @@ describe("importAutoCommandBarFromXML", () => {
     const xmlData = readAndParseXMLFile<{ AutoCommandBar: any }>("forms/autoCommandBar/minimalForm.xml")
 
     const result = importPropertyFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       rule: rule,
       value: xmlData.AutoCommandBar,
     })

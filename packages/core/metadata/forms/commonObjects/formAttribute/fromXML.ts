@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
@@ -16,7 +16,7 @@ import {
 } from "./types"
 
 export const importFormAttributesFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: { Attribute: FormAttributesXML } | undefined
 ): FormAttributes | undefined => {
@@ -29,7 +29,7 @@ export const importFormAttributesFromXML = (
 }
 
 export const importFormAttributeColumnFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: FormAttributeColumnXML | undefined
 ): FormAttributeColumn | undefined => {
   if (!xml) return undefined
@@ -39,7 +39,7 @@ export const importFormAttributeColumnFromXML = (
   return columns[0]
 }
 
-const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttributeXML): FormAttribute => {
+const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: FormAttributeXML): FormAttribute => {
   const properties = importPropertiesFromXML({
     context: context,
     xml,
@@ -58,7 +58,7 @@ const importFormAttributeFromXML = (context: ConfigurationContext, xml: FormAttr
 }
 
 const importFormAttributeColumnsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: FormAttributeColumnsXML | undefined
 ): FormAttributeColumns | undefined => {
@@ -72,7 +72,7 @@ const importFormAttributeColumnsFromXML = (
 }
 
 const importColumnsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
 ): FormAttributeColumn[] => {
   if (!xml) return []
@@ -97,7 +97,7 @@ const importColumnsFromXML = (
 }
 
 const importAdditionalColumnsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[] | undefined
 ): FormAttributeAdditionalColumns[] => {
   if (!xml) return []

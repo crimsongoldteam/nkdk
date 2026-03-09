@@ -56,6 +56,7 @@ export const MetadataTabularSectionRules = {
       yaml: "Реквизиты",
       type: "MetadataAttributes",
       defaultValue: [],
+      required: true,
       xmlParents: childObjectsParents,
       xml: "Attribute",
     },

@@ -1,7 +1,7 @@
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ChildItem } from "./types"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 
 export const exportChildItemsToXML = <From extends ChildItem>(
   context: ConfigurationContextWithExportToXML,

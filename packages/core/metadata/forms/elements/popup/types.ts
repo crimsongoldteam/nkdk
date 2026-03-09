@@ -1,49 +1,17 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { Picture, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import { CommandBarGroupChildItem, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { PopupRules } from "./rules"
 
-export type PopupReference = ElementReferenceTypeByRule<typeof PopupRules>
-
-export interface Popup {
-  itemType: "Popup"
-  name: string
-  enableContentChange?: boolean
-  enabled?: boolean
-  displayImportance?: SE.DisplayImportance
-  commandSource?: string
-  height?: number
-  // horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  // type?: SE.FormGroupType
-  userVisible?: UserVisible
-  // verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
-  // extendedTooltip?: ExtendedTooltip
-  backColor?: Color
-  borderColor?: Color
-  picture?: Picture
-  representation?: SE.ButtonRepresentation
-  shape?: SE.ButtonShape
-  shapeRepresentation?: SE.ButtonShapeRepresentation
-  childItems: CommandBarGroupChildItem[]
-}
+export type Popup = ElementTypeByRule<typeof PopupRules>
 
 export interface PopupPartialYAML {
   ВажностьПриОтображении?: SE.DisplayImportanceYAML

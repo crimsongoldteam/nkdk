@@ -4,7 +4,7 @@ import { MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/me
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
@@ -37,8 +37,6 @@ export type StandartAttributeYAML = (typeof StandartAttributeNameToYAML)[keyof t
 // export const PredefinedNameToYAML
 
 export type StandardAttributeDescription = MetadataTypeByRule<typeof StandardAttributeDescriptionRules>
-
-export type StandardAttributeDescriptionReference = MetadataReferenceTypeByRule<typeof StandardAttributeDescriptionRules>
 
 export interface StandardAttributeDescriptionXML {
   _name: StandartAttributeName

@@ -23,7 +23,7 @@ export const sourceAutoCommandBar: AutoCommandBar = {
 
 export const fullAutoCommandBarAllItems = fullCommandBarChildItemsAllYAML
 
-export const fullAutoCommandBar: Required<AutoCommandBar> = {
+export const fullAutoCommandBar: AutoCommandBar = {
   itemType: "AutoCommandBar",
   autofill: false,
   displayImportance: "High",

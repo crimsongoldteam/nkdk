@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML } from "~/metadata/orchestration/formElement/types"
 import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { NamedElement } from "../../elements/baseElement/types"
 import { importChildItemsFromXML, XMLItem } from "./fromXML"
 
 describe("importChildItemsFromXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importChildItemsFromXML(mockContext, mockRule, undefined)
+    const result = importChildItemsFromXML(mockContextFromXML(), mockRule, undefined)
 
     expect(result).toEqual([])
   })
@@ -19,7 +19,7 @@ describe("importChildItemsFromXML", () => {
     const xmlData = readAndParseXMLFile<{ ChildItems: ElementXML[] }>(xmlPath)
 
     const result = importChildItemsFromXML(
-      mockContext,
+      mockContextFromXML(),
       mockRule,
       xmlData.ChildItems as unknown as XMLItem<NamedElement>[]
     )

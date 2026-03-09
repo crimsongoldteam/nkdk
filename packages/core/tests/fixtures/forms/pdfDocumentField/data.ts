@@ -3,6 +3,7 @@ import {
   PDFDocumentFieldEnterprise,
   PDFDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/pdfDocumentField/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPDFDocumentField = {
   itemType: "PDFDocumentField",
@@ -101,7 +102,7 @@ export const fullPDFDocumentField = {
     toolTipRepresentation: "Balloon",
     width: 1,
   },
-} satisfies Required<PDFDocumentField>
+} satisfies RequiredFieldsElement<PDFDocumentField>
 
 export const fullPDFDocumentFieldEnterprise = {
   ElementType: "FormField",

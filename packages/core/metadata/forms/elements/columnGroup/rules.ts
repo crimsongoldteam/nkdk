@@ -25,6 +25,7 @@ export const ColumnGroupRules = {
       typeSE: "ColumnsGroup",
       defaultValue: "Vertical",
       toPartialYAML: false,
+      required: true,
     },
     headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath", defaultType: "string" },
     headerFormat: { yaml: "ФорматШапки", type: "string" },

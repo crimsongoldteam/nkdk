@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   formatDefaultLanguageText,
-  formatElementName,
+  formatElementNameWithDataPath,
   formatElementTitleAndName,
 } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
@@ -15,8 +15,8 @@ export const exportInputFieldToNKDK = (params: {
   const { context, element } = params
 
   const title = formatDefaultLanguageText(context, element.title)
-  const header = formatTitle(element, title) + InputFieldSeparator
-  const namePart = formatNamePart(element, title)
+  const header = formatTitle(context, element, title) + InputFieldSeparator
+  const namePart = formatNamePart(context, element, title)
 
   const result: ToNKDKResult = {
     strings: [header + namePart],
@@ -32,7 +32,7 @@ export const exportInputFieldContentToNKDK = (params: {
 }): ToNKDKResult => {
   const { context, element } = params
 
-  const title = formatElementTitleAndName(context, element)
+  const title = formatElementTitleAndName(context, element, false, true)
 
   const result: ToNKDKResult = {
     strings: [title],
@@ -42,14 +42,14 @@ export const exportInputFieldContentToNKDK = (params: {
   return result
 }
 
-const formatTitle = (element: InputField, title: string | undefined): string => {
-  if (title === undefined) return formatElementName(element)
+const formatTitle = (context: ConfigurationContext, element: InputField, title: string | undefined): string => {
+  if (title === undefined) return formatElementNameWithDataPath({ context, element })
 
   return title
 }
 
-const formatNamePart = (element: InputField, title: string | undefined): string => {
+const formatNamePart = (context: ConfigurationContext, element: InputField, title: string | undefined): string => {
   if (title === undefined) return ""
 
-  return formatElementName(element)
+  return formatElementNameWithDataPath({ context, element })
 }

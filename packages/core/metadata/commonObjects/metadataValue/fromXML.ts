@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
-import { ConfigurationContext } from "../../context/types"
+import { importFromXMLFunction } from "~/metadata/orchestration/property/fn"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import {
@@ -18,7 +18,7 @@ import {
 } from "./types"
 
 export const importMetadataValueFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataValueXML | undefined,
   type?: MetadataValueType
@@ -63,7 +63,7 @@ export const importMetadataValueFromXML = (
 }
 
 export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueType>(
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataValueXML | undefined,
   type: T
@@ -88,7 +88,7 @@ export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueTyp
 }
 
 const importSimpleValueFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   textValue: string | boolean | number | undefined,
   type: MetadataValueType
@@ -105,7 +105,7 @@ const importSimpleValueFromXML = (
 }
 
 export const importMetadataValuesFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataValueXML[] | undefined
 ): MetadataValue[] | undefined => {
@@ -115,7 +115,7 @@ export const importMetadataValuesFromXML = (
 }
 
 export const importMetadataSimpleValueFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataSimpleValueXML | undefined
 ): string | boolean | number | undefined => {
@@ -154,7 +154,7 @@ export const importMetadataDateTimeValueFromXML = (
 }
 
 export const importMetadataBooleanValueFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   value: string | boolean | undefined
 ): boolean | undefined => {
@@ -184,7 +184,7 @@ const extractType = (xmlType: MetadataValueTypeXML): MetadataValueType | undefin
 }
 
 const importFixedArrayFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueXML | { "v8:Value": string | string[] }
 ): MetadataValue => {
@@ -196,7 +196,7 @@ const importFixedArrayFromXML = (
 }
 
 export const importFormChoiceListValueFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueXML
 ): MetadataFormChoiceListValue | undefined => {
@@ -210,19 +210,15 @@ const isPrimitiveType = (type: MetadataValueType): boolean => {
 }
 
 export const importAssociatedTableFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   rule: PropertyRule,
   data: MetadataValueXML | undefined
 ): string | undefined => {
   return importMetadataValueFromXMLAsPrimitive(context, rule, data, "string")
 }
 
-const importMetadataValueFromXMLForRule: ImportFromXMLFunction = (
-  context,
-  rule,
-  value,
-  _forReference
-) => importMetadataValueFromXML(context, rule, value)
+const importMetadataValueFromXMLForRule: importFromXMLFunction = (context, rule, value) =>
+  importMetadataValueFromXML(context, rule, value)
 
 registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXMLForRule)
 

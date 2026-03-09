@@ -1,6 +1,7 @@
 import { Page, PageEnterprise, PagePartialYAML } from "~/metadata/forms/elements/page/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPage: Required<Page> = {
+export const fullPage: RequiredFieldsElement<Page> = {
   itemType: "Page",
   name: "Страница",
   enableContentChange: true,

@@ -1,11 +1,11 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { ConfigurationContext } from "~/metadata/context/types"
 import { convertFormFromXML } from "../metadata/forms/clientApplicationForm/convertFromXML"
 import { convertCatalogFromXML } from "./convertCatalogFromXML"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const syncConfigurationFromXML = async (params: {
-  context: ConfigurationContext
+  context: ConfigurationContextFromXML
   inputDir: string
   outputDir: string
 }): Promise<void> => {

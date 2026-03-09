@@ -98,6 +98,7 @@ export const ClientApplicationFormRules = {
       type: "FormCommands",
       tag: FormRulesTags.Form,
       defaultValue: [],
+      required: true,
     },
     conversationsRepresentation: {
       yaml: "ОтображениеОбсуждений",

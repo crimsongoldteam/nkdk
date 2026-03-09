@@ -3,8 +3,9 @@ import {
   TrackBarFieldEnterprise,
   TrackBarFieldPartialYAML,
 } from "~/metadata/forms/elements/trackBarField/types"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullTrackBarField: Required<TrackBarField> = {
+export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   itemType: "TrackBarField",
   name: "ПолеПолосыПрокрутки",
   autoCellHeight: true,

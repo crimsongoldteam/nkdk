@@ -3,12 +3,12 @@ import { join } from "path"
 import { importMetadataCatalogFromXML } from "~/metadata/appliedObjects/metadataCatalog/fromXML"
 import { exportMetadataCatalogToYAML } from "~/metadata/appliedObjects/metadataCatalog/toYAML"
 import type { MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importContentFromXML } from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
 
 export const convertCatalogFromXML = async (params: {
-  context: ConfigurationContext
+  context: ConfigurationContextFromXML
   inputDir: string
   name: string
   outputDir: string
@@ -30,7 +30,7 @@ export const convertCatalogFromXML = async (params: {
   fs.writeFileSync(outputFilePath, result, "utf-8")
 }
 
-const readCatalogFromXML = (params: { context: ConfigurationContext; xml: string }): string | undefined => {
+const readCatalogFromXML = (params: { context: ConfigurationContextFromXML; xml: string }): string | undefined => {
   const { context, xml } = params
 
   const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xml)

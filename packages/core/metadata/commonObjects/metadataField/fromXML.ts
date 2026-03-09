@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } from "./types"
 
 export const importMetadataFieldFromXML = (
@@ -16,7 +16,7 @@ export const importMetadataFieldFromXML = (
 }
 
 export const importMetadataFieldsFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataFieldsXML | undefined
 ): MetadataFields | undefined => {

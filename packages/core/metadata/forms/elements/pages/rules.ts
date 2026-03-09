@@ -18,6 +18,7 @@ export const PagesRules = {
       defaultValue: [],
       toPartialYAML: false,
       fromPartialYAML: true,
+      required: true,
     },
     currentPagesState: {
       yaml: "ТекущееСостояниеСтраниц",

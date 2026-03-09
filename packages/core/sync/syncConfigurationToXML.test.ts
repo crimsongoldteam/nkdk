@@ -3,7 +3,7 @@ import { join } from "path"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
 import { importFormFromNKDK } from "~/tests/fromNKDK"
-import { mockContextToXML, mockContextToYAML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { syncConfigurationFromXML } from "./convertConfigurationFromXML"
 import { syncConfigurationToXML } from "./syncConfigurationToXML"
 
@@ -29,7 +29,7 @@ describe.skip("sync configuration to xml", () => {
     fs.mkdirSync(yamlOutputDir, { recursive: true })
 
     await syncConfigurationFromXML({
-      context: mockContextToYAML,
+      context: mockContextFromXML(),
       inputDir: xmlInputDir,
       outputDir: yamlOutputDir,
     })
@@ -57,7 +57,7 @@ describe.skip("sync configuration to xml", () => {
     expect(fs.existsSync(formXmlPath)).toBe(true)
 
     await syncConfigurationFromXML({
-      context: mockContextToYAML,
+      context: mockContextFromXML(),
       inputDir: xmlOutputDir,
       outputDir: roundtripYamlDir,
     })

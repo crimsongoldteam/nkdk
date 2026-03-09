@@ -1,7 +1,7 @@
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
-import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata, ToReference } from "../orchestration"
+import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
 
 export type ContextElementToXML = {
   name: string
@@ -24,18 +24,20 @@ export interface ConfigurationContext {
   allElements?: FormElementsYAML
   enterprise?: EnterpriseContext
 
-  // elementsTree?: Array<ContextElementToXML>
-
   exportToYAML?: FormExportToYAMLContext
-  // formAttributeImportFromYAML?: FormAttributeImportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
+}
+
+export interface ConfigurationContextFromXML extends ConfigurationContext {
+  fromXML: FromXMLConfigurationContext
 }
 
 type ToXMLContextElement<Type extends ElementType> = {
   element: ToMetadata<Type> | undefined
-  referenceElement?: ToReference<Type>
+  referenceElement?: Type | undefined
   xmlElement: ElementXMLWithoutId
 }
+
 export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
   readonly version: string
@@ -48,6 +50,10 @@ export type ToXMLConfigurationContext = {
   }
 }
 
+export type FromXMLConfigurationContext = {
+  forReference: boolean
+}
+
 /** Контекст с обязательным exportToXML для функций экспорта в XML */
 export type ConfigurationContextWithExportToXML = ConfigurationContext & {
   exportToXML: ToXMLConfigurationContext
@@ -57,7 +63,7 @@ export interface FormExportToYAMLContext {
   toTyped: boolean
 }
 
-export interface FormImportFromYAMLContext {
+export interface FormimportFromYAMLContext {
   allElements?: AllChildItemsPartialYAML
 }
 

@@ -95,6 +95,6 @@ export type EnterpriseType<
 
 // const test: tx = {
 //   AutoMaxWidth: true,
-// } // const test: tx = { _DisplayImportance: true }
+// } // const test: tx = { _displayImportance: true }
 
 // test.ViewStatusAddition = "test"

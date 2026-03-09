@@ -1,11 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { UsePurposes, UsePurposesXML } from "./types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importUsePurposesFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: UsePurposesXML | undefined
 ): UsePurposes | undefined => {

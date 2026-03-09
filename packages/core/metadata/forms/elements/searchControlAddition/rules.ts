@@ -8,11 +8,16 @@ import { BaseElement } from "../baseElement/types"
 import { getSearchControlAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
-const commonProperties: MetadataItemRule["properties"] = {
+const commonProperties = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
-  childItems: { yaml: "Элементы", type: "CommandBarChildItems", defaultValue: [] },
+  childItems: {
+    yaml: "Элементы",
+    type: "CommandBarChildItems",
+    defaultValue: [],
+    required: true,
+  },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
@@ -55,7 +60,7 @@ const commonProperties: MetadataItemRule["properties"] = {
   },
   visible: { yaml: "Видимость", type: "boolean" },
   width: { yaml: "Ширина", type: "number" },
-}
+} as const satisfies MetadataItemRule["properties"]
 
 export const SingleSearchControlAdditionRules = {
   itemType: "SingleSearchControlAddition",
@@ -69,7 +74,7 @@ export const SingleSearchControlAdditionRules = {
       forSingleElement: true,
     },
     ...commonProperties,
-  },
+  } as const,
 } as const satisfies ElementRule
 
 export const SearchControlAdditionRules = {

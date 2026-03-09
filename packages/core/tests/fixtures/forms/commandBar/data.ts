@@ -2,6 +2,7 @@ import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
@@ -22,7 +23,7 @@ export const sourceCommandBar: CommandBar = {
   },
 }
 
-export const fullCommandBar: Required<CommandBar> = {
+export const fullCommandBar: RequiredFieldsElement<CommandBar> = {
   itemType: "CommandBar",
   name: "КоманднаяПанель",
   enableContentChange: true,

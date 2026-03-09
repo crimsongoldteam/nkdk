@@ -2,14 +2,12 @@ import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataItemLinkYAML } from "../../commonObjects/metadataRef/types"
 import { MetadataCommandRules } from "./rules"
 
 export type MetadataCommand = MetadataTypeByRule<typeof MetadataCommandRules>
-
-export type MetadataCommandReference = MetadataReferenceTypeByRule<typeof MetadataCommandRules>
 
 export interface MetadataCommandXML {
   _uuid: string

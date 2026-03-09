@@ -1,12 +1,12 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/fromXML"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const importChoiceParameterLinksFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: ChoiceParameterLinksXML | undefined
 ): ChoiceParameterLinks | undefined => {
@@ -30,7 +30,7 @@ export const importChoiceParameterLinksFromXML = (
 }
 
 const extractDataPath = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   dataPath: MetadataSimpleValueXML | string | undefined
 ): string | undefined => {
   if (!dataPath) return undefined

@@ -1,10 +1,10 @@
 import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importPropertiesFromXML } from "~/metadata/orchestration"
 import { MetadataCatalogRules } from "./rules"
 
 export const importMetadataCatalogFromXML = (
-  context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   xml: MetadataCatalogXML
 ): MetadataCatalog => {
   const result = importPropertiesFromXML({

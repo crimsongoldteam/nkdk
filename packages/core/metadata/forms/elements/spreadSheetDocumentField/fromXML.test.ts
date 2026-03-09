@@ -4,13 +4,13 @@ import {
   fullSpreadSheetDocumentField,
   minimalSpreadSheetDocumentField,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importSpreadSheetDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "SpreadSheetDocumentField",
       xml: undefined,
     })
@@ -24,7 +24,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
     )
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "SpreadSheetDocumentField",
       xml: xmlData.SpreadSheetDocumentField,
     })
@@ -38,7 +38,7 @@ describe("importSpreadSheetDocumentFieldFromXML", () => {
     )
 
     const result = importElementFromXML({
-      context: mockContext,
+      context: mockContextFromXML(),
       itemType: "SpreadSheetDocumentField",
       xml: xmlData.SpreadSheetDocumentField,
     })

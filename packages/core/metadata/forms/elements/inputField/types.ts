@@ -9,16 +9,14 @@ import { TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { ElementReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { InputFieldRules } from "./rules"
 
-export type InputField = MetadataTypeByRule<typeof InputFieldRules>
-
-export type InputFieldReference = ElementReferenceTypeByRule<typeof InputFieldRules>
+export type InputField = ElementTypeByRule<typeof InputFieldRules>
 // export interface InputField {
 //   itemType: "InputField"
 //   name: string
@@ -105,7 +103,7 @@ export type InputFieldReference = ElementReferenceTypeByRule<typeof InputFieldRu
 //   contextMenu?: ContextMenu
 //   dataPath?: string
 //   defaultItem?: boolean
-//   displayImportance?: SE.DisplayImportance
+//   displayImportance?: SE.displayImportance
 //   editMode?: SE.ColumnEditMode
 //   enabled?: boolean
 //   extendedTooltip?: ExtendedTooltip

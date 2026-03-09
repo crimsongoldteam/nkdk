@@ -2,13 +2,8 @@ import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/ty
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/orchestration"
-import {
-  MetadataAttribute,
-  MetadataAttributeYAML,
-  MetadataAttributes,
-  MetadataAttributesYAML,
-} from "./types"
 import { MetadataAttributeRules } from "./rules"
+import { MetadataAttribute, MetadataAttributeYAML, MetadataAttributes, MetadataAttributesYAML } from "./types"
 
 export const exportMetadataAttributesToYAML = (
   context: ConfigurationContext,

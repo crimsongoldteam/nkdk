@@ -1,4 +1,8 @@
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import {
+  ConfigurationContext,
+  ConfigurationContextFromXML,
+  ConfigurationContextWithExportToXML,
+} from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   ElementRule,
@@ -50,7 +54,7 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
 
   registerImportFromXML(propertyType, elementRule)
   registerExportToYAML(propertyType)
-  registerImportFromYAML(propertyType, itemType)
+  registerimportFromYAML(propertyType, itemType)
   registerExportToXML({ propertyType, toXML, elementRule })
 }
 
@@ -58,7 +62,11 @@ const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyR
   registerTypeRule(
     propertyType,
     "importFromXML",
-    (context: ConfigurationContext, _rule: PropertyRule, xml: ElementXML): ToMetadata<Rule["itemType"]> | undefined => {
+    (
+      context: ConfigurationContextFromXML,
+      _rule: PropertyRule,
+      xml: ElementXML
+    ): ToMetadata<Rule["itemType"]> | undefined => {
       return importSingleElementFromXML({
         context,
         elementRule: elementRule,
@@ -82,7 +90,7 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: PropertyRuleT
   )
 }
 
-const registerImportFromYAML = <Type extends SingleElementType>(
+const registerimportFromYAML = <Type extends SingleElementType>(
   propertyType: PropertyRuleType,
   itemType: Type
 ): void => {

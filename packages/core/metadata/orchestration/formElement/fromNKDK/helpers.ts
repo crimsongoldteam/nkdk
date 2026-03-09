@@ -1,7 +1,7 @@
-import { FormattedI8nText } from "~/metadata/commonObjects/formattedI8nText/types";
-import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper";
-import { I8nText } from "~/metadata/commonObjects/i8nText/types";
-import { ConfigurationContext } from "~/metadata/context/types";
+import { FormattedI8nText } from "~/metadata/commonObjects/formattedI8nText/types"
+import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper"
+import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 
 export function importNameFromNKDK(source: { elementName: string; dataPath?: never }): string
 export function importNameFromNKDK(source: { elementName?: string; dataPath: string[] }): string

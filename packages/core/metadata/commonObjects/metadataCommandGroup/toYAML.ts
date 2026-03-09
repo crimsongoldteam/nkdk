@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "../../context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "./types"
 

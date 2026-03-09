@@ -1,19 +1,11 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { ElementReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarGroupChildItems, CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
-import { BaseElement } from "../baseElement/types"
+import { CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ContextMenuRules } from "./rules"
 
-export type ContextMenuReference = ElementReferenceTypeByRule<typeof ContextMenuRules>
-
-export interface ContextMenu extends BaseElement {
-  itemType: "ContextMenu"
-  displayImportance?: SE.DisplayImportance
-  autofill?: boolean
-  childItems: CommandBarGroupChildItems
-}
+export type ContextMenu = ElementTypeByRule<typeof ContextMenuRules>
 
 export interface ContextMenuYAML {
   ВажностьПриОтображении?: SE.DisplayImportanceYAML
