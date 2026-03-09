@@ -83,9 +83,8 @@ const writeCatalogToXML = async (params: {
 }): Promise<void> => {
   const { metadataXML, catalogName, outputDir } = params
 
-  const catalogsOutDir = join(outputDir, "Catalogs")
-  const catalogMetadataPath = join(catalogsOutDir, `${catalogName}.xml`)
+  const catalogMetadataPath = join(outputDir, `${catalogName}.xml`)
 
-  fs.mkdirSync(catalogsOutDir, { recursive: true })
+  fs.mkdirSync(outputDir, { recursive: true })
   fs.writeFileSync(catalogMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
 }

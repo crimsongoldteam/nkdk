@@ -1,4 +1,4 @@
-import { syncConfigurationFromXML } from "@nakidka/core"
+import { syncConfigurationFromXML, syncConfigurationToXML } from "@nakidka/core"
 import * as path from "node:path"
 import * as vscode from "vscode"
 import type { BaseLanguageClient } from "vscode-languageclient"
@@ -26,6 +26,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
   context.subscriptions.push(
     vscode.commands.registerCommand("nkdk.importConfigurationFromXml", () => runimportConfigurationFromXml())
+  )
+  context.subscriptions.push(
+    vscode.commands.registerCommand("nkdk.syncConfigurationToXml", () => runSyncConfigurationToXml())
   )
 }
 
@@ -84,7 +87,12 @@ async function runimportConfigurationFromXml(): Promise<void> {
   }
   const inputDir = selected[0].fsPath
   const outputDir = workspaceFolder.uri.fsPath
-  const context = { defaultLanguage: "ru", version: "2.20", exportToYAML: { toTyped: false } }
+  const context = {
+    defaultLanguage: "ru",
+    version: "2.20",
+    exportToYAML: { toTyped: false },
+    fromXML: { forReference: false },
+  }
   try {
     await vscode.window.withProgress(
       {
@@ -97,5 +105,52 @@ async function runimportConfigurationFromXml(): Promise<void> {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     await vscode.window.showErrorMessage(`Ошибка импорта конфигурации: ${message}`)
+  }
+}
+
+async function runSyncConfigurationToXml(): Promise<void> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]
+  if (!workspaceFolder) {
+    await vscode.window.showErrorMessage("Откройте папку проекта (workspace) для синхронизации конфигурации с XML.")
+    return
+  }
+  const selected = await vscode.window.showOpenDialog({
+    canSelectFolders: true,
+    canSelectMany: false,
+    title: "Выберите каталог для выгрузки XML (будет создана/обновлена подпапка Catalogs)",
+  })
+  if (!selected?.length) {
+    return
+  }
+  const inputDir = workspaceFolder.uri.fsPath
+  const outputDir = selected[0].fsPath
+  const context = {
+    defaultLanguage: "ru",
+    version: "2.20",
+    exportToYAML: { toTyped: false },
+    exportToXML: {
+      itemsTree: [],
+      configDumpInfo: new Map(),
+      version: "2.20",
+      context: {
+        elementsMap: [],
+        forms: [],
+        templates: [],
+        parentName: "",
+      },
+    },
+  }
+  try {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Синхронизация конфигурации в XML...",
+      },
+      () => syncConfigurationToXML({ context, inputDir, outputDir })
+    )
+    await vscode.window.showInformationMessage("Конфигурация синхронизирована с XML.")
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    await vscode.window.showErrorMessage(`Ошибка синхронизации конфигурации с XML: ${message}`)
   }
 }

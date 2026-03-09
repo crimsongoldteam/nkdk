@@ -6,17 +6,25 @@ import { convertCatalogFromXML } from "../metadataCatalog/convertFromXML"
 
 export const syncConfigurationFromXML = async (params: {
   context: ConfigurationContextFromXML
+  /**
+   * Путь к каталогу Catalogs
+   */
   inputDir: string
+  /**
+   * Путь к каталогу Справочник
+   */
   outputDir: string
 }): Promise<void> => {
   const { context, inputDir, outputDir } = params
-  const catalogsPath = join(inputDir, "Catalogs")
 
-  if (!fs.existsSync(catalogsPath)) {
+  if (!fs.existsSync(inputDir)) {
     return
   }
 
-  const entries = fs.readdirSync(catalogsPath, { withFileTypes: true })
+  const catalogsXMLDir = join(inputDir, "Catalogs")
+  const catalogsYAMLDir = join(outputDir, "Справочник")
+
+  const entries = fs.readdirSync(catalogsXMLDir, { withFileTypes: true })
   const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
 
   for (const entry of xmlFiles) {
@@ -24,15 +32,15 @@ export const syncConfigurationFromXML = async (params: {
     try {
       await convertCatalogFromXML({
         context,
-        inputDir: catalogsPath,
+        inputDir: catalogsXMLDir,
         name,
-        outputDir,
+        outputDir: catalogsYAMLDir,
       })
     } catch (err) {
       console.error(`Ошибка импорта каталога "${name}":`, err)
     }
 
-    const formsDir = join(catalogsPath, name, "Forms")
+    const formsDir = join(catalogsXMLDir, name, "Forms")
     if (!fs.existsSync(formsDir)) {
       continue
     }
@@ -47,7 +55,7 @@ export const syncConfigurationFromXML = async (params: {
           context,
           inputDir: formsDir,
           formName,
-          outputDir: join(outputDir, name),
+          outputDir: join(catalogsYAMLDir, name),
         })
       } catch (err) {
         console.error(`Ошибка импорта формы "${name}/${formName}":`, err)

@@ -17,7 +17,7 @@ export const syncConfigurationToXML = async (params: {
     return
   }
 
-  const catalogsDir = join(inputDir, "Справочники")
+  const catalogsDir = join(inputDir, "Справочник")
 
   const entries = fs.readdirSync(catalogsDir, { withFileTypes: true })
   const catalogDirs = entries.filter((e) => e.isDirectory())
@@ -34,7 +34,7 @@ export const syncConfigurationToXML = async (params: {
     const catalogPath = join(catalogsDir, name)
     const propertiesPath = join(catalogPath, "Свойства.yaml")
 
-    // const catalogOutputDir = join(outputDir, "Catalogs")
+    const catalogOutputDir = join(outputDir, "Catalogs")
     const catalogReferenceDir = join(referenceDir, "Catalogs")
 
     if (!fs.existsSync(propertiesPath)) {
@@ -46,7 +46,7 @@ export const syncConfigurationToXML = async (params: {
       context: contextWithConfigDumpInfo,
       inputDir: catalogsDir,
       catalogName: name,
-      outputDir: outputDir,
+      outputDir: catalogOutputDir,
       referenceDir: catalogReferenceDir,
     })
     // } catch (err) {

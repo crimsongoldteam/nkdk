@@ -6,8 +6,8 @@ import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLF
 import { syncCatalogToXML } from "./syncToXML"
 
 describe("sync MetadataCatalog to XML", () => {
-  const inputDir = getXMLFixturePath("sync/syncCatalog/nkdk/Справочник")
-  const referenceDir = getXMLFixturePath("sync/syncCatalog/xml/Catalogs")
+  const inputDir = getXMLFixturePath("sync/syncCatalog/nkdk")
+  const referenceDir = getXMLFixturePath("sync/syncCatalog/xml")
   const outputDir = getXMLFixturePath("sync/syncCatalog/out")
   const catalogName = "Контрагенты"
 
@@ -26,8 +26,8 @@ describe("sync MetadataCatalog to XML", () => {
       catalogName,
     })
 
-    const expectedMetadataXML = readXMLFileAsString(join("sync/syncCatalog/xml/Catalogs", `${catalogName}.xml`))
-    const resultMetadataXML = readXMLFileAsString(join("sync/syncCatalog/out", "Catalogs", `${catalogName}.xml`))
+    const expectedMetadataXML = readXMLFileAsString(join("sync/syncCatalog/xml", `${catalogName}.xml`))
+    const resultMetadataXML = readXMLFileAsString(join("sync/syncCatalog/out", `${catalogName}.xml`))
 
     expect(resultMetadataXML).toBe(expectedMetadataXML)
   })

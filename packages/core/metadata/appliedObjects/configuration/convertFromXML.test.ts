@@ -25,23 +25,25 @@ describe("sync configuration from xml", () => {
     })
 
     const expectedFormNkdk = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Контрагенты/Формы/ФормаЭлемента", "Форма.nkdk")
+      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.nkdk")
     )
     const expectedFormYaml = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
+      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
     )
 
-    const expectedCatalogYaml = readXMLFileAsString(join("sync/syncConfiguration/nkdk/Контрагенты", "Свойства.yaml"))
+    const expectedCatalogYaml = readXMLFileAsString(
+      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты", "Свойства.yaml")
+    )
 
     const resultFormNkdk = fs.readFileSync(
-      join(outputDir, "Контрагенты", "Формы", "ФормаЭлемента", "Форма.nkdk"),
+      join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.nkdk"),
       "utf-8"
     )
     const resultFormYaml = fs.readFileSync(
-      join(outputDir, "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
+      join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
       "utf-8"
     )
-    const resultCatalogYaml = fs.readFileSync(join(outputDir, "Контрагенты", "Свойства.yaml"), "utf-8")
+    const resultCatalogYaml = fs.readFileSync(join(outputDir, "Справочник", "Контрагенты", "Свойства.yaml"), "utf-8")
 
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
     expect(resultFormNkdk).toBe(expectedFormNkdk)
