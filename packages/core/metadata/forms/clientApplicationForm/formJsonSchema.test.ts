@@ -25,6 +25,7 @@ describe("formJsonSchema", () => {
     // const schema = ClientApplicationFormJsonSchema as Record<string, unknown>
     const out = JSON.stringify(schema, null, 2)
     // // eslint-disable-next-line no-console
+    // writeFileSync(join(__dirname, "schema.json"), out)
     console.log(out)
     // expect(schema.$schema).toBe("http://json-schema.org/draft-07/schema#")
     // expect(schema.type).toBe("object")

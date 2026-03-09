@@ -16,7 +16,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
     keyof T extends string ? keyof T : never,
     PropertyRule,
   ][]) {
-    if (ruleProp.fromEnterprise === false) continue
+    // if (ruleProp.fromEnterprise === false) continue
 
     const yamlKey = ruleProp.yaml
     if (!yamlKey) continue

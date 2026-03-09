@@ -20,6 +20,18 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params: {
     })
 
     result[item.name] = Type.Optional(resultItem)
+
+    if ("childItems" in item && item.childItems !== undefined && Array.isArray(item.childItems)) {
+      for (const childItem of item.childItems) {
+        const resultChildItem = exportElementToJSONSchema({
+          context,
+          value: childItem,
+        })
+        if (resultChildItem !== undefined) {
+          result[childItem.name] = Type.Optional(resultChildItem)
+        }
+      }
+    }
   }
   return Type.Object(result, { additionalProperties: false })
 }
