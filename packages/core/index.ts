@@ -1,3 +1,4 @@
+export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
 export {
   exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToXML,
@@ -29,7 +30,6 @@ export type {
 } from "./metadata/forms/clientApplicationForm/types"
 export { exportFormMetadataToXML, importChildItemsFromNKDK } from "./metadata/forms/index"
 export type { FormMetadataXML } from "./metadata/forms/index"
-export { syncConfigurationFromXML } from "./sync/convertConfigurationFromXML"
 export { xmlExport } from "./xml/export/exporter"
 export { importContentFromXML } from "./xml/import/importer"
 export { exportToYAML } from "./yaml/export"
