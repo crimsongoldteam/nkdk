@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullFormCommands, minimalFormCommands } from "~/tests/fixtures/forms/commands/data"
+import { fullFormCommands } from "~/tests/fixtures/forms/commands/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandsFromXML } from "./fromXML"
@@ -24,6 +24,8 @@ describe("importCommandFromXML", () => {
 
     const result = importCommandsFromXML(mockContext, mockRule, xmlData)
 
-    expect(result).toEqual(minimalFormCommands)
+    expect(result).toEqual([
+      { itemType: "FormCommand", name: "СоставКомплектаПодобратьФайлы", title: { items: { ru: "" } } },
+    ])
   })
 })

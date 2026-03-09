@@ -8,8 +8,7 @@ import { ClientApplicationFormRules } from "./rules"
 
 export type ClientApplicationForm = MetadataTypeByRule<typeof ClientApplicationFormRules>
 
-export type ClientApplicationFormReference = MetadataTypeByRule<typeof ClientApplicationFormRules, "Form"> & {
-  uuid: string
+export type ClientApplicationFormReference = MetadataTypeByRule<typeof ClientApplicationFormRules, "Form">
 }
 export type ClientApplicationFormMetadataReference = MetadataReferenceTypeByRule<
   typeof ClientApplicationFormRules,

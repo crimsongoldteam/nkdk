@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { fullFormCommands, minimalFormCommands } from "~/tests/fixtures/forms/commands/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportCommandsToXML } from "./toXML"
 
 describe("exportCommandToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportCommandsToXML({ context: mockContext, rule: mockRule, value: undefined })
+    const result = exportCommandsToXML(mockContextToXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to XML", () => {
     const expectedResult = readXMLFileAsString("forms/commands/full.xml")
-    const xmlData = exportCommandsToXML({ context: mockContext, rule: mockRule, value: fullFormCommands })
+    const xmlData = exportCommandsToXML(mockContextToXML(), mockRule, fullFormCommands)
 
     const result = xmlExport(xmlData!, false)
 
@@ -23,7 +23,7 @@ describe("exportCommandToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/commands/minimal.xml")
-    const xmlData = exportCommandsToXML({ context: mockContext, rule: mockRule, value: minimalFormCommands })
+    const xmlData = exportCommandsToXML(mockContextToXML(), mockRule, minimalFormCommands)
 
     const result = xmlExport(xmlData!, false)
 

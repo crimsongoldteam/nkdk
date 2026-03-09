@@ -21,6 +21,7 @@ export const MetadataAttributeRules = {
     name: {
       xml: "Name",
       type: "string",
+      required: true,
     },
     comment: {
       yaml: "Комментарий",

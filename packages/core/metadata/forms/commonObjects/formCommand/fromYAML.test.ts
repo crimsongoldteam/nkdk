@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullFormCommands,
-  fullFormCommandsYAML,
-  minimalFormCommandYAML,
-  minimalFormCommands,
-} from "~/tests/fixtures/forms/commands/data"
+import { fullFormCommands, fullFormCommandsYAML, minimalFormCommandYAML } from "~/tests/fixtures/forms/commands/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importCommandsFromYAML } from "./fromYAML"
+import { FormCommand } from "./types"
 
 describe("importCommandFromYAML", () => {
   it("should return undefined when data is undefined", () => {
@@ -22,7 +18,13 @@ describe("importCommandFromYAML", () => {
 
   it("should import minimal", () => {
     const result = importCommandsFromYAML(mockContext, mockRule, minimalFormCommandYAML)
-
-    expect(result).toEqual(minimalFormCommands)
+    const expectedFromYAML: FormCommand[] = [
+      {
+        itemType: "FormCommand",
+        name: "СоставКомплектаПодобратьФайлы",
+        title: { items: { ru: "Состав комплекта подобрать файлы" } },
+      },
+    ]
+    expect(result).toEqual(expectedFromYAML)
   })
 })

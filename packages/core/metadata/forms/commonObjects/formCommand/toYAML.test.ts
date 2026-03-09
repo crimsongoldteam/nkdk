@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { fullFormCommands, fullFormCommandsYAML, minimalFormCommands } from "~/tests/fixtures/forms/commands/data"
+import {
+  fullFormCommands,
+  fullFormCommandsYAML,
+  minimalFormCommandYAML,
+  minimalFormCommands,
+} from "~/tests/fixtures/forms/commands/data"
 import { mockContextToYAML, mockRule } from "~/tests/mockContext"
 import { exportCommandsToYAML } from "./toYAML"
 
@@ -19,6 +24,6 @@ describe("exportCommandToYAML", () => {
   it("should export minimal", () => {
     const result = exportCommandsToYAML(mockContextToYAML, mockRule, minimalFormCommands)
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual(minimalFormCommandYAML)
   })
 })

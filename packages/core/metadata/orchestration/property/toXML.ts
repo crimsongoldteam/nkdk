@@ -44,12 +44,12 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
 const getOrderedKeys = <Rule extends MetadataItemRule>(params: {
   rule: Rule
-  referenceMetadata?: ToReference<Rule["itemType"]>
+  referenceMetadata: ToReference<Rule["itemType"]> | undefined
 }): string[] => {
   const { rule, referenceMetadata } = params
   const propertyKeys = Object.keys(rule.properties)
 
-  if (referenceMetadata == null) {
+  if (referenceMetadata === undefined) {
     return [...propertyKeys].sort()
   }
 

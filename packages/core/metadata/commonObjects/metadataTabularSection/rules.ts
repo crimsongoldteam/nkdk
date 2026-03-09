@@ -9,6 +9,7 @@ export const MetadataTabularSectionRules = {
     name: {
       xml: "Name",
       type: "string",
+      required: true,
       xmlParents: propertiesParents,
     },
     synonym: {

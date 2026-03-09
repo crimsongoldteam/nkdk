@@ -1,27 +1,14 @@
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataSimpleValueXML } from "~/metadata/commonObjects/metadataValue/types"
-import { Picture, PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { UserVisible, UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItem } from "~/metadata/orchestration"
-import { MetadataReferenceTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { PictureXML, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { UserVisibleXML, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
+import { MetadataReferenceTypeByRule, MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseYAML } from "~/metadata/systemEnumerations/types"
+import { FormCommandRules } from "./rules"
+
+export type FormCommand = MetadataTypeByRule<typeof FormCommandRules>
 
 export type FormCommandReference = MetadataReferenceTypeByRule<typeof FormCommandRules>
-
-export interface FormCommand extends MetadataItem {
-  itemType: "FormCommand"
-  name: string
-  title?: I8nText
-  toolTip?: I8nText
-  use?: UserVisible
-  shortcut?: string
-  picture?: Picture
-  action?: string
-  representation?: ButtonRepresentation
-  currentRowUse?: CurrentRowUse
-  modifiesSavedData?: boolean
-  table?: string
-}
 
 export type FormCommands = FormCommand[]
 
