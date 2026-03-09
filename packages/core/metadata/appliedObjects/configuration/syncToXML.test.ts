@@ -1,15 +1,11 @@
 import fs from "fs"
 import { join } from "path"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { readCatalogYAML, readFormNKDK, readFormYAML } from "~/tests/fixtures/sync/syncConfiguration/data"
 import { importFormFromNKDK } from "~/tests/fromNKDK"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { syncConfigurationFromXML } from "./convertConfigurationFromXML"
-import { syncConfigurationToXML } from "./syncConfigurationToXML"
-
-vi.mock("uuid", () => ({
-  v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
-}))
+import { syncConfigurationFromXML } from "./convertFromXML"
+import { syncConfigurationToXML } from "./syncToXML"
 
 describe.skip("sync configuration to xml", () => {
   const xmlInputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")

@@ -23,7 +23,11 @@ describe("exportMetadataCatalogToXML", () => {
   it("should export all nodes", () => {
     const expectedResult = readXMLFileAsString("metadataCatalog/full.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, full)
+    const xmlData = exportMetadataCatalogToXML({
+      context: mockMetadataCatalogContext,
+      data: full,
+      referenceData: undefined,
+    })
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
@@ -35,7 +39,11 @@ describe("exportMetadataCatalogToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataCatalog/defaults.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, mock)
+    const xmlData = exportMetadataCatalogToXML({
+      context: mockMetadataCatalogContext,
+      data: mock,
+      referenceData: undefined,
+    })
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
