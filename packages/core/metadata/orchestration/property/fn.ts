@@ -15,7 +15,7 @@ export type ExportToXMLFunction = (
 ) => any | undefined
 
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   metadataItem?: T
   referenceMetadata?: any

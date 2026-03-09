@@ -24,7 +24,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
     element: element as ToMetadata<typeof rule.itemType>,
     referenceElement: referenceElement as ToMetadata<typeof rule.itemType> | undefined,
     rule,
-    name,
+    additionalParams: { name },
   })
 }
 
@@ -32,8 +32,8 @@ export function exportSingleElementToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
   referenceElement?: ToMetadata<Rule["itemType"]> | undefined
-  rule: ElementRule
-  name: string
+  rule: Rule
+  additionalParams: { name: string; id?: string }
 }): ElementXMLWithoutId {
   return exportToXML(params)
 }
@@ -43,9 +43,10 @@ function exportToXML<Rule extends ElementRule>(params: {
   element: ToMetadata<Rule["itemType"]> | undefined
   referenceElement?: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
-  name: string
+  additionalParams: { name: string; id?: string }
 }): ElementXMLWithoutId {
-  const { context, element, referenceElement, rule, name } = params
+  const { context, element, referenceElement, rule, additionalParams } = params
+  const { name } = additionalParams
   const itemType = rule.itemType
 
   const currentContext: ConfigurationContextWithExportToXML = getChildContextToXML({
@@ -70,6 +71,7 @@ function exportToXML<Rule extends ElementRule>(params: {
 
   const result: ElementXMLWithoutId = {
     _name: name,
+    ...(additionalParams.id ? { _id: additionalParams.id } : {}),
     ...properties,
     ...eventsResult,
   }

@@ -1,6 +1,5 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -68,27 +67,16 @@ export const ExtendedTooltipRules = {
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },
-  // registerAsType: {
-  //   ExtendedTooltip: {
-  //     toXML: (context, _element) => {
-  //       if (!context.elementsTree) throw new Error("elementContext is not defined")
-  //       const parent = getParentFromContext(context)
-  //       const id = getElementId(context)
-  //       const name = getExtendedTooltipName(parent)
-  //       return { id, name }
-  //     },
-  //   },
-  // },
 } as const satisfies ElementRule
 
 registerElementAsType({
   propertyType: "ExtendedTooltip",
   elementRule: ExtendedTooltipRules,
-  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+    const { context } = params
     const parent = getParentFromContext(context)
-    const id = getElementId(context)
     const name = getExtendedTooltipName(parent)
-    return { id, name }
+    return { name }
   },
 })
 

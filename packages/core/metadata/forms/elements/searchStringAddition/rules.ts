@@ -1,6 +1,5 @@
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { getElementId } from "~/metadata/helpers/getElementId"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -91,12 +90,12 @@ export const SearchStringAdditionRules = {
 registerElementAsType({
   propertyType: "SingleSearchStringAddition",
   elementRule: SingleSearchStringAdditionRules,
-  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+    const { context } = params
     if (!context.exportToXML.itemsTree) throw new Error("elementContext is not defined")
     const parent = getParentFromContext(context, ["Table"])
-    const id = getElementId(context)
     const name = getSearchStringAdditionName(parent)
-    return { name, id }
+    return { name }
   },
 })
 

@@ -9,6 +9,8 @@ import {
   ElementType,
   ElementXML,
   ElementXMLWithoutId,
+  ExportToXMLFunctionNew,
+  MetadataItem,
   PropertyRule,
   SingleElementType,
   ToMetadata,
@@ -39,10 +41,10 @@ export const clearElementRulesRegistry = (): void => {
   elementRulesRegistry.clear()
 }
 
-type ToXMLFn<T extends BaseElement> = (
-  context: ConfigurationContextWithExportToXML,
+type ToXMLFn<T extends BaseElement> = (params: {
+  context: ConfigurationContextWithExportToXML
   element: T | undefined
-) => { id?: string; name: string }
+}) => { name: string } & Partial<T>
 
 export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
   propertyType: PropertyRuleType
@@ -120,24 +122,27 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
 }): void => {
   const { propertyType, toXML, elementRule } = params
 
-  registerTypeRule(
-    propertyType,
-    "exportToXML",
-    (
-      context: ConfigurationContextWithExportToXML,
-      _rule: PropertyRule,
-      value: ToMetadata<Rule["itemType"]> | undefined
-    ): ElementXMLWithoutId => {
-      const extraParams = toXML(context, value)
+  const fn: ExportToXMLFunctionNew = (params: {
+    context: ConfigurationContextWithExportToXML
+    rule: PropertyRule
+    metadataItem?: MetadataItem | undefined
+    referenceMetadata?: MetadataItem | undefined
+    value: any
+  }): ElementXMLWithoutId => {
+    const { context, value, referenceMetadata } = params
+    const element = value as ToMetadata<Rule["itemType"]> | undefined
+    const extraParams = toXML({ context, element })
 
-      return exportSingleElementToXML({
-        context,
-        element: value,
-        rule: elementRule,
-        ...extraParams,
-      })
-    }
-  )
+    return exportSingleElementToXML({
+      context,
+      element,
+      rule: elementRule,
+      referenceElement: referenceMetadata as ToMetadata<Rule["itemType"]> | undefined,
+      additionalParams: extraParams,
+    })
+  }
+
+  registerTypeRule(propertyType, "exportToXML", fn)
 }
 
 const elementRulesRegistry = new Map<ElementType, ElementRule>()

@@ -2,8 +2,7 @@ import { getParentFromContext } from "~/metadata/context/helpers"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../../context/types"
-import { getElementId } from "../../../helpers/getElementId"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { getAutoCommandBarName } from "./helper"
 export type { ElementRule, PropertyRule }
@@ -13,6 +12,10 @@ export const AutoCommandBarRules = {
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
+    name: {
+      type: "string",
+      xml: "_name",
+    },
     autofill: {
       yaml: "Автозаполнение",
       type: "boolean",
@@ -44,7 +47,7 @@ export const AutoCommandBarRules = {
 registerElementAsType({
   propertyType: "AutoCommandBar",
   elementRule: AutoCommandBarRules,
-  toXML: (_context: ConfigurationContext, _element: BaseElement | undefined) => ({
+  toXML: () => ({
     id: "-1",
     name: "ФормаКоманднаяПанель",
   }),
@@ -53,11 +56,11 @@ registerElementAsType({
 registerElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
-  toXML: (context: ConfigurationContextWithExportToXML, _element: BaseElement | undefined) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+    const { context } = params
     const parentTable = getParentFromContext(context, ["Table"])
-    const elementId = getElementId(context)
     const elementName = getAutoCommandBarName(parentTable)
-    return { id: elementId, name: elementName }
+    return { name: elementName }
   },
 })
 

@@ -33,6 +33,11 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
           })
         : undefined
 
+    if (forReference) {
+      ;(result as any)[key] = value
+      continue
+    }
+
     const cleanValue = value === currentRule.defaultValueXML ? undefined : value
 
     const valueOrDefault = getValueOrDefault({
@@ -44,7 +49,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
     })
 
     // Для референса берем все значения
-    if (valueOrDefault === undefined && !forReference) continue
+    if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
   }
 

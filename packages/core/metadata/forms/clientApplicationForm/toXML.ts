@@ -56,13 +56,16 @@ const setIdsToElements = (context: ConfigurationContextWithExportToXML): void =>
   const occupiedIds = new Set<string>()
 
   for (const element of elementsMap) {
-    const reference: any = element.referenceElement
+    const reference = element.referenceElement
     if (reference && typeof reference.id === "string") {
+      element.xmlElement._id = reference.id
       occupiedIds.add(reference.id)
     }
   }
 
   for (const element of elementsMap) {
+    if (element.xmlElement._id) continue
+
     let counter = 1
     while (occupiedIds.has(counter.toString())) {
       counter++

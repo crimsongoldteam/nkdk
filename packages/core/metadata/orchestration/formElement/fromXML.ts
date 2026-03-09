@@ -14,21 +14,22 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextFromXML
   elementRule: ElementRule
   xml: ElementXML
-  forReference?: boolean
 }): ToMetadata<Rule["itemType"]> | undefined {
   const { context, elementRule, xml } = params
   const itemType = elementRule.itemType
+  const forReference = context.fromXML.forReference
 
   const props = importFromXML(context, xml, elementRule)
 
-  if (props === undefined) return undefined
+  if (props === undefined && !forReference) return undefined
 
   const result = {
+    ...(forReference ? { id: xml._id } : {}),
     itemType: itemType,
     ...(props ?? {}),
   } as ToMetadata<Rule["itemType"]>
 
-  if (isEmptyMetadataItem({ context, rule: elementRule, element: result })) return undefined
+  if (!forReference && isEmptyMetadataItem({ context, rule: elementRule, element: result })) return undefined
 
   return result
 }
