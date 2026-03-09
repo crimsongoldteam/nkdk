@@ -1,4 +1,9 @@
-import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
+import {
+  ClientApplicationForm,
+  ClientApplicationFormMetadataReference,
+  ClientApplicationFormReference,
+  ClientApplicationFormYAML,
+} from "~/metadata/forms/clientApplicationForm/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 
 const fullCommandInterface: CommandInterface = {
@@ -149,6 +154,11 @@ export const fullClientApplicationForm: Required<ClientApplicationForm> = {
   itemType: "ClientApplicationForm",
 }
 
+export const clientApplicationFormReference: ClientApplicationFormReference = {
+  ...fullClientApplicationForm,
+  uuid: "11111111-1111-4111-8111-111111111111",
+}
+
 export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -280,4 +290,13 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   itemType: "ClientApplicationForm",
 }
 
+export const minimalClientApplicationFormReference: ClientApplicationFormReference = {
+  ...minimalClientApplicationForm,
+  uuid: "11111111-1111-4111-8111-111111111111",
+}
+
+export const minimalClientApplicationFormMetadataReference: ClientApplicationFormMetadataReference = {
+  ...minimalClientApplicationForm,
+  uuid: "11111111-1111-4111-8111-111111111111",
+}
 export const minimalClientApplicationFormYAML: ClientApplicationFormYAML = {}

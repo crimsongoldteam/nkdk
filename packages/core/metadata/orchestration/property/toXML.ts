@@ -16,11 +16,12 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
   const result: ItemXML = {}
 
-  const orderedKeys = getOrderedKeys({ rule, referenceMetadata })
+  const orderedKeys = getOrderedKeys({ rule, referenceMetadata, tag })
 
   for (const key of orderedKeys) {
+    if (key === "events") continue
+    if (key === "itemType") continue
     const ruleProp = rule.properties[key]
-    if (tag && (!ruleProp.tag || !tag.includes(ruleProp.tag))) continue
 
     const currentContext: ConfigurationContextWithExportToXML = {
       ...context,
@@ -45,15 +46,19 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 const getOrderedKeys = <Rule extends MetadataItemRule>(params: {
   rule: Rule
   referenceMetadata: ToReference<Rule["itemType"]> | undefined
+  tag?: string[]
 }): string[] => {
-  const { rule, referenceMetadata } = params
-  const propertyKeys = Object.keys(rule.properties)
+  const { rule, referenceMetadata, tag } = params
+  const propertyKeys = Object.keys(rule.properties).filter((key) => {
+    const ruleProp = rule.properties[key]
+    return tag === undefined || (ruleProp.tag !== undefined && tag.includes(ruleProp.tag))
+  })
 
   if (referenceMetadata === undefined) {
     return [...propertyKeys].sort()
   }
 
-  const keysFromReference = Object.keys(referenceMetadata as object)
+  const keysFromReference = Object.keys(referenceMetadata as object).filter((key) => propertyKeys.includes(key))
   const referenceSet = new Set(keysFromReference)
   const remainingKeys = propertyKeys.filter((key) => !referenceSet.has(key)).sort()
 

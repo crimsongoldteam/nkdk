@@ -26,7 +26,7 @@ import {
   StandardAttributeDescriptionReference,
   StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { FormCommand, FormCommandYAML, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { FormCommand, FormCommandReference, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogReference, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import {
   MetadataCommand,
@@ -36,6 +36,7 @@ import {
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
+  ClientApplicationFormMetadataReference,
   ClientApplicationFormReference,
   ClientApplicationFormYAML,
 } from "../../forms/clientApplicationForm/types"
@@ -524,7 +525,7 @@ export type MetadataItemTypeRegistry = {
   //#region Form objects
   ClientApplicationForm: {
     metadata: ClientApplicationForm
-    reference: ClientApplicationFormReference
+    reference: ClientApplicationFormReference | ClientApplicationFormMetadataReference
     yaml: ClientApplicationFormYAML
     enterprise: ClientApplicationFormEnterprise
   }
@@ -551,10 +552,13 @@ export type MetadataItemTypeRegistry = {
 
   CommandInterface: {
     metadata: CommandInterface
+    reference: CommandInterface
     yaml: CommandInterfaceYAML
   }
+
   CommandInterfaceItem: {
     metadata: CommandInterfaceItem
+    reference: CommandInterfaceItem
     yaml: CommandInterfaceItemYAML
   }
 
@@ -612,6 +616,4 @@ export type ToEnterprise<T extends EnterpriseExportableMetadataType> = MetadataI
 
 export type ToTypedYAML<T extends TypedFormElementType> = MetadataItemTypeRegistry[T]["yamlTyped"]
 
-export type ToReference<T extends MetadataItemType> = MetadataItemTypeRegistry[T] extends { reference: infer R }
-  ? R
-  : never
+export type ToReference<T extends MetadataItemType> = MetadataItemTypeRegistry[T]["reference"]

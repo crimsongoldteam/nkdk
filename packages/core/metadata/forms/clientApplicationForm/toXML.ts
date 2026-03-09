@@ -1,4 +1,3 @@
-import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
@@ -54,7 +53,7 @@ export const exportClientApplicationFormToXML = (params: {
     ...events,
   }
 
-  return sortObject(result)
+  return result
 }
 
 export const exportFormMetadataToXML = (params: {
@@ -68,12 +67,13 @@ export const exportFormMetadataToXML = (params: {
   const properties = exportPropertiesToXML({
     context,
     metadata: form,
+    referenceMetadata: referenceForm,
     rule: ClientApplicationFormRules,
     tag: [FormRulesTags.Metadata],
   })
 
-  const parentPath = getParentFromContext(context, ["MetadataCatalog"]).path
-  const path = `${parentPath}.Form.${name}`
+  // const parentPath = getParentFromContext(context, ["MetadataCatalog"]).path
+  // const path = `${parentPath}.Form.${name}`
   // const uuid = receiveUUID({ context, parentPath, path })
   const uuid = referenceForm?.uuid ?? getUUID(context)
 
