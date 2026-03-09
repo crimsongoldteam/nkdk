@@ -34,7 +34,7 @@ export interface ConfigurationContextFromXML extends ConfigurationContext {
 
 type ToXMLContextElement<Type extends ElementType> = {
   element: ToMetadata<Type> | undefined
-  referenceElement?: Type | undefined
+  referenceElement?: ToMetadata<Type> | undefined
   xmlElement: ElementXMLWithoutId
 }
 

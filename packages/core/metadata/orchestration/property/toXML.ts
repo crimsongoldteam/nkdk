@@ -1,15 +1,16 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
 import { getOrderedKeysToXML } from "./helpers"
-import { ItemXML, MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
-export const exportPropertiesToXML = <T extends MetadataItem>(params: {
+export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContextWithExportToXML
-  metadata: T | undefined
-  referenceMetadata?: T | undefined
-  rule: MetadataItemRule
+  metadata: ToMetadata<Rule["itemType"]> | undefined
+  referenceMetadata?: ToMetadata<Rule["itemType"]> | undefined
+  rule: Rule
   tag?: string[]
 }): ItemXML => {
   const { context, metadata: metadata, referenceMetadata, rule, tag: tag } = params
@@ -30,10 +31,13 @@ export const exportPropertiesToXML = <T extends MetadataItem>(params: {
 
     const value = metadata === undefined ? undefined : (metadata as any)[key]
 
+    const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
+
     const exportedValue = exportPropertyToXML({
       context: currentContext,
       rule: ruleProp,
       value,
+      referenceMetadata: referenceValue,
       metadataItem: metadata,
     })
 
@@ -68,9 +72,10 @@ export const exportPropertyToXML = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: any
+  referenceMetadata?: any
   metadataItem?: any
 }): any | undefined => {
-  const { context, rule, value, metadataItem } = params
+  const { context, rule, value, metadataItem, referenceMetadata } = params
 
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
@@ -87,6 +92,7 @@ export const exportPropertyToXML = (params: {
       rule,
       value,
       metadataItem,
+      referenceMetadata,
     })
     if (exportedValue === rule.defaultValue) {
       return undefined
@@ -94,7 +100,7 @@ export const exportPropertyToXML = (params: {
     return exportedValue
   }
 
-  const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value)
+  const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
     return undefined
   }

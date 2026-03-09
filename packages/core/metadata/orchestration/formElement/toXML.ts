@@ -12,7 +12,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
   element: T
   referenceElement?: T
 }): ElementXMLWithoutId | undefined {
-  const { element, context } = params
+  const { element, context, referenceElement } = params
 
   if (element === undefined) return undefined
 
@@ -22,6 +22,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
   return exportToXML({
     context,
     element: element as ToMetadata<typeof rule.itemType>,
+    referenceElement: referenceElement as ToMetadata<typeof rule.itemType> | undefined,
     rule,
     name,
   })
@@ -30,7 +31,7 @@ export function exportElementToXML<T extends NamedElement>(params: {
 export function exportSingleElementToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
-  referenceElement?: Rule["itemType"]
+  referenceElement?: ToMetadata<Rule["itemType"]> | undefined
   rule: ElementRule
   name: string
 }): ElementXMLWithoutId {
@@ -40,7 +41,7 @@ export function exportSingleElementToXML<Rule extends ElementRule>(params: {
 function exportToXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextWithExportToXML
   element: ToMetadata<Rule["itemType"]> | undefined
-  referenceElement?: Rule["itemType"]
+  referenceElement?: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
   name: string
 }): ElementXMLWithoutId {
@@ -57,6 +58,7 @@ function exportToXML<Rule extends ElementRule>(params: {
   const properties = exportPropertiesToXML({
     context: currentContext,
     metadata: element,
+    referenceMetadata: referenceElement,
     rule: rule,
   })
 

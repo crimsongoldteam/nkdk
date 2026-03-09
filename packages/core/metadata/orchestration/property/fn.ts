@@ -10,13 +10,15 @@ import { MetadataItem, PropertyRule } from "./types"
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  value: any
+  value: any,
+  referenceValue?: any
 ) => any | undefined
 
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: PropertyRule
   metadataItem?: T
+  referenceMetadata?: any
   value: any
 }) => any | undefined
 
