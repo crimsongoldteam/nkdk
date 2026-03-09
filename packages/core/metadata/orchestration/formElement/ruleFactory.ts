@@ -73,7 +73,6 @@ const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyR
         context,
         elementRule: elementRule,
         xml,
-        forReference: false,
       }) as ToMetadata<Rule["itemType"]> | undefined
     }
   )
