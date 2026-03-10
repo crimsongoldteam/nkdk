@@ -90,6 +90,14 @@ const findReferenceAttribute = (
   return referenceData.find((referenceItem) => referenceItem.name === data.name)
 }
 
+const findReferenceColumn = (
+  data: FormAttributeColumn,
+  referenceData: FormAttributeColumn[] | undefined
+): FormAttributeColumn | undefined => {
+  if (!referenceData) return undefined
+  return referenceData.find((referenceItem) => referenceItem.name === data.name)
+}
+
 // const exportFormAttributeSettingsToXML = (params: {
 //   context: ConfigurationContext
 //   rule: PropertyRule | undefined
@@ -131,24 +139,35 @@ const findReferenceAttribute = (
 const exportFormAttributeColumnsToXML = (
   context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
-  columns: FormAttributeColumns
+  columns: FormAttributeColumns,
+  referenceData?: FormAttributeColumns | undefined
 ): FormAttributeColumnsXML | undefined => {
   if (columns.length === 0) return undefined
 
   const isAdditionalColumns = "table" in columns[0]
 
   if (isAdditionalColumns) {
-    return exportAdditionalColumnsToXML(context, columns as FormAttributeAdditionalColumn[])
+    return exportAdditionalColumnsToXML(
+      context,
+      columns as FormAttributeAdditionalColumn[],
+      referenceData as FormAttributeAdditionalColumn[] | undefined
+    )
   }
 
-  return exportColumnsToXML(context, columns as FormAttributeColumn[])
+  return exportColumnsToXML(
+    context,
+    columns as FormAttributeColumn[],
+    referenceData as FormAttributeColumn[] | undefined
+  )
 }
 
 const exportColumnsToXML = (
   context: ConfigurationContextWithExportToXML,
-  columns: FormAttributeColumn[]
+  columns: FormAttributeColumn[],
+  referenceColumns?: FormAttributeColumn[] | undefined
 ): { Column: FormAttributeColumnXML[] } | undefined => {
   const result = columns.map((column) => {
+    const referenceColumn = findReferenceColumn(column, referenceColumns)
     const result: FormAttributeColumnXML = {
       _name: column.name,
       _id: "",
@@ -156,13 +175,14 @@ const exportColumnsToXML = (
 
     context.exportToXML?.context?.metadataForNumbering.push({
       element: column,
-      referenceElement: undefined,
+      referenceElement: referenceColumn,
       xmlElement: result,
     })
 
     const properties = exportPropertiesToXML({
       context,
       metadata: column,
+      referenceMetadata: referenceColumn,
       rule: FormAttributeColumnRules,
     })
 
@@ -178,10 +198,14 @@ const exportColumnsToXML = (
 
 const exportAdditionalColumnsToXML = (
   context: ConfigurationContextWithExportToXML,
-  additionalColumns: FormAttributeAdditionalColumn[]
+  additionalColumns: FormAttributeAdditionalColumn[],
+  referenceAdditionalColumns?: FormAttributeAdditionalColumn[] | undefined
 ): { AdditionalColumns: FormAttributeAdditionalColumnXML[] } | undefined => {
   const result: FormAttributeAdditionalColumnXML[] = additionalColumns.map((additionalColumn) => {
-    const columns = exportColumnsToXML(context, additionalColumn.columns)
+    const referenceAdditionalColumn = referenceAdditionalColumns?.find(
+      (referenceItem) => referenceItem.table === additionalColumn.table
+    )
+    const columns = exportColumnsToXML(context, additionalColumn.columns, referenceAdditionalColumn?.columns)
 
     return {
       _table: additionalColumn.table,

@@ -1,3 +1,5 @@
+import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 const propertiesParents = ["Properties"]
@@ -6,6 +8,21 @@ const childObjectsParents = ["ChildObjects"]
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
   properties: {
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const { context, metadata } = params
+        const parent = getParentFromContext(context, ["MetadataCatalog"])
+        const parentPath = parent.name
+        return `${parentPath}.${metadata.name}`
+      },
+      items: [
+        { name: `CatalogTabularSection`, category: "TabularSection" },
+        { name: `CatalogTabularSectionRow`, category: "TabularSectionRow" },
+      ],
+      // xmlParents: propertiesParents,
+    },
     name: {
       xml: "Name",
       type: "string",

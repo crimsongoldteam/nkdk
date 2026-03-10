@@ -1,7 +1,7 @@
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
@@ -119,6 +119,8 @@ export interface MetadataTypePropertyRule extends BasePropertyRule {
 export interface InternalInfoPropertyRule extends BasePropertyRule {
   type: "InternalInfo"
   items: Array<{ name: string; category: string }>
+  forReferenceOnly: true
+  getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
 }
 
 export interface CleanPropertyRule extends BasePropertyRule {

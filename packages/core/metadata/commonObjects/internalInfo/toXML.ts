@@ -1,10 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { InternalInfo, InternalInfoItemsXML, InternalInfoParam, InternalInfoRootXML } from "./types"
 
 export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML => {
   const { context, rule, referenceMetadata, metadataItem } = params
+
+  const internalInfoRule = rule as InternalInfoPropertyRule
 
   const reference = referenceMetadata as InternalInfo | undefined
 
@@ -12,6 +14,10 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   if (!itemsRule || itemsRule.length === 0) {
     return {}
   }
+
+  const nameItemPart = internalInfoRule?.getName
+    ? internalInfoRule.getName({ context, metadata: metadataItem })
+    : ((metadataItem as any)?.name ?? "")
 
   const generated = itemsRule.map((item) => {
     const name = item.name
@@ -21,7 +27,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     const typeId = fromReference?.typeId ?? getUUID(context)
     const valueId = fromReference?.valueId ?? getUUID(context)
 
-    const fullName = `${item.name}.${(metadataItem as { name?: string })?.name ?? ""}`
+    const fullName = `${item.name}.${nameItemPart}`
 
     return {
       _name: fullName,
