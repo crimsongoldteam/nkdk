@@ -135,6 +135,7 @@
 									<EditMode>EnterOnInput</EditMode>
 									<MultiLine>true</MultiLine>
 									<ExtendedEdit>true</ExtendedEdit>
+									<OpenButton>true</OpenButton>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 									<ContextMenu name="ЖурналСобытийДоКонтекстноеМеню" id="47"/>
 									<ExtendedTooltip name="ЖурналСобытийДоРасширеннаяПодсказка" id="48"/>
@@ -144,6 +145,7 @@
 									<EditMode>EnterOnInput</EditMode>
 									<MultiLine>true</MultiLine>
 									<ExtendedEdit>true</ExtendedEdit>
+									<OpenButton>true</OpenButton>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 									<ContextMenu name="ЖурналСобытийПослеКонтекстноеМеню" id="50"/>
 									<ExtendedTooltip name="ЖурналСобытийПослеРасширеннаяПодсказка" id="51"/>
@@ -153,6 +155,7 @@
 									<EditMode>EnterOnInput</EditMode>
 									<MultiLine>true</MultiLine>
 									<ExtendedEdit>true</ExtendedEdit>
+									<OpenButton>true</OpenButton>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 									<ContextMenu name="ЖурналСобытийИзмененияКонтекстноеМеню" id="59"/>
 									<ExtendedTooltip name="ЖурналСобытийИзмененияРасширеннаяПодсказка" id="60"/>
@@ -162,6 +165,7 @@
 									<EditMode>EnterOnInput</EditMode>
 									<MultiLine>true</MultiLine>
 									<ExtendedEdit>true</ExtendedEdit>
+									<OpenButton>true</OpenButton>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 									<ContextMenu name="ЖурналСобытийТекстОшибкиКонтекстноеМеню" id="56"/>
 									<ExtendedTooltip name="ЖурналСобытийТекстОшибкиРасширеннаяПодсказка" id="57"/>
