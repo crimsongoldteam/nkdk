@@ -350,11 +350,11 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   },
 }
 
-const { ПутьКДанным: _unusedDataPath, ...fullInputFieldPartialYAMLWithoutDataPath } =
-  fullInputFieldPartialYAML
+const { ПутьКДанным: _unusedDataPath, ...fullInputFieldPartialYAMLWithoutDataPath } = fullInputFieldPartialYAML
 
 export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
   ...fullInputFieldPartialYAMLWithoutDataPath,
+  ПутьКДанным: "Объект.Реквизит",
   Тип: "ПолеВвода",
   Заголовок: "Поле ввода",
 }

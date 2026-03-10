@@ -27,7 +27,12 @@ describe("exportCommandToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/commands/minimal.xml")
-    const xmlData = exportCommandsToXML(mockContextToXML(), mockRule, minimalFormCommands)
+
+    const context = mockContextToXML()
+
+    const xmlData = exportCommandsToXML(context, mockRule, minimalFormCommands)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 

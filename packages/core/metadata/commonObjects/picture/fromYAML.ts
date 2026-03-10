@@ -90,7 +90,7 @@ function createPicture(
   loadTransparent: boolean,
   transparentPixel?: { x: number; y: number }
 ): Picture {
-  return { ref, type, loadTransparent, transparentPixel }
+  return { ref, type, loadTransparent, ...(transparentPixel ? { transparentPixel } : {}) }
 }
 
 registerTypeRule("Picture", "importFromYAML", importPictureFromYAML)

@@ -69,7 +69,7 @@ export const UsualGroupRules = {
       typeSE: "ChildFormItemsGroup",
       toPartialYAML: false,
       defaultValue: "HorizontalIfPossible",
-      defaultValueXML: "HorizontalIfPossible",
+      // defaultValueXML: "HorizontalIfPossible",
       required: true,
     },
     height: { yaml: "Высота", type: "number" },
@@ -113,7 +113,7 @@ export const UsualGroupRules = {
       toPartialYAML: false,
       type: "boolean",
       defaultValue: true,
-      defaultValueXML: true,
+      // defaultValueXML: true,
     },
     table: {
       yaml: "Таблица",
