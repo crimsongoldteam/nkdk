@@ -55,7 +55,7 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
     }
   }
 
-  for (const info of pathToInfo.values()) {
+  for (const info of Array.from(pathToInfo.values())) {
     info.orderByRule.sort((a, b) => {
       if (a.order !== undefined && b.order !== undefined) return a.order - b.order
       if (a.order !== undefined) return -1

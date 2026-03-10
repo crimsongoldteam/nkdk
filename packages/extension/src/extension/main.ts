@@ -133,10 +133,10 @@ async function runSyncConfigurationToXml(): Promise<void> {
       configDumpInfo: new Map(),
       version: "2.20",
       context: {
-        elementsMap: [],
         forms: [],
         templates: [],
         parentName: "",
+        metadataForNumbering: [],
       },
     },
   }

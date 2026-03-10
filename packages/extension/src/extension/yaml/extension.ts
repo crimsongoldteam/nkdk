@@ -113,8 +113,8 @@ export function startClient(
 
   return client.start().then(() => {
     client.sendNotification(DynamicCustomSchemaRequestRegistration.type)
-    client.onRequest(CUSTOM_SCHEMA_REQUEST, (resource: string) => {
-      return [getJSONSchemaUri(resource)]
+    client.onRequest(CUSTOM_SCHEMA_REQUEST, async (resource: string) => {
+      return [await getJSONSchemaUri(resource)]
     })
     client.onRequest(CUSTOM_CONTENT_REQUEST, (uri: string) => {
       return getJSONSchema(uri)
