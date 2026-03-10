@@ -14,6 +14,7 @@ export const ContextMenuRules = {
     name: {
       type: "string",
       xml: "_name",
+      fromXML: false,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

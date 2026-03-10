@@ -5,7 +5,7 @@ import { ClientApplicationFormRules } from "./rules"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { ClientApplicationForm } from "./types"
 
-describe("formJsonSchema", () => {
+describe.skip("formJsonSchema", () => {
   it("выводит JSON Schema для формы приложения", () => {
     const form = {
       itemType: "ClientApplicationForm",

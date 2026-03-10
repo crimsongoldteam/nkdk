@@ -1,4 +1,4 @@
-<HtmlDocumentField name="ПолеHTMLДокумента" id="1" DisplayImportance="High">
+<HTMLDocumentField name="ПолеHTMLДокумента" id="1" DisplayImportance="High">
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>true</AutoCellHeight>
 	<AutoMaxHeight>true</AutoMaxHeight>
@@ -104,4 +104,4 @@
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
-</HtmlDocumentField>
+</HTMLDocumentField>

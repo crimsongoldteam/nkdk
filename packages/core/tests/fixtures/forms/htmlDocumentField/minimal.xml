@@ -1,4 +1,4 @@
-<HtmlDocumentField name="ПолеHTMLДокумента" id="1">
+<HTMLDocumentField name="ПолеHTMLДокумента" id="1">
 	<ContextMenu name="ПолеHTMLДокументаКонтекстноеМеню" id="2"/>
 	<ExtendedTooltip name="ПолеHTMLДокументаРасширеннаяПодсказка" id="3"/>
-</HtmlDocumentField>
+</HTMLDocumentField>
