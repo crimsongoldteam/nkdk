@@ -135,13 +135,18 @@ export const GeographicalSchemaFieldRules = {
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    detailProcessing: "ОбработкаРасшифровки",
-    beforeWrite: "ПередЗаписью",
-    beforePrint: "ПередПечатью",
-    afterWrite: "ПослеЗаписи",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        detailProcessing: "ОбработкаРасшифровки",
+        beforeWrite: "ПередЗаписью",
+        beforePrint: "ПередПечатью",
+        afterWrite: "ПослеЗаписи",
+      },
+    },
   },
 } as const satisfies ElementRule
 

@@ -81,6 +81,15 @@ export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyR
   standartAttributeNames: StandartAttributeName[]
 }
 
+export interface EventsPropertyRule extends BasePropertyRule {
+  type: "Events"
+  /**
+   * Маппинг: ключ события в metadata -> ключ в YAML (русский синоним).
+   * Пример: onChange -> "ПриИзменении"
+   */
+  items: Record<string, string>
+}
+
 export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
@@ -113,6 +122,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "SystemEnumeration"
     | "I8nText"
     | "FormattedI8nText"
+    | "Events"
     | "UserVisible"
     | "TableAdditionalSource"
     | "StandardAttributeDescription"
@@ -139,6 +149,7 @@ export type PropertyRule =
   | UserVisiblePropertyRule
   | I8nTextPropertyRule
   | FormattedI8nTextPropertyRule
+  | EventsPropertyRule
   | CleanPropertyRule
   // | CustomExportPropertyRule
   | TableAdditionalSourcePropertyRule

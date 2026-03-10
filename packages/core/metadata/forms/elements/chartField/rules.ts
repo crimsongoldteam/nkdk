@@ -129,12 +129,17 @@ export const ChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "WarningOnEditRepresentation",
     },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    selection: "Выбор",
-    detailProcessing: "ОбработкаРасшифровки",
-    onActivate: "ПриАктивизации",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+        detailProcessing: "ОбработкаРасшифровки",
+        onActivate: "ПриАктивизации",
+      },
+    },
   },
 } as const satisfies ElementRule
 

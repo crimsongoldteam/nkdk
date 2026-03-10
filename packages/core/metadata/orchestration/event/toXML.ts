@@ -1,37 +1,29 @@
 import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItem, MetadataItemRule } from "../property/types"
-import { Events, EventsXML, EventXML } from "./types"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { EventsXML, EventXML } from "./types"
 
-export const exportEventsToXML = <T extends MetadataItem>(params: {
-  context: ConfigurationContext
-  rule: MetadataItemRule
-  data: T | undefined
-}): { Events?: EventsXML } => {
-  const { rule, data } = params
+export const exportEventsToXML = (
+  _context: ConfigurationContextWithExportToXML,
+  _rule: PropertyRule,
+  value: unknown,
+  _referenceValue?: unknown
+): EventsXML | undefined => {
+  if (!value || typeof value !== "object") return undefined
 
-  if (!rule.events) return {}
-  if (!data) return {}
-  if (!("events" in data)) return {}
+  const dataEvents = value as Record<string, string>
+  const items: EventXML[] = []
 
-  const dataEvents = data.events as Events
-  const ruleEvents = rule.events
-
-  const events: EventXML[] = []
-
-  for (const ruleKey of Object.keys(ruleEvents)) {
-    const eventName = capitalize(ruleKey)
-    const eventValue = dataEvents[ruleKey]
+  for (const [key, eventValue] of Object.entries(dataEvents)) {
     if (eventValue === undefined) continue
-
-    events.push({ _name: eventName, "#text": eventValue })
+    items.push({ _name: capitalize(key), "#text": eventValue })
   }
 
-  if (events.length === 0) {
-    return {}
-  }
+  if (items.length === 0) return undefined
 
-  const sortedEvents = events.sort((a, b) => a._name.localeCompare(b._name))
-
-  return { Events: { Event: sortedEvents } }
+  const sorted = items.sort((a, b) => a._name.localeCompare(b._name))
+  return { Event: sorted }
 }
+
+registerTypeRule("Events", "exportToXML", exportEventsToXML)

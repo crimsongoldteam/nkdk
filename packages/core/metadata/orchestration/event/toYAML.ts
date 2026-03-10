@@ -1,25 +1,33 @@
-import { MetadataItem, MetadataItemRule } from "../property/types"
-import { Events } from "./types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { EventsPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
-export const exportEventsToYAML = <T extends MetadataItem>(params: {
-  rule: MetadataItemRule
-  data: T | undefined
-}): { События?: Record<string, string> } => {
-  const { rule, data } = params
-  if (!rule.events || !data || !("events" in data)) {
-    return {}
-  }
+const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value as object).length > 0
+}
 
-  const dataEvents = data.events as Events
+const isEventsPropertyRule = (rule: PropertyRule): rule is EventsPropertyRule => {
+  return rule.type === "Events"
+}
 
+export const exportEventsToYAML = (
+  _context: ConfigurationContext,
+  rule: PropertyRule,
+  value: unknown
+): Record<string, string> | undefined => {
+  if (!isEventsPropertyRule(rule)) return undefined
+  if (!value || typeof value !== "object") return undefined
+
+  const dataEvents = value as Record<string, string>
   const result: Record<string, string> = {}
 
-  for (const [ruleKey, enterpriseName] of Object.entries(rule.events)) {
+  for (const [ruleKey, yamlKey] of Object.entries(rule.items) as Array<[string, string]>) {
     const eventValue = dataEvents[ruleKey]
     if (eventValue === undefined) continue
-
-    result[enterpriseName as keyof typeof result] = eventValue
+    result[yamlKey] = eventValue
   }
 
-  return { События: result }
+  return isNonEmptyObject(result) ? result : undefined
 }
+
+registerTypeRule("Events", "exportToYAML", exportEventsToYAML)

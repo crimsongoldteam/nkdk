@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { exportEventsToYAML } from "~/metadata/orchestration/event"
 import { ToMetadata, ToTypedYAML, ToYAML, TypedFormElement } from ".."
 import { exportPropertyToYAML } from "../property/toYAML"
 import { PropertyRule } from "../property/types"
@@ -45,9 +44,6 @@ export function exportElementToTypedYAML<T extends TypedFormElement>(params: {
     Object.assign(result, exportedValues)
   }
 
-  const events = exportEventsToYAML({ rule: rules, data: data })
-  Object.assign(result, events)
-
   return result
 }
 
@@ -90,9 +86,6 @@ export function exportElementToYAML<Rule extends ElementRule>(params: {
 
     Object.assign(result, exportedValues)
   }
-
-  const events = exportEventsToYAML({ rule: rule, data: element })
-  Object.assign(result, events)
 
   if (Object.keys(result).length === 0) {
     return undefined

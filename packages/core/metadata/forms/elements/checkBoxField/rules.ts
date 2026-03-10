@@ -136,9 +136,14 @@ export const CheckBoxFieldRules = {
       type: "SystemEnumeration",
       typeSE: "WarningOnEditRepresentation",
     },
-  },
-  events: {
-    onChange: "ПриИзменении",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+      },
+    },
   },
 } as const satisfies ElementRule
 

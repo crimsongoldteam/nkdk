@@ -4,6 +4,8 @@ import "./additionalIndex/toJSONSchema"
 import "./additionalIndex/toXML"
 import "./additionalIndex/toYAML"
 
+import "../orchestration/event/propertyTypeRules"
+
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
 

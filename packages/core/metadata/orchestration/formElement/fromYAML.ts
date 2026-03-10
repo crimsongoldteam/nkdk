@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata, ToTypedYAML, ToYAML, TypedFormElement } from ".."
-import { importEventsFromYAML } from "../event"
 import { importPropertiesFromYAML } from "../property/fromYAML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
@@ -38,14 +37,8 @@ export function importElementFromTypedYAML<T extends TypedFormElement>(params: {
     metadataRule: metadataRule,
   })
 
-  const events = importEventsFromYAML({
-    rule: metadataRule,
-    yaml: yaml,
-  })
-
   const result = {
     ...properties,
-    ...events,
     itemType: itemType,
     name: name,
   }
@@ -106,15 +99,9 @@ function importElementFromYAML<Rule extends ElementRule>(params: {
     source,
   })
 
-  const events = importEventsFromYAML({
-    rule: elementRule,
-    yaml,
-  })
-
   const result = {
     ...(source ? source : {}),
     ...properties,
-    ...events,
     itemType: itemType,
   } as ToMetadata<Rule["itemType"]>
 

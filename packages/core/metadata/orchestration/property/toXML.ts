@@ -44,6 +44,23 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     setXMLValue(key, result, ruleProp, exportedValue)
   }
 
+  // Preserve historical ordering: Events must be the last key in XML.
+  if ("events" in rule.properties) {
+    const ruleProp = rule.properties["events"]
+    const value = metadata === undefined ? undefined : (metadata as any)["events"]
+    const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)["events"]
+
+    const exportedValue = exportPropertyToXML({
+      context: { ...context, exportToXML: { ...context.exportToXML } },
+      rule: ruleProp,
+      value,
+      referenceMetadata: referenceValue,
+      metadataItem: metadata,
+    })
+
+    setXMLValue("events", result, ruleProp, exportedValue)
+  }
+
   return result
 }
 

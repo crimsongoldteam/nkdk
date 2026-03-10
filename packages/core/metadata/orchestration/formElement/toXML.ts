@@ -2,7 +2,6 @@ import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ToMetadata } from ".."
-import { exportEventsToXML } from "../event"
 import { exportPropertiesToXML } from "../property/toXML"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule, ElementXMLWithoutId } from "./types"
@@ -63,17 +62,10 @@ function exportToXML<Rule extends ElementRule>(params: {
     rule: rule,
   })
 
-  const eventsResult = exportEventsToXML({
-    context,
-    rule,
-    data: element,
-  })
-
   const result: ElementXMLWithoutId = {
     _name: name,
     ...(additionalParams.id ? { _id: additionalParams.id } : {}),
     ...properties,
-    ...eventsResult,
   }
 
   context.exportToXML?.context?.elementsMap.push({

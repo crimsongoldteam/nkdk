@@ -89,13 +89,18 @@ export const PictureDecorationRules = {
     },
     scale: { yaml: "Масштаб", type: "number" },
     zoomable: { yaml: "Масштабировать", type: "boolean" },
-  },
-  events: {
-    click: "Нажатие",
-    dragStart: "НачалоПеретаскивания",
-    dragEnd: "ОкончаниеПеретаскивания",
-    drag: "Перетаскивание",
-    dragCheck: "ПроверкаПеретаскивания",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        click: "Нажатие",
+        dragStart: "НачалоПеретаскивания",
+        dragEnd: "ОкончаниеПеретаскивания",
+        drag: "Перетаскивание",
+        dragCheck: "ПроверкаПеретаскивания",
+      },
+    },
   },
 } as const satisfies ElementRule
 

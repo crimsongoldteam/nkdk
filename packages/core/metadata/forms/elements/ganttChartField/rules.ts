@@ -146,16 +146,21 @@ export const GanttChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "WarningOnEditRepresentation",
     },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    selection: "Выбор",
-    detailProcessing: "ОбработкаРасшифровки",
-    beforeExpand: "ПередРазворачиванием",
-    beforeCollapse: "ПередСворачиванием",
-    onActivateValue: "ПриАктивизацииЗначения",
-    onActivateInterval: "ПриАктивизацииИнтервала",
-    onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+        detailProcessing: "ОбработкаРасшифровки",
+        beforeExpand: "ПередРазворачиванием",
+        beforeCollapse: "ПередСворачиванием",
+        onActivateValue: "ПриАктивизацииЗначения",
+        onActivateInterval: "ПриАктивизацииИнтервала",
+        onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
+      },
+    },
   },
 } as const satisfies ElementRule
 

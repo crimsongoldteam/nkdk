@@ -160,6 +160,11 @@ export type PropertyTypeRegistry = {
     yaml: FontYAML
   }
 
+  Events: {
+    item: Record<string, string>
+    yaml: Record<string, string>
+  }
+
   Picture: {
     item: Picture
     enterprise: PictureEnterprise
@@ -447,6 +452,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",
   Font: "Font",
+  Events: "Events",
   // ChildItems: "ChildItems",
   Picture: "Picture",
   Border: "Border",

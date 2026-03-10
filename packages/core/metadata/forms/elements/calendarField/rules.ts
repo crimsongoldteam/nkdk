@@ -104,16 +104,21 @@ export const CalendarFieldRules = {
     },
     width: { yaml: "Ширина", type: "number" },
     widthInMonths: { yaml: "ШиринаВМесяцах", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    selection: "Выбор",
-    dragStart: "НачалоПеретаскивания",
-    dragEnd: "ОкончаниеПеретаскивания",
-    drag: "Перетаскивание",
-    onActivateDate: "ПриАктивизацииДаты",
-    onPeriodOutput: "ПриВыводеПериода",
-    dragCheck: "ПроверкаПеретаскивания",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+        dragStart: "НачалоПеретаскивания",
+        dragEnd: "ОкончаниеПеретаскивания",
+        drag: "Перетаскивание",
+        onActivateDate: "ПриАктивизацииДаты",
+        onPeriodOutput: "ПриВыводеПериода",
+        dragCheck: "ПроверкаПеретаскивания",
+      },
+    },
   },
 } as const satisfies ElementRule
 

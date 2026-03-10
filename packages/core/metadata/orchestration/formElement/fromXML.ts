@@ -6,7 +6,6 @@ import {
   importPropertiesFromXML,
   ToMetadata,
 } from "~/metadata/orchestration"
-import { importEventsFromXML } from "../event/fromXML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
 
@@ -66,10 +65,7 @@ export function importFromXML<Rule extends ElementRule>(
 
   const properties = importPropertiesFromXML({ context, xml, rule: elementRule })
 
-  const events = importEventsFromXML(elementRule, xml)
-
   return {
     ...properties,
-    ...events,
   } as Partial<ToMetadata<Rule["itemType"]>>
 }

@@ -102,10 +102,15 @@ export const PDFDocumentFieldRules = {
       typeSE: "WarningOnEditRepresentation",
     },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    uRLClick: "НажатиеНаНавигационнойСсылке",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        uRLClick: "НажатиеНаНавигационнойСсылке",
+      },
+    },
   },
 } as const satisfies ElementRule
 

@@ -136,14 +136,19 @@ export const HTMLDocumentFieldRules = {
     userAgentInformation: { yaml: "ИнформацияПрограммыПросмотра", type: "string" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    documentComplete: "ДокументСформирован",
-    beforeWrite: "ПередЗаписью",
-    beforePrint: "ПередПечатью",
-    afterWrite: "ПослеЗаписи",
-    onClick: "ПриНажатии",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        documentComplete: "ДокументСформирован",
+        beforeWrite: "ПередЗаписью",
+        beforePrint: "ПередПечатью",
+        afterWrite: "ПослеЗаписи",
+        onClick: "ПриНажатии",
+      },
+    },
   },
 } as const satisfies ElementRule
 

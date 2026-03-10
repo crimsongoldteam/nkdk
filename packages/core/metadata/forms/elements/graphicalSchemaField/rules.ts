@@ -136,14 +136,19 @@ export const GraphicalSchemaFieldRules = {
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    selection: "Выбор",
-    beforeWrite: "ПередЗаписью",
-    beforePrint: "ПередПечатью",
-    afterWrite: "ПослеЗаписи",
-    onActivate: "ПриАктивизации",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+        beforeWrite: "ПередЗаписью",
+        beforePrint: "ПередПечатью",
+        afterWrite: "ПослеЗаписи",
+        onActivate: "ПриАктивизации",
+      },
+    },
   },
 } as const satisfies ElementRule
 

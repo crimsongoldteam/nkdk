@@ -81,9 +81,14 @@ export const PagesRules = {
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onCurrentPageChange: "ПриСменеСтраницы",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onCurrentPageChange: "ПриСменеСтраницы",
+      },
+    },
   },
 } as const satisfies ElementRule
 

@@ -132,10 +132,15 @@ export const PeriodFieldRules = {
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    selection: "Выбор",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+      },
+    },
   },
 } as const satisfies ElementRule
 

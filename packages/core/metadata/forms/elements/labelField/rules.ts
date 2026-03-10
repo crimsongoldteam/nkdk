@@ -138,11 +138,16 @@ export const LabelFieldRules = {
     textColor: { yaml: "ЦветТекста", type: "Color" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    click: "Нажатие",
-    uRLProcessing: "ОбработкаНавигационнойСсылки",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        click: "Нажатие",
+        uRLProcessing: "ОбработкаНавигационнойСсылки",
+      },
+    },
   },
 } as const satisfies ElementRule
 

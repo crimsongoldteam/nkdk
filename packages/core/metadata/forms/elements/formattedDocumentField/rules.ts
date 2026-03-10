@@ -139,12 +139,17 @@ export const FormattedDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "WarningOnEditRepresentation",
     },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    beforeWrite: "ПередЗаписью",
-    beforePrint: "ПередПечатью",
-    afterWrite: "ПослеЗаписи",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        beforeWrite: "ПередЗаписью",
+        beforePrint: "ПередПечатью",
+        afterWrite: "ПослеЗаписи",
+      },
+    },
   },
 } as const satisfies ElementRule
 

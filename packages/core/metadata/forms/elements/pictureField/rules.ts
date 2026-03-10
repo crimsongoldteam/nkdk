@@ -150,14 +150,19 @@ export const PictureFieldRules = {
     width: { yaml: "Ширина", type: "number" },
     zoomable: { yaml: "Масштабировать", type: "boolean" },
     font: { yaml: "Шрифт", type: "Font" },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    click: "Нажатие",
-    dragStart: "НачалоПеретаскивания",
-    dragEnd: "ОкончаниеПеретаскивания",
-    drag: "Перетаскивание",
-    dragCheck: "ПроверкаПеретаскивания",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        click: "Нажатие",
+        dragStart: "НачалоПеретаскивания",
+        dragEnd: "ОкончаниеПеретаскивания",
+        drag: "Перетаскивание",
+        dragCheck: "ПроверкаПеретаскивания",
+      },
+    },
   },
 } as const satisfies ElementRule
 

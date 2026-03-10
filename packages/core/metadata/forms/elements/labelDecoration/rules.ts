@@ -90,10 +90,15 @@ export const LabelDecorationRules = {
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
     },
-  },
-  events: {
-    click: "Нажатие",
-    uRLProcessing: "ОбработкаНавигационнойСсылки",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        click: "Нажатие",
+        uRLProcessing: "ОбработкаНавигационнойСсылки",
+      },
+    },
   },
 } as const satisfies ElementRule
 

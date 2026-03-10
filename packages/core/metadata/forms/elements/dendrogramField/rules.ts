@@ -128,11 +128,16 @@ export const DendrogramFieldRules = {
       type: "SystemEnumeration",
       typeSE: "WarningOnEditRepresentation",
     },
-  },
-  events: {
-    onChange: "ПриИзменении",
-    selection: "Выбор",
-    detailProcessing: "ОбработкаРасшифровки",
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+        detailProcessing: "ОбработкаРасшифровки",
+      },
+    },
   },
 } as const satisfies ElementRule
 

@@ -1,29 +1,34 @@
-import { capitalize } from "~/helpers/capitalize"
-import { MetadataItemRule, ToMetadata } from ".."
-import { ElementXML } from "../formElement/types"
-import { Events } from "./types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { EventsXML } from "./types"
 
-export const importEventsFromXML = <Rule extends MetadataItemRule>(
-  metadataRule: Rule,
-  xml: ElementXML | undefined
-): Extract<ToMetadata<Rule["itemType"]>, { events?: Events }> | {} => {
-  if (!xml || !metadataRule.events || !("Events" in xml)) return {}
+const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value as object).length > 0
+}
 
-  const eventsXML = xml.Events
+export const importEventsFromXML = (
+  _context: ConfigurationContextFromXML,
+  _rule: PropertyRule,
+  value: unknown
+): Record<string, string> | undefined => {
+  if (!value || typeof value !== "object") return undefined
 
-  const eventRule = metadataRule.events
-
+  const eventsXML = value as EventsXML
   const events = Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
 
-  const result: Events = {}
-  for (const key of Object.keys(eventRule)) {
-    const xmlKey = capitalize(key)
-    const xmlEvent = events.find((e: { _name: string }) => e._name === xmlKey)
+  const result: Record<string, string> = {}
+  for (const event of events) {
+    if (!event || typeof event !== "object") continue
+    const name = (event as any)._name as string | undefined
+    const text = (event as any)["#text"] as string | undefined
+    if (!name || text === undefined) continue
 
-    if (!xmlEvent) continue
-    const eventValue = xmlEvent["#text"]
-    result[key] = eventValue
+    const key = name.length > 0 ? name[0].toLowerCase() + name.slice(1) : name
+    result[key] = text
   }
 
-  return { events: result }
+  return isNonEmptyObject(result) ? result : undefined
 }
+
+registerTypeRule("Events", "importFromXML", importEventsFromXML)
