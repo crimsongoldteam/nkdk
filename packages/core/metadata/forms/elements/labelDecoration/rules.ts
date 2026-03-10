@@ -73,11 +73,6 @@ export const LabelDecorationRules = {
     backColor: { yaml: "ЦветФона", type: "Color" },
     border: { yaml: "Рамка", type: "Border" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    groupVerticalAlign: {
-      yaml: "ВертикальноеВыравниваниеГруппы",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
     horizontalAlign: {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",

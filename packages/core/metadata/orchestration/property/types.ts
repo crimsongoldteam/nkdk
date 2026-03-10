@@ -19,6 +19,12 @@ export interface BasePropertyRule {
   required?: true
 
   /**
+   * Порядок свойств при экспорте/импорте.
+   * Меньшее значение — раньше, отсутствие значения — после всех с order.
+   */
+  order?: number
+
+  /**
    * Название ключа в yaml
    */
   yaml?: string

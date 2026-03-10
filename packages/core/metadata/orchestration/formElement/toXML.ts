@@ -55,6 +55,17 @@ function exportToXML<Rule extends ElementRule>(params: {
     name,
   })
 
+  const result: ElementXMLWithoutId = {
+    _name: name,
+    ...(additionalParams.id ? { _id: additionalParams.id } : { _id: "" }),
+  }
+
+  context.exportToXML?.context?.metadataForNumbering.push({
+    element,
+    referenceElement: referenceElement,
+    xmlElement: result,
+  })
+
   const properties = exportPropertiesToXML({
     context: currentContext,
     metadata: element,
@@ -62,17 +73,7 @@ function exportToXML<Rule extends ElementRule>(params: {
     rule: rule,
   })
 
-  const result: ElementXMLWithoutId = {
-    _name: name,
-    ...(additionalParams.id ? { _id: additionalParams.id } : { _id: "" }),
-    ...properties,
-  }
-
-  context.exportToXML?.context?.elementsMap.push({
-    element,
-    referenceElement: referenceElement,
-    xmlElement: result,
-  })
+  Object.assign(result, properties)
 
   return result
 }

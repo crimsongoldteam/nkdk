@@ -7,11 +7,11 @@ import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { PopupRules } from "./rules"
 
-export type Popup = ElementTypeByRule<typeof PopupRules>
+export type Popup = FormTypeByRule<typeof PopupRules>
 
 export interface PopupPartialYAML {
   ВажностьПриОтображении?: SE.DisplayImportanceYAML

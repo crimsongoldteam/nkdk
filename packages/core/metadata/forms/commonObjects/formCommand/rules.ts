@@ -4,6 +4,11 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const FormCommandRules = {
   itemType: "FormCommand",
   properties: {
+    id: {
+      xml: "_id",
+      type: "string",
+      forReferenceOnly: true,
+    },
     name: {
       type: "string",
       xml: "_name",

@@ -1,9 +1,9 @@
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { ButtonRules } from "./rules"
 
-export type Button = ElementTypeByRule<typeof ButtonRules>
+export type Button = FormTypeByRule<typeof ButtonRules>
 
 export type ButtonPartialYAML = YAMLTypeByRule<typeof ButtonRules>
 

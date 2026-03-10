@@ -11,7 +11,7 @@ import {
 } from "~/metadata/commonObjects/userVisible/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { ElementXML } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
@@ -20,7 +20,7 @@ export interface FormAttributeAdditionalColumn {
   columns: FormAttributeColumn[]
 }
 
-export type FormAttribute = MetadataTypeByRule<typeof FormAttributeRules>
+export type FormAttribute = FormTypeByRule<typeof FormAttributeRules>
 
 // export interface FormAttribute extends MetadataItem {
 //   itemType: "FormAttribute"
@@ -40,7 +40,7 @@ export type FormAttribute = MetadataTypeByRule<typeof FormAttributeRules>
 //   save?: FieldsList
 // }
 
-export type FormAttributeColumn = MetadataTypeByRule<typeof FormAttributeColumnRules>
+export type FormAttributeColumn = FormTypeByRule<typeof FormAttributeColumnRules>
 
 // export interface FormAttributeColumn extends MetadataItem {
 //   itemType: "FormAttributeColumn"

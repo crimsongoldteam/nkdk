@@ -7,13 +7,13 @@ import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { LabelFieldRules } from "./rules"
 
-export type LabelField = ElementTypeByRule<typeof LabelFieldRules>
+export type LabelField = FormTypeByRule<typeof LabelFieldRules>
 
 export interface LabelFieldPartialYAML {
   АвтоВысотаЯчейки?: StringboolYAML

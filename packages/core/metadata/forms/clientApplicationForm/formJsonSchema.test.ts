@@ -1,7 +1,5 @@
-import { describe, expect, it } from "vitest"
+import { describe, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
-import { buildClientApplicationFormJsonSchema } from "./formJsonSchema"
-import { ClientApplicationFormRules } from "./rules"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { ClientApplicationForm } from "./types"
 
@@ -27,18 +25,5 @@ describe.skip("formJsonSchema", () => {
     // // eslint-disable-next-line no-console
     // writeFileSync(join(__dirname, "schema.json"), out)
     console.log(out)
-    // expect(schema.$schema).toBe("http://json-schema.org/draft-07/schema#")
-    // expect(schema.type).toBe("object")
-    // expect(schema.properties).toBeDefined()
-    // const props = schema.properties as Record<string, unknown>
-    // expect(props["Заголовок"]).toBeDefined()
-    // expect(props["Реквизиты"]).toBeDefined()
-    // expect(props["События"]).toBeDefined()
-  })
-
-  it("buildClientApplicationFormJsonSchema строит схему по переданным rules", () => {
-    const schema = buildClientApplicationFormJsonSchema(ClientApplicationFormRules) as Record<string, unknown>
-    expect(schema.$schema).toBe("http://json-schema.org/draft-07/schema#")
-    expect(schema.properties).toBeDefined()
   })
 })

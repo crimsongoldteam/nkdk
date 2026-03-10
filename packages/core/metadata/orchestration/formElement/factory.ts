@@ -8,21 +8,21 @@ import {
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
   importExportFunction,
-  importFromXMLFunction,
-  importFromYAMLFunction,
-  importFromYAMLFunctionNew,
+  importFromXMLFunction as ImportFromXMLFunction,
+  importFromYAMLFunction as ImportFromYAMLFunction,
+  importFromYAMLFunctionNew as ImportFromYAMLFunctionNew,
   TypeRulesOperations,
 } from "../property/fn"
 
 const typeRulesRegistry = new Map<
   string,
-  | importFromYAMLFunction
+  | ImportFromYAMLFunction
   | ExportToYAMLFunction
-  | importFromXMLFunction
+  | ImportFromXMLFunction
   | ExportToXMLFunction
   | ExportToEnterpriseFunction
   | ExportToXMLFunctionNew
-  | importFromYAMLFunctionNew
+  | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
 >()
 
@@ -39,13 +39,13 @@ export const getTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
   operation: O
 ): O extends "importFromYAML"
-  ? importFromYAMLFunction | importFromYAMLFunctionNew | undefined
+  ? ImportFromYAMLFunction | ImportFromYAMLFunctionNew | undefined
   : O extends "exportToYAML"
     ? ExportToYAMLFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
-        ? importFromXMLFunction | undefined
+        ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"

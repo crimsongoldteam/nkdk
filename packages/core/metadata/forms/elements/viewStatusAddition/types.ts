@@ -4,14 +4,14 @@ import { ColorYAML } from "~/metadata/commonObjects/color/types"
 import { FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ViewStatusAdditionRules } from "./rules"
 
-export type ViewStatusAddition = ElementTypeByRule<typeof ViewStatusAdditionRules>
+export type ViewStatusAddition = FormTypeByRule<typeof ViewStatusAdditionRules>
 
 export interface ViewStatusAdditionYAML {
   АвтоМаксимальнаяШирина?: StringboolYAML

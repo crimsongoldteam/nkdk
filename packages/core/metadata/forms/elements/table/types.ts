@@ -7,7 +7,7 @@ import { CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { AutoCommandBarYAML } from "../autoCommandBar/types"
@@ -17,7 +17,7 @@ import { SearchStringAdditionYAML } from "../searchStringAddition/types"
 import { ViewStatusAdditionYAML } from "../viewStatusAddition/types"
 import { TableRules } from "./rules"
 
-export type Table = ElementTypeByRule<typeof TableRules>
+export type Table = FormTypeByRule<typeof TableRules>
 
 export interface TablePartialYAML {
   АвтоВводНезаполненного?: StringboolYAML

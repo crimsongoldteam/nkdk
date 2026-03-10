@@ -17,13 +17,20 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   const propertyKeys = propertyEntries
     .map(([key, ruleProp]) => {
       const xmlKey = ruleProp.xml ?? capitalize(key)
-      return [key, xmlKey] as const
+      return { key, xmlKey, order: ruleProp.order }
     })
-    .sort(([, aXmlKey], [, bXmlKey]) => aXmlKey.localeCompare(bXmlKey))
-    .map(([key]) => key)
+    .sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order
+      }
+      if (a.order !== undefined) return -1
+      if (b.order !== undefined) return 1
+      return a.xmlKey.localeCompare(b.xmlKey)
+    })
+    .map(({ key }) => key)
 
   if (referenceMetadata === undefined) {
-    return [...propertyKeys].sort()
+    return [...propertyKeys]
   }
 
   const keysFromReference = Object.keys(referenceMetadata as object).filter((key) => propertyKeys.includes(key))
@@ -65,10 +72,17 @@ const mapXMLToPropertyKey = (propertyEntries: [string, PropertyRule][]) => {
   return propertyEntries
     .map(([key, ruleProp]) => {
       const xmlKey = ruleProp.xml ?? capitalize(key)
-      return [xmlKey, key] as const
+      return { key, xmlKey, order: ruleProp.order }
     })
-    .sort(([a], [b]) => a.localeCompare(b))
-    .reduce<Record<string, string>>((acc, [xmlKey, key]) => {
+    .sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order
+      }
+      if (a.order !== undefined) return -1
+      if (b.order !== undefined) return 1
+      return a.xmlKey.localeCompare(b.xmlKey)
+    })
+    .reduce<Record<string, string>>((acc, { xmlKey, key }) => {
       acc[xmlKey] = key
       return acc
     }, {})

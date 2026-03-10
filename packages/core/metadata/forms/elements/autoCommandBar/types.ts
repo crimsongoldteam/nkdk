@@ -1,11 +1,11 @@
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { AutoCommandBarRules } from "./rules"
 
-export type AutoCommandBar = ElementTypeByRule<typeof AutoCommandBarRules>
+export type AutoCommandBar = FormTypeByRule<typeof AutoCommandBarRules>
 
 export interface AutoCommandBarYAML {
   Автозаполнение?: StringboolYAML

@@ -1,7 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { sortObject } from "~/metadata/helpers/compactObject"
-import { getElementId } from "~/metadata/helpers/getElementId"
 import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
@@ -19,11 +17,15 @@ import {
 export const exportFormAttributesToXML = (
   context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
-  data: FormAttributes | undefined
+  data: FormAttributes | undefined,
+  referenceData?: FormAttributes | undefined
 ): { Attribute: ElementXML[] } | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result = data.map((value: FormAttribute) => exportFormAttributeToXML(context, undefined, value))
+  const result = data.map((value: FormAttribute) => {
+    const referenceAttribute = findReferenceAttribute(value, referenceData)
+    return exportFormAttributeToXML(context, undefined, value, referenceAttribute)
+  })
 
   return { Attribute: result }
 }
@@ -42,21 +44,28 @@ export const exportFormAttributeColumnToXML = (
 const exportFormAttributeToXML = (
   context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
-  data: FormAttribute
+  data: FormAttribute,
+  referenceData?: FormAttribute
 ): ElementXML => {
-  const id = getElementId(context)
+  const result: FormAttributeXML = {
+    _name: data.name,
+    _id: "",
+  }
+
+  context.exportToXML?.context?.metadataForNumbering.push({
+    element: data,
+    referenceElement: referenceData,
+    xmlElement: result,
+  })
 
   const properties = exportPropertiesToXML({
     context,
     metadata: data,
+    referenceMetadata: referenceData,
     rule: FormAttributeRules,
   })
 
-  const result: FormAttributeXML = {
-    _name: data.name,
-    _id: id,
-    ...properties,
-  }
+  Object.assign(result, properties)
 
   if (data.type?.type.includes("ValueListType") || result.Settings !== undefined) {
     result.Settings = {
@@ -70,7 +79,15 @@ const exportFormAttributeToXML = (
   //   result.Settings = settings
   // }
 
-  return sortObject(result)
+  return result
+}
+
+const findReferenceAttribute = (
+  data: FormAttribute,
+  referenceData: FormAttributes | undefined
+): FormAttribute | undefined => {
+  if (!referenceData) return undefined
+  return referenceData.find((referenceItem) => referenceItem.name === data.name)
 }
 
 // const exportFormAttributeSettingsToXML = (params: {
@@ -132,7 +149,16 @@ const exportColumnsToXML = (
   columns: FormAttributeColumn[]
 ): { Column: FormAttributeColumnXML[] } | undefined => {
   const result = columns.map((column) => {
-    const id = getElementId(context)
+    const result: FormAttributeColumnXML = {
+      _name: column.name,
+      _id: "",
+    }
+
+    context.exportToXML?.context?.metadataForNumbering.push({
+      element: column,
+      referenceElement: undefined,
+      xmlElement: result,
+    })
 
     const properties = exportPropertiesToXML({
       context,
@@ -140,11 +166,9 @@ const exportColumnsToXML = (
       rule: FormAttributeColumnRules,
     })
 
-    return {
-      _name: column.name,
-      _id: id,
-      ...properties,
-    }
+    Object.assign(result, properties)
+
+    return result
   })
 
   if (result.length === 0) return undefined

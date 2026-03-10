@@ -4,6 +4,11 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const MetadataCommandRules = {
   itemType: "MetadataCommand",
   properties: {
+    uuid: {
+      xml: "_uuid",
+      type: "string",
+      forReferenceOnly: true,
+    },
     commandParameterType: {
       yaml: "ТипПараметраКоманды",
       xml: "CommandParameterType",

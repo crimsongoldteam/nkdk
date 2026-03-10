@@ -16,24 +16,24 @@ describe("importHtmlDocumentFieldFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ HtmlDocumentField: ElementXML }>("forms/htmlDocumentField/full.xml")
+    const xmlData = readAndParseXMLFile<{ HTMLDocumentField: ElementXML }>("forms/htmlDocumentField/full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
       itemType: "HTMLDocumentField",
-      xml: xmlData.HtmlDocumentField,
+      xml: xmlData.HTMLDocumentField,
     })
 
     expect(result).toEqual(fullHtmlDocumentField)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ HtmlDocumentField: ElementXML }>("forms/htmlDocumentField/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ HTMLDocumentField: ElementXML }>("forms/htmlDocumentField/minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
       itemType: "HTMLDocumentField",
-      xml: xmlData.HtmlDocumentField,
+      xml: xmlData.HTMLDocumentField,
     })
 
     expect(result).toEqual(minimalHtmlDocumentField)

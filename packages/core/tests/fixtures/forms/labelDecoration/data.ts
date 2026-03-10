@@ -21,7 +21,6 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
     controlBorderType: "Indented",
   },
   borderColor: { type: "WebColor", value: "Green" },
-  groupVerticalAlign: "Top",
   horizontalAlign: "Left",
   hyperlink: true,
   titleHeight: 20,
@@ -103,10 +102,6 @@ export const fullLabelDecorationEnterprise = {
   Width: 300,
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },
-  GroupVerticalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
   HorizontalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
@@ -143,7 +138,6 @@ export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {
   ЦветТекста: "Синий",
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",
-  ВертикальноеВыравниваниеГруппы: "Верх",
   ВертикальноеПоложение: "Верх",
   ВысотаЗаголовка: 20,
   Гиперссылка: "Истина",
@@ -216,7 +210,7 @@ export const labelDecorationStructureFixturesTable: LabelDecorationStructureFixt
       title: { items: { ru: 'Заголовок "формы"' }, formatted: false },
     },
     structured: {
-      strings: ['\'Заголовок "формы"\' ИмяПоля'],
+      strings: ["'Заголовок \"формы\"' ИмяПоля"],
       toOneLineGroup: true,
     },
   },

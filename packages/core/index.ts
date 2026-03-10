@@ -11,10 +11,6 @@ export {
   type MetadataCatalogYAML,
 } from "./metadata/appliedObjects/metadataCatalog/index"
 export { createEmptyClientApplicationForm } from "./metadata/forms/clientApplicationForm/createEmpty"
-export {
-  buildClientApplicationFormJsonSchema,
-  ClientApplicationFormJsonSchema,
-} from "./metadata/forms/clientApplicationForm/formJsonSchema"
 export { importClientApplicationFromFromNKDK } from "./metadata/forms/clientApplicationForm/fromNKDK"
 export { importClientApplicationFormFromXML } from "./metadata/forms/clientApplicationForm/fromXML"
 export { importClientApplicationFormFromYAML } from "./metadata/forms/clientApplicationForm/fromYAML"

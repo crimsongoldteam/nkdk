@@ -12,6 +12,7 @@ import {
 import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
+import { setIdsToElements } from "../../clientApplicationForm/toXML"
 import { exportFormAttributesToXML } from "./toXML"
 
 describe("exportFormAttributesToXML", () => {
@@ -23,7 +24,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export full", () => {
     const expectedResult = readXMLFileAsString("formAttributes/full.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, fullFormAttributes)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, fullFormAttributes)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -33,7 +37,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export defaults", () => {
     const expectedResult = readXMLFileAsString("formAttributes/minimal.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, minimalFormAttributes)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, minimalFormAttributes)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -42,8 +49,11 @@ describe("exportFormAttributesToXML", () => {
 
   it("should export multiple attributes", () => {
     const expectedResult = readXMLFileAsString("formAttributes/multiple.xml")
+    const context = mockContextToXML()
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, multipleFormAttributes)
+    const xmlData = exportFormAttributesToXML(context, mockRule, multipleFormAttributes)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -53,7 +63,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export choice list", () => {
     const expectedResult = readXMLFileAsString("formAttributes/choiceList.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, choiceListFormAttribute)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, choiceListFormAttribute)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -63,7 +76,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export with empty settings", () => {
     const expectedResult = readXMLFileAsString("formAttributes/withEmptySettings.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, withEmptySettingsFormAttribute)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, withEmptySettingsFormAttribute)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -83,7 +99,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export table with columns", () => {
     const expectedResult = readXMLFileAsString("formAttributes/tableWithColumns.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, tableWithColumnsFormAttribute)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, tableWithColumnsFormAttribute)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -93,7 +112,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export tree with column", () => {
     const expectedResult = readXMLFileAsString("formAttributes/treeWithColumn.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, treeWithColumnFormAttribute)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, treeWithColumnFormAttribute)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 
@@ -103,7 +125,10 @@ describe("exportFormAttributesToXML", () => {
   it("should export with additional column", () => {
     const expectedResult = readXMLFileAsString("formAttributes/additionalColumn.xml")
 
-    const xmlData = exportFormAttributesToXML(mockContextToXML(), mockRule, withAdditionalColumnFormAttribute)
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, withAdditionalColumnFormAttribute)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 

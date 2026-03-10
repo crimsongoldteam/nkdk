@@ -4,10 +4,22 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   properties: {
+    id: {
+      xml: "_id",
+      type: "string",
+      forReferenceOnly: true,
+    },
     name: {
       type: "string",
       xml: "_name",
       required: true,
+    },
+    valueType: {
+      yaml: "ТипЗначения",
+      type: "TypeDescription",
+      xml: "Settings",
+      order: 0,
+      addTypeDescriptionAttributeToXML: true,
     },
     title: {
       yaml: "Заголовок",
@@ -33,12 +45,7 @@ export const FormAttributeRules = {
       xml: "Type",
       useAsShortValueYAML: true,
     },
-    valueType: {
-      yaml: "ТипЗначения",
-      type: "TypeDescription",
-      xml: "Settings",
-      addTypeDescriptionAttributeToXML: true,
-    },
+
     mainAttribute: {
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
@@ -100,6 +107,7 @@ export const FormAttributeColumnRules = {
       yaml: "Заголовок",
       type: "I8nText",
       excludeIfEqualNameYAML: true,
+      order: 2,
       // defaultValue: (context: ConfigurationContext) => {
       //   return {
       //     items: { [context.defaultLanguage]: "" },
@@ -110,25 +118,30 @@ export const FormAttributeColumnRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xml: "Type",
+      order: 3,
     },
     view: {
       yaml: "РазрешитьПросмотр",
       yamlDeny: "ЗапретитьПросмотр",
       type: "UserVisible",
+      order: 4,
     },
     edit: {
       yaml: "РазрешитьРедактирование",
       yamlDeny: "ЗапретитьРедактирование",
       type: "UserVisible",
+      order: 0,
     },
     fillCheck: {
       yaml: "ПроверкаЗаполнения",
       type: "SystemEnumeration",
       typeSE: "FillChecking",
+      order: 1,
     },
     functionalOptions: {
       yaml: "ФункциональныеОпции",
       type: "FunctionalOptionsProperty",
+      order: 5,
     },
   },
 } as const satisfies MetadataItemRule

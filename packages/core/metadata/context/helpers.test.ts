@@ -21,7 +21,7 @@ describe("getParentFromContext", () => {
         forms: [],
         templates: [],
         parentName: "",
-        elementsMap: [],
+        metadataForNumbering: [],
       },
     },
   })

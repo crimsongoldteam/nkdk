@@ -86,7 +86,7 @@ export type MetadataTypeByRule<
   Tag extends string | undefined = undefined,
 > = CommonMetadataTypeByRule<Rule, Tag> & { uuid?: string }
 
-export type ElementTypeByRule<Rule extends MetadataItemRule> = CommonMetadataTypeByRule<Rule> & { id?: string }
+export type FormTypeByRule<Rule extends MetadataItemRule> = CommonMetadataTypeByRule<Rule> & { id?: string }
 
 // export type MetadataReferenceTypeByRule<
 //   Rule extends {

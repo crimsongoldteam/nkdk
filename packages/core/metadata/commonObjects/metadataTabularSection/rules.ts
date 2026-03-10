@@ -31,12 +31,14 @@ export const MetadataTabularSectionRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       xmlParents: propertiesParents,
+      defaultValueXML: "DontCheck",
     },
     lineNumberLength: {
       yaml: "ДлинаНомераСтроки",
       xml: "LineNumberLength",
       type: "number",
       xmlParents: propertiesParents,
+      defaultValueXML: 5,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -72,6 +74,7 @@ export const MetadataTabularSectionRules = {
       type: "SystemEnumeration",
       typeSE: "AttributeUse",
       xmlParents: propertiesParents,
+      defaultValueXML: "ForItem",
     },
   },
 } as const satisfies MetadataItemRule

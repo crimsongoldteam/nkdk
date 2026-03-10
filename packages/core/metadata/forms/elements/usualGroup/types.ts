@@ -3,7 +3,7 @@ import { ColorYAML } from "~/metadata/commonObjects/color/types"
 import { FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
@@ -13,7 +13,7 @@ import {
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { UsualGroupRules } from "./rules"
 
-export type UsualGroup = ElementTypeByRule<typeof UsualGroupRules>
+export type UsualGroup = FormTypeByRule<typeof UsualGroupRules>
 
 export interface UsualGroupPartialYAML {
   Таблица?: string

@@ -1,5 +1,4 @@
 <Attribute name="ВыбранныеЗначения" id="1">
-	<Settings xsi:type="v8:TypeDescription"/>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -9,4 +8,5 @@
 	<Type>
 		<v8:Type>v8:ValueListType</v8:Type>
 	</Type>
+	<Settings xsi:type="v8:TypeDescription"/>
 </Attribute>

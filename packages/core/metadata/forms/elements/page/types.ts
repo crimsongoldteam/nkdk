@@ -4,13 +4,13 @@ import { FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { PageRules } from "./rules"
 
-export type Page = ElementTypeByRule<typeof PageRules>
+export type Page = FormTypeByRule<typeof PageRules>
 
 export interface PagePartialYAML {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML

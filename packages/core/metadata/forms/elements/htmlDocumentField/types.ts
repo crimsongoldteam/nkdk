@@ -5,14 +5,14 @@ import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { HTMLDocumentFieldRules } from "./rules"
 
-export type HTMLDocumentField = ElementTypeByRule<typeof HTMLDocumentFieldRules>
+export type HTMLDocumentField = FormTypeByRule<typeof HTMLDocumentFieldRules>
 
 export interface HTMLDocumentFieldPartialYAML {
   АвтоВысотаЯчейки?: StringboolYAML

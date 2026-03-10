@@ -32,7 +32,7 @@ export interface ConfigurationContextFromXML extends ConfigurationContext {
   fromXML: FromXMLConfigurationContext
 }
 
-type ToXMLContextElement<Type extends ElementType> = {
+type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
   referenceElement?: ToMetadata<Type> | undefined
   xmlElement: ElementXMLWithoutId
@@ -46,7 +46,7 @@ export type ToXMLConfigurationContext = {
     forms: string[]
     templates: string[]
     parentName: string
-    elementsMap: ToXMLContextElement<ElementType>[]
+    metadataForNumbering: ToXMLContextElement<ElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand">[]
   }
 }
 

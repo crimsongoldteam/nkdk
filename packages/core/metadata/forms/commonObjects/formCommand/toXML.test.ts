@@ -3,6 +3,7 @@ import { fullFormCommands, minimalFormCommands } from "~/tests/fixtures/forms/co
 import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
+import { setIdsToElements } from "../../clientApplicationForm/toXML"
 import { exportCommandsToXML } from "./toXML"
 
 describe("exportCommandToXML", () => {
@@ -13,8 +14,11 @@ describe("exportCommandToXML", () => {
   })
 
   it("should export all fields to XML", () => {
+    const context = mockContextToXML()
     const expectedResult = readXMLFileAsString("forms/commands/full.xml")
-    const xmlData = exportCommandsToXML(mockContextToXML(), mockRule, fullFormCommands)
+    const xmlData = exportCommandsToXML(context, mockRule, fullFormCommands)
+
+    setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
 

@@ -5,14 +5,14 @@ import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { TextDocumentFieldRules } from "./rules"
 
-export type TextDocumentField = ElementTypeByRule<typeof TextDocumentFieldRules>
+export type TextDocumentField = FormTypeByRule<typeof TextDocumentFieldRules>
 
 export interface TextDocumentFieldPartialYAML {
   АвтоМаксимальнаяВысота?: StringboolYAML

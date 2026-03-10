@@ -76,7 +76,7 @@ export const testExportPropertyToXML = (params: {
         forms: [],
         templates: [],
         parentName: "",
-        elementsMap: [],
+        metadataForNumbering: [],
       },
     },
   }

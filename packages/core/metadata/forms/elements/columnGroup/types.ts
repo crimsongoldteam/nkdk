@@ -4,14 +4,14 @@ import { FontYAML } from "~/metadata/commonObjects/font/types"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { TableChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ColumnGroupRules } from "./rules"
 
-export type ColumnGroup = ElementTypeByRule<typeof ColumnGroupRules>
+export type ColumnGroup = FormTypeByRule<typeof ColumnGroupRules>
 
 export interface ColumnGroupPartialYAML {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML

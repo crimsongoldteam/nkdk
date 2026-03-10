@@ -49,7 +49,7 @@ export const syncCatalogToXML = async (params: {
         forms: [],
         templates: [],
         parentName: catalogName,
-        elementsMap: [],
+        metadataForNumbering: [],
       },
     },
   }

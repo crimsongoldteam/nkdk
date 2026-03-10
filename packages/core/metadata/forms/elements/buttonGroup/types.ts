@@ -6,12 +6,12 @@ import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
+import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { CommandBarGroupChildItemsTypedYAML } from "../../commonObjects/childItems/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { ButtonGroupRules } from "./rules"
-import { ElementTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 
-export type ButtonGroup = ElementTypeByRule<typeof ButtonGroupRules>
+export type ButtonGroup = FormTypeByRule<typeof ButtonGroupRules>
 
 export interface ButtonGroupPartialYAML {
   РасширеннаяПодсказка?: ExtendedTooltipYAML

@@ -1,6 +1,10 @@
 <Attribute name="Дерево" id="1">
 	<Columns>
 		<Column name="Колонка1" id="2">
+			<Edit>
+				<xr:Common>false</xr:Common>
+			</Edit>
+			<FillCheck>ShowError</FillCheck>
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
@@ -17,10 +21,6 @@
 			<View>
 				<xr:Common>false</xr:Common>
 			</View>
-			<Edit>
-				<xr:Common>false</xr:Common>
-			</Edit>
-			<FillCheck>ShowError</FillCheck>
 		</Column>
 	</Columns>
 	<Type>
