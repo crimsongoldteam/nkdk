@@ -64,7 +64,7 @@ function exportToXML<Rule extends ElementRule>(params: {
 
   const result: ElementXMLWithoutId = {
     _name: name,
-    ...(additionalParams.id ? { _id: additionalParams.id } : {}),
+    ...(additionalParams.id ? { _id: additionalParams.id } : { _id: "" }),
     ...properties,
   }
 

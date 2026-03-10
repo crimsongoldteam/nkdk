@@ -10,10 +10,17 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   tag?: string[]
 }): string[] => {
   const { rule, referenceMetadata, tag } = params
-  const propertyKeys = Object.keys(rule.properties).filter((key) => {
-    const ruleProp = rule.properties[key]
+  const propertyEntries = Object.entries(rule.properties).filter(([_key, ruleProp]) => {
     return tag === undefined || (ruleProp.tag !== undefined && tag.includes(ruleProp.tag))
   })
+
+  const propertyKeys = propertyEntries
+    .map(([key, ruleProp]) => {
+      const xmlKey = ruleProp.xml ?? capitalize(key)
+      return [key, xmlKey] as const
+    })
+    .sort(([, aXmlKey], [, bXmlKey]) => aXmlKey.localeCompare(bXmlKey))
+    .map(([key]) => key)
 
   if (referenceMetadata === undefined) {
     return [...propertyKeys].sort()
@@ -21,7 +28,7 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
 
   const keysFromReference = Object.keys(referenceMetadata as object).filter((key) => propertyKeys.includes(key))
   const referenceSet = new Set(keysFromReference)
-  const remainingKeys = propertyKeys.filter((key) => !referenceSet.has(key)).sort()
+  const remainingKeys = propertyKeys.filter((key) => !referenceSet.has(key))
 
   return [...keysFromReference, ...remainingKeys]
 }

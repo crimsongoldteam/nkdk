@@ -4,7 +4,6 @@ import { StandartAttributeName } from "~/metadata/commonObjects/standardAttribut
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
-import { EventsRules } from "../event"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
 
@@ -171,6 +170,6 @@ export interface MetadataItemRule extends MetadataItem {
   itemType: MetadataItemType
   properties: PropertiesType
 
-  events?: EventsRules
+  // events?: EventsRules
   eventsTag?: string
 }

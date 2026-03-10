@@ -39,9 +39,9 @@ export const isEmptyMetadataItem = <T extends MetadataItem>(params: {
     return false
   }
 
-  if (rule.events && "events" in element && typeof element.events === "object" && element.events !== null) {
-    if (Object.keys(element.events).length > 0) return false
-  }
+  // if (rule.events && "events" in element && typeof element.events === "object" && element.events !== null) {
+  //   if (Object.keys(element.events).length > 0) return false
+  // }
 
   return true
 }

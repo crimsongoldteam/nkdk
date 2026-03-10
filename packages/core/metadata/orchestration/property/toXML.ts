@@ -20,7 +20,6 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   const orderedKeys = getOrderedKeysToXML({ rule, tag, referenceMetadata })
 
   for (const key of orderedKeys) {
-    if (key === "events") continue
     if (key === "itemType") continue
     const ruleProp = rule.properties[key]
 
