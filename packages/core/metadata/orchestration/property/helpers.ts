@@ -161,7 +161,22 @@ export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
     return result
   }
 
-  return walkXml(xml, [])
+  const fromXml = walkXml(xml, [])
+  if (fromXml.length === allKeysFallback.length) {
+    return fromXml
+  }
+
+  const added = new Set(fromXml)
+  const result = [...fromXml]
+
+  for (const key of allKeysFallback) {
+    if (!added.has(key)) {
+      added.add(key)
+      result.push(key)
+    }
+  }
+
+  return result
 }
 
 export const getValueOrDefault = (params: {
