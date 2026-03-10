@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
-  clientApplicationFormReference,
   fullClientApplicationForm,
   minimalClientApplicationForm,
-  minimalClientApplicationFormMetadataReference,
   minimalClientApplicationFormReference,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
@@ -63,7 +61,7 @@ describe("exportToXML", () => {
       const xmlData = exportFormMetadataToXML({
         context: mockContextToXML(),
         form: fullClientApplicationForm,
-        referenceForm: clientApplicationFormReference,
+        referenceForm: undefined,
         name: "ФормаКакаяТо",
       })
 
@@ -77,7 +75,7 @@ describe("exportToXML", () => {
       const xmlData = exportFormMetadataToXML({
         context: mockContextToXML(),
         form: minimalClientApplicationForm,
-        referenceForm: minimalClientApplicationFormMetadataReference,
+        referenceForm: undefined,
         name: "ФормаКакаяТо",
       })
 

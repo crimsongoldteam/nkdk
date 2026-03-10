@@ -1,5 +1,4 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { ClientApplicationFormRules } from "./rules"
@@ -79,9 +78,11 @@ export const exportFormMetadataToXML = (params: {
 }): FormMetadataXML => {
   const { context, form, referenceForm, name } = params
 
+  const metadata = { ...form, name: name }
+
   const properties = exportPropertiesToXML({
     context,
-    metadata: form,
+    metadata,
     referenceMetadata: referenceForm,
     rule: ClientApplicationFormRules,
     tag: [FormRulesTags.Metadata],
@@ -110,11 +111,7 @@ export const exportFormMetadataToXML = (params: {
     _version: "2.20",
     Form: {
       _uuid: uuid,
-      Properties: sortObject({
-        FormType: "Managed",
-        Name: name,
-        ...(properties.Form?.Properties ?? {}),
-      }),
+      Properties: properties.Form?.Properties,
     },
   }
 

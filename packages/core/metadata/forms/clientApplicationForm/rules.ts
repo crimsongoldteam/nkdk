@@ -8,6 +8,7 @@ export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   properties: {
     // #region Form
+
     attributes: {
       yaml: "Реквизиты",
       type: "FormAttributes",
@@ -249,6 +250,20 @@ export const ClientApplicationFormRules = {
     },
     // #endregion
     // #region Metadata
+    name: {
+      type: "string",
+      tag: FormRulesTags.Metadata,
+      fromXML: false,
+      xmlParents: ["Form", "Properties"],
+    },
+    formType: {
+      type: "SystemEnumeration",
+      typeSE: "FormType",
+      tag: FormRulesTags.Metadata,
+      defaultValueXML: "Managed",
+      xml: "FormType",
+      xmlParents: ["Form", "Properties"],
+    },
     synonym: {
       yaml: "Синоним",
       type: "I8nText",
@@ -276,6 +291,7 @@ export const ClientApplicationFormRules = {
     // #endregion
 
     // #region Catalog
+
     choiceAvailable: {
       yaml: "ВыборДоступен",
       type: "boolean",
