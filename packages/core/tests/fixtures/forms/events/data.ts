@@ -1,4 +1,4 @@
-import { Events } from "~/metadata/orchestration/event/types"
+import { Events } from "~/metadata/forms/commonObjects/event"
 
 export const singleEvent: Events = {
   click: "РаспознаваниеДокументаНадписьНажатие",

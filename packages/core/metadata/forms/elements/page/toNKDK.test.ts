@@ -14,6 +14,7 @@ describe("exportPageToStructure", () => {
         {
           name: "Элемент1",
           itemType: "InputField",
+          dataPath: "Элемент1",
         } as InputField,
       ],
     }

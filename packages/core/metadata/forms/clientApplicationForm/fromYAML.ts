@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
-import { importEventsFromYAML } from "~/metadata/orchestration/event"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
@@ -28,33 +27,11 @@ export const importClientApplicationFormFromYAML = (
     source: source,
   })
 
-  const events = importEventsFromYAML({
-    rule: ClientApplicationFormRules,
-    yaml: data,
-  })
-
-  // const childItems = importChildItemsFromPartialYAML({
-  //   context: itemsContext,
-  //   // data: data.Элементы,
-  //   childItems: source.childItems,
-  // })
-
   const result: ClientApplicationForm = {
     ...(autoCommandBar ? { autoCommandBar } : {}),
     ...properties,
-    ...events,
-    // childItems: childItems,
     itemType: "ClientApplicationForm",
   }
 
-  // result.childItems = importChildItemsFromPartialYAML(itemsContext, undefined, structure.childItems)
-
-  // const autoCommandBar = importAutoCommandBarFromEnterprise(
-  //   itemsContext,
-  //   undefined,
-  //   structure.autoCommandBar,
-  //   data.КоманднаяПанель
-  // )
-  // if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
   return result
 }

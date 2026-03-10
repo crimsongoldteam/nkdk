@@ -314,7 +314,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   РазрешитьИспользование: { Администратор: "Истина" },
   ПредупреждениеПриРедактировании: "Предупреждение",
   ПропускатьПриВводе: "Ложь",
-  ПутьКДанным: "Объект.Реквизит",
+  // ПутьКДанным: "Объект.Реквизит",
   ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
   РежимРедактирования: "ВходПриВводе",
   СочетаниеКлавиш: "Ctrl+S",
@@ -350,8 +350,11 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   },
 }
 
+const { ПутьКДанным: _unusedDataPath, ...fullInputFieldPartialYAMLWithoutDataPath } =
+  fullInputFieldPartialYAML
+
 export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
-  ...fullInputFieldPartialYAML,
+  ...fullInputFieldPartialYAMLWithoutDataPath,
   Тип: "ПолеВвода",
   Заголовок: "Поле ввода",
 }
