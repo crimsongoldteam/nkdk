@@ -1,5 +1,3 @@
-import { EventsRules, MetadataItemRule } from "~/metadata/orchestration"
+import { MetadataItemRule } from "~/metadata/orchestration"
 
-export interface ClientApplicationFormRule extends MetadataItemRule {
-  events?: EventsRules
-}
+export interface ClientApplicationFormRule extends MetadataItemRule {}

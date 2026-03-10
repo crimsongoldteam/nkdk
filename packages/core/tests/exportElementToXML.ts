@@ -48,14 +48,13 @@ export const testExportElementToXML = <TElement extends CollectableElement>(para
 }
 
 export const testExportPropertyToXML = (params: {
-  context?: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: unknown
   xmlRootTag: string
   path: string
   itemsTree?: ContextElementToXML[]
 }): { expectedResult: string; result: string } => {
-  const { context, rule, value, xmlRootTag, path } = params
+  const { rule, value, xmlRootTag, path } = params
 
   const expectedResult = readXMLFileAsString(path)
 
@@ -68,7 +67,7 @@ export const testExportPropertyToXML = (params: {
     value: referenceXML[xmlRootTag],
   })
 
-  const exportContext = context ?? {
+  const exportContext: ConfigurationContextWithExportToXML = {
     ...mockContextToXML(),
     exportToXML: {
       ...mockContextToXML().exportToXML,
