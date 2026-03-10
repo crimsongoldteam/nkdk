@@ -14,7 +14,7 @@ const fullCommandInterface: CommandInterface = {
   itemType: "CommandInterface",
 }
 
-export const fullClientApplicationForm: Omit<Required<ClientApplicationForm>, "uuid"> = {
+export const fullClientApplicationForm: Omit<Required<ClientApplicationForm>, "uuid" | "formType" | "name"> = {
   parameters: [
     {
       name: "Параметр1",

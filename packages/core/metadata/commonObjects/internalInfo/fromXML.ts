@@ -9,7 +9,7 @@ export const importInternalInfoFromXML = (
 ): InternalInfo | undefined => {
   if (!xml) return undefined
 
-  if (rule?.forReferenceOnly === true) return undefined
+  if (rule?.forReferenceOnly !== true) return undefined
 
   const items = xml["xr:GeneratedType"]
   if (!items) return undefined
