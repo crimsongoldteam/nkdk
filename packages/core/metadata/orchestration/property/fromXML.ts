@@ -22,6 +22,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
 
   for (const key of orderedKeys) {
     const currentRule = rule.properties[key]
+    if (!forReference && currentRule.forReferenceOnly === true) continue
 
     const value =
       currentRule.fromXML !== false

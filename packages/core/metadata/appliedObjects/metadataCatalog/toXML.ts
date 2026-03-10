@@ -42,17 +42,6 @@ export const exportMetadataCatalogToXML = (params: {
     name: data.name,
   })
 
-  // const defaults = getDefaults(data, context)
-  // const mergedData = { ...defaults, ...data, itemType: "MetadataCatalog" as const }
-
-  // const internalInfo = exportInternalInfoToXMLOld<CatalogInternalInfoParamsXML>(context, [
-  //   { name: `CatalogObject.${data.name}`, category: "Object" },
-  //   { name: `CatalogRef.${data.name}`, category: "Ref" },
-  //   { name: `CatalogSelection.${data.name}`, category: "Selection" },
-  //   { name: `CatalogList.${data.name}`, category: "List" },
-  //   { name: `CatalogManager.${data.name}`, category: "Manager" },
-  // ])
-
   const flat = exportPropertiesToXML({
     context: currentContext,
     metadata: data,

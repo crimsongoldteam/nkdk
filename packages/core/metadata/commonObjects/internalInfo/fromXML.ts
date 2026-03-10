@@ -4,12 +4,12 @@ import { InternalInfo, InternalInfoRootXML } from "./types"
 
 export const importInternalInfoFromXML = (
   _context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   xml: InternalInfoRootXML | undefined
 ): InternalInfo | undefined => {
   if (!xml) return undefined
 
-  //   if (rule?.forReferenceOnly) return undefined
+  if (rule?.forReferenceOnly === true) return undefined
 
   const items = xml["xr:GeneratedType"]
   if (!items) return undefined

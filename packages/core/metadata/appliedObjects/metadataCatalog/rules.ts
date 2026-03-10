@@ -12,6 +12,7 @@ export const MetadataCatalogRules = {
     internalInfo: {
       type: "InternalInfo",
       xmlParents: catalogBaseProperties,
+      forReferenceOnly: true,
       items: [
         { name: "CatalogObject", category: "Object" },
         { name: "CatalogRef", category: "Ref" },

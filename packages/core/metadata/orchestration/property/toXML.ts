@@ -43,23 +43,6 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     setXMLValue(key, result, ruleProp, exportedValue)
   }
 
-  // Preserve historical ordering: Events must be the last key in XML.
-  if ("events" in rule.properties) {
-    const ruleProp = rule.properties["events"]
-    const value = metadata === undefined ? undefined : (metadata as any)["events"]
-    const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)["events"]
-
-    const exportedValue = exportPropertyToXML({
-      context: { ...context, exportToXML: { ...context.exportToXML } },
-      rule: ruleProp,
-      value,
-      referenceMetadata: referenceValue,
-      metadataItem: metadata,
-    })
-
-    setXMLValue("events", result, ruleProp, exportedValue)
-  }
-
   return result
 }
 
@@ -93,11 +76,13 @@ export const exportPropertyToXML = (params: {
 }): any | undefined => {
   const { context, rule, value, metadataItem, referenceMetadata } = params
 
+  const defaultValueXML = rule.defaultValueXML
+
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
     if (value === rule.defaultValue) {
-      return undefined
+      return defaultValueXML
     }
     return value
   }
@@ -111,14 +96,14 @@ export const exportPropertyToXML = (params: {
       referenceMetadata,
     })
     if (exportedValue === rule.defaultValue) {
-      return undefined
+      return defaultValueXML
     }
     return exportedValue
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
-    return undefined
+    return defaultValueXML
   }
   return exportedValue
 }
