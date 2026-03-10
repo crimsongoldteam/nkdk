@@ -16,7 +16,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   }
 
   const nameItemPart = internalInfoRule?.getName
-    ? internalInfoRule.getName({ context, metadata: metadataItem })
+    ? internalInfoRule.getName({ context, metadata: metadataItem as any })
     : ((metadataItem as any)?.name ?? "")
 
   const generated = itemsRule.map((item) => {
