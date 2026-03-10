@@ -1,26 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/orchestration"
+import { testExportElementToXML } from "~/tests/exportElementToXML"
 import { fullButtonGroup, minimalButtonGroup } from "~/tests/fixtures/forms/buttonGroup/data"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportButtonGroupToXML", () => {
   it("should export all fields to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/buttonGroup/full.xml")
-    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullButtonGroup })
+    const resultData = testExportElementToXML({
+      element: fullButtonGroup,
+      path: "forms/buttonGroup/full.xml",
+    })
 
-    const result = xmlExport({ ButtonGroup: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    expect(resultData.result).toEqual(resultData.expectedResult)
   })
 
   it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("forms/buttonGroup/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalButtonGroup })
+    const resultData = testExportElementToXML({
+      element: minimalButtonGroup,
+      path: "forms/buttonGroup/minimal.xml",
+    })
 
-    const result = xmlExport({ ButtonGroup: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    expect(resultData.result).toEqual(resultData.expectedResult)
   })
 })

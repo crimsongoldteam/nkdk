@@ -1,26 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/orchestration"
+import { testExportElementToXML } from "~/tests/exportElementToXML"
 import { fullTextDocumentField, minimalTextDocumentField } from "~/tests/fixtures/forms/textDocumentField/data"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportTextDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/textDocumentField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullTextDocumentField })
+    const resultData = testExportElementToXML({
+      element: fullTextDocumentField,
+      path: "forms/textDocumentField/full.xml",
+    })
 
-    const result = xmlExport({ TextDocumentField: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    expect(resultData.result).toEqual(resultData.expectedResult)
   })
 
   it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("forms/textDocumentField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalTextDocumentField })
+    const resultData = testExportElementToXML({
+      element: minimalTextDocumentField,
+      path: "forms/textDocumentField/minimal.xml",
+    })
 
-    const result = xmlExport({ TextDocumentField: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    expect(resultData.result).toEqual(resultData.expectedResult)
   })
 })

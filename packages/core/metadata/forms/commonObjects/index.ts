@@ -41,3 +41,9 @@ import "./childItems/toYAML"
 import "./dataPath/toEnterprise"
 
 import "./commandName/toEnterprise"
+
+import "./event/fromXML"
+import "./event/fromYAML"
+import "./event/toJSONSchema"
+import "./event/toXML"
+import "./event/toYAML"

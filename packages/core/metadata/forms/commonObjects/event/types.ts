@@ -1,4 +1,4 @@
-import { ElementXML } from "../formElement/types"
+import { ElementXML } from "~/metadata/orchestration"
 
 export interface EventXML {
   _name: string

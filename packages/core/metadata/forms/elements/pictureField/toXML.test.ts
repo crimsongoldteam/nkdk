@@ -1,26 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/orchestration"
+import { testExportElementToXML } from "~/tests/exportElementToXML"
 import { fullPictureField, minimalPictureField } from "~/tests/fixtures/forms/pictureField/data"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportPictureFieldToXML", () => {
   it("should export all fields to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/pictureField/full.xml")
-    const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullPictureField })
+    const resultData = testExportElementToXML({
+      element: fullPictureField,
+      path: "forms/pictureField/full.xml",
+    })
 
-    const result = xmlExport({ PictureField: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    expect(resultData.result).toEqual(resultData.expectedResult)
   })
 
   it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("forms/pictureField/minimal.xml")
-    const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalPictureField })
+    const resultData = testExportElementToXML({
+      element: minimalPictureField,
+      path: "forms/pictureField/minimal.xml",
+    })
 
-    const result = xmlExport({ PictureField: xmlData }, false)
-
-    expect(result).toEqual(expectedResult)
+    expect(resultData.result).toEqual(resultData.expectedResult)
   })
 })

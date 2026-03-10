@@ -2,7 +2,6 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
-import { exportEventsToXML } from "~/metadata/orchestration/event"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
@@ -20,8 +19,6 @@ export const exportClientApplicationFormToXML = (params: {
     rule: ClientApplicationFormRules,
     tag: [FormRulesTags.Form],
   })
-
-  const events = exportEventsToXML({ context, rule: ClientApplicationFormRules, data: form })
 
   setIdsToElements(context)
 
@@ -45,7 +42,6 @@ export const exportClientApplicationFormToXML = (params: {
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.20",
     ...properties,
-    ...events,
   }
 
   return result

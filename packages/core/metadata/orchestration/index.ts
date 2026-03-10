@@ -1,5 +1,3 @@
-export * from "./event/types"
-
 export * from "./formElement/types"
 
 export * from "./metadataItem/registry"
