@@ -51,7 +51,7 @@ export const exportClientApplicationFormToXML = (params: {
   return result
 }
 
-const setIdsToElements = (context: ConfigurationContextWithExportToXML): void => {
+export const setIdsToElements = (context: ConfigurationContextWithExportToXML): void => {
   const elementsMap = context.exportToXML?.context?.elementsMap ?? []
   const occupiedIds = new Set<string>()
 
