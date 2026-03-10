@@ -32,10 +32,12 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 
     const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
 
+    const valueToExport = value !== undefined ? value : referenceValue
+
     const exportedValue = exportPropertyToXML({
       context: currentContext,
       rule: ruleProp,
-      value,
+      value: valueToExport,
       referenceMetadata: referenceValue,
       metadataItem: metadata,
     })
@@ -48,6 +50,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 
 const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any => {
   if (value === undefined) return
+  if (Array.isArray(value) && value.length === 0) return
 
   const xmlKey = rule.xml ?? capitalize(key)
 

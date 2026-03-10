@@ -67,14 +67,17 @@ const importMetadataAttributeFromXML = (
 
   const result: MetadataAttribute = {
     itemType: "MetadataAttribute",
+    ...properties,
     name: properties!.name!,
     type: properties!.type!,
     synonym: properties!.synonym ?? { items: { [context.defaultLanguage]: "" } },
-    ...properties,
     ...(minValue !== undefined && { minValue }),
     ...(maxValue !== undefined && { maxValue }),
   }
 
+  if (context.fromXML.forReference) {
+    return result
+  }
   const defaults = getDefaultsAttribute(context, result)
   return removeDefaults(result, defaults)
 }
