@@ -23,7 +23,7 @@ type DefaultValueToYAML<PropertyType extends PropertyRuleType, DefaultValue> = P
       : never
 
 type ValueTypeWithDefault<Base, P, PropertyType extends PropertyRuleType> = P extends {
-  defaultValue: infer D
+  defaultValueYAML: infer D
 }
   ? D extends (...args: any[]) => any
     ? Base

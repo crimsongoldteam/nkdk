@@ -76,13 +76,13 @@ export const fullPDFDocumentField = {
     width: 1,
   },
   ...fullFormFieldCommonFixture,
-  dataPath: "Документ",
+  dataPath: "Реквизит",
   onMainServerUnavalableBehavior: "MakeDisable",
 } satisfies RequiredFieldsElement<PDFDocumentField>
 
 export const fullPDFDocumentFieldEnterprise = {
   ElementType: "FormField",
-  Name: "prefix_ПолеPDFДокумента",
+  Name: "prefix_ЭлементФормы",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.PDFDocumentField",
@@ -95,7 +95,7 @@ export const fullPDFDocumentFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "UseOutput.Enable",
   },
-  Title: "Заголовок документа",
+  Title: "Заголовок",
   VerticalStretch: false,
   ViewStatusLocation: {
     Type: "SystemEnumeration",
@@ -109,19 +109,6 @@ export const fullPDFDocumentFieldEnterprise = {
     Value: "WebColors.Red",
   },
   ...fullFormFieldEnterpriseCommonFixture,
-  DataPath: "prefix_Документ",
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  OnMainServerUnavalableBehavior: {
-    Type: "SystemEnumeration",
-    Value: "OnMainServerUnavalableBehavior.MakeDisable",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Center",
-  },
 } satisfies Required<PDFDocumentFieldEnterprise>
 
 export const fullPDFDocumentFieldPartialYAML = {
