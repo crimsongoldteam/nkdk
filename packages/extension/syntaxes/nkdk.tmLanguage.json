@@ -91,17 +91,17 @@
       "match": "(={2,5}|\\+{2,5}|-{2,5}|[=+\\-])"
     },
     "field-prefix": {
-      "name": "keyword.other.nkdk",
+      "name": "variable.other.nkdk",
       "match": "[!~]"
     },
     "bracket": {
       "patterns": [
         {
-          "name": "punctuation.brackets.nkdk",
+          "name": "variable.other.nkdk",
           "match": "[<>]"
         },
         {
-          "name": "punctuation.brackets.nkdk",
+          "name": "variable.other.nkdk",
           "match": "[()\\[\\]]"
         }
       ]
@@ -109,25 +109,25 @@
     "punctuation": {
       "patterns": [
         {
-          "name": "punctuation.separator.nkdk",
+          "name": "variable.other.nkdk",
           "match": ":"
         },
         {
-          "name": "punctuation.separator.nkdk",
+          "name": "variable.other.nkdk",
           "match": ";"
         },
         {
-          "name": "punctuation.separator.nkdk",
+          "name": "variable.other.nkdk",
           "match": "\\|"
         },
         {
-          "name": "punctuation.accessor.nkdk",
+          "name": "variable.other.nkdk",
           "match": "\\."
         }
       ]
     },
     "name": {
-      "name": "variable.other.nkdk",
+      "name": "keyword.other.nkdk",
       "match": "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*(?:\\[[0-9]+\\])?"
     }
   }
