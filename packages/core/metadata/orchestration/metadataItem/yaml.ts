@@ -8,10 +8,7 @@ import { PropertyRule } from "../property/types"
  * YAML-представление значения по умолчанию (с учётом преобразований).
  * Используется для исключения defaultValue из типа YAML — в YAML допускается только отсутствие ключа или значение, отличное от default.
  */
-type DefaultValueToYAML<
-  PropertyType extends PropertyRuleType,
-  DefaultValue,
-> = PropertyType extends "boolean"
+type DefaultValueToYAML<PropertyType extends PropertyRuleType, DefaultValue> = PropertyType extends "boolean"
   ? DefaultValue extends true
     ? "Истина"
     : DefaultValue extends false

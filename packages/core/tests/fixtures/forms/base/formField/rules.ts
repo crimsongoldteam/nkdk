@@ -10,13 +10,11 @@ const baseExtendedTooltip = {
 } as const
 
 export const fullFormFieldCommonFixture = {
-  name: "ПолеФормы",
   autoCellHeight: true,
   defaultItem: true,
   displayImportance: "High",
   verticalAlign: "Top",
   verticalAlignInGroup: "Top",
-  type: "InputField",
   visible: true,
   titleHeight: 20,
   cellHyperlink: true,
@@ -25,9 +23,6 @@ export const fullFormFieldCommonFixture = {
   footerHorizontalAlign: "Left",
   headerHorizontalAlign: "Left",
   enabled: true,
-  title: {
-    items: { ru: "Заголовок поля формы" },
-  },
   footerPicture: {
     type: "StandardPicture",
     ref: "Print",
@@ -74,9 +69,6 @@ export const fullFormFieldCommonFixture = {
 } as const
 
 export const fullFormFieldEnterpriseCommonFixture = {
-  ElementType: "FormField",
-  Name: "prefix_ПолеФормы",
-  Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
   AutoCellHeight: true,
   CellHyperlink: true,
   DataPath: "prefix_ОбъектРеквизит",
@@ -125,7 +117,6 @@ export const fullFormFieldEnterpriseCommonFixture = {
   ShowInFooter: true,
   ShowInHeader: true,
   SkipOnInput: false,
-  Title: "Заголовок поля формы",
   TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
   TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   TitleHeight: 20,
@@ -161,7 +152,6 @@ export const fullFormFieldPartialYAMLCommonFixture = {
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложение: "Верх",
   ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ПолеВвода",
   Видимость: "Истина",
   ВысотаЗаголовка: 20,
   ГиперссылкаЯчейки: "Истина",
@@ -170,7 +160,6 @@ export const fullFormFieldPartialYAMLCommonFixture = {
   ГоризонтальноеПоложениеВПодвале: "Лево",
   ГоризонтальноеПоложениеВШапке: "Лево",
   Доступность: "Истина",
-  Заголовок: "Заголовок поля формы",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
   КонтекстноеМеню: {

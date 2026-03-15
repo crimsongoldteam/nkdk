@@ -4,19 +4,22 @@ import {
   GraphicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
-  ...fullFormFieldCommonFixture,
   itemType: "GraphicalSchemaField",
   name: "ПолеГрафическойСхемы",
   title: {
     items: { ru: "Поле графической схемы" },
+  },
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
   },
   autoMaxHeight: true,
   autoMaxWidth: true,
@@ -27,74 +30,8 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
   maxHeight: 500,
   maxWidth: 400,
   output: "Enable",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   verticalStretch: true,
   width: 300,
-  autoCellHeight: true,
-  cellHyperlink: true,
-  dataPath: "Объект.Реквизит",
-  defaultItem: true,
-  displayImportance: "High",
-  editMode: "EnterOnInput",
-  enabled: true,
-  fixingInTable: "None",
-  footerBackColor: { type: "WebColor", value: "White" },
-  footerDataPath: "Объект.РеквизитПодвала",
-  footerFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  footerHorizontalAlign: "Left",
-  footerPicture: {
-    type: "StandardPicture",
-    ref: "Print",
-    loadTransparent: true,
-  },
-  footerText: {
-    items: { ru: "Текст подвала" },
-  },
-  footerTextColor: { type: "WebColor", value: "Black" },
-  headerHorizontalAlign: "Left",
-  headerPicture: {
-    type: "StandardPicture",
-    ref: "Print",
-    loadTransparent: true,
-  },
-  horizontalAlign: "Left",
-  horizontalAlignInGroup: "Left",
-  readOnly: false,
-  shortcut: "Ctrl+S",
-  showInFooter: true,
-  showInHeader: true,
-  skipOnInput: false,
-  titleBackColor: { type: "WebColor", value: "Blue" },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleHeight: 20,
-  titleLocation: "Left",
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "InputField",
-  verticalAlign: "Top",
-  verticalAlignInGroup: "Top",
-  visible: true,
-  warningOnEdit: {
-    items: { ru: "Предупреждение" },
-  },
-  warningOnEditRepresentation: "DontShow",
-  contextMenu: {
-    itemType: "ContextMenu",
-    autofill: false,
-    childItems: [],
-  },
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
-  table: "Таблица",
-  typeRestriction: { type: ["string"] },
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураВыбора",
@@ -103,104 +40,16 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
     afterWrite: "ПроцедураПослеЗаписи",
     onActivate: "ПроцедураАктивации",
   },
+  ...fullFormFieldCommonFixture,
 }
 
 export const fullGraphicalSchemaFieldEnterprise = {
-  ...fullFormFieldEnterpriseCommonFixture,
-  ElementType: "FormField",
   Name: "prefix_ПолеГрафическойСхемы",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.GraphicalSchemaField",
   },
-  AutoCellHeight: true,
-  CellHyperlink: true,
-  DataPath: "prefix_ОбъектРеквизит",
-  DefaultItem: true,
-  DisplayImportance: {
-    Type: "SystemEnumeration",
-    Value: "DisplayImportance.High",
-  },
-  EditMode: {
-    Type: "SystemEnumeration",
-    Value: "ColumnEditMode.EnterOnInput",
-  },
-  Enabled: true,
-  FixingInTable: {
-    Type: "SystemEnumeration",
-    Value: "FixingInTable.None",
-  },
-  FooterBackColor: {
-    Type: "Color",
-    Value: "WebColors.White",
-  },
-  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
-  FooterFont: {
-    Type: "Font",
-    Value: "StyleFonts.NormalTextFont",
-  },
-  FooterHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  FooterText: "Текст подвала",
-  FooterTextColor: {
-    Type: "Color",
-    Value: "WebColors.Black",
-  },
-  HeaderHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  ReadOnly: false,
-  ShowInFooter: true,
-  ShowInHeader: true,
-  SkipOnInput: false,
   Title: "Поле графической схемы",
-  TitleBackColor: {
-    Type: "Color",
-    Value: "WebColors.Blue",
-  },
-  TitleFont: {
-    Type: "Font",
-    Value: "StyleFonts.NormalTextFont",
-  },
-  TitleHeight: 20,
-  TitleLocation: {
-    Type: "SystemEnumeration",
-    Value: "FormItemTitleLocation.Left",
-  },
-  TitleTextColor: {
-    Type: "Color",
-    Value: "WebColors.Black",
-  },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  VerticalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  Visible: true,
-  WarningOnEdit: "Предупреждение",
-  WarningOnEditRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "WarningOnEditRepresentation.DontShow",
-  },
   AutoMaxHeight: true,
   AutoMaxWidth: true,
   BorderColor: {
@@ -218,12 +67,10 @@ export const fullGraphicalSchemaFieldEnterprise = {
   },
   VerticalStretch: true,
   Width: 300,
-  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  ...fullFormFieldEnterpriseCommonFixture,
 } satisfies Required<GraphicalSchemaFieldEnterprise>
 
 export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {
-  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Вывод: "Разрешить",
@@ -235,47 +82,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   Редактирование: "Истина",
   ЦветРамки: "Черный",
   Ширина: 300,
-  АвтоВысотаЯчейки: "Истина",
-  АктивизироватьПоУмолчанию: "Истина",
-  ВажностьПриОтображении: "Высокая",
-  ВертикальноеПоложение: "Верх",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ПолеВвода",
-  Видимость: "Истина",
-  ВысотаЗаголовка: 20,
-  ГиперссылкаЯчейки: "Истина",
-  ГоризонтальноеПоложение: "Лево",
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  ГоризонтальноеПоложениеВПодвале: "Лево",
-  ГоризонтальноеПоложениеВШапке: "Лево",
-  Доступность: "Истина",
-  КартинкаПодвала: "Печать",
-  КартинкаШапки: "Печать",
-  ОтображатьВПодвале: "Истина",
-  ОтображатьВШапке: "Истина",
-  ОтображениеПодсказки: "Нет",
-  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
-  Подсказка: "Подсказка",
-  ПоложениеЗаголовка: "Лево",
   РазрешитьИспользование: { Администратор: "Истина" },
-  ПредупреждениеПриРедактировании: "Предупреждение",
-  ПропускатьПриВводе: "Ложь",
-  ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
-  РежимРедактирования: "ВходПриВводе",
-  СочетаниеКлавиш: "Ctrl+S",
-  Таблица: "Таблица",
-  ТекстПодвала: "Текст подвала",
-  ТолькоПросмотр: "Ложь",
-  ФиксацияВТаблице: "Нет",
-  ЦветТекстаЗаголовка: "Черный",
-  ЦветТекстаПодвала: "Черный",
-  ЦветФонаЗаголовка: "Синий",
-  ЦветФонаПодвала: "Белый",
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  ШрифтПодвала: "ОбычныйШрифтТекста",
-  КонтекстноеМеню: { Автозаполнение: "Ложь" },
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
-  ОграничениеТипа: "Строка",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
@@ -284,6 +91,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
     ПослеЗаписи: "ПроцедураПослеЗаписи",
     ПриАктивизации: "ПроцедураАктивации",
   },
+  ...fullFormFieldPartialYAMLCommonFixture,
 }
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {

@@ -5,79 +5,19 @@ import {
   InputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullInputField: RequiredFieldsElement<InputField> = {
-  ...fullFormFieldCommonFixture,
+export const fullInputField = {
   itemType: "InputField",
   name: "ПолеВвода",
-  autoCellHeight: true,
-  cellHyperlink: true,
-  dataPath: "Объект.Реквизит",
-  defaultItem: true,
-  displayImportance: "High",
-  editMode: "EnterOnInput",
-  enabled: true,
-  fixingInTable: "None",
-  footerBackColor: { type: "WebColor", value: "White" },
-  footerDataPath: "Объект.РеквизитПодвала",
-  footerFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  footerHorizontalAlign: "Left",
-  footerPicture: {
-    type: "StandardPicture",
-    ref: "Print",
-    loadTransparent: true,
+  title: {
+    items: { ru: "Поле ввода" },
   },
-  footerText: {
-    items: { ru: "Текст подвала" },
-  },
-  footerTextColor: { type: "WebColor", value: "Black" },
-  headerHorizontalAlign: "Left",
-  headerPicture: {
-    type: "StandardPicture",
-    ref: "Print",
-    loadTransparent: true,
-  },
-  horizontalAlign: "Left",
-  horizontalAlignInGroup: "Left",
-  readOnly: false,
-  shortcut: "Ctrl+S",
-  showInFooter: true,
-  showInHeader: true,
-  skipOnInput: false,
-  titleBackColor: { type: "WebColor", value: "Blue" },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleHeight: 20,
-  titleLocation: "Left",
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "InputField",
-  verticalAlign: "Top",
-  verticalAlignInGroup: "Top",
-  visible: true,
-  warningOnEdit: {
-    items: { ru: "Предупреждение" },
-  },
-  warningOnEditRepresentation: "DontShow",
-  contextMenu: {
-    itemType: "ContextMenu",
-    autofill: false,
-    childItems: [],
-  },
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
-  table: "Таблица",
-  typeRestriction: { type: ["string"] },
   allowInputEmptyMultipleValues: true,
   allowMultipleValuesDuplicates: false,
   autoCapitalizationOnTextInput: "AllCharacters",
@@ -192,9 +132,6 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
     common: true,
     values: [{ name: "Администратор", value: true }],
   },
-  title: {
-    items: { ru: "Поле ввода" },
-  },
   events: {
     onChange: "ПроцедураПриИзменении",
     autoComplete: "ПроцедураАвтоПодбора",
@@ -213,10 +150,12 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
     creating: "ПроцедураСоздания",
     multipleValuesDelete: "ПроцедураУдаленияМножественныхЗначений",
   },
-}
+  ...fullFormFieldCommonFixture,
+} satisfies RequiredFieldsElement<InputField>
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
-  ...fullFormFieldPartialYAMLCommonFixture,
+  ТолькоПросмотр: "Ложь",
+  Заголовок: "Поле ввода",
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
   АвтоИсправлениеПриВводеТекста: "Использовать",
@@ -235,7 +174,6 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   ВысотаСпискаВыбора: 200,
   ГиперссылкаМножественныхЗначений: "Истина",
   ДоступныеТипы: "Документ.КакойТоДокумент",
-  ОграничениеТипа: "Строка",
   ИсторияВыбораПриВводе: "НеИспользовать",
   КартинкаКнопкиВыбора: "Печать",
   КартинкаМножественныхЗначений: "ОбщаяКартинка",
@@ -296,46 +234,6 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   ШиринаВыпадающегоСписка: 300,
   Шрифт: "ОбычныйШрифтТекста",
   ШрифтМножественныхЗначений: "ОбычныйШрифтТекста",
-  АвтоВысотаЯчейки: "Истина",
-  АктивизироватьПоУмолчанию: "Истина",
-  ВажностьПриОтображении: "Высокая",
-  ВертикальноеПоложение: "Верх",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ПолеВвода",
-  Видимость: "Истина",
-  ВысотаЗаголовка: 20,
-  ГиперссылкаЯчейки: "Истина",
-  ГоризонтальноеПоложение: "Лево",
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  ГоризонтальноеПоложениеВПодвале: "Лево",
-  ГоризонтальноеПоложениеВШапке: "Лево",
-  Доступность: "Истина",
-  КартинкаПодвала: "Печать",
-  КартинкаШапки: "Печать",
-  ОтображатьВПодвале: "Истина",
-  ОтображатьВШапке: "Истина",
-  ОтображениеПодсказки: "Нет",
-  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
-  Подсказка: "Подсказка",
-  ПоложениеЗаголовка: "Лево",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  ПредупреждениеПриРедактировании: "Предупреждение",
-  ПропускатьПриВводе: "Ложь",
-  ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
-  РежимРедактирования: "ВходПриВводе",
-  СочетаниеКлавиш: "Ctrl+S",
-  Таблица: "Таблица",
-  ТекстПодвала: "Текст подвала",
-  ТолькоПросмотр: "Ложь",
-  ФиксацияВТаблице: "Нет",
-  ЦветТекстаЗаголовка: "Черный",
-  ЦветТекстаПодвала: "Черный",
-  ЦветФонаЗаголовка: "Синий",
-  ЦветФонаПодвала: "Белый",
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  ШрифтПодвала: "ОбычныйШрифтТекста",
-  КонтекстноеМеню: { Автозаполнение: "Ложь" },
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     АвтоПодбор: "ПроцедураАвтоПодбора",
@@ -354,6 +252,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     Создание: "ПроцедураСоздания",
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
+  ...fullFormFieldPartialYAMLCommonFixture,
 }
 
 export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
@@ -408,14 +307,14 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
 ]
 
 export const fullInputFieldEnterprise = {
-  ...fullFormFieldEnterpriseCommonFixture,
+  Name: "prefix_ПолеВвода",
+  Title: "Поле ввода",
   AllowInputEmptyMultipleValues: true,
   AllowMultipleValuesDuplicates: false,
   AutoCapitalizationOnTextInput: {
     Type: "SystemEnumeration",
     Value: "AutoCapitalizationOnTextInput.AllCharacters",
   },
-  AutoCellHeight: true,
   AutoChoiceIncomplete: true,
   AutoCorrectionOnTextInput: {
     Type: "SystemEnumeration",
@@ -436,16 +335,10 @@ export const fullInputFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "AutoShowOpenButtonMode.FilledOnly",
   },
-  BackColor: {
-    Type: "Color",
-    Value: "WebColors.Blue",
-  },
-  BorderColor: {
-    Type: "Color",
-    Value: "WebColors.Green",
-  },
-  CellHyperlink: true,
+  BackColor: { Type: "Color", Value: "WebColors.Blue" },
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
   ChoiceButton: true,
+  ChoiceButtonPicture: { Type: "Picture", Value: "PictureLib.Print" },
   ChoiceButtonRepresentation: {
     Type: "SystemEnumeration",
     Value: "ChoiceButtonRepresentation.ShowInInputField",
@@ -463,78 +356,21 @@ export const fullInputFieldEnterprise = {
   ChooseType: true,
   ClearButton: true,
   CreateButton: true,
-  DataPath: "prefix_ОбъектРеквизит",
-  DefaultItem: true,
-  DisplayImportance: {
-    Type: "SystemEnumeration",
-    Value: "DisplayImportance.High",
-  },
   DropListButton: true,
   DropListWidth: 300,
   EditFormat: "Формат редактирования",
-  EditMode: {
-    Type: "SystemEnumeration",
-    Value: "ColumnEditMode.EnterOnInput",
-  },
   EditText: "Текст редактирования",
   EditTextUpdate: {
     Type: "SystemEnumeration",
     Value: "EditTextUpdate.OnValueChange",
   },
-  ElementType: "FormField",
-  Enabled: true,
   ExtendedEdit: true,
-  FixingInTable: {
-    Type: "SystemEnumeration",
-    Value: "FixingInTable.None",
-  },
-  Font: {
-    Type: "Font",
-    Value: "StyleFonts.NormalTextFont",
-  },
-  FooterBackColor: {
-    Type: "Color",
-    Value: "WebColors.White",
-  },
-  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
-  FooterFont: {
-    Type: "Font",
-    Value: "StyleFonts.NormalTextFont",
-  },
-  FooterHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  FooterPicture: {
-    Type: "Picture",
-    Value: "PictureLib.Print",
-  },
-  FooterText: "Текст подвала",
-  FooterTextColor: {
-    Type: "Color",
-    Value: "WebColors.Black",
-  },
+  Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   Format: "Формат отображения",
-  HeaderHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HeaderPicture: {
-    Type: "Picture",
-    Value: "PictureLib.Print",
-  },
   Height: 100,
   HeightControlVariant: {
     Type: "SystemEnumeration",
     Value: "ItemHeightControlVariant.UseContentHeight",
-  },
-  HorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
   },
   HorizontalStretch: true,
   IncompleteChoiceMode: {
@@ -562,25 +398,15 @@ export const fullInputFieldEnterprise = {
   },
   MultipleValuePresentationDataPath: "prefix_ОбъектPresentation",
   MultipleValueValueDataPath: "prefix_ОбъектValue",
-  MultipleValuesBackColor: {
-    Type: "Color",
-    Value: "WebColors.Magenta",
-  },
+  MultipleValuesBackColor: { Type: "Color", Value: "WebColors.Magenta" },
   MultipleValuesExtendedEdit: true,
-  MultipleValuesFont: {
-    Type: "Font",
-    Value: "StyleFonts.NormalTextFont",
-  },
+  MultipleValuesFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   MultipleValuesHyperlink: true,
   MultipleValuesPicture: {
     Type: "Picture",
     Value: "CommonPictures.ОбщаяКартинка",
   },
-  MultipleValuesTextColor: {
-    Type: "Color",
-    Value: "WebColors.Red",
-  },
-  Name: "prefix_ПолеВвода",
+  MultipleValuesTextColor: { Type: "Color", Value: "WebColors.Red" },
   OnScreenKeyboardReturnKeyText: {
     Type: "SystemEnumeration",
     Value: "OnScreenKeyboardReturnKeyText.Done",
@@ -588,11 +414,7 @@ export const fullInputFieldEnterprise = {
   OpenButton: true,
   PasswordMode: true,
   QuickChoice: true,
-  ReadOnly: false,
   ShowCheckBoxesInDropListWhenInputMultipleValues: true,
-  ShowInFooter: true,
-  ShowInHeader: true,
-  SkipOnInput: false,
   SpecialTextInputMode: {
     Type: "SystemEnumeration",
     Value: "SpecialTextInputMode.Email",
@@ -602,63 +424,13 @@ export const fullInputFieldEnterprise = {
     Value: "SpellCheckingOnTextInput.Use",
   },
   SpinButton: true,
-  TextColor: {
-    Type: "Color",
-    Value: "WebColors.Yellow",
-  },
+  TextColor: { Type: "Color", Value: "WebColors.Yellow" },
   TextEdit: true,
-  Title: "Поле ввода",
-  TitleBackColor: {
-    Type: "Color",
-    Value: "WebColors.Blue",
-  },
-  TitleFont: {
-    Type: "Font",
-    Value: "StyleFonts.NormalTextFont",
-  },
-  TitleHeight: 20,
-  TitleLocation: {
-    Type: "SystemEnumeration",
-    Value: "FormItemTitleLocation.Left",
-  },
-  TitleTextColor: {
-    Type: "Color",
-    Value: "WebColors.Black",
-  },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  Type: {
-    Type: "SystemEnumeration",
-    Value: "FormFieldType.InputField",
-  },
   TypeDomainEnabled: true,
-  // TypeRestriction: {
-  //   Type: ["string"],
-  // },
-  VerticalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
   VerticalStretch: true,
-  Visible: true,
-  WarningOnEdit: "Предупреждение",
-  WarningOnEditRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "WarningOnEditRepresentation.DontShow",
-  },
   Width: 200,
   Wrap: true,
-  ChoiceButtonPicture: {
-    Type: "Picture",
-    Value: "PictureLib.Print",
-  },
+  ...fullFormFieldEnterpriseCommonFixture,
 } satisfies InputFieldEnterprise
 
 export const minimalInputFieldEnterprise = {

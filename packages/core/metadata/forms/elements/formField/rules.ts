@@ -34,11 +34,11 @@ export const formFieldCommonProperties = {
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
   },
-  type: {
-    yaml: "Вид",
-    type: "SystemEnumeration",
-    typeSE: "FormFieldType",
-  },
+  // type: {
+  //   yaml: "Вид",
+  //   type: "SystemEnumeration",
+  //   typeSE: "FormFieldType",
+  // },
   visible: { yaml: "Видимость", type: "boolean", defaultValueYAML: true },
   titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
   cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", defaultValueYAML: false },

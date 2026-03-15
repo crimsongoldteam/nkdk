@@ -91,7 +91,7 @@ export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem["itemType"]>
 // #region CommandBarChildItem
 
 export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
-export type CommandBarChildItems = CommandBarChildItem[]
+export type CommandBarChildItems = ReadonlyArray<CommandBarChildItem>
 
 export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem["itemType"]>>
 
