@@ -38,6 +38,7 @@ export interface BasePropertyRule {
    */
   fromYAML?: false
   toPartialYAML?: false
+  defaultValueYAML?: any | DefaultValueFunction
 
   /**
    * Название в xml, если не заполнено - будет использован ключ
