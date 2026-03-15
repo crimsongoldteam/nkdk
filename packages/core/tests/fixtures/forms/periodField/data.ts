@@ -5,12 +5,12 @@ import {
   PeriodFieldTypedYAML,
 } from "~/metadata/forms/elements/periodField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   itemType: "PeriodField",
@@ -21,9 +21,6 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: true }],
-  },
-  typeRestriction: {
-    type: ["string"],
   },
   autoMaxHeight: true,
   autoMaxWidth: true,
@@ -43,11 +40,12 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
     selection: "ПроцедураВыбора",
   },
   ...fullFormFieldCommonFixture,
-}
+} as RequiredFieldsElement<PeriodField>
 
 export const fullPeriodFieldEnterprise = {
   Name: "prefix_ПолеПериода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.PeriodField" },
+  ElementType: "FormField",
   Title: "Поле периода",
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   AutoMaxHeight: true,
@@ -64,7 +62,6 @@ export const fullPeriodFieldEnterprise = {
 } satisfies Required<PeriodFieldEnterprise>
 
 export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,

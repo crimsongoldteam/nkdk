@@ -4,12 +4,12 @@ import {
   RadioButtonFieldPartialYAML,
 } from "~/metadata/forms/elements/radioButtonField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   itemType: "RadioButtonField",
@@ -47,6 +47,7 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
 export const fullRadioButtonFieldEnterprise = {
   Name: "prefix_ПолеПереключателя",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.RadioButtonField" },
+  ElementType: "FormField",
   Title: "Поле переключателя",
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },
@@ -66,7 +67,6 @@ export const fullRadioButtonFieldEnterprise = {
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
   Заголовок: "Поле переключателя",
-  ТолькоПросмотр: "Ложь",
   ВидПереключателя: "Переключатель",
   ВысотаЗаголовкаЭлемента: 15,
   ВысотаЭлемента: 20,

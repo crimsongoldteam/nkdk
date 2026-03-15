@@ -6,14 +6,14 @@ import {
 } from "~/metadata/forms/elements/checkBoxField/types"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
+export const fullCheckBoxField = {
   itemType: "CheckBoxField",
   name: "Флажок",
   title: {
@@ -38,10 +38,9 @@ export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
   textColor: { type: "WebColor", value: "Yellow" },
   threeState: true,
   ...fullFormFieldCommonFixture,
-}
+} satisfies RequiredFieldsElement<CheckBoxField>
 
 export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },
@@ -271,6 +270,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
 export const fullCheckBoxFieldEnterprise = {
   Name: "prefix_Флажок",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.CheckBoxField" },
+  ElementType: "FormField",
   Title: "Флажок формы",
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
   BorderColor: { Type: "Color", Value: "WebColors.Green" },

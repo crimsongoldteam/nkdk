@@ -154,7 +154,6 @@ export const fullInputField = {
 } satisfies RequiredFieldsElement<InputField>
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
   Заголовок: "Поле ввода",
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
@@ -307,7 +306,9 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
 ]
 
 export const fullInputFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеВвода",
+  Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
   Title: "Поле ввода",
   AllowInputEmptyMultipleValues: true,
   AllowMultipleValuesDuplicates: false,

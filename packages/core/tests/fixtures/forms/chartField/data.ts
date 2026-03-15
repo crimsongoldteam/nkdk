@@ -7,7 +7,7 @@ import {
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullChartField: RequiredFieldsElement<ChartField> = {
+export const fullChartField = {
   itemType: "ChartField",
   name: "ПолеДиаграммы",
   title: {
@@ -32,11 +32,12 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
     onActivate: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldCommonFixture,
-}
+} as const satisfies RequiredFieldsElement<ChartField>
 
 export const fullChartFieldEnterprise = {
   Name: "prefix_ПолеДиаграммы",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ChartField" },
+  ElementType: "FormField",
   Title: "Поле диаграммы",
   AutoMaxHeight: true,
   AutoMaxWidth: true,

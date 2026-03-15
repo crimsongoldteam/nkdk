@@ -51,7 +51,6 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
 }
 
 export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
-  ТолькоПросмотр: "Истина",
   Рамка: { ТипРамки: "Одинарная" },
   ЦветРамки: "Зеленый",
   МаксимальнаяВысота: 500,
@@ -138,6 +137,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
 export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
   Name: "prefix_ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
+  ElementType: "FormField",
   Title: "Поле надписи",
   AutoMaxHeight: true,
   AutoMaxWidth: true,

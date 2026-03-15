@@ -11,22 +11,12 @@ import {
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
-  type: "CalendarField",
+export const fullCalendarField = {
   itemType: "CalendarField",
   name: "ПолеКалендаря",
-  dataPath: "ДатаРеквизит",
-  enabled: false,
   title: {
     items: { ru: "Заголовок поле календаря" },
   },
-  titleFont: { kind: "StyleItem", ref: "LargeTextFont" },
-  titleHeight: 6,
-  titleLocation: "Right",
-  toolTipRepresentation: "Button",
-  readOnly: true,
-  shortcut: "Shift+C",
-  visible: false,
   autoMaxHeight: false,
   autoMaxWidth: false,
   beginOfRepresentationPeriod: "2024-01-01T00:00:00",
@@ -66,26 +56,13 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
   width: 4,
   widthInMonths: 2,
   ...fullFormFieldCommonFixture,
-} as const satisfies RequiredFieldsElement<CalendarField>
+} satisfies RequiredFieldsElement<CalendarField>
 
 export const fullCalendarFieldEnterprise = {
   Name: "prefix_ПолеКалендаря",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.CalendarField" },
-  DataPath: "prefix_ДатаРеквизит",
-  Enabled: false,
-  ReadOnly: true,
+  ElementType: "FormField",
   Title: "Заголовок поле календаря",
-  TitleFont: { Type: "Font", Value: "StyleFonts.LargeTextFont" },
-  TitleHeight: 6,
-  TitleLocation: {
-    Type: "SystemEnumeration",
-    Value: "FormItemTitleLocation.Right",
-  },
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.Button",
-  },
-  Visible: false,
   AutoMaxHeight: false,
   AutoMaxWidth: false,
   BeginOfRepresentationPeriod: "2024-01-01T00:00:00",
@@ -118,13 +95,6 @@ export const fullCalendarFieldEnterprise = {
 } satisfies Required<CalendarFieldEnterprise>
 
 export const fullCalendarFieldPartialYAML = {
-  Видимость: "Ложь",
-  ВысотаЗаголовка: 6,
-  Доступность: "Ложь",
-  ОтображениеПодсказки: "Кнопка",
-  ПоложениеЗаголовка: "Право",
-  СочетаниеКлавиш: "Shift+C",
-  ШрифтЗаголовка: "КрупныйШрифтТекста",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Высота: 4,
