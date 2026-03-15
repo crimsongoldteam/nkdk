@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "GraphicalSchemaField",
   name: "ПолеГрафическойСхемы",
   title: {
@@ -100,6 +106,7 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
 }
 
 export const fullGraphicalSchemaFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеГрафическойСхемы",
   Type: {
@@ -216,6 +223,7 @@ export const fullGraphicalSchemaFieldEnterprise = {
 } satisfies Required<GraphicalSchemaFieldEnterprise>
 
 export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Вывод: "Разрешить",

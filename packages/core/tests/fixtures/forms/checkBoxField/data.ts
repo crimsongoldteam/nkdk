@@ -7,8 +7,14 @@ import {
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "CheckBoxField",
   name: "Флажок",
   autoCellHeight: true,
@@ -97,6 +103,7 @@ export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
 }
 
 export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -375,6 +382,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
 ]
 
 export const fullCheckBoxFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_Флажок",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.CheckBoxField" },

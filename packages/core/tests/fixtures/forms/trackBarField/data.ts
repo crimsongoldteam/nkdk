@@ -4,8 +4,14 @@ import {
   TrackBarFieldPartialYAML,
 } from "~/metadata/forms/elements/trackBarField/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "TrackBarField",
   name: "ПолеПолосыПрокрутки",
   autoCellHeight: true,
@@ -98,6 +104,7 @@ export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
 }
 
 export const fullTrackBarFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеПолосыПрокрутки",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.TrackBarField" },
@@ -182,6 +189,7 @@ export const fullTrackBarFieldEnterprise = {
 } satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

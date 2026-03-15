@@ -7,8 +7,14 @@ import {
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "LabelField",
   name: "ПолеНадписи",
   title: {
@@ -107,6 +113,7 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
 }
 
 export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -235,6 +242,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
 ]
 
 export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },

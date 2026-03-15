@@ -4,9 +4,15 @@ import {
   DendrogramFieldPartialYAML,
 } from "~/metadata/forms/elements/dendrogramField/types"
 
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "DendrogramField",
   name: "ПолеДендрограммы",
   title: {
@@ -197,9 +203,11 @@ export const fullDendrogramFieldEnterprise = {
   },
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
+  ...fullFormFieldEnterpriseCommonFixture,
 } satisfies Required<DendrogramFieldEnterprise>
 
 export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

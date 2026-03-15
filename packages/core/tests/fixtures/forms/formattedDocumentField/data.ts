@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/formattedDocumentField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocumentField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "FormattedDocumentField",
   name: "ПолеФорматированногоДокумента",
   title: {
@@ -101,6 +107,7 @@ export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocument
 }
 
 export const fullFormattedDocumentFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеФорматированногоДокумента",
   Type: {
@@ -229,6 +236,7 @@ export const fullFormattedDocumentFieldEnterprise = {
 } satisfies Required<FormattedDocumentFieldEnterprise>
 
 export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

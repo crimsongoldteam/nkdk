@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "SpreadSheetDocumentField",
   name: "ПолеТабличногоДокумента",
   title: {
@@ -125,6 +131,7 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
 }
 
 export const fullSpreadSheetDocumentFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеТабличногоДокумента",
   Type: {
@@ -279,6 +286,7 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
 } satisfies Required<SpreadSheetDocumentFieldEnterprise>
 
 export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   АвтоМаксимальнаяВысота: "Истина",

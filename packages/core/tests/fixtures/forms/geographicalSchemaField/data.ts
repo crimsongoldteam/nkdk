@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "GeographicalSchemaField",
   name: "ПолеГеографическойСхемы",
   title: {
@@ -98,6 +104,7 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
 }
 
 export const fullGeographicalSchemaFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеГеографическойСхемы",
   Type: {
@@ -213,6 +220,7 @@ export const fullGeographicalSchemaFieldEnterprise = {
 } satisfies Required<GeographicalSchemaFieldEnterprise>
 
 export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

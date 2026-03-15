@@ -4,8 +4,14 @@ import {
   TextDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/textDocumentField/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "TextDocumentField",
   name: "ПолеТекстовогоДокумента",
   title: {
@@ -100,6 +106,7 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
 }
 
 export const fullTextDocumentFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеТекстовогоДокумента",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.TextDocumentField" },
@@ -177,6 +184,7 @@ export const fullTextDocumentFieldEnterprise = {
 } satisfies Required<TextDocumentFieldEnterprise>
 
 export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

@@ -1,8 +1,14 @@
 import { ChartField, ChartFieldEnterprise, ChartFieldPartialYAML } from "~/metadata/forms/elements/chartField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullChartField: RequiredFieldsElement<ChartField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "ChartField",
   name: "ПолеДиаграммы",
   title: {
@@ -92,6 +98,7 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
 }
 
 export const fullChartFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеДиаграммы",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ChartField" },
@@ -163,6 +170,7 @@ export const fullChartFieldEnterprise = {
 } satisfies Required<ChartFieldEnterprise>
 
 export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

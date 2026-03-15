@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/progressBarField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "ProgressBarField",
   name: "ПолеИндикатора",
   title: {
@@ -98,6 +104,7 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
 }
 
 export const fullProgressBarFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеИндикатора",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ProgressBarField" },
@@ -181,6 +188,7 @@ export const fullProgressBarFieldEnterprise = {
 } satisfies Required<ProgressBarFieldEnterprise>
 
 export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",

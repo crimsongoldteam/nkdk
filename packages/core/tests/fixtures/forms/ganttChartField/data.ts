@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/ganttChartField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "GanttChartField",
   name: "ПолеДиаграммыГанта",
   title: {
@@ -104,6 +110,7 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
 }
 
 export const fullGanttChartFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеДиаграммыГанта",
   Type: {
@@ -225,6 +232,7 @@ export const fullGanttChartFieldEnterprise = {
 } satisfies Required<GanttChartFieldEnterprise>
 
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

@@ -5,8 +5,15 @@ import {
 } from "~/metadata/forms/elements/calendarField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
+  ...fullFormFieldCommonFixture,
+  type: "CalendarField",
   itemType: "CalendarField",
   name: "ПолеКалендаря",
   displayImportance: "High",
@@ -87,6 +94,7 @@ export const fullCalendarField: RequiredFieldsElement<CalendarField> = {
 }
 
 export const fullCalendarFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеКалендаря",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.CalendarField" },
@@ -160,6 +168,8 @@ export const fullCalendarFieldEnterprise = {
 } satisfies Required<CalendarFieldEnterprise>
 
 export const fullCalendarFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
+  Вид: "ПолеКалендаря",
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",

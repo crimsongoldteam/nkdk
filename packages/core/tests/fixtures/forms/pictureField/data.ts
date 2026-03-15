@@ -6,8 +6,14 @@ import {
 } from "~/metadata/forms/elements/pictureField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "PictureField",
   name: "ПолеКартинки",
   title: {
@@ -117,6 +123,7 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
 }
 
 export const fullPictureFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеКартинки",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
@@ -204,6 +211,7 @@ export const fullPictureFieldEnterprise = {
 } satisfies Required<PictureFieldEnterprise>
 
 export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",

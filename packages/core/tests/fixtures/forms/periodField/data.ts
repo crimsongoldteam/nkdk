@@ -6,8 +6,14 @@ import {
 } from "~/metadata/forms/elements/periodField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "PeriodField",
   name: "ПолеПериода",
   title: {
@@ -101,6 +107,7 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
 }
 
 export const fullPeriodFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеПериода",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.PeriodField" },
@@ -175,6 +182,7 @@ export const fullPeriodFieldEnterprise = {
 } satisfies Required<PeriodFieldEnterprise>
 
 export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",

@@ -6,8 +6,14 @@ import {
 } from "~/metadata/forms/elements/inputField/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "InputField",
   name: "ПолеВвода",
   autoCellHeight: true,
@@ -210,6 +216,7 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
 }
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
   АвтоИсправлениеПриВводеТекста: "Использовать",
@@ -401,6 +408,7 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
 ]
 
 export const fullInputFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   AllowInputEmptyMultipleValues: true,
   AllowMultipleValuesDuplicates: false,
   AutoCapitalizationOnTextInput: {

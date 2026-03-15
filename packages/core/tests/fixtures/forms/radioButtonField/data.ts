@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/radioButtonField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "RadioButtonField",
   name: "ПолеПереключателя",
   title: {
@@ -102,6 +108,7 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
 }
 
 export const fullRadioButtonFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеПереключателя",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.RadioButtonField" },
@@ -178,6 +185,7 @@ export const fullRadioButtonFieldEnterprise = {
 } satisfies Required<RadioButtonFieldEnterprise>
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   Заголовок: "Поле переключателя",
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",

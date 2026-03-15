@@ -4,8 +4,15 @@ import {
   PDFDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullPDFDocumentField = {
+  ...fullFormFieldCommonFixture,
+  type: "PDFDocumentField",
   itemType: "PDFDocumentField",
   name: "ПолеPDFДокумента",
   autoMaxHeight: false,
@@ -105,6 +112,7 @@ export const fullPDFDocumentField = {
 } satisfies RequiredFieldsElement<PDFDocumentField>
 
 export const fullPDFDocumentFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеPDFДокумента",
   Type: {
@@ -180,6 +188,8 @@ export const fullPDFDocumentFieldEnterprise = {
 } satisfies Required<PDFDocumentFieldEnterprise>
 
 export const fullPDFDocumentFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
+  Вид: "ПолеPDFДокумента",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   АктивизироватьПоУмолчанию: "Истина",

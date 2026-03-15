@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/htmlDocumentField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "HTMLDocumentField",
   name: "ПолеHTMLДокумента",
   title: {
@@ -100,6 +106,7 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
 }
 
 export const fullHtmlDocumentFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеHTMLДокумента",
   Type: {
@@ -216,6 +223,7 @@ export const fullHtmlDocumentFieldEnterprise = {
 } satisfies Required<HTMLDocumentFieldEnterprise>
 
 export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Высота: 200,

@@ -5,8 +5,14 @@ import {
 } from "~/metadata/forms/elements/plannerField/types"
 
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 
 export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
+  ...fullFormFieldCommonFixture,
   itemType: "PlannerField",
   name: "ПолеПланировщика",
   title: {
@@ -119,6 +125,7 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
 }
 
 export const fullPlannerFieldEnterprise = {
+  ...fullFormFieldEnterpriseCommonFixture,
   ElementType: "FormField",
   Name: "prefix_ПолеПланировщика",
   Type: {
@@ -231,6 +238,7 @@ export const fullPlannerFieldEnterprise = {
 } satisfies Required<PlannerFieldEnterprise>
 
 export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
+  ...fullFormFieldPartialYAMLCommonFixture,
   АвтоВысотаЯчейки: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
