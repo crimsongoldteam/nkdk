@@ -497,8 +497,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group with indented block",
-    input: `
-+Вертикальная
+    input: `+Вертикальная
   Поле:
   Декорация`,
     expected: {
@@ -525,8 +524,7 @@ export const parsingFixtures: ParsingFixture[] = [
   },
   {
     name: "group horizontal with indented block",
-    input: `
-- Блок
+    input: `- Блок
   Реквизит:`,
     expected: {
       $type: "Group",
@@ -558,6 +556,32 @@ export const parsingFixtures: ParsingFixture[] = [
           $type: "InputField",
           isMainAttribute: false,
           dataPath: ["Реквизит"],
+          $container: undefined,
+        },
+      ],
+    },
+  },
+  {
+    name: "group one-line absolute with input and checkbox",
+    input: `=ГруппаСлужебныеДанные Идентификатор(Объект.Идентификатор): ; [ ] ТребуетсяЗагрузка`,
+    expected: {
+      $type: "Group",
+      group: "=",
+      isMainAttribute: false,
+      elementName: "ГруппаСлужебныеДанные",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "InputField",
+          isMainAttribute: false,
+          dataPath: ["Объект", "Идентификатор"],
+          elementName: "Идентификатор",
+          $container: undefined,
+        },
+        {
+          $type: "CheckBoxFieldRightTitled",
+          isMainAttribute: false,
+          dataPath: ["ТребуетсяЗагрузка"],
           $container: undefined,
         },
       ],
@@ -621,8 +645,7 @@ export const parsingFixtures: ParsingFixture[] = [
   {
     name: "pages",
     // отступы (пробелы) при использовании парсера заменяются на INDENT/DEDENT (*Ё / *ё)
-    input: `
-// Страницы
+    input: `// Страницы
   / Страница
     Декорация`,
     expected: {

@@ -59,7 +59,7 @@ ChildItem:
     | CheckBoxFieldTumblerRightTitled
     | CommandBar  
     | Button  
-    | Table)(NEWLINE | EOF));
+    | Table)(NEWLINE | EOF)?);
  
 OneLineGroupField:
     PictureField
@@ -69,8 +69,11 @@ OneLineGroupField:
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField 
+    | CheckBoxFieldRightTitled
     | CheckBoxFieldSwitch
+    | CheckBoxFieldSwitchRightTitled
     | CheckBoxFieldTumbler 
+    | CheckBoxFieldTumblerRightTitled
     | Button  
     | CommandBar;
 
@@ -155,7 +158,7 @@ Group:
 // one-line group
 
 fragment OneLineGroupFragment:
-    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )* (NEWLINE | EOF);
+    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )* (NEWLINE | EOF)?;
 
 // table
 
