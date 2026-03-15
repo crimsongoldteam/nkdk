@@ -8,15 +8,15 @@ terminal VGROUP: /\+/;
 terminal HGROUP: /\-/;
 terminal ABSGROUP: /\=/;
 
-terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*[\t ]*\]/;
+terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_.]*[\t ]*\]/;
 
-terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*/;
+terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*(?:\[[0-9]+\])?/;
 
 terminal TEXT: /"(?:[^"]|"")*"|'(?:[^']|'')*'/;
 
 terminal SEARCHFIELD: /\?(УправлениеПоиском|ОтображениеСтрокиПоиска)/;
 
-terminal OTHERFIELD: /\?(ПолеФорматированногоДокумента|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
+terminal OTHERFIELD: /\?(ПолеКалендаря|ПолеФорматированногоДокумента|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеРисунка|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
 
 terminal INDENT: '\*Ё';
 terminal DEDENT: '\*ё';
@@ -153,7 +153,7 @@ Group:
         (
             (NEWLINE | EOF) (INDENT childItems+=ChildItem* DEDENT)?
             | OneLineGroupFragment
-        );
+        )?;
 
 // one-line group
 
@@ -164,7 +164,7 @@ fragment OneLineGroupFragment:
 
 Table:
     (autoCommandBar = AutoCommandBar (NEWLINE | EOF))?
-    '|' ( childItems+=TableField ('|' childItems+=TableField )*)? '|' NameAndDataPath;
+    '|' ( (childItems+=TableField ('|' childItems+=TableField )* '|') | '|'? ) NameAndDataPath;
 
 TableHorizontalGroup:
     HGROUP Titled Name;
@@ -199,12 +199,11 @@ TableField:
 // pages
 
 Pages:
-    '//' Titled Name (NEWLINE | EOF)
+    '//' Titled Name (NEWLINE | EOF | DEDENT)
     (INDENT (childItems+=Page)* DEDENT)?; 
 
 Page:
-    '/' Titled Name (NEWLINE | EOF)
-    (INDENT (childItems+=ChildItem)* DEDENT)?;
+    '/' Titled Name ((NEWLINE | EOF) (INDENT childItems+=ChildItem* DEDENT)?)?;
 
 // other
 
