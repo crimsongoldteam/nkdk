@@ -47,7 +47,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableCurrentRowUse",
     },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "ValueTable" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", toYAML: false, fromYAML: false, defaultType: "ValueTable" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

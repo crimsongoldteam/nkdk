@@ -37,7 +37,7 @@ export const CheckBoxFieldRules = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "boolean" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", toYAML: false, fromYAML: false, defaultType: "boolean" },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {

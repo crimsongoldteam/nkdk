@@ -28,6 +28,17 @@ export interface BasePropertyRule {
    * Название ключа в yaml
    */
   yaml?: string
+
+  /**
+   * Не экспортировать в yaml
+   */
+  toYAML?: false
+  /**
+   * Не импортировать из yaml
+   */
+  fromYAML?: false
+  toPartialYAML?: false
+
   /**
    * Название в xml, если не заполнено - будет использован ключ
    */
@@ -38,9 +49,7 @@ export interface BasePropertyRule {
    */
   toEnterprise?: false
   fromEnterprise?: false
-  toPartialYAML?: false
   fromXML?: false
-  fromYAML?: false
   defaultValue?: any | DefaultValueFunction
   defaultValueXML?: any
 

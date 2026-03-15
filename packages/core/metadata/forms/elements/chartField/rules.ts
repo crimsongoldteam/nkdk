@@ -30,8 +30,7 @@ export const ChartFieldRules = {
     autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "string" },
-
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", toYAML: false, fromYAML: false, defaultType: "string" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -79,7 +78,7 @@ export const ChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
     },
-    readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
+    readOnly: { yaml: "ТолькоПросмотр", type: "boolean", defaultValue: false },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     showInFooter: { yaml: "ОтображатьВПодвале", type: "boolean" },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
