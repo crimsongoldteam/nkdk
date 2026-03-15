@@ -1,6 +1,6 @@
 grammar Nkdk
 
-hidden terminal NEWLINE: /[\r\n]+/;
+terminal NEWLINE: /[\r\n]+/;
 
 terminal GROUP: /(\=|\+|\-)\1{1,4}/;
 
@@ -23,7 +23,7 @@ terminal DEDENT: '\*ё';
 hidden terminal WS: /[\t ]+/;
 
 entry Form:
-    (autoCommandBar=AutoCommandBar)?
+    (autoCommandBar=AutoCommandBar (NEWLINE | EOF))?
     (childItems+=ChildItem)*;
 
 
@@ -32,12 +32,12 @@ fragment DataPath:
 
 fragment Name:
     (isMainAttribute?='.')? elementName=NAME;
-
+ 
 fragment NameAndDataPath:
     (isMainAttribute?='.')? ((elementName=NAME '(' DataPath ')') | DataPath);
 
 fragment Titled:
-    (title=TEXT)?;
+    (title=TEXT)?; 
 
 fragment Field:
     ((NameAndDataPath ':') | (Titled ':' NameAndDataPath));
@@ -45,7 +45,7 @@ fragment Field:
 ChildItem:
      Group 
     | Pages
-    | PictureField
+    | ((PictureField
     | InputField  
     | LabelField
     | OtherField  
@@ -59,7 +59,7 @@ ChildItem:
     | CheckBoxFieldTumblerRightTitled
     | CommandBar  
     | Button  
-    | Table;
+    | Table)(NEWLINE | EOF));
  
 OneLineGroupField:
     PictureField
@@ -148,19 +148,19 @@ CommandBar:
 Group:
     group=(GROUP | HGROUP | VGROUP | ABSGROUP) Titled Name 
         (
-            (INDENT childItems+=ChildItem* DEDENT)?
+            (NEWLINE | EOF) (INDENT childItems+=ChildItem* DEDENT)?
             | OneLineGroupFragment
         );
 
 // one-line group
 
 fragment OneLineGroupFragment:
-    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )*;
+    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )* (NEWLINE | EOF);
 
 // table
 
 Table:
-    (autoCommandBar = AutoCommandBar)?
+    (autoCommandBar = AutoCommandBar (NEWLINE | EOF))?
     '|' ( childItems+=TableField ('|' childItems+=TableField )*)? '|' NameAndDataPath;
 
 TableHorizontalGroup:
@@ -196,11 +196,11 @@ TableField:
 // pages
 
 Pages:
-    '//' Titled Name
+    '//' Titled Name (NEWLINE | EOF)
     (INDENT (childItems+=Page)* DEDENT)?; 
 
 Page:
-    '/' Titled Name
+    '/' Titled Name (NEWLINE | EOF)
     (INDENT (childItems+=ChildItem)* DEDENT)?;
 
 // other
