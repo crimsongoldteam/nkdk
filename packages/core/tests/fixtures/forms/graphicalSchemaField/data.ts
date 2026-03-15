@@ -41,9 +41,10 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
     onActivate: "ПроцедураАктивации",
   },
   ...fullFormFieldCommonFixture,
-}
+} satisfies RequiredFieldsElement<GraphicalSchemaField>
 
 export const fullGraphicalSchemaFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеГрафическойСхемы",
   Type: {
     Type: "SystemEnumeration",
@@ -82,7 +83,6 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   Редактирование: "Истина",
   ЦветРамки: "Черный",
   Ширина: 300,
-  РазрешитьИспользование: { Администратор: "Истина" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
@@ -92,7 +92,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
     ПриАктивизации: "ПроцедураАктивации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   itemType: "GraphicalSchemaField",

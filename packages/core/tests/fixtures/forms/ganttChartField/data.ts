@@ -4,12 +4,12 @@ import {
   GanttChartFieldPartialYAML,
 } from "~/metadata/forms/elements/ganttChartField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   itemType: "GanttChartField",
@@ -48,6 +48,7 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
 }
 
 export const fullGanttChartFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеДиаграммыГанта",
   Type: {
     Type: "SystemEnumeration",
@@ -93,7 +94,6 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
   РежимВыделенияЗначений: "Одиночный",
   РежимВыделенияИнтервалов: "Одиночный",
   Ширина: 300,
-  РазрешитьИспользование: { Администратор: "Истина" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
@@ -105,7 +105,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
     ПриОкончанииРедактированияИнтервала: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalGanttChartField: GanttChartField = {
   itemType: "GanttChartField",

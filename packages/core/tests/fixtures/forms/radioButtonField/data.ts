@@ -66,7 +66,6 @@ export const fullRadioButtonFieldEnterprise = {
 } satisfies Required<RadioButtonFieldEnterprise>
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
-  Заголовок: "Поле переключателя",
   ВидПереключателя: "Переключатель",
   ВысотаЗаголовкаЭлемента: 15,
   ВысотаЭлемента: 20,
@@ -82,7 +81,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
     ПриИзменении: "ПроцедураПриИзменении",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalRadioButtonField: RadioButtonField = {
   itemType: "RadioButtonField",

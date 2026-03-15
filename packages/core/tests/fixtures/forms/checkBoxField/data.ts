@@ -56,7 +56,7 @@ export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
   ШиринаЭлемента: 100,
   Шрифт: "ОбычныйШрифтТекста",
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<CheckBoxFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
   ...fullCheckBoxFieldPartialYAML,

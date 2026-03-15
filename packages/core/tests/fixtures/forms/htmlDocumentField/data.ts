@@ -4,12 +4,12 @@ import {
   HTMLDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
   itemType: "HTMLDocumentField",
@@ -44,6 +44,7 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
 }
 
 export const fullHtmlDocumentFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеHTMLДокумента",
   Type: {
     Type: "SystemEnumeration",
@@ -91,7 +92,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
     ПриНажатии: "ПроцедураНажатия",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<HTMLDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
   itemType: "HTMLDocumentField",

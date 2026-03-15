@@ -3,14 +3,14 @@ import {
   TextDocumentFieldEnterprise,
   TextDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/textDocumentField/types"
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
+export const fullTextDocumentField = {
   itemType: "TextDocumentField",
   name: "ПолеТекстовогоДокумента",
   title: {
@@ -41,9 +41,10 @@ export const fullTextDocumentField: RequiredFieldsElement<TextDocumentField> = {
     afterWrite: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldCommonFixture,
-}
+} satisfies RequiredFieldsElement<TextDocumentField>
 
 export const fullTextDocumentFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеТекстовогоДокумента",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.TextDocumentField" },
   Title: "Поле текстового документа",
@@ -86,7 +87,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<TextDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalTextDocumentField: TextDocumentField = {
   itemType: "TextDocumentField",

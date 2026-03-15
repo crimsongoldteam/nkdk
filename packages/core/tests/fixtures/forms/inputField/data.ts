@@ -154,7 +154,6 @@ export const fullInputField = {
 } satisfies RequiredFieldsElement<InputField>
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
-  Заголовок: "Поле ввода",
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
   АвтоИсправлениеПриВводеТекста: "Использовать",
@@ -252,7 +251,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
   ...fullInputFieldPartialYAML,

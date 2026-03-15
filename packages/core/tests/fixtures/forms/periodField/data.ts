@@ -75,8 +75,10 @@ export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
   },
+  АвтоМаксимальнаяВысота: "Истина",
+  АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<PeriodFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
   ...fullPeriodFieldPartialYAML,

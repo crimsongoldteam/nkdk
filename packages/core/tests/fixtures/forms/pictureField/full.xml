@@ -91,7 +91,6 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>InputField</Type>
 	<TypeRestriction>
 		<v8:Type>xs:string</v8:Type>
 		<v8:StringQualifiers>
@@ -119,4 +118,6 @@
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
 	<Zoomable>false</Zoomable>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Parent>Родитель</Parent>
 </PictureField>

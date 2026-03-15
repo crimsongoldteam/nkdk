@@ -4,12 +4,12 @@ import {
   ProgressBarFieldPartialYAML,
 } from "~/metadata/forms/elements/progressBarField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
   itemType: "ProgressBarField",
@@ -42,6 +42,7 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
 }
 
 export const fullProgressBarFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеИндикатора",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ProgressBarField" },
   Title: "Поле индикатора",
@@ -69,7 +70,8 @@ export const fullProgressBarFieldEnterprise = {
 } satisfies Required<ProgressBarFieldEnterprise>
 
 export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
+  АвтоМаксимальнаяВысота: "Истина",
+  АвтоМаксимальнаяШирина: "Истина",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
@@ -85,8 +87,9 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },
+
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<ProgressBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalProgressBarField: ProgressBarField = {
   itemType: "ProgressBarField",

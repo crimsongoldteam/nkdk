@@ -4,12 +4,12 @@ import {
   GeographicalSchemaFieldPartialYAML,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {
   itemType: "GeographicalSchemaField",
@@ -42,6 +42,7 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
 }
 
 export const fullGeographicalSchemaFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеГеографическойСхемы",
   Type: {
     Type: "SystemEnumeration",
@@ -78,7 +79,6 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
   РастягиватьПоГоризонтали: "Истина",
   ЦветРамки: "Черный",
   Ширина: 300,
-  РазрешитьИспользование: { Администратор: "Истина" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     ОбработкаРасшифровки: "ПроцедураОбработкиРасшифровки",
@@ -86,8 +86,9 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
     ПередПечатью: "ПроцедураПередПечатью",
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
+
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
   itemType: "GeographicalSchemaField",

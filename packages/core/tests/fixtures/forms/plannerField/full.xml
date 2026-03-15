@@ -99,7 +99,6 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>InputField</Type>
 	<TypeRestriction>
 		<v8:Type>xs:string</v8:Type>
 		<v8:StringQualifiers>
@@ -123,4 +122,6 @@
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
 	<WrappedTimeScaleHeaderHyperlink>false</WrappedTimeScaleHeaderHyperlink>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Parent>Родитель</Parent>
 </PlannerField>

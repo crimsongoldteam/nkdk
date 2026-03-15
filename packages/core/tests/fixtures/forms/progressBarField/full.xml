@@ -79,7 +79,6 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>InputField</Type>
 	<TypeRestriction>
 		<v8:Type>xs:string</v8:Type>
 		<v8:StringQualifiers>
@@ -102,4 +101,6 @@
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Parent>Родитель</Parent>
 </ProgressBarField>

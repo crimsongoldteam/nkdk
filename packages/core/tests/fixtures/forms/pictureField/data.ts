@@ -5,20 +5,19 @@ import {
   PictureFieldTypedYAML,
 } from "~/metadata/forms/elements/pictureField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPictureField: RequiredFieldsElement<PictureField> = {
+export const fullPictureField = {
   itemType: "PictureField",
   name: "ПолеКартинки",
   title: {
     items: { ru: "Поле картинки" },
   },
-  table: "ИсходнаяТаблица",
   border: {
     controlBorderType: "Single",
   },
@@ -59,9 +58,10 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
     dragCheck: "ПроцедураПроверкаПеретаскивания",
   },
   ...fullFormFieldCommonFixture,
-}
+} satisfies RequiredFieldsElement<PictureField>
 
 export const fullPictureFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеКартинки",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
   Title: "Поле картинки",
@@ -93,7 +93,6 @@ export const fullPictureFieldEnterprise = {
 } satisfies Required<PictureFieldEnterprise>
 
 export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
@@ -104,9 +103,8 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   РазмерКартинки: "АвтоРазмер",
   РазрешитьНачалоПеретаскивания: "Ложь",
   РазрешитьПеретаскивание: "Ложь",
-  Рамка: { ТипРамки: "Одинарная" },
+  Рамка: { Имя: undefined, ТипРамки: "Одинарная", Ширина: undefined },
   СпособПеретаскиванияФайлов: "КакФайл",
-  Таблица: "ИсходнаяТаблица",
   ТекстНевыбраннойКартинки: "Текст невыбранной картинки",
   ЦветРамки: "Черный",
   ЦветТекста: "Черный",
@@ -122,8 +120,10 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
     Перетаскивание: "ПроцедураПеретаскивание",
     ПроверкаПеретаскивания: "ПроцедураПроверкаПеретаскивания",
   },
+  АвтоМаксимальнаяВысота: "Истина",
+  АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {
   ...fullPictureFieldPartialYAML,

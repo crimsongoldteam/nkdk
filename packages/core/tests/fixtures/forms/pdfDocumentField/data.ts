@@ -3,12 +3,12 @@ import {
   PDFDocumentFieldEnterprise,
   PDFDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/pdfDocumentField/types"
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPDFDocumentField = {
   itemType: "PDFDocumentField",
@@ -16,26 +16,10 @@ export const fullPDFDocumentField = {
   title: {
     items: { ru: "Заголовок документа" },
   },
-  dataPath: "Документ",
-  enabled: false,
-  readOnly: true,
-  shortcut: "Cmd+S",
-  skipOnInput: true,
-  titleFont: { kind: "StyleItem", ref: "LargeTextFont" },
-  titleHeight: 3,
-  titleLocation: "Top",
-  titleTextColor: { type: "WebColor", value: "Blue" },
-  toolTipRepresentation: "Balloon",
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: false }],
   },
-  verticalAlignInGroup: "Center",
-  visible: false,
-  warningOnEdit: {
-    items: { ru: "Предупреждение при редактировании" },
-  },
-  warningOnEditRepresentation: "Show",
   autoMaxHeight: false,
   autoMaxWidth: false,
   borderColor: { type: "WebColor", value: "Red" },
@@ -48,7 +32,6 @@ export const fullPDFDocumentField = {
   width: 51,
   height: 11,
   commandSet: ["ScaleUp"],
-  onMainServerUnavalableBehavior: "MakeDisable",
   events: {
     onChange: "ДокументПриИзменении",
     uRLClick: "ДокументНажатиеНаНавигационнойСсылке",
@@ -93,66 +76,30 @@ export const fullPDFDocumentField = {
     width: 1,
   },
   ...fullFormFieldCommonFixture,
+  dataPath: "Документ",
+  onMainServerUnavalableBehavior: "MakeDisable",
 } satisfies RequiredFieldsElement<PDFDocumentField>
 
 export const fullPDFDocumentFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеPDFДокумента",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.PDFDocumentField",
   },
-  DataPath: "prefix_Документ",
-  Enabled: false,
   Height: 11,
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
   HorizontalStretch: false,
   MaxHeight: 2,
   MaxWidth: 1,
-  OnMainServerUnavalableBehavior: {
-    Type: "SystemEnumeration",
-    Value: "OnMainServerUnavalableBehavior.MakeDisable",
-  },
   Output: {
     Type: "SystemEnumeration",
     Value: "UseOutput.Enable",
   },
-  ReadOnly: true,
-  SkipOnInput: true,
   Title: "Заголовок документа",
-  TitleFont: {
-    Type: "Font",
-    Value: "StyleFonts.LargeTextFont",
-  },
-  TitleHeight: 3,
-  TitleLocation: {
-    Type: "SystemEnumeration",
-    Value: "FormItemTitleLocation.Top",
-  },
-  TitleTextColor: {
-    Type: "Color",
-    Value: "WebColors.Blue",
-  },
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.Balloon",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Center",
-  },
   VerticalStretch: false,
   ViewStatusLocation: {
     Type: "SystemEnumeration",
     Value: "ViewStatusLocation.Top",
-  },
-  Visible: false,
-  WarningOnEdit: "Предупреждение при редактировании",
-  WarningOnEditRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "WarningOnEditRepresentation.Show",
   },
   Width: 51,
   AutoMaxHeight: false,
@@ -162,20 +109,22 @@ export const fullPDFDocumentFieldEnterprise = {
     Value: "WebColors.Red",
   },
   ...fullFormFieldEnterpriseCommonFixture,
+  DataPath: "prefix_Документ",
+  HorizontalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  OnMainServerUnavalableBehavior: {
+    Type: "SystemEnumeration",
+    Value: "OnMainServerUnavalableBehavior.MakeDisable",
+  },
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Center",
+  },
 } satisfies Required<PDFDocumentFieldEnterprise>
 
 export const fullPDFDocumentFieldPartialYAML = {
-  ВысотаЗаголовка: 3,
-  ВертикальноеПоложениеВГруппе: "Центр",
-  Доступность: "Ложь",
-  СочетаниеКлавиш: "Cmd+S",
-  ТолькоПросмотр: "Истина",
-  ПоложениеЗаголовка: "Верх",
-  ПредупреждениеПриРедактировании: "Предупреждение при редактировании",
-  ПропускатьПриВводе: "Истина",
-  ПоведениеПриНедоступностиОсновногоСервера: "ОтключитьДоступность",
-  ОтображениеПодсказки: "Всплывающая",
-  ОтображениеПредупрежденияПриРедактировании: "Отображать",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",
@@ -185,9 +134,6 @@ export const fullPDFDocumentFieldPartialYAML = {
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Красный",
-  ЦветТекстаЗаголовка: "Синий",
-  ШрифтЗаголовка: "КрупныйШрифтТекста",
-  Видимость: "Ложь",
   Команда: ["ScaleUp"],
   ПоложениеСостоянияПросмотра: "Верх",
   ОтображениеСостоянияПросмотра: {
@@ -217,7 +163,6 @@ export const fullPDFDocumentFieldPartialYAML = {
     ШрифтЗаголовка: "ОченьКрупныйШрифтТекста",
   },
   Ширина: 51,
-  РазрешитьИспользование: { Администратор: "Ложь" },
   События: {
     ПриИзменении: "ДокументПриИзменении",
     НажатиеНаНавигационнойСсылке: "ДокументНажатиеНаНавигационнойСсылке",

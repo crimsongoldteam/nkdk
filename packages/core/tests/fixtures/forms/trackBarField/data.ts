@@ -3,12 +3,12 @@ import {
   TrackBarFieldEnterprise,
   TrackBarFieldPartialYAML,
 } from "~/metadata/forms/elements/trackBarField/types"
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   itemType: "TrackBarField",
@@ -39,9 +39,10 @@ export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   verticalStretch: false,
   width: 200,
   ...fullFormFieldCommonFixture,
-}
+} satisfies RequiredFieldsElement<TrackBarField>
 
 export const fullTrackBarFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеПолосыПрокрутки",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.TrackBarField" },
   Title: "Поле полосы прокрутки",
@@ -70,7 +71,6 @@ export const fullTrackBarFieldEnterprise = {
 } satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },
@@ -90,7 +90,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   ШагРазметки: 5,
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 // Удаляем Заголовок, так как exportFormFieldPropsToYAML не экспортирует его
 delete (fullTrackBarFieldPartialYAML as any).Заголовок

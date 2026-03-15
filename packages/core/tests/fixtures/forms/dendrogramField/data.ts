@@ -38,6 +38,7 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
 }
 
 export const fullDendrogramFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеДендрограммы",
   Type: {
     Type: "SystemEnumeration",
@@ -56,13 +57,11 @@ export const fullDendrogramFieldEnterprise = {
 } satisfies Required<DendrogramFieldEnterprise>
 
 export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
-  ТолькоПросмотр: "Ложь",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   Ширина: 300,
@@ -71,8 +70,9 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
     Выбор: "ПроцедураВыбора",
     ОбработкаРасшифровки: "ПроцедураОбработкиРасшифровки",
   },
+
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<DendrogramFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalDendrogramField: DendrogramField = {
   itemType: "DendrogramField",

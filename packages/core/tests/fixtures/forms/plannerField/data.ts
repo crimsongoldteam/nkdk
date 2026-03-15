@@ -4,12 +4,12 @@ import {
   PlannerFieldPartialYAML,
 } from "~/metadata/forms/elements/plannerField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
   itemType: "PlannerField",
@@ -63,6 +63,7 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
 }
 
 export const fullPlannerFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеПланировщика",
   Type: {
     Type: "SystemEnumeration",
@@ -99,7 +100,6 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   Ширина: 300,
-  РазрешитьИспользование: { Администратор: "Истина" },
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",
@@ -126,7 +126,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
     ПроверкаПеретаскиванияВнутри: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<PlannerFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalPlannerField: PlannerField = {
   itemType: "PlannerField",

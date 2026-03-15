@@ -71,8 +71,10 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
     Нажатие: "ПроцедураНажатия",
     ОбработкаНавигационнойСсылки: "ПроцедураОбработкиURL",
   },
+  АвтоМаксимальнаяВысота: "Истина",
+  АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
   ...fullLabelFieldPartialYAML,

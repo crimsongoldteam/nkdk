@@ -4,12 +4,12 @@ import {
   SpreadSheetDocumentFieldPartialYAML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 
-import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {
   itemType: "SpreadSheetDocumentField",
@@ -69,6 +69,7 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
 }
 
 export const fullSpreadSheetDocumentFieldEnterprise = {
+  ElementType: "FormField",
   Name: "prefix_ПолеТабличногоДокумента",
   Type: {
     Type: "SystemEnumeration",
@@ -162,7 +163,6 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
   ЦветРамки: "Черный",
   ЧерноБелыйПросмотр: "Ложь",
   Ширина: 300,
-  РазрешитьИспользование: { Администратор: "Истина" },
   События: {
     Выбор: "ПроцедураПриВыборе",
     ОбработкаРасшифровки: "ПроцедураПриОбработкеРасшифровки",
@@ -180,7 +180,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
     ПриИзмененииСодержимогоОбласти: "ПроцедураПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-}
+} satisfies Omit<Required<SpreadSheetDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   itemType: "SpreadSheetDocumentField",
