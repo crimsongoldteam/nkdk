@@ -60,6 +60,17 @@ export const parsingFixtures: ParsingFixture[] = [
       $container: undefined,
     },
   },
+  {
+    name: "form attribute with empty data path",
+    input: `Родитель():`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      dataPath: [],
+      elementName: "Родитель",
+      $container: undefined,
+    },
+  },
   // #endregion
   // #region LabelDecoration
   {

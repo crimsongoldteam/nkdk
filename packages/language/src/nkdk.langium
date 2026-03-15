@@ -34,7 +34,7 @@ fragment Name:
     (isMainAttribute?='.')? elementName=NAME;
  
 fragment NameAndDataPath:
-    (isMainAttribute?='.')? ((elementName=NAME '(' DataPath ')') | DataPath);
+    (isMainAttribute?='.')? ((elementName=NAME '(' DataPath? ')') | DataPath);
 
 fragment Titled:
     (title=TEXT)?; 
