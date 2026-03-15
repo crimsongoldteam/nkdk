@@ -65,7 +65,7 @@ import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects
 import {
   CommandBarChildItems,
   CommandBarChildItemsEnterprise,
-  CommandBarChildItemsPartialYAML,
+  CommandBarChildItemsTypedYAML,
   GroupChildItems,
   GroupChildItemsEnterprise,
   GroupChildItemsPartialYAML,
@@ -418,7 +418,7 @@ export type PropertyTypeRegistry = {
   CommandBarChildItems: {
     item: CommandBarChildItems
     enterprise: CommandBarChildItemsEnterprise
-    yaml: CommandBarChildItemsPartialYAML
+    yaml: CommandBarChildItemsTypedYAML
   }
   TableChildItems: {
     item: TableChildItems

@@ -4,6 +4,45 @@ import { PropertyRuleType, PropertyToYAML } from "~/metadata/orchestration/prope
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../property/types"
 
+/**
+ * YAML-представление значения по умолчанию (с учётом преобразований).
+ * Используется для исключения defaultValue из типа YAML — в YAML допускается только отсутствие ключа или значение, отличное от default.
+ */
+type DefaultValueToYAML<
+  PropertyType extends PropertyRuleType,
+  DefaultValue,
+> = PropertyType extends "boolean"
+  ? DefaultValue extends true
+    ? "Истина"
+    : DefaultValue extends false
+      ? "Ложь"
+      : never
+  : PropertyType extends "number" | "string"
+    ? DefaultValue
+    : PropertyType extends "SystemEnumeration"
+      ? DefaultValue extends string
+        ? DefaultValue
+        : never
+      : never
+
+type ValueTypeWithDefault<Base, P, PropertyType extends PropertyRuleType> = P extends {
+  defaultValue: infer D
+}
+  ? D extends (...args: any[]) => any
+    ? Base
+    : Exclude<Base, DefaultValueToYAML<PropertyType, D>>
+  : Base
+
+type PropertyYAMLValueType<P> = P extends { type: "SystemEnumeration"; typeSE: infer TypeSE }
+  ? TypeSE extends string
+    ? ValueTypeWithDefault<SETypeByName<TypeSE>, P, "SystemEnumeration">
+    : unknown
+  : P extends { type: infer PropertyType }
+    ? PropertyType extends PropertyRuleType
+      ? ValueTypeWithDefault<PropertyToYAML<PropertyType>, P, PropertyType>
+      : unknown
+    : unknown
+
 export type YAMLTypeByRule<
   Rule extends {
     properties: Record<string, PropertyRule>
@@ -26,11 +65,11 @@ type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }>
           typeSE: infer TypeSE
         }
           ? TypeSE extends string
-            ? SETypeByName<TypeSE>
+            ? PropertyYAMLValueType<Properties[K]>
             : unknown
           : Properties[K] extends { type: infer PropertyType }
             ? PropertyType extends PropertyRuleType
-              ? PropertyToYAML<PropertyType>
+              ? PropertyYAMLValueType<Properties[K]>
               : unknown
             : unknown
       }

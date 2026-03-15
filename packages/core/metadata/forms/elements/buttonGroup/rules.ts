@@ -16,6 +16,7 @@ export const ButtonGroupRules = {
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
+      toPartialYAML: false,
       defaultValue: [],
       required: true,
     },
@@ -30,7 +31,7 @@ export const ButtonGroupRules = {
       typeSE: "ButtonGroupRepresentation",
     },
     enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
-    enabled: { yaml: "Доступность", type: "boolean" },
+    enabled: { yaml: "Доступность", type: "boolean", defaultValue: true },
     height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -39,7 +40,7 @@ export const ButtonGroupRules = {
       typeSE: "ItemHorizontalLocation",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
+    readOnly: { yaml: "ТолькоПросмотр", type: "boolean", defaultValue: false },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     title: {
       yaml: "Заголовок",

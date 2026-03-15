@@ -22,7 +22,13 @@ export const CalendarFieldRules = {
     calendarNavigation: { yaml: "ПеремещениеПоКалендарю", type: "boolean" },
     cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
     contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "dateTime" },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "dateTime",
+    },
 
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
@@ -33,7 +39,7 @@ export const CalendarFieldRules = {
     },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
-    enabled: { yaml: "Доступность", type: "boolean" },
+    enabled: { yaml: "Доступность", type: "boolean", defaultValue: true },
     endOfRepresentationPeriod: { yaml: "КонецПериодаОтображения", type: "string" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     font: { yaml: "Шрифт", type: "Font" },
