@@ -9,6 +9,7 @@ export type PictureFieldPartialYAML = YAMLTypeByRule<typeof PictureFieldRules>
 
 export interface PictureFieldTypedYAML extends PictureFieldPartialYAML {
   Тип: "ПолеРисунка"
+  ПутьКДанным: string
 }
 
 export type PictureFieldEnterprise = EnterpriseType<typeof PictureFieldRules>

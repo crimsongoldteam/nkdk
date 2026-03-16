@@ -57,7 +57,7 @@ export const PlannerFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "Planner",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

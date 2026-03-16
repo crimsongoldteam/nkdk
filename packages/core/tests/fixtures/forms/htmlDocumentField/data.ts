@@ -28,7 +28,7 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
   maxHeight: 500,
   maxWidth: 400,
   output: "Enable",
-  userAgentInformation: "Информация программы просмотра",
+  // userAgentInformation: "Информация программы просмотра",
   verticalStretch: true,
   width: 300,
   events: {
@@ -65,7 +65,7 @@ export const fullHtmlDocumentFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "UseOutput.Enable",
   },
-  UserAgentInformation: "Информация программы просмотра",
+  // UserAgentInformation: "Информация программы просмотра",
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
@@ -82,7 +82,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   Ширина: 300,
-  ИнформацияПрограммыПросмотра: "Информация программы просмотра",
+  // ИнформацияПрограммыПросмотра: "Информация программы просмотра",
   ЦветРамки: "Черный",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
@@ -94,7 +94,10 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
   },
   ...fullFormFieldPartialYAMLCommonFixture,
   ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} satisfies Omit<Required<HTMLDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<
+  Required<HTMLDocumentFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
   itemType: "HTMLDocumentField",

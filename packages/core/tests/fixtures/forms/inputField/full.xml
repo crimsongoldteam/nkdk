@@ -1,5 +1,5 @@
 <InputField name="ПолеВвода" id="6" DisplayImportance="High">
-	<DataPath>Реквизит</DataPath>
+	<DataPath>Таблица</DataPath>
 	<Visible>false</Visible>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
@@ -71,6 +71,7 @@
 	<MaxHeight>500</MaxHeight>
 	<HorizontalStretch>true</HorizontalStretch>
 	<VerticalStretch>true</VerticalStretch>
+	<Wrap>false</Wrap>
 	<PasswordMode>true</PasswordMode>
 	<MultiLine>true</MultiLine>
 	<ExtendedEdit>true</ExtendedEdit>
@@ -88,11 +89,19 @@
 	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
 	<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
 	<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
+	<AllowMultipleValuesDuplicates>true</AllowMultipleValuesDuplicates>
 	<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
 	<MultipleValuePictureSize>Large</MultipleValuePictureSize>
 	<MultipleValuePictureShape>Circle</MultipleValuePictureShape>
 	<ShowCheckBoxesInDropList>true</ShowCheckBoxesInDropList>
 	<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
+	<MultipleValuesPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</MultipleValuesPicture>
+	<MultipleValueDataPath>Таблица.Реквизит</MultipleValueDataPath>
+	<MultipleValuePictureDataPath>Таблица.Реквизит</MultipleValuePictureDataPath>
+	<MultipleValuePresentDataPath>Таблица.Реквизит</MultipleValuePresentDataPath>
 	<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
 	<QuickChoice>true</QuickChoice>
 	<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
@@ -109,7 +118,9 @@
 		</v8:item>
 	</EditFormat>
 	<AutoMarkIncomplete>true</AutoMarkIncomplete>
+	<ChooseType>false</ChooseType>
 	<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
+	<TextEdit>false</TextEdit>
 	<EditTextUpdate>OnValueChange</EditTextUpdate>
 	<MinValue xsi:type="xs:decimal">1</MinValue>
 	<MaxValue xsi:type="xs:decimal">99</MaxValue>
@@ -164,6 +175,7 @@
 	</TypeLink>
 	<HeightControlVariant>UseContentHeight</HeightControlVariant>
 	<AutoShowClearButtonMode>Always</AutoShowClearButtonMode>
+	<AutoShowOpenButtonMode>FilledOnly</AutoShowOpenButtonMode>
 	<AutoCorrectionOnTextInput>Use</AutoCorrectionOnTextInput>
 	<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
 	<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
@@ -205,4 +217,16 @@
 		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
 		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
 	</Events>
+	<ChoiceForm>Catalog.Справочник.Form.ФормаВыбора</ChoiceForm>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<TypeRestriction>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:Length>0</v8:Length>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+		</v8:StringQualifiers>
+	</TypeRestriction>
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
+	<AutoCellHeight>false</AutoCellHeight>
+	<FixingInTable>None</FixingInTable>
 </InputField>

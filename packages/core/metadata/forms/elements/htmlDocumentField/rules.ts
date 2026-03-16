@@ -21,7 +21,10 @@ export const HTMLDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "UseOutput",
     },
-    userAgentInformation: { yaml: "ИнформацияПрограммыПросмотра", type: "string" },
+    // userAgentInformation: {
+    //   yaml: "ИнформацияПрограммыПросмотра",
+    //   type: "string",
+    // },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {

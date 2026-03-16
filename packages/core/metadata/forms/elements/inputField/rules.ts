@@ -29,8 +29,12 @@ export const InputFieldRules = {
       yaml: "ПодсказкаАвтозаполнения",
       type: "SystemEnumeration",
       typeSE: "InputFieldAutofillHint",
+      xml: "SpecialTextInputMode",
     },
-    autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
+    autoMarkIncomplete: {
+      yaml: "АвтоОтметкаНезаполненного",
+      type: "boolean",
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     autoShowClearButton: {
@@ -43,6 +47,7 @@ export const InputFieldRules = {
       yaml: "АвтоОтображениеКнопкиОткрытия",
       type: "SystemEnumeration",
       typeSE: "AutoShowOpenButtonMode",
+      xml: "AutoShowOpenButtonMode",
     },
     availableTypes: {
       yaml: "ДоступныеТипы",
@@ -84,7 +89,7 @@ export const InputFieldRules = {
     dropListButton: { yaml: "КнопкаВыпадающегоСписка", type: "boolean" },
     dropListWidth: { yaml: "ШиринаВыпадающегоСписка", type: "number" },
     editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
-    editText: { yaml: "ТекстРедактирования", type: "string" },
+    // editText: { yaml: "ТекстРедактирования", type: "string" },
     editTextUpdate: {
       yaml: "ОбновлениеТекстаРедактирования",
       type: "SystemEnumeration",
@@ -110,7 +115,7 @@ export const InputFieldRules = {
     },
     inputHint: { yaml: "ПодсказкаВвода", type: "I8nText" },
     listChoiceMode: { yaml: "РежимВыбораИзСписка", type: "boolean" },
-    markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
+    // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
     markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
     mask: { yaml: "Маска", type: "string" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
@@ -137,6 +142,7 @@ export const InputFieldRules = {
       yaml: "ПутьКДаннымПредставленияМножественногоЗначения",
       type: "DataPath",
       defaultType: "string",
+      xml: "MultipleValuePresentDataPath",
     },
     multipleValuesBackColor: { yaml: "ЦветФонаМножественныхЗначений", type: "Color" },
     multipleValuesExtendedEdit: {
@@ -146,12 +152,16 @@ export const InputFieldRules = {
     },
     multipleValuesFont: { yaml: "ШрифтМножественныхЗначений", type: "Font" },
     multipleValuesHyperlink: { yaml: "ГиперссылкаМножественныхЗначений", type: "boolean" },
-    multipleValuesPicture: { yaml: "КартинкаМножественныхЗначений", type: "Picture" },
+    multipleValuesPicture: {
+      yaml: "КартинкаМножественныхЗначений",
+      type: "Picture",
+    },
     multipleValuesTextColor: { yaml: "ЦветТекстаМножественныхЗначений", type: "Color" },
     multipleValueValueDataPath: {
       yaml: "ПутьКДаннымЗначенияМножественногоЗначения",
       type: "DataPath",
       defaultType: "string",
+      xml: "MultipleValueDataPath",
     },
     onScreenKeyboardReturnKeyText: {
       yaml: "ТекстКнопкиВводаЭкраннойКлавиатуры",
@@ -164,6 +174,7 @@ export const InputFieldRules = {
     showCheckBoxesInDropListWhenInputMultipleValues: {
       yaml: "ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений",
       type: "boolean",
+      xml: "ShowCheckBoxesInDropList",
     },
     specialTextInputMode: {
       yaml: "СпециальныйРежимВводаТекста",
@@ -178,7 +189,11 @@ export const InputFieldRules = {
     spinButton: { yaml: "КнопкаРегулирования", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     textEdit: { yaml: "РедактированиеТекста", type: "boolean" },
-    typeDomainEnabled: { yaml: "РазрешитьСоставнойТип", type: "boolean" },
+    // typeDomainEnabled: {
+    //   yaml: "РазрешитьСоставнойТип",
+    //   type: "boolean",
+    //   fromXML: false,
+    // },
     typeLink: { yaml: "СвязьПоТипу", type: "TypeLink", toEnterprise: false },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
