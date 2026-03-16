@@ -6,7 +6,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -37,6 +40,7 @@ export const fullTextDocumentField = {
     afterWrite: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<TextDocumentField>
 
 export const fullTextDocumentFieldEnterprise = {
@@ -59,6 +63,7 @@ export const fullTextDocumentFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<TextDocumentFieldEnterprise>
 
 export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
@@ -83,7 +88,11 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<TextDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+} satisfies Omit<
+  Required<TextDocumentFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalTextDocumentField: TextDocumentField = {
   itemType: "TextDocumentField",

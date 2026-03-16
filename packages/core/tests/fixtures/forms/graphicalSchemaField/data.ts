@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -37,6 +40,7 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
     onActivate: "ПроцедураАктивации",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<GraphicalSchemaField>
 
 export const fullGraphicalSchemaFieldEnterprise = {
@@ -65,6 +69,7 @@ export const fullGraphicalSchemaFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<GraphicalSchemaFieldEnterprise>
 
 export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {
@@ -88,6 +93,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
     ПриАктивизации: "ПроцедураАктивации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {

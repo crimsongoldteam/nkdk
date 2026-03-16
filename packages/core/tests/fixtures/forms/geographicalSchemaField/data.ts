@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -35,6 +38,7 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
     afterWrite: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullGeographicalSchemaFieldEnterprise = {
@@ -62,6 +66,7 @@ export const fullGeographicalSchemaFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<GeographicalSchemaFieldEnterprise>
 
 export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPartialYAML = {
@@ -84,6 +89,7 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {

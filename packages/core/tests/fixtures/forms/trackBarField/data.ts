@@ -6,7 +6,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -35,6 +38,7 @@ export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   verticalStretch: false,
   width: 200,
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<TrackBarField>
 
 export const fullTrackBarFieldEnterprise = {
@@ -64,6 +68,7 @@ export const fullTrackBarFieldEnterprise = {
   VerticalStretch: false,
   Width: 200,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
@@ -86,6 +91,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   ШагРазметки: 5,
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 // Удаляем Заголовок, так как exportFormFieldPropsToYAML не экспортирует его

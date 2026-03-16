@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -38,6 +41,7 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
     onChange: "ПроцедураПриИзменении",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullRadioButtonFieldEnterprise = {
@@ -59,6 +63,7 @@ export const fullRadioButtonFieldEnterprise = {
   },
   TextColor: { Type: "Color", Value: "WebColors.Yellow" },
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<RadioButtonFieldEnterprise>
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
@@ -77,6 +82,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
     ПриИзменении: "ПроцедураПриИзменении",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalRadioButtonField: RadioButtonField = {

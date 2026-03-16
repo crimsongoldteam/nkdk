@@ -9,11 +9,14 @@ import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullCheckBoxField = {
+export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
   itemType: "CheckBoxField",
   name: "Флажок",
   title: {
@@ -34,6 +37,7 @@ export const fullCheckBoxField = {
   textColor: { type: "WebColor", value: "Yellow" },
   threeState: true,
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<CheckBoxField>
 
 export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
@@ -52,6 +56,7 @@ export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
   ШиринаЭлемента: 100,
   Шрифт: "ОбычныйШрифтТекста",
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<CheckBoxFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
@@ -280,4 +285,5 @@ export const fullCheckBoxFieldEnterprise = {
   TextColor: { Type: "Color", Value: "WebColors.Yellow" },
   ThreeState: true,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<CheckBoxFieldEnterprise>

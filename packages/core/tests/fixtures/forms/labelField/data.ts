@@ -9,7 +9,10 @@ import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -44,6 +47,7 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
     uRLProcessing: "ПроцедураОбработкиURL",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
@@ -70,6 +74,7 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
@@ -132,7 +137,7 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
   },
 ]
 
-export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
+export const fullLabelFieldEnterprise = {
   Name: "prefix_ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
   ElementType: "FormField",
@@ -155,4 +160,5 @@ export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
-}
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<LabelFieldEnterprise>

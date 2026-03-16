@@ -8,6 +8,7 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
@@ -58,6 +59,7 @@ export const fullPeriodFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<PeriodFieldEnterprise>
 
 export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {

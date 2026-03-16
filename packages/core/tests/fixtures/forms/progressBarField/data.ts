@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -35,7 +38,8 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
     onChange: "ПроцедураПриИзменении",
   },
   ...fullFormFieldCommonFixture,
-}
+  ...fullFormFieldTableRelatedFixture,
+} satisfies RequiredFieldsElement<ProgressBarField>
 
 export const fullProgressBarFieldEnterprise = {
   ElementType: "FormField",
@@ -63,6 +67,7 @@ export const fullProgressBarFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<ProgressBarFieldEnterprise>
 
 export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
@@ -85,7 +90,11 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<ProgressBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+} satisfies Omit<
+  Required<ProgressBarFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalProgressBarField: ProgressBarField = {
   itemType: "ProgressBarField",

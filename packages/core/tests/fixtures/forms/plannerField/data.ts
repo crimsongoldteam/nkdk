@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -56,6 +59,7 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
     insideDragCheck: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullPlannerFieldEnterprise = {
@@ -80,6 +84,7 @@ export const fullPlannerFieldEnterprise = {
   Width: 300,
   WrappedTimeScaleHeaderHyperlink: false,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<PlannerFieldEnterprise>
 
 export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
@@ -122,6 +127,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
     ПроверкаПеретаскиванияВнутри: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<PlannerFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalPlannerField: PlannerField = {

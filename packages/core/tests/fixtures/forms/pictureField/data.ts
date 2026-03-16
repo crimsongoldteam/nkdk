@@ -8,11 +8,14 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPictureField = {
+export const fullPictureField: RequiredFieldsElement<PictureField> = {
   itemType: "PictureField",
   name: "ПолеКартинки",
   title: {
@@ -54,6 +57,7 @@ export const fullPictureField = {
     dragCheck: "ПроцедураПроверкаПеретаскивания",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<PictureField>
 
 export const fullPictureFieldEnterprise = {
@@ -86,6 +90,7 @@ export const fullPictureFieldEnterprise = {
   Border: { Type: "Border", Value: "ControlBorderType.Single" },
   ValuesPicture: { Type: "Picture", Value: "PictureLib.Print" },
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<PictureFieldEnterprise>
 
 export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
@@ -119,6 +124,7 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {

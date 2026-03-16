@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -31,6 +34,7 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
     detailProcessing: "ПроцедураОбработкиРасшифровки",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullDendrogramFieldEnterprise = {
@@ -50,6 +54,7 @@ export const fullDendrogramFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<DendrogramFieldEnterprise>
 
 export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
@@ -68,6 +73,7 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<DendrogramFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalDendrogramField: DendrogramField = {

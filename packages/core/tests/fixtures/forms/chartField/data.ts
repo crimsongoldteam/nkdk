@@ -3,11 +3,14 @@ import { ChartField, ChartFieldEnterprise, ChartFieldPartialYAML } from "~/metad
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullChartField = {
+export const fullChartField: RequiredFieldsElement<ChartField> = {
   itemType: "ChartField",
   name: "ПолеДиаграммы",
   title: {
@@ -28,6 +31,7 @@ export const fullChartField = {
     onActivate: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } as const satisfies RequiredFieldsElement<ChartField>
 
 export const fullChartFieldEnterprise = {
@@ -44,6 +48,7 @@ export const fullChartFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<ChartFieldEnterprise>
 
 export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
@@ -62,6 +67,7 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
     ПриАктивизации: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalChartField: ChartField = {

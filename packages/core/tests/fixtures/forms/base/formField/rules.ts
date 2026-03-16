@@ -54,7 +54,7 @@ export const fullFormFieldCommonFixture = {
   footerText: {
     items: { ru: "Текст подвала" },
   },
-  readOnly: true,
+  readOnly: true as const,
   titleTextColor: { type: "WebColor" as const, value: "Black" },
   footerTextColor: { type: "WebColor" as const, value: "Black" },
   titleBackColor: { type: "WebColor" as const, value: "Blue" },
@@ -70,9 +70,9 @@ export const fullFormFieldCommonFixture = {
 export const fullFormFieldTableRelatedFixture = {
   headerHorizontalAlign: "Left" as const,
   typeRestriction: { type: ["string"] },
-  table: "Таблица",
+  table: "Таблица" as const,
   fixingInTable: "None" as const,
-} as const
+}
 
 export const fullFormFieldEnterpriseCommonFixture = {
   AutoCellHeight: false,

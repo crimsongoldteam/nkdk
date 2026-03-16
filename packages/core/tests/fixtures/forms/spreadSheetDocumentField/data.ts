@@ -7,11 +7,14 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocumentField> = {
+export const fullSpreadSheetDocumentField = {
   itemType: "SpreadSheetDocumentField",
   name: "ПолеТабличногоДокумента",
   title: {
@@ -62,7 +65,8 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
     onChangeAreaContentEvent: "ПроцедураПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldCommonFixture,
-}
+  ...fullFormFieldTableRelatedFixture,
+} satisfies RequiredFieldsElement<SpreadSheetDocumentField>
 
 export const fullSpreadSheetDocumentFieldEnterprise = {
   ElementType: "FormField",
@@ -128,6 +132,7 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
   },
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<SpreadSheetDocumentFieldEnterprise>
 
 export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
@@ -176,7 +181,11 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
     ПриИзмененииСодержимогоОбласти: "ПроцедураПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<SpreadSheetDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+} satisfies Omit<
+  Required<SpreadSheetDocumentFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   itemType: "SpreadSheetDocumentField",

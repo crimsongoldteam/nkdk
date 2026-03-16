@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -37,6 +40,7 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
     onClick: "ПроцедураНажатия",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullHtmlDocumentFieldEnterprise = {
@@ -65,6 +69,7 @@ export const fullHtmlDocumentFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<HTMLDocumentFieldEnterprise>
 
 export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
@@ -88,6 +93,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
     ПриНажатии: "ПроцедураНажатия",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<HTMLDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {

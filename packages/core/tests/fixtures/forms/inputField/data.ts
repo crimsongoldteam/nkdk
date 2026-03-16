@@ -8,11 +8,14 @@ import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullInputField = {
+export const fullInputField: RequiredFieldsElement<InputField> = {
   itemType: "InputField",
   name: "ПолеВвода",
   title: {
@@ -147,6 +150,7 @@ export const fullInputField = {
     multipleValuesDelete: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<InputField>
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
@@ -247,6 +251,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
@@ -427,7 +432,8 @@ export const fullInputFieldEnterprise = {
   Width: 200,
   Wrap: true,
   ...fullFormFieldEnterpriseCommonFixture,
-} satisfies InputFieldEnterprise
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<InputFieldEnterprise>
 
 export const minimalInputFieldEnterprise = {
   ElementType: "FormField",

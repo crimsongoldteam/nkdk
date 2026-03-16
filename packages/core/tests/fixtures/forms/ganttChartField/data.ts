@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -41,6 +44,7 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
     onIntervalEditEnd: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullGanttChartFieldEnterprise = {
@@ -74,6 +78,7 @@ export const fullGanttChartFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<GanttChartFieldEnterprise>
 
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
@@ -101,6 +106,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
     ПриОкончанииРедактированияИнтервала: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGanttChartField: GanttChartField = {
