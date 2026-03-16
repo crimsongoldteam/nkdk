@@ -12,6 +12,7 @@ export const exportChoiceListToXML = (
   if (!choiceList || choiceList.length === 0) return undefined
 
   const items: ChoiceListItemXML[] = choiceList.map((item) => ({
+    ...(context.exportToXML ? { "xr:Presentation": "" } : undefined),
     "xr:CheckState": 0,
     "xr:Value": exportFormChoiceListValueToXML(context, undefined, item)!,
   }))

@@ -1,5 +1,5 @@
 <InputField name="ПолеВвода" id="6" DisplayImportance="High">
-	<DataPath>Таблица</DataPath>
+	<DataPath>Реквизит</DataPath>
 	<Visible>false</Visible>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
@@ -99,9 +99,9 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</MultipleValuesPicture>
-	<MultipleValueDataPath>Таблица.Реквизит</MultipleValueDataPath>
-	<MultipleValuePictureDataPath>Таблица.Реквизит</MultipleValuePictureDataPath>
-	<MultipleValuePresentDataPath>Таблица.Реквизит</MultipleValuePresentDataPath>
+	<MultipleValueDataPath>Реквизит.РеквизитТаблицы</MultipleValueDataPath>
+	<MultipleValuePictureDataPath>Реквизит.РеквизитТаблицы</MultipleValuePictureDataPath>
+	<MultipleValuePresentDataPath>Реквизит.РеквизитТаблицы</MultipleValuePresentDataPath>
 	<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
 	<QuickChoice>true</QuickChoice>
 	<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
