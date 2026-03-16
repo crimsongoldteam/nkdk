@@ -40,7 +40,7 @@ export const GeographicalSchemaFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "GeographicalSchema",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

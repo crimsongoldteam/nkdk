@@ -56,7 +56,7 @@ export const PictureFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "Picture",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

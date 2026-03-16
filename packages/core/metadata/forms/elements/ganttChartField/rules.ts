@@ -54,7 +54,7 @@ export const GanttChartFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "GanttChart",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

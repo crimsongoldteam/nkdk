@@ -42,7 +42,7 @@ export const GraphicalSchemaFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "FlowchartContextType",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

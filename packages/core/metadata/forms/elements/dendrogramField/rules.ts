@@ -32,7 +32,7 @@ export const DendrogramFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "Dendrogram",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

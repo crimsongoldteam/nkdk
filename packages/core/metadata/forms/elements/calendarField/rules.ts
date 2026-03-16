@@ -54,7 +54,7 @@ export const CalendarFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "dateTime",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

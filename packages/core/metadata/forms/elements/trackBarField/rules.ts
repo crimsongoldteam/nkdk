@@ -45,7 +45,7 @@ export const TrackBarFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "decimal",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

@@ -95,7 +95,7 @@ export const SpreadSheetDocumentFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "SpreadsheetDocument",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
