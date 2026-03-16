@@ -44,7 +44,7 @@
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<EditMode>EnterOnInput</EditMode>
 	<CellHyperlink>true</CellHyperlink>
-	<AutoCellHeight>true</AutoCellHeight>
+	<AutoCellHeight>false</AutoCellHeight>
 	<ShowInHeader>false</ShowInHeader>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>

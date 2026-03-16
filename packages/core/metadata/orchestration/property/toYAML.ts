@@ -60,6 +60,8 @@ export const exportPropertyToYAML = (params: {
 
   if (rule.yaml === undefined) return undefined
 
+  if (rule.toYAML === false) return undefined
+
   if (!context.exportToYAML.toTyped && rule.toPartialYAML === false) return undefined
 
   const yamlKey = rule.yaml

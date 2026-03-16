@@ -9,6 +9,8 @@ import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -36,6 +38,7 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
     selection: "ПроцедураВыбора",
   },
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } as RequiredFieldsElement<PeriodField>
 
 export const fullPeriodFieldEnterprise = {
@@ -74,6 +77,7 @@ export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<PeriodFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {

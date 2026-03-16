@@ -1,12 +1,12 @@
-<PDFDocumentField name="ПолеPDFДокумента" id="1">
-	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="2"/>
-	<ExtendedTooltip name="ПолеPDFДокументаРасширеннаяПодсказка" id="3"/>
-	<ViewStatusAddition name="ПолеPDFДокументаСостояниеПросмотра" id="4">
+<PDFDocumentField name="ЭлементФормы" id="1">
+	<ContextMenu name="ЭлементФормыКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ЭлементФормыРасширеннаяПодсказка" id="3"/>
+	<ViewStatusAddition name="ЭлементФормыСостояниеПросмотра" id="4">
 		<AdditionSource>
-			<Item>ПолеPDFДокумента</Item>
+			<Item>ЭлементФормы</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ПолеPDFДокументаСостояниеПросмотраКонтекстноеМеню" id="5"/>
-		<ExtendedTooltip name="ПолеPDFДокументаСостояниеПросмотраРасширеннаяПодсказка" id="6"/>
+		<ContextMenu name="ЭлементФормыСостояниеПросмотраКонтекстноеМеню" id="5"/>
+		<ExtendedTooltip name="ЭлементФормыСостояниеПросмотраРасширеннаяПодсказка" id="6"/>
 	</ViewStatusAddition>
 </PDFDocumentField>

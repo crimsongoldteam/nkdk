@@ -10,7 +10,7 @@ const baseExtendedTooltip = {
 } as const
 
 export const fullFormFieldCommonFixture = {
-  autoCellHeight: true,
+  autoCellHeight: false,
   defaultItem: true,
   displayImportance: "High" as const,
   verticalAlign: "Top" as const,
@@ -21,7 +21,6 @@ export const fullFormFieldCommonFixture = {
   horizontalAlign: "Left" as const,
   horizontalAlignInGroup: "Left" as const,
   footerHorizontalAlign: "Left" as const,
-  headerHorizontalAlign: "Left" as const,
   enabled: false,
   footerPicture: {
     type: "StandardPicture" as const,
@@ -34,7 +33,6 @@ export const fullFormFieldCommonFixture = {
     loadTransparent: true,
   },
   contextMenu: baseContextMenu,
-  typeRestriction: { type: ["string"] },
   showInFooter: false as const,
   showInHeader: false as const,
   toolTipRepresentation: "None" as const,
@@ -53,22 +51,31 @@ export const fullFormFieldCommonFixture = {
   extendedTooltip: baseExtendedTooltip,
   editMode: "EnterOnInput" as const,
   shortcut: "S",
-  table: "Таблица",
   footerText: {
     items: { ru: "Текст подвала" },
   },
   readOnly: true,
-  fixingInTable: "None" as const,
   titleTextColor: { type: "WebColor" as const, value: "Black" },
   footerTextColor: { type: "WebColor" as const, value: "Black" },
   titleBackColor: { type: "WebColor" as const, value: "Blue" },
   footerBackColor: { type: "WebColor" as const, value: "White" },
   titleFont: { kind: "StyleItem" as const, ref: "NormalTextFont" as const },
   footerFont: { kind: "StyleItem" as const, ref: "NormalTextFont" as const },
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: false }],
+  },
 }
 
+export const fullFormFieldTableRelatedFixture = {
+  headerHorizontalAlign: "Left" as const,
+  typeRestriction: { type: ["string"] },
+  table: "Таблица",
+  fixingInTable: "None" as const,
+} as const
+
 export const fullFormFieldEnterpriseCommonFixture = {
-  AutoCellHeight: true,
+  AutoCellHeight: false,
   CellHyperlink: true,
   DataPath: "prefix_Реквизит",
   DefaultItem: true,
@@ -80,13 +87,9 @@ export const fullFormFieldEnterpriseCommonFixture = {
     Type: "SystemEnumeration",
     Value: "ColumnEditMode.EnterOnInput",
   },
-  Enabled: true,
-  FixingInTable: {
-    Type: "SystemEnumeration",
-    Value: "FixingInTable.None",
-  },
+  Enabled: false,
   FooterBackColor: { Type: "Color", Value: "WebColors.White" },
-  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
+  FooterDataPath: "prefix_РеквизитПодвала",
   FooterFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   FooterHorizontalAlign: {
     Type: "SystemEnumeration",
@@ -95,10 +98,6 @@ export const fullFormFieldEnterpriseCommonFixture = {
   FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
   FooterText: "Текст подвала",
   FooterTextColor: { Type: "Color", Value: "WebColors.Black" },
-  HeaderHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
   HorizontalAlign: {
     Type: "SystemEnumeration",
@@ -112,10 +111,10 @@ export const fullFormFieldEnterpriseCommonFixture = {
     Type: "SystemEnumeration",
     Value: "OnMainServerUnavalableBehavior.DontChangeBehavior",
   },
-  ReadOnly: false,
-  ShowInFooter: true,
-  ShowInHeader: true,
-  SkipOnInput: false,
+  ReadOnly: true,
+  ShowInFooter: false,
+  ShowInHeader: false,
+  SkipOnInput: true,
   TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
   TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   TitleHeight: 20,
@@ -145,6 +144,17 @@ export const fullFormFieldEnterpriseCommonFixture = {
   },
 } as const
 
+export const fullFormFieldEnterpriseTableRelatedFixture = {
+  HeaderHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Left",
+  },
+  FixingInTable: {
+    Type: "SystemEnumeration",
+    Value: "FixingInTable.None",
+  },
+} as const
+
 export const fullFormFieldPartialYAMLCommonFixture = {
   АвтоВысотаЯчейки: "Ложь",
   АктивизироватьПоУмолчанию: "Истина",
@@ -157,14 +167,12 @@ export const fullFormFieldPartialYAMLCommonFixture = {
   ГоризонтальноеПоложение: "Лево",
   ГоризонтальноеПоложениеВГруппе: "Лево",
   ГоризонтальноеПоложениеВПодвале: "Лево",
-  ГоризонтальноеПоложениеВШапке: "Лево",
   Доступность: "Ложь",
   КартинкаПодвала: "Печать",
   КартинкаШапки: "Печать",
   КонтекстноеМеню: {
     Автозаполнение: "Ложь",
   },
-  ОграничениеТипа: "Строка",
   ОтображатьВПодвале: "Ложь",
   ОтображатьВШапке: "Ложь",
   ОтображениеПодсказки: "Нет",
@@ -175,18 +183,23 @@ export const fullFormFieldPartialYAMLCommonFixture = {
   ПредупреждениеПриРедактировании: "Предупреждение",
   ПропускатьПриВводе: "Истина",
   ПутьКДаннымПодвала: "РеквизитПодвала",
-  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИспользование: { Администратор: "Ложь" },
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   РежимРедактирования: "ВходПриВводе",
   СочетаниеКлавиш: "S",
-  Таблица: "Таблица",
   ТекстПодвала: "Текст подвала",
   ТолькоПросмотр: "Истина",
-  ФиксацияВТаблице: "Нет",
   ЦветТекстаЗаголовка: "Черный",
   ЦветТекстаПодвала: "Черный",
   ЦветФонаЗаголовка: "Синий",
   ЦветФонаПодвала: "Белый",
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
+} as const
+
+export const fullFormFieldTableRelatedPartialYAMLCommonFixture = {
+  ГоризонтальноеПоложениеВШапке: "Лево",
+  ОграничениеТипа: "Строка",
+  Таблица: "Таблица",
+  ФиксацияВТаблице: "Нет",
 } as const

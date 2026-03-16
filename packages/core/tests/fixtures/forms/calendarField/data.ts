@@ -7,7 +7,10 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -52,6 +55,7 @@ export const fullCalendarField = {
   width: 4,
   widthInMonths: 2,
   ...fullFormFieldCommonFixture,
+  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<CalendarField>
 
 export const fullCalendarFieldEnterprise = {
@@ -88,6 +92,7 @@ export const fullCalendarFieldEnterprise = {
   Width: 4,
   WidthInMonths: 2,
   ...fullFormFieldEnterpriseCommonFixture,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<CalendarFieldEnterprise>
 
 export const fullCalendarFieldPartialYAML = {
@@ -126,6 +131,7 @@ export const fullCalendarFieldPartialYAML = {
     ПриВыводеПериода: "ПроцедураВыводаПериода",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalCalendarField: CalendarField = {
