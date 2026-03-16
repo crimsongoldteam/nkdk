@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const GeographicalSchemaFieldRules = {
@@ -43,7 +43,6 @@ export const GeographicalSchemaFieldRules = {
       defaultType: "GeographicalSchema",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

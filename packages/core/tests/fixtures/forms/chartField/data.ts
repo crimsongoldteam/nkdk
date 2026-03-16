@@ -5,7 +5,6 @@ import {
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -16,13 +15,13 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
   title: {
     items: { ru: "Поле диаграммы" },
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   height: 200,
-  horizontalStretch: true,
+  horizontalStretch: false,
   maxHeight: 500,
   maxWidth: 400,
-  verticalStretch: true,
+  verticalStretch: false,
   width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -31,7 +30,6 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
     onActivate: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 } as const satisfies RequiredFieldsElement<ChartField>
 
 export const fullChartFieldEnterprise = {

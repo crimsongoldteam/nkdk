@@ -1,4 +1,5 @@
 <CheckBoxField name="Флажок" id="3" DisplayImportance="High">
+	<CheckBoxType>Switch</CheckBoxType>
 	<DataPath>Реквизит</DataPath>
 	<Visible>false</Visible>
 	<UserVisible>

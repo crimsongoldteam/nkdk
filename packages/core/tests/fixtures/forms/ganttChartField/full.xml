@@ -1,4 +1,4 @@
-<GanttChartField name="ПолеДиаграммыГанта" id="3" DisplayImportance="High">
+<GanttChartField name="ЭлементФормы" id="3" DisplayImportance="High">
 	<DataPath>Реквизит</DataPath>
 	<Visible>false</Visible>
 	<UserVisible>
@@ -64,12 +64,18 @@
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>300</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
 	<MaxWidth>400</MaxWidth>
 	<Height>200</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
 	<MaxHeight>500</MaxHeight>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
 	<TableLocation>None</TableLocation>
 	<ValuesSelectionMode>Single</ValuesSelectionMode>
 	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
+	<ShowHorizontalLinesFlag>false</ShowHorizontalLinesFlag>
+	<ShowVerticalLinesFlag>false</ShowVerticalLinesFlag>
 	<ContextMenu name="ПолеДиаграммыГантаКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>

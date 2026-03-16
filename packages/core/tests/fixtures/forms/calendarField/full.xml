@@ -98,13 +98,13 @@
 		</Title>
 	</ExtendedTooltip>
 	<Events>
-		<Event name="Drag">ПроцедураПеретаскивания</Event>
-		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
-		<Event name="DragEnd">ПроцедураЗавершенияПеретаскивания</Event>
-		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
-		<Event name="OnActivateDate">ПроцедураАктивацииДаты</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
 		<Event name="OnPeriodOutput">ПроцедураВыводаПериода</Event>
 		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="OnActivateDate">ПроцедураАктивацииДаты</Event>
+		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+		<Event name="Drag">ПроцедураПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураЗавершенияПеретаскивания</Event>
 	</Events>
 </CalendarField>

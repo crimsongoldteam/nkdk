@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const CheckBoxFieldRules = {
@@ -15,6 +15,7 @@ export const CheckBoxFieldRules = {
       yaml: "ВидФлажка",
       type: "SystemEnumeration",
       typeSE: "CheckBoxType",
+      defaultValueYAML: "Auto",
     },
     editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
     equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean" },
@@ -40,7 +41,6 @@ export const CheckBoxFieldRules = {
       defaultType: "boolean",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

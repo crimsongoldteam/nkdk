@@ -64,9 +64,13 @@
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>300</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
 	<MaxWidth>400</MaxWidth>
 	<Height>200</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
 	<MaxHeight>500</MaxHeight>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
 	<Output>Enable</Output>
 	<BorderColor>web:Black</BorderColor>
 	<ContextMenu name="ПолеГеографическойСхемыКонтекстноеМеню" id="4">

@@ -64,8 +64,10 @@
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>200</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
 	<MaxWidth>400</MaxWidth>
 	<Height>100</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
 	<MaxHeight>500</MaxHeight>
 	<HorizontalStretch>true</HorizontalStretch>
 	<VerticalStretch>true</VerticalStretch>

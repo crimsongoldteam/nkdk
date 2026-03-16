@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const LabelFieldRules = {
@@ -44,7 +44,6 @@ export const LabelFieldRules = {
       defaultType: "string",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 
