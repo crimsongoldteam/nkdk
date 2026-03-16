@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const SpreadSheetDocumentFieldRules = {
@@ -9,7 +9,6 @@ export const SpreadSheetDocumentFieldRules = {
   enterpriseFieldType: "FormFieldType.SpreadsheetDocumentField",
   enterpriseField: "FormField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     blackAndWhiteView: { yaml: "ЧерноБелыйПросмотр", type: "boolean" },
@@ -70,12 +69,6 @@ export const SpreadSheetDocumentFieldRules = {
       typeSE: "ViewScalingMode",
     },
     width: { yaml: "Ширина", type: "number" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     events: {
       type: "Events",
       yaml: "События",
@@ -97,6 +90,8 @@ export const SpreadSheetDocumentFieldRules = {
         dragCheck: "ПроверкаПеретаскивания",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

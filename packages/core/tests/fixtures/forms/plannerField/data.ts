@@ -17,10 +17,6 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
   title: {
     items: { ru: "Поле планировщика" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: false,
   autoMaxWidth: false,
   dimensionItemHyperlink: false,
@@ -126,7 +122,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
     ПроверкаПеретаскиванияВнутри: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PlannerFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<PlannerFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalPlannerField: PlannerField = {
   itemType: "PlannerField",

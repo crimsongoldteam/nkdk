@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const ProgressBarFieldRules = {
@@ -9,7 +9,6 @@ export const ProgressBarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ProgressBarField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
@@ -30,12 +29,6 @@ export const ProgressBarFieldRules = {
       typeSE: "ProgressBarSmoothingMode",
     },
     showPercent: { yaml: "ОтображатьПроценты", type: "boolean" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {
@@ -46,6 +39,8 @@ export const ProgressBarFieldRules = {
         onChange: "ПриИзменении",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

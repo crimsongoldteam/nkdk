@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const GraphicalSchemaFieldRules = {
@@ -9,7 +9,6 @@ export const GraphicalSchemaFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GraphicalSchemaField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
@@ -22,12 +21,6 @@ export const GraphicalSchemaFieldRules = {
       yaml: "Вывод",
       type: "SystemEnumeration",
       typeSE: "UseOutput",
-    },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
@@ -44,6 +37,8 @@ export const GraphicalSchemaFieldRules = {
         onActivate: "ПриАктивизации",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

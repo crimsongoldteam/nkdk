@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const PlannerFieldRules = {
@@ -9,7 +9,6 @@ export const PlannerFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PlannerField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     dimensionItemHyperlink: { yaml: "ГиперссылкаЭлементаИзмерения", type: "boolean" },
@@ -20,12 +19,6 @@ export const PlannerFieldRules = {
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     timeScaleItemHyperlink: { yaml: "ГиперссылкаЭлементаШкалыВремени", type: "boolean" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     wrappedTimeScaleHeaderHyperlink: { yaml: "ГиперссылкаПеренесенногоЗаголовкаШкалыВремени", type: "boolean" },
@@ -59,6 +52,8 @@ export const PlannerFieldRules = {
         insideDragCheck: "ПроверкаПеретаскиванияВнутри",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

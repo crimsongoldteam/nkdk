@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const PictureFieldRules = {
@@ -9,13 +9,6 @@ export const PictureFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PictureField",
   properties: {
-    ...formFieldCommonProperties,
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     border: { yaml: "Рамка", type: "Border" },
@@ -58,6 +51,8 @@ export const PictureFieldRules = {
         dragCheck: "ПроверкаПеретаскивания",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

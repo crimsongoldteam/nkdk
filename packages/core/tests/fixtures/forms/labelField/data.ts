@@ -19,10 +19,6 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
   title: {
     items: { ru: "Поле надписи" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "Blue" },
@@ -74,7 +70,7 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
   ...fullLabelFieldPartialYAML,

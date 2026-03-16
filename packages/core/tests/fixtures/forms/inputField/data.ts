@@ -128,10 +128,6 @@ export const fullInputField = {
   verticalStretch: true,
   width: 200,
   wrap: true,
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   events: {
     onChange: "ПроцедураПриИзменении",
     autoComplete: "ПроцедураАвтоПодбора",
@@ -251,7 +247,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
   ...fullInputFieldPartialYAML,

@@ -23,10 +23,6 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   horizontalStretch: true,
   maxHeight: 500,
   maxWidth: 400,
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   verticalStretch: true,
   width: 300,
   events: {
@@ -72,7 +68,7 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<DendrogramFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<DendrogramFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalDendrogramField: DendrogramField = {
   itemType: "DendrogramField",

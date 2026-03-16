@@ -57,10 +57,6 @@ export const fullFormFieldCommonFixture = {
   footerText: {
     items: { ru: "Текст подвала" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: false }],
-  },
   readOnly: true,
   fixingInTable: "None" as const,
   titleTextColor: { type: "WebColor" as const, value: "Black" },

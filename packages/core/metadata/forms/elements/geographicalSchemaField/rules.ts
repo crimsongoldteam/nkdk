@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const GeographicalSchemaFieldRules = {
@@ -9,13 +9,6 @@ export const GeographicalSchemaFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GeographicalSchemaField",
   properties: {
-    ...formFieldCommonProperties,
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
@@ -42,6 +35,8 @@ export const GeographicalSchemaFieldRules = {
         afterWrite: "ПослеЗаписи",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

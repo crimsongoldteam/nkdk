@@ -13,10 +13,6 @@ export const fullChartField = {
   title: {
     items: { ru: "Поле диаграммы" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   height: 200,
@@ -66,7 +62,7 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
     ПриАктивизации: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalChartField: ChartField = {
   itemType: "ChartField",

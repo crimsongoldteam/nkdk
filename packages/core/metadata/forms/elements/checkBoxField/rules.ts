@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const CheckBoxFieldRules = {
@@ -9,7 +9,6 @@ export const CheckBoxFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
-    ...formFieldCommonProperties,
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     checkBoxType: {
@@ -25,12 +24,6 @@ export const CheckBoxFieldRules = {
     itemWidth: { yaml: "ШиринаЭлемента", type: "number" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     threeState: { yaml: "ТриСостояния", type: "boolean" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     events: {
       type: "Events",
       yaml: "События",
@@ -39,6 +32,8 @@ export const CheckBoxFieldRules = {
         onChange: "ПриИзменении",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

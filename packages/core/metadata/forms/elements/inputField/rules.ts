@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const InputFieldRules = {
@@ -9,7 +9,6 @@ export const InputFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.InputField",
   properties: {
-    ...formFieldCommonProperties,
     allowInputEmptyMultipleValues: {
       yaml: "РазрешитьВводПустыхМножественныхЗначений",
       type: "boolean",
@@ -181,12 +180,6 @@ export const InputFieldRules = {
     textEdit: { yaml: "РедактированиеТекста", type: "boolean" },
     typeDomainEnabled: { yaml: "РазрешитьСоставнойТип", type: "boolean" },
     typeLink: { yaml: "СвязьПоТипу", type: "TypeLink", toEnterprise: false },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     wrap: { yaml: "АвтоПереносСтрок", type: "boolean" },
@@ -213,6 +206,8 @@ export const InputFieldRules = {
         multipleValuesDelete: "УдалениеМножественныхЗначений",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

@@ -45,10 +45,6 @@ export const fullPictureField = {
   width: 300,
   zoomable: false,
   font: { kind: "StyleItem", ref: "NormalTextFont" },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   events: {
     onChange: "ПроцедураПриИзменении",
     click: "ПроцедураНажатие",
@@ -123,7 +119,7 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {
   ...fullPictureFieldPartialYAML,

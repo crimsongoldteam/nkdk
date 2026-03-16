@@ -17,10 +17,6 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
   title: {
     items: { ru: "Поле географической схемы" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Black" },
@@ -88,7 +84,7 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
   itemType: "GeographicalSchemaField",

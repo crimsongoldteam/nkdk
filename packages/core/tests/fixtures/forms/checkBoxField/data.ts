@@ -19,10 +19,6 @@ export const fullCheckBoxField = {
   title: {
     items: { ru: "Флажок формы" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   events: {
     onChange: "ПроцедураПриИзменении",
   },
@@ -56,7 +52,7 @@ export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
   ШиринаЭлемента: 100,
   Шрифт: "ОбычныйШрифтТекста",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<CheckBoxFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<CheckBoxFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
   ...fullCheckBoxFieldPartialYAML,

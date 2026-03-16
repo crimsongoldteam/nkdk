@@ -9,7 +9,6 @@ export const PDFDocumentFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PDFDocumentField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
@@ -22,12 +21,6 @@ export const PDFDocumentFieldRules = {
       yaml: "Вывод",
       type: "SystemEnumeration",
       typeSE: "UseOutput",
-    },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewStatusRepresentation: {
@@ -51,6 +44,7 @@ export const PDFDocumentFieldRules = {
         uRLClick: "НажатиеНаНавигационнойСсылке",
       },
     },
+    ...formFieldCommonProperties,
   },
 } as const satisfies ElementRule
 

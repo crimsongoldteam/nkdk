@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const TextDocumentFieldRules = {
@@ -9,7 +9,6 @@ export const TextDocumentFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.TextDocumentField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
@@ -26,12 +25,6 @@ export const TextDocumentFieldRules = {
     },
     selectedText: { yaml: "ВыделенныйТекст", type: "string" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {
@@ -45,6 +38,8 @@ export const TextDocumentFieldRules = {
         afterWrite: "ПослеЗаписи",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

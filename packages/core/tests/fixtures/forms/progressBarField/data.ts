@@ -17,10 +17,6 @@ export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
   title: {
     items: { ru: "Поле индикатора" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Black" },
@@ -89,7 +85,7 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<ProgressBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<ProgressBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalProgressBarField: ProgressBarField = {
   itemType: "ProgressBarField",

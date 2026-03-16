@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const DendrogramFieldRules = {
@@ -9,7 +9,6 @@ export const DendrogramFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.DendrogramField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     height: { yaml: "Высота", type: "number" },
@@ -18,12 +17,6 @@ export const DendrogramFieldRules = {
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     events: {
       type: "Events",
       yaml: "События",
@@ -34,6 +27,8 @@ export const DendrogramFieldRules = {
         detailProcessing: "ОбработкаРасшифровки",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

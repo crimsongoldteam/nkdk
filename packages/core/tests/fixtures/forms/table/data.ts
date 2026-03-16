@@ -846,7 +846,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
     nkdk: {
-      strings: ['<<...>>', '<<... | "Кнопка 1" КнопкаТаблицы>>', '| "Колонка таблицы 1" Колонка1 | Таблица1'],
+      strings: ["<<...>>", '<<... | "Кнопка 1" КнопкаТаблицы>>', '| "Колонка таблицы 1" Колонка1 | Таблица1'],
       toOneLineGroup: false,
     },
     // Добавлена командная панель формы, которая не будет экспортироваться

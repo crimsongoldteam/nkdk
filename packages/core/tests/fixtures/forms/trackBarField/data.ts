@@ -16,10 +16,6 @@ export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   title: {
     items: { ru: "Поле полосы прокрутки" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   events: {
     onChange: "ПроцедураПриИзменении",
   },
@@ -90,7 +86,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   ШагРазметки: 5,
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 // Удаляем Заголовок, так как exportFormFieldPropsToYAML не экспортирует его
 delete (fullTrackBarFieldPartialYAML as any).Заголовок

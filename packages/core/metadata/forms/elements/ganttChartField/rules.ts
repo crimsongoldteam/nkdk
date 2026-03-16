@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const GanttChartFieldRules = {
@@ -9,7 +9,6 @@ export const GanttChartFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GanttChartField",
   properties: {
-    ...formFieldCommonProperties,
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     height: { yaml: "Высота", type: "number" },
@@ -26,12 +25,6 @@ export const GanttChartFieldRules = {
       yaml: "ПоложениеТаблицы",
       type: "SystemEnumeration",
       typeSE: "GanttChartTableLocation",
-    },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
     },
     valuesSelectionMode: {
       yaml: "РежимВыделенияЗначений",
@@ -56,6 +49,8 @@ export const GanttChartFieldRules = {
         onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

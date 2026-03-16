@@ -1,5 +1,25 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
+/** Поля, связанные с таблицей/колонкой: есть не у всех элементов формы (напр. нет у PDFDocumentField). */
+export const formFieldTableRelatedProperties = {
+  headerHorizontalAlign: {
+    yaml: "ГоризонтальноеПоложениеВШапке",
+    xml: "HeaderHorizontalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemHorizontalLocation",
+    defaultValueYAML: "Auto",
+  },
+  typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
+  table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable", toEnterprise: false },
+  fixingInTable: {
+    yaml: "ФиксацияВТаблице",
+    xml: "FixingInTable",
+    type: "SystemEnumeration",
+    typeSE: "FixingInTable",
+    defaultValueYAML: "None",
+  },
+} as const satisfies MetadataItemRule["properties"]
+
 export const formFieldCommonProperties = {
   name: {
     type: "string",
@@ -63,12 +83,6 @@ export const formFieldCommonProperties = {
     typeSE: "ItemHorizontalLocation",
     defaultValueYAML: "Auto",
   },
-  headerHorizontalAlign: {
-    yaml: "ГоризонтальноеПоложениеВШапке",
-    type: "SystemEnumeration",
-    typeSE: "ItemHorizontalLocation",
-    defaultValueYAML: "Auto",
-  },
   enabled: { yaml: "Доступность", type: "boolean", defaultValueYAML: true },
   title: {
     yaml: "Заголовок",
@@ -78,7 +92,6 @@ export const formFieldCommonProperties = {
   footerPicture: { yaml: "КартинкаПодвала", type: "Picture" },
   headerPicture: { yaml: "КартинкаШапки", type: "Picture" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-  typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
   showInFooter: {
     yaml: "ОтображатьВПодвале",
     type: "boolean",
@@ -133,19 +146,18 @@ export const formFieldCommonProperties = {
   },
   // parent: { yaml: "Родитель", type: "string", toEnterprise: false },
   shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
-  table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable", toEnterprise: false },
   footerText: { yaml: "ТекстПодвала", type: "I8nText" },
   readOnly: { yaml: "ТолькоПросмотр", type: "boolean", defaultValueYAML: false },
-  fixingInTable: {
-    yaml: "ФиксацияВТаблице",
-    type: "SystemEnumeration",
-    typeSE: "FixingInTable",
-    defaultValueYAML: "None",
-  },
   titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },
   footerTextColor: { yaml: "ЦветТекстаПодвала", type: "Color" },
   titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color" },
   footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color" },
   titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
   footerFont: { yaml: "ШрифтПодвала", type: "Font" },
+  userVisible: {
+    yaml: "РазрешитьИспользование",
+    yamlDeny: "ЗапретитьИспользование",
+    type: "UserVisible",
+    toEnterprise: false,
+  },
 } as const satisfies MetadataItemRule["properties"]

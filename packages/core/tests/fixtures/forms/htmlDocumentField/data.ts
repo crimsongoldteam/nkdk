@@ -17,10 +17,6 @@ export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
   title: {
     items: { ru: "Поле HTML документа" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Black" },
@@ -92,7 +88,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
     ПриНажатии: "ПроцедураНажатия",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<HTMLDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<HTMLDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
   itemType: "HTMLDocumentField",

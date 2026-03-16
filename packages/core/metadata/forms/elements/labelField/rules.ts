@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const LabelFieldRules = {
@@ -9,13 +9,6 @@ export const LabelFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.LabelField",
   properties: {
-    ...formFieldCommonProperties,
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
@@ -43,6 +36,8 @@ export const LabelFieldRules = {
         uRLProcessing: "ОбработкаНавигационнойСсылки",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

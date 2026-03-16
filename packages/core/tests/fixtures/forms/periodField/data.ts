@@ -18,10 +18,6 @@ export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   title: {
     items: { ru: "Поле периода" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   border: {
@@ -78,7 +74,7 @@ export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PeriodFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<PeriodFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
   ...fullPeriodFieldPartialYAML,

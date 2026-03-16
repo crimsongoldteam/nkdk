@@ -17,10 +17,6 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   title: {
     items: { ru: "Поле диаграммы Ганта" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   height: 200,
@@ -105,7 +101,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
     ПриОкончанииРедактированияИнтервала: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGanttChartField: GanttChartField = {
   itemType: "GanttChartField",

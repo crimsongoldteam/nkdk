@@ -17,10 +17,6 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
   title: {
     items: { ru: "Поле графической схемы" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Black" },
@@ -92,7 +88,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
     ПриАктивизации: "ПроцедураАктивации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   itemType: "GraphicalSchemaField",

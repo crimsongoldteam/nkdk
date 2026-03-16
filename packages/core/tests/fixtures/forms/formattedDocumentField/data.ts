@@ -17,10 +17,6 @@ export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocument
   title: {
     items: { ru: "Поле форматированного документа" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
@@ -106,7 +102,7 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<FormattedDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<FormattedDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {
   itemType: "FormattedDocumentField",

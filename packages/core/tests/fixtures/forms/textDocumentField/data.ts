@@ -16,10 +16,6 @@ export const fullTextDocumentField = {
   title: {
     items: { ru: "Поле текстового документа" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "Blue" },
@@ -87,7 +83,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<TextDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<TextDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalTextDocumentField: TextDocumentField = {
   itemType: "TextDocumentField",

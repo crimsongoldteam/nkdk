@@ -17,10 +17,6 @@ export const fullSpreadSheetDocumentField: RequiredFieldsElement<SpreadSheetDocu
   title: {
     items: { ru: "Поле табличного документа" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   autoMaxHeight: true,
   autoMaxWidth: true,
   blackAndWhiteView: false,
@@ -180,7 +176,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
     ПриИзмененииСодержимогоОбласти: "ПроцедураПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<SpreadSheetDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<SpreadSheetDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   itemType: "SpreadSheetDocumentField",

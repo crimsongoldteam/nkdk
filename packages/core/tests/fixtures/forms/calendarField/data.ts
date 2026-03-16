@@ -48,10 +48,6 @@ export const fullCalendarField = {
   selectionMode: "Multiple",
   showCurrentDate: false,
   showMonthsPanel: true,
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   verticalStretch: false,
   width: 4,
   widthInMonths: 2,
@@ -130,7 +126,7 @@ export const fullCalendarFieldPartialYAML = {
     ПриВыводеПериода: "ПроцедураВыводаПериода",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalCalendarField: CalendarField = {
   itemType: "CalendarField",

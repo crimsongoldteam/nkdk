@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const RadioButtonFieldRules = {
@@ -9,7 +9,6 @@ export const RadioButtonFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
-    ...formFieldCommonProperties,
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
     choiceList: {
@@ -29,12 +28,6 @@ export const RadioButtonFieldRules = {
       typeSE: "RadioButtonType",
     },
     textColor: { yaml: "ЦветТекста", type: "Color" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     events: {
       type: "Events",
       yaml: "События",
@@ -43,6 +36,8 @@ export const RadioButtonFieldRules = {
         onChange: "ПриИзменении",
       },
     },
+    ...formFieldCommonProperties,
+    ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

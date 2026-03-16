@@ -17,10 +17,6 @@ export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   title: {
     items: { ru: "Поле переключателя" },
   },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   backColor: { type: "WebColor", value: "Blue" },
   borderColor: { type: "WebColor", value: "Green" },
   choiceList: [
@@ -81,7 +77,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
     ПриИзменении: "ПроцедураПриИзменении",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
+} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalRadioButtonField: RadioButtonField = {
   itemType: "RadioButtonField",
