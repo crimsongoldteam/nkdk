@@ -59,7 +59,7 @@
 	<Output>Auto</Output>
 	<ReadOnly>false</ReadOnly>
 	<SelectedText>Выделенный текст</SelectedText>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>

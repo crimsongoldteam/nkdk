@@ -37,7 +37,7 @@
 	</Picture>
 	<ReadOnly>false</ReadOnly>
 	<ScrollOnCompress>true</ScrollOnCompress>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowTitle>true</ShowTitle>
 	<SlaveItemsWidth>Auto</SlaveItemsWidth>
 	<Title>

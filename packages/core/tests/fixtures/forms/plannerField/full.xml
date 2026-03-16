@@ -76,7 +76,7 @@
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
 	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>

@@ -59,7 +59,7 @@
 	<MaxWidth>400</MaxWidth>
 	<Output>Enable</Output>
 	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>

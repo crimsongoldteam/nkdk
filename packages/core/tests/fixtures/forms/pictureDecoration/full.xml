@@ -42,7 +42,7 @@
 	</Picture>
 	<PictureSize>AutoSize</PictureSize>
 	<Scale>100</Scale>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<SkipOnInput>false</SkipOnInput>
 	<TextColor>web:Blue</TextColor>
 	<Title formatted="false">

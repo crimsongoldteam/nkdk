@@ -1,11 +1,14 @@
 <PDFDocumentField name="ЭлементФормы" id="1" DisplayImportance="High">
 	<DataPath>Реквизит</DataPath>
+	<Visible>false</Visible>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
 	<DefaultItem>true</DefaultItem>
-	<SkipOnInput>false</SkipOnInput>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>true</SkipOnInput>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -42,11 +45,13 @@
 	<EditMode>EnterOnInput</EditMode>
 	<CellHyperlink>true</CellHyperlink>
 	<AutoCellHeight>true</AutoCellHeight>
+	<ShowInHeader>false</ShowInHeader>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
-	<FooterDataPath>Реквизит</FooterDataPath>
+	<ShowInFooter>false</ShowInFooter>
+	<FooterDataPath>РеквизитПодвала</FooterDataPath>
 	<FooterText>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -61,7 +66,7 @@
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</FooterPicture>
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-	<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>51</Width>
 	<AutoMaxWidth>false</AutoMaxWidth>
 	<MaxWidth>1</MaxWidth>

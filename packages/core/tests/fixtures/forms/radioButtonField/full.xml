@@ -68,7 +68,7 @@
 	<ItemWidth>100</ItemWidth>
 	<RadioButtonType>RadioButton</RadioButtonType>
 	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>

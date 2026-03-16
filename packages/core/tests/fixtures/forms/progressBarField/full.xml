@@ -56,7 +56,7 @@
 	<Orientation>Horizontal</Orientation>
 	<ReadOnly>false</ReadOnly>
 	<Representation>Smooth</Representation>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<ShowPercent>true</ShowPercent>

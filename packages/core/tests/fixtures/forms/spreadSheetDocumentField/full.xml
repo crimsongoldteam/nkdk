@@ -75,7 +75,7 @@
 	<Protection>false</Protection>
 	<ReadOnly>false</ReadOnly>
 	<SelectionShowMode>Always</SelectionShowMode>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowCellNames>true</ShowCellNames>
 	<ShowGrid>true</ShowGrid>
 	<ShowGroups>true</ShowGroups>

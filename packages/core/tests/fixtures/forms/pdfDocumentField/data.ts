@@ -12,13 +12,9 @@ import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPDFDocumentField = {
   itemType: "PDFDocumentField",
-  name: "ПолеPDFДокумента",
+  name: "ЭлементФормы",
   title: {
-    items: { ru: "Заголовок документа" },
-  },
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: false }],
+    items: { ru: "Заголовок" },
   },
   autoMaxHeight: false,
   autoMaxWidth: false,
@@ -33,8 +29,8 @@ export const fullPDFDocumentField = {
   height: 11,
   commandSet: ["ScaleUp"],
   events: {
-    onChange: "ДокументПриИзменении",
-    uRLClick: "ДокументНажатиеНаНавигационнойСсылке",
+    onChange: "ПриИзменении",
+    uRLClick: "НажатиеНаНавигационнойСсылке",
   },
   viewStatusRepresentation: {
     itemType: "ViewStatusAddition",
@@ -76,8 +72,6 @@ export const fullPDFDocumentField = {
     width: 1,
   },
   ...fullFormFieldCommonFixture,
-  dataPath: "Реквизит",
-  onMainServerUnavalableBehavior: "MakeDisable",
 } satisfies RequiredFieldsElement<PDFDocumentField>
 
 export const fullPDFDocumentFieldEnterprise = {
@@ -151,15 +145,15 @@ export const fullPDFDocumentFieldPartialYAML = {
   },
   Ширина: 51,
   События: {
-    ПриИзменении: "ДокументПриИзменении",
-    НажатиеНаНавигационнойСсылке: "ДокументНажатиеНаНавигационнойСсылке",
+    ПриИзменении: "ПриИзменении",
+    НажатиеНаНавигационнойСсылке: "НажатиеНаНавигационнойСсылке",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<Required<PDFDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок">
 
 export const minimalPDFDocumentField: PDFDocumentField = {
   itemType: "PDFDocumentField",
-  name: "ПолеPDFДокумента",
+  name: "ЭлементФормы",
 }
 
 export const minimalPDFDocumentFieldPartialYAML: PDFDocumentFieldPartialYAML = {}

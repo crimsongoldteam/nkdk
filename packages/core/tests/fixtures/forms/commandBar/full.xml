@@ -53,7 +53,7 @@
 	<HorizontalLocation>Left</HorizontalLocation>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
