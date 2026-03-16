@@ -8,15 +8,23 @@ export const formFieldTableRelatedProperties = {
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
     defaultValueYAML: "Auto",
+    toXML: false,
   },
-  typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
-  table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable", toEnterprise: false },
+  typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false, toXML: false },
+  table: {
+    yaml: "Таблица",
+    xml: "AssociatedTableElementId",
+    type: "AssociatedTable",
+    toEnterprise: false,
+    toXML: false,
+  },
   fixingInTable: {
     yaml: "ФиксацияВТаблице",
     xml: "FixingInTable",
     type: "SystemEnumeration",
     typeSE: "FixingInTable",
     defaultValueYAML: "None",
+    toXML: false,
   },
 } as const satisfies MetadataItemRule["properties"]
 
@@ -30,6 +38,7 @@ export const formFieldCommonProperties = {
     yaml: "АвтоВысотаЯчейки",
     type: "boolean",
     defaultValueYAML: true,
+    toXML: false,
   },
   defaultItem: {
     yaml: "АктивизироватьПоУмолчанию",

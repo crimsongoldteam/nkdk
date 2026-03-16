@@ -22,6 +22,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   for (const key of orderedKeys) {
     if (key === "itemType") continue
     const ruleProp = rule.properties[key]
+    // if (ruleProp.toXML === false) continue
 
     const currentContext: ConfigurationContextWithExportToXML = {
       ...context,
