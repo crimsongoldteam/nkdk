@@ -1,4 +1,4 @@
-<PDFDocumentField name="ЭлементФормы" id="1" DisplayImportance="High">
+<PDFDocumentField name="ЭлементФормы" id="3" DisplayImportance="High">
 	<DataPath>Реквизит</DataPath>
 	<Visible>false</Visible>
 	<UserVisible>
@@ -44,7 +44,6 @@
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<EditMode>EnterOnInput</EditMode>
 	<CellHyperlink>true</CellHyperlink>
-	<AutoCellHeight>false</AutoCellHeight>
 	<ShowInHeader>false</ShowInHeader>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -77,11 +76,10 @@
 	<VerticalStretch>false</VerticalStretch>
 	<Output>Enable</Output>
 	<BorderColor>web:Red</BorderColor>
-	<ViewStatusLocation>Top</ViewStatusLocation>
-	<ContextMenu name="ЭлементФормыКонтекстноеМеню" id="2">
+	<ContextMenu name="ЭлементФормыКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>
-	<ExtendedTooltip name="ЭлементФормыРасширеннаяПодсказка" id="3">
+	<ExtendedTooltip name="ЭлементФормыРасширеннаяПодсказка" id="5">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -89,7 +87,7 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
-	<ViewStatusAddition name="ЭлементФормыСостояниеПросмотра" id="4" DisplayImportance="VeryHigh">
+	<ViewStatusAddition name="ЭлементФормыСостояниеПросмотра" id="6" DisplayImportance="VeryHigh">
 		<Enabled>false</Enabled>
 		<ToolTipRepresentation>Balloon</ToolTipRepresentation>
 		<AdditionSource>
@@ -123,10 +121,10 @@
 		<Border width="4">
 			<v8ui:style xsi:type="v8ui:ControlBorderType">Double</v8ui:style>
 		</Border>
-		<ContextMenu name="ЭлементФормыСостояниеПросмотраКонтекстноеМеню" id="5">
+		<ContextMenu name="ЭлементФормыСостояниеПросмотраКонтекстноеМеню" id="7">
 			<Autofill>false</Autofill>
 		</ContextMenu>
-		<ExtendedTooltip name="ЭлементФормыСостояниеПросмотраРасширеннаяПодсказка" id="6">
+		<ExtendedTooltip name="ЭлементФормыСостояниеПросмотраРасширеннаяПодсказка" id="8">
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>

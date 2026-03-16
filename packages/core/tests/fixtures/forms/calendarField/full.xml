@@ -1,34 +1,95 @@
-<CalendarField name="ПолеКалендаря" id="1" DisplayImportance="High">
-	<AutoCellHeight>true</AutoCellHeight>
-	<AutoMaxHeight>false</AutoMaxHeight>
+<CalendarField name="ПолеКалендаря" id="3" DisplayImportance="High">
+	<DataPath>Реквизит</DataPath>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>true</SkipOnInput>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок поле календаря</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleLocation>Left</TitleLocation>
+	<TitleHeight>20</TitleHeight>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<Shortcut>S</Shortcut>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<VerticalAlign>Top</VerticalAlign>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<EditMode>EnterOnInput</EditMode>
+	<CellHyperlink>true</CellHyperlink>
+	<ShowInHeader>false</ShowInHeader>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<ShowInFooter>false</ShowInFooter>
+	<FooterDataPath>РеквизитПодвала</FooterDataPath>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Width>4</Width>
 	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>4</MaxWidth>
+	<Height>4</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>5</MaxHeight>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<SelectionMode>Multiple</SelectionMode>
+	<ShowCurrentDate>false</ShowCurrentDate>
+	<CalendarNavigation>false</CalendarNavigation>
 	<BeginOfRepresentationPeriod>2024-01-01T00:00:00</BeginOfRepresentationPeriod>
+	<EndOfRepresentationPeriod>2024-12-31T00:00:00</EndOfRepresentationPeriod>
+	<EnableStartDrag>true</EnableStartDrag>
+	<EnableDrag>true</EnableDrag>
+	<Font ref="style:SmallTextFont" kind="StyleItem"/>
+	<BorderColor>web:Green</BorderColor>
 	<Border width="1">
 		<v8ui:style xsi:type="v8ui:ControlBorderType">DoubleUnderline</v8ui:style>
 	</Border>
-	<BorderColor>web:Green</BorderColor>
-	<CalendarNavigation>false</CalendarNavigation>
-	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеКалендаряКонтекстноеМеню" id="2">
+	<ShowMonthsPanel>true</ShowMonthsPanel>
+	<WidthInMonths>2</WidthInMonths>
+	<HeightInMonths>3</HeightInMonths>
+	<ContextMenu name="ПолеКалендаряКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>
-	<DataPath>ДатаРеквизит</DataPath>
-	<DefaultItem>true</DefaultItem>
-	<Enabled>false</Enabled>
-	<EnableDrag>true</EnableDrag>
-	<EnableStartDrag>true</EnableStartDrag>
-	<EndOfRepresentationPeriod>2024-12-31T00:00:00</EndOfRepresentationPeriod>
-	<Events>
-		<Event name="Drag">ПроцедураПеретаскивания</Event>
-		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
-		<Event name="DragEnd">ПроцедураЗавершенияПеретаскивания</Event>
-		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
-		<Event name="OnActivateDate">ПроцедураАктивацииДаты</Event>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="OnPeriodOutput">ПроцедураВыводаПериода</Event>
-		<Event name="Selection">ПроцедураВыбора</Event>
-	</Events>
-	<ExtendedTooltip name="ПолеКалендаряРасширеннаяПодсказка" id="3">
+	<ExtendedTooltip name="ПолеКалендаряРасширеннаяПодсказка" id="5">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -36,51 +97,14 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
-	<Font ref="style:SmallTextFont" kind="StyleItem"/>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<Height>4</Height>
-	<HeightInMonths>3</HeightInMonths>
-	<HorizontalStretch>false</HorizontalStretch>
-	<MaxHeight>5</MaxHeight>
-	<MaxWidth>4</MaxWidth>
-	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
-	<ReadOnly>true</ReadOnly>
-	<SelectionMode>Multiple</SelectionMode>
-	<Shortcut>Shift+C</Shortcut>
-	<ShowCurrentDate>false</ShowCurrentDate>
-	<ShowMonthsPanel>true</ShowMonthsPanel>
-	<SkipOnInput>false</SkipOnInput>
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Заголовок поле календаря</v8:content>
-		</v8:item>
-	</Title>
-	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
-	<TitleHeight>6</TitleHeight>
-	<TitleLocation>Right</TitleLocation>
-	<TitleTextColor>web:Black</TitleTextColor>
-	<ToolTip>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка</v8:content>
-		</v8:item>
-	</ToolTip>
-	<ToolTipRepresentation>Button</ToolTipRepresentation>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
-	<VerticalStretch>false</VerticalStretch>
-	<Visible>false</Visible>
-	<WarningOnEdit>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Предупреждение</v8:content>
-		</v8:item>
-	</WarningOnEdit>
-	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
-	<Width>4</Width>
-	<WidthInMonths>2</WidthInMonths>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+		<Event name="OnPeriodOutput">ПроцедураВыводаПериода</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="OnActivateDate">ПроцедураАктивацииДаты</Event>
+		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+		<Event name="Drag">ПроцедураПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураЗавершенияПеретаскивания</Event>
+	</Events>
 </CalendarField>
