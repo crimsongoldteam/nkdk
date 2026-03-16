@@ -35,7 +35,9 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
   hyperlink: false,
   maxHeight: 500,
   maxWidth: 400,
-  nonselectedPictureText: "Текст невыбранной картинки",
+  nonselectedPictureText: {
+    items: { ru: "Текст невыбранной картинки" },
+  },
   pictureSize: "AutoSize",
   scale: 1,
   textColor: { type: "WebColor", value: "Black" },

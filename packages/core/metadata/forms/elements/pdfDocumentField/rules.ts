@@ -49,7 +49,7 @@ export const PDFDocumentFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "PDFDocument",
     },
     ...formFieldCommonProperties,
   },

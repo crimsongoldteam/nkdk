@@ -25,7 +25,7 @@ export const PictureFieldRules = {
     hyperlink: { yaml: "Гиперссылка", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    nonselectedPictureText: { yaml: "ТекстНевыбраннойКартинки", type: "string" },
+    nonselectedPictureText: { yaml: "ТекстНевыбраннойКартинки", type: "I8nText" },
     pictureSize: {
       yaml: "РазмерКартинки",
       type: "SystemEnumeration",

@@ -33,7 +33,7 @@ export const ChartFieldRules = {
       type: "DataPath",
       toYAML: false,
       fromYAML: false,
-      defaultType: "string",
+      defaultType: "Chart",
     },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,

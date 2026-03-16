@@ -1,4 +1,5 @@
 import fs from "fs"
+import { randomUUID } from "crypto"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { fullCalendarField } from "../../../tests/fixtures/forms/calendarField/data"
@@ -22,10 +23,10 @@ import { fullSpreadSheetDocumentField } from "../../../tests/fixtures/forms/spre
 import { fullTextDocumentField } from "../../../tests/fixtures/forms/textDocumentField/data"
 import { fullTrackBarField } from "../../../tests/fixtures/forms/trackBarField/data"
 import { mockContextToXML } from "../../../tests/mockContext"
-import { getElementRule } from "../../orchestration/formElement/ruleFactory"
-import { PropertyRule } from "../../orchestration/property/types"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
+import { getElementRule } from "../../orchestration/formElement/ruleFactory"
+import { PropertyRule } from "../../orchestration/property/types"
 import { createEmptyClientApplicationForm } from "./createEmpty"
 import { exportClientApplicationFormToXML } from "./toXML"
 
@@ -33,15 +34,15 @@ const COMMON_FORMS_ROOT = "/Users/nikita/git/roundTripElements/CommonForms"
 const ROUNDTRIP_ROOT = "/Users/nikita/git/roundTripElements"
 const COMMON_FORM_NAME = "Форма"
 const CONFIGURATION_FILE_PATH = join(ROUNDTRIP_ROOT, "Configuration.xml")
-const COMMON_FORM_METADATA_XML = `<?xml version="1.0" encoding="UTF-8"?>
+const createCommonFormMetadataXML = (formName: string): string => `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
-	<CommonForm uuid="d67447f0-f15f-4b58-a6c0-b7fa3f088aaa">
+	<CommonForm uuid="${randomUUID()}">
 		<Properties>
-			<Name>Форма</Name>
+			<Name>${formName}</Name>
 			<Synonym>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
-					<v8:content>Форма</v8:content>
+					<v8:content>${formName}</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -134,7 +135,9 @@ const getFixtureDataPathAttributes = (fixture: Record<string, unknown>): Array<{
     if (name.length === 0 || names.has(name)) continue
 
     const type =
-      "defaultType" in propertyRule && typeof propertyRule.defaultType === "string" && propertyRule.defaultType.length > 0
+      "defaultType" in propertyRule &&
+      typeof propertyRule.defaultType === "string" &&
+      propertyRule.defaultType.length > 0
         ? propertyRule.defaultType
         : propertyRule.type
 
@@ -163,7 +166,7 @@ const writeFormXMLToRoundtripFolder = (itemType: string, formXML: string): void 
   if (fs.existsSync(legacyFormAliasPath)) {
     fs.unlinkSync(legacyFormAliasPath)
   }
-  fs.writeFileSync(rootFormPath, COMMON_FORM_METADATA_XML, "utf-8")
+  fs.writeFileSync(rootFormPath, createCommonFormMetadataXML(itemType), "utf-8")
   ensureConfigurationIncludesCommonForm(itemType)
 }
 
