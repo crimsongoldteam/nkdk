@@ -44,6 +44,13 @@ export const PDFDocumentFieldRules = {
         uRLClick: "НажатиеНаНавигационнойСсылке",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "string",
+    },
     ...formFieldCommonProperties,
   },
 } as const satisfies ElementRule

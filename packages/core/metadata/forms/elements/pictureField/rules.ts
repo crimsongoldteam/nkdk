@@ -51,6 +51,13 @@ export const PictureFieldRules = {
         dragCheck: "ПроверкаПеретаскивания",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "string",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },

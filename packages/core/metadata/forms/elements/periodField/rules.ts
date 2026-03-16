@@ -29,6 +29,13 @@ export const PeriodFieldRules = {
         selection: "Выбор",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "dateTime",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },

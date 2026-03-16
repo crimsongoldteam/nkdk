@@ -32,6 +32,13 @@ export const CheckBoxFieldRules = {
         onChange: "ПриИзменении",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "boolean",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },

@@ -39,6 +39,13 @@ export const ProgressBarFieldRules = {
         onChange: "ПриИзменении",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "string",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },

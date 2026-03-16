@@ -37,6 +37,13 @@ export const HTMLDocumentFieldRules = {
         onClick: "ПриНажатии",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "string",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },

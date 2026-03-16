@@ -28,6 +28,13 @@ export const ChartFieldRules = {
         onActivate: "ПриАктивизации",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "string",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },

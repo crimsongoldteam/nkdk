@@ -129,13 +129,6 @@ export const formFieldCommonProperties = {
   },
   warningOnEdit: { yaml: "ПредупреждениеПриРедактировании", type: "I8nText" },
   skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", defaultValueYAML: false },
-  dataPath: {
-    yaml: "ПутьКДанным",
-    type: "DataPath",
-    toYAML: false,
-    fromYAML: false,
-    defaultType: "dateTime",
-  },
   footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath", defaultType: "string" },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
   editMode: {

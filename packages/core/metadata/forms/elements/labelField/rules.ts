@@ -36,6 +36,13 @@ export const LabelFieldRules = {
         uRLProcessing: "ОбработкаНавигационнойСсылки",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toYAML: false,
+      fromYAML: false,
+      defaultType: "string",
+    },
     ...formFieldCommonProperties,
     ...formFieldTableRelatedProperties,
   },
