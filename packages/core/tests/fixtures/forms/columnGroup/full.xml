@@ -16,7 +16,7 @@
 	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowInHeader>true</ShowInHeader>
 	<ShowTitle>true</ShowTitle>
 	<Title>

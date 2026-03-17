@@ -1,5 +1,5 @@
-import { TableChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
-import { InputField } from "~/metadata/forms/elements/inputField/types"
+import { TableChildItemsTypedYAML } from "~/metadata/forms/commonObjects/childItems/types"
+import { TableInputField } from "~/metadata/forms/elements/inputField/types"
 import { Table, TableEnterprise, TablePartialYAML } from "~/metadata/forms/elements/table/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -35,16 +35,16 @@ export const sourceTable: Table = {
       group: "Vertical",
     },
     {
-      itemType: "CheckBoxField",
+      itemType: "TableCheckBoxField",
       name: "ТаблицаПолеФлажка",
       title: { items: { ru: "Поле флажка" } },
     },
     {
-      itemType: "PictureField",
+      itemType: "TablePictureField",
       name: "ТаблицаПолеКартинки",
     },
     {
-      itemType: "LabelField",
+      itemType: "TableLabelField",
       name: "ТаблицаПолеНадписи",
       title: { items: { ru: "Поле надписи" } },
     },
@@ -87,27 +87,27 @@ export const fullTable: RequiredFieldsElement<Table> = {
       dataPath: "Таблица.Ввод",
       editMode: "EnterOnInput",
       multipleValuesExtendedEdit: true,
-      itemType: "InputField",
+      itemType: "TableInputField",
       name: "ТаблицаВвод",
     },
     {
       dataPath: "Таблица.Надпись",
       editMode: "EnterOnInput",
-      itemType: "LabelField",
+      itemType: "TableLabelField",
       name: "ТаблицаНадпись",
     },
     {
       checkBoxType: "Auto",
       dataPath: "Таблица.Флажок",
       editMode: "EnterOnInput",
-      itemType: "CheckBoxField",
+      itemType: "TableCheckBoxField",
       name: "ТаблицаФлажок",
       title: { items: { ru: "Поле флажка" } },
     },
     {
       dataPath: "Таблица.Картинка",
       editMode: "EnterOnInput",
-      itemType: "PictureField",
+      itemType: "TablePictureField",
       name: "ТаблицаКартинка",
     },
   ],
@@ -340,7 +340,6 @@ export const fullTableYAML: TablePartialYAML = {
   ПоложениеСтрокиПоиска: "Верх",
   ПоложениеУправленияПоиском: "КоманднаяПанель",
   ПропускатьПриВводе: "Ложь",
-  ПутьКДанным: "Таблица",
   ПутьКДаннымКартинкиСтроки: "Таблица.Картинка",
   РазрешитьВыборКорня: "Истина",
   РазрешитьИспользование: {
@@ -595,30 +594,32 @@ export const fullTableEnterprise = {
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
 } satisfies Required<TableEnterprise>
 
-export const fullTableChildItems: TableChildItemsPartialYAML = {
+export const fullTableChildItems = {
   ТаблицаГруппа1: {
+    Тип: "ГруппаКолонок",
     Элементы: {
       ТаблицаПолеВвода: {
         Тип: "ПолеВвода",
-        ПутьКДанным: "Таблица.ПолеВвода",
+        ПутьКДанным: "Таблица.Ввод",
         РежимРедактирования: "ВходПриВводе",
       },
     },
   },
   ТаблицаПолеФлажка: {
-    ПутьКДанным: "Таблица.ПолеФлажка",
+    Тип: "ПолеФлажок",
     РежимРедактирования: "ВходПриВводе",
     ВидФлажка: "Авто",
   },
   ТаблицаПолеКартинки: {
-    ПутьКДанным: "Таблица.ПолеКартинки",
+    Тип: "ПолеРисунка",
+    ПутьКДанным: "Таблица.Картинка",
     РежимРедактирования: "ВходПриВводе",
   },
   ТаблицаПолеНадписи: {
-    ПутьКДанным: "Таблица.ПолеНадписи",
+    Тип: "ПолеНадписи",
     РежимРедактирования: "ВходПриВводе",
   },
-}
+} as TableChildItemsTypedYAML
 
 export const minimalTable: Table = {
   itemType: "Table",
@@ -636,8 +637,8 @@ export const oneColumnTable: Table = {
     {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: "InputField",
-    } as InputField,
+      itemType: "TableInputField",
+    } as TableInputField,
   ],
 }
 
@@ -650,14 +651,14 @@ export const twoColumnTable: Table = {
       name: "Колонка1",
       dataPath: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
-      itemType: "InputField",
-    } as InputField,
+      itemType: "TableInputField",
+    } as TableInputField,
     {
       name: "Колонка2",
       dataPath: "Колонка2",
       title: { items: { ru: "Колонка 2" } },
-      itemType: "InputField",
-    } as InputField,
+      itemType: "TableInputField",
+    } as TableInputField,
   ],
 }
 
@@ -680,7 +681,7 @@ export const tableWithAutoCommandBar: Table = {
     {
       name: "Колонка1",
       dataPath: "Колонка1",
-      itemType: "InputField",
+      itemType: "TableInputField",
       title: { items: { ru: "Колонка таблицы 1" } },
     },
   ],
@@ -695,8 +696,8 @@ export const inputColumnTable: Table = {
       name: "Колонка1",
       title: { items: { ru: "Колонка 1" } },
       dataPath: "Колонка1",
-      itemType: "InputField",
-    } as InputField,
+      itemType: "TableInputField",
+    } as TableInputField,
   ],
 }
 
@@ -709,7 +710,7 @@ export const checkboxColumnTable: Table = {
       name: "Колонка1",
       title: { items: { ru: "Флажок" } },
       dataPath: "Колонка1",
-      itemType: "CheckBoxField",
+      itemType: "TableCheckBoxField",
     },
   ],
 }
@@ -722,7 +723,7 @@ export const labelColumnTable: Table = {
     {
       name: "Колонка1",
       dataPath: "Колонка1",
-      itemType: "LabelField",
+      itemType: "TableLabelField",
     },
   ],
 }
@@ -735,7 +736,7 @@ export const pictureColumnTable: Table = {
     {
       name: "Колонка1",
       dataPath: "Колонка1",
-      itemType: "PictureField",
+      itemType: "TablePictureField",
     },
   ],
 }
@@ -851,7 +852,7 @@ export const tableStructureFixtures: TableFixtures[] = [
     name: "table with auto command bar",
     table: tableWithAutoCommandBar,
     nkdk: {
-      strings: ['<<...>>', '<<... | "Кнопка 1" КнопкаТаблицы>>', '| "Колонка таблицы 1" Колонка1 | Таблица1'],
+      strings: ["<<...>>", '<<... | "Кнопка 1" КнопкаТаблицы>>', '| "Колонка таблицы 1" Колонка1 | Таблица1'],
       toOneLineGroup: false,
     },
     // Добавлена командная панель формы, которая не будет экспортироваться

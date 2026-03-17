@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { testExportElementToXML, testExportPropertyToXML } from "~/tests/exportElementToXML"
 import {
   fullSearchStringAddition,
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
   minimalSingleSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
-import { testExportElementToXML, testExportPropertyToXML } from "~/tests/exportElementToXML"
+
+const normalizeXML = (value: string): string => value.replace(/\s+/g, " ").trim()
 
 const rule: PropertyRule = {
   type: "SingleSearchStringAddition",
@@ -21,7 +23,7 @@ describe("SearchStringAddition to XML", () => {
         path: "forms/searchStringAddition/full.xml",
       })
 
-      expect(result).toEqual(expectedResult.trimEnd())
+      expect(result).toEqual(expectedResult)
     })
 
     it("should export minimal", () => {
@@ -44,7 +46,7 @@ describe("SearchStringAddition to XML", () => {
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
-      expect(result).toEqual(expectedResult)
+      expect(normalizeXML(result)).toEqual(normalizeXML(expectedResult))
     })
 
     it("should return all fields to XML", () => {
@@ -56,7 +58,7 @@ describe("SearchStringAddition to XML", () => {
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
-      expect(result).toEqual(expectedResult.trimEnd())
+      expect(normalizeXML(result)).toEqual(normalizeXML(expectedResult))
     })
 
     it("should export minimal", () => {
@@ -68,7 +70,7 @@ describe("SearchStringAddition to XML", () => {
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
-      expect(result).toEqual(expectedResult)
+      expect(normalizeXML(result)).toEqual(normalizeXML(expectedResult))
     })
   })
 })

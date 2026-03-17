@@ -1,34 +1,155 @@
-<InputField name="ПолеВвода" id="1" DisplayImportance="High">
-	<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
-	<AllowMultipleValuesDuplicates>false</AllowMultipleValuesDuplicates>
-	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
-	<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
-	<AutoCellHeight>true</AutoCellHeight>
-	<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
-	<AutoCorrectionOnTextInput>Use</AutoCorrectionOnTextInput>
-	<AutoFillHint>Email</AutoFillHint>
-	<AutoMarkIncomplete>true</AutoMarkIncomplete>
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<AutoShowClearButtonMode>Always</AutoShowClearButtonMode>
-	<AutoShowOpenButton>FilledOnly</AutoShowOpenButton>
-	<AvailableTypes>
-		<v8:Type>cfg:DocumentRef.КакойТоДокумент</v8:Type>
-	</AvailableTypes>
-	<BackColor>web:Blue</BackColor>
-	<BorderColor>web:Green</BorderColor>
+<InputField name="ПолеВвода" id="6" DisplayImportance="High">
+	<DataPath>Реквизит</DataPath>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>true</SkipOnInput>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле ввода</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleLocation>Left</TitleLocation>
+	<TitleHeight>20</TitleHeight>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<Shortcut>S</Shortcut>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<VerticalAlign>Top</VerticalAlign>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<EditMode>EnterOnInput</EditMode>
 	<CellHyperlink>true</CellHyperlink>
+	<ShowInHeader>false</ShowInHeader>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<ShowInFooter>false</ShowInFooter>
+	<FooterDataPath>РеквизитПодвала</FooterDataPath>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Width>200</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>400</MaxWidth>
+	<Height>100</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>500</MaxHeight>
+	<HorizontalStretch>true</HorizontalStretch>
+	<VerticalStretch>true</VerticalStretch>
+	<Wrap>false</Wrap>
+	<PasswordMode>true</PasswordMode>
+	<MultiLine>true</MultiLine>
+	<ExtendedEdit>true</ExtendedEdit>
+	<MarkNegatives>true</MarkNegatives>
+	<DropListButton>true</DropListButton>
 	<ChoiceButton>true</ChoiceButton>
+	<ChoiceButtonRepresentation>ShowInInputField</ChoiceButtonRepresentation>
+	<ClearButton>true</ClearButton>
+	<SpinButton>true</SpinButton>
+	<OpenButton>true</OpenButton>
+	<CreateButton>true</CreateButton>
+	<Mask>999</Mask>
+	<ListChoiceMode>true</ListChoiceMode>
+	<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
+	<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
+	<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
+	<AllowMultipleValuesDuplicates>true</AllowMultipleValuesDuplicates>
+	<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+	<MultipleValuePictureSize>Large</MultipleValuePictureSize>
+	<MultipleValuePictureShape>Circle</MultipleValuePictureShape>
+	<ShowCheckBoxesInDropList>true</ShowCheckBoxesInDropList>
+	<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
+	<MultipleValuesPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</MultipleValuesPicture>
+	<MultipleValueDataPath>Реквизит.РеквизитТаблицы</MultipleValueDataPath>
+	<MultipleValuePictureDataPath>Реквизит.РеквизитТаблицы</MultipleValuePictureDataPath>
+	<MultipleValuePresentDataPath>Реквизит.РеквизитТаблицы</MultipleValuePresentDataPath>
+	<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
+	<QuickChoice>true</QuickChoice>
+	<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
+	<Format>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Формат отображения</v8:content>
+		</v8:item>
+	</Format>
+	<EditFormat>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Формат редактирования</v8:content>
+		</v8:item>
+	</EditFormat>
+	<AutoMarkIncomplete>true</AutoMarkIncomplete>
+	<ChooseType>false</ChooseType>
+	<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
+	<TextEdit>false</TextEdit>
+	<EditTextUpdate>OnValueChange</EditTextUpdate>
+	<MinValue xsi:type="xs:decimal">1</MinValue>
+	<MaxValue xsi:type="xs:decimal">99</MaxValue>
 	<ChoiceButtonPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</ChoiceButtonPicture>
-	<ChoiceButtonRepresentation>ShowInInputField</ChoiceButtonRepresentation>
-	<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
-	<ChoiceForm>Catalog.Справочник.Form.ФормаВыбора</ChoiceForm>
-	<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+	<ChoiceParameterLinks>
+		<xr:Link>
+			<xr:Name>РеквизитПодвала</xr:Name>
+			<xr:DataPath xsi:type="xs:string">РеквизитПодвала</xr:DataPath>
+			<xr:ValueChange>Clear</xr:ValueChange>
+		</xr:Link>
+	</ChoiceParameterLinks>
+	<ChoiceParameters>
+		<app:item name="Отбор.Параметр">
+			<app:value xsi:type="xs:string">Значение</app:value>
+		</app:item>
+	</ChoiceParameters>
+	<AvailableTypes>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:Length>0</v8:Length>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+		</v8:StringQualifiers>
+	</AvailableTypes>
 	<ChoiceList>
 		<xr:Item>
+			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
 			<xr:Value xsi:type="FormChoiceListDesTimeValue">
 				<Presentation>
@@ -43,59 +164,34 @@
 	</ChoiceList>
 	<ChoiceListButton>true</ChoiceListButton>
 	<ChoiceListHeight>200</ChoiceListHeight>
-	<ChoiceParameterLinks>
-		<xr:Link>
-			<xr:Name>Отбор.Владелец</xr:Name>
-			<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
-			<xr:ValueChange>Clear</xr:ValueChange>
-		</xr:Link>
-	</ChoiceParameterLinks>
-	<ChoiceParameters>
-		<app:item name="Отбор.Параметр">
-			<app:value xsi:type="xs:string">Значение</app:value>
-		</app:item>
-	</ChoiceParameters>
-	<ChooseType>true</ChooseType>
-	<ClearButton>true</ClearButton>
-	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="2">
-		<Autofill>false</Autofill>
-	</ContextMenu>
-	<CreateButton>true</CreateButton>
-	<DataPath>Объект.Реквизит</DataPath>
-	<DefaultItem>true</DefaultItem>
-	<DropListButton>true</DropListButton>
 	<DropListWidth>300</DropListWidth>
-	<EditFormat>
+	<TextColor>web:Yellow</TextColor>
+	<BackColor>web:Blue</BackColor>
+	<BorderColor>web:Green</BorderColor>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<TypeLink>
+		<xr:DataPath>РеквизитПодвала</xr:DataPath>
+		<xr:LinkItem>1</xr:LinkItem>
+	</TypeLink>
+	<HeightControlVariant>UseContentHeight</HeightControlVariant>
+	<AutoShowClearButtonMode>Always</AutoShowClearButtonMode>
+	<AutoShowOpenButtonMode>FilledOnly</AutoShowOpenButtonMode>
+	<AutoCorrectionOnTextInput>Use</AutoCorrectionOnTextInput>
+	<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
+	<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
+	<SpecialTextInputMode>Email</SpecialTextInputMode>
+	<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
+	<InputHint>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Формат редактирования</v8:content>
+			<v8:content>Подсказка ввода</v8:content>
 		</v8:item>
-	</EditFormat>
-	<EditMode>EnterOnInput</EditMode>
-	<EditText>Текст редактирования</EditText>
-	<EditTextUpdate>OnValueChange</EditTextUpdate>
-	<Enabled>true</Enabled>
-	<Events>
-		<Event name="AutoComplete">ПроцедураАвтоПодбора</Event>
-		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
-		<Event name="Clearing">ПроцедураОчистки</Event>
-		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
-		<Event name="Creating">ПроцедураСоздания</Event>
-		<Event name="EditTextChange">ПроцедураИзмененияТекстаРедактирования</Event>
-		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
-		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
-		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
-		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="Opening">ПроцедураОткрытия</Event>
-		<Event name="StartChoice">ПроцедураНачалаВыбора</Event>
-		<Event name="StartListChoice">ПроцедураНачалаВыбораИзСписка</Event>
-		<Event name="TextEditEnd">ПроцедураОкончанияВводаТекста</Event>
-		<Event name="Tuning">ПроцедураРегулирования</Event>
-	</Events>
-	<ExtendedEdit>true</ExtendedEdit>
-	<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3">
+	</InputHint>
+	<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="7">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="8">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -103,129 +199,23 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
-	<FixingInTable>None</FixingInTable>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<FooterBackColor>web:White</FooterBackColor>
-	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
-	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-	<FooterPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</FooterPicture>
-	<FooterText>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Текст подвала</v8:content>
-		</v8:item>
-	</FooterText>
-	<FooterTextColor>web:Black</FooterTextColor>
-	<Format>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Формат отображения</v8:content>
-		</v8:item>
-	</Format>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
-	<HeaderPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</HeaderPicture>
-	<Height>100</Height>
-	<HeightControlVariant>UseContentHeight</HeightControlVariant>
-	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalStretch>true</HorizontalStretch>
-	<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
-	<InputHint>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка ввода</v8:content>
-		</v8:item>
-	</InputHint>
-	<ListChoiceMode>true</ListChoiceMode>
-	<MarkIncomplete>true</MarkIncomplete>
-	<MarkNegatives>true</MarkNegatives>
-	<Mask>999</Mask>
-	<MaxHeight>500</MaxHeight>
-	<MaxValue>100</MaxValue>
-	<MaxWidth>400</MaxWidth>
-	<MinValue>0</MinValue>
-	<MultiLine>true</MultiLine>
-	<MultipleValuePictureDataPath>Объект.Picture</MultipleValuePictureDataPath>
-	<MultipleValuePictureShape>Circle</MultipleValuePictureShape>
-	<MultipleValuePictureSize>Large</MultipleValuePictureSize>
-	<MultipleValuePresentationDataPath>Объект.Presentation</MultipleValuePresentationDataPath>
-	<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
-	<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
-	<MultipleValuesPicture>
-		<xr:Ref>CommonPicture.ОбщаяКартинка</xr:Ref>
-		<xr:LoadTransparent>false</xr:LoadTransparent>
-	</MultipleValuesPicture>
-	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
-	<MultipleValueValueDataPath>Объект.Value</MultipleValueValueDataPath>
-	<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
-	<OpenButton>true</OpenButton>
-	<PasswordMode>true</PasswordMode>
-	<QuickChoice>true</QuickChoice>
-	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
-	<ShowCheckBoxesInDropListWhenInputMultipleValues>true</ShowCheckBoxesInDropListWhenInputMultipleValues>
-	<ShowInFooter>true</ShowInFooter>
-	<ShowInHeader>true</ShowInHeader>
-	<SkipOnInput>false</SkipOnInput>
-	<SpecialTextInputMode>Email</SpecialTextInputMode>
-	<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
-	<SpinButton>true</SpinButton>
-	<TextColor>web:Yellow</TextColor>
-	<TextEdit>true</TextEdit>
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Поле ввода</v8:content>
-		</v8:item>
-	</Title>
-	<TitleBackColor>web:Blue</TitleBackColor>
-	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleHeight>20</TitleHeight>
-	<TitleLocation>Left</TitleLocation>
-	<TitleTextColor>web:Black</TitleTextColor>
-	<ToolTip>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка</v8:content>
-		</v8:item>
-	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>InputField</Type>
-	<TypeDomainEnabled>true</TypeDomainEnabled>
-	<TypeLink>
-		<xr:DataPath>Catalog.КакойТоСправочник.Attribute.КакойТоРеквизит</xr:DataPath>
-		<xr:LinkItem>1</xr:LinkItem>
-	</TypeLink>
-	<TypeRestriction>
-		<v8:Type>xs:string</v8:Type>
-		<v8:StringQualifiers>
-			<v8:Length>0</v8:Length>
-			<v8:AllowedLength>Variable</v8:AllowedLength>
-		</v8:StringQualifiers>
-	</TypeRestriction>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
-	<VerticalAlign>Top</VerticalAlign>
-	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
-	<WarningOnEdit>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Предупреждение</v8:content>
-		</v8:item>
-	</WarningOnEdit>
-	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
-	<Width>200</Width>
-	<Wrap>true</Wrap>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="EditTextChange">ПроцедураИзмененияТекстаРедактирования</Event>
+		<Event name="AutoComplete">ПроцедураАвтоПодбора</Event>
+		<Event name="StartChoice">ПроцедураНачалаВыбора</Event>
+		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
+		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
+		<Event name="Tuning">ПроцедураРегулирования</Event>
+		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
+		<Event name="Opening">ПроцедураОткрытия</Event>
+		<Event name="Creating">ПроцедураСоздания</Event>
+		<Event name="StartListChoice">ПроцедураНачалаВыбораИзСписка</Event>
+		<Event name="Clearing">ПроцедураОчистки</Event>
+		<Event name="TextEditEnd">ПроцедураОкончанияВводаТекста</Event>
+		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
+		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
+	</Events>
+	<ChoiceForm>Catalog.Справочник.Form.ФормаВыбора</ChoiceForm>
 </InputField>

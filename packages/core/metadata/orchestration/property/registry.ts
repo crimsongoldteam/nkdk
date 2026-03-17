@@ -65,7 +65,7 @@ import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects
 import {
   CommandBarChildItems,
   CommandBarChildItemsEnterprise,
-  CommandBarChildItemsPartialYAML,
+  CommandBarChildItemsTypedYAML,
   GroupChildItems,
   GroupChildItemsEnterprise,
   GroupChildItemsPartialYAML,
@@ -88,6 +88,7 @@ import {
 } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
+import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBarUse/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -100,7 +101,7 @@ import {
   SingleSearchStringAdditionYAML,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
+import { ScrollBarUseYAML, SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 
 export type PropertyTypeRegistry = {
   //#region Primitive types
@@ -418,7 +419,7 @@ export type PropertyTypeRegistry = {
   CommandBarChildItems: {
     item: CommandBarChildItems
     enterprise: CommandBarChildItemsEnterprise
-    yaml: CommandBarChildItemsPartialYAML
+    yaml: CommandBarChildItemsTypedYAML
   }
   TableChildItems: {
     item: TableChildItems
@@ -437,6 +438,12 @@ export type PropertyTypeRegistry = {
   // }
 
   //#endregion
+
+  ScrollBarUseBoolean: {
+    item: "AutoUse" | "DontUse" | "UseAlways"
+    enterprise: ScrollBarUseEnterprise
+    yaml: ScrollBarUseYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -506,6 +513,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
+  ScrollBarUseBoolean: "ScrollBarUseBoolean",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

@@ -31,6 +31,11 @@ export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemTyp
   return rule as Rule
 }
 
+export const getElementXMLTagName = <Rule extends ElementRule>(itemType: Rule["itemType"]): string => {
+  const rule = getElementRule(itemType)
+  return rule.xmlTag ?? rule.itemType
+}
+
 export function registerElementRule(itemType: ElementType, elementRule: ElementRule): void {
   elementRulesRegistry.set(itemType, elementRule)
 

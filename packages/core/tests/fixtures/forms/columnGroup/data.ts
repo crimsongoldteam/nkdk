@@ -14,7 +14,7 @@ export const fullColumnGroup: ColumnGroup = {
   horizontalAlignInGroup: "Left",
   horizontalStretch: true,
   readOnly: false,
-  shortcut: "Ctrl+S",
+  shortcut: "S",
   title: {
     items: { ru: "Группа колонок" },
   },
@@ -108,7 +108,7 @@ export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   РазрешитьИзменениеСостава: "Истина",
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
+  СочетаниеКлавиш: "S",
   ТолькоПросмотр: "Ложь",
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
@@ -139,13 +139,12 @@ export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   РазрешитьИзменениеСостава: "Истина",
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
+  СочетаниеКлавиш: "S",
   ТолькоПросмотр: "Ложь",
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ГоризонтальноеПоложениеВШапке: "Лево",
-  Группировка: "Горизонтальная",
   КартинкаШапки: "Печать",
   ОтображатьВШапке: "Истина",
   ОтображатьЗаголовок: "Истина",
@@ -153,6 +152,7 @@ export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   ФиксацияВТаблице: "Нет",
   ФорматШапки: "Формат",
   ЦветФонаЗаголовка: "Синий",
+  Группировка: "Горизонтальная",
 }
 
 export const minimalColumnGroup: ColumnGroup = {

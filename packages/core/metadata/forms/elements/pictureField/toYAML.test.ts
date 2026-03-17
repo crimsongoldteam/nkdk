@@ -1,22 +1,42 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML } from "~/metadata/orchestration"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/orchestration"
 import {
   fullPictureField,
   fullPictureFieldPartialYAML,
   minimalPictureField,
+  fullTablePictureField,
+  fullTablePictureFieldTypedYAML,
+  minimalTablePictureField,
+  minimalTablePictureFieldTypedYAML,
 } from "~/tests/fixtures/forms/pictureField/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportPictureFieldToYAML", () => {
-  it("should export all fields to YAML", () => {
-    const result = exportElementToPartialYAML({ context: mockContext, element: fullPictureField })
+  describe("PictureField partial", () => {
+    it("should export all fields to YAML", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: fullPictureField })
 
-    expect(result).toEqual(fullPictureFieldPartialYAML)
+      expect(result).toEqual(fullPictureFieldPartialYAML)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToPartialYAML({ context: mockContext, element: minimalPictureField })
+
+      expect(result).toBeUndefined()
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportElementToPartialYAML({ context: mockContext, element: minimalPictureField })
+  describe("TablePictureField typed", () => {
+    it("should export all fields to YAML", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullTablePictureField })
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullTablePictureFieldTypedYAML)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalTablePictureField })
+
+      expect(result).toEqual(minimalTablePictureFieldTypedYAML)
+    })
   })
 })

@@ -1,8 +1,8 @@
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { Picture, PictureXML } from "./types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importPictureFromXML = (
   context: ConfigurationContextFromXML,
@@ -25,7 +25,7 @@ export const importPictureFromXML = (
       ref: xml["xr:Abs"],
       type: "AbsolutePicture",
       loadTransparent,
-      transparentPixel,
+      ...(transparentPixel ? { transparentPixel } : {}),
     }
   }
 
@@ -34,7 +34,7 @@ export const importPictureFromXML = (
     ref,
     type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",
     loadTransparent,
-    transparentPixel,
+    ...(transparentPixel ? { transparentPixel } : {}),
   }
 }
 

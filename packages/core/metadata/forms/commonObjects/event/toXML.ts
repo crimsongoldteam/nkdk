@@ -15,15 +15,38 @@ export const exportEventsToXML = (
   const dataEvents = value as Record<string, string>
   const items: EventXML[] = []
 
-  for (const [key, eventValue] of Object.entries(dataEvents)) {
+  const referenceEvents = _referenceValue && typeof _referenceValue === "object" ? (_referenceValue as Record<string, unknown>) : undefined
+
+  const orderedKeys: string[] = []
+
+  if (referenceEvents) {
+    // сначала ключи в порядке, заданном референсным значением
+    for (const key of Object.keys(referenceEvents)) {
+      if (key in dataEvents) {
+        orderedKeys.push(key)
+      }
+    }
+
+    // затем остальные ключи, которых нет в референсе, отсортированные по алфавиту
+    const restKeys = Object.keys(dataEvents)
+      .filter((key) => !orderedKeys.includes(key))
+      .sort((a, b) => a.localeCompare(b))
+
+    orderedKeys.push(...restKeys)
+  } else {
+    // если референса нет, сохраняем текущую логику: сортировка по имени
+    orderedKeys.push(...Object.keys(dataEvents).sort((a, b) => a.localeCompare(b)))
+  }
+
+  for (const key of orderedKeys) {
+    const eventValue = dataEvents[key]
     if (eventValue === undefined) continue
     items.push({ _name: capitalize(key), "#text": eventValue })
   }
 
   if (items.length === 0) return undefined
 
-  const sorted = items.sort((a, b) => a._name.localeCompare(b._name))
-  return { Event: sorted }
+  return { Event: items }
 }
 
 registerTypeRule("Events", "exportToXML", exportEventsToXML)

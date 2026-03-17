@@ -3,13 +3,16 @@ import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata
 import {
   fullCheckBoxField,
   fullCheckBoxFieldPartialYAML,
-  fullCheckBoxFieldTypedYAML,
+  fullTableCheckBoxField,
+  fullTableCheckBoxFieldTypedYAML,
   minimalCheckBoxField,
+  minimalTableCheckBoxField,
+  minimalTableCheckBoxFieldTypedYAML,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportCheckBoxFieldToYAML", () => {
-  describe("exportElementToPartialYAML", () => {
+  describe("CheckBoxField partial", () => {
     it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullCheckBoxField })
 
@@ -23,11 +26,17 @@ describe("exportCheckBoxFieldToYAML", () => {
     })
   })
 
-  describe("exportElementToTypedYAML", () => {
+  describe("TableCheckBoxField typed", () => {
     it("should export all fields to YAML", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: fullCheckBoxField })
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullTableCheckBoxField })
 
-      expect(result).toEqual(fullCheckBoxFieldTypedYAML)
+      expect(result).toEqual(fullTableCheckBoxFieldTypedYAML)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalTableCheckBoxField })
+
+      expect(result).toEqual(minimalTableCheckBoxFieldTypedYAML)
     })
   })
 })

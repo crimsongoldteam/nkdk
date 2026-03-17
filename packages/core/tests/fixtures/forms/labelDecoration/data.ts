@@ -35,7 +35,7 @@ export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
   horizontalStretch: true,
   maxHeight: 500,
   maxWidth: 400,
-  shortcut: "Ctrl+S",
+  shortcut: "S",
   skipOnInput: false,
   textColor: { type: "WebColor", value: "Blue" },
   toolTip: {
@@ -134,7 +134,7 @@ export const fullLabelDecorationPartialYAML: LabelDecorationPartialYAML = {
   ПропускатьПриВводе: "Ложь",
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
+  СочетаниеКлавиш: "S",
   ЦветТекста: "Синий",
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",

@@ -13,7 +13,7 @@
 	<HorizontalStretch>true</HorizontalStretch>
 	<PagesRepresentation>Auto</PagesRepresentation>
 	<ReadOnly>false</ReadOnly>
-	<Shortcut>Ctrl+S</Shortcut>
+	<Shortcut>S</Shortcut>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

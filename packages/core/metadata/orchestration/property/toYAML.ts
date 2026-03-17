@@ -2,6 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata, ToYAML } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
+import { shouldProcessProperty } from "./helpers"
 import { MetadataItemRule, PropertyRule } from "./types"
 
 export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
@@ -18,6 +19,7 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   let canUseShortFormat: boolean = true
 
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
+    if (!shouldProcessProperty({ rule: propertyRule, operation: "exportToYAML" })) continue
     const value = data[key as keyof ToMetadata<Rule["itemType"]>]
 
     const exportedValues = exportPropertyToYAML({
@@ -59,6 +61,8 @@ export const exportPropertyToYAML = (params: {
   if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
 
   if (rule.yaml === undefined) return undefined
+
+  if (rule.toYAML === false) return undefined
 
   if (!context.exportToYAML.toTyped && rule.toPartialYAML === false) return undefined
 

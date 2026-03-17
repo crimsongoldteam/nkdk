@@ -18,6 +18,9 @@ export interface BasePropertyRule {
 
   required?: true
 
+  /** Отключает свойство при любом экспорте/импорте */
+  runtimeOnly?: true
+
   /**
    * Порядок свойств при экспорте/импорте.
    * Меньшее значение — раньше, отсутствие значения — после всех с order.
@@ -28,26 +31,37 @@ export interface BasePropertyRule {
    * Название ключа в yaml
    */
   yaml?: string
+
+  /**
+   * Не экспортировать в yaml
+   */
+  toYAML?: false
+  /**
+   * Не импортировать из yaml
+   */
+  fromYAML?: false
+  toPartialYAML?: false
+  defaultValueYAML?: any | DefaultValueFunction
+
   /**
    * Название в xml, если не заполнено - будет использован ключ
    */
   xml?: string
+  defaultValueXML?: any
+  fromXML?: false
+  toXML?: false
+  /**
+   * Родительские элементы в xml
+   */
+  xmlParents?: string[]
 
   /**
    * Передавать значение в форму в 1С
    */
   toEnterprise?: false
   fromEnterprise?: false
-  toPartialYAML?: false
-  fromXML?: false
-  fromYAML?: false
   defaultValue?: any | DefaultValueFunction
-  defaultValueXML?: any
 
-  /**
-   * Родительские элементы в xml
-   */
-  xmlParents?: string[]
   /**
    * Теги, по которым будет выгружаться свойство
    */

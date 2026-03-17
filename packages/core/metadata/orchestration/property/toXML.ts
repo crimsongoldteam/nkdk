@@ -1,9 +1,10 @@
 import { capitalize } from "~/helpers/capitalize"
+import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
-import { getOrderedKeysToXML } from "./helpers"
+import { getOrderedKeysToXML, shouldProcessProperty } from "./helpers"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
@@ -22,6 +23,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   for (const key of orderedKeys) {
     if (key === "itemType") continue
     const ruleProp = rule.properties[key]
+    if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML" })) continue
 
     const currentContext: ConfigurationContextWithExportToXML = {
       ...context,
@@ -84,6 +86,27 @@ export const exportPropertyToXML = (params: {
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
+    // if (
+    //   metadataItem?.itemType === "InputField" &&
+    //   rule.type === "DataPath" &&
+    //   ["MultipleValueDataPath", "MultipleValuePictureDataPath", "MultipleValuePresentDataPath"].includes(rule.xml ?? "") &&
+    //   typeof referenceMetadata === "string"
+    // ) {
+    //   return referenceMetadata
+    // }
+
+    if (
+      metadataItem?.itemType === "InputField" &&
+      rule.type === "number" &&
+      (rule.xml === "MinValue" || rule.xml === "MaxValue")
+    ) {
+      if (referenceMetadata?.["#text"] !== undefined && String(referenceMetadata["#text"]) === String(value)) {
+        return referenceMetadata
+      }
+
+      return exportMetadataSimpleValueToXML(context, undefined, value, "decimal")
+    }
+
     if (value === rule.defaultValue) {
       return defaultValueXML
     }

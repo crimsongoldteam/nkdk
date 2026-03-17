@@ -16,30 +16,52 @@ export const ButtonGroupRules = {
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
+      // toPartialYAML: false,
       defaultValue: [],
       required: true,
+    },
+    // В XML CommandSource идёт сразу после ChildItems
+    commandSource: { yaml: "ИсточникКоманд", type: "string" },
+    enableContentChange: {
+      yaml: "РазрешитьИзменениеСостава",
+      type: "boolean",
+      defaultValueYAML: true,
+    },
+    enabled: {
+      yaml: "Доступность",
+      type: "boolean",
+      defaultValueYAML: true,
     },
     extendedTooltip: {
       yaml: "РасширеннаяПодсказка",
       type: "ExtendedTooltip",
       toEnterprise: false,
     },
-    representation: {
-      yaml: "Отображение",
-      type: "SystemEnumeration",
-      typeSE: "ButtonGroupRepresentation",
-    },
-    enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
-    enabled: { yaml: "Доступность", type: "boolean" },
-    height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
       xml: "GroupHorizontalAlign",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
+      defaultValueYAML: "Auto",
     },
+    verticalAlignInGroup: {
+      yaml: "ВертикальноеПоложениеВГруппе",
+      xml: "GroupVerticalAlign",
+      type: "SystemEnumeration",
+      typeSE: "ItemVerticalAlign",
+    },
+    height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
+    readOnly: {
+      yaml: "ТолькоПросмотр",
+      type: "boolean",
+      defaultValueYAML: false,
+    },
+    representation: {
+      yaml: "Отображение",
+      type: "SystemEnumeration",
+      typeSE: "ButtonGroupRepresentation",
+    },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     title: {
       yaml: "Заголовок",
@@ -65,16 +87,13 @@ export const ButtonGroupRules = {
       type: "UserVisible",
       toEnterprise: false,
     },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
+    verticalStretch: {
+      yaml: "РастягиватьПоВертикали",
+      type: "boolean",
+      defaultValueYAML: true,
     },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    commandSource: { yaml: "ИсточникКоманд", type: "string" },
   },
 } as const satisfies ElementRule
 

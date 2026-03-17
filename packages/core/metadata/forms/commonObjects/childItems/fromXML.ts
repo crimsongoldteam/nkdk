@@ -12,7 +12,7 @@ export const importChildItemsFromXML = <
   From extends GroupChildItem | CommandBarChildItem | TableChildItem | PagesChildItem,
 >(
   context: ConfigurationContextFromXML,
-  _rule: PropertyRule,
+  rule: PropertyRule,
   xml: XMLItem<From>[] | XMLItem<From> | undefined
 ): From[] => {
   if (!xml) return []
@@ -20,8 +20,10 @@ export const importChildItemsFromXML = <
   const items = Array.isArray(xml) ? xml : [xml]
 
   return items.map((item) => {
-    const itemType = Object.keys(item)[0] as From["itemType"]
+    const xmlTag = Object.keys(item)[0]
+    const itemType = resolveItemTypeFromXMLTag(rule, xmlTag) as From["itemType"]
     const xmlValue = (item as Record<string, any>)[itemType]
+      ?? (item as Record<string, any>)[xmlTag]
     return importElementFromXML({
       context: context,
       itemType: itemType,
@@ -29,6 +31,20 @@ export const importChildItemsFromXML = <
       forReference: false,
     })!
   }) as From[]
+}
+
+const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string): string => {
+  if (rule.type !== "TableChildItems") return xmlTag
+
+  const tableXMLTagToItemType: Record<string, TableChildItem["itemType"]> = {
+    CheckBoxField: "TableCheckBoxField",
+    ColumnGroup: "ColumnGroup",
+    InputField: "TableInputField",
+    LabelField: "TableLabelField",
+    PictureField: "TablePictureField",
+  }
+
+  return tableXMLTagToItemType[xmlTag] ?? xmlTag
 }
 
 registerTypeRule("GroupChildItems", "importFromXML", importChildItemsFromXML)

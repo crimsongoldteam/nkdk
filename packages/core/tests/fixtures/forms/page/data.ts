@@ -10,7 +10,7 @@ export const fullPage: RequiredFieldsElement<Page> = {
   horizontalAlignInGroup: "Left",
   horizontalStretch: true,
   readOnly: false,
-  shortcut: "Ctrl+S",
+  shortcut: "S",
   title: {
     items: { ru: "Страница" },
   },
@@ -72,7 +72,7 @@ export const fullPagePartialYAML: PagePartialYAML = {
   РазрешитьИзменениеСостава: "Истина",
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
+  СочетаниеКлавиш: "S",
   ТолькоПросмотр: "Ложь",
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,

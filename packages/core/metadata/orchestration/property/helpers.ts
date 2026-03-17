@@ -20,6 +20,38 @@ interface PathStructure {
   childContainersByPath: Map<string, Set<string>>
 }
 
+type PropertyExportImportOperation =
+  | "exportToXML"
+  | "importFromXML"
+  | "exportToYAML"
+  | "importFromYAML"
+  | "exportToEnterprise"
+
+export const shouldProcessProperty = (params: {
+  rule: PropertyRule
+  operation: PropertyExportImportOperation
+}): boolean => {
+  const { rule, operation } = params
+
+  if (rule.runtimeOnly) return false
+
+  switch (operation) {
+    case "exportToXML":
+      return rule.toXML !== false
+    case "importFromXML":
+      return rule.fromXML !== false
+    case "exportToYAML":
+      if (rule.toYAML === false) return false
+      return true
+    case "importFromYAML":
+      return rule.fromYAML !== false
+    case "exportToEnterprise":
+      return rule.toEnterprise !== false
+    default:
+      return true
+  }
+}
+
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
   tagFilter: string[] | undefined
@@ -29,6 +61,7 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
   const pathToInfo = new Map<string, PathInfo>()
 
   const propertyEntries = Object.entries(rule.properties).filter(([_key, ruleProp]) => {
+    if (ruleProp.runtimeOnly) return false
     return tagFilter === undefined || (ruleProp.tag !== undefined && tagFilter.includes(ruleProp.tag))
   })
 

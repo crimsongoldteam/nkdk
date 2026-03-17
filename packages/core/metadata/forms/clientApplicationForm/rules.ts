@@ -43,7 +43,7 @@ export const ClientApplicationFormRules = {
     },
     childItems: {
       type: "GroupChildItems",
-      yaml: "Элементы",
+      // yaml: "Элементы",
       tag: FormRulesTags.Form,
       defaultValue: [],
       fromPartialYAML: true,
@@ -231,6 +231,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "VerticalFormScroll",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "auto",
     },
     verticalSpacing: {
       yaml: "ВертикальныйИнтервал",

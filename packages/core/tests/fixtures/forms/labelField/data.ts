@@ -2,10 +2,21 @@ import {
   LabelField,
   LabelFieldEnterprise,
   LabelFieldPartialYAML,
-  LabelFieldTypedYAML,
+  TableLabelField,
+  TableLabelFieldEnterprise,
+  TableLabelFieldPartialYAML,
+  TableLabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldEnterpriseTableRelatedFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+  fullFormFieldTableRelatedFixture,
+  fullFormFieldTableRelatedPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {
@@ -14,72 +25,6 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
   title: {
     items: { ru: "Поле надписи" },
   },
-  autoCellHeight: true,
-  cellHyperlink: true,
-  dataPath: "Объект.Реквизит",
-  defaultItem: true,
-  displayImportance: "High",
-  editMode: "EnterOnInput",
-  enabled: true,
-  fixingInTable: "None",
-  footerBackColor: { type: "WebColor", value: "White" },
-  footerDataPath: "Объект.РеквизитПодвала",
-  footerFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  footerHorizontalAlign: "Left",
-  footerPicture: {
-    type: "StandardPicture",
-    ref: "Print",
-    loadTransparent: true,
-  },
-  footerText: {
-    items: { ru: "Текст подвала" },
-  },
-  footerTextColor: { type: "WebColor", value: "Black" },
-  headerHorizontalAlign: "Left",
-  headerPicture: {
-    type: "StandardPicture",
-    ref: "Print",
-    loadTransparent: true,
-  },
-  horizontalAlign: "Left",
-  horizontalAlignInGroup: "Left",
-  readOnly: false,
-  shortcut: "Ctrl+S",
-  showInFooter: true,
-  showInHeader: true,
-  skipOnInput: false,
-  titleBackColor: { type: "WebColor", value: "Blue" },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleHeight: 20,
-  titleLocation: "Left",
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "InputField",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlign: "Top",
-  verticalAlignInGroup: "Top",
-  visible: true,
-  warningOnEdit: {
-    items: { ru: "Предупреждение" },
-  },
-  warningOnEditRepresentation: "DontShow",
-  contextMenu: {
-    itemType: "ContextMenu",
-    autofill: false,
-    childItems: [],
-  },
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
-  table: "Таблица",
-  typeRestriction: { type: ["string"] },
   autoMaxHeight: true,
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "Blue" },
@@ -104,62 +49,22 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
     click: "ПроцедураНажатия",
     uRLProcessing: "ПроцедураОбработкиURL",
   },
+  ...fullFormFieldCommonFixture,
+}
+
+export const fullTableLabelField: RequiredFieldsElement<TableLabelField> = {
+  ...fullLabelField,
+  itemType: "TableLabelField",
+  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
-  АвтоВысотаЯчейки: "Истина",
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
-  АктивизироватьПоУмолчанию: "Истина",
-  ВажностьПриОтображении: "Высокая",
-  ВертикальноеПоложение: "Верх",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ПолеВвода",
-  Видимость: "Истина",
-  Высота: 200,
-  ВысотаЗаголовка: 20,
-  ГиперссылкаЯчейки: "Истина",
-  ГоризонтальноеПоложение: "Лево",
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  ГоризонтальноеПоложениеВПодвале: "Лево",
-  ГоризонтальноеПоложениеВШапке: "Лево",
-  Доступность: "Истина",
-  КартинкаПодвала: "Печать",
-  КартинкаШапки: "Печать",
-  ОтображатьВПодвале: "Истина",
-  ОтображатьВШапке: "Истина",
-  ОтображениеПодсказки: "Нет",
-  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
-  Подсказка: "Подсказка",
-  ПоложениеЗаголовка: "Лево",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  Рамка: {
-    ТипРамки: "Одинарная",
-  },
-  ПредупреждениеПриРедактировании: "Предупреждение",
-  ПропускатьПриВводе: "Ложь",
-  ПутьКДанным: "Объект.Реквизит",
-  ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
-  РежимРедактирования: "ВходПриВводе",
-  СочетаниеКлавиш: "Ctrl+S",
-  ТекстПодвала: "Текст подвала",
-  ТолькоПросмотр: "Ложь",
-  ФиксацияВТаблице: "Нет",
+  Рамка: { ТипРамки: "Одинарная" },
   ЦветРамки: "Зеленый",
-  ЦветТекстаЗаголовка: "Черный",
-  ЦветТекстаПодвала: "Черный",
-  ЦветФонаЗаголовка: "Синий",
-  ЦветФонаПодвала: "Белый",
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  ШрифтПодвала: "ОбычныйШрифтТекста",
-  КонтекстноеМеню: { Автозаполнение: "Ложь" },
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
-  ОграничениеТипа: "Строка",
-  Таблица: "Таблица",
   ВыделятьОтрицательные: "Истина",
   ЦветТекста: "Желтый",
   ЦветФона: "Синий",
@@ -168,17 +73,27 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
   Формат: "Формат",
   Гиперссылка: "Истина",
   РежимПароля: "Истина",
+  Высота: 200,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Нажатие: "ПроцедураНажатия",
     ОбработкаНавигационнойСсылки: "ПроцедураОбработкиURL",
   },
+  АвтоМаксимальнаяВысота: "Истина",
+  АвтоМаксимальнаяШирина: "Истина",
+  ...fullFormFieldPartialYAMLCommonFixture,
+} satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+
+export const fullTableLabelFieldPartialYAML: TableLabelFieldPartialYAML = {
+  ...fullLabelFieldPartialYAML,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 }
 
-export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
-  ...fullLabelFieldPartialYAML,
+export const fullTableLabelFieldTypedYAML: TableLabelFieldTypedYAML = {
+  ...fullTableLabelFieldPartialYAML,
   Тип: "ПолеНадписи",
   Заголовок: "Поле надписи",
+  ПутьКДанным: "Реквизит",
 }
 
 export const minimalLabelField: LabelField = {
@@ -188,7 +103,14 @@ export const minimalLabelField: LabelField = {
 
 export const minimalLabelFieldPartialYAML: LabelFieldPartialYAML = {}
 
-export const minimalLabelFieldTypedYAML: LabelFieldTypedYAML = {
+export const minimalTableLabelField: TableLabelField = {
+  itemType: "TableLabelField",
+  name: "ПолеНадписи",
+}
+
+export const minimalTableLabelFieldPartialYAML: TableLabelFieldPartialYAML = {}
+
+export const minimalTableLabelFieldTypedYAML: TableLabelFieldTypedYAML = {
   Тип: "ПолеНадписи",
 }
 
@@ -235,11 +157,11 @@ export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [
   },
 ]
 
-export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
-  ElementType: "FormField",
+export const fullLabelFieldEnterprise = {
   Name: "prefix_ПолеНадписи",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.LabelField" },
-  AutoCellHeight: true,
+  ElementType: "FormField",
+  Title: "Поле надписи",
   AutoMaxHeight: true,
   AutoMaxWidth: true,
   BackColor: { Type: "Color", Value: "WebColors.Blue" },
@@ -257,39 +179,10 @@ export const fullLabelFieldEnterprise: Required<LabelFieldEnterprise> = {
   TextColor: { Type: "Color", Value: "WebColors.Yellow" },
   VerticalStretch: true,
   Width: 300,
-  CellHyperlink: true,
-  DataPath: "prefix_ОбъектРеквизит",
-  DefaultItem: true,
-  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
-  EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
-  Enabled: true,
-  FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.None" },
-  FooterBackColor: { Type: "Color", Value: "WebColors.White" },
-  FooterDataPath: "prefix_ОбъектРеквизитПодвала",
-  FooterFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  FooterHorizontalAlign: { Type: "SystemEnumeration", Value: "HorizontalAlign.Left" },
-  FooterPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  FooterText: "Текст подвала",
-  FooterTextColor: { Type: "Color", Value: "WebColors.Black" },
-  HeaderHorizontalAlign: { Type: "SystemEnumeration", Value: "HorizontalAlign.Left" },
-  HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  HorizontalAlign: { Type: "SystemEnumeration", Value: "HorizontalAlign.Left" },
-  HorizontalAlignInGroup: { Type: "SystemEnumeration", Value: "HorizontalAlign.Left" },
-  ReadOnly: false,
-  ShowInFooter: true,
-  ShowInHeader: true,
-  SkipOnInput: false,
-  Title: "Поле надписи",
-  TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  TitleHeight: 20,
-  TitleLocation: { Type: "SystemEnumeration", Value: "FormItemTitleLocation.Left" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
-  VerticalAlign: { Type: "SystemEnumeration", Value: "VerticalAlign.Top" },
-  VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "VerticalAlign.Top" },
-  Visible: true,
-  WarningOnEdit: "Предупреждение",
-  WarningOnEditRepresentation: { Type: "SystemEnumeration", Value: "WarningOnEditRepresentation.DontShow" },
-}
+  ...fullFormFieldEnterpriseCommonFixture,
+} satisfies Required<LabelFieldEnterprise>
+
+export const fullTableLabelFieldEnterprise = {
+  ...fullLabelFieldEnterprise,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<TableLabelFieldEnterprise>

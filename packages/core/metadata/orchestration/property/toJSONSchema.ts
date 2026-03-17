@@ -3,6 +3,31 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../formElement/factory"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
+/**
+ * Возвращает YAML-представление defaultValue (для исключения из JSON Schema).
+ * Только для литеральных defaultValue, не для функций.
+ */
+function getDefaultValueYAML(rule: PropertyRule): string | number | undefined {
+  const v = rule.defaultValue
+  if (v === undefined || typeof v === "function") return undefined
+  if (rule.type === "boolean") return v ? "Истина" : "Ложь"
+  if (rule.type === "number" || rule.type === "string") return v
+  if (rule.type === "SystemEnumeration" && typeof v === "string") return v
+  return undefined
+}
+
+/**
+ * Исключает значение по умолчанию из схемы (union/anyOf): убирает вариант с const === defaultYAML.
+ */
+function excludeDefaultFromSchema(schema: TSchema, defaultYAML: string | number): TSchema {
+  const s = schema as { anyOf?: Array<{ const?: unknown }> }
+  if (!s.anyOf || !Array.isArray(s.anyOf)) return schema
+  const rest = s.anyOf.filter((opt) => opt.const !== defaultYAML)
+  if (rest.length === 0) return schema
+  if (rest.length === 1) return rest[0] as TSchema
+  return Type.Union(rest as [TSchema, TSchema, ...TSchema[]])
+}
+
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
@@ -54,6 +79,11 @@ export const exportPropertyToJSONSchema = (params: {
     rule,
     value,
   })
+
+  const defaultYAML = getDefaultValueYAML(rule)
+  if (defaultYAML !== undefined && exportedValue !== undefined) {
+    return excludeDefaultFromSchema(exportedValue, defaultYAML)
+  }
 
   return exportedValue
 }

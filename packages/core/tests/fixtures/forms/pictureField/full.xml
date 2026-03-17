@@ -1,89 +1,25 @@
-<PictureField name="ПолеКартинки" id="1" DisplayImportance="High">
-	<AssociatedTableElementId xsi:type="xs:string">ИсходнаяТаблица</AssociatedTableElementId>
-	<AutoCellHeight>true</AutoCellHeight>
-	<AutoMaxHeight>false</AutoMaxHeight>
-	<AutoMaxWidth>false</AutoMaxWidth>
-	<Border>
-		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
-	</Border>
-	<BorderColor>web:Black</BorderColor>
-	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеКартинкиКонтекстноеМеню" id="2">
-		<Autofill>false</Autofill>
-	</ContextMenu>
-	<DataPath>Объект.Реквизит</DataPath>
+<PictureField name="ПолеКартинки" id="3" DisplayImportance="High">
+	<DataPath>Реквизит</DataPath>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
 	<DefaultItem>true</DefaultItem>
-	<EditMode>EnterOnInput</EditMode>
-	<Enabled>true</Enabled>
-	<EnableDrag>false</EnableDrag>
-	<EnableStartDrag>false</EnableStartDrag>
-	<Events>
-		<Event name="Click">ПроцедураНажатие</Event>
-		<Event name="Drag">ПроцедураПеретаскивание</Event>
-		<Event name="DragCheck">ПроцедураПроверкаПеретаскивания</Event>
-		<Event name="DragEnd">ПроцедураОкончаниеПеретаскивания</Event>
-		<Event name="DragStart">ПроцедураНачалоПеретаскивания</Event>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-	</Events>
-	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="3">
-		<Title formatted="false">
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Расширенная подсказка</v8:content>
-			</v8:item>
-		</Title>
-	</ExtendedTooltip>
-	<FileDragMode>AsFile</FileDragMode>
-	<FixingInTable>None</FixingInTable>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<FooterBackColor>web:White</FooterBackColor>
-	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
-	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-	<FooterPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</FooterPicture>
-	<FooterText>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Текст подвала</v8:content>
-		</v8:item>
-	</FooterText>
-	<FooterTextColor>web:Black</FooterTextColor>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
-	<HeaderPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</HeaderPicture>
-	<Height>200</Height>
-	<HorizontalAlign>Left</HorizontalAlign>
-	<HorizontalStretch>false</HorizontalStretch>
-	<Hyperlink>false</Hyperlink>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<NonselectedPictureText>Текст невыбранной картинки</NonselectedPictureText>
-	<PictureSize>AutoSize</PictureSize>
-	<ReadOnly>false</ReadOnly>
-	<Scale>1</Scale>
-	<Shortcut>Ctrl+S</Shortcut>
-	<ShowInFooter>true</ShowInFooter>
-	<ShowInHeader>true</ShowInHeader>
-	<SkipOnInput>false</SkipOnInput>
-	<TextColor>web:Black</TextColor>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>true</SkipOnInput>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Поле картинки</v8:content>
 		</v8:item>
 	</Title>
+	<TitleTextColor>web:Black</TitleTextColor>
 	<TitleBackColor>web:Blue</TitleBackColor>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleHeight>20</TitleHeight>
 	<TitleLocation>Left</TitleLocation>
-	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleHeight>20</TitleHeight>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -91,32 +27,90 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>InputField</Type>
-	<TypeRestriction>
-		<v8:Type>xs:string</v8:Type>
-		<v8:StringQualifiers>
-			<v8:Length>0</v8:Length>
-			<v8:AllowedLength>Variable</v8:AllowedLength>
-		</v8:StringQualifiers>
-	</TypeRestriction>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
-	<ValuesPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</ValuesPicture>
-	<VerticalAlign>Top</VerticalAlign>
-	<VerticalStretch>false</VerticalStretch>
-	<Visible>true</Visible>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Предупреждение</v8:content>
 		</v8:item>
 	</WarningOnEdit>
-	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<Shortcut>S</Shortcut>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<VerticalAlign>Top</VerticalAlign>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<EditMode>EnterOnInput</EditMode>
+	<CellHyperlink>true</CellHyperlink>
+	<ShowInHeader>false</ShowInHeader>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<ShowInFooter>false</ShowInFooter>
+	<FooterDataPath>РеквизитПодвала</FooterDataPath>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>300</Width>
-	<Zoomable>false</Zoomable>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>400</MaxWidth>
+	<Height>200</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>500</MaxHeight>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<PictureSize>AutoSize</PictureSize>
+	<Zoomable>true</Zoomable>
+	<ImageScale>95</ImageScale>
+	<Hyperlink>true</Hyperlink>
+	<NonselectedPictureText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст невыбранной картинки</v8:content>
+		</v8:item>
+	</NonselectedPictureText>
+	<EnableStartDrag>true</EnableStartDrag>
+	<EnableDrag>true</EnableDrag>
+	<ValuesPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</ValuesPicture>
+	<TextColor>web:Black</TextColor>
+	<BorderColor>web:Black</BorderColor>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<Border width="0">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+	</Border>
+	<FileDragMode>AsFile</FileDragMode>
+	<ContextMenu name="ПолеКартинкиКонтекстноеМеню" id="4">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="5">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="DragCheck">ПроцедураПроверкаПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураНачалоПеретаскивания</Event>
+		<Event name="Drag">ПроцедураПеретаскивание</Event>
+		<Event name="Click">ПроцедураНажатие</Event>
+		<Event name="DragEnd">ПроцедураОкончаниеПеретаскивания</Event>
+	</Events>
 </PictureField>

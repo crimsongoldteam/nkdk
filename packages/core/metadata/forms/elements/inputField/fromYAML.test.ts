@@ -3,37 +3,17 @@ import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/meta
 import {
   fullInputField,
   fullInputFieldPartialYAML,
-  fullInputFieldTypedYAML,
+  fullTableInputField,
+  fullTableInputFieldTypedYAML,
   minimalInputField,
   minimalInputFieldPartialYAML,
-  minimalInputFieldTypedYAML,
+  minimalTableInputField,
+  minimalTableInputFieldTypedYAML,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
-import { InputField } from "./types"
+import { TableInputField } from "./types"
 
 describe("importInputFieldFromYAML", () => {
-  describe("importInputFieldTypedFromYAML", () => {
-    it("should import all fields from YAML", () => {
-      const result = importElementFromTypedYAML<InputField>({
-        context: mockContext,
-        yaml: fullInputFieldTypedYAML,
-        name: "ПолеВвода",
-      })
-
-      expect(result).toEqual(fullInputField)
-    })
-
-    it("should import minimal", () => {
-      const result = importElementFromTypedYAML<InputField>({
-        context: mockContext,
-        yaml: minimalInputFieldTypedYAML,
-        name: "ПолеВвода",
-      })
-
-      expect(result).toEqual(minimalInputField)
-    })
-  })
-
   describe("importInputFieldPartialFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
@@ -55,6 +35,28 @@ describe("importInputFieldFromYAML", () => {
       })
 
       expect(result).toEqual(minimalInputField)
+    })
+  })
+
+  describe("importTableInputFieldTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
+      const result = importElementFromTypedYAML<TableInputField>({
+        context: mockContext,
+        yaml: fullTableInputFieldTypedYAML,
+        name: "ПолеВвода",
+      })
+
+      expect(result).toEqual(fullTableInputField)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromTypedYAML<TableInputField>({
+        context: mockContext,
+        yaml: minimalTableInputFieldTypedYAML,
+        name: "ПолеВвода",
+      })
+
+      expect(result).toEqual(minimalTableInputField)
     })
   })
 })

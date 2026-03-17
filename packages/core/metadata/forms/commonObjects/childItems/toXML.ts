@@ -1,5 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
+import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ChildItem } from "./types"
 
@@ -18,8 +19,9 @@ export const exportChildItemsToXML = <From extends ChildItem>(
       element: item,
       referenceElement: referenceElement,
     })!
+    const xmlTag = getElementXMLTagName(item.itemType)
 
-    return { [item.itemType]: value } as Record<From["itemType"], ElementXML>
+    return { [xmlTag]: value } as Record<From["itemType"], ElementXML>
   })
 
   return result

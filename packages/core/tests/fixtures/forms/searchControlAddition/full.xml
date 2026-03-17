@@ -21,7 +21,7 @@
 		<HorizontalStretch>true</HorizontalStretch>
 		<MaxHeight>500</MaxHeight>
 		<MaxWidth>400</MaxWidth>
-		<Shortcut>Ctrl+S</Shortcut>
+		<Shortcut>S</Shortcut>
 		<SkipOnInput>false</SkipOnInput>
 		<TextColor>web:Blue</TextColor>
 		<Title formatted="false">

@@ -51,7 +51,7 @@ export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
     horizontalStretch: true,
     maxHeight: 500,
     maxWidth: 400,
-    shortcut: "Ctrl+S",
+    shortcut: "S",
     skipOnInput: false,
     textColor: { type: "WebColor", value: "Blue" },
     toolTip: {
@@ -126,7 +126,7 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
     ПропускатьПриВводе: "Ложь",
     РастягиватьПоВертикали: "Истина",
     РастягиватьПоГоризонтали: "Истина",
-    СочетаниеКлавиш: "Ctrl+S",
+    СочетаниеКлавиш: "S",
     ЦветТекста: "Синий",
     Ширина: 300,
     Шрифт: "ОбычныйШрифтТекста",

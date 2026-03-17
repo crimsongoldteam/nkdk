@@ -3,13 +3,16 @@ import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata
 import {
   fullLabelField,
   fullLabelFieldPartialYAML,
-  fullLabelFieldTypedYAML,
+  fullTableLabelField,
+  fullTableLabelFieldTypedYAML,
   minimalLabelField,
+  minimalTableLabelField,
+  minimalTableLabelFieldTypedYAML,
 } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportLabelFieldToYAML", () => {
-  describe("Partial", () => {
+  describe("LabelField partial", () => {
     it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullLabelField })
 
@@ -23,11 +26,17 @@ describe("exportLabelFieldToYAML", () => {
     })
   })
 
-  describe("Typed", () => {
+  describe("TableLabelField typed", () => {
     it("should export all fields to YAML", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: fullLabelField })
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullTableLabelField })
 
-      expect(result).toEqual(fullLabelFieldTypedYAML)
+      expect(result).toEqual(fullTableLabelFieldTypedYAML)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalTableLabelField })
+
+      expect(result).toEqual(minimalTableLabelFieldTypedYAML)
     })
   })
 })

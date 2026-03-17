@@ -47,7 +47,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableCurrentRowUse",
     },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "ValueTable" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", toYAML: false, fromYAML: false, defaultType: "ValueTable" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -57,10 +57,7 @@ export const TableRules = {
     },
     enabled: { yaml: "Доступность", type: "boolean" },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: {
-      yaml: "РазрешитьНачалоПеретаскивания",
-      type: "boolean",
-    },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
@@ -90,6 +87,7 @@ export const TableRules = {
       yaml: "ГоризонтальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
+      defaultValueYAML: "AutoUse",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     initialListView: {
@@ -210,12 +208,14 @@ export const TableRules = {
       xml: "GroupVerticalAlign",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
+      defaultValueYAML: "Auto",
     },
     verticalLines: { yaml: "ВертикальныеЛинии", type: "boolean" },
     verticalScrollBar: {
       yaml: "ВертикальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
+      defaultValueYAML: "AutoUse",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewStatusLocation: {

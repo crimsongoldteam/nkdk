@@ -36,7 +36,7 @@ export const fullCommandBar: RequiredFieldsElement<CommandBar> = {
   horizontalAlignInGroup: "Center",
   horizontalStretch: true,
   readOnly: false,
-  shortcut: "Ctrl+S",
+  shortcut: "S",
   title: {
     items: { ru: "Командная панель" },
   },
@@ -164,7 +164,7 @@ export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
   РасширеннаяПодсказка: {
     Заголовок: "Расширенная подсказка",
   },
-  СочетаниеКлавиш: "Ctrl+S",
+  СочетаниеКлавиш: "S",
   ТолькоПросмотр: "Ложь",
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
