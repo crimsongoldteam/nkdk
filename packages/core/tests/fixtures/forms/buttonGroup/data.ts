@@ -14,7 +14,7 @@ export const fullButtonGroup: ButtonGroup = {
   height: 200,
   horizontalAlignInGroup: "Left",
   horizontalStretch: true,
-  readOnly: true,
+  readOnly: false,
   shortcut: "S",
   titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
   titleTextColor: { type: "WebColor", value: "Black" },

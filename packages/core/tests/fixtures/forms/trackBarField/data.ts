@@ -12,9 +12,9 @@ import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   itemType: "TrackBarField",
-  name: "ПолеПолосыПрокрутки",
+  name: "ЭлементФормы",
   title: {
-    items: { ru: "Поле полосы прокрутки" },
+    items: { ru: "Заголовок элемента" },
   },
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -27,6 +27,13 @@ export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   maxHeight: 200,
   maxWidth: 300,
   width: 200,
+  verticalStretch: false,
+  largeStep: 0,
+  markingStep: 0,
+  maxValue: 0,
+  minValue: 0,
+  orientation: "Vertical",
+  step: 0,
   ...fullFormFieldCommonFixture,
 } satisfies RequiredFieldsElement<TrackBarField>
 
@@ -46,10 +53,17 @@ export const fullTrackBarFieldEnterprise = {
   MaxWidth: 300,
   Orientation: {
     Type: "SystemEnumeration",
-    Value: "FormItemOrientation.Horizontal",
+    Value: "FormItemOrientation.Vertical",
   },
   Width: 200,
   ...fullFormFieldEnterpriseCommonFixture,
+  HorizontalStretch: false,
+  LargeStep: 0,
+  MarkingStep: 0,
+  MaxValue: 0,
+  MinValue: 0,
+  Step: 0,
+  VerticalStretch: false,
 } satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
@@ -64,10 +78,15 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   ОтображениеРазметки: "СверхуИлиСлева",
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<TrackBarFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
->
+  РастягиватьПоГоризонтали: "Ложь",
+  РастягиватьПоВертикали: "Ложь",
+  БольшойШаг: 0,
+  ШагРазметки: 0,
+  МаксимальноеЗначение: 0,
+  МинимальноеЗначение: 0,
+  Ориентация: "Вертикально",
+  Шаг: 0,
+} satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 // Удаляем Заголовок, так как exportFormFieldPropsToYAML не экспортирует его
 delete (fullTrackBarFieldPartialYAML as any).Заголовок

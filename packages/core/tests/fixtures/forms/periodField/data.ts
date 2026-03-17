@@ -47,7 +47,7 @@ export const fullPeriodFieldEnterprise = {
   Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
   AutoMaxHeight: false,
   AutoMaxWidth: false,
-  Border: { Type: "Border", Value: "ControlBorderType.Single" },
+  Border: { Type: "Border", Value: "ControlBorderType.Single", Width: 0 },
   BorderColor: { Type: "Color", Value: "WebColors.Black" },
   Height: 200,
   HorizontalStretch: false,
