@@ -56,11 +56,8 @@ export const TableRules = {
       typeSE: "DisplayImportance",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", runtimeOnly: true },
-    enableStartDrag: {
-      yaml: "РазрешитьНачалоПеретаскивания",
-      type: "boolean",
-    },
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",

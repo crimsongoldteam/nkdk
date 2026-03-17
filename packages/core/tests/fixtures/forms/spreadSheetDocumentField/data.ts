@@ -9,8 +9,6 @@ import {
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
-  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -35,15 +33,12 @@ export const fullSpreadSheetDocumentField = {
   output: "Enable",
   pointerType: "Regular",
   protection: true,
-  selectionShowMode: undefined as never,
   showCellNames: true,
   showGrid: true,
   showGroups: false,
   showHeaders: true,
   showRowAndColumnNames: true,
-  statePresentation: undefined as never,
-  usedFileName: undefined as never,
-  verticalScrollBar: false as any,
+  verticalScrollBar: "DontUse",
   verticalStretch: false,
   viewScalingMode: "Normal",
   width: 300,
@@ -64,7 +59,9 @@ export const fullSpreadSheetDocumentField = {
     onChangeAreaContent: "ПолеТабличногоДокументаПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
+  selectionShowMode: "DontShow",
+  statePresentation: "Picture",
+  usedFileName: "",
 } satisfies RequiredFieldsElement<SpreadSheetDocumentField>
 
 export const fullSpreadSheetDocumentFieldEnterprise = {
@@ -107,9 +104,7 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
   ShowGroups: false,
   ShowHeaders: true,
   ShowRowAndColumnNames: true,
-  StatePresentation: undefined as never,
-  UsedFileName: undefined as never,
-  VerticalScrollBar: undefined as never,
+  VerticalScrollBar: "DontUse",
   VerticalStretch: false,
   ViewScalingMode: {
     Type: "SystemEnumeration",
@@ -136,16 +131,12 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
   ОтображатьИменаСтрокИКолонок: "Истина",
   ОтображатьИменаЯчеек: "Истина",
   ОтображатьСетку: "Истина",
-  РежимОтображенияВыделения: undefined as never,
-  ОтображениеСостояния: undefined as never,
-  ИспользуемоеИмяФайла: undefined as never,
-  РазрешитьНачалоПеретаскивания: "Ложь",
-  РазрешитьПеретаскивание: "Ложь",
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   Редактирование: "Истина",
   РежимМасштабированияПросмотра: "Обычный",
   РежимОтображенияВыделенияРисунков: "НеОтображать",
+  РежимОтображенияВыделения: "Всегда",
   ТипКурсоров: "Обычные",
   ЦветРамки: "Черный",
   ЧерноБелыйПросмотр: "Истина",
@@ -167,7 +158,6 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
     ПриИзмененииСодержимогоОбласти: "ПолеТабличногоДокументаПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<SpreadSheetDocumentFieldPartialYAML>,
   "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"

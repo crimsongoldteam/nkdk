@@ -13,8 +13,8 @@ export const PictureFieldRules = {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     border: { yaml: "Рамка", type: "Border" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", runtimeOnly: true },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", runtimeOnly: true },
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
       type: "SystemEnumeration",
